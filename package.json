@@ -1,0 +1,12 @@
+{
+  "name": "notploy",
+  "version": "1.0.0",
+  "description": "Open Source Alternative to Dokploy, Vercel, Netlify and Heroku.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
