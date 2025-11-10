@@ -1,0 +1,422 @@
+name: Performance Testing
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * *'  # Tous les jours à 6h
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # Tests de charge
+  load-testing:
+    name: Load Testing
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        scenario: [basic-load, peak-load, stress-test]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Artillery
+        run: npm install -g artillery
+
+      - name: Setup test environment
+        run: |
+          # Démarrer l'application pour les tests
+          cd apps/dokploy
+          pnpm install
+          pnpm run build
+          pnpm run start &
+          sleep 30
+
+      - name: Run load test
+        run: |
+          artillery run tests/performance/${{ matrix.scenario }}.yml \
+            --target http://localhost:3000 \
+            --output results-${{ matrix.scenario }}.json
+
+      - name: Generate HTML report
+        run: |
+          artillery report results-${{ matrix.scenario }}.json \
+            --output report-${{ matrix.scenario }}.html
+
+      - name: Check performance thresholds
+        run: |
+          # Vérifier les seuils de performance
+          RESPONSE_TIME=$(jq '.aggregate.responseTimes.mean' results-${{ matrix.scenario }}.json)
+          ERROR_RATE=$(jq '.aggregate.errors' results-${{ matrix.scenario }}.json)
+          
+          echo "Response time: ${RESPONSE_TIME}ms"
+          echo "Error rate: ${ERROR_RATE}%"
+          
+          # Seuils à ajuster selon vos besoins
+          if (( $(echo "$RESPONSE_TIME > 1000" | bc -l) )); then
+            echo "❌ Response time too high: ${RESPONSE_TIME}ms"
+            exit 1
+          fi
+          
+          if (( $(echo "$ERROR_RATE > 1" | bc -l) )); then
+            echo "❌ Error rate too high: ${ERROR_RATE}%"
+            exit 1
+          fi
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results-${{ matrix.scenario }}
+          path: |
+            results-${{ matrix.scenario }}.json
+            report-${{ matrix.scenario }}.html
+
+  # Tests de performance des APIs
+  api-performance:
+    name: API Performance Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          npm install -g autocannon
+          pnpm install
+
+      - name: Setup API for testing
+        run: |
+          # Démarrer l'API
+          cd apps/api
+          pnpm install
+          pnpm run build
+          pnpm run start &
+          sleep 15
+
+      - name: Run API performance tests
+        run: |
+          # Test des endpoints principaux
+          autocannon -c 10 -d 30 http://localhost:3001/api/health > api-health-results.json
+          autocannon -c 5 -d 20 http://localhost:3001/api/applications > api-apps-results.json
+          autocannon -c 3 -d 15 http://localhost:3001/api/deployments > api-deploy-results.json
+
+      - name: Analyze API performance
+        run: |
+          # Analyser les résultats
+          HEALTH_AVG=$(cat api-health-results.json | jq '.requests.average')
+          APPS_AVG=$(cat api-apps-results.json | jq '.requests.average')
+          DEPLOY_AVG=$(cat api-deploy-results.json | jq '.requests.average')
+          
+          echo "API Health avg: ${HEALTH_AVG}ms"
+          echo "API Apps avg: ${APPS_AVG}ms"
+          echo "API Deploy avg: ${DEPLOY_AVG}ms"
+          
+          # Vérifier les seuils
+          if (( $(echo "$HEALTH_AVG > 100" | bc -l) )); then
+            echo "❌ Health endpoint too slow"
+            exit 1
+          fi
+
+      - name: Upload API results
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-performance-results
+          path: |
+            api-*.json
+
+  # Tests de performance des bases de données
+  database-performance:
+    name: Database Performance Testing
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: notploy_perf_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup test database
+        run: |
+          cd apps/dokploy
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/notploy_perf_test" > .env.test
+          pnpm run migration:run
+
+      - name: Run database performance tests
+        run: |
+          cd apps/dokploy
+          pnpm run test:performance
+
+      - name: Analyze database queries
+        run: |
+          # Analyser les requêtes lentes
+          psql "postgresql://postgres:postgres@localhost:5432/notploy_perf_test" -c "
+            SELECT query, mean_time, calls, total_time
+            FROM pg_stat_statements
+            WHERE mean_time > 100
+            ORDER BY mean_time DESC
+            LIMIT 10;
+          " > slow-queries.txt
+
+      - name: Upload database results
+        uses: actions/upload-artifact@v3
+        with:
+          name: database-performance-results
+          path: |
+            slow-queries.txt
+            apps/dokploy/test-results/
+
+  # Tests de performance frontend
+  frontend-performance:
+    name: Frontend Performance Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: |
+          cd apps/dokploy
+          pnpm run build
+
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.12.x
+          
+          cd apps/dokploy
+          pnpm run start &
+          sleep 30
+          
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Run WebPageTest
+        run: |
+          # Installer WebPageTest
+          npm install -g webpagetest
+          
+          # Tester les pages principales
+          webpagetest test http://localhost:3000 --location="us-east-1:Chrome" --first --private
+          webpagetest test http://localhost:3000/login --location="us-east-1:Chrome" --first --private
+
+      - name: Analyze bundle size
+        run: |
+          cd apps/dokploy
+          npx webpack-bundle-analyzer dist/static/js/*.js --mode=json --report=bundle-analysis.json
+
+      - name: Upload frontend results
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-performance-results
+          path: |
+            .lighthouseci/
+            bundle-analysis.json
+
+  # Tests de performance des containers
+  container-performance:
+    name: Container Performance Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker images
+        run: |
+          docker build -f Dockerfile.dokploy -t notploy-test:latest .
+          docker build -f Dockerfile.api -t notploy-api-test:latest .
+
+      - name: Run container performance tests
+        run: |
+          # Démarrer les containers
+          docker run -d --name notploy-test -p 3000:3000 notploy-test:latest
+          docker run -d --name notploy-api-test -p 3001:3001 notploy-api-test:latest
+          
+          sleep 30
+          
+          # Mesurer l'utilisation des ressources
+          docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}" notploy-test notploy-api-test > container-stats.txt
+          
+          # Tester la taille des images
+          docker images --format "table {{.Repository}}\t{{.Size}}" notploy-test:latest notploy-api-test:latest > image-sizes.txt
+
+      - name: Analyze container performance
+        run: |
+          # Analyser les stats
+          CPU_USAGE=$(cat container-stats.txt | grep notploy-test | awk '{print $2}' | sed 's/%//')
+          MEMORY_USAGE=$(cat container-stats.txt | grep notploy-test | awk '{print $3}')
+          
+          echo "CPU Usage: ${CPU_USAGE}%"
+          echo "Memory Usage: ${MEMORY_USAGE}"
+          
+          # Vérifier les seuils
+          if (( $(echo "$CPU_USAGE > 50" | bc -l) )); then
+            echo "❌ CPU usage too high: ${CPU_USAGE}%"
+            exit 1
+          fi
+
+      - name: Cleanup containers
+        if: always()
+        run: |
+          docker stop notploy-test notploy-api-test || true
+          docker rm notploy-test notploy-api-test || true
+
+      - name: Upload container results
+        uses: actions/upload-artifact@v3
+        with:
+          name: container-performance-results
+          path: |
+            container-stats.txt
+            image-sizes.txt
+
+  # Rapport de performance
+  performance-report:
+    name: Performance Report
+    runs-on: ubuntu-latest
+    needs: [load-testing, api-performance, database-performance, frontend-performance, container-performance]
+    if: always()
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts/
+
+      - name: Generate performance report
+        run: |
+          cat > performance-report.md << EOF
+          # Performance Report - ${{ github.sha }}
+          
+          ## Summary
+          - **Load Testing**: ${{ needs.load-testing.result }}
+          - **API Performance**: ${{ needs.api-performance.result }}
+          - **Database Performance**: ${{ needs.database-performance.result }}
+          - **Frontend Performance**: ${{ needs.frontend-performance.result }}
+          - **Container Performance**: ${{ needs.container-performance.result }}
+          
+          ## Key Metrics
+          
+          ### Load Testing
+          - Response Time: $(cat artifacts/performance-results-basic-load/results-basic-load.json | jq '.aggregate.responseTimes.mean')ms
+          - Error Rate: $(cat artifacts/performance-results-basic-load/results-basic-load.json | jq '.aggregate.errors')%
+          - Throughput: $(cat artifacts/performance-results-basic-load/results-basic-load.json | jq '.aggregate.rps') req/s
+          
+          ### API Performance
+          - Health Endpoint: $(cat artifacts/api-performance-results/api-health-results.json | jq '.requests.average')ms
+          - Applications API: $(cat artifacts/api-performance-results/api-apps-results.json | jq '.requests.average')ms
+          - Deployments API: $(cat artifacts/api-performance-results/api-deploy-results.json | jq '.requests.average')ms
+          
+          ### Frontend Performance
+          - Lighthouse Performance: $(cat artifacts/frontend-performance-results/.lighthouseci/lhr.json | jq '.categories.performance.score' | awk '{print $1*100}')%
+          - Bundle Size: $(cat artifacts/frontend-performance-results/bundle-analysis.json | jq '.totalSize') bytes
+          
+          ### Container Performance
+          - CPU Usage: $(cat artifacts/container-performance-results/container-stats.txt | grep notploy-test | awk '{print $2}')
+          - Memory Usage: $(cat artifacts/container-performance-results/container-stats.txt | grep notploy-test | awk '{print $3}')
+          - Image Size: $(cat artifacts/container-performance-results/image-sizes.txt | grep notploy-test | awk '{print $2}')
+          
+          ## Recommendations
+          EOF
+
+          # Ajouter des recommandations basées sur les résultats
+          RESPONSE_TIME=$(cat artifacts/performance-results-basic-load/results-basic-load.json | jq '.aggregate.responseTimes.mean')
+          if (( $(echo "$RESPONSE_TIME > 500" | bc -l) )); then
+            echo "- ⚠️ Response time is above 500ms, consider optimization" >> performance-report.md
+          fi
+          
+          ERROR_RATE=$(cat artifacts/performance-results-basic-load/results-basic-load.json | jq '.aggregate.errors')
+          if (( $(echo "$ERROR_RATE > 0.5" | bc -l) )); then
+            echo "- ⚠️ Error rate is above 0.5%, investigate stability issues" >> performance-report.md
+          fi
+
+      - name: Comment PR with performance report
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('performance-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-report
+          path: performance-report.md
+
+      - name: Notify performance issues
+        if: contains(needs.*.result, 'failure')
+        uses: 8398a7/action-slack@v3
+        with:
+          status: warning
+          channel: '#performance'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          text: |
+            ⚠️ Performance issues detected in build ${{ github.sha }}
+            
+          Please review the performance report and take corrective actions.

@@ -1,0 +1,400 @@
+name: Security Scanning
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 3 * * *'  # Tous les jours à 3h
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # Code scanning avec CodeQL
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    strategy:
+      matrix:
+        language: ['javascript', 'typescript']
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # Scan des dépendances
+  dependency-scan:
+    name: Dependency Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run npm audit
+        run: |
+          pnpm audit --audit-level moderate > audit-report.txt 2>&1 || true
+          cat audit-report.txt
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      - name: Upload Snyk results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: snyk.sarif
+
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'notploy'
+          path: '.'
+          format: 'HTML'
+          out: 'dependency-check-report'
+
+      - name: Upload OWASP results
+        uses: actions/upload-artifact@v3
+        with:
+          name: owasp-report
+          path: dependency-check-report/
+
+  # Scan des secrets
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+      - name: Run detect-secrets
+        run: |
+          pip install detect-secrets
+          detect-secrets scan --all-files --baseline .secrets.baseline > secrets-report.txt 2>&1 || true
+          cat secrets-report.txt
+
+      - name: Upload secrets report
+        uses: actions/upload-artifact@v3
+        with:
+          name: secrets-report
+          path: |
+            secrets-report.txt
+            .secrets.baseline
+
+  # Analyse des containers
+  container-scan:
+    name: Container Security Scanning
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    
+    strategy:
+      matrix:
+        service: [dokploy, api, schedules]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.${{ matrix.service }}
+          load: true
+          tags: test-${{ matrix.service }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: test-${{ matrix.service }}:latest
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Docker Scout
+        run: |
+          docker scout cves --image test-${{ matrix.service }}:latest --format json > docker-scout.json || true
+          cat docker-scout.json
+
+      - name: Run Snyk Container scan
+        uses: snyk/actions/docker@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: test-${{ matrix.service }}:latest
+          args: --severity-threshold=high
+
+  # Analyse statique avancée
+  static-security-analysis:
+    name: Static Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+            p/javascript
+            p/typescript
+
+      - name: Run ESLint security rules
+        run: |
+          pnpm install -D eslint-plugin-security
+          pnpm run lint:security || true
+
+      - name: Run Bandit (Python security)
+        run: |
+          pip install bandit
+          find . -name "*.py" -exec bandit -r {} + || true
+
+      - name: Run Safety (Python dependencies)
+        run: |
+          pip install safety
+          safety check --json > safety-report.json || true
+          cat safety-report.json
+
+  # Tests de pénétration
+  penetration-tests:
+    name: Penetration Testing
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install security testing tools
+        run: |
+          npm install -g @zaproxy/zaproxy
+          pip install sqlmap
+
+      - name: Deploy to test environment
+        run: |
+          # Déployer l'application sur un environnement de test
+          echo "Deploying to test environment..."
+
+      - name: Run OWASP ZAP Baseline Scan
+        run: |
+          mkdir -p zap-reports
+          zap-baseline.py -t ${{ secrets.TEST_URL }} -J zap-report.json || true
+          zap-baseline.py -t ${{ secrets.TEST_URL }} -r zap-report.html || true
+
+      - name: Run SQLMap tests
+        run: |
+          sqlmap -u ${{ secrets.TEST_URL }}/api/test --batch --json --output-dir=sqlmap-results || true
+
+      - name: Upload penetration test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: penetration-test-results
+          path: |
+            zap-reports/
+            sqlmap-results/
+
+  # Vérification de la configuration de sécurité
+  security-config-check:
+    name: Security Configuration Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for hardcoded secrets
+        run: |
+          # Vérifier les mots de passe hardcodés
+          if grep -r -i "password.*=" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist; then
+            echo "❌ Hardcoded passwords found"
+            exit 1
+          fi
+
+          # Vérifier les clés API
+          if grep -r -i "api[_-]key.*=" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist; then
+            echo "❌ Hardcoded API keys found"
+            exit 1
+          fi
+
+      - name: Check file permissions
+        run: |
+          # Vérifier les permissions des fichiers sensibles
+          find . -name "*.key" -type f -exec chmod 600 {} \;
+          find . -name "*.pem" -type f -exec chmod 600 {} \;
+
+      - name: Check Docker security
+        run: |
+          # Vérifier que les Dockerfiles n'utilisent pas root
+          if grep -r "USER root" . --include="Dockerfile*"; then
+            echo "❌ Docker images running as root"
+            exit 1
+          fi
+
+          # Vérifier les expositions de ports
+          if grep -r "EXPOSE 22" . --include="Dockerfile*"; then
+            echo "❌ SSH port exposed in Docker"
+            exit 1
+          fi
+
+      - name: Check environment variables
+        run: |
+          # Vérifier les variables d'environnement par défaut
+          if grep -r "NODE_ENV=production" . --exclude-dir=node_modules --exclude-dir=.git; then
+            echo "⚠️ Production NODE_ENV found in code"
+          fi
+
+  # Rapport de sécurité
+  security-report:
+    name: Security Report
+    runs-on: ubuntu-latest
+    needs: [codeql, dependency-scan, secret-scan, container-scan, static-security-analysis]
+    if: always()
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts/
+
+      - name: Generate security report
+        run: |
+          cat > security-report.md << EOF
+          # Security Report - ${{ github.sha }}
+          
+          ## Summary
+          - **CodeQL**: ${{ needs.codeql.result }}
+          - **Dependency Scan**: ${{ needs.dependency-scan.result }}
+          - **Secret Scan**: ${{ needs.secret-scan.result }}
+          - **Container Scan**: ${{ needs.container-scan.result }}
+          - **Static Analysis**: ${{ needs.static-security-analysis.result }}
+          
+          ## Critical Findings
+          <!-- Add critical findings here -->
+          
+          ## Recommendations
+          <!-- Add security recommendations here -->
+          
+          Generated on: $(date)
+          EOF
+
+      - name: Create security issue if critical findings
+        if: contains(needs.*.result, 'failure')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Security Issues Detected',
+              body: 'Security scan found critical issues. Please review the workflow run and fix the identified vulnerabilities.',
+              labels: ['security', 'critical']
+            });
+
+      - name: Notify security team
+        if: contains(needs.*.result, 'failure')
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#security'
+          webhook_url: ${{ secrets.SECURITY_SLACK_WEBHOOK }}
+          text: '🚨 Security issues detected in build ${{ github.sha }}'
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: security-report.md

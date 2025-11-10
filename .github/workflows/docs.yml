@@ -1,0 +1,221 @@
+name: Documentation Deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+  workflow_dispatch:
+
+jobs:
+  # Build de la documentation
+  build-docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install -g markdownlint-cli
+          npm install -g markdown-link-check
+
+      - name: Lint markdown files
+        run: |
+          find docs/ -name "*.md" -exec markdownlint {} \;
+
+      - name: Check markdown links
+        run: |
+          find docs/ -name "*.md" -exec markdown-link-check {} \; || true
+
+      - name: Generate documentation site
+        run: |
+          mkdir -p docs-site
+          cp -r docs/* docs-site/
+          
+          # Créer l'index
+          cat > docs-site/index.html << EOF
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Notploy Documentation</title>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+              body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+              .header { text-align: center; margin-bottom: 40px; }
+              .nav { background: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 30px; }
+              .nav a { margin-right: 20px; text-decoration: none; color: #333; }
+              .nav a:hover { color: #007bff; }
+              .content { line-height: 1.6; }
+              .footer { text-align: center; margin-top: 40px; color: #666; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>🚀 Notploy Documentation</h1>
+              <p>Alternative open source aux plateformes de déploiement cloud</p>
+            </div>
+            
+            <div class="nav">
+              <a href="README.md">📖 Guide principal</a>
+              <a href="installation.md">🔧 Installation</a>
+              <a href="configuration.md">⚙️ Configuration</a>
+              <a href="deployment.md">🚀 Déploiement</a>
+              <a href="api.md">🔌 API</a>
+              <a href="troubleshooting.md">🔧 Dépannage</a>
+              <a href="github-workflows.md">🔄 Workflows</a>
+            </div>
+            
+            <div class="content">
+              <h2>Bienvenue dans la documentation Notploy</h2>
+              <p>Choisissez une section dans la navigation ci-dessus pour commencer.</p>
+              
+              <h3>📚 Guides rapides</h3>
+              <ul>
+                <li><a href="installation.md">Installation rapide</a> - Démarrez en 5 minutes</li>
+                <li><a href="deployment.md">Premier déploiement</a> - Déployez votre première application</li>
+                <li><a href="api.md">API REST</a> - Intégrez Notploy dans vos outils</li>
+              </ul>
+              
+              <h3>🔧 Ressources avancées</h3>
+              <ul>
+                <li><a href="github-workflows-best-practices.md">Bonnes pratiques GitHub</a></li>
+                <li><a href="troubleshooting.md">Dépannage</a></li>
+              </ul>
+            </div>
+            
+            <div class="footer">
+              <p>Documentation générée le $(date)</p>
+              <p><a href="https://github.com/votre-org/notploy">GitHub Repository</a></p>
+            </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-site
+          path: docs-site/
+
+  # Déploiement sur GitHub Pages
+  deploy-docs:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build-docs
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Download documentation
+        uses: actions/download-artifact@v3
+        with:
+          name: documentation-site
+          path: ./docs-site
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./docs-site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+
+  # Tests de la documentation
+  test-docs:
+    name: Test Documentation
+    runs-on: ubuntu-latest
+    needs: build-docs
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download documentation
+        uses: actions/download-artifact@v3
+        with:
+          name: documentation-site
+          path: ./docs-site
+
+      - name: Test documentation links
+        run: |
+          # Installer les outils de test
+          npm install -g html-validator
+          
+          # Valider le HTML
+          html-validator docs-site/index.html || true
+
+      - name: Check for broken links
+        run: |
+          # Utiliser un checker de liens
+          npm install -g broken-link-checker
+          broken-link-checker http://localhost:8000 --recursive || true
+
+      - name: Start local server for testing
+        run: |
+          cd docs-site
+          python3 -m http.server 8000 &
+          sleep 5
+
+      - name: Run accessibility tests
+        run: |
+          npm install -g pa11y
+          pa11y http://localhost:8000 || true
+
+  # Notification de mise à jour
+  notify-docs:
+    name: Notify Documentation Update
+    runs-on: ubuntu-latest
+    needs: [deploy-docs, test-docs]
+    if: github.ref == 'refs/heads/main' && needs.deploy-docs.result == 'success'
+    
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#documentation'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          text: |
+            📚 Documentation mise à jour !
+            
+            URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+            Commit: ${{ github.sha }}
+            Auteur: ${{ github.actor }}
+
+      - name: Create issue for documentation review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Documentation Review Required',
+              body: `## Documentation Update Review\n\nThe documentation has been updated with commit ${{ github.sha }}.\n\n### Changes\n\nPlease review the documentation at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/\n\n### Review Checklist\n- [ ] All links work correctly\n- [ ] Content is accurate and up-to-date\n- [ ] Screenshots are current\n- [ ] Code examples are tested\n- [ ] Spelling and grammar are correct\n\n### Tasks\n- [ ] Review the updated documentation\n- [ ] Test any new procedures\n- [ ] Update any related internal documentation`,
+              labels: ['documentation', 'review-required']
+            });

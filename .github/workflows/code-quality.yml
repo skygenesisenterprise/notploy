@@ -1,0 +1,407 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 2 * * 1'  # Tous les lundis à 2h
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # Linting et formatting
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Biome check
+        run: pnpm run check
+
+      - name: Run Biome format check
+        run: pnpm run format:check
+
+      - name: Check for console.log statements
+        run: |
+          if grep -r "console.log" apps/ --exclude-dir=node_modules --exclude-dir=dist; then
+            echo "❌ console.log statements found in code"
+            exit 1
+          else
+            echo "✅ No console.log statements found"
+          fi
+
+      - name: Check for TODO comments
+        run: |
+          TODO_COUNT=$(grep -r "TODO" apps/ --exclude-dir=node_modules --exclude-dir=dist | wc -l)
+          if [ $TODO_COUNT -gt 0 ]; then
+            echo "⚠️ Found $TODO_COUNT TODO comments"
+            grep -r "TODO" apps/ --exclude-dir=node_modules --exclude-dir=dist
+          else
+            echo "✅ No TODO comments found"
+          fi
+
+  # Analyse statique du code
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run TypeScript compiler check
+        run: pnpm run typecheck
+
+      - name: Run ESLint (legacy)
+        run: pnpm run lint:eslint
+
+      - name: Complexity analysis
+        uses: ./.github/actions/complexity-analysis
+        with:
+          threshold: 10
+
+      - name: Duplicate code detection
+        uses: ./.github/actions/duplicate-detection
+        with:
+          threshold: 5
+
+  # Tests unitaires
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests
+        run: pnpm run test:unit
+
+      - name: Generate coverage report
+        run: pnpm run test:coverage
+
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=$(pnpm run test:coverage:json | jq '.total.lines.pct')
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "❌ Coverage $COVERAGE% is below 80%"
+            exit 1
+          else
+            echo "✅ Coverage $COVERAGE% meets requirements"
+          fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unit-tests
+          name: codecov-umbrella
+
+  # Tests d'intégration
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: notploy_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup test environment
+        run: |
+          cp apps/dokploy/.env.example apps/dokploy/.env.test
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/notploy_test" >> apps/dokploy/.env.test
+
+      - name: Run database migrations
+        run: |
+          cd apps/dokploy
+          pnpm run migration:run
+
+      - name: Run integration tests
+        run: pnpm run test:integration
+
+  # Tests E2E
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright
+        run: pnpm exec playwright install --with-deps
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Start application
+        run: |
+          cd apps/dokploy
+          pnpm run start &
+          sleep 30
+
+      - name: Run E2E tests
+        run: pnpm run test:e2e
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # Analyse de la complexité
+  complexity-analysis:
+    name: Complexity Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install complexity tools
+        run: npm install -g complexity-report
+
+      - name: Run complexity analysis
+        run: |
+          complexity-report -f json -o complexity.json apps/dokploy/src/
+          complexity-report -f json -o complexity-api.json apps/api/src/
+          complexity-report -f json -o complexity-schedules.json apps/schedules/src/
+
+      - name: Check complexity thresholds
+        run: |
+          # Vérifier que la complexité moyenne est < 10
+          MAIN_COMPLEXITY=$(jq '.average' complexity.json)
+          API_COMPLEXITY=$(jq '.average' complexity-api.json)
+          SCHEDULES_COMPLEXITY=$(jq '.average' complexity-schedules.json)
+          
+          echo "Main app complexity: $MAIN_COMPLEXITY"
+          echo "API complexity: $API_COMPLEXITY"
+          echo "Schedules complexity: $SCHEDULES_COMPLEXITY"
+          
+          if (( $(echo "$MAIN_COMPLEXITY > 10" | bc -l) )); then
+            echo "❌ Main app complexity too high"
+            exit 1
+          fi
+          
+          if (( $(echo "$API_COMPLEXITY > 10" | bc -l) )); then
+            echo "❌ API complexity too high"
+            exit 1
+          fi
+          
+          if (( $(echo "$SCHEDULES_COMPLEXITY > 10" | bc -l) )); then
+            echo "❌ Schedules complexity too high"
+            exit 1
+          fi
+
+      - name: Upload complexity reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: complexity-reports
+          path: |
+            complexity.json
+            complexity-api.json
+            complexity-schedules.json
+
+  # Vérification des dépendances
+  dependency-check:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for outdated dependencies
+        run: pnpm outdated || true
+
+      - name: Check for security vulnerabilities
+        run: pnpm audit --audit-level moderate
+
+      - name: Check package sizes
+        uses: preactjs/compressed-size-action@v2
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          pattern: "./dist/**/*.{js,css,html}"
+          exclude: "{./dist/**/*.map,./dist/**/manifest.json}"
+
+  # Rapport de qualité
+  quality-report:
+    name: Quality Report
+    runs-on: ubuntu-latest
+    needs: [lint, static-analysis, unit-tests, integration-tests, e2e-tests, complexity-analysis]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts/
+
+      - name: Generate quality report
+        run: |
+          cat > quality-report.md << EOF
+          # Quality Report - ${{ github.sha }}
+          
+          ## Summary
+          - **Lint**: ${{ needs.lint.result }}
+          - **Static Analysis**: ${{ needs.static-analysis.result }}
+          - **Unit Tests**: ${{ needs.unit-tests.result }}
+          - **Integration Tests**: ${{ needs.integration-tests.result }}
+          - **E2E Tests**: ${{ needs.e2e-tests.result }}
+          - **Complexity Analysis**: ${{ needs.complexity-analysis.result }}
+          
+          ## Coverage
+          Coverage reports are available in the artifacts.
+          
+          ## Complexity
+          Complexity reports are available in the artifacts.
+          
+          Generated on: $(date)
+          EOF
+
+      - name: Comment PR with quality report
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('quality-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+      - name: Upload quality report
+        uses: actions/upload-artifact@v3
+        with:
+          name: quality-report
+          path: quality-report.md
