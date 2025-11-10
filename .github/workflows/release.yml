@@ -233,8 +233,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-       - name: Set up Docker Buildx
-         uses: docker/setup-buildx-action@v3.8.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.8.0
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3.3.0
@@ -243,9 +243,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-       - name: Extract metadata
-         id: meta
-         uses: docker/metadata-action@v5.6.1
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5.6.1
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
           tags: |
@@ -559,8 +559,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-       - name: Set up Docker Buildx
-         uses: docker/setup-buildx-action@v3.8.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.8.0
 
       - name: Log in to ${{ matrix.registry }}
         uses: docker/login-action@v3.3.0
@@ -569,9 +569,9 @@ jobs:
           username: ${{ secrets[format('{0}_USERNAME', matrix.registry)] }}
           password: ${{ secrets[format('{0}_TOKEN', matrix.registry)] }}
 
-       - name: Extract metadata
-         id: meta
-         uses: docker/metadata-action@v5.6.1
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5.6.1
         with:
           images: ${{ matrix.registry == 'dockerhub' && format('{0}/notploy', secrets.DOCKERHUB_USERNAME) || format('quay.io/{0}/notploy', secrets.QUAY_USERNAME) }}
           tags: |
