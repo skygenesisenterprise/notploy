@@ -186,11 +186,28 @@ jobs:
           version: 9.15.4
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          if [ "${{ matrix.service }}" = "dokploy" ]; then
+            cd apps/dokploy && pnpm install --frozen-lockfile
+          elif [ "${{ matrix.service }}" = "api" ]; then
+            cd apps/api && pnpm install --frozen-lockfile
+          elif [ "${{ matrix.service }}" = "schedules" ]; then
+            cd apps/schedules && pnpm install --frozen-lockfile
+          elif [ "${{ matrix.service }}" = "monitoring" ]; then
+            echo "Monitoring is a Go application, no Node.js dependencies needed"
+          fi
 
       - name: Build applications
         run: |
-          pnpm run build
+          if [ "${{ matrix.service }}" = "dokploy" ]; then
+            cd apps/dokploy && pnpm run build
+          elif [ "${{ matrix.service }}" = "api" ]; then
+            cd apps/api && pnpm run build
+          elif [ "${{ matrix.service }}" = "schedules" ]; then
+            cd apps/schedules && pnpm run build
+          elif [ "${{ matrix.service }}" = "monitoring" ]; then
+            echo "Monitoring is a Go application, build handled by Dockerfile"
+          fi
 
       - name: Create binary for ${{ matrix.platform }}-${{ matrix.arch }}
         shell: bash
@@ -281,8 +298,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6.9.0
         with:
-          context: .
-          file: ./${{ matrix.dockerfile }}
+          context: ${{ matrix.service == 'dokploy' && 'apps/dokploy' || (matrix.service == 'api' && 'apps/api' || (matrix.service == 'schedules' && 'apps/schedules' || 'monitoring')) }}
+          file: ${{ matrix.service == 'dokploy' && 'apps/dokploy/Dockerfile' || (matrix.service == 'api' && 'apps/api/Dockerfile' || (matrix.service == 'schedules' && 'apps/schedules/Dockerfile' || 'Dockerfile.monitoring')) }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
