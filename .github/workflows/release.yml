@@ -224,6 +224,12 @@ jobs:
           # Créer le nom de fichier
           FILENAME="notploy-${VERSION}-${{ matrix.platform }}-${{ matrix.arch }}"
           
+          # Construire l'application dokploy
+          cd apps/dokploy
+          pnpm install --frozen-lockfile
+          pnpm run build
+          cd ../../
+          
           if [ "${{ matrix.platform }}" = "windows" ]; then
             # Pour Windows, créer un ZIP
             cd apps/dokploy/dist
@@ -298,8 +304,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6.9.0
         with:
-          context: ${{ matrix.service == 'dokploy' && 'apps/dokploy' || (matrix.service == 'api' && 'apps/api' || (matrix.service == 'schedules' && 'apps/schedules' || 'monitoring')) }}
-          file: ${{ matrix.service == 'dokploy' && 'apps/dokploy/Dockerfile' || (matrix.service == 'api' && 'apps/api/Dockerfile' || (matrix.service == 'schedules' && 'apps/schedules/Dockerfile' || 'Dockerfile.monitoring')) }}
+          context: .
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
