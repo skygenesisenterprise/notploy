@@ -51,7 +51,7 @@ export const ShowProviderForm = ({ applicationId }: Props) => {
 	const { mutateAsync: disconnectGitProvider } =
 		api.application.disconnectGitProvider.useMutation();
 
-	const [tab, setSab] = useState<TabState>(application?.sourceType || "github");
+	const [tab, setTab] = useState<TabState>(application?.sourceType || "github");
 
 	const isLoading =
 		isLoadingGithub || isLoadingGitlab || isLoadingBitbucket || isLoadingGitea;
@@ -150,7 +150,7 @@ export const ShowProviderForm = ({ applicationId }: Props) => {
 					value={tab}
 					className="w-full"
 					onValueChange={(e) => {
-						setSab(e as TabState);
+						setTab(e as TabState);
 					}}
 				>
 					<div className="flex flex-row items-center justify-between w-full overflow-auto">

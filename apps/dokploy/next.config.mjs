@@ -5,7 +5,7 @@
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
-	reactStrictMode: true,
+	reactStrictMode: false, // Temporarily disable to help with build issues
 	eslint: {
 		ignoreDuringBuilds: true,
 	},
@@ -13,6 +13,21 @@ const nextConfig = {
 		ignoreBuildErrors: true,
 	},
 	transpilePackages: ["@dokploy/server"],
+	experimental: {
+		// Try to optimize the build process
+		optimizeCss: true,
+		optimizePackageImports: ["lucide-react", "@radix-ui/react-icons"],
+	},
+	webpack: (config, { isServer }) => {
+		// Try to resolve circular dependencies
+		if (isServer) {
+			config.externals = config.externals || [];
+			config.externals.push({
+				"@trpc/react-query/server": "commonjs @trpc/react-query/server",
+			});
+		}
+		return config;
+	},
 	/**
 	 * If you are using `appDir` then you must comment the below `i18n` config out.
 	 *

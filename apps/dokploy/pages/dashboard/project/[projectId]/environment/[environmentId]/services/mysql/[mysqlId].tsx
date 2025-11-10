@@ -55,7 +55,7 @@ const MySql = (
 	const { mysqlId, activeTab } = props;
 	const router = useRouter();
 	const { projectId, environmentId } = router.query;
-	const [tab, setSab] = useState<TabState>(activeTab);
+	const [tab, setTab] = useState<TabState>(activeTab);
 	const { data } = api.mysql.one.useQuery({ mysqlId });
 	const { data: auth } = api.user.get.useQuery();
 
@@ -182,7 +182,7 @@ const MySql = (
 										defaultValue="general"
 										className="w-full"
 										onValueChange={(e) => {
-											setSab(e as TabState);
+											setTab(e as TabState);
 											const newPath = `/dashboard/project/${projectId}/environment/${environmentId}/services/mysql/${mysqlId}?tab=${e}`;
 
 											router.push(newPath, undefined, { shallow: true });

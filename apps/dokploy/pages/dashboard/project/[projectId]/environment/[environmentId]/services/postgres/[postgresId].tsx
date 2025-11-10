@@ -55,7 +55,7 @@ const Postgresql = (
 	const { postgresId, activeTab } = props;
 	const router = useRouter();
 	const { projectId, environmentId } = router.query;
-	const [tab, setSab] = useState<TabState>(activeTab);
+	const [tab, setTab] = useState<TabState>(activeTab);
 	const { data } = api.postgres.one.useQuery({ postgresId });
 	const { data: auth } = api.user.get.useQuery();
 
@@ -180,7 +180,7 @@ const Postgresql = (
 									defaultValue="general"
 									className="w-full"
 									onValueChange={(e) => {
-										setSab(e as TabState);
+										setTab(e as TabState);
 										const newPath = `/dashboard/project/${projectId}/environment/${environmentId}/services/postgres/${postgresId}?tab=${e}`;
 
 										router.push(newPath, undefined, {

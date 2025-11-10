@@ -40,7 +40,7 @@ export const ShowProviderFormCompose = ({ composeId }: Props) => {
 		api.compose.disconnectGitProvider.useMutation();
 
 	const { data: compose, refetch } = api.compose.one.useQuery({ composeId });
-	const [tab, setSab] = useState<TabState>(compose?.sourceType || "github");
+	const [tab, setTab] = useState<TabState>(compose?.sourceType || "github");
 
 	const isLoading =
 		isLoadingGithub || isLoadingGitlab || isLoadingBitbucket || isLoadingGitea;
@@ -139,7 +139,7 @@ export const ShowProviderFormCompose = ({ composeId }: Props) => {
 					value={tab}
 					className="w-full"
 					onValueChange={(e) => {
-						setSab(e as TabState);
+						setTab(e as TabState);
 					}}
 				>
 					<div className="flex flex-row items-center justify-between w-full overflow-auto">
