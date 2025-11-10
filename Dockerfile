@@ -14,10 +14,18 @@ RUN apt-get update && apt-get install -y python3 make g++ git python3-pip pkg-co
 # Install dependencies
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
+# Clean Next.js cache to avoid build issues
+RUN pnpm --filter=dokploy next clean || true
+
 # Deploy only the dokploy app
 
+# Build server first
+RUN pnpm --filter=dokploy build-server
+
+# Build Next.js app with more memory and verbose output
 ENV NODE_ENV=production
-RUN pnpm --filter=dokploy build
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+RUN pnpm --filter=dokploy build-next
 
 # Create production directory
 RUN mkdir -p /prod/dokploy

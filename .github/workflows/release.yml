@@ -186,6 +186,7 @@ jobs:
           version: 9.15.4
 
       - name: Install dependencies
+        shell: bash
         run: |
           if [ "${{ matrix.service }}" = "dokploy" ]; then
             cd apps/dokploy && pnpm install --frozen-lockfile
@@ -198,6 +199,7 @@ jobs:
           fi
 
       - name: Build applications
+        shell: bash
         run: |
           if [ "${{ matrix.service }}" = "dokploy" ]; then
             cd apps/dokploy && pnpm run build
