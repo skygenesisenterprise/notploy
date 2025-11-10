@@ -26,7 +26,6 @@ jobs:
   validate-version:
     name: Validate Version
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
     
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -41,7 +40,13 @@ jobs:
       - name: Validate version format
         id: version
         run: |
-          VERSION="${{ github.event.inputs.version }}"
+          # Pour les tags pushés, extraire depuis github.ref_name
+          # Pour les déclenchements manuels, utiliser github.event.inputs.version
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
           
           # Accepter les formats "X.Y.Z" ou "vX.Y.Z"
           if [[ $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
@@ -57,7 +62,18 @@ jobs:
             exit 1
           fi
           
-          echo "is_prerelease=${{ github.event.inputs.prerelease }}" >> $GITHUB_OUTPUT
+          # Pour les tags pushés, déterminer si c'est une prerelease
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            # Vérifier si le tag contient des indicateurs de prerelease
+            if [[ $VERSION =~ -[a-zA-Z0-9]+$ ]]; then
+              echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            else
+              echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "is_prerelease=${{ github.event.inputs.prerelease }}" >> $GITHUB_OUTPUT
+          fi
+          
           echo "✅ Version validated: $VERSION"
 
   # Création du changelog
