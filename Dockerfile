@@ -18,11 +18,10 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 ENV NODE_ENV=production
 RUN pnpm --filter=@dokploy/server build
-RUN pnpm --filter=./apps/dokploy run build
 
-RUN pnpm --filter=./apps/dokploy --prod deploy /prod/dokploy
+# Create production directory
+RUN mkdir -p /prod/dokploy
 
-RUN cp -R /usr/src/app/apps/dokploy/.next /prod/dokploy/.next
 RUN cp -R /usr/src/app/apps/dokploy/dist /prod/dokploy/dist
 
 FROM base AS dokploy
@@ -34,15 +33,14 @@ ENV NODE_ENV=production
 RUN apt-get update && apt-get install -y curl unzip zip apache2-utils iproute2 rsync git-lfs && git lfs install && rm -rf /var/lib/apt/lists/*
 
 # Copy only the necessary files
-COPY --from=build /prod/dokploy/.next ./.next
 COPY --from=build /prod/dokploy/dist ./dist
-COPY --from=build /prod/dokploy/next.config.mjs ./next.config.mjs
-COPY --from=build /prod/dokploy/public ./public
-COPY --from=build /prod/dokploy/package.json ./package.json
-COPY --from=build /prod/dokploy/drizzle ./drizzle
+COPY --from=build /usr/src/app/apps/dokploy/package.json ./package.json
+COPY --from=build /usr/src/app/apps/dokploy/drizzle ./drizzle
 COPY .env.production ./.env
-COPY --from=build /prod/dokploy/components.json ./components.json
-COPY --from=build /prod/dokploy/node_modules ./node_modules
+COPY --from=build /usr/src/app/apps/dokploy/components.json ./components.json
+
+# Install production dependencies for server
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 
 # Install docker
