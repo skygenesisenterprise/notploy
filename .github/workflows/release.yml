@@ -42,13 +42,21 @@ jobs:
         id: version
         run: |
           VERSION="${{ github.event.inputs.version }}"
-          if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+          
+          # Accepter les formats "X.Y.Z" ou "vX.Y.Z"
+          if [[ $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+            # Format déjà avec "v"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          elif [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+            # Ajouter "v" si manquant
+            VERSION="v$VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
             echo "❌ Invalid version format: $VERSION"
-            echo "Expected format: X.Y.Z or X.Y.Z-prerelease"
+            echo "Expected format: X.Y.Z or vX.Y.Z or X.Y.Z-prerelease"
             exit 1
           fi
           
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "is_prerelease=${{ github.event.inputs.prerelease }}" >> $GITHUB_OUTPUT
           echo "✅ Version validated: $VERSION"
 
@@ -84,6 +92,13 @@ jobs:
           # Extraire le numéro de version du tag
           if [[ $VERSION == refs/tags/* ]]; then
             VERSION=${VERSION#refs/tags/}
+          fi
+          
+          # S'assurer que la version commence par "v"
+          if [[ ! $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            echo "Expected format: vX.Y.Z or vX.Y.Z-prerelease"
+            exit 1
           fi
           
           # Générer le changelog depuis le dernier tag
@@ -165,7 +180,11 @@ jobs:
         shell: bash
         run: |
           VERSION="${{ needs.validate-version.outputs.version || github.ref_name }}"
-          VERSION=${VERSION#refs/tags/}
+          
+          # Extraire le numéro de version du tag
+          if [[ $VERSION == refs/tags/* ]]; then
+            VERSION=${VERSION#refs/tags/}
+          fi
           
           mkdir -p release
           
@@ -221,8 +240,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Extract metadata
         id: meta
@@ -279,7 +298,11 @@ jobs:
       - name: Download Docker images
         run: |
           VERSION="${{ needs.validate-version.outputs.version || github.ref_name }}"
-          VERSION=${VERSION#refs/tags/}
+          
+          # Extraire le numéro de version du tag
+          if [[ $VERSION == refs/tags/* ]]; then
+            VERSION=${VERSION#refs/tags/}
+          fi
           
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dokploy:$VERSION
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:$VERSION
@@ -288,7 +311,11 @@ jobs:
       - name: Test Docker images
         run: |
           VERSION="${{ needs.validate-version.outputs.version || github.ref_name }}"
-          VERSION=${VERSION#refs/tags/}
+          
+          # Extraire le numéro de version du tag
+          if [[ $VERSION == refs/tags/* ]]; then
+            VERSION=${VERSION#refs/tags/}
+          fi
           
           # Tester que les images démarrent correctement
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dokploy:$VERSION --version || exit 1
@@ -298,7 +325,11 @@ jobs:
       - name: Test release archives
         run: |
           VERSION="${{ needs.validate-version.outputs.version || github.ref_name }}"
-          VERSION=${VERSION#refs/tags/}
+          
+          # Extraire le numéro de version du tag
+          if [[ $VERSION == refs/tags/* ]]; then
+            VERSION=${VERSION#refs/tags/}
+          fi
           
           # Extraire et tester l'archive
           tar -xzf notploy-${VERSION}-linux-amd64.tar.gz
@@ -330,7 +361,11 @@ jobs:
       - name: Prepare release assets
         run: |
           VERSION="${{ needs.validate-version.outputs.version || github.ref_name }}"
-          VERSION=${VERSION#refs/tags/}
+          
+          # Extraire le numéro de version du tag
+          if [[ $VERSION == refs/tags/* ]]; then
+            VERSION=${VERSION#refs/tags/}
+          fi
           
           mkdir -p release-assets
           
@@ -351,33 +386,33 @@ jobs:
           
           ## Docker Hub (Recommandé)
           
-          ### Images disponibles
-          - `skygenesisenterprise/notploy:vx.x.x` - Application principale
-          - `skygenesisenterprise/notploy-api:vx.x.x` - API de déploiement
-          - `skygenesisenterprise/notploy-schedules:vx.x.x` - Service de planification
-          - `skygenesisenterprise/notploy-monitoring:vx.x.x` - Monitoring
+           ### Images disponibles
+           - `skygenesisenterprise/notploy:vVERSION` - Application principale
+           - `skygenesisenterprise/notploy-api:vVERSION` - API de déploiement
+           - `skygenesisenterprise/notploy-schedules:vVERSION` - Service de planification
+           - `skygenesisenterprise/notploy-monitoring:vVERSION` - Monitoring
           
           ### Docker Compose
           ```yaml
           version: '3.8'
           services:
-            app:
-              image: skygenesisenterprise/notploy:vx.x.x
-              ports:
-                - "3000:3000"
-              environment:
-                - DATABASE_URL=postgresql://...
-                - NEXTAUTH_SECRET=your-secret
-              
-            api:
-              image: skygenesisenterprise/notploy-api:vx.x.x
-              ports:
-                - "3001:3001"
-              environment:
-                - DATABASE_URL=postgresql://...
-              
-            schedules:
-              image: skygenesisenterprise/notploy-schedules:vx.x.x
+             app:
+               image: skygenesisenterprise/notploy:vVERSION
+               ports:
+                 - "3000:3000"
+               environment:
+                 - DATABASE_URL=postgresql://...
+                 - NEXTAUTH_SECRET=your-secret
+               
+             api:
+               image: skygenesisenterprise/notploy-api:vVERSION
+               ports:
+                 - "3001:3001"
+               environment:
+                 - DATABASE_URL=postgresql://...
+               
+             schedules:
+               image: skygenesisenterprise/notploy-schedules:vVERSION
               environment:
                 - REDIS_URL=redis://redis:6379
               
@@ -396,24 +431,24 @@ jobs:
           
           Téléchargez le binaire correspondant à votre plateforme :
           
-          ### Linux
-          - [Linux AMD64](notploy-vVERSION-linux-amd64.tar.gz)
-          - [Linux ARM64](notploy-vVERSION-linux-arm64.tar.gz)
-          
-          ### macOS
-          - [macOS AMD64](notploy-vVERSION-darwin-amd64.tar.gz)
-          - [macOS ARM64 (Apple Silicon)](notploy-vVERSION-darwin-arm64.tar.gz)
-          
-          ### Windows
-          - [Windows AMD64](notploy-vVERSION-windows-amd64.zip)
+           ### Linux
+           - [Linux AMD64](notploy-VERSION-linux-amd64.tar.gz)
+           - [Linux ARM64](notploy-VERSION-linux-arm64.tar.gz)
+           
+           ### macOS
+           - [macOS AMD64](notploy-VERSION-darwin-amd64.tar.gz)
+           - [macOS ARM64 (Apple Silicon)](notploy-VERSION-darwin-arm64.tar.gz)
+           
+           ### Windows
+           - [Windows AMD64](notploy-VERSION-windows-amd64.zip)
           
           ### Installation des binaires
           
           #### Linux/macOS
           ```bash
-          # Télécharger et extraire
-          wget https://github.com/skygenesisenterprise/notploy/releases/download/vVERSION/notploy-vVERSION-linux-amd64.tar.gz
-          tar -xzf notploy-vVERSION-linux-amd64.tar.gz
+           # Télécharger et extraire
+           wget https://github.com/skygenesisenterprise/notploy/releases/download/VERSION/notploy-VERSION-linux-amd64.tar.gz
+           tar -xzf notploy-VERSION-linux-amd64.tar.gz
           
           # Rendre exécutable
           chmod +x notploy
@@ -424,8 +459,8 @@ jobs:
           
           #### Windows
           ```powershell
-          # Télécharger et extraire
-          Invoke-WebRequest -Uri "https://github.com/skygenesisenterprise/notploy/releases/download/vVERSION/notploy-vVERSION-windows-amd64.zip" -OutFile "notploy.zip"
+           # Télécharger et extraire
+           Invoke-WebRequest -Uri "https://github.com/skygenesisenterprise/notploy/releases/download/VERSION/notploy-VERSION-windows-amd64.zip" -OutFile "notploy.zip"
           Expand-Archive -Path "notploy.zip" -DestinationPath "."
           
           # Démarrer
@@ -436,7 +471,7 @@ jobs:
           
           Vérifiez l'intégrité des fichiers téléchargés avec les checksums SHA256 :
           ```bash
-          sha256sum -c notploy-vVERSION-linux-amd64.tar.gz.sha256
+           sha256sum -c notploy-VERSION-linux-amd64.tar.gz.sha256
           ```
           
           ## Support
@@ -446,8 +481,8 @@ jobs:
           - Discussions: https://github.com/skygenesisenterprise/notploy/discussions
           EOF
           
-          # Remplacer la version dans le fichier d'installation
-          sed -i "s/vVERSION/v$VERSION/g" release-assets/INSTALL.md
+           # Remplacer la version dans le fichier d'installation
+           sed -i "s/VERSION/$VERSION/g" release-assets/INSTALL.md
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -554,40 +589,3 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  # Notification de la release
-  notify-release:
-    name: Notify Release
-    runs-on: ubuntu-latest
-    needs: [create-release]
-    if: always()
-    
-    steps:
-      - name: Notify Slack
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          channel: '#releases'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          text: |
-            🚀 New release: ${{ needs.validate-version.outputs.version || github.ref_name }}
-            
-            Release notes: https://github.com/${{ github.repository }}/releases/tag/${{ needs.validate-version.outputs.version || github.ref_name }}
-
-      - name: Update documentation
-        if: needs.create-release.result == 'success'
-        run: |
-          # Mettre à jour la documentation avec la nouvelle version
-          echo "Documentation update needed for version ${{ needs.validate-version.outputs.version || github.ref_name }}"
-
-      - name: Create issue for next release
-        if: needs.create-release.result == 'success'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `Prepare for next release after ${{ needs.validate-version.outputs.version || github.ref_name }}`,
-              body: `## Next Release Planning\n\n### Features to consider\n- [ ] Feature 1\n- [ ] Feature 2\n\n### Bug fixes\n- [ ] Bug fix 1\n\n### Technical debt\n- [ ] Refactor 1`,
-              labels: ['release', 'planning']
-            });
