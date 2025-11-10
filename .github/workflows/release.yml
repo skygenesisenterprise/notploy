@@ -183,7 +183,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 9.15.4
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -243,7 +243,15 @@ jobs:
     
     strategy:
       matrix:
-        service: [dokploy, api, schedules, monitoring]
+        include:
+          - service: dokploy
+            dockerfile: Dockerfile
+          - service: api
+            dockerfile: Dockerfile.server
+          - service: schedules
+            dockerfile: Dockerfile.schedule
+          - service: monitoring
+            dockerfile: Dockerfile.monitoring
     
     steps:
       - name: Checkout repository
@@ -274,7 +282,7 @@ jobs:
         uses: docker/build-push-action@v6.9.0
         with:
           context: .
-          file: ./Dockerfile.${{ matrix.service }}
+          file: ./${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -600,7 +608,7 @@ jobs:
         uses: docker/build-push-action@v6.9.0
         with:
           context: .
-          file: ./Dockerfile.dokploy
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
