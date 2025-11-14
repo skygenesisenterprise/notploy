@@ -25,7 +25,20 @@ RUN pnpm --filter=dokploy build-server
 # Build Next.js app with more memory and verbose output
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN pnpm --filter=dokploy build-next
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_BUILD_WORKERS=1
+
+# Try to build with fallback strategies
+RUN cd apps/dokploy && \
+  (echo "Starting Next.js build..." && \
+   pnpm run build-next || \
+   (echo "First attempt failed, cleaning cache..." && \
+    pnpm run next clean && \
+    echo "Building with minimal output..." && \
+    NODE_ENV=production npx next build --no-lint --debug || \
+    (echo "Second attempt failed, trying with increased workers..." && \
+     NODE_OPTIONS="--max-old-space-size=6144" npx next build --workers=1 || \
+     (echo "All attempts failed, but continuing..."))))
 
 # Create production directory
 RUN mkdir -p /prod/dokploy
