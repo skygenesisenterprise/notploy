@@ -602,7 +602,11 @@ jobs:
     
     strategy:
       matrix:
-        registry: [quay]
+        include:
+          - registry: quay
+            dockerfile: Dockerfile
+          - registry: dockerhub
+            dockerfile: Dockerfile.server
     
     steps:
       - name: Checkout repository
@@ -622,7 +626,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.6.1
         with:
-          images: ${{ matrix.registry == 'dockerhub' && format('{0}/notploy', secrets.DOCKERHUB_USERNAME) || format('quay.io/{0}/notploy', secrets.QUAY_USERNAME) }}
+          images: ${{ matrix.registry == 'dockerhub' && format('{0}/notploy', secrets.DOCKER_USERNAME) || format('quay.io/{0}/notploy', secrets.QUAY_USERNAME) }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -633,7 +637,7 @@ jobs:
         uses: docker/build-push-action@v6.9.0
         with:
           context: .
-          file: ./Dockerfile
+          file: ./${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

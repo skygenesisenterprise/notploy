@@ -56,12 +56,15 @@ RUN apt-get update && apt-get install -y curl unzip zip apache2-utils iproute2 r
 # Copy only the necessary files
 COPY --from=build /prod/dokploy/dist ./dist
 COPY --from=build /usr/src/app/apps/dokploy/package.json ./package.json
+COPY --from=build /usr/src/app/packages/server ./packages/server
+COPY pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=build /usr/src/app/apps/dokploy/drizzle ./drizzle
 COPY .env.production ./.env
 COPY --from=build /usr/src/app/apps/dokploy/components.json ./components.json
 
 # Install production dependencies for server
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --no-frozen-lockfile
 
 
 # Install docker

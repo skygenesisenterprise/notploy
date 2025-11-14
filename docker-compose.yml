@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: dokploy-postgres
+    environment:
+      POSTGRES_DB: dokploy
+      POSTGRES_USER: dokploy
+      POSTGRES_PASSWORD: amukds4wi9001583845717ad2
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+
+  # Application principale Dokploy
+  dokploy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dokploy-app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://dokploy:amukds4wi9001583845717ad2@postgres:5432/dokploy
+      PORT: 3000
+    depends_on:
+      - postgres
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - dokploy_data:/app/data
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+
+  # Service API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: dokploy-api
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      - postgres
+      - dokploy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+
+  # Service Schedules
+  schedules:
+    build:
+      context: .
+      dockerfile: Dockerfile.schedule
+    container_name: dokploy-schedules
+    ports:
+      - "4001:4001"
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      - postgres
+      - dokploy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+
+  # Service Monitoring (Go)
+  monitoring:
+    build:
+      context: .
+      dockerfile: Dockerfile.monitoring
+    container_name: dokploy-monitoring
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+    depends_on:
+      - postgres
+      - dokploy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  dokploy_data:
+    driver: local
+
+networks:
+  dokploy-network:
+    driver: bridge
