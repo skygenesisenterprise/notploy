@@ -1,0 +1,13 @@
+{
+	"title": "CLI",
+	"description": "Command-line interface for managing Dokploy from your terminal",
+	"icon": "SquareTerminal",
+	"root": true,
+	"pages": [
+		"---Get Started---",
+		"index",
+		"comparisons",
+		"---Commands---",
+		"..."
+	]
+}

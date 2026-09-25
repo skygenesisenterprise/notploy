@@ -1,0 +1,7 @@
+{
+	"title": "API",
+	"description": "RESTful API reference for programmatic access to Dokploy",
+	"icon": "Code",
+	"root": true,
+	"pages": ["---Get Started---", "index", "---Reference---", "..."]
+}

@@ -1,0 +1,85 @@
+---
+title: Uninstall
+description: "Learn how to uninstall Dokploy on your server"
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+Follow these steps to completely remove Dokploy and its components from your server.
+
+<Steps>
+<Step>
+Remove the docker swarm services created by Dokploy:
+
+   ```bash
+   docker service remove dokploy dokploy-traefik dokploy-postgres dokploy-redis
+   docker container remove -f dokploy-traefik
+   ```
+ 
+</Step>
+ 
+<Step>
+ 
+Remove the docker volumes created by Dokploy:
+
+   ```bash
+   docker volume remove -f dokploy dokploy-postgres dokploy-redis
+   ```
+ 
+</Step>
+
+<Step>
+ 
+Remove the docker network created by Dokploy:
+
+   ```bash
+   docker network remove -f dokploy-network
+   docker network remove -f ingress
+   ```
+ 
+</Step>
+
+<Step>
+
+If you were running a Cluster, then for each worker node, remove all it's services and make it leave the swarm:
+
+   ```bash
+   docker service rm $(docker service ls -q)
+   docker system prune -a -f
+   docker swarm leave
+   ```
+</Step>
+
+<Step>
+
+Make the manager node (where Dokploy is installed) leave the swarm (run it on all manager nodes if you had more than one):
+
+   ```bash
+   docker swarm leave --force
+   ```
+</Step>
+
+<Step>
+
+Docker cleanup to remove leftovers:
+
+   ```bash
+   docker container prune --force
+   docker image prune --all --force
+   docker volume prune --all --force
+   docker builder prune --all --force
+   docker system prune --all --volumes --force
+   ```
+ 
+</Step>
+ 
+<Step>
+
+Remove the dokploy files and directories from your server:
+
+   ```bash
+   sudo rm -rf /etc/dokploy
+   ```
+ 
+</Step>
+</Steps>

@@ -1,0 +1,33 @@
+FROM node:24.4-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+FROM base AS build
+COPY . /usr/src/app
+WORKDIR /usr/src/app
+
+
+# Install dependencies
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --filter=./apps/docs --frozen-lockfile
+
+# Generate OpenAPI documentation from apps/docs/public/openapi.json
+RUN pnpm --filter=./apps/docs run build:docs
+
+ENV NODE_ENV=production
+RUN pnpm --filter=./apps/docs run build
+
+FROM base AS dokploy
+WORKDIR /app
+
+# Set production
+ENV NODE_ENV=production
+
+# Copy standalone output (includes all traced dependencies)
+COPY --from=build /usr/src/app/apps/docs/.next/standalone ./
+# Copy static assets and public files
+COPY --from=build /usr/src/app/apps/docs/.next/static ./apps/docs/.next/static
+COPY --from=build /usr/src/app/apps/docs/public ./apps/docs/public
+
+EXPOSE 3000
+CMD HOSTNAME=0.0.0.0 node apps/docs/server.js
