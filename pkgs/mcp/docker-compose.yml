@@ -1,0 +1,29 @@
+services:
+  dokploy-mcp-http:
+    build: .
+    container_name: dokploy-mcp-http
+    ports:
+      - "${EXTERNAL_PORT:-3000}:3000"
+    environment:
+      - MCP_TRANSPORT=${MCP_TRANSPORT:-http}
+      - DOKPLOY_URL=${DOKPLOY_URL:-https://your-dokploy-server.com}
+      - DOKPLOY_API_KEY=${DOKPLOY_API_KEY:-your_token_here}
+    restart: unless-stopped
+    networks:
+      - mcp-network
+
+  dokploy-mcp-stdio:
+    build: .
+    container_name: dokploy-mcp-stdio
+    environment:
+      - DOKPLOY_URL=${DOKPLOY_URL:-https://your-dokploy-server.com}
+      - DOKPLOY_API_KEY=${DOKPLOY_API_KEY:-your_token_here}
+    restart: "no"
+    stdin_open: true
+    tty: true
+    networks:
+      - mcp-network
+
+networks:
+  mcp-network:
+    driver: bridge
