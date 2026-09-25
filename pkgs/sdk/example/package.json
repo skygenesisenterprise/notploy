@@ -1,0 +1,15 @@
+{
+  "name": "dokploy-sdk-example",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "dependencies": {
+    "@dokploy/sdk": "workspace:*",
+    "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}
