@@ -64,7 +64,7 @@
     "dotenv": "16.4.5",
     "drizzle-dbml-generator": "0.10.0",
     "drizzle-orm": "0.45.2",
-    "drizzle-zod": "0.5.1",
+    "drizzle-zod": "0.8.3",
     "lodash": "4.17.21",
     "micromatch": "4.0.8",
     "nanoid": "3.3.18",
