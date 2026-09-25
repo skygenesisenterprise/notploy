@@ -1,15 +1,26 @@
+# Single source of truth for the whole monorepo: a single `pnpm install` at the
+# root installs every package below. Do not add nested pnpm-workspace.yaml files.
 packages:
-  - "apps/api"
-  - "apps/notploy"
-  - "apps/schedules"
-  - "packages/server"
-  - "pkgs/cli"
-  - "pkgs/sdk"
+  # Main applications
+  - "apps/*"
+  # Publishable/shared libraries
+  - "packages/*"
+  # Nested packages that are not covered by the globs above
+  - "packages/server/src/emails"
+  - "packages/sdk/example"
+  # Marketing site + documentation (single install, shared toolchain)
+  - "web"
+  - "web/apps/*"
+  # Template gallery tooling
+  - "templates/app"
+  - "templates/build-scripts"
+
+# `examples/*` is intentionally NOT part of this workspace: those projects are
+# deployed as-is to a Notploy instance and ship their own pnpm-lock.yaml so they
+# stay reproducible standalone.
 
 # Supply-chain hardening: refuse package versions younger than N days,
 # so newly-published malicious versions get caught/yanked before we install them.
 # Disabled for now — kept breaking builds on unrelated fresh transitive deps
 # (see PR #4679). Re-enable when there's a per-scope threshold or exclude list.
 # minimumReleaseAge: 1440
-
-

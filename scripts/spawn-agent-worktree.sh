@@ -38,7 +38,7 @@ sed -i.bak "s/^PORT=.*/PORT=$FREE_PORT/" apps/notploy/.env
 sed -i.bak -E "s#^(BETTER_AUTH_URL=https?://[^:/]+):[0-9]+#\1:$FREE_PORT#" apps/notploy/.env
 rm -f apps/notploy/.env.bak
 
-pnpm --filter=notploy run dev > "$WORKTREE_PATH/dev-server.log" 2>&1 &
+pnpm --filter=@notploy/app run dev > "$WORKTREE_PATH/dev-server.log" 2>&1 &
 echo $! > "$WORKTREE_PATH/dev-server.pid"
 
 BASE_URL="http://localhost:$FREE_PORT"

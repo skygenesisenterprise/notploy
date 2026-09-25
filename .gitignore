@@ -141,7 +141,8 @@ vite.config.ts.timestamp-*
 # Nodejs pacakge lock files manager 
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
 .pnpmfile.cjs   
+# pnpm-lock.yaml is intentionally NOT ignored: the root pnpm-workspace.yaml is the
+# single source of truth and the Docker builds rely on `pnpm install --frozen-lockfile`.
 
 .opencode/

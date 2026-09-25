@@ -1,5 +1,5 @@
 {
-  "name": "notploy-templates-build-scripts",
+  "name": "@notploy/templates-build-scripts",
   "version": "1.0.0",
   "description": "Build scripts for Notploy Templates validation",
   "private": true,

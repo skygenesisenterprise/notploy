@@ -1,34 +1,40 @@
+# Build from the repository root (the root pnpm-workspace.yaml is the single
+# workspace for the whole monorepo):
+#   docker build -f packages/mcp/Dockerfile .
+
 # ----- Build Stage -----
 FROM node:lts-alpine AS builder
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.22.0 --activate
 
-# Copy package and configuration
-COPY package.json pnpm-lock.yaml tsconfig.json .npmrc ./
-
-# Copy source code
-COPY src ./src
+# Copy the workspace definition + lockfile and the package sources
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/mcp ./packages/mcp
 
 # Install dependencies and build
-RUN pnpm install --frozen-lockfile && pnpm run build
+RUN pnpm install --filter=@notploy/mcp... --frozen-lockfile
+RUN pnpm --filter=@notploy/mcp run build
 
 # ----- Production Stage -----
 FROM node:lts-alpine
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.22.0 --activate
 
-# Copy built artifacts
-COPY --from=builder /app/build ./build
-
-# Copy package.json and lockfile for production install
-COPY package.json pnpm-lock.yaml .npmrc ./
+# Copy workspace definition + lockfile and the package manifest for production install
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/mcp/package.json ./packages/mcp/
 
 # Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+RUN pnpm install --filter=@notploy/mcp --prod --frozen-lockfile --ignore-scripts
+
+# Copy built artifacts
+COPY --from=builder /usr/src/app/packages/mcp/build ./packages/mcp/build
+
+WORKDIR /usr/src/app/packages/mcp
 
 # Expose port 3000 (internal container port)
 EXPOSE 3000
