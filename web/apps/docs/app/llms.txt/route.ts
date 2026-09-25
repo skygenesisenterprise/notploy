@@ -2,7 +2,7 @@ import { source } from "@/lib/source";
 
 export const revalidate = false;
 
-const baseUrl = "https://docs.dokploy.com";
+const baseUrl = "https://docs.notploy.com";
 
 export function GET() {
 	const pages = source.getPages();
@@ -11,9 +11,9 @@ export function GET() {
 	);
 
 	const lines = [
-		"# Dokploy Documentation",
+		"# Notploy Documentation",
 		"",
-		"> Dokploy is an open-source, self-hostable Platform as a Service (PaaS) that simplifies the deployment and management of applications, databases, and services.",
+		"> Notploy is an open-source, self-hostable Platform as a Service (PaaS) that simplifies the deployment and management of applications, databases, and services.",
 		"",
 		"## Docs",
 		"",

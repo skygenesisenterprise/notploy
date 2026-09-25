@@ -29,7 +29,7 @@ async function main() {
   const server = createServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  logger.info("MCP Dokploy CLI server running via stdio");
+  logger.info("MCP Notploy CLI server running via stdio");
 }
 
 main().catch((error) => {

@@ -47,7 +47,7 @@ Postgres database: the app relies on Supabase Auth, Row Level Security, and
 realtime subscriptions, and its schema is applied through the Supabase CLI.
 
 1. Create a Supabase project — either a hosted one at supabase.com, or your
-   own self-hosted instance (Dokploy has a separate **Supabase** template you
+   own self-hosted instance (Notploy has a separate **Supabase** template you
    can deploy for this).
 2. On a machine with Node 20+, clone the Creed repo and push its schema to
    your project:

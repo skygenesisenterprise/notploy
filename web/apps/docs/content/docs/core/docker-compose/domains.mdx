@@ -7,23 +7,23 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 When using Docker Compose, there are **two ways** to configure domains for your services:
 
-## Method 1: Using Dokploy Domains (Recommended)
+## Method 1: Using Notploy Domains (Recommended)
 
-The easiest way to configure domains is using Dokploy's native domain management feature. This method allows you to configure domains directly through the Dokploy UI without manually editing your Docker Compose file.
+The easiest way to configure domains is using Notploy's native domain management feature. This method allows you to configure domains directly through the Notploy UI without manually editing your Docker Compose file.
 
 <Callout type="info">
-  **Recommended**: Since v0.7.0, Dokploy supports domains natively. You can configure your domains directly in the Dokploy UI through the **Domains** tab of your Docker Compose application. This is the simplest and most user-friendly approach.
+  **Recommended**: Since v0.7.0, Notploy supports domains natively. You can configure your domains directly in the Notploy UI through the **Domains** tab of your Docker Compose application. This is the simplest and most user-friendly approach.
 </Callout>
 
 To use this method:
-1. Navigate to your Docker Compose application in Dokploy
+1. Navigate to your Docker Compose application in Notploy
 2. Go to the **Domains** tab
 3. Click **Add Domain** and configure your domain
-4. Dokploy will automatically handle the routing configuration
+4. Notploy will automatically handle the routing configuration
 
 ### How It Works
 
-At runtime, during the deployment phase, Dokploy automatically adds Traefik labels internally to your Docker Compose file. You don't need to manually add these labels - Dokploy handles this automatically based on the domains you configure in the UI.
+At runtime, during the deployment phase, Notploy automatically adds Traefik labels internally to your Docker Compose file. You don't need to manually add these labels - Notploy handles this automatically based on the domains you configure in the UI.
 
 **Example:**
 
@@ -85,25 +85,25 @@ networks:
 **Important Notes:**
 
 - If you don't add any domains through the UI and don't use [Isolated Deployments](/docs/core/docker-compose/utilities#isolated-deployments), your application will be deployed exactly as you specified in your original Docker Compose file - no labels or network modifications will be added.
-- If you're not using [Isolated Deployments](/docs/core/docker-compose/utilities#isolated-deployments), Dokploy will add the `dokploy-network` to the service you selected, however you need to add `dokploy-network` to the other services to maintain connectivity.
-- The Preview Compose button is useful for verifying how Dokploy will modify your compose file before deployment.
-- All label generation and network configuration is handled automatically by Dokploy based on your domain settings.
+- If you're not using [Isolated Deployments](/docs/core/docker-compose/utilities#isolated-deployments), Notploy will add the `notploy-network` to the service you selected, however you need to add `notploy-network` to the other services to maintain connectivity.
+- The Preview Compose button is useful for verifying how Notploy will modify your compose file before deployment.
+- All label generation and network configuration is handled automatically by Notploy based on your domain settings.
 
-For detailed instructions on using Dokploy's domain management, see the [Domains guide](/docs/core/domains).
+For detailed instructions on using Notploy's domain management, see the [Domains guide](/docs/core/domains).
 
 ## Method 2: Manual Configuration (Advanced)
 
 If you prefer to configure domains manually using Traefik labels in your Docker Compose file, you can do so by following the steps below. This method gives you more control but requires manual configuration.
 
 <Callout type="warn">
-  Manual configuration is more complex and requires editing your Docker Compose file. We recommend using Method 1 (Dokploy Domains) unless you have specific requirements that need manual Traefik label configuration.
+  Manual configuration is more complex and requires editing your Docker Compose file. We recommend using Method 1 (Notploy Domains) unless you have specific requirements that need manual Traefik label configuration.
 </Callout>
 
 ### Manual Configuration Steps
 
 Key Steps for manual configuration:
 
-1. Add the service to the `dokploy-network`.
+1. Add the service to the `notploy-network`.
 2. Use Traefik labels to configure routing.
 
 ### Example Scenario
@@ -153,10 +153,10 @@ volumes:
 
 ### Step 1: Add the Network
 
-First, we'll add the dokploy-network to our services:
+First, we'll add the notploy-network to our services:
 
 <Callout type="info">
-  **Tip**: If you prefer to isolate all services and avoid adding them to the `dokploy-network`, you can use the **Isolated Deployments** feature. This feature isolates all services and eliminates the need to manually add them to the dokploy-network. See the [Isolated Deployments guide](/docs/core/docker-compose/utilities#isolated-deployments) for more information.
+  **Tip**: If you prefer to isolate all services and avoid adding them to the `notploy-network`, you can use the **Isolated Deployments** feature. This feature isolates all services and eliminates the need to manually add them to the notploy-network. See the [Isolated Deployments guide](/docs/core/docker-compose/utilities#isolated-deployments) for more information.
 </Callout>
 
 ```yaml
@@ -166,23 +166,23 @@ services:
   frontend:
     # ... (previous configuration)
     networks:
-      - dokploy-network
+      - notploy-network
 
   backend:
     # ... (previous configuration)
     networks:
-      - dokploy-network
+      - notploy-network
 
   database:
     # ... (previous configuration)
     networks:
-      - dokploy-network
+      - notploy-network
 
 volumes:
   db-data:
 
 networks:
-  dokploy-network:
+  notploy-network:
     external: true
 ```
 
@@ -209,10 +209,10 @@ services:
     depends_on:
       - backend
     networks:
-      - dokploy-network
+      - notploy-network
     labels:
       - traefik.enable=true
-      - traefik.http.routers.frontend-app.rule=Host(`frontend.dokploy.com`)
+      - traefik.http.routers.frontend-app.rule=Host(`frontend.notploy.com`)
       - traefik.http.routers.frontend-app.entrypoints=web
       - traefik.http.services.frontend-app.loadbalancer.server.port=3000
 
@@ -229,10 +229,10 @@ services:
     depends_on:
       - database
     networks:
-      - dokploy-network
+      - notploy-network
     labels:
       - traefik.enable=true
-      - traefik.http.routers.backend-app.rule=Host(`backend.dokploy.com`)
+      - traefik.http.routers.backend-app.rule=Host(`backend.notploy.com`)
       - traefik.http.routers.backend-app.entrypoints=web
       - traefik.http.services.backend-app.loadbalancer.server.port=5000
 
@@ -243,14 +243,14 @@ volumes:
   db-data:
 
 networks:
-  dokploy-network:
+  notploy-network:
     external: true
 ```
 
 ### Understanding Traefik Labels
 
 1. `traefik.enable=true` Enables Traefik routing for the service.
-2. `traefik.http.routers.<UNIQUE-RULE>.rule=Host('your-domain.dokploy.com')` Specifies the domain for the service
+2. `traefik.http.routers.<UNIQUE-RULE>.rule=Host('your-domain.notploy.com')` Specifies the domain for the service
 3. `traefik.http.routers.<UNIQUE-RULE>.entrypoints=web` Sets the service to be accessible via HTTP.
 4. `traefik.http.services.<UNIQUE-RULE>.loadbalancer.server.port=3000` Specifies the port your service is using internally.
 
@@ -275,11 +275,11 @@ services:
     expose:
       - 3000
     networks:
-      - dokploy-network
+      - notploy-network
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.http.routers.frontend-app.rule=Host(`frontend.dokploy.com`)
+        - traefik.http.routers.frontend-app.rule=Host(`frontend.notploy.com`)
         - traefik.http.routers.frontend-app.entrypoints=web
         - traefik.http.services.frontend-app.loadbalancer.server.port=3000
 
@@ -290,16 +290,16 @@ services:
     expose:
       - 5000
     networks:
-      - dokploy-network
+      - notploy-network
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.http.routers.backend-app.rule=Host(`backend.dokploy.com`)
+        - traefik.http.routers.backend-app.rule=Host(`backend.notploy.com`)
         - traefik.http.routers.backend-app.entrypoints=web
         - traefik.http.services.backend-app.loadbalancer.server.port=5000
 
 networks:
-  dokploy-network:
+  notploy-network:
     external: true
 ```
 
@@ -315,14 +315,14 @@ networks:
 1. **Port Exposure**: Use `expose` instead of `ports` to limit port access to the container network, avoiding exposure to the host machine.
 2. **DNS Configuration**: Ensure you create `A` records pointing to your domain in your DNS Provider Settings.
 3. **HTTPS**: For HTTPS, you can use Let's Encrypt or other SSL/TLS certificates.
-4. **Isolated Deployments**: As an alternative to manually adding services to `dokploy-network`, you can use the [Isolated Deployments](/docs/core/docker-compose/utilities#isolated-deployments) feature, which automatically isolates all services and handles networking configuration for you.
+4. **Isolated Deployments**: As an alternative to manually adding services to `notploy-network`, you can use the [Isolated Deployments](/docs/core/docker-compose/utilities#isolated-deployments) feature, which automatically isolates all services and handles networking configuration for you.
 
 ### Deployment
 
 With these manual configurations in place, you're now ready to deploy your application using Docker Compose. This setup should be sufficient to get your services up and running with custom domain routing through Traefik.
 
 <Callout type="info">
-  Remember: For most use cases, we recommend using **Method 1 (Dokploy Domains)** as it's simpler and doesn't require manual Docker Compose file editing. See the [Domains guide](/docs/core/domains) for more information.
+  Remember: For most use cases, we recommend using **Method 1 (Notploy Domains)** as it's simpler and doesn't require manual Docker Compose file editing. See the [Domains guide](/docs/core/domains) for more information.
 </Callout>
 
 If you have any further questions or need assistance, join our [Discord server](https://discord.com/invite/2tBnJ3jDJc) and we'll be happy to help.

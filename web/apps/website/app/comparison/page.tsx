@@ -8,74 +8,74 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Dokploy Vs. and PaaS Comparison Pages | Dokploy",
+	title: "Notploy Vs. and PaaS Comparison Pages | Notploy",
 	description:
-		"How does Dokploy compare to other application deployment, database management, and PaaS solutions? Learn on our \"Dokploy vs.\" alternative comparison pages.",
+		"How does Notploy compare to other application deployment, database management, and PaaS solutions? Learn on our \"Notploy vs.\" alternative comparison pages.",
 };
 
 const competitors = [
 	{
 		name: "Coolify",
-		href: "/dokploy-vs-coolify",
+		href: "/notploy-vs-coolify",
 		description:
-			"See how Dokploy's polished UI, monitoring, and automation compare to Coolify's indie-dev approach.",
+			"See how Notploy's polished UI, monitoring, and automation compare to Coolify's indie-dev approach.",
 	},
 	{
 		name: "Portainer",
-		href: "/dokploy-vs-portainer",
+		href: "/notploy-vs-portainer",
 		description:
-			"Compare Dokploy's full deployment platform against Portainer's container management focus.",
+			"Compare Notploy's full deployment platform against Portainer's container management focus.",
 	},
 	{
 		name: "CapRover",
-		href: "/dokploy-vs-caprover",
+		href: "/notploy-vs-caprover",
 		description:
-			"Discover why teams choose Dokploy over CapRover for monitoring, backups, and team collaboration.",
+			"Discover why teams choose Notploy over CapRover for monitoring, backups, and team collaboration.",
 	},
 	{
 		name: "Dokku",
-		href: "/dokploy-vs-dokku",
+		href: "/notploy-vs-dokku",
 		description:
-			"See how Dokploy's visual dashboard and built-in tooling compare to Dokku's CLI-first workflow.",
+			"See how Notploy's visual dashboard and built-in tooling compare to Dokku's CLI-first workflow.",
 	},
 	{
 		name: "Render",
-		href: "/dokploy-vs-render",
+		href: "/notploy-vs-render",
 		description:
-			"Compare Dokploy's self-hosted infrastructure ownership to Render's fully managed, per-service PaaS.",
+			"Compare Notploy's self-hosted infrastructure ownership to Render's fully managed, per-service PaaS.",
 	},
 	{
 		name: "Vercel",
-		href: "/dokploy-vs-vercel",
+		href: "/notploy-vs-vercel",
 		description:
-			"See how Dokploy's Docker-native, full-stack deployment compares to Vercel's serverless, frontend-first platform.",
+			"See how Notploy's Docker-native, full-stack deployment compares to Vercel's serverless, frontend-first platform.",
 	},
 ];
 
-const whyDokploy = [
+const whyNotploy = [
 	{
 		icon: GitBranch,
 		title: "Deploy straight from your repo",
 		description:
-			"Dokploy is built for actual application deployment, not just container management. You connect your repo, push code, and Dokploy handles builds, containers, routing, and SSL without the extra scripts or side tools you end up stitching together elsewhere.",
+			"Notploy is built for actual application deployment, not just container management. You connect your repo, push code, and Notploy handles builds, containers, routing, and SSL without the extra scripts or side tools you end up stitching together elsewhere.",
 	},
 	{
 		icon: Activity,
 		title: "Monitor and back up by default",
 		description:
-			"Dokploy gives you real-time metrics, alerts, and scheduled S3-compatible backups in the same product from day one. That means less setup, fewer moving parts, and a much shorter path from learning that something's wrong to fixing the problem.",
+			"Notploy gives you real-time metrics, alerts, and scheduled S3-compatible backups in the same product from day one. That means less setup, fewer moving parts, and a much shorter path from learning that something's wrong to fixing the problem.",
 	},
 	{
 		icon: Users,
 		title: "Scale across teams and servers",
 		description:
-			"Dokploy fits the way teams actually work once a project stops being a solo side build. With multi-user support, RBAC, project grouping, and multi-server deployments, it gives you room to grow without forcing a platform switch later.",
+			"Notploy fits the way teams actually work once a project stops being a solo side build. With multi-user support, RBAC, project grouping, and multi-server deployments, it gives you room to grow without forcing a platform switch later.",
 	},
 	{
 		icon: Gauge,
 		title: "Move faster in a polished UI",
 		description:
-			"Dokploy keeps the workflow clean, responsive, and predictable, which has a big impact when you're deploying often. It also combines lightweight resource usage with a more refined interface, so you get less friction in the day-to-day and less overhead on the server side.",
+			"Notploy keeps the workflow clean, responsive, and predictable, which has a big impact when you're deploying often. It also combines lightweight resource usage with a more refined interface, so you get less friction in the day-to-day and less overhead on the server side.",
 	},
 ];
 
@@ -96,16 +96,16 @@ export default function ComparisonPage() {
 				<Container className="relative z-10">
 					<div className="mx-auto max-w-4xl text-center">
 						<h1 className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
-							Dokploy vs.
+							Notploy vs.
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
 							Read our comparison pages to discover why so many people are
-							choosing Dokploy.
+							choosing Notploy.
 						</p>
 
 						<Button className="mt-10 rounded-full" asChild>
 							<Link
-								href="https://app.dokploy.com/register"
+								href="https://app.notploy.com/register"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
@@ -128,7 +128,7 @@ export default function ComparisonPage() {
 							>
 								<div className="flex items-center justify-between">
 									<h2 className="text-xl font-semibold text-white">
-										Dokploy vs. {competitor.name}
+										Notploy vs. {competitor.name}
 									</h2>
 									<ArrowRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
 								</div>
@@ -141,17 +141,17 @@ export default function ComparisonPage() {
 				</Container>
 			</section>
 
-			{/* Why Dokploy is the best PaaS solution */}
+			{/* Why Notploy is the best PaaS solution */}
 			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Why Dokploy is the best PaaS solution for scaling teams
+							Why Notploy is the best PaaS solution for scaling teams
 						</h2>
 					</div>
 
 					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2">
-						{whyDokploy.map((item) => (
+						{whyNotploy.map((item) => (
 							<div
 								key={item.title}
 								className="group rounded-2xl border border-border/30 bg-gradient-to-b from-gray-900/50 to-black p-8 transition hover:border-border/60"

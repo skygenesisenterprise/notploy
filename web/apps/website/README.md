@@ -1,6 +1,6 @@
-# Dokploy Website
+# Notploy Website
 
-Main Landing Page of Dokploy
+Main Landing Page of Notploy
 
 ## Development
 

@@ -13,7 +13,7 @@ We recommend not using preview deployments for public repositories, since extern
 
 ## Configuration
 
-By default, Dokploy generates dynamic domains using traefik.me domains, which are free and require no additional configuration. The default port is 3000, but you can adjust this based on your application's requirements. You can also limit the number of  preview deployments per application (default is 3).
+By default, Notploy generates dynamic domains using traefik.me domains, which are free and require no additional configuration. The default port is 3000, but you can adjust this based on your application's requirements. You can also limit the number of  preview deployments per application (default is 3).
 
 ### Custom Domains
 
@@ -23,7 +23,7 @@ If you prefer using a custom domain, you can configure it like this:
 *.mydomain.com
 ```
 
-Dokploy will generate domains following this pattern:
+Notploy will generate domains following this pattern:
 
 ```
 preview-${appName}-${uniqueId}.traefik.me
@@ -32,7 +32,7 @@ preview-${appName}-${uniqueId}.traefik.me
 To make this work, you need to point your wildcard DNS record (*) to your server's IP address.
 
 <Callout type="info">
-**Hint:** If you need to reference the generated domain in the preview deployment's environment variables, you can do so utilising `${{DOKPLOY_DEPLOY_URL}}`. See [variables documentation](/docs/core/variables#service-level-variables) for more information.
+**Hint:** If you need to reference the generated domain in the preview deployment's environment variables, you can do so utilising `${{NOTPLOY_DEPLOY_URL}}`. See [variables documentation](/docs/core/variables#service-level-variables) for more information.
 </Callout>
 
 ## How It Works
@@ -49,7 +49,7 @@ Note: Pull requests to branches other than your configured target branch will no
 ### Filtering labels
 
 If you only want pull requests with a specific label to create preview deployments, you can specify one or multiple in the preview settings.
-Dokploy will check that at least one of the labels is present on the pull request. If you leave the settings field empty, Dokploy will create
+Notploy will check that at least one of the labels is present on the pull request. If you leave the settings field empty, Notploy will create
 preview deployments for all pull requests, regardless of labels.
 
 ### Monitoring Deployments

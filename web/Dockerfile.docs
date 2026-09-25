@@ -17,7 +17,7 @@ RUN pnpm --filter=./apps/docs run build:docs
 ENV NODE_ENV=production
 RUN pnpm --filter=./apps/docs run build
 
-FROM base AS dokploy
+FROM base AS notploy
 WORKDIR /app
 
 # Set production

@@ -71,7 +71,7 @@ export function generateJwt(options?: {
 }
 
 /**
- * Process a string value and replace variables (based on Dokploy's processValue)
+ * Process a string value and replace variables (based on Notploy's processValue)
  */
 export function processValue(
 	value: string,
@@ -202,7 +202,7 @@ export function processValue(
 }
 
 /**
- * Process variables in a template (based on Dokploy's processVariables)
+ * Process variables in a template (based on Notploy's processVariables)
  */
 export function processVariables(
 	variables: Record<string, string>,

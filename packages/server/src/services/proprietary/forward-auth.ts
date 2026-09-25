@@ -1,11 +1,11 @@
-import { IS_CLOUD } from "@dokploy/server/constants";
-import { db } from "@dokploy/server/db";
+import { IS_CLOUD } from "@notploy/server/constants";
+import { db } from "@notploy/server/db";
 import {
 	forwardAuthSettings,
 	server,
 	ssoProvider,
-} from "@dokploy/server/db/schema";
-import { checkServicePermissionAndAccess } from "@dokploy/server/services/permission";
+} from "@notploy/server/db/schema";
+import { checkServicePermissionAndAccess } from "@notploy/server/services/permission";
 import {
 	deriveBaseDomain,
 	deriveCookieSecret,
@@ -14,13 +14,13 @@ import {
 	isForwardAuthRunning,
 	removeForwardAuth,
 	setupForwardAuth,
-} from "@dokploy/server/setup/forward-auth-setup";
-import { manageDomain } from "@dokploy/server/utils/traefik/domain";
+} from "@notploy/server/setup/forward-auth-setup";
+import { manageDomain } from "@notploy/server/utils/traefik/domain";
 import {
 	manageForwardAuthDomain,
 	removeForwardAuthDomain,
 	removeForwardAuthMiddleware,
-} from "@dokploy/server/utils/traefik/forward-auth";
+} from "@notploy/server/utils/traefik/forward-auth";
 import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import { findApplicationById } from "../application";
@@ -264,7 +264,7 @@ export const getForwardAuthServerStatus = async (organizationId: string) => {
 			: [
 					{
 						serverId: null,
-						name: "Dokploy Server (local)",
+						name: "Notploy Server (local)",
 						ipAddress: null,
 					},
 				]),

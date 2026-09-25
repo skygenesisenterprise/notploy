@@ -12,22 +12,22 @@ const inter = Inter({
 
 export const metadata: Metadata = {
 	title: {
-		default: "Dokploy Documentation",
-		template: "%s | Dokploy",
+		default: "Notploy Documentation",
+		template: "%s | Notploy",
 	},
 	description:
 		"Open Source Alternative to Vercel, Netlify and Heroku. Deploy your applications with ease.",
 	keywords: [
-		"dokploy",
+		"notploy",
 		"deployment",
 		"docker",
 		"hosting",
 		"devops",
 		"open source",
 	],
-	authors: [{ name: "Dokploy Team" }],
+	authors: [{ name: "Notploy Team" }],
 	openGraph: {
-		title: "Dokploy Documentation",
+		title: "Notploy Documentation",
 		description: "Open Source Alternative to Vercel, Netlify and Heroku",
 		type: "website",
 	},
@@ -39,7 +39,7 @@ export default function Layout({ children }: LayoutProps<"/">) {
 			<body className="flex flex-col min-h-screen">
 				<GoogleAnalytics gaId="G-HZ71HG38HN" />
 				<OpenPanelComponent
-					apiUrl="https://openpanel.dokploy.com/api"
+					apiUrl="https://openpanel.notploy.com/api"
 					clientId="bf5a178b-7f28-4461-bf47-d63feff15922"
 					trackScreenViews={true}
 					trackOutgoingLinks={true}

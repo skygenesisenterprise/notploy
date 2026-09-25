@@ -2,9 +2,9 @@ import "dotenv/config";
 import { client, projectAll } from "../src/index.ts";
 
 client.setConfig({
-  baseUrl: process.env.DOKPLOY_URL,
+  baseUrl: process.env.NOTPLOY_URL,
   headers: {
-    "x-api-key": process.env.DOKPLOY_TOKEN,
+    "x-api-key": process.env.NOTPLOY_TOKEN,
   },
 });
 

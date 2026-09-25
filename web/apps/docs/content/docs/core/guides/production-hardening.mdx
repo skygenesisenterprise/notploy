@@ -1,11 +1,11 @@
 ---
 title: Production Hardening Guide
-description: A checklist-style guide to hardening a self-hosted Dokploy deployment — host, Docker, Dokploy, Traefik, and database — written to implement in an afternoon and review as a checklist.
+description: A checklist-style guide to hardening a self-hosted Notploy deployment — host, Docker, Notploy, Traefik, and database — written to implement in an afternoon and review as a checklist.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-This guide covers the baseline hardening for a production Dokploy instance: the host it runs on, the Docker engine, Dokploy itself, the Traefik reverse proxy, and the databases it manages. It's written to be implemented end-to-end in an afternoon, and to double as a checklist you can walk through directly (see the [Final Checklist](#8-final-checklist) and [Compliance Mapping](#9-compliance-mapping)).
+This guide covers the baseline hardening for a production Notploy instance: the host it runs on, the Docker engine, Notploy itself, the Traefik reverse proxy, and the databases it manages. It's written to be implemented end-to-end in an afternoon, and to double as a checklist you can walk through directly (see the [Final Checklist](#8-final-checklist) and [Compliance Mapping](#9-compliance-mapping)).
 
 Each ⬜ below is one control to implement and check off; [Section 8](#8-final-checklist) collects all of them into a single table.
 
@@ -15,15 +15,15 @@ Each ⬜ below is one control to implement and check off; [Section 8](#8-final-c
 
 ## 1. Shared Responsibility
 
-Dokploy secures the application layer — authentication, authorization, TLS automation, secrets referencing, audit trails. You're responsible for the infrastructure it runs on: the host OS, the network perimeter, the database engine's placement, and backup storage security.
+Notploy secures the application layer — authentication, authorization, TLS automation, secrets referencing, audit trails. You're responsible for the infrastructure it runs on: the host OS, the network perimeter, the database engine's placement, and backup storage security.
 
-| Layer | Dokploy (the product) | You (the operator) |
+| Layer | Notploy (the product) | You (the operator) |
 |---|---|---|
 | Access control | 2FA, passkeys, RBAC, custom roles, SSO/OIDC/SAML, SCIM (Enterprise) | Assigning least-privilege roles, offboarding users promptly |
 | API/CLI | Token-based auth scoped to your organization, optional expiration, `Access to API/CLI` permission | Who gets that permission, setting an expiration on every token, not sharing tokens across integrations |
-| Secrets | Secrets Provider integration (Vault, Infisical, AWS SM, Doppler, Azure KV, Scaleway) — values never stored in the Dokploy DB when referenced this way | Operating the external vault, least-privilege vault credentials, not pasting raw secrets into env vars |
+| Secrets | Secrets Provider integration (Vault, Infisical, AWS SM, Doppler, Azure KV, Scaleway) — values never stored in the Notploy DB when referenced this way | Operating the external vault, least-privilege vault credentials, not pasting raw secrets into env vars |
 | Reverse proxy / TLS | Traefik auto-config, automatic Let's Encrypt certs, HTTP→HTTPS redirect on Applications | DNS records, custom Traefik middlewares (HSTS, rate limiting), keeping the Traefik dashboard closed |
-| Docker engine | None — Dokploy is a Docker/Swarm consumer, not a daemon hardener | `daemon.json` config, socket exposure, image provenance, host-level container isolation |
+| Docker engine | None — Notploy is a Docker/Swarm consumer, not a daemon hardener | `daemon.json` config, socket exposure, image provenance, host-level container isolation |
 | Host OS | Automated security check (OS, UFW, SSH, Fail2Ban) on servers added via Remote Servers | Patching, SSH configuration, firewall rules, non-root operator accounts |
 | Database engine | Internal/external credential toggle, connection UI | Network placement (internal-only vs. exposed), engine patching if self-managed |
 | Backups | Orchestrates backup/restore to your S3 destination | Bucket security, encryption at rest, retention policy, testing restores |
@@ -31,18 +31,18 @@ Dokploy secures the application layer — authentication, authorization, TLS aut
 
 ## 2. Host OS
 
-Run this section on the box before (or right after) installing Dokploy — as root or via `sudo`.
+Run this section on the box before (or right after) installing Notploy — as root or via `sudo`.
 
-- ⬜ Ubuntu or Debian LTS — the only OS families Dokploy's automated security check currently targets.
+- ⬜ Ubuntu or Debian LTS — the only OS families Notploy's automated security check currently targets.
 - ⬜ `unattended-upgrades` installed and enabled for automatic security patches.
 - ⬜ SSH: key-based authentication only, root login disabled, password authentication disabled.
 - ⬜ Non-standard SSH port (optional — reduces automated scan noise, not a substitute for the above).
 - ⬜ Fail2Ban (or CrowdSec) installed, enabled, and jailing SSH.
-- ⬜ Firewall allowing only **22 (or your custom SSH port), 80, 443**, with `ufw-docker` installed so those rules actually apply to Docker-published ports. Keep Dokploy's UI port (**3000**) closed to the public internet — put it behind Traefik on a domain (see [Certificates](/docs/core/certificates)) or behind a VPN (see the [Tailscale guide](/docs/core/guides/tailscale)).
-- ⬜ A non-root user for day-to-day operations (log review, manual `docker` commands), in the `docker` group. Reserve root for provisioning and the SSH key Dokploy itself uses to manage the host.
+- ⬜ Firewall allowing only **22 (or your custom SSH port), 80, 443**, with `ufw-docker` installed so those rules actually apply to Docker-published ports. Keep Notploy's UI port (**3000**) closed to the public internet — put it behind Traefik on a domain (see [Certificates](/docs/core/certificates)) or behind a VPN (see the [Tailscale guide](/docs/core/guides/tailscale)).
+- ⬜ A non-root user for day-to-day operations (log review, manual `docker` commands), in the `docker` group. Reserve root for provisioning and the SSH key Notploy itself uses to manage the host.
 
 <Callout type="info">
-  Dokploy validates most of this automatically for servers added under **Remote Servers**: OS, UFW status and default policy, SSH key-based auth, and Fail2Ban — see [Remote Servers → Security](/docs/core/remote-servers/security) for the live check.
+  Notploy validates most of this automatically for servers added under **Remote Servers**: OS, UFW status and default policy, SSH key-based auth, and Fail2Ban — see [Remote Servers → Security](/docs/core/remote-servers/security) for the live check.
 </Callout>
 
 ### Commands
@@ -122,8 +122,8 @@ Copy your public key into `/home/deploy/.ssh/authorized_keys` before you rely on
 
 - ⬜ `/etc/docker/daemon.json` hardened — `live-restore`, no userland proxy, log rotation (see Commands below).
 - ⬜ `no-new-privileges` applied — not a daemon-wide setting, it's set per service.
-- ⬜ **Never expose the Docker socket over TCP** (`dockerd -H tcp://...`, ports 2375/2376) on any host Dokploy manages. Dokploy orchestrates remote servers over SSH, not the Docker remote API — a TCP socket isn't required for it to work, and one left open is unauthenticated root on the host.
-- ⬜ Private registry credentials configured in Dokploy (see [Registry](/docs/core/registry)) rather than `docker login` credentials sitting in shell history; use a registry token scoped to pull/push only what's needed.
+- ⬜ **Never expose the Docker socket over TCP** (`dockerd -H tcp://...`, ports 2375/2376) on any host Notploy manages. Notploy orchestrates remote servers over SSH, not the Docker remote API — a TCP socket isn't required for it to work, and one left open is unauthenticated root on the host.
+- ⬜ Private registry credentials configured in Notploy (see [Registry](/docs/core/registry)) rather than `docker login` credentials sitting in shell history; use a registry token scoped to pull/push only what's needed.
 - ⬜ Pin image tags in production (avoid `:latest`) so a redeploy doesn't silently pull an untested image.
 
 ### Commands
@@ -157,12 +157,12 @@ security_opt:
   - no-new-privileges:true
 ```
 
-## 4. Dokploy
+## 4. Notploy
 
 - ⬜ **2FA or passkeys** for every member with panel access — see [Account Security](/docs/core/account-security). Passkeys are phishing-resistant and preferred for day-to-day sign-in.
-- ⬜ **SSO/OIDC or SAML** if you have an IdP (Enterprise) — see [SSO](/docs/core/enterprise/sso). Enterprise lets you **force SSO** for the organization, disabling password-based sign-in so every member authenticates through your IdP (and inherits whatever MFA policy you enforce there). Combine with [SCIM Provisioning](/docs/core/enterprise/scim) to auto-deprovision users the moment they leave your IdP, rather than relying on someone remembering to remove them from Dokploy.
+- ⬜ **SSO/OIDC or SAML** if you have an IdP (Enterprise) — see [SSO](/docs/core/enterprise/sso). Enterprise lets you **force SSO** for the organization, disabling password-based sign-in so every member authenticates through your IdP (and inherits whatever MFA policy you enforce there). Combine with [SCIM Provisioning](/docs/core/enterprise/scim) to auto-deprovision users the moment they leave your IdP, rather than relying on someone remembering to remove them from Notploy.
 - ⬜ **Least-privilege roles.** Use the built-in Member permissions (see [Permissions](/docs/core/permissions)) or, on Enterprise, [Custom Roles](/docs/core/enterprise/custom-roles) scoped per project/environment. Don't hand out Admin by default.
-- ⬜ **Secrets Providers** instead of raw values in env vars — see [Secrets Providers](/docs/core/secrets-providers). Values are fetched at deploy time and never stored in the Dokploy database; your vault stays the source of truth, and rotation there takes effect on the next deploy.
+- ⬜ **Secrets Providers** instead of raw values in env vars — see [Secrets Providers](/docs/core/secrets-providers). Values are fetched at deploy time and never stored in the Notploy database; your vault stays the source of truth, and rotation there takes effect on the next deploy.
 - ⬜ **API/CLI tokens** — restrict the `Access to API/CLI` permission to who actually needs it. Tokens are scoped to your organization and can be created with an expiration — always set one instead of leaving a token to stand forever, issue a separate token per integration (CI, webhook, script) so you can revoke one without breaking the others, and regenerate immediately on offboarding or suspected exposure.
 - ⬜ **Audit Logs** (Enterprise) covering logins, role changes, deployments, and infrastructure changes — see [Audit Logs](/docs/core/enterprise/audit-logs). This is usually the single most-requested control in a security review.
 
@@ -172,16 +172,16 @@ security_opt:
 
 ## 5. Traefik & Networking
 
-- ⬜ TLS is automatic for domains managed through Dokploy's Applications flow — Let's Encrypt via `certResolver`, with an HTTP router that redirects to HTTPS by default. Docker Compose domains use Traefik labels instead and need the same redirect added explicitly — see [Domains](/docs/core/domains) and [Docker Compose Domains](/docs/core/docker-compose/domains).
+- ⬜ TLS is automatic for domains managed through Notploy's Applications flow — Let's Encrypt via `certResolver`, with an HTTP router that redirects to HTTPS by default. Docker Compose domains use Traefik labels instead and need the same redirect added explicitly — see [Domains](/docs/core/domains) and [Docker Compose Domains](/docs/core/docker-compose/domains).
 - ⬜ **HSTS**, applied via a custom middleware — not automatic today (see [Config snippets](#config-snippets) below).
-- ⬜ Keep the **Traefik dashboard** off — it isn't exposed by a default Dokploy install, and it should stay that way unless it's behind auth and off the public network.
+- ⬜ Keep the **Traefik dashboard** off — it isn't exposed by a default Notploy install, and it should stay that way unless it's behind auth and off the public network.
 - ⬜ **Rate limiting** on public-facing services — no UI toggle for this yet, so it also goes through a custom middleware.
-- ⬜ **Isolate networks per project.** By default, apps share `dokploy-network`. For Docker Compose stacks, enable [Isolated Deployments](/docs/core/docker-compose/utilities#isolated-deployments) so each stack gets its own network and containers can't reach services in unrelated projects by name.
+- ⬜ **Isolate networks per project.** By default, apps share `notploy-network`. For Docker Compose stacks, enable [Isolated Deployments](/docs/core/docker-compose/utilities#isolated-deployments) so each stack gets its own network and containers can't reach services in unrelated projects by name.
 - ⬜ No Docker socket over TCP anywhere in the cluster (see [Section 3](#3-docker-engine)) — this is as much a networking control as a Docker one.
 
 ### Config snippets
 
-Dokploy's Applications flow writes a domain config like the one shown in [Domains](/docs/core/domains) — a `routers` + `services` block per domain, editable from the app's **Advanced → Traefik File System** tab. Add a `headers` middleware for HSTS and reference it from the `websecure` router's `middlewares` list:
+Notploy's Applications flow writes a domain config like the one shown in [Domains](/docs/core/domains) — a `routers` + `services` block per domain, editable from the app's **Advanced → Traefik File System** tab. Add a `headers` middleware for HSTS and reference it from the `websecure` router's `middlewares` list:
 
 ```yaml
 http:
@@ -192,10 +192,10 @@ http:
         stsIncludeSubdomains: true
         stsPreload: true
   routers:
-    dokploy-app-name-router-websecure-1:
+    notploy-app-name-router-websecure-1:
       middlewares:
         - secure-headers
-      # ...rest of the router config Dokploy already generated
+      # ...rest of the router config Notploy already generated
 ```
 
 Same file, a `ratelimit` middleware:
@@ -208,7 +208,7 @@ http:
         average: 100
         burst: 50
   routers:
-    dokploy-app-name-router-websecure-1:
+    notploy-app-name-router-websecure-1:
       middlewares:
         - rate-limit
 ```
@@ -218,14 +218,14 @@ http:
 ## 6. Database
 
 - ⬜ Use **Internal Credentials** for anything an application in the same network needs — never enable **External Credentials** (a published port) unless there's a real requirement, and if there is, restrict it with a firewall rule or put it behind a VPN rather than leaving it open to the internet. See [Database Connection](/docs/core/databases/connection).
-- ⬜ **Backups** to an S3 destination — see [Database Backups](/docs/core/databases/backups). Dokploy doesn't encrypt the backup archive itself, so enable encryption at rest on the bucket (SSE-S3 or SSE-KMS) and scope the destination credentials to that bucket only.
+- ⬜ **Backups** to an S3 destination — see [Database Backups](/docs/core/databases/backups). Notploy doesn't encrypt the backup archive itself, so enable encryption at rest on the bucket (SSE-S3 or SSE-KMS) and scope the destination credentials to that bucket only.
 - ⬜ **Test restores.** A backup you haven't restored isn't a backup — see [Restore](/docs/core/databases/restore) (or [Volume Backups](/docs/core/volume-backups) for volumes) and schedule a periodic restore drill. That's the evidence that actually matters, not the backup schedule itself.
 
 ## 7. Observability
 
 - ⬜ **Audit Logs** (Enterprise) as your primary who-did-what trail — see [Audit Logs](/docs/core/enterprise/audit-logs).
-- ⬜ **External log shipping.** Dokploy's built-in Monitoring is currently a Cloud-only feature — for self-hosted, ship container and host logs (Docker's log driver, syslog, or a log shipper) to something outside the box you're monitoring, so a compromised host can't erase its own trail.
-- ⬜ **Alert on auth anomalies** — repeated Fail2Ban bans, spikes in Traefik 401/403s, failed Dokploy logins. Wire up a [notification provider](/docs/core/overview) (Slack, email, webhook) for at least deployment failures and server thresholds as a baseline signal.
+- ⬜ **External log shipping.** Notploy's built-in Monitoring is currently a Cloud-only feature — for self-hosted, ship container and host logs (Docker's log driver, syslog, or a log shipper) to something outside the box you're monitoring, so a compromised host can't erase its own trail.
+- ⬜ **Alert on auth anomalies** — repeated Fail2Ban bans, spikes in Traefik 401/403s, failed Notploy logins. Wire up a [notification provider](/docs/core/overview) (Slack, email, webhook) for at least deployment failures and server thresholds as a baseline signal.
 
 ## 8. Final Checklist
 
@@ -238,14 +238,14 @@ http:
 | 5 | Non-root operator user with scoped sudo | Host OS | ⬜ |
 | 6 | `daemon.json` hardened (live-restore, log rotation) | Docker | ⬜ |
 | 7 | Docker socket never exposed over TCP | Docker | ⬜ |
-| 8 | Registry credentials scoped and stored in Dokploy | Docker | ⬜ |
-| 9 | 2FA or passkeys enabled for every member | Dokploy | ⬜ |
-| 10 | SSO/OIDC configured, and forced org-wide if on Enterprise | Dokploy | ⬜ |
-| 11 | SCIM auto-deprovisioning (if on SSO) | Dokploy | ⬜ |
-| 12 | Roles follow least privilege / Custom Roles in use | Dokploy | ⬜ |
-| 13 | Secrets referenced via a Secrets Provider, not raw env vars | Dokploy | ⬜ |
-| 14 | API/CLI tokens issued per-integration, with an expiration set | Dokploy | ⬜ |
-| 15 | Audit Logs enabled | Dokploy | ⬜ |
+| 8 | Registry credentials scoped and stored in Notploy | Docker | ⬜ |
+| 9 | 2FA or passkeys enabled for every member | Notploy | ⬜ |
+| 10 | SSO/OIDC configured, and forced org-wide if on Enterprise | Notploy | ⬜ |
+| 11 | SCIM auto-deprovisioning (if on SSO) | Notploy | ⬜ |
+| 12 | Roles follow least privilege / Custom Roles in use | Notploy | ⬜ |
+| 13 | Secrets referenced via a Secrets Provider, not raw env vars | Notploy | ⬜ |
+| 14 | API/CLI tokens issued per-integration, with an expiration set | Notploy | ⬜ |
+| 15 | Audit Logs enabled | Notploy | ⬜ |
 | 16 | HTTPS enforced with redirect on every domain | Traefik | ⬜ |
 | 17 | HSTS middleware applied to public domains | Traefik | ⬜ |
 | 18 | Traefik dashboard not publicly exposed | Traefik | ⬜ |
@@ -265,7 +265,7 @@ Illustrative mapping to common SOC 2 Trust Services Criteria and ISO/IEC 27001:2
 |---|---|---|
 | Host OS (patching, SSH, firewall) | CC6.1, CC6.6 — logical & physical access, network protection | A.8.8 (vulnerabilities), A.8.20 (network security) |
 | Docker engine hardening | CC6.1, CC6.8 — access control, malicious software prevention | A.8.9 (config management), A.8.20 |
-| Dokploy: 2FA/SSO/RBAC | CC6.1, CC6.2, CC6.3 — access provisioning & authentication | A.5.15 (access control), A.8.5 (authentication) |
+| Notploy: 2FA/SSO/RBAC | CC6.1, CC6.2, CC6.3 — access provisioning & authentication | A.5.15 (access control), A.8.5 (authentication) |
 | Secrets Providers | CC6.1, CC6.7 — restricted access, data transmission | A.8.24 (cryptography), A.8.12 (data leakage prevention) |
 | Audit Logs | CC7.2 — monitoring for anomalies | A.8.15 (logging), A.5.28 (evidence collection) |
 | Traefik / TLS / HSTS | CC6.7 — encryption in transit | A.8.24 (cryptography), A.8.26 (application security) |

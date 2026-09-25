@@ -1,14 +1,14 @@
-import { db } from "@dokploy/server/db";
+import { db } from "@notploy/server/db";
 import {
 	applications,
 	compose,
 	environments,
 	projects,
-} from "@dokploy/server/db/schema";
+} from "@notploy/server/db/schema";
 import {
 	execAsync,
 	execAsyncRemote,
-} from "@dokploy/server/utils/process/execAsync";
+} from "@notploy/server/utils/process/execAsync";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { IS_CLOUD } from "../constants";
@@ -48,7 +48,7 @@ export interface ServerHealthResult {
 	dockerNetworks: {
 		count: number;
 		addressPools: unknown | null;
-		/** Per-network IP utilization, including reserved networks like dokploy-network */
+		/** Per-network IP utilization, including reserved networks like notploy-network */
 		usage: NetworkIpUsage[];
 		/** Set when `usage` couldn't be read, so the UI can tell that apart from "no networks" */
 		usageError?: string;
@@ -118,7 +118,7 @@ diskTotal=$(df -B1 / 2>/dev/null | awk 'NR==2{print $2}'); [ -z "$diskTotal" ] &
 diskUsed=$(df -B1 / 2>/dev/null | awk 'NR==2{print $3}'); [ -z "$diskUsed" ] && diskUsed=0
 
 networkCount=$(docker network ls -q 2>/dev/null | wc -l | tr -d ' ')
-# /etc/docker/daemon.json isn't mounted into the dokploy container (only docker.sock is), so read
+# /etc/docker/daemon.json isn't mounted into the notploy container (only docker.sock is), so read
 # the effective config over the socket instead of the file.
 daemonConfigB64=$(docker info --format '{{json .DefaultAddressPools}}' 2>/dev/null | base64 2>/dev/null | tr -d '\\n')
 
@@ -174,7 +174,7 @@ type InspectableNetwork = {
 	}>;
 };
 
-// Includes reserved networks like dokploy-network, which are excluded from the `network` table/UI.
+// Includes reserved networks like notploy-network, which are excluded from the `network` table/UI.
 const getNetworksIpUsage = async (
 	serverId: string | undefined,
 ): Promise<NetworkIpUsage[]> => {

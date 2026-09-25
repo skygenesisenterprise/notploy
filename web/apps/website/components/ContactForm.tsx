@@ -235,7 +235,7 @@ export function ContactForm({
 						htmlFor="deploymentType"
 						className="block text-sm font-medium text-foreground"
 					>
-						What version of Dokploy are you using?{" "}
+						What version of Notploy are you using?{" "}
 						<span className="text-red-500">*</span>
 					</label>
 					<Select
@@ -291,7 +291,7 @@ export function ContactForm({
 									<li>
 										Open a discussion on{" "}
 										<a
-											href="https://github.com/Dokploy/dokploy/discussions"
+											href="https://github.com/Notploy/notploy/discussions"
 											target="_blank"
 											rel="noopener noreferrer"
 											className="text-primary underline hover:text-primary/80"

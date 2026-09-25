@@ -1,18 +1,18 @@
-import { db } from "@dokploy/server/db";
+import { db } from "@notploy/server/db";
 import {
 	type apiCreateMongo,
 	backups,
 	buildAppName,
 	compose,
 	mongo,
-} from "@dokploy/server/db/schema";
-import { generatePassword } from "@dokploy/server/templates";
-import { buildMongo } from "@dokploy/server/utils/databases/mongo";
+} from "@notploy/server/db/schema";
+import { generatePassword } from "@notploy/server/templates";
+import { buildMongo } from "@notploy/server/utils/databases/mongo";
 import {
 	pullImage,
 	waitForSwarmServiceConvergence,
-} from "@dokploy/server/utils/docker/utils";
-import { execAsyncRemote } from "@dokploy/server/utils/process/execAsync";
+} from "@notploy/server/utils/docker/utils";
+import { execAsyncRemote } from "@notploy/server/utils/process/execAsync";
 import { TRPCError } from "@trpc/server";
 import { eq, getTableColumns } from "drizzle-orm";
 import { quote } from "shell-quote";

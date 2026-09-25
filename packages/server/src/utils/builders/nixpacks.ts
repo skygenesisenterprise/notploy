@@ -1,5 +1,5 @@
 import path from "node:path";
-import { getStaticCommand } from "@dokploy/server/utils/builders/static";
+import { getStaticCommand } from "@notploy/server/utils/builders/static";
 import { nanoid } from "nanoid";
 import { quote } from "shell-quote";
 import { prepareEnvironmentVariablesForShell } from "../docker/utils";

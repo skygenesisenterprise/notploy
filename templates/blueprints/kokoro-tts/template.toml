@@ -43,7 +43,7 @@ This template provides a Dockerized FastAPI wrapper for the Kokoro-82M text-to-s
 ## Configuration
 
 The service runs on port 8880 and supports both CPU and GPU inference.
-For GPU support, ensure your Dokploy instance has NVIDIA GPU support enabled.
+For GPU support, ensure your Notploy instance has NVIDIA GPU support enabled.
 
 ## API Endpoints
 

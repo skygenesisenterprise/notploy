@@ -1,7 +1,7 @@
 version: "3.8"
 
 # The database schema and OpenAPI artifact are generated from Firecrawl
-# v2.11.230 and embedded as Compose configs so Dokploy can import the entire
+# v2.11.230 and embedded as Compose configs so Notploy can import the entire
 # authenticated stack as one template without external files.
 
 x-logging: &default-logging
@@ -1337,7 +1337,7 @@ configs:
           updated_at = now();
 
       INSERT INTO public.api_keys (key, name, team_id)
-      VALUES (regexp_replace(:'api_key', '^fc-', '')::uuid, 'Dokploy production', :'team_id'::uuid)
+      VALUES (regexp_replace(:'api_key', '^fc-', '')::uuid, 'Notploy production', :'team_id'::uuid)
       ON CONFLICT (key) DO UPDATE
       SET team_id = EXCLUDED.team_id,
           name = EXCLUDED.name;

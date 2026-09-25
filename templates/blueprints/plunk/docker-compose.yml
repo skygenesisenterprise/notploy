@@ -1,4 +1,4 @@
-# Plunk Self-Hosting Docker Compose for Dokploy
+# Plunk Self-Hosting Docker Compose for Notploy
 # This setup runs all Plunk services with nginx reverse proxy
 #
 # IMPORTANT: This template requires multiple subdomains:
@@ -8,7 +8,7 @@
 #   - docs.yourdomain.com -> Documentation
 #   - minio.yourdomain.com -> Minio Console (optional)
 #
-# All domains will be automatically configured in Dokploy
+# All domains will be automatically configured in Notploy
 
 services:
   # ============================================
@@ -131,7 +131,7 @@ services:
 
     volumes:
       # Mount Traefik certificates for SSL
-      - /etc/dokploy/traefik/dynamic/acme.json:/certs/acme.json:ro
+      - /etc/notploy/traefik/dynamic/acme.json:/certs/acme.json:ro
 
     expose:
       - 80

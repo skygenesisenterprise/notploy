@@ -73,7 +73,7 @@ const features = [
 		icon: Paintbrush,
 		title: "White Labeling",
 		description:
-			"Present Dokploy as your own platform with custom branding, logo, and colors for your organization or clients.",
+			"Present Notploy as your own platform with custom branding, logo, and colors for your organization or clients.",
 	},
 ];
 
@@ -184,7 +184,7 @@ export function EnterpriseLanding() {
 									Contact sales
 								</Button>
 								<Button variant="outline" className="rounded-full" asChild>
-									<Link href="https://docs.dokploy.com" target="_blank">
+									<Link href="https://docs.notploy.com" target="_blank">
 										View documentation
 									</Link>
 								</Button>
@@ -236,7 +236,7 @@ export function EnterpriseLanding() {
 							Deploy Anywhere, Without Compromise
 						</h2>
 						<p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-							The flexibility to host Dokploy exactly where your business needs
+							The flexibility to host Notploy exactly where your business needs
 							it—on your infrastructure or ours.
 						</p>
 					</div>
@@ -272,7 +272,7 @@ export function EnterpriseLanding() {
 							Hybrid Deployments
 						</h3>
 						<p className="mx-auto max-w-2xl text-muted-foreground">
-							Need the best of both worlds? Deploy Dokploy across multiple
+							Need the best of both worlds? Deploy Notploy across multiple
 							environments with centralized management and unified monitoring.
 						</p>
 					</div>
@@ -287,7 +287,7 @@ export function EnterpriseLanding() {
 							Enterprise-grade governance for AI-built apps
 						</h2>
 						<p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-							AI tools have accelerated how teams ship software. Dokploy gives
+							AI tools have accelerated how teams ship software. Notploy gives
 							enterprises a safe way to do it, with audit trails, access
 							controls, and isolated environments.
 						</p>
@@ -339,7 +339,7 @@ export function EnterpriseLanding() {
 
 					<div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-border/30 bg-gradient-to-r from-green-500/5 to-blue-500/5 p-8 text-center">
 						<p className="text-lg text-muted-foreground">
-							See how Dokploy handles AI deployment — from AI-generated code to
+							See how Notploy handles AI deployment — from AI-generated code to
 							a governed, production-ready environment.
 						</p>
 						<Button className="mt-6 rounded-full" asChild>
@@ -434,7 +434,7 @@ export function EnterpriseLanding() {
 						</h2>
 						<p className="mx-auto mt-6 max-w-2xl text-xl text-muted-foreground">
 							Talk to our team about your deployment needs and discover how
-							Dokploy Enterprise can transform your infrastructure.
+							Notploy Enterprise can transform your infrastructure.
 						</p>
 						<Button
 							className="mt-8 rounded-full"
@@ -445,10 +445,10 @@ export function EnterpriseLanding() {
 						<p className="mt-6 text-sm text-gray-500">
 							Questions? Email us at{" "}
 							<a
-								href="mailto:sales@dokploy.com"
+								href="mailto:sales@notploy.com"
 								className="text-green-400 hover:underline"
 							>
-								sales@dokploy.com
+								sales@notploy.com
 							</a>
 						</p>
 					</div>

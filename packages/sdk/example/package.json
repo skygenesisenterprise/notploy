@@ -1,12 +1,12 @@
 {
-  "name": "dokploy-sdk-example",
+  "name": "notploy-sdk-example",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "tsx index.ts"
   },
   "dependencies": {
-    "@dokploy/sdk": "workspace:*",
+    "@notploy/sdk": "workspace:*",
     "dotenv": "^17.4.2"
   },
   "devDependencies": {

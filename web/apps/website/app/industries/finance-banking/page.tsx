@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 	description:
 		"Keep banking apps, internal tools, and fintech services in controlled environments with private deployment in finance that your teams manage.",
 	alternates: {
-		canonical: "https://dokploy.com/industries/finance-banking",
+		canonical: "https://notploy.com/industries/finance-banking",
 	},
 };
 
@@ -18,12 +18,12 @@ const data: IndustryPageData = {
 	hero: {
 		title: "Private deployment in finance for safer app releases",
 		description:
-			"Deploy internal banking tools, fintech services, and customer-facing apps without giving up control of infrastructure. Dokploy gives financial technology teams a governed platform for private deployment and ongoing operations.",
+			"Deploy internal banking tools, fintech services, and customer-facing apps without giving up control of infrastructure. Notploy gives financial technology teams a governed platform for private deployment and ongoing operations.",
 	},
 	features: {
 		heading: "Ship regulated software without slowing release teams",
 		description:
-			"Financial institutions need software teams to move quickly, but deployments need clear boundaries. Dokploy lets developers release from Git and Docker-based workflows while platform teams manage access, environments, logs, and rollback paths.",
+			"Financial institutions need software teams to move quickly, but deployments need clear boundaries. Notploy lets developers release from Git and Docker-based workflows while platform teams manage access, environments, logs, and rollback paths.",
 		items: [
 			{
 				icon: Lock,
@@ -66,7 +66,7 @@ const data: IndustryPageData = {
 	comparison: {
 		heading: "Private deployment without cloud account sprawl",
 		description:
-			"Separate cloud accounts can work for individual projects, but they become difficult to govern across banking products, internal tools, and compliance-sensitive workflows. Dokploy centralizes the deployment layer while keeping teams productive.",
+			"Separate cloud accounts can work for individual projects, but they become difficult to govern across banking products, internal tools, and compliance-sensitive workflows. Notploy centralizes the deployment layer while keeping teams productive.",
 		without: {
 			title: "Generic cloud accounts",
 			items: [
@@ -77,8 +77,8 @@ const data: IndustryPageData = {
 				"Security teams have limited visibility into smaller internal apps.",
 			],
 		},
-		withDokploy: {
-			title: "Dokploy for finance and banking",
+		withNotploy: {
+			title: "Notploy for finance and banking",
 			items: [
 				"Applications deploy inside controlled public, private, or self-hosted environments.",
 				"Admins manage projects, users, services, and servers centrally.",
@@ -91,7 +91,7 @@ const data: IndustryPageData = {
 	workflow: {
 		heading: "From financial app repository to controlled release",
 		description:
-			"Dokploy turns release management into a clear workflow. Developers can ship from their repositories, while platform teams keep the environment, access model, process, and release path consistent.",
+			"Notploy turns release management into a clear workflow. Developers can ship from their repositories, while platform teams keep the environment, access model, process, and release path consistent.",
 		steps: [
 			{
 				title: "Create the regulated environment",
@@ -102,7 +102,7 @@ const data: IndustryPageData = {
 			{
 				title: "Connect the repository",
 				description:
-					"Connect a Git provider or bring a Docker-based deployment. Dokploy can trigger deployments through webhooks when approved changes are pushed.",
+					"Connect a Git provider or bring a Docker-based deployment. Notploy can trigger deployments through webhooks when approved changes are pushed.",
 				flow: "Select provider → Choose repository → Set branch",
 			},
 			{
@@ -122,12 +122,12 @@ const data: IndustryPageData = {
 	builtFor: {
 		heading: "Built for banking platforms, internal tools, and fintech teams",
 		paragraphs: [
-			"Dokploy gives finance teams a practical middle ground between unmanaged cloud hosting and heavy internal platform projects.",
+			"Notploy gives finance teams a practical middle ground between unmanaged cloud hosting and heavy internal platform projects.",
 			"Developers can keep simple release workflows, while infrastructure owners retain control over servers, access, domains, databases, and operational visibility.",
-			"Teams can run Dokploy in the model that fits their requirements. Use Dokploy Cloud when you want the control plane managed by Dokploy and apps running on your own servers, or choose self-hosting when the full platform should stay under internal operations.",
+			"Teams can run Notploy in the model that fits their requirements. Use Notploy Cloud when you want the control plane managed by Notploy and apps running on your own servers, or choose self-hosting when the full platform should stay under internal operations.",
 		],
 		screenshotAlt:
-			"Dokploy project dashboard for a banking platform with separate production and staging environments and running services",
+			"Notploy project dashboard for a banking platform with separate production and staging environments and running services",
 	},
 	detailRows: [
 		{
@@ -168,25 +168,25 @@ const data: IndustryPageData = {
 					"Private deployment in finance means releasing applications into environments that a financial organization can control, govern, and monitor. It can apply to banking tools, fintech products, internal APIs, customer portals, and data-backed services.",
 			},
 			{
-				question: "Can Dokploy support internal banking tools?",
+				question: "Can Notploy support internal banking tools?",
 				answer:
-					"Yes. Dokploy can deploy internal tools, dashboards, APIs, background services, and database-backed applications from the same platform. Teams can use self-hosted or managed control-plane models depending on infrastructure policy. Dokploy empowers finance teams to build and test internal tools, including vibe-coded and AI-powered apps, in safe sandbox environments.",
+					"Yes. Notploy can deploy internal tools, dashboards, APIs, background services, and database-backed applications from the same platform. Teams can use self-hosted or managed control-plane models depending on infrastructure policy. Notploy empowers finance teams to build and test internal tools, including vibe-coded and AI-powered apps, in safe sandbox environments.",
 			},
 			{
-				question: "Does Dokploy support SSO and access control?",
+				question: "Does Notploy support SSO and access control?",
 				answer:
-					"Dokploy Enterprise includes single sign-on, custom roles, audit logs, and whitelabeling. These options help platform teams define who can view, deploy, manage, or audit services.",
+					"Notploy Enterprise includes single sign-on, custom roles, audit logs, and whitelabeling. These options help platform teams define who can view, deploy, manage, or audit services.",
 			},
 			{
-				question: "Can finance teams use Docker Compose with Dokploy?",
+				question: "Can finance teams use Docker Compose with Notploy?",
 				answer:
-					"Yes. Dokploy supports Docker Compose for more complex services, including applications that need multiple containers, databases, queues, or supporting infrastructure.",
+					"Yes. Notploy supports Docker Compose for more complex services, including applications that need multiple containers, databases, queues, or supporting infrastructure.",
 			},
 			{
 				question:
-					"Should financial institutions choose Dokploy Cloud or self-hosted Dokploy?",
+					"Should financial institutions choose Notploy Cloud or self-hosted Notploy?",
 				answer:
-					"Use Dokploy Cloud when you want Dokploy to manage the control plane while your apps run on your own servers. Choose self-hosted Dokploy when your institution wants to operate the full platform internally.",
+					"Use Notploy Cloud when you want Notploy to manage the control plane while your apps run on your own servers. Choose self-hosted Notploy when your institution wants to operate the full platform internally.",
 			},
 		],
 	},

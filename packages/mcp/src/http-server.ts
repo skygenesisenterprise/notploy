@@ -185,7 +185,7 @@ export async function main() {
   });
 
   serve({ fetch: app.fetch, port: PORT }, () => {
-    logger.info("MCP Dokploy server started", {
+    logger.info("MCP Notploy server started", {
       port: PORT,
       protocols: ["Streamable HTTP (MCP 2025-03-26)", "Legacy SSE (MCP 2024-11-05)"],
       endpoints: {

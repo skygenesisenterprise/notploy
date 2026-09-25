@@ -1,12 +1,12 @@
 ---
 title: Domains
-description: This section outlines how to configure domains for your applications in Dokploy, ensuring that your applications are accessible via custom URLs.
+description: This section outlines how to configure domains for your applications in Notploy, ensuring that your applications are accessible via custom URLs.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Link } from 'next/link';
 
-Dokploy Provide 2 ways to add a domain to your service:
+Notploy Provide 2 ways to add a domain to your service:
 
 1. **Free Domains** from Traefik.me
 2. **Buy a domain** from one of the providers above
@@ -16,7 +16,7 @@ Dokploy Provide 2 ways to add a domain to your service:
    you can [Create a certificate](/docs/core/certificates#traefikme-https-setup) and use it in the domain settings.
 </Callout>
 
-If you don't have a domain, you can use our integrated free domains from Traefik.me in the Dokploy panel, without doing any configuration however is only for HTTP, if you want to have a HTTPS domain you need to buy a domain from one of the providers above.
+If you don't have a domain, you can use our integrated free domains from Traefik.me in the Notploy panel, without doing any configuration however is only for HTTP, if you want to have a HTTPS domain you need to buy a domain from one of the providers above.
 
 Domains are supported for:
 
@@ -25,13 +25,13 @@ Domains are supported for:
 
 ## How Domains Are Managed
 
-Dokploy handles domains differently depending on whether you're using Applications or Docker Compose:
+Notploy handles domains differently depending on whether you're using Applications or Docker Compose:
 
 ### Applications
 
-For **Applications**, Dokploy creates a unique configuration file for each domain you create or update. These files are managed automatically and can be viewed in:
+For **Applications**, Notploy creates a unique configuration file for each domain you create or update. These files are managed automatically and can be viewed in:
 
-- **Traefik File System**: Accessible through the Dokploy UI
+- **Traefik File System**: Accessible through the Notploy UI
 - **Advanced Settings**: Scroll to the bottom of the Advanced tab to view the Traefik configuration
 
 Each domain configuration follows this structure:
@@ -39,33 +39,33 @@ Each domain configuration follows this structure:
 ```yaml
 http:
   routers:
-    dokploy-app-name-router-1:
+    notploy-app-name-router-1:
       rule: Host(`your-domain.com`)
-      service: dokploy-app-name-service-1
+      service: notploy-app-name-service-1
       middlewares:
         - redirect-to-https
       entryPoints:
         - web
-    dokploy-app-name-router-websecure-1:
+    notploy-app-name-router-websecure-1:
       rule: Host(`your-domain.com`)
-      service: dokploy-app-name-service-1
+      service: notploy-app-name-service-1
       middlewares: []
       entryPoints:
         - websecure
       tls:
         certResolver: letsencrypt
   services:
-    dokploy-app-name-service-1:
+    notploy-app-name-service-1:
       loadBalancer:
         servers:
-          - url: http://dokploy-app-name:3000
+          - url: http://notploy-app-name:3000
         passHostHeader: true
 ```
 
 **Key Points for Applications:**
 
 - **No Redeployment Required**: Changes to domains take effect immediately without needing to redeploy your application
-- **Hot Reload**: Dokploy uses Traefik's [File Provider](https://doc.traefik.io/traefik/reference/install-configuration/providers/others/file/) which supports hot reloading, so configuration changes are applied automatically
+- **Hot Reload**: Notploy uses Traefik's [File Provider](https://doc.traefik.io/traefik/reference/install-configuration/providers/others/file/) which supports hot reloading, so configuration changes are applied automatically
 - **Troubleshooting**: If you make changes and your domain doesn't work, check the Traefik logs for any errors. The logs should provide helpful information about what might be wrong
 
 ### Docker Compose
@@ -97,7 +97,7 @@ We recommend this if you want to have a HTTPS domain, you need to buy a domain f
 
 Associate custom domains with your application to make it accessible over the internet.
 
-- **Host**: The domain name that you want to link to your application (e.g., `api.dokploy.com`).
+- **Host**: The domain name that you want to link to your application (e.g., `api.notploy.com`).
 - **Path**: The specific path within the domain where the application should be accessible.
 - **Internal Path**: The internal path where your application expects to receive requests.
 - **Strip Path**: Removes the **Path** from the request before forwarding to the application.
@@ -113,7 +113,7 @@ Proper domain configuration is crucial for the accessibility and security of you
 
 ### Understanding Internal Path and Strip Path
 
-Dokploy uses Traefik middlewares to modify request paths before they reach your application. These powerful tools allow you to create flexible routing configurations that match your application's expected URL structure.
+Notploy uses Traefik middlewares to modify request paths before they reach your application. These powerful tools allow you to create flexible routing configurations that match your application's expected URL structure.
 
 <Callout type="warn">
 **Warning: Potential Redirect Issues**
@@ -126,10 +126,10 @@ When using Internal Path and Strip Path middlewares, ensure your application is 
 The Internal Path middleware adds a prefix to the request path before forwarding it to your container. This is useful when your application expects all requests to start with a specific base path.
 
 **Example:**
-- Domain: `api.dokploy.com`
+- Domain: `api.notploy.com`
 - Path: `/v1`
 - Internal Path: `/backend/api`
-- Request: `api.dokploy.com/v1/users`
+- Request: `api.notploy.com/v1/users`
 - Forwarded to container as: `/backend/api/users`
 
 In this example, the middleware adds `/backend/api` to the beginning of the request path, which is helpful when your application is structured to expect requests at a specific internal directory.
@@ -139,10 +139,10 @@ In this example, the middleware adds `/backend/api` to the beginning of the requ
 The Strip Path middleware removes a specified path prefix from the request before forwarding it to your container. This is perfect when you want to organize your public URLs with prefixes but your application expects clean, unprefixed paths.
 
 **Example:**
-- Domain: `app.dokploy.com`
+- Domain: `app.notploy.com`
 - Path: `/dashboard`
 - Strip Path: Enabled
-- Request: `app.dokploy.com/dashboard/settings`
+- Request: `app.notploy.com/dashboard/settings`
 - Forwarded to container as: `/settings`
 
 Here, the middleware removes the `/dashboard` prefix, so your application receives the request as if it was made directly to `/settings`.
@@ -152,11 +152,11 @@ Here, the middleware removes the `/dashboard` prefix, so your application receiv
 You can combine both middlewares to create sophisticated routing scenarios. When both are enabled, Strip Path is applied first, then Internal Path is added.
 
 **Example:**
-- Domain: `service.dokploy.com`
+- Domain: `service.notploy.com`
 - Path: `/public`
 - Strip Path: Enabled
 - Internal Path: `/app/v2`
-- Request: `service.dokploy.com/public/api/users`
+- Request: `service.notploy.com/public/api/users`
 - Processing:
   1. Strip Path removes `/public`: `/api/users`
   2. Internal Path adds `/app/v2`: `/app/v2/api/users`
@@ -195,8 +195,8 @@ For example, if your domain is `example.com`, you can add a CNAME record to your
 - NAME: www
 - VALUE: example.com
 
-Create the domain in dokploy, using the host `www.example.com`
+Create the domain in notploy, using the host `www.example.com`
 
-Now in dokploy, you can go to application -> advanced -> redirects (Select the preset www to non-www) and click on save.
+Now in notploy, you can go to application -> advanced -> redirects (Select the preset www to non-www) and click on save.
 
 now everytime you access `www.example.com` it will redirect to `example.com`

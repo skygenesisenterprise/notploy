@@ -1,0 +1,20 @@
+{
+  "id": "notploy-prom-monitoring-extension",
+  "name": "Notploy Prometheus Monitoring Extension",
+  "version": "canary",
+  "description": "Notploy monitoring extension with Prometheus metrics export for external monitoring systems like Grafana Cloud. Tracks server and container metrics with configurable thresholds and alerting.",
+  "logo": "logo.svg",
+  "links": {
+    "github": "https://github.com/Notploy/notploy",
+    "website": "https://notploy.com/",
+    "docs": "https://docs.notploy.com/"
+  },
+  "tags": [
+    "monitoring",
+    "prometheus",
+    "metrics",
+    "observability",
+    "docker",
+    "grafana"
+  ]
+}

@@ -1,7 +1,7 @@
-import { IS_CLOUD } from "@dokploy/server/constants";
-import { db } from "@dokploy/server/db";
-import { hasValidLicense } from "@dokploy/server/services/proprietary/license-key";
-import { getWebServerSettings } from "@dokploy/server/services/web-server-settings";
+import { IS_CLOUD } from "@notploy/server/constants";
+import { db } from "@notploy/server/db";
+import { hasValidLicense } from "@notploy/server/services/proprietary/license-key";
+import { getWebServerSettings } from "@notploy/server/services/web-server-settings";
 
 export interface PublicWhitelabelingConfig {
 	appName: string | null;

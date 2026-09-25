@@ -104,7 +104,7 @@ const createBetterAuth = () =>
 				allowDifferentEmails: true,
 			},
 		},
-		appName: "Dokploy",
+		appName: "Notploy",
 		socialProviders: {
 			github: {
 				clientId: process.env.GITHUB_CLIENT_ID as string,
@@ -190,12 +190,12 @@ const createBetterAuth = () =>
 							return { data: { emailVerified: true } };
 						}
 						if (!IS_CLOUD) {
-							const xDokployToken =
-								context?.request?.headers?.get("x-dokploy-token");
-							if (xDokployToken) {
+							const xNotployToken =
+								context?.request?.headers?.get("x-notploy-token");
+							if (xNotployToken) {
 								let invitation: Awaited<ReturnType<typeof getUserByToken>>;
 								try {
-									invitation = await getUserByToken(xDokployToken);
+									invitation = await getUserByToken(xNotployToken);
 								} catch {
 									throw new APIError("BAD_REQUEST", {
 										message: "Invalid invitation token",

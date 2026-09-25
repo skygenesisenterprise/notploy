@@ -88,7 +88,7 @@ export const redis = pgTable("redis", {
 		onDelete: "cascade",
 	}),
 	networkIds: text("networkIds").array().default([]),
-	detachDokployNetwork: boolean("detachDokployNetwork")
+	detachNotployNetwork: boolean("detachNotployNetwork")
 		.notNull()
 		.default(false),
 });
@@ -141,7 +141,7 @@ const createSchema = createInsertSchema(redis, {
 	endpointSpecSwarm: EndpointSpecSwarmSchema.nullable(),
 	ulimitsSwarm: UlimitsSwarmSchema.nullable(),
 	networkIds: z.array(z.string()).optional(),
-	detachDokployNetwork: z.boolean().optional(),
+	detachNotployNetwork: z.boolean().optional(),
 });
 
 export const apiCreateRedis = createSchema.pick({

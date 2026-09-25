@@ -1,4 +1,4 @@
-# LibreChat Docker Compose for Dokploy Template
+# LibreChat Docker Compose for Notploy Template
 # Setting up authentication: "npm run create-user", refer to https://www.librechat.ai/docs/configuration/authentication
 
 services:

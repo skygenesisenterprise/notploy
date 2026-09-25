@@ -88,7 +88,7 @@ env = [
   "# Caddyfile has no default and an empty value crashes it on boot.",
   "SITE_ADDRESS=:80",
   "# Peers allowed to set X-Forwarded-For / X-Real-IP. 'private_ranges'",
-  "# trusts only Dokploy's private upstream (Traefik) and blocks public",
+  "# trusts only Notploy's private upstream (Traefik) and blocks public",
   "# IP spoofing. Use a narrower CIDR if exposing the proxy directly.",
   "TRUSTED_PROXIES=private_ranges",
   "",

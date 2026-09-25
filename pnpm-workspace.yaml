@@ -1,6 +1,6 @@
 packages:
   - "apps/api"
-  - "apps/dokploy"
+  - "apps/notploy"
   - "apps/schedules"
   - "packages/server"
   - "pkgs/cli"

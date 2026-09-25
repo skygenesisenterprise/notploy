@@ -8,7 +8,7 @@ const blueprintsDir = path.join(repoRoot, "blueprints");
 
 const MAX_CONCURRENCY = 10;
 const TIMEOUT_MS = 15000;
-const USER_AGENT = "Mozilla/5.0 (compatible; DokployTemplatesLinkChecker/1.0)";
+const USER_AGENT = "Mozilla/5.0 (compatible; NotployTemplatesLinkChecker/1.0)";
 
 const results = { ok: [], broken: [], skipped: [] };
 let completed = 0;

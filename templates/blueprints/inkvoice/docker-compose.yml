@@ -10,7 +10,7 @@ services:
       - DATABASE_PATH=/app/data/invoice.db
       - PORT=3000
       - HOST=0.0.0.0
-      # Dokploy's auto-generated domain is HTTP (sslip.io); keep false so login
+      # Notploy's auto-generated domain is HTTP (sslip.io); keep false so login
       # works out of the box. Set true once you attach an HTTPS custom domain.
       - COOKIE_SECURE=false
     volumes:

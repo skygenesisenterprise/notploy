@@ -1,6 +1,6 @@
 {
 	"title": "CLI",
-	"description": "Command-line interface for managing Dokploy from your terminal",
+	"description": "Command-line interface for managing Notploy from your terminal",
 	"icon": "SquareTerminal",
 	"root": true,
 	"pages": [

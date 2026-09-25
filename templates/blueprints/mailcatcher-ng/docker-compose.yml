@@ -10,7 +10,7 @@ services:
     environment:
       - MAIL_LIMIT=${MAIL_LIMIT}
     expose:
-      # SMTP: reachable from other services in the same Dokploy network
+      # SMTP: reachable from other services in the same Notploy network
       # at mailcatcher-ng:1025 (intentionally not published on the host).
       - 1025
       # Web UI (routed through the domain below)

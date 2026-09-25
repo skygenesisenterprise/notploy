@@ -15,7 +15,7 @@ services:
       # to store its data. This volume is created automatically by Docker.
       # If you want to use a local directory instead, uncomment the line below
       # and specify the path to your local directory.
-      # (be warned that ../files is pointing to a subdirectory of /etc/dokploy/compose in dokploy)
+      # (be warned that ../files is pointing to a subdirectory of /etc/notploy/compose in notploy)
       # - ../files/minio-data:/data
       # if you uncommented the line above, comment the line below and the volumes section at the end
       - minio-data:/data

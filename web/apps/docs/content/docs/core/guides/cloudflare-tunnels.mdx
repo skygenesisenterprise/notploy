@@ -1,6 +1,6 @@
 ---
 title: Cloudflare Tunnels
-description: Learn how to use Cloudflare Tunnels to securely expose your Dokploy applications without opening ports on your server.
+description: Learn how to use Cloudflare Tunnels to securely expose your Notploy applications without opening ports on your server.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
@@ -21,14 +21,14 @@ Cloudflare Tunnels (formerly Argo Tunnels) create an encrypted tunnel between yo
 
 ## Prerequisites
 
-Before setting up Cloudflare Tunnels with Dokploy, ensure you have:
+Before setting up Cloudflare Tunnels with Notploy, ensure you have:
 
 - A domain managed by Cloudflare (free tier works)
-- Dokploy installed and running
+- Notploy installed and running
 - Access to Cloudflare dashboard
 
 <Callout type="warn">
-  When using Cloudflare Tunnels, you should **disable Let's Encrypt** in Dokploy and use HTTP instead of HTTPS for internal connections. Cloudflare handles SSL/TLS termination at their edge.
+  When using Cloudflare Tunnels, you should **disable Let's Encrypt** in Notploy and use HTTP instead of HTTPS for internal connections. Cloudflare handles SSL/TLS termination at their edge.
 </Callout>
 
 ## Cloudflare Tunnel Setup
@@ -40,7 +40,7 @@ Before setting up Cloudflare Tunnels with Dokploy, ensure you have:
 - Go to **Networks** → **Connectors**
 - Click **Create a tunnel**
 - Choose **Cloudflared** as the connector type
-- Give your tunnel a name (e.g., `dokploy-tunnel`)
+- Give your tunnel a name (e.g., `notploy-tunnel`)
 - Copy the **Tunnel Token** that's generated (you'll need this later)
 
 <Callout type="info">
@@ -49,7 +49,7 @@ Before setting up Cloudflare Tunnels with Dokploy, ensure you have:
 
 ### Step 2: Configure SSL/TLS Settings
 
-For Cloudflare Tunnels to work properly with Dokploy:
+For Cloudflare Tunnels to work properly with Notploy:
 
 - In Cloudflare Dashboard, go to **SSL/TLS**
 - Set the encryption mode to **Full** or **Full (Strict)**
@@ -58,7 +58,7 @@ For Cloudflare Tunnels to work properly with Dokploy:
   Do not use "Flexible" mode as it may cause redirect loops with Traefik.
 </Callout>
 
-### Step 3: Create Cloudflare Service in Dokploy
+### Step 3: Create Cloudflare Service in Notploy
 
 1. Create a new application
 2. Select Docker Provider and set the Image name as `cloudflare/cloudflared`
@@ -73,14 +73,14 @@ After deploying cloudflared, you need to configure which domains route through t
 
 #### Understanding Traefik Routing vs Direct Access
 
-Dokploy uses **Traefik** as its reverse proxy to route traffic to your applications. When configuring Cloudflare Tunnels, you have two options:
+Notploy uses **Traefik** as its reverse proxy to route traffic to your applications. When configuring Cloudflare Tunnels, you have two options:
 
 **Option 1: Route through Traefik (Recommended)**
 - **Traffic flow**: Cloudflare → Tunnel → Traefik → Your Apps
 - **Benefits**:
   - Support for multiple applications with a single tunnel (wildcard domains)
-  - Leverage all Dokploy domain configurations (redirects, path rewrites, etc.)
-  - Traefik automatically routes based on the domain you configured in Dokploy
+  - Leverage all Notploy domain configurations (redirects, path rewrites, etc.)
+  - Traefik automatically routes based on the domain you configured in Notploy
   - Configure once, works for all apps
 
 **Option 2: Direct Container Access**
@@ -102,11 +102,11 @@ Dokploy uses **Traefik** as its reverse proxy to route traffic to your applicati
   - **Domain**: Your domain (e.g., `example.com`) - Select from dropdown
   - **Service**:
     - **Type**: HTTP
-    - **URL**: `dokploy-traefik:80`
+    - **URL**: `notploy-traefik:80`
 - Click **Save**
 
 <Callout type="info">
-  With this setup, Traefik will route the request to the correct application based on the domain you configured in Dokploy's domain settings.
+  With this setup, Traefik will route the request to the correct application based on the domain you configured in Notploy's domain settings.
 </Callout>
 
 **Example:**
@@ -128,12 +128,12 @@ If you prefer to bypass Traefik and connect directly to a container:
 - Configure the public hostname with:
   - **Service**:
     - **Type**: HTTP
-    - **URL**: `appName:port` (e.g., `dokploy:3000`, `my-app:8080`)
+    - **URL**: `appName:port` (e.g., `notploy:3000`, `my-app:8080`)
 
-Note: The app name in Dokploy is shown under the service name, usually formatted as `project-serviceName-hash`
+Note: The app name in Notploy is shown under the service name, usually formatted as `project-serviceName-hash`
 
 <Callout type="warn">
-  When using direct access, you bypass Traefik completely. Domain configurations in Dokploy won't apply, and you'll need to configure each container separately in Cloudflare.
+  When using direct access, you bypass Traefik completely. Domain configurations in Notploy won't apply, and you'll need to configure each container separately in Cloudflare.
 </Callout>
 
 ### For Wildcard Subdomains (Multiple Apps)
@@ -156,23 +156,23 @@ Then, go to the configuration of your tunnel under **Published application route
   - **Domain**: Your domain (e.g., `example.com`)
   - **Service**:
     - **Type**: HTTP
-    - **URL**: `dokploy-traefik:80`
+    - **URL**: `notploy-traefik:80`
 
-This allows all subdomains (`app1.example.com`, `app2.example.com`, etc.) to route through Traefik, which then directs traffic to the appropriate container based on your Dokploy domain configurations.
+This allows all subdomains (`app1.example.com`, `app2.example.com`, etc.) to route through Traefik, which then directs traffic to the appropriate container based on your Notploy domain configurations.
 
 <Callout type="info">
-  With wildcard routing, you only need ONE public hostname in Cloudflare Tunnel. Traefik handles routing to different apps based on the domain configured in Dokploy.
+  With wildcard routing, you only need ONE public hostname in Cloudflare Tunnel. Traefik handles routing to different apps based on the domain configured in Notploy.
 </Callout>
 
-## Using Cloudflare Access (Zero Trust) with Dokploy
+## Using Cloudflare Access (Zero Trust) with Notploy
 
-If you protect your Dokploy dashboard with **Cloudflare Access** (Zero Trust), there are a few extra steps required to make login work correctly.
+If you protect your Notploy dashboard with **Cloudflare Access** (Zero Trust), there are a few extra steps required to make login work correctly.
 
 ### Why login hangs behind Cloudflare Access
 
-When Cloudflare Access sits in front of Dokploy, the login request (`POST /api/auth/sign-in/email`) may appear to hang indefinitely even with valid credentials. Invalid credentials still return a `401` immediately, which makes it easy to miss this issue.
+When Cloudflare Access sits in front of Notploy, the login request (`POST /api/auth/sign-in/email`) may appear to hang indefinitely even with valid credentials. Invalid credentials still return a `401` immediately, which makes it easy to miss this issue.
 
-The root cause is that Better Auth (Dokploy's auth library) validates the `Origin` header of every request. When the request comes through Cloudflare Access, the origin may not match any of the trusted origins Dokploy knows about, so the request is silently dropped.
+The root cause is that Better Auth (Notploy's auth library) validates the `Origin` header of every request. When the request comes through Cloudflare Access, the origin may not match any of the trusted origins Notploy knows about, so the request is silently dropped.
 
 ### Required configuration
 
@@ -194,26 +194,26 @@ openssl rand -hex 32
 
 **2. Add your domain to trusted origins**
 
-Set the `BETTER_AUTH_TRUSTED_ORIGINS` environment variable to include all origins that can reach Dokploy:
+Set the `BETTER_AUTH_TRUSTED_ORIGINS` environment variable to include all origins that can reach Notploy:
 
 ```bash
-BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3000,http://<internal-ip>:3000,https://dokploy.example.com
+BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3000,http://<internal-ip>:3000,https://notploy.example.com
 ```
 
-Replace `dokploy.example.com` with your actual public domain.
+Replace `notploy.example.com` with your actual public domain.
 
-**3. Configure Web Server settings in the Dokploy UI**
+**3. Configure Web Server settings in the Notploy UI**
 
 Go to **Settings → Server** and set:
-- **Host**: `dokploy.example.com` (your public domain)
+- **Host**: `notploy.example.com` (your public domain)
 - **HTTPS**: enabled
 
-This ensures Dokploy includes your domain as a trusted origin automatically.
+This ensures Notploy includes your domain as a trusted origin automatically.
 
 <Callout type="info">
-  After applying these changes, redeploy the Dokploy service so the new environment variables take effect.
+  After applying these changes, redeploy the Notploy service so the new environment variables take effect.
 </Callout>
 
 <Callout type="warn">
-  If you access Dokploy through multiple origins (public domain, internal IP, Tailscale), make sure all of them are listed in `BETTER_AUTH_TRUSTED_ORIGINS`.
+  If you access Notploy through multiple origins (public domain, internal IP, Tailscale), make sure all of them are listed in `BETTER_AUTH_TRUSTED_ORIGINS`.
 </Callout>

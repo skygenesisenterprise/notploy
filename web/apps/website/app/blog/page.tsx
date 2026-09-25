@@ -14,7 +14,7 @@ interface Tag {
 
 export const metadata: Metadata = {
 	title: "Blog",
-	description: "Latest news, updates, and articles from Dokploy",
+	description: "Latest news, updates, and articles from Notploy",
 };
 
 export default async function BlogPage({
@@ -49,7 +49,7 @@ export default async function BlogPage({
 					<p className="mb-2 text-sm uppercase tracking-wider text-muted-foreground">
 						BLOG
 					</p>
-					<h1 className="text-4xl font-bold">Dokploy Latest News & Updates</h1>
+					<h1 className="text-4xl font-bold">Notploy Latest News & Updates</h1>
 				</div>
 				<Link
 					href="/rss.xml"

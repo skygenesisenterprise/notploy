@@ -67,7 +67,7 @@ env = [
 '',
 '############',
 '# API Proxy - Configuration for the Kong Reverse proxy.',
-'# Following ports should not be changed for a dokploy config unless you know what you are doing.',
+'# Following ports should not be changed for a notploy config unless you know what you are doing.',
 '############',
 '',
 'KONG_HTTP_PORT=8000',

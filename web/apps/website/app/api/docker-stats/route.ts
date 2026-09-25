@@ -18,10 +18,10 @@ export async function GET() {
 
 	try {
 		const response = await fetch(
-			"https://hub.docker.com/v2/repositories/dokploy/dokploy/",
+			"https://hub.docker.com/v2/repositories/notploy/notploy/",
 			{
 				headers: {
-					"User-Agent": "Dokploy-Website",
+					"User-Agent": "Notploy-Website",
 				},
 			},
 		);

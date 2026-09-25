@@ -42,13 +42,13 @@ export function FirstFeaturesSection() {
 		{
 			title: "Database Management with Backups",
 			description:
-				"Manage and back up MySQL, PostgreSQL, MongoDB, MariaDB, Redis directly from Dokploy.",
+				"Manage and back up MySQL, PostgreSQL, MongoDB, MariaDB, Redis directly from Notploy.",
 			icon: <IconDatabase />,
 		},
 		{
 			title: "API & CLI Access",
 			description:
-				"Need custom functionality? Dokploy offers complete API and CLI access to fit your needs.",
+				"Need custom functionality? Notploy offers complete API and CLI access to fit your needs.",
 			icon: <IconTerminal />,
 		},
 		{
@@ -66,7 +66,7 @@ export function FirstFeaturesSection() {
 		{
 			title: "No Vendor Lock-In",
 			description:
-				"Experience complete freedom to modify, scale, and customize Dokploy to suit your specific needs.",
+				"Experience complete freedom to modify, scale, and customize Notploy to suit your specific needs.",
 			icon: <UnlockIcon />,
 		},
 		{
@@ -78,7 +78,7 @@ export function FirstFeaturesSection() {
 		{
 			title: "AI-assisted deployments",
 			description:
-				"Connect AI tools to Dokploy via MCP, or deploy AI-built apps in a governed sandbox with SSO and multitenancy.",
+				"Connect AI tools to Notploy via MCP, or deploy AI-built apps in a governed sandbox with SSO and multitenancy.",
 			icon: <IconTerminal2 />,
 		},
 		{
@@ -95,7 +95,7 @@ export function FirstFeaturesSection() {
 			</h2>
 			<p className="mt-4 text-center text-lg  tracking-tight text-muted-foreground">
 				Unlock seamless multi-server deployments, advanced user control, and
-				flexible database management—all with Dokploy’s developer-focused
+				flexible database management—all with Notploy’s developer-focused
 				features.
 			</p>
 			<div className="relative z-10 mx-auto mt-10 grid  max-w-7xl grid-cols-1 py-10 max-sm:mx-0 max-sm:w-full max-sm:p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

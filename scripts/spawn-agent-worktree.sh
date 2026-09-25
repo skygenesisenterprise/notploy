@@ -34,11 +34,11 @@ cd "$WORKTREE_PATH"
 pnpm install --prefer-offline >&2
 
 FREE_PORT=$(node "$REPO_ROOT/scripts/find-free-port.mjs")
-sed -i.bak "s/^PORT=.*/PORT=$FREE_PORT/" apps/dokploy/.env
-sed -i.bak -E "s#^(BETTER_AUTH_URL=https?://[^:/]+):[0-9]+#\1:$FREE_PORT#" apps/dokploy/.env
-rm -f apps/dokploy/.env.bak
+sed -i.bak "s/^PORT=.*/PORT=$FREE_PORT/" apps/notploy/.env
+sed -i.bak -E "s#^(BETTER_AUTH_URL=https?://[^:/]+):[0-9]+#\1:$FREE_PORT#" apps/notploy/.env
+rm -f apps/notploy/.env.bak
 
-pnpm --filter=dokploy run dev > "$WORKTREE_PATH/dev-server.log" 2>&1 &
+pnpm --filter=notploy run dev > "$WORKTREE_PATH/dev-server.log" 2>&1 &
 echo $! > "$WORKTREE_PATH/dev-server.pid"
 
 BASE_URL="http://localhost:$FREE_PORT"
@@ -51,5 +51,5 @@ for _ in $(seq 1 30); do
 done
 
 echo "export WORKTREE_PATH=$WORKTREE_PATH"
-echo "export DOKPLOY_BASE_URL=$BASE_URL"
+echo "export NOTPLOY_BASE_URL=$BASE_URL"
 echo "export PORT=$FREE_PORT"

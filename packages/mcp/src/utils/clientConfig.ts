@@ -1,7 +1,7 @@
 import { DEFAULT_REDACTED_FIELDS } from "./redactSensitive.js";
 
 export interface Config {
-  dokployUrl: string;
+  notployUrl: string;
   authToken: string;
   customHeaders: Record<string, string>;
   timeout: number;
@@ -23,32 +23,32 @@ export function parseCustomHeaders(rawHeaders: string | undefined): Record<strin
     parsed = JSON.parse(rawHeaders);
   } catch (error) {
     throw new Error(
-      "Environment variable DOKPLOY_CUSTOM_HEADERS must be valid JSON containing an object of string header names to string values",
+      "Environment variable NOTPLOY_CUSTOM_HEADERS must be valid JSON containing an object of string header names to string values",
       { cause: error },
     );
   }
 
   if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error(
-      "Environment variable DOKPLOY_CUSTOM_HEADERS must be a JSON object of string header names to string values",
+      "Environment variable NOTPLOY_CUSTOM_HEADERS must be a JSON object of string header names to string values",
     );
   }
 
   const customHeaders: Record<string, string> = {};
   for (const [name, value] of Object.entries(parsed)) {
     if (name.trim() === "") {
-      throw new Error("Environment variable DOKPLOY_CUSTOM_HEADERS contains an empty header name");
+      throw new Error("Environment variable NOTPLOY_CUSTOM_HEADERS contains an empty header name");
     }
 
     if (RESERVED_CUSTOM_HEADER_NAMES.has(name.toLowerCase())) {
       throw new Error(
-        "Environment variable DOKPLOY_CUSTOM_HEADERS cannot override reserved headers x-api-key, content-type, or accept; configure Dokploy authentication with DOKPLOY_API_KEY",
+        "Environment variable NOTPLOY_CUSTOM_HEADERS cannot override reserved headers x-api-key, content-type, or accept; configure Notploy authentication with NOTPLOY_API_KEY",
       );
     }
 
     if (typeof value !== "string") {
       throw new Error(
-        "Environment variable DOKPLOY_CUSTOM_HEADERS must contain only string header values",
+        "Environment variable NOTPLOY_CUSTOM_HEADERS must contain only string header values",
       );
     }
 
@@ -79,30 +79,30 @@ class ConfigManager {
   }
 
   private loadConfig(): Config {
-    const dokployUrl = process.env.DOKPLOY_URL;
-    const authToken = process.env.DOKPLOY_API_KEY;
+    const notployUrl = process.env.NOTPLOY_URL;
+    const authToken = process.env.NOTPLOY_API_KEY;
 
-    if (!dokployUrl) {
-      throw new Error("Environment variable DOKPLOY_URL is not defined");
+    if (!notployUrl) {
+      throw new Error("Environment variable NOTPLOY_URL is not defined");
     }
     if (!authToken) {
-      throw new Error("Environment variable DOKPLOY_API_KEY is not defined");
+      throw new Error("Environment variable NOTPLOY_API_KEY is not defined");
     }
 
-    const redactEnv = parseBoolean(process.env.DOKPLOY_REDACT_ENV, true);
+    const redactEnv = parseBoolean(process.env.NOTPLOY_REDACT_ENV, true);
     const parsedFields =
-      process.env.DOKPLOY_REDACT_FIELDS?.split(",")
+      process.env.NOTPLOY_REDACT_FIELDS?.split(",")
         .map((f) => f.trim())
         .filter((f) => f.length > 0) ?? [];
     const redactFields = parsedFields.length > 0 ? parsedFields : DEFAULT_REDACTED_FIELDS;
 
     return {
-      dokployUrl,
+      notployUrl,
       authToken,
-      customHeaders: parseCustomHeaders(process.env.DOKPLOY_CUSTOM_HEADERS),
-      timeout: parseInt(process.env.DOKPLOY_TIMEOUT || "30000", 10),
-      retryAttempts: parseInt(process.env.DOKPLOY_RETRY_ATTEMPTS || "3", 10),
-      retryDelay: parseInt(process.env.DOKPLOY_RETRY_DELAY || "1000", 10),
+      customHeaders: parseCustomHeaders(process.env.NOTPLOY_CUSTOM_HEADERS),
+      timeout: parseInt(process.env.NOTPLOY_TIMEOUT || "30000", 10),
+      retryAttempts: parseInt(process.env.NOTPLOY_RETRY_ATTEMPTS || "3", 10),
+      retryDelay: parseInt(process.env.NOTPLOY_RETRY_DELAY || "1000", 10),
       redactEnv,
       redactFields,
     };

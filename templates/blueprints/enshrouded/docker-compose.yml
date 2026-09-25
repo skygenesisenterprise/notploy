@@ -1,4 +1,4 @@
-# dokploy: allow-host-ports — Enshrouded game clients connect over raw UDP (15637 game, 27015 Steam query); Traefik cannot route UDP game traffic.
+# notploy: allow-host-ports — Enshrouded game clients connect over raw UDP (15637 game, 27015 Steam query); Traefik cannot route UDP game traffic.
 services:
   enshrouded:
     image: mornedhels/enshrouded-server:latest

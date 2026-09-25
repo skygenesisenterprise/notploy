@@ -1,6 +1,6 @@
 version: "3.8"
 
-# Dokploy Blueprint notes:
+# Notploy Blueprint notes:
 # - This stack is intentionally self-contained for one-click deployments.
 # - The first deployment is slower because bootstrap downloads Shopware into a persistent volume.
 # - Shopware source code and generated JWT keys live in named volumes so redeploys remain stable.

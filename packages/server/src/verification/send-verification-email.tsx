@@ -87,7 +87,7 @@ export const sendInvitationEmail = async ({
 	});
 	await sendEmail({
 		email,
-		subject: `You've been invited to join ${organizationName} on Dokploy`,
+		subject: `You've been invited to join ${organizationName} on Notploy`,
 		text: html,
 	});
 };

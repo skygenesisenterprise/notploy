@@ -2,7 +2,7 @@ import {
 	ExecError,
 	execAsync,
 	execAsyncRemote,
-} from "@dokploy/server/utils/process/execAsync";
+} from "@notploy/server/utils/process/execAsync";
 import { quote } from "shell-quote";
 
 export const getContainers = async (serverId?: string | null) => {
@@ -62,8 +62,8 @@ export const getContainers = async (serverId?: string | null) => {
 			})
 			.filter(
 				(container) =>
-					!container.name.includes("dokploy") ||
-					container.name.includes("dokploy-monitoring"),
+					!container.name.includes("notploy") ||
+					container.name.includes("notploy-monitoring"),
 			);
 
 		return containers;
@@ -172,7 +172,7 @@ export const getContainersByAppNameMatch = async (
 
 const getStackTaskContainers = async (appName: string, serverId?: string) => {
 	try {
-		const divider = "__DOKPLOY_DIVIDER__";
+		const divider = "__NOTPLOY_DIVIDER__";
 		const tasksCommand = `docker stack ps ${appName} --no-trunc --filter "desired-state=running" --format 'TASK : {{.ID}} | Name: {{.Name}} | Node: {{.Node}} | CurrentState: {{.CurrentState}} | Error: {{.Error}}'`;
 		const inspectCommand = `docker stack ps ${appName} -q --no-trunc --filter "desired-state=running" | xargs -r docker inspect --format '{{if .Status.ContainerStatus}}TASK : {{.ID}} | ContainerId: {{.Status.ContainerStatus.ContainerID}}{{end}}' 2>/dev/null`;
 		const command = `${tasksCommand} && echo "${divider}" && (${inspectCommand} || true)`;
@@ -637,7 +637,7 @@ export const getNodeApplications = async (serverId?: string) => {
 			.trim()
 			.split("\n")
 			.map((line) => JSON.parse(line))
-			.filter((service) => !service.Name.startsWith("dokploy-"));
+			.filter((service) => !service.Name.startsWith("notploy-"));
 
 		return appArray;
 	} catch (error) {
@@ -744,7 +744,7 @@ export const uploadFileToContainer = async (
 		: `/${destinationPath}`;
 
 	const base64Content = fileBuffer.toString("base64");
-	const tempFileName = `dokploy-upload-${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+	const tempFileName = `notploy-upload-${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
 	const tempPath = `/tmp/${tempFileName}`;
 
 	const command = `echo '${base64Content}' | base64 -d > "${tempPath}" && docker cp "${tempPath}" "${containerId}:${normalizedPath}" ; rm -f "${tempPath}"`;
@@ -765,7 +765,7 @@ export const uploadFileToContainer = async (
 export const CONTAINER_FILE_SIZE_LIMIT = 512 * 1024;
 
 const NO_SHELL_UTILITIES_ERROR =
-	"This container image has no shell utilities and its filesystem is not accessible from the Dokploy host.";
+	"This container image has no shell utilities and its filesystem is not accessible from the Notploy host.";
 
 const isMissingBinaryError = (error: unknown) =>
 	error instanceof ExecError &&
@@ -841,7 +841,7 @@ export const writeContainerFile = async (
 		throw new Error("File is too large to save from the editor (max 512KB)");
 	}
 
-	const tempPath = `/tmp/dokploy-edit-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+	const tempPath = `/tmp/notploy-edit-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 	const command = `printf '%s' ${quote([base64Content])} | base64 -d > ${quote([tempPath])} && docker cp ${quote([tempPath])} ${quote([`${containerId}:${filePath}`])}; status=$?; rm -f ${quote([tempPath])}; exit $status`;
 
 	if (serverId) {

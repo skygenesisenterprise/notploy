@@ -1,10 +1,10 @@
-import { findAllDeploymentsByApplicationId } from "@dokploy/server/services/deployment";
+import { findAllDeploymentsByApplicationId } from "@notploy/server/services/deployment";
 import {
 	findRegistryByIdWithCredentials,
 	type Registry,
 	safeDockerLoginCommand,
-} from "@dokploy/server/services/registry";
-import { createRollback } from "@dokploy/server/services/rollbacks";
+} from "@notploy/server/services/registry";
+import { createRollback } from "@notploy/server/services/rollbacks";
 import { quote } from "shell-quote";
 import type { ApplicationNested } from "../builders";
 

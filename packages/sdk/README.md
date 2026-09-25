@@ -1,23 +1,23 @@
-# Dokploy SDK
+# Notploy SDK
 
-TypeScript SDK for the [Dokploy](https://dokploy.com) API — auto-generated from the OpenAPI spec.
+TypeScript SDK for the [Notploy](https://notploy.com) API — auto-generated from the OpenAPI spec.
 
 ## Installation
 
 ```bash
-npm install @dokploy/sdk
+npm install @notploy/sdk
 # or
-pnpm add @dokploy/sdk
+pnpm add @notploy/sdk
 ```
 
 ## Usage
 
 ```ts
-import { client, applicationCreate, applicationOne, projectCreate } from "@dokploy/sdk";
+import { client, applicationCreate, applicationOne, projectCreate } from "@notploy/sdk";
 
-// Configure the client with your Dokploy instance URL and API token
+// Configure the client with your Notploy instance URL and API token
 client.setConfig({
-  baseUrl: "https://your-dokploy-instance.com/api",
+  baseUrl: "https://your-notploy-instance.com/api",
   headers: {
     "x-api-key": "YOUR_API_TOKEN",
   },
@@ -58,7 +58,7 @@ console.log(data?.name);
 
 ## API Coverage
 
-524 endpoints across the full Dokploy API:
+524 endpoints across the full Notploy API:
 
 | Category | Resources |
 |---|---|

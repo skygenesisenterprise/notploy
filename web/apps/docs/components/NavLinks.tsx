@@ -20,22 +20,22 @@ export function NavLinks() {
 	const links = [
 		{
 			text: "Login",
-			url: "https://app.dokploy.com/",
+			url: "https://app.notploy.com/",
 			icon: LogIn,
 		},
 		{
 			text: "Sign Up",
-			url: "https://app.dokploy.com/register",
+			url: "https://app.notploy.com/register",
 			icon: UserPlus,
 		},
 		{
 			text: "Website",
-			url: "https://dokploy.com",
+			url: "https://notploy.com",
 			icon: Globe,
 		},
 		{
 			text: "Templates",
-			url: "https://dokploy.com/templates",
+			url: "https://notploy.com/templates",
 			icon: LayoutGrid,
 		},
 		{
@@ -55,17 +55,17 @@ export function NavLinks() {
 		},
 		{
 			text: "Support",
-			url: "https://opencollective.com/dokploy",
+			url: "https://opencollective.com/notploy",
 			icon: Heart,
 		},
 		{
 			text: "Github",
-			url: "https://github.com/dokploy/dokploy",
+			url: "https://github.com/notploy/notploy",
 			icon: Github,
 		},
 		{
 			text: "Blog",
-			url: "https://dokploy.com/blog",
+			url: "https://notploy.com/blog",
 			icon: Rss,
 		},
 	];

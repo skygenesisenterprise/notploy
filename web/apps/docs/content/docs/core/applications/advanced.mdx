@@ -3,7 +3,7 @@ title: Advanced
 description: Learn how to use advanced features in your application.
 ---
 
-This section is designed for experienced users who need to manage complex configurations and orchestration settings in Dokploy. The **Advanced** tab is located in your **Applications** settings. Here, you can execute custom commands, manage cluster replicas, select Docker registries, and configure Docker Swarm settings.
+This section is designed for experienced users who need to manage complex configurations and orchestration settings in Notploy. The **Advanced** tab is located in your **Applications** settings. Here, you can execute custom commands, manage cluster replicas, select Docker registries, and configure Docker Swarm settings.
 
 ### Run Command
 
@@ -110,7 +110,7 @@ You can configure your application to use an external build server to compile an
 
 When you enable a custom build server:
 
-1. **Build Phase**: Dokploy connects to your build server via SSH, clones your repository, and builds the Docker image on the build server
+1. **Build Phase**: Notploy connects to your build server via SSH, clones your repository, and builds the Docker image on the build server
 2. **Push Phase**: The built image is pushed to your configured Docker registry
 3. **Deploy Phase**: Your deployment server(s) pull the image from the registry and deploy it
 
@@ -119,7 +119,7 @@ When you enable a custom build server:
 </Callout>
 
 <Callout type="warn">
-  **Required Configuration**: When using a build server, you must configure a Docker registry in your Dokploy settings. The built image needs to be stored in a registry that's accessible to your deployment servers. See [Docker Registry](/docs/core/registry) for configuration details.
+  **Required Configuration**: When using a build server, you must configure a Docker registry in your Notploy settings. The built image needs to be stored in a registry that's accessible to your deployment servers. See [Docker Registry](/docs/core/registry) for configuration details.
 </Callout>
 
 **For complete setup instructions, configuration details, and best practices, please read the comprehensive [Build Server guide](/docs/core/remote-servers/build-server).**
@@ -134,7 +134,7 @@ Manage the memory and CPU resources allocated to your applications or databases.
 
 ### Memory Resources
 
-Docker API expects memory values in **bytes**. Dokploy passes the value you enter directly to the Docker API, so you must enter the value in raw bytes. Units like `MB` or `GB` are not parsed.
+Docker API expects memory values in **bytes**. Notploy passes the value you enter directly to the Docker API, so you must enter the value in raw bytes. Units like `MB` or `GB` are not parsed.
 
 #### Memory Limit
 
@@ -178,7 +178,7 @@ The minimum amount of memory guaranteed to the container. Docker will try to ens
 
 ### CPU Resources
 
-Docker API expects CPU values in **nanoCPUs**, where `1000000000` nanoCPUs equal 1 CPU core. Dokploy passes the value you enter directly to the Docker API, so you must enter the value in raw nanoCPUs. Decimal core values like `0.5` are not parsed.
+Docker API expects CPU values in **nanoCPUs**, where `1000000000` nanoCPUs equal 1 CPU core. Notploy passes the value you enter directly to the Docker API, so you must enter the value in raw nanoCPUs. Decimal core values like `0.5` are not parsed.
 
 #### CPU Limit
 
@@ -228,7 +228,7 @@ The minimum number of CPU cores reserved for the container. Docker will try to e
 
 #### Docker API Reference
 
-When Dokploy communicates with Docker API, these values are sent in the service specification:
+When Notploy communicates with Docker API, these values are sent in the service specification:
 
 ```json
 {
@@ -284,7 +284,7 @@ Configure persistent storage for your application to ensure data remains intact 
 2. **File Path**: The name of the file.
 3. **Mount Path**: Path in the container where the file is placed. **The path must also contain the filename.**
 
-File mounts are a Dokploy feature. When you create a file mount, Dokploy stores the file in a folder called `files` inside your project directory. This file is created once when you set up the file mount and persists across deployments.
+File mounts are a Notploy feature. When you create a file mount, Notploy stores the file in a folder called `files` inside your project directory. This file is created once when you set up the file mount and persists across deployments.
 
 <ImageZoom src="/assets/file-mount-configuration.webp" width={800} height={630} className="rounded-lg"/>
 

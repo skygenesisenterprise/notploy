@@ -1,6 +1,6 @@
-import { logger } from "@dokploy/server/lib/logger";
-import type { BackupSchedule } from "@dokploy/server/services/backup";
-import type { Destination } from "@dokploy/server/services/destination";
+import { logger } from "@notploy/server/lib/logger";
+import type { BackupSchedule } from "@notploy/server/services/backup";
+import type { Destination } from "@notploy/server/services/destination";
 import { scheduledJobs, scheduleJob } from "node-schedule";
 import { quote } from "shell-quote";
 import { keepLatestNBackups } from ".";

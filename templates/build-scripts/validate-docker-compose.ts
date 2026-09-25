@@ -2,7 +2,7 @@
 
 /**
  * Validation script for docker-compose.yml files
- * Validates structure, syntax, and best practices for Dokploy templates
+ * Validates structure, syntax, and best practices for Notploy templates
  */
 
 import * as fs from "fs";
@@ -77,12 +77,12 @@ class DockerComposeValidator {
 			const content = fs.readFileSync(composePath, "utf8");
 			// Opt-out marker for templates whose protocols require host-published ports
 			// (mail/SMTP, game servers, streaming, VPN, remote-desktop relays...).
-			this.allowHostPorts = /^#\s*dokploy:\s*allow-host-ports\b/m.test(content);
+			this.allowHostPorts = /^#\s*notploy:\s*allow-host-ports\b/m.test(content);
 			// Opt-out marker for templates that functionally depend on container_name
 			// (e.g. legacy Supabase: Kong routes Realtime via its container DNS name and
 			// Vector derives log routing from container names). Only use it when the
 			// names are deployment-unique (e.g. include a per-deploy hash/prefix).
-			this.allowContainerNames = /^#\s*dokploy:\s*allow-container-names\b/m.test(content);
+			this.allowContainerNames = /^#\s*notploy:\s*allow-container-names\b/m.test(content);
 			const compose = yaml.parse(content) as ComposeSpecification;
 
 			if (!compose || typeof compose !== "object") {
@@ -108,18 +108,18 @@ class DockerComposeValidator {
 	}
 
 	/**
-	 * Validate services don't use container_name (Dokploy best practice)
+	 * Validate services don't use container_name (Notploy best practice)
 	 */
 	private validateNoContainerName(services: Record<string, DefinitionsService>): void {
 		Object.entries(services).forEach(([serviceName, service]) => {
 			if (service.container_name) {
 				if (this.allowContainerNames) {
 					this.warning(
-						`Service '${serviceName}': uses 'container_name' (allowed by '# dokploy: allow-container-names' marker)`
+						`Service '${serviceName}': uses 'container_name' (allowed by '# notploy: allow-container-names' marker)`
 					);
 				} else {
 					this.error(
-						`Service '${serviceName}': Found 'container_name' field. According to README, container_name should not be used. Dokploy manages container names automatically.`
+						`Service '${serviceName}': Found 'container_name' field. According to README, container_name should not be used. Notploy manages container names automatically.`
 					);
 				}
 			}
@@ -127,37 +127,37 @@ class DockerComposeValidator {
 	}
 
 	/**
-	 * Validate no explicit networks (Dokploy creates networks automatically)
+	 * Validate no explicit networks (Notploy creates networks automatically)
 	 */
 	private validateNoExplicitNetworks(
 		compose: ComposeSpecification,
 		services: Record<string, DefinitionsService>
 	): void {
-		// Check for dokploy-network specifically
-		const hasDokployNetwork = compose.networks && "dokploy-network" in compose.networks;
+		// Check for notploy-network specifically
+		const hasNotployNetwork = compose.networks && "notploy-network" in compose.networks;
 
 		// Check if any service uses explicit networks
 		Object.entries(services).forEach(([serviceName, service]) => {
 			if (service.networks) {
 				if (typeof service.networks === "object" && !Array.isArray(service.networks)) {
 					const networkNames = Object.keys(service.networks);
-					if (networkNames.includes("dokploy-network")) {
+					if (networkNames.includes("notploy-network")) {
 						this.error(
-							`Service '${serviceName}': Uses 'dokploy-network'. Dokploy creates networks automatically, explicit networks are not needed.`
+							`Service '${serviceName}': Uses 'notploy-network'. Notploy creates networks automatically, explicit networks are not needed.`
 						);
 					} else if (networkNames.length > 0) {
 						this.error(
-							`Service '${serviceName}': Uses explicit network configuration. Dokploy creates networks automatically, explicit networks are not needed.`
+							`Service '${serviceName}': Uses explicit network configuration. Notploy creates networks automatically, explicit networks are not needed.`
 						);
 					}
 				} else if (Array.isArray(service.networks)) {
-					if (service.networks.includes("dokploy-network")) {
+					if (service.networks.includes("notploy-network")) {
 						this.error(
-							`Service '${serviceName}': Uses 'dokploy-network'. Dokploy creates networks automatically, explicit networks are not needed.`
+							`Service '${serviceName}': Uses 'notploy-network'. Notploy creates networks automatically, explicit networks are not needed.`
 						);
 					} else if (service.networks.length > 0) {
 						this.error(
-							`Service '${serviceName}': Uses explicit network configuration. Dokploy creates networks automatically, explicit networks are not needed.`
+							`Service '${serviceName}': Uses explicit network configuration. Notploy creates networks automatically, explicit networks are not needed.`
 						);
 					}
 				}
@@ -165,15 +165,15 @@ class DockerComposeValidator {
 		});
 
 		// Check if networks section exists at root level
-		if (hasDokployNetwork) {
+		if (hasNotployNetwork) {
 			this.error(
-				"Found 'dokploy-network' in networks section. Dokploy creates networks automatically, explicit networks are not needed."
+				"Found 'notploy-network' in networks section. Notploy creates networks automatically, explicit networks are not needed."
 			);
 		}
 
 		if (compose.networks && Object.keys(compose.networks).length > 0) {
 			this.error(
-				"Found explicit networks section. Dokploy creates networks automatically, explicit networks are not needed."
+				"Found explicit networks section. Notploy creates networks automatically, explicit networks are not needed."
 			);
 		}
 	}
@@ -190,11 +190,11 @@ class DockerComposeValidator {
 						if (/^\d+:\d+/.test(port)) {
 							if (this.allowHostPorts) {
 								this.warning(
-									`Service '${serviceName}': ports[${index}] publishes host port '${port}' (allowed by '# dokploy: allow-host-ports' marker)`
+									`Service '${serviceName}': ports[${index}] publishes host port '${port}' (allowed by '# notploy: allow-host-ports' marker)`
 								);
 							} else {
 								this.error(
-									`Service '${serviceName}': ports[${index}] uses port mapping format '${port}'. According to README, use only port number (e.g., '3000') instead of '3000:3000'. Dokploy handles port routing.`
+									`Service '${serviceName}': ports[${index}] uses port mapping format '${port}'. According to README, use only port number (e.g., '3000') instead of '3000:3000'. Notploy handles port routing.`
 								);
 							}
 						}
@@ -203,12 +203,12 @@ class DockerComposeValidator {
 						if (port.published && port.target) {
 							if (this.allowHostPorts) {
 								this.warning(
-									`Service '${serviceName}': ports[${index}] publishes host port (allowed by '# dokploy: allow-host-ports' marker)`
+									`Service '${serviceName}': ports[${index}] publishes host port (allowed by '# notploy: allow-host-ports' marker)`
 								);
 								return;
 							}
 							this.error(
-								`Service '${serviceName}': ports[${index}] uses port mapping (published: ${port.published}, target: ${port.target}). According to README, use only port number. Dokploy handles port routing.`
+								`Service '${serviceName}': ports[${index}] uses port mapping (published: ${port.published}, target: ${port.target}). According to README, use only port number. Notploy handles port routing.`
 							);
 						}
 					}

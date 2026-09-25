@@ -2,7 +2,7 @@ import { ModeToggle } from "@/mode-toggle";
 import { Plus, StarIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
-import DokployLogo from "./ui/dokploy-logo";
+import NotployLogo from "./ui/notploy-logo";
 
 const Navigation = () => {
   const [githubStars, setGithubStars] = useState(0);
@@ -10,7 +10,7 @@ const Navigation = () => {
     const fetchGithubStars = async () => {
       try {
         const response = await fetch(
-          "https://api.github.com/repos/dokploy/dokploy"
+          "https://api.github.com/repos/notploy/notploy"
         );
         const data = await response.json();
         setGithubStars(
@@ -27,14 +27,14 @@ const Navigation = () => {
   return (
     <div className="flex sticky top-0 bg-background/80 backdrop-blur-xs z-10 justify-between items-center p-2 py-4 lg:p-4 border-b">
       <div className="flex flex-row gap-2 justify-center items-center">
-        <DokployLogo className="size-7 lg:size-10 text-black dark:text-white" />
-        <h1 className="text-2xl font-bold hidden lg:block">Dokploy Templates</h1>
+        <NotployLogo className="size-7 lg:size-10 text-black dark:text-white" />
+        <h1 className="text-2xl font-bold hidden lg:block">Notploy Templates</h1>
       </div>
       <div className="flex flex-row gap-2 justify-center items-center">
         <Button
           onClick={() => {
             window.open(
-              "https://github.com/Dokploy/templates/issues/new",
+              "https://github.com/Notploy/templates/issues/new",
               "_blank"
             );
           }}
@@ -45,7 +45,7 @@ const Navigation = () => {
 
         <Button
           onClick={() => {
-            window.open("https://github.com/dokploy/dokploy", "_blank");
+            window.open("https://github.com/notploy/notploy", "_blank");
           }}
           variant="outline"
           //   className="flex cursor-pointer hover:bg-gray-400 flex-row gap-2 items-center"

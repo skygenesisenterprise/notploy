@@ -22,11 +22,11 @@ export async function GET() {
 	try {
 		// Request 1 per page to get total count from Link header
 		const response = await fetch(
-			"https://api.github.com/repos/dokploy/dokploy/contributors?per_page=1&anon=false",
+			"https://api.github.com/repos/notploy/notploy/contributors?per_page=1&anon=false",
 			{
 				headers: {
 					Accept: "application/vnd.github.v3+json",
-					"User-Agent": "Dokploy-Website",
+					"User-Agent": "Notploy-Website",
 				},
 			},
 		);

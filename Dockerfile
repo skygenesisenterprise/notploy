@@ -14,18 +14,18 @@ RUN apt-get update && apt-get install -y python3 make g++ git python3-pip pkg-co
 # Install dependencies
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-# Deploy only the dokploy app
+# Deploy only the notploy app
 
 ENV NODE_ENV=production
-RUN pnpm --filter=@dokploy/server build
-RUN pnpm --filter=./apps/dokploy run build
+RUN pnpm --filter=@notploy/server build
+RUN pnpm --filter=./apps/notploy run build
 
-RUN pnpm --filter=./apps/dokploy --prod deploy --legacy /prod/dokploy
+RUN pnpm --filter=./apps/notploy --prod deploy --legacy /prod/notploy
 
-RUN cp -R /usr/src/app/apps/dokploy/.next /prod/dokploy/.next
-RUN cp -R /usr/src/app/apps/dokploy/dist /prod/dokploy/dist
+RUN cp -R /usr/src/app/apps/notploy/.next /prod/notploy/.next
+RUN cp -R /usr/src/app/apps/notploy/dist /prod/notploy/dist
 
-FROM base AS dokploy
+FROM base AS notploy
 WORKDIR /app
 
 # Set production
@@ -34,15 +34,15 @@ ENV NODE_ENV=production
 RUN apt-get update && apt-get install -y tini curl unzip zip apache2-utils iproute2 rsync git-lfs && git lfs install && rm -rf /var/lib/apt/lists/*
 
 # Copy only the necessary files
-COPY --from=build /prod/dokploy/.next ./.next
-COPY --from=build /prod/dokploy/dist ./dist
-COPY --from=build /prod/dokploy/next.config.mjs ./next.config.mjs
-COPY --from=build /prod/dokploy/public ./public
-COPY --from=build /prod/dokploy/package.json ./package.json
-COPY --from=build /prod/dokploy/drizzle ./drizzle
+COPY --from=build /prod/notploy/.next ./.next
+COPY --from=build /prod/notploy/dist ./dist
+COPY --from=build /prod/notploy/next.config.mjs ./next.config.mjs
+COPY --from=build /prod/notploy/public ./public
+COPY --from=build /prod/notploy/package.json ./package.json
+COPY --from=build /prod/notploy/drizzle ./drizzle
 COPY .env.production ./.env
-COPY --from=build /prod/dokploy/components.json ./components.json
-COPY --from=build /prod/dokploy/node_modules ./node_modules
+COPY --from=build /prod/notploy/components.json ./components.json
+COPY --from=build /prod/notploy/node_modules ./node_modules
 
 
 # Install docker

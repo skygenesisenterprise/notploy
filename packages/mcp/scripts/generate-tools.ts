@@ -168,9 +168,9 @@ function generateToolsMd(entries: ToolMdEntry[]): string {
   }
 
   const lines: string[] = [
-    "# Dokploy MCP Server - Tools Documentation",
+    "# Notploy MCP Server - Tools Documentation",
     "",
-    "> Auto-generated from the [Dokploy OpenAPI spec](https://docs.dokploy.com/openapi.json). Run `pnpm generate` to update.",
+    "> Auto-generated from the [Notploy OpenAPI spec](https://docs.notploy.com/openapi.json). Run `pnpm generate` to update.",
     "",
     `- **Total Tools**: ${entries.length}`,
     `- **Categories**: ${grouped.size}`,
@@ -225,7 +225,7 @@ function generateToolsMd(entries: ToolMdEntry[]): string {
     "- **readOnlyHint**: GET endpoints that only retrieve data",
     "- **destructiveHint**: Operations that delete or remove resources",
     "- **idempotentHint**: Safe to repeat without side effects",
-    "- **openWorldHint**: All tools interact with the external Dokploy API",
+    "- **openWorldHint**: All tools interact with the external Notploy API",
     "",
   );
 

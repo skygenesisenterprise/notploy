@@ -1,7 +1,7 @@
 # ============================================================================
-# Didacta Community — configuración del blueprint de Dokploy
+# Didacta Community — configuración del blueprint de Notploy
 # ----------------------------------------------------------------------------
-# Dokploy resuelve los helpers de [variables], escribe [config.env] en un .env
+# Notploy resuelve los helpers de [variables], escribe [config.env] en un .env
 # junto al docker-compose.yml y publica el dominio de [[config.domains]].
 #
 # Helpers disponibles: ${domain}, ${password:N}, ${base64:N}, ${hash:N},
@@ -61,7 +61,7 @@ STORAGE_DRIVER = "local"
 STORAGE_ROOT = "/app/data/storage"
 
 # SMTP: sin esto la instalación arranca igual, avisa por la interfaz y no puede
-# mandar correos. Rellenar desde el panel de Dokploy después del despliegue.
+# mandar correos. Rellenar desde el panel de Notploy después del despliegue.
 SMTP_HOST = ""
 SMTP_PORT = "587"
 SMTP_USER = ""

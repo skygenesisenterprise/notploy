@@ -1,4 +1,4 @@
-# dokploy: allow-host-ports — FiveM game clients connect over raw TCP/UDP on 30120; Traefik cannot route game traffic.
+# notploy: allow-host-ports — FiveM game clients connect over raw TCP/UDP on 30120; Traefik cannot route game traffic.
 # docker-compose.yml
 #
 # IMPORTANT: FiveM Template - Two Deployment Modes

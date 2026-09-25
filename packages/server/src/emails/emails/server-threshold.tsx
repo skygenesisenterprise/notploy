@@ -41,11 +41,11 @@ export const ServerThresholdEmail = ({
 						<Section className="mt-[32px]">
 							<Img
 								src={
-									"https://raw.githubusercontent.com/Dokploy/dokploy/refs/heads/canary/apps/dokploy/logo.png"
+									"https://raw.githubusercontent.com/Notploy/notploy/refs/heads/canary/apps/notploy/logo.png"
 								}
 								width="100"
 								height="50"
-								alt="Dokploy"
+								alt="Notploy"
 								className="my-0 mx-auto"
 							/>
 						</Section>

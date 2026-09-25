@@ -5,8 +5,8 @@ first user (your admin account) from the command line.
 
 ### Create the first user
 
-Open a terminal on the server running Dokploy (or use the container terminal in
-the Dokploy UI) and run the following inside the `synapse` service container:
+Open a terminal on the server running Notploy (or use the container terminal in
+the Notploy UI) and run the following inside the `synapse` service container:
 
 ```bash
 docker exec -it $(docker ps -qf "name=synapse" | head -n 1) \

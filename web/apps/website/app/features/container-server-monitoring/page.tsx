@@ -81,7 +81,7 @@ const configFeatures = [
 		icon: Database,
 		title: "Manage how long data is stored",
 		description:
-			"Decide on your retention period and an automated cron job will clean old metrics. Choose which port the Dokploy metrics server listens on—the default is 4500.",
+			"Decide on your retention period and an automated cron job will clean old metrics. Choose which port the Notploy metrics server listens on—the default is 4500.",
 	},
 	{
 		icon: Server,
@@ -109,7 +109,7 @@ const relatedFeatures = [
 		icon: Database,
 		title: "Database Management",
 		description:
-			"Provision, manage, and back up databases without leaving Dokploy.",
+			"Provision, manage, and back up databases without leaving Notploy.",
 		href: "/features/database-management-tool",
 	},
 	{
@@ -140,7 +140,7 @@ const faqs = [
 	{
 		question: "What is the best server monitoring software?",
 		answer:
-			"The best server monitoring software depends on what you need to monitor and whether you want open-source control or a managed SaaS. If you're using Dokploy, you get real-time server monitoring as part of your solution on all plans—with no additional setup required once your server is deployed.",
+			"The best server monitoring software depends on what you need to monitor and whether you want open-source control or a managed SaaS. If you're using Notploy, you get real-time server monitoring as part of your solution on all plans—with no additional setup required once your server is deployed.",
 	},
 ];
 
@@ -173,7 +173,7 @@ export default function ContainerServerMonitoringPage() {
 							</Button>
 							<Button variant="outline" className="rounded-full" asChild>
 								<Link
-									href="https://docs.dokploy.com/docs/core"
+									href="https://docs.notploy.com/docs/core"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -257,7 +257,7 @@ export default function ContainerServerMonitoringPage() {
 							Access server monitoring with no setup required
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Use Dokploy&apos;s container monitoring dashboard as soon as
+							Use Notploy&apos;s container monitoring dashboard as soon as
 							you&apos;ve completed the server deployment setup.
 						</p>
 					</div>
@@ -277,7 +277,7 @@ export default function ContainerServerMonitoringPage() {
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Host Dokploy where your business needs it
+							Host Notploy where your business needs it
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Choose a deployment option that suits your business&mdash;on your
@@ -319,7 +319,7 @@ export default function ContainerServerMonitoringPage() {
 							Multiple configuration options
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Set up your Dokploy dashboard to suit your needs with different
+							Set up your Notploy dashboard to suit your needs with different
 							configuration options.
 						</p>
 					</div>
@@ -374,7 +374,7 @@ export default function ContainerServerMonitoringPage() {
 							Container and Server monitoring tool
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Take advantage of Dokploy&apos;s comprehensive container and server
+							Take advantage of Notploy&apos;s comprehensive container and server
 							monitoring software alongside the rest of the platform.
 						</p>
 					</div>
@@ -407,7 +407,7 @@ export default function ContainerServerMonitoringPage() {
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Get real-time visibility into your servers and containers with
-							Dokploy&apos;s built-in monitoring.
+							Notploy&apos;s built-in monitoring.
 						</p>
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
@@ -415,7 +415,7 @@ export default function ContainerServerMonitoringPage() {
 							</Button>
 							<Button variant="outline" className="rounded-full" asChild>
 								<Link
-									href="https://docs.dokploy.com/docs/core"
+									href="https://docs.notploy.com/docs/core"
 									target="_blank"
 									rel="noopener noreferrer"
 								>

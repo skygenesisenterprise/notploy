@@ -35,8 +35,8 @@ export function readAuthConfig(): AuthConfig {
 	loadEnvFile();
 
 	const envToken =
-		process.env.DOKPLOY_API_KEY ?? process.env.DOKPLOY_AUTH_TOKEN;
-	const envUrl = process.env.DOKPLOY_URL;
+		process.env.NOTPLOY_API_KEY ?? process.env.NOTPLOY_AUTH_TOKEN;
+	const envUrl = process.env.NOTPLOY_URL;
 
 	if (envToken && envUrl) {
 		return { token: envToken, url: envUrl };
@@ -45,7 +45,7 @@ export function readAuthConfig(): AuthConfig {
 	if (!fs.existsSync(configPath)) {
 		console.error(
 			chalk.red(
-				"No configuration found. Please run 'dokploy auth' first or set DOKPLOY_URL and DOKPLOY_AUTH_TOKEN environment variables.",
+				"No configuration found. Please run 'notploy auth' first or set NOTPLOY_URL and NOTPLOY_AUTH_TOKEN environment variables.",
 			),
 		);
 		process.exit(1);
@@ -57,7 +57,7 @@ export function readAuthConfig(): AuthConfig {
 	if (!url || !token) {
 		console.error(
 			chalk.red(
-				"Incomplete auth config. Run 'dokploy auth' or set environment variables.",
+				"Incomplete auth config. Run 'notploy auth' or set environment variables.",
 			),
 		);
 		process.exit(1);

@@ -31,7 +31,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Application Management Software and Solutions",
 	description:
-		"Monitor, control, and maintain your business applications from a single dashboard with Dokploy's application management software.",
+		"Monitor, control, and maintain your business applications from a single dashboard with Notploy's application management software.",
 };
 
 const coreFeatures = [
@@ -51,7 +51,7 @@ const coreFeatures = [
 		icon: RotateCcw,
 		title: "Rollback in seconds",
 		description:
-			"Recover fast when a release goes wrong. Dokploy supports Docker Swarm automatic rollback when health checks fail, as well as registry-based rollback to any previous deployment version when a Docker registry is configured.",
+			"Recover fast when a release goes wrong. Notploy supports Docker Swarm automatic rollback when health checks fail, as well as registry-based rollback to any previous deployment version when a Docker registry is configured.",
 	},
 	{
 		icon: Clock,
@@ -145,17 +145,17 @@ const faqs = [
 	{
 		question: "What is application performance management software?",
 		answer:
-			"Application performance management software helps IT teams monitor application health, track resource usage, and identify performance issues before they affect users. Key features typically include real-time monitoring of CPU, memory, disk, and network usage, alongside log access and alerting. Dokploy covers the operational side of application performance management: giving teams live usage data, deployment history, and rollback capabilities from a single dashboard, without requiring specialist expertise or separate tooling.",
+			"Application performance management software helps IT teams monitor application health, track resource usage, and identify performance issues before they affect users. Key features typically include real-time monitoring of CPU, memory, disk, and network usage, alongside log access and alerting. Notploy covers the operational side of application performance management: giving teams live usage data, deployment history, and rollback capabilities from a single dashboard, without requiring specialist expertise or separate tooling.",
 	},
 	{
 		question: "What is the best application management software?",
 		answer:
-			"The best application management software depends on your business needs, team size, and technical expertise. Enterprise platforms often come with deep integration capabilities and reporting features, but they can require significant investment and a steeper learning curve. Dokploy is built for teams that want operational efficiency without that overhead. It covers the key processes of application management, including monitoring, rollbacks, environment configuration, and scheduled jobs, in a platform you can self-host or run in the cloud so that your IT team can run on your own infrastructure if they want. It\u2019s a strong fit for organizations that want to manage business applications with full control and without vendor lock-in.",
+			"The best application management software depends on your business needs, team size, and technical expertise. Enterprise platforms often come with deep integration capabilities and reporting features, but they can require significant investment and a steeper learning curve. Notploy is built for teams that want operational efficiency without that overhead. It covers the key processes of application management, including monitoring, rollbacks, environment configuration, and scheduled jobs, in a platform you can self-host or run in the cloud so that your IT team can run on your own infrastructure if they want. It\u2019s a strong fit for organizations that want to manage business applications with full control and without vendor lock-in.",
 	},
 	{
 		question: "What is application lifecycle management software?",
 		answer:
-			"Application lifecycle management (ALM) software supports the full lifecycle of a software application, from requirements and development through deployment, ongoing maintenance, and eventual retirement. It connects strategic planning and business objectives with day-to-day operational execution. Dokploy focuses on the operational slice of that lifecycle\u2014standardizing how applications are deployed, monitored, rolled back, and maintained\u2014which is where most teams experience the most friction. For organizations going through digital transformation or modernization initiatives, having that operational foundation in place is what makes broader lifecycle management sustainable.",
+			"Application lifecycle management (ALM) software supports the full lifecycle of a software application, from requirements and development through deployment, ongoing maintenance, and eventual retirement. It connects strategic planning and business objectives with day-to-day operational execution. Notploy focuses on the operational slice of that lifecycle\u2014standardizing how applications are deployed, monitored, rolled back, and maintained\u2014which is where most teams experience the most friction. For organizations going through digital transformation or modernization initiatives, having that operational foundation in place is what makes broader lifecycle management sustainable.",
 	},
 ];
 
@@ -180,15 +180,15 @@ export default function ApplicationManagementSoftwarePage() {
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
 							Monitor, control, and maintain your business applications from a
-							single dashboard. Dokploy gives your IT team the visibility and
+							single dashboard. Notploy gives your IT team the visibility and
 							tools to keep every application running at peak
 							performance&mdash;without the complexity.
 						</p>
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
-									aria-label="Get Started with Dokploy"
+									href="https://app.notploy.com/register"
+									aria-label="Get Started with Notploy"
 									target="_blank"
 								>
 									Get Started
@@ -216,7 +216,7 @@ export default function ApplicationManagementSoftwarePage() {
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Bring your entire application landscape into one place with
-							Dokploy. Get a clear view of application health, resource usage,
+							Notploy. Get a clear view of application health, resource usage,
 							and deployment history.
 						</p>
 					</div>
@@ -232,7 +232,7 @@ export default function ApplicationManagementSoftwarePage() {
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Improving visibility into your application portfolio is the first
-							step toward better application management. Dokploy surfaces the
+							step toward better application management. Notploy surfaces the
 							signals your IT team needs, in real time, in one place.
 						</p>
 					</div>
@@ -272,7 +272,7 @@ export default function ApplicationManagementSoftwarePage() {
 								shared standards instead of tribal knowledge.
 							</p>
 							<p className="mt-4 text-sm text-muted-foreground">
-								Dokploy gives teams a consistent application management system
+								Notploy gives teams a consistent application management system
 								for deployments, environment configuration, and rollback
 								workflows, so reliability doesn&apos;t depend on who happens to
 								be on call.
@@ -351,15 +351,15 @@ export default function ApplicationManagementSoftwarePage() {
 				</Container>
 			</section>
 
-			{/* Run Dokploy where your business needs it */}
+			{/* Run Notploy where your business needs it */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Run Dokploy where your business needs it
+							Run Notploy where your business needs it
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Deploy Dokploy on your own infrastructure or ours. Both options
+							Deploy Notploy on your own infrastructure or ours. Both options
 							give you the same application management capabilities, and you
 							choose what fits your operational model and regulatory compliance
 							requirements.
@@ -387,7 +387,7 @@ export default function ApplicationManagementSoftwarePage() {
 							<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
 								<Cloud className="h-6 w-6" />
 							</div>
-							<h3 className="text-xl font-semibold">Dokploy Cloud</h3>
+							<h3 className="text-xl font-semibold">Notploy Cloud</h3>
 							<ul className="mt-4 space-y-2">
 								{cloudItems.map((item) => (
 									<li
@@ -412,7 +412,7 @@ export default function ApplicationManagementSoftwarePage() {
 							Deploy AI in a controlled environment
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Use Dokploy to create sandbox environments separated from production infrastructure, where technical and non-technical employees can launch AI-coded apps safely.
+							Use Notploy to create sandbox environments separated from production infrastructure, where technical and non-technical employees can launch AI-coded apps safely.
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-3">
@@ -427,7 +427,7 @@ export default function ApplicationManagementSoftwarePage() {
 								number: "2",
 								title: "Deploy from any source",
 								description:
-									"Once Dokploy is set up, team members can take AI-coded apps from a Git repo, Docker image, or Compose file to a running environment without engineering support.",
+									"Once Notploy is set up, team members can take AI-coded apps from a Git repo, Docker image, or Compose file to a running environment without engineering support.",
 							},
 							{
 								number: "3",
@@ -459,13 +459,13 @@ export default function ApplicationManagementSoftwarePage() {
 							Take control of your application landscape
 						</h2>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Dokploy gives your IT team the application management software it
+							Notploy gives your IT team the application management software it
 							needs to monitor, maintain, and scale business applications with
 							confidence. Create your account and get started in minutes.
 						</p>
 						<div className="mt-10">
 							<Button className="rounded-full" asChild>
-								<Link href="https://app.dokploy.com">Create your account</Link>
+								<Link href="https://app.notploy.com">Create your account</Link>
 							</Button>
 						</div>
 					</div>

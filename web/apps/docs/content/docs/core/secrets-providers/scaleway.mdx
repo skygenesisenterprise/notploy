@@ -1,20 +1,20 @@
 ---
 title: Scaleway Secret Manager
-description: "Use Scaleway Secret Manager secrets in your Dokploy environment variables."
+description: "Use Scaleway Secret Manager secrets in your Notploy environment variables."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
 ## Create an API Key
 
-Dokploy authenticates with a Scaleway **API key** scoped to the project your secrets live in.
+Notploy authenticates with a Scaleway **API key** scoped to the project your secrets live in.
 
 1. In the Scaleway console, go to **IAM → API Keys → Generate an API key**.
 2. Scope it to the project that holds your secrets, and attach a permission set that includes **SecretManagerReadOnly** (or a policy with equivalent read access).
 3. Copy the **Secret Key** — like other Scaleway API keys, it is only shown once.
 
 <Callout type="warn">
-  The Secret Key is the credential, there is no separate access key ID — Dokploy authenticates with it alone via the `X-Auth-Token` header.
+  The Secret Key is the credential, there is no separate access key ID — Notploy authenticates with it alone via the `X-Auth-Token` header.
 </Callout>
 
 ## Configuration

@@ -35,8 +35,8 @@
 # After Nextcloud completes its initial setup (create admin account, etc.),
 # run this script manually:
 #
-# Option 1 (From Dokploy UI):
-#   1. Go to your Nextcloud service in Dokploy
+# Option 1 (From Notploy UI):
+#   1. Go to your Nextcloud service in Notploy
 #   2. Open the Terminal tab
 #   3. Run: su -s /bin/sh www-data -c "/bin/sh /usr/local/bin/fix-nextcloud.sh"
 #

@@ -1,6 +1,6 @@
 {
 	"title": "API",
-	"description": "RESTful API reference for programmatic access to Dokploy",
+	"description": "RESTful API reference for programmatic access to Notploy",
 	"icon": "Code",
 	"root": true,
 	"pages": ["---Get Started---", "index", "---Reference---", "..."]

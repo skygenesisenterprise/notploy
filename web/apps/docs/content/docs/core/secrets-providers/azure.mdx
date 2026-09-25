@@ -1,15 +1,15 @@
 ---
 title: Azure Key Vault
-description: "Use Azure Key Vault secrets in your Dokploy environment variables."
+description: "Use Azure Key Vault secrets in your Notploy environment variables."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Dokploy authenticates with an **App Registration** (service principal) using the OAuth2 client credentials flow.
+Notploy authenticates with an **App Registration** (service principal) using the OAuth2 client credentials flow.
 
 ## Create an App Registration
 
-1. In the Azure Portal, go to **App registrations → New registration**, name it (e.g. `dokploy`) and register it with the defaults — no redirect URI needed.
+1. In the Azure Portal, go to **App registrations → New registration**, name it (e.g. `notploy`) and register it with the defaults — no redirect URI needed.
 2. Copy the **Application (client) ID** and the **Directory (tenant) ID** from the overview page.
 3. Go to **Certificates & secrets → New client secret** and copy the secret **Value** immediately — it is only shown once.
 
@@ -17,7 +17,7 @@ Dokploy authenticates with an **App Registration** (service principal) using the
 
 On your Key Vault:
 
-- **RBAC permission model** (recommended): go to **Access control (IAM) → Add role assignment**, pick the **Key Vault Secrets User** role (read-only) and assign it to the `dokploy` app.
+- **RBAC permission model** (recommended): go to **Access control (IAM) → Add role assignment**, pick the **Key Vault Secrets User** role (read-only) and assign it to the `notploy` app.
 - **Access policies model**: add a policy granting the app `Get` and `List` on secrets.
 
 <Callout type="warn">

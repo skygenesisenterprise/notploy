@@ -1,7 +1,7 @@
 {
-  "name": "@dokploy/sdk",
+  "name": "@notploy/sdk",
   "version": "0.30.7",
-  "description": "TypeScript SDK for the Dokploy API",
+  "description": "TypeScript SDK for the Notploy API",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -23,11 +23,11 @@
     "prepublishOnly": "pnpm run build"
   },
   "keywords": [
-    "dokploy",
+    "notploy",
     "sdk",
     "api"
   ],
-  "author": "Dokploy",
+  "author": "Notploy",
   "license": "ISC",
   "packageManager": "pnpm@10.30.1",
   "devDependencies": {

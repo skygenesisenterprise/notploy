@@ -1,10 +1,10 @@
 # 11ty Example
 
-This repository contains an example of 11ty application that is deployed on Dokploy.
+This repository contains an example of 11ty application that is deployed on Notploy.
 
 
 1. **Use Git Provider in Your Application**:
-   - Repository: `https://github.com/Dokploy/examples.git`
+   - Repository: `https://github.com/Notploy/examples.git`
    - Branch: `main`
    - Build path: `/11ty`
    - Publish Directory: `./_site` (Nixpacks)

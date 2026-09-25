@@ -1,13 +1,13 @@
-# OpenAnalytics for Dokploy's template catalogue.
+# OpenAnalytics for Notploy's template catalogue.
 #
-# This folder is the blueprint submitted to `Dokploy/templates` as
+# This folder is the blueprint submitted to `Notploy/templates` as
 # `blueprints/openanalytics/`; the copy here is the source of truth and the two
-# must not drift. The operator walkthrough is `../DOKPLOY.md`.
+# must not drift. The operator walkthrough is `../NOTPLOY.md`.
 #
 # Derived from `../docker-compose.coolify.yml`, the tested one-click shape.
 # What changed for this platform, and nothing else did:
 #
-# 1. **Generated values arrive through the project `.env`.** Dokploy renders
+# 1. **Generated values arrive through the project `.env`.** Notploy renders
 #    `template.toml`'s variables into one `.env` file, and this file references
 #    them with `${...}` per service. DO NOT "simplify" this into a shared
 #    `env_file:`: every service has a FORBIDDEN_KEYS list and EXITS AT STARTUP
@@ -17,7 +17,7 @@
 #    internet-facing and must not reach ClickHouse; the gateway verifies
 #    signatures and must not hold the key that mints them.
 #
-# 2. **A Caddy edge replaces Coolify's Traefik-label middleware.** Dokploy's
+# 2. **A Caddy edge replaces Coolify's Traefik-label middleware.** Notploy's
 #    Traefik owns TLS and writes `X-Forwarded-For` and `X-Real-Ip` from the
 #    connection, but it passes `CF-Connecting-IP` and its family through,
 #    because they are nobody's standard. Without stripping them, any visitor
@@ -494,7 +494,7 @@ services:
   # --- edge ------------------------------------------------------------------
 
   # All four public hostnames land here (see `template.toml`), and this is the
-  # one job Dokploy's Traefik is not configured for: deleting the
+  # one job Notploy's Traefik is not configured for: deleting the
   # client-settable identity headers before anything internal reads them. The
   # Caddyfile arrives as a template mount. Do not point the domains at the
   # services directly: that would ship the stack without its header hygiene.

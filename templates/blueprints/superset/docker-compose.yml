@@ -15,7 +15,7 @@
 # ## NETWORK INSTRUCTIONS
 #
 # If you want to connect superset with other internal databases managed by
-# Dokploy using internal hostnames, you will need to connect the `superset`
+# Notploy using internal hostnames, you will need to connect the `superset`
 # container to those networks.
 #
 
@@ -24,12 +24,12 @@ services:
     image: amancevice/superset:6.0.0
     restart: unless-stopped
     #networks:
-    #  - dokploy-network
+    #  - notploy-network
     depends_on:
       - superset_postgres
       - superset_redis
     volumes:
-      # This superset_config.py can be edited in Dokploy's UI Advanced -> Volume Mount
+      # This superset_config.py can be edited in Notploy's UI Advanced -> Volume Mount
       - ../files/superset/superset_config.py:/etc/superset/superset_config.py
     environment:
       SECRET_KEY: ${SECRET_KEY}

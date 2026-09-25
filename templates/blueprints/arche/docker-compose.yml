@@ -10,8 +10,8 @@ version: "3.8"
 #   git init --bare --initial-branch=main /opt/arche/kb-content
 #   git init --bare --initial-branch=main /opt/arche/kb-config
 #
-# POST-DEPLOY (set in Dokploy → Environment, then redeploy):
-#   1. Deploy this template once. Dokploy auto-creates a network for the
+# POST-DEPLOY (set in Notploy → Environment, then redeploy):
+#   1. Deploy this template once. Notploy auto-creates a network for the
 #      compose stack.
 #   2. SSH into the host and find the network name:
 #        docker network ls --format '{{.Name}}' | grep arche
@@ -22,7 +22,7 @@ version: "3.8"
 # IMAGE ARCHITECTURE:
 #   Default tags target linux/amd64. For ARM64 hosts (Apple Silicon,
 #   Ampere, Graviton), override both images to the `-arm64` variants in
-#   Dokploy → Environment:
+#   Notploy → Environment:
 #     ARCHE_WEB_IMAGE=ghcr.io/peaberry-studio/arche/web:latest-arm64
 #     ARCHE_WORKSPACE_IMAGE=ghcr.io/peaberry-studio/arche/workspace:latest-arm64
 

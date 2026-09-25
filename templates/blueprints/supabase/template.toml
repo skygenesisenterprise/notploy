@@ -7,7 +7,7 @@ s3_protocol_access_key_id = "${password:24}"
 s3_protocol_access_key_secret = "${password:48}"
 secret_key_base = "${password:64}"
 vault_enc_key = "${password:32}"
-# Realtime requires this to be exactly 16 characters (dokploy's hash helper
+# Realtime requires this to be exactly 16 characters (notploy's hash helper
 # emits one hex character per unit of length).
 realtime_db_enc_key = "${hash:16}"
 jwt_secret = "${password:32}"
@@ -52,7 +52,7 @@ env = [
 '# Secrets',
 '# YOU MUST CHANGE THESE BEFORE GOING INTO PRODUCTION',
 '# https://supabase.com/docs/guides/self-hosting/docker#securing-your-services',
-'# In this version of the template they are generated randomly by dokploy helpers',
+'# In this version of the template they are generated randomly by notploy helpers',
 '# so you do not need to change them manually',
 '# Go to https://supabase.com/docs/guides/self-hosting for more information',
 '############',
@@ -71,7 +71,7 @@ env = [
 '#',
 '# Those tokens are HS256, signed with JWT_SECRET, so they verify against the',
 '# same key everything else already uses. Real ES256 keys would need an EC P-256',
-'# keypair, which the dokploy variable helpers cannot generate - see JWT_KEYS /',
+'# keypair, which the notploy variable helpers cannot generate - see JWT_KEYS /',
 '# JWT_JWKS below if you want to switch to them.',
 '############',
 'SUPABASE_PUBLISHABLE_KEY=${publishable_key}',
@@ -126,7 +126,7 @@ env = [
 '',
 '############',
 '# API Proxy - Configuration for the Kong Reverse proxy.',
-'# Following ports should not be changed for a dokploy config unless you know what you are doing.',
+'# Following ports should not be changed for a notploy config unless you know what you are doing.',
 '############',
 '',
 'KONG_HTTP_PORT=8000',

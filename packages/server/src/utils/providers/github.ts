@@ -1,8 +1,8 @@
 import { join } from "node:path";
-import { paths } from "@dokploy/server/constants";
-import type { apiFindGithubBranches } from "@dokploy/server/db/schema";
-import { findGithubById, type Github } from "@dokploy/server/services/github";
-import type { InferResultType } from "@dokploy/server/types/with";
+import { paths } from "@notploy/server/constants";
+import type { apiFindGithubBranches } from "@notploy/server/db/schema";
+import { findGithubById, type Github } from "@notploy/server/services/github";
+import type { InferResultType } from "@notploy/server/types/with";
 import { createAppAuth } from "@octokit/auth-app";
 import { TRPCError } from "@trpc/server";
 import { Octokit } from "octokit";

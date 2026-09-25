@@ -73,32 +73,32 @@ const footerSections = [
 		ariaLabel: "Comparisons and guides",
 		links: [
 			{
-				href: "/dokploy-vs-coolify",
-				label: "Dokploy vs. Coolify",
+				href: "/notploy-vs-coolify",
+				label: "Notploy vs. Coolify",
 			},
 			{
-				href: "/dokploy-vs-portainer",
-				label: "Dokploy vs. Portainer",
+				href: "/notploy-vs-portainer",
+				label: "Notploy vs. Portainer",
 			},
 			{
-				href: "/dokploy-vs-caprover",
-				label: "Dokploy vs. CapRover",
+				href: "/notploy-vs-caprover",
+				label: "Notploy vs. CapRover",
 			},
 			{
-				href: "/dokploy-vs-dokku",
-				label: "Dokploy vs. Dokku",
+				href: "/notploy-vs-dokku",
+				label: "Notploy vs. Dokku",
 			},
 			{
-				href: "/dokploy-vs-render",
-				label: "Dokploy vs. Render",
+				href: "/notploy-vs-render",
+				label: "Notploy vs. Render",
 			},
 			{
-				href: "/dokploy-vs-vercel",
-				label: "Dokploy vs. Vercel",
+				href: "/notploy-vs-vercel",
+				label: "Notploy vs. Vercel",
 			},
 			{ href: "/blog", label: "Blog" },
 			{
-				href: "https://docs.dokploy.com/docs/core",
+				href: "https://docs.notploy.com/docs/core",
 				label: "Documentation",
 				external: true,
 			},
@@ -124,12 +124,12 @@ export function Footer() {
 					<div className="flex flex-col items-center gap-2 text-center md:items-start">
 						<Link
 							href="/"
-							aria-label="Dokploy - Home"
+							aria-label="Notploy - Home"
 							className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black rounded"
 						>
 							<Logo className="h-10 w-auto" />
 							<span className="text-xl font-semibold text-primary">
-								Dokploy
+								Notploy
 							</span>
 						</Link>
 						<span className="text-sm font-medium text-muted-foreground">
@@ -169,18 +169,18 @@ export function Footer() {
 				{/* Bottom bar: social + copyright */}
 				<div className="flex flex-col items-center border-t border-slate-400/10 py-8 sm:flex-row sm:justify-between sm:items-center gap-6">
 					<p className="text-sm text-muted-foreground order-2 sm:order-1">
-						© {new Date().getFullYear()} Dokploy. All rights reserved.
+						© {new Date().getFullYear()} Notploy. All rights reserved.
 					</p>
 					<div
 						className="flex items-center gap-6 order-1 sm:order-2"
 						aria-label="Social links"
 					>
 						<Link
-							href="https://x.com/getdokploy"
+							href="https://x.com/getnotploy"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-muted-foreground hover:text-muted-foreground/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black rounded"
-							aria-label="Dokploy on X (Twitter)"
+							aria-label="Notploy on X (Twitter)"
 						>
 							<svg
 								stroke="currentColor"
@@ -194,11 +194,11 @@ export function Footer() {
 							</svg>
 						</Link>
 						<Link
-							href="https://github.com/dokploy/dokploy"
+							href="https://github.com/notploy/notploy"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-muted-foreground hover:text-muted-foreground/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black rounded"
-							aria-label="Dokploy on GitHub"
+							aria-label="Notploy on GitHub"
 						>
 							<svg
 								aria-hidden="true"

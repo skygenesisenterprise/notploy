@@ -162,7 +162,7 @@ export function PricingLegacy() {
 								</div>
 
 								<h3 className="mt-5 text-lg font-medium text-white">
-									Dokploy Open Source
+									Notploy Open Source
 								</h3>
 								<p
 									className={clsx(
@@ -170,7 +170,7 @@ export function PricingLegacy() {
 										featured ? "text-white" : "text-slate-400",
 									)}
 								>
-									Install and manage Dokploy UI on your own server.
+									Install and manage Notploy UI on your own server.
 								</p>
 
 								<ul
@@ -181,7 +181,7 @@ export function PricingLegacy() {
 									)}
 								>
 									{[
-										"Complete Flexibility: Install Dokploy UI on your own infrastructure",
+										"Complete Flexibility: Install Notploy UI on your own infrastructure",
 										"Self-hosted Infrastructure",
 										"Community Support",
 										"Access to Core Features",
@@ -206,7 +206,7 @@ export function PricingLegacy() {
 											Unlimited Servers
 										</span>
 										<Link
-											href="https://docs.dokploy.com/docs/core/installation#docker"
+											href="https://docs.notploy.com/docs/core/installation#docker"
 											target="_blank"
 											className="flex items-start text-sm text-primary"
 										>
@@ -251,7 +251,7 @@ export function PricingLegacy() {
 									</p>
 								)}
 								<h3 className="mt-5 text-lg font-medium text-white">
-									Dokploy Plan
+									Notploy Plan
 								</h3>
 								<p
 									className={clsx(
@@ -259,7 +259,7 @@ export function PricingLegacy() {
 										featured ? "text-white" : "text-slate-400",
 									)}
 								>
-									We manage the Dokploy UI infrastructure, we take care of it
+									We manage the Notploy UI infrastructure, we take care of it
 									for you.
 								</p>
 
@@ -307,14 +307,14 @@ export function PricingLegacy() {
 													</div>
 													<p className="mb-2 text-left text-primary">
 														We recommend you to watch the video to understand
-														the benefits of Dokploy Cloud
+														the benefits of Notploy Cloud
 													</p>
 
 													<HeroVideoDialog
 														className="z-20 block w-full max-w-md rounded-xl"
 														animationStyle="top-in-bottom-out"
 														videoSrc="https://www.youtube.com/embed/x2s_Y5ON-ms?si=i6gntgMmyPDLuPih"
-														thumbnailSrc="https://dokploy.com/banner.png"
+														thumbnailSrc="https://notploy.com/banner.png"
 														thumbnailAlt="Hero Video"
 													/>
 												</TooltipContent>
@@ -358,7 +358,7 @@ export function PricingLegacy() {
 									>
 										<div className="w-full justify-end">
 											<Link
-												href="https://app.dokploy.com/register"
+												href="https://app.notploy.com/register"
 												target="_blank"
 												className={buttonVariants({
 													className: "w-full",

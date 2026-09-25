@@ -4,11 +4,11 @@ import Docker from "dockerode";
 
 export const IS_CLOUD = process.env.IS_CLOUD === "true";
 
-export const DOKPLOY_DOCKER_API_VERSION =
-	process.env.DOKPLOY_DOCKER_API_VERSION;
-export const DOKPLOY_DOCKER_HOST = process.env.DOKPLOY_DOCKER_HOST;
-export const DOKPLOY_DOCKER_PORT = process.env.DOKPLOY_DOCKER_PORT
-	? Number(process.env.DOKPLOY_DOCKER_PORT)
+export const NOTPLOY_DOCKER_API_VERSION =
+	process.env.NOTPLOY_DOCKER_API_VERSION;
+export const NOTPLOY_DOCKER_HOST = process.env.NOTPLOY_DOCKER_HOST;
+export const NOTPLOY_DOCKER_PORT = process.env.NOTPLOY_DOCKER_PORT
+	? Number(process.env.NOTPLOY_DOCKER_PORT)
 	: undefined;
 
 export const CLEANUP_CRON_JOB = "50 23 * * *";
@@ -41,18 +41,18 @@ type DockerSocketCandidate = {
 };
 
 const getDockerConfig = (): Docker => {
-	const versionOption = DOKPLOY_DOCKER_API_VERSION
-		? { version: DOKPLOY_DOCKER_API_VERSION }
+	const versionOption = NOTPLOY_DOCKER_API_VERSION
+		? { version: NOTPLOY_DOCKER_API_VERSION }
 		: {};
 
 	// Explicit remote Docker host configuration
-	if (DOKPLOY_DOCKER_HOST) {
+	if (NOTPLOY_DOCKER_HOST) {
 		console.info(
-			`Using remote Docker host: ${DOKPLOY_DOCKER_HOST}${DOKPLOY_DOCKER_PORT ? `:${DOKPLOY_DOCKER_PORT}` : ""}`,
+			`Using remote Docker host: ${NOTPLOY_DOCKER_HOST}${NOTPLOY_DOCKER_PORT ? `:${NOTPLOY_DOCKER_PORT}` : ""}`,
 		);
 		return new Docker({
-			host: DOKPLOY_DOCKER_HOST,
-			...(DOKPLOY_DOCKER_PORT && { port: DOKPLOY_DOCKER_PORT }),
+			host: NOTPLOY_DOCKER_HOST,
+			...(NOTPLOY_DOCKER_PORT && { port: NOTPLOY_DOCKER_PORT }),
 			...versionOption,
 		});
 	}
@@ -118,7 +118,7 @@ export const docker = globalForDocker.docker;
 export const paths = (isServer = false) => {
 	const BASE_PATH =
 		isServer || process.env.NODE_ENV === "production"
-			? "/etc/dokploy"
+			? "/etc/notploy"
 			: path.join(process.cwd(), ".docker");
 	const MAIN_TRAEFIK_PATH = `${BASE_PATH}/traefik`;
 	const DYNAMIC_TRAEFIK_PATH = `${MAIN_TRAEFIK_PATH}/dynamic`;

@@ -15,7 +15,7 @@ services:
       - ../files/acquis.yaml:/etc/crowdsec/acquis.yaml # https://docs.crowdsec.net/u/getting_started/post_installation/acquisition_new/
       - crowdsec-db:/var/lib/crowdsec/data/
       - crowdsec-config:/etc/crowdsec/
-      - /etc/dokploy/traefik/dynamic/access.log:/var/log/traefik/access.log:ro # make sure access log is enabled in dokploy
+      - /etc/notploy/traefik/dynamic/access.log:/var/log/traefik/access.log:ro # make sure access log is enabled in notploy
       - ${AUTH_LOG_PATH}:/var/log/ssh/auth.log:ro
       # - /var/log/fail2ban.log:/var/log/fail2ban/fail2ban.log:ro # uncomment if you have fail2ban installed on the system
     security_opt:

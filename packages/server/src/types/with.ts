@@ -1,4 +1,4 @@
-import type * as schema from "@dokploy/server/db/schema";
+import type * as schema from "@notploy/server/db/schema";
 import type {
 	BuildQueryResult,
 	DBQueryConfig,

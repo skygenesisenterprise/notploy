@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { ovhDnsConfigSchema } from "@dokploy/server/db/schema";
+import type { ovhDnsConfigSchema } from "@notploy/server/db/schema";
 import type { z } from "zod";
 import { type DnsClient, dnsFetch } from "./types";
 
@@ -130,7 +130,7 @@ const ovhFetch = async <T>(
 };
 
 // OVH addresses records by their subdomain, relative to the zone and empty for
-// the apex, while Dokploy works with fully-qualified names.
+// the apex, while Notploy works with fully-qualified names.
 const toSubDomain = (name: string, zone: string) => {
 	const fqdn = name.replace(/\.$/, "");
 	if (fqdn === zone) {

@@ -1,6 +1,6 @@
 ---
 title: Rollbacks
-description: Learn how to rollback your application in Dokploy.
+description: Learn how to rollback your application in Notploy.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
@@ -9,13 +9,13 @@ Rollbacks are a powerful feature that allows you to easily revert changes to you
 
 ## Types of Rollbacks
 
-Dokploy supports two types of rollback mechanisms:
+Notploy supports two types of rollback mechanisms:
 
 1. **Docker Swarm Rollbacks** (Automatic): Based on health checks, automatically reverts to the previous version if a deployment fails health checks
 2. **Registry-based Rollbacks** (Manual): Uses Docker registry to store each deployment's image, allowing you to manually rollback to any specific deployment version
 
 <Callout type="info">
-  The rollback methods described in the first section of this guide are based on **Docker Swarm's automatic rollback feature**. Dokploy also supports **registry-based rollbacks** at the deployment level, which allows you to save each deployment's image to a registry and rollback to any specific version. See the "Rollback to a specific version" section below for more details.
+  The rollback methods described in the first section of this guide are based on **Docker Swarm's automatic rollback feature**. Notploy also supports **registry-based rollbacks** at the deployment level, which allows you to save each deployment's image to a registry and rollback to any specific version. See the "Rollback to a specific version" section below for more details.
 </Callout>
 
 ## Requirements
@@ -71,14 +71,14 @@ Paste the following code:
 
 ## Registry-based Rollback to Specific Versions
 
-The previous section covered Docker Swarm's automatic rollback feature, which only works when health checks fail. Dokploy also supports **registry-based rollbacks** at the deployment level, which provides more control and flexibility.
+The previous section covered Docker Swarm's automatic rollback feature, which only works when health checks fail. Notploy also supports **registry-based rollbacks** at the deployment level, which provides more control and flexibility.
 
 ### How Registry-based Rollbacks Work
 
-When using registry-based rollbacks, Dokploy:
+When using registry-based rollbacks, Notploy:
 
 - **Saves each deployment's image to your configured registry**: Every time you deploy, the built image is tagged and pushed to your Docker registry (Docker Hub, GHCR, etc.)
-- **Associates each deployment with its image**: Each deployment record in Dokploy is linked to a specific image tag in your registry
+- **Associates each deployment with its image**: Each deployment record in Notploy is linked to a specific image tag in your registry
 - **Enables rollback to any deployment**: You can rollback to any previous deployment by using the image that was saved during that deployment
 
 This approach is different from Docker Swarm rollbacks because:
@@ -87,19 +87,19 @@ This approach is different from Docker Swarm rollbacks because:
 - ✅ **Uses registry storage**: Images are stored in your registry, making them persistent and accessible
 
 <Callout type="info">
-  Registry-based rollbacks require that your application is configured to use a Docker registry. The images are automatically pushed to your registry during each deployment, and Dokploy tracks which image corresponds to each deployment.
+  Registry-based rollbacks require that your application is configured to use a Docker registry. The images are automatically pushed to your registry during each deployment, and Notploy tracks which image corresponds to each deployment.
 </Callout>
 
 ### Prerequisites for Registry-based Rollbacks
 
 To use registry-based rollbacks, you need:
 
-1. **A configured Docker registry** in Dokploy (Docker Hub, GHCR, or custom registry)
-2. **Registry credentials** set up in Dokploy's registry settings
+1. **A configured Docker registry** in Notploy (Docker Hub, GHCR, or custom registry)
+2. **Registry credentials** set up in Notploy's registry settings
 3. **Application configured to push images** to the registry during deployment
 
 <Callout type="info">
-  When you enable rollbacks, Dokploy will automatically push each deployment's image to your configured registry with a unique tag, allowing you to rollback to any specific deployment version.
+  When you enable rollbacks, Notploy will automatically push each deployment's image to your configured registry with a unique tag, allowing you to rollback to any specific deployment version.
 </Callout>
 
 ### Enabling Registry-based Rollbacks
@@ -112,7 +112,7 @@ To start saving deployment images to your registry for rollbacks:
 4. Select the registry you want to use for rollbacks
 5. Click on **Save**
 
-Once enabled, Dokploy will:
+Once enabled, Notploy will:
 - **Automatically tag and push images**: Every deployment's image is tagged and pushed to your configured registry
 - **Track deployment associations**: Each deployment is linked to its specific image tag in the registry
 - **Enable rollback buttons**: You'll see a **Rollback** button next to each deployment in the Deployments section
@@ -125,6 +125,6 @@ Once enabled, Dokploy will:
 4. Confirm the rollback action
 
 <Callout type="info">
-  After clicking **Rollback**, you'll need to wait a few seconds for Dokploy to download the image from your registry. The container will not appear in the **Logs** tab immediately - wait a moment for the image download to complete before checking the logs to see the container running.
+  After clicking **Rollback**, you'll need to wait a few seconds for Notploy to download the image from your registry. The container will not appear in the **Logs** tab immediately - wait a moment for the image download to complete before checking the logs to see the container running.
 </Callout>
 

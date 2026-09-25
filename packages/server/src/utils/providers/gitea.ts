@@ -1,11 +1,11 @@
 import { join } from "node:path";
-import { paths } from "@dokploy/server/constants";
+import { paths } from "@notploy/server/constants";
 import {
 	findGiteaById,
 	type Gitea,
 	updateGitea,
-} from "@dokploy/server/services/gitea";
-import type { InferResultType } from "@dokploy/server/types/with";
+} from "@notploy/server/services/gitea";
+import type { InferResultType } from "@notploy/server/types/with";
 import { TRPCError } from "@trpc/server";
 import { quote } from "shell-quote";
 
@@ -50,7 +50,7 @@ export const refreshGiteaToken = async (giteaProviderId: string) => {
 		}
 
 		// Token is expired or about to expire, refresh it
-		// Use internal URL when Gitea is on same instance as Dokploy
+		// Use internal URL when Gitea is on same instance as Notploy
 		const baseUrl = giteaProvider.giteaInternalUrl || giteaProvider.giteaUrl;
 		const tokenEndpoint = `${baseUrl}/login/oauth/access_token`;
 		const params = new URLSearchParams({

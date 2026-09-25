@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 			{
 				headers: {
 					Accept: "application/vnd.github.v3+json",
-					"User-Agent": "Dokploy-Website",
+					"User-Agent": "Notploy-Website",
 				},
 			},
 		);

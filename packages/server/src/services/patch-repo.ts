@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { paths } from "@dokploy/server/constants";
+import { paths } from "@notploy/server/constants";
 import { TRPCError } from "@trpc/server";
 import { quote } from "shell-quote";
 import { execAsync, execAsyncRemote } from "../utils/process/execAsync";

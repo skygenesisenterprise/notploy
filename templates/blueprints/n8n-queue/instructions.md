@@ -13,7 +13,7 @@ All n8n containers share the same `N8N_ENCRYPTION_KEY` (generated automatically)
 
 Worker replicas are controlled by the `N8N_WORKER_REPLICAS` environment variable (default `2`):
 
-1. Open the compose service in Dokploy and go to the **Environment** tab.
+1. Open the compose service in Notploy and go to the **Environment** tab.
 2. Change `N8N_WORKER_REPLICAS` to the number of workers you want.
 3. Redeploy. Docker Compose will scale the `n8n-worker` service to the requested number of replicas.
 

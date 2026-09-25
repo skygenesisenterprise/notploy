@@ -6,14 +6,14 @@ import { saveAuthConfig } from "../client.js";
 export function registerAuthCommand(program: Command) {
 	program
 		.command("auth")
-		.description("Authenticate with your Dokploy server")
+		.description("Authenticate with your Notploy server")
 		.requiredOption(
 			"-u, --url <url>",
-			"Server URL (e.g., https://panel.dokploy.com)",
+			"Server URL (e.g., https://panel.notploy.com)",
 		)
 		.requiredOption(
 			"-t, --token <token>",
-			"API key from your Dokploy dashboard",
+			"API key from your Notploy dashboard",
 		)
 		.action(async (opts: { url: string; token: string }) => {
 			const url = opts.url.replace(/\/+$/, "");

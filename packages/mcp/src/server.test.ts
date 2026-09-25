@@ -3,7 +3,7 @@ import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Mock apiClient before server.ts is imported — it calls getClientConfig() at
-// module level which requires DOKPLOY_URL/DOKPLOY_API_KEY env vars.
+// module level which requires NOTPLOY_URL/NOTPLOY_API_KEY env vars.
 vi.mock("./utils/apiClient.js", () => ({
   default: { get: vi.fn(), post: vi.fn() },
   setAuthToken: vi.fn(),
@@ -19,7 +19,7 @@ function countByTags(tags: string[]): number {
 }
 
 describe("MCP server tools/list", () => {
-  const toolsetEnvVars = ["DOKPLOY_ENABLED_TAGS", "DOKPLOY_DISABLED_TAGS", "DOKPLOY_TOOL_PRESET"];
+  const toolsetEnvVars = ["NOTPLOY_ENABLED_TAGS", "NOTPLOY_DISABLED_TAGS", "NOTPLOY_TOOL_PRESET"];
 
   afterEach(() => {
     for (const envVar of toolsetEnvVars) {
@@ -48,8 +48,8 @@ describe("MCP server tools/list", () => {
     expect(tools).toHaveLength(generatedTools.length);
   });
 
-  it("supports DOKPLOY_TOOL_PRESET=minimal for clients sensitive to large toolsets", async () => {
-    process.env.DOKPLOY_TOOL_PRESET = "minimal";
+  it("supports NOTPLOY_TOOL_PRESET=minimal for clients sensitive to large toolsets", async () => {
+    process.env.NOTPLOY_TOOL_PRESET = "minimal";
 
     const tools = await getToolList();
     const tags = new Set(tools.map((tool) => tool.name.split("-")[0]));
@@ -58,8 +58,8 @@ describe("MCP server tools/list", () => {
     expect(tags).toEqual(new Set(["application", "project"]));
   });
 
-  it("supports DOKPLOY_TOOL_PRESET=core for common application workflows", async () => {
-    process.env.DOKPLOY_TOOL_PRESET = "core";
+  it("supports NOTPLOY_TOOL_PRESET=core for common application workflows", async () => {
+    process.env.NOTPLOY_TOOL_PRESET = "core";
 
     const tools = await getToolList();
     const tags = new Set(tools.map((tool) => tool.name.split("-")[0]));
@@ -68,9 +68,9 @@ describe("MCP server tools/list", () => {
     expect(tags).toEqual(new Set(["application", "project", "server"]));
   });
 
-  it("lets DOKPLOY_ENABLED_TAGS override presets", async () => {
-    process.env.DOKPLOY_TOOL_PRESET = "core";
-    process.env.DOKPLOY_ENABLED_TAGS = "project,application";
+  it("lets NOTPLOY_ENABLED_TAGS override presets", async () => {
+    process.env.NOTPLOY_TOOL_PRESET = "core";
+    process.env.NOTPLOY_ENABLED_TAGS = "project,application";
 
     const tools = await getToolList();
     const tags = new Set(tools.map((tool) => tool.name.split("-")[0]));
@@ -79,9 +79,9 @@ describe("MCP server tools/list", () => {
     expect(tags).toEqual(new Set(["application", "project"]));
   });
 
-  it("excludes DOKPLOY_DISABLED_TAGS after selecting tools", async () => {
-    process.env.DOKPLOY_TOOL_PRESET = "deploy";
-    process.env.DOKPLOY_DISABLED_TAGS = "domain,deployment";
+  it("excludes NOTPLOY_DISABLED_TAGS after selecting tools", async () => {
+    process.env.NOTPLOY_TOOL_PRESET = "deploy";
+    process.env.NOTPLOY_DISABLED_TAGS = "domain,deployment";
 
     const tools = await getToolList();
     const tags = new Set(tools.map((tool) => tool.name.split("-")[0]));
@@ -94,7 +94,7 @@ describe("MCP server tools/list", () => {
   });
 
   it("falls back to all tools for an unknown preset", async () => {
-    process.env.DOKPLOY_TOOL_PRESET = "unknown";
+    process.env.NOTPLOY_TOOL_PRESET = "unknown";
 
     const tools = await getToolList();
 

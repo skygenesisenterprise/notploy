@@ -17,9 +17,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
 	title: "Industries: Deployment Solutions by Sector",
 	description:
-		"See how teams in finance, healthcare, government, manufacturing, pharmaceuticals, higher education, and agencies use Dokploy to deploy applications in environments they control.",
+		"See how teams in finance, healthcare, government, manufacturing, pharmaceuticals, higher education, and agencies use Notploy to deploy applications in environments they control.",
 	alternates: {
-		canonical: "https://dokploy.com/industries",
+		canonical: "https://notploy.com/industries",
 	},
 };
 
@@ -95,14 +95,14 @@ export default function IndustriesPage() {
 							Deployment solutions for your industry
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Dokploy gives teams in regulated and fast-moving industries a
+							Notploy gives teams in regulated and fast-moving industries a
 							governed platform to deploy, review, and operate applications on
 							infrastructure they control.
 						</p>
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
+									href="https://app.notploy.com/register"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -122,7 +122,7 @@ export default function IndustriesPage() {
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Explore Dokploy by industry
+							Explore Notploy by industry
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							The same deployment platform, adapted to the workflows,

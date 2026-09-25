@@ -1,15 +1,15 @@
 ---
 title: Multi-Tenancy
-description: "Understand how Dokploy organizes resources using Organizations, Projects, Environments, and Services for team collaboration and resource isolation."
+description: "Understand how Notploy organizes resources using Organizations, Projects, Environments, and Services for team collaboration and resource isolation."
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Dokploy provides a hierarchical multi-tenancy model that lets you organize your infrastructure cleanly — whether you're a solo developer or managing multiple teams. This guide explains how Organizations, Projects, Environments, and Services work together.
+Notploy provides a hierarchical multi-tenancy model that lets you organize your infrastructure cleanly — whether you're a solo developer or managing multiple teams. This guide explains how Organizations, Projects, Environments, and Services work together.
 
 ## Resource Hierarchy
 
-Dokploy organizes all resources in a four-level hierarchy:
+Notploy organizes all resources in a four-level hierarchy:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -60,10 +60,10 @@ Organization ──► Project ──► Environment ──► Service
 
 ## Organization
 
-The **Organization** is the top-level container in Dokploy. Everything — users, projects, servers, settings — belongs to an organization.
+The **Organization** is the top-level container in Notploy. Everything — users, projects, servers, settings — belongs to an organization.
 
-- Each Dokploy instance starts with **one default organization** created during setup.
-- The user who installs Dokploy becomes the **Owner** of that organization.
+- Each Notploy instance starts with **one default organization** created during setup.
+- The user who installs Notploy becomes the **Owner** of that organization.
 - All billing, SSO configuration, and global settings are scoped to the organization.
 
 ### Key capabilities
@@ -150,7 +150,7 @@ Environment-level variables take precedence over project-level variables. Servic
 
 ## Services
 
-**Services** are the actual workloads running inside an environment. Dokploy supports three types of services:
+**Services** are the actual workloads running inside an environment. Notploy supports three types of services:
 
 ### Service types
 
@@ -169,7 +169,7 @@ Each service gets its own:
 
 ## Access Control
 
-Dokploy's permission system maps directly to this hierarchy, allowing you to control who can see and do what at every level.
+Notploy's permission system maps directly to this hierarchy, allowing you to control who can see and do what at every level.
 
 ### Role hierarchy
 

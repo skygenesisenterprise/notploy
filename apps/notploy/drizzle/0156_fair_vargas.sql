@@ -1,0 +1,1 @@
+ALTER TABLE "notification" ADD COLUMN "notployBackup" boolean DEFAULT false NOT NULL;

@@ -1,4 +1,4 @@
-import type { VaultProviderConfig } from "@dokploy/server/db/schema";
+import type { VaultProviderConfig } from "@notploy/server/db/schema";
 
 export interface VaultClient<
 	C extends VaultProviderConfig = VaultProviderConfig,

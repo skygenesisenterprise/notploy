@@ -9,7 +9,7 @@ This template deploys Firecrawl `2.11.230` with authenticated API access, persis
 3. Wait for `firecrawl-db-seed` to finish and for `gateway` and `firecrawl` to become healthy. The first start can take several minutes.
 4. Open `https://<your-domain>/docs/` for the interactive API documentation.
 
-Dokploy generates the client credential in the Environment tab:
+Notploy generates the client credential in the Environment tab:
 
 ```text
 FIRECRAWL_API_KEY=fc-...
@@ -23,7 +23,7 @@ Treat this value as a secret. The template provisions it in Firecrawl's PostgreS
 curl -X POST "https://<your-domain>/v2/scrape" \
   -H "Authorization: Bearer <FIRECRAWL_API_KEY>" \
   -H "Content-Type: application/json" \
-  -d '{"url":"https://docs.dokploy.com","formats":[{"type":"markdown"}]}'
+  -d '{"url":"https://docs.notploy.com","formats":[{"type":"markdown"}]}'
 ```
 
 The OpenAPI document is available at:

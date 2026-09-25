@@ -4,16 +4,16 @@ import { client } from "../src/client.gen";
 describe("client", () => {
 	it("has a default baseUrl", () => {
 		const config = client.getConfig();
-		expect(config.baseUrl).toBe("https://your-dokploy-instance.com/api");
+		expect(config.baseUrl).toBe("https://your-notploy-instance.com/api");
 	});
 
 	it("can override baseUrl", () => {
-		client.setConfig({ baseUrl: "https://my-instance.dokploy.com/api" });
+		client.setConfig({ baseUrl: "https://my-instance.notploy.com/api" });
 		expect(client.getConfig().baseUrl).toBe(
-			"https://my-instance.dokploy.com/api",
+			"https://my-instance.notploy.com/api",
 		);
 		// reset
-		client.setConfig({ baseUrl: "https://your-dokploy-instance.com/api" });
+		client.setConfig({ baseUrl: "https://your-notploy-instance.com/api" });
 	});
 
 	it("can set auth headers", () => {

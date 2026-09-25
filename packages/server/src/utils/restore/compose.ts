@@ -1,6 +1,6 @@
-import type { apiRestoreBackup } from "@dokploy/server/db/schema";
-import type { Compose } from "@dokploy/server/services/compose";
-import type { Destination } from "@dokploy/server/services/destination";
+import type { apiRestoreBackup } from "@notploy/server/db/schema";
+import type { Compose } from "@notploy/server/services/compose";
+import type { Destination } from "@notploy/server/services/destination";
 import { quote } from "shell-quote";
 import type { z } from "zod";
 import { getS3Credentials } from "../backups/utils";

@@ -1,27 +1,27 @@
-import { findServerById } from "@dokploy/server/services/server";
-import { getWebServerSettings } from "@dokploy/server/services/web-server-settings";
+import { findServerById } from "@notploy/server/services/server";
+import { getWebServerSettings } from "@notploy/server/services/web-server-settings";
 import type { CreateServiceOptions } from "dockerode";
 import { IS_CLOUD } from "../constants";
-import { getDokployImageTag } from "../services/settings";
+import { getNotployImageTag } from "../services/settings";
 import { pullImage, pullRemoteImage } from "../utils/docker/utils";
 import { execAsync, execAsyncRemote } from "../utils/process/execAsync";
 import { getRemoteDocker } from "../utils/servers/remote-docker";
 
 const getMonitoringImage = () => {
-	let imageName = "dokploy/monitoring:latest";
+	let imageName = "notploy/monitoring:latest";
 
 	if (
-		(getDokployImageTag() !== "latest" ||
+		(getNotployImageTag() !== "latest" ||
 			process.env.NODE_ENV === "development") &&
 		!IS_CLOUD
 	) {
-		imageName = "dokploy/monitoring:canary";
+		imageName = "notploy/monitoring:canary";
 	}
 
 	return imageName;
 };
 
-// Swarm tasks are dokploy-monitoring.<slot>.<id>, so this only matches the
+// Swarm tasks are notploy-monitoring.<slot>.<id>, so this only matches the
 // pre-v0.30.0 standalone container. A cleanup failure must not block the deploy.
 const removeLegacyContainer = async (
 	docker: Awaited<ReturnType<typeof getRemoteDocker>>,
@@ -70,7 +70,7 @@ const deployMonitoringService = async (
 export const setupMonitoring = async (serverId: string) => {
 	const server = await findServerById(serverId);
 
-	const serviceName = "dokploy-monitoring";
+	const serviceName = "notploy-monitoring";
 	const imageName = getMonitoringImage();
 
 	const settings: CreateServiceOptions = {
@@ -106,7 +106,7 @@ export const setupMonitoring = async (serverId: string) => {
 					},
 					{
 						Type: "bind",
-						Source: "/etc/dokploy/monitoring/monitoring.db",
+						Source: "/etc/notploy/monitoring/monitoring.db",
 						Target: "/app/monitoring.db",
 					},
 				],
@@ -127,7 +127,7 @@ export const setupMonitoring = async (serverId: string) => {
 
 	await execAsyncRemote(
 		serverId,
-		"mkdir -p /etc/dokploy/monitoring && touch /etc/dokploy/monitoring/monitoring.db",
+		"mkdir -p /etc/notploy/monitoring && touch /etc/notploy/monitoring/monitoring.db",
 	);
 	await pullRemoteImage(imageName, serverId);
 	await deployMonitoringService(docker, serviceName, settings);
@@ -136,7 +136,7 @@ export const setupMonitoring = async (serverId: string) => {
 export const setupWebMonitoring = async () => {
 	const webServerSettings = await getWebServerSettings();
 
-	const serviceName = "dokploy-monitoring";
+	const serviceName = "notploy-monitoring";
 	const imageName = getMonitoringImage();
 	const port = webServerSettings?.metricsConfig?.server?.port;
 
@@ -175,7 +175,7 @@ export const setupWebMonitoring = async () => {
 					},
 					{
 						Type: "bind",
-						Source: "/etc/dokploy/monitoring/monitoring.db",
+						Source: "/etc/notploy/monitoring/monitoring.db",
 						Target: "/app/monitoring.db",
 					},
 				],
@@ -204,7 +204,7 @@ export const setupWebMonitoring = async () => {
 	const docker = await getRemoteDocker();
 
 	await execAsync(
-		"mkdir -p /etc/dokploy/monitoring && touch /etc/dokploy/monitoring/monitoring.db",
+		"mkdir -p /etc/notploy/monitoring && touch /etc/notploy/monitoring/monitoring.db",
 	);
 	await pullImage(imageName);
 	await deployMonitoringService(docker, serviceName, settings);

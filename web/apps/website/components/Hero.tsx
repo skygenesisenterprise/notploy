@@ -12,7 +12,7 @@ import HeroVideoDialog from "./ui/hero-video-dialog";
 // const ProductHunt = () => {
 // 	return (
 // 		<Link
-// 			href="https://www.producthunt.com/posts/dokploy"
+// 			href="https://www.producthunt.com/posts/notploy"
 // 			target="_blank"
 // 			className="relative opacity-70 hover:opacity-100"
 // 		>
@@ -62,7 +62,7 @@ export function Hero() {
 							transition={{ duration: 0.3 }}
 						>
 							<a
-								href="https://app.dokploy.com/register"
+								href="https://app.notploy.com/register"
 								target="_blank"
 								rel="noopener noreferrer"
 								aria-label="Start your 7-day free trial, no credit card required"
@@ -123,8 +123,8 @@ export function Hero() {
 								<div className="mx-auto mt-6 flex w-full max-w-sm flex-wrap items-center justify-center gap-3 md:flex-nowrap">
 									<Button className="w-full rounded-full" asChild>
 										<Link
-											href="https://app.dokploy.com/register"
-											aria-label="Get Started with Dokploy"
+											href="https://app.notploy.com/register"
+											aria-label="Get Started with Notploy"
 											target="_blank"
 										>
 											Get Started
@@ -145,13 +145,13 @@ export function Hero() {
 								</div>
 								<div className="flex flex-wrap items-center justify-center gap-6 md:flex-nowrap">
 									<code className="flex flex-row items-center gap-4 rounded-xl border p-3 font-sans">
-										curl -sSL https://dokploy.com/install.sh | sh
+										curl -sSL https://notploy.com/install.sh | sh
 										<button
 											type="button"
 											onClick={() =>
 												navigator.clipboard
 													.writeText(
-														"curl -sSL https://dokploy.com/install.sh | sh",
+														"curl -sSL https://notploy.com/install.sh | sh",
 													)
 													.then(() => setIsCopied(true))
 													.catch(() => setIsCopied(false))
@@ -179,7 +179,7 @@ export function Hero() {
 								className="block w-full max-w-md rounded-xl"
 								animationStyle="top-in-bottom-out"
 								videoSrc="https://www.youtube.com/embed/x2s_Y5ON-ms?si=i6gntgMmyPDLuPih"
-								thumbnailSrc="https://dokploy.com/banner.png"
+								thumbnailSrc="https://notploy.com/banner.png"
 								thumbnailAlt="Hero Video"
 							/>
 						</div>

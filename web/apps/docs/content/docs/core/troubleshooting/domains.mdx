@@ -12,7 +12,7 @@ You see the deployment succeeded, and logs are running, but the domain isn't wor
 1. **Correct Port Mapping**: Ensure the domain is using the correct port for your application. For example, if you're using Next.js, the port should be `3000`, or for Laravel, it should be `8000`. If you change the app port, update the domain to reflect that.
 2. **Avoid Using `Ports` in Advanced Settings**: Generally, there's no need to use the `Ports` feature unless you want to access your app via `IP:port`. Leaving this feature enabled may interfere with your domain.
 
-3. **Let's Encrypt Certificates**: It's crucial to point the domain to your server's IP **before** adding it in Dokploy. If the domain is added first, the certificate won't be generated, and you may need to recreate the domain or restart Traefik.
+3. **Let's Encrypt Certificates**: It's crucial to point the domain to your server's IP **before** adding it in Notploy. If the domain is added first, the certificate won't be generated, and you may need to recreate the domain or restart Traefik.
 
 4. **Listen on 0.0.0.0, Not 127.0.0.1**: If your app is bound to `127.0.0.1` (which is common in Vite apps), switch it to `0.0.0.0` to allow external access.
 
@@ -25,7 +25,7 @@ Example of what not to do:
 ```yaml
 services:
   app:
-    image: dokploy/dokploy:latest
+    image: notploy/notploy:latest
     ports:
       - 3000:3000
 ```
@@ -35,7 +35,7 @@ Recommended approach:
 ```yaml
 services:
   app:
-    image: dokploy/dokploy:latest
+    image: notploy/notploy:latest
     ports:
       - 3000
       - 80
@@ -50,7 +50,7 @@ Example of what not to do:
 ```yaml
 services:
   app:
-    image: dokploy/dokploy:latest
+    image: notploy/notploy:latest
     ports:
       - 3000
 ```
@@ -60,12 +60,12 @@ Recommended approach:
 ```yaml
 services:
   app:
-    image: dokploy/dokploy:latest
+    image: notploy/notploy:latest
     expose:
       - 3000
 ```
 
-Then, when creating the domain in Dokploy, specify the service name and port, like this:
+Then, when creating the domain in Notploy, specify the service name and port, like this:
 
 ```yaml
 domain: my-app.com
@@ -84,7 +84,7 @@ If you're experiencing 404 errors when accessing services created from templates
 
 ### Understanding the Difference
 
-Dokploy uses two different methods for configuring Traefik routing:
+Notploy uses two different methods for configuring Traefik routing:
 
 1. **Applications** (Nixpacks, Dockerfile, Buildpacks): Use the Traefik **file system** for routing configuration
    - Domain changes are applied automatically

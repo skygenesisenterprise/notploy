@@ -1,6 +1,6 @@
 ---
 title: Cloudflare
-description: This guide will cover how to configure a Cloudflare domain for your applications in dokploy or panel.
+description: This guide will cover how to configure a Cloudflare domain for your applications in notploy or panel.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
@@ -51,13 +51,13 @@ We assume that you have enabled the `Full (Strict)` mode in the previous step, i
 3. Click on `Records`.
 4. Click on `Add Record`.
 5. Select `A` record type.
-6. Enter the `Host` name, eg. `api` so it will be `api.dokploy.com`.
+6. Enter the `Host` name, eg. `api` so it will be `api.notploy.com`.
 7. Enter the `IPv4 Address` from your server where the application is hosted eg. `1.2.3.4`.
 8. Click `Save`.
-9. Go to dokploy panel and now you can assign either for `Applications` or `Docker Compose`.
+9. Go to notploy panel and now you can assign either for `Applications` or `Docker Compose`.
 10. Go to `Domains` section.
 11. Click `Create Domain`.
-12. In the `Host` field, enter the domain name eg. `api.dokploy.com`.
+12. In the `Host` field, enter the domain name eg. `api.notploy.com`.
 13. In the `Path` field, enter the path eg. `/`.
 14. In the `Container Port` field, enter the port where your application is running eg. `3000`.
 15. In the `HTTPS` field enable `ON`.
@@ -73,13 +73,13 @@ We assume that you have enabled the `Full (Strict)` mode in the previous step, i
 3. Click on `Origin Server`.
 4. Click on `Create Certificate`.
 5. Select `Generate private key and CSR with Cloudflare`.
-6. Choose the list of hostnames you want the certificate to cover eg. `api.dokploy.com`.
+6. Choose the list of hostnames you want the certificate to cover eg. `api.notploy.com`.
 7. Choose the validity period eg. `15 years`.
 8. Click `Create`.
-9. Using the PEM format, copy the `Origin Certificate` and `Private Key` in the respective fields in the dokploy new certificate panel (Certificates > Add Certificate).
+9. Using the PEM format, copy the `Origin Certificate` and `Private Key` in the respective fields in the notploy new certificate panel (Certificates > Add Certificate).
 10. Go to `Domains` section in your application.
 11. Click `Create Domain`.
-12. In the `Host` field, enter the domain name eg. `api.dokploy.com`. (Make sure that the domain is already pointing to your server IP in Cloudflare DNS settings and the **hostname matches the one in the certificate**).
+12. In the `Host` field, enter the domain name eg. `api.notploy.com`. (Make sure that the domain is already pointing to your server IP in Cloudflare DNS settings and the **hostname matches the one in the certificate**).
 13. In the `Path` field, enter the path eg. `/`.
 14. In the `Container Port` field, enter the port where your application is running eg. `3000`.
 15. In the `HTTPS` field enable `ON`.
@@ -89,11 +89,11 @@ We assume that you have enabled the `Full (Strict)` mode in the previous step, i
 Using Cloudflare's Origin CA, you are sure that the certificate will be valid for the next 15 years, or the duration you selected, and you don't have to worry about failed renewals.
 
 <Callout type="info">
-You can also create a certificate for wildcards domains eg. `*.dokploy.com` and use it for multiple subdomains.
+You can also create a certificate for wildcards domains eg. `*.notploy.com` and use it for multiple subdomains.
 </Callout>
 
 <Callout type="warn">
-**Important**: With a free Cloudflare account, this methods work only for the main domain and subdomains, not for sub-subdomains. Eg. `api.dokploy.com` works but `staging.api.dokploy.com` does not work.
+**Important**: With a free Cloudflare account, this methods work only for the main domain and subdomains, not for sub-subdomains. Eg. `api.notploy.com` works but `staging.api.notploy.com` does not work.
 </Callout>
 
 
@@ -107,13 +107,13 @@ We assume that you have enabled the `Flexible` mode in the previous step, is sup
 3. Click on `Records`.
 4. Click on `Add Record`.
 5. Select `A` record type.
-6. Enter the `Host` name, eg. `api` so it will be `api.dokploy.com`.
+6. Enter the `Host` name, eg. `api` so it will be `api.notploy.com`.
 7. Enter the `IPv4 Address` from your server where the application is hosted eg. `1.2.3.4`.
 8. Click `Save`.
-9. Go to dokploy panel and now you can assign either for `Applications` or `Docker Compose`.
+9. Go to notploy panel and now you can assign either for `Applications` or `Docker Compose`.
 10. Go to `Domains` section.
 11. Click `Create Domain`.
-12. In the `Host` field, enter the domain name eg. `api.dokploy.com`.
+12. In the `Host` field, enter the domain name eg. `api.notploy.com`.
 13. In the `Path` field, enter the path eg. `/`.
 14. In the `Container Port` field, enter the port where your application is running eg. `3000`.
 15. In the `HTTPS` field enable `OFF`.

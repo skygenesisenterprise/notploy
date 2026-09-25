@@ -1,5 +1,5 @@
 {
-	"name": "@dokploy/api",
+	"name": "@notploy/api",
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
@@ -11,7 +11,7 @@
 	},
 	"dependencies": {
 		"inngest": "3.40.1",
-		"@dokploy/server": "workspace:*",
+		"@notploy/server": "workspace:*",
 		"@hono/node-server": "^1.14.3",
 		"@hono/zod-validator": "0.7.6",
 		"dotenv": "^16.4.5",

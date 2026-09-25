@@ -1,4 +1,4 @@
-# Contributing to Dokploy SDK
+# Contributing to Notploy SDK
 
 Thanks for your interest in contributing! This guide will get you up and running quickly.
 
@@ -10,7 +10,7 @@ Thanks for your interest in contributing! This guide will get you up and running
 ## Setup
 
 ```bash
-git clone https://github.com/dokploy/sdk
+git clone https://github.com/notploy/sdk
 cd sdk
 pnpm install
 ```
@@ -70,7 +70,7 @@ Your editor should pick up `biome.json` automatically if you have the Biome exte
 
 ## Reporting Issues
 
-Found a bug or missing endpoint? [Open an issue](https://github.com/dokploy/sdk/issues) with:
+Found a bug or missing endpoint? [Open an issue](https://github.com/notploy/sdk/issues) with:
 
 - What you expected
 - What actually happened

@@ -7,7 +7,7 @@ dht_port      = "${DHT_PORT:-6881}"
 
 [config]
 mounts = []
-# Dokploy will route this domain to the container's internal port 8080
+# Notploy will route this domain to the container's internal port 8080
 [[config.domains]]
 serviceName = "rutorrent"
 port        = 8080

@@ -30,7 +30,7 @@ Change the default application password immediately after the first login.
 
 OpenSourcePOS validates incoming host headers in production. The `allowed_hostnames` variable defaults to `${main_domain}` and can be set to a comma-separated list such as `pos.example.com,www.pos.example.com`.
 
-The template defaults `force_https` to `false` because Dokploy terminates TLS outside the container. Set it to `true` only when your deployment always reaches OpenSourcePOS through HTTPS and the reverse proxy sends the expected headers.
+The template defaults `force_https` to `false` because Notploy terminates TLS outside the container. Set it to `true` only when your deployment always reaches OpenSourcePOS through HTTPS and the reverse proxy sends the expected headers.
 
 ## Storage
 

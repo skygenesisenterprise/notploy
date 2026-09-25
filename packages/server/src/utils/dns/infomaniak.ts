@@ -1,4 +1,4 @@
-import type { infomaniakDnsConfigSchema } from "@dokploy/server/db/schema";
+import type { infomaniakDnsConfigSchema } from "@notploy/server/db/schema";
 import type { z } from "zod";
 import { type DnsClient, dnsFetch } from "./types";
 
@@ -86,7 +86,7 @@ const toFqdn = (source: string, zone: string) =>
 const normalizeSource = (source: string) =>
 	APEX_SOURCES.has(source) ? "." : source;
 
-// TXT targets are stored quoted; keep Dokploy's view of them unquoted so that
+// TXT targets are stored quoted; keep Notploy's view of them unquoted so that
 // editing a record does not stack a new pair of quotes on every save.
 const unquoteTarget = (target: string) => {
 	if (target.length >= 2 && target.startsWith('"') && target.endsWith('"')) {

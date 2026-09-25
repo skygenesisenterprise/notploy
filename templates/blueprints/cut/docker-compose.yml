@@ -6,11 +6,11 @@ services:
       redis:
         condition: service_healthy
     environment:
-      # Injected by Dokploy from template.toml (generated strong password).
+      # Injected by Notploy from template.toml (generated strong password).
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       # Bundled Redis below, private to the project network.
       - REDIS_URL=redis://redis:6379
-    # Expose the container port only; Dokploy maps the domain to it.
+    # Expose the container port only; Notploy maps the domain to it.
     expose:
       - 3000
     healthcheck:

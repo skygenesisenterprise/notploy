@@ -3,7 +3,7 @@ import type { CreateServiceOptions } from "dockerode";
 import { betterAuthSecret } from "../lib/auth-secret";
 import { getRemoteDocker } from "../utils/servers/remote-docker";
 
-export const FORWARD_AUTH_SERVICE_NAME = "dokploy-forward-auth";
+export const FORWARD_AUTH_SERVICE_NAME = "notploy-forward-auth";
 const FORWARD_AUTH_IMAGE = "quay.io/oauth2-proxy/oauth2-proxy:v7.6.0";
 
 export const FORWARD_AUTH_PORT = 4180;
@@ -99,7 +99,7 @@ export const setupForwardAuth = async (options: SetupForwardAuthOptions) => {
 				Image: FORWARD_AUTH_IMAGE,
 				Env: buildForwardAuthEnv(options),
 			},
-			Networks: [{ Target: "dokploy-network" }],
+			Networks: [{ Target: "notploy-network" }],
 			Placement: {
 				Constraints: ["node.role==manager"],
 			},

@@ -17,7 +17,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Audit Logs for Enterprise Compliance",
 	description:
-		"Track every action across your Dokploy organization. Audit logs give enterprise teams the visibility they need for security and compliance.",
+		"Track every action across your Notploy organization. Audit logs give enterprise teams the visibility they need for security and compliance.",
 };
 
 const coreFeatures = [
@@ -25,13 +25,13 @@ const coreFeatures = [
 		icon: Building2,
 		title: "Track actions across your whole organization",
 		description:
-			"Audit logs capture authentication events, user management changes, deployment activity, infrastructure updates, environment variable changes, backup configuration, and more. If it happened in Dokploy, it\u2019s recorded.",
+			"Audit logs capture authentication events, user management changes, deployment activity, infrastructure updates, environment variable changes, backup configuration, and more. If it happened in Notploy, it\u2019s recorded.",
 	},
 	{
 		icon: AlertCircle,
 		title: "Investigate issues quickly",
 		description:
-			"Each log entry includes a timestamp, the user who performed the action, the action type, the resource affected, and the user\u2019s role in Dokploy at the time. When something goes wrong, you have everything you need to trace it back to its source.",
+			"Each log entry includes a timestamp, the user who performed the action, the action type, the resource affected, and the user\u2019s role in Notploy at the time. When something goes wrong, you have everything you need to trace it back to its source.",
 	},
 	{
 		icon: Search,
@@ -66,7 +66,7 @@ const relatedFeatures = [
 		icon: Paintbrush,
 		title: "White labeling",
 		description:
-			"Present Dokploy as your own product, with custom branding for your clients or organization.",
+			"Present Notploy as your own product, with custom branding for your clients or organization.",
 		href: "/features/white-labeling",
 	},
 ];
@@ -91,7 +91,7 @@ export default function AuditLogsPage() {
 							Full visibility into every action taken
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Know exactly who did what, and when, across your entire Dokploy
+							Know exactly who did what, and when, across your entire Notploy
 							organization.
 						</p>
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -100,7 +100,7 @@ export default function AuditLogsPage() {
 							</Button>
 							<Button variant="outline" className="rounded-full" asChild>
 								<Link
-									href="https://docs.dokploy.com/docs/core"
+									href="https://docs.notploy.com/docs/core"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -152,7 +152,7 @@ export default function AuditLogsPage() {
 							Powerful features for growing teams
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy scales with your team, with features and plans for when
+							Notploy scales with your team, with features and plans for when
 							you&apos;re ready to take the next step.
 						</p>
 					</div>
@@ -186,7 +186,7 @@ export default function AuditLogsPage() {
 							Ready to take control?
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Talk to us about audit logs and the rest of Dokploy&apos;s
+							Talk to us about audit logs and the rest of Notploy&apos;s
 							higher-tier features.
 						</p>
 						<div className="mt-10">

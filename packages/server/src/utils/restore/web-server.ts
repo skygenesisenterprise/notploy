@@ -1,8 +1,8 @@
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { IS_CLOUD, paths } from "@dokploy/server/constants";
-import type { Destination } from "@dokploy/server/services/destination";
+import { IS_CLOUD, paths } from "@notploy/server/constants";
+import type { Destination } from "@notploy/server/services/destination";
 import { quote } from "shell-quote";
 import { getS3Credentials } from "../backups/utils";
 import { execAsync } from "../process/execAsync";
@@ -22,7 +22,7 @@ export const restoreWebServerBackup = async (
 		const { BASE_PATH } = paths();
 
 		// Create a temporary directory outside of BASE_PATH
-		const tempDir = await mkdtemp(join(tmpdir(), "dokploy-restore-"));
+		const tempDir = await mkdtemp(join(tmpdir(), "notploy-restore-"));
 
 		try {
 			emit("Starting restore...");
@@ -87,11 +87,11 @@ export const restoreWebServerBackup = async (
 			}
 
 			const { stdout: postgresContainer } = await execAsync(
-				`docker ps --filter "name=dokploy-postgres" --filter "status=running" -q | head -n 1`,
+				`docker ps --filter "name=notploy-postgres" --filter "status=running" -q | head -n 1`,
 			);
 
 			if (!postgresContainer) {
-				throw new Error("Dokploy Postgres container not found");
+				throw new Error("Notploy Postgres container not found");
 			}
 
 			const postgresContainerId = postgresContainer.trim();
@@ -99,17 +99,17 @@ export const restoreWebServerBackup = async (
 			// Drop and recreate database
 			emit("Disconnecting all users from database...");
 			await execAsync(
-				`docker exec ${postgresContainerId} psql -U dokploy postgres -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'dokploy' AND pid <> pg_backend_pid();"`,
+				`docker exec ${postgresContainerId} psql -U notploy postgres -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'notploy' AND pid <> pg_backend_pid();"`,
 			);
 
 			emit("Dropping existing database...");
 			await execAsync(
-				`docker exec ${postgresContainerId} psql -U dokploy postgres -c "DROP DATABASE IF EXISTS dokploy;"`,
+				`docker exec ${postgresContainerId} psql -U notploy postgres -c "DROP DATABASE IF EXISTS notploy;"`,
 			);
 
 			emit("Creating fresh database...");
 			await execAsync(
-				`docker exec ${postgresContainerId} psql -U dokploy postgres -c "CREATE DATABASE dokploy;"`,
+				`docker exec ${postgresContainerId} psql -U notploy postgres -c "CREATE DATABASE notploy;"`,
 			);
 
 			// Copy the backup file into the container
@@ -127,7 +127,7 @@ export const restoreWebServerBackup = async (
 			// Restore from the copied file
 			emit("Running database restore...");
 			await execAsync(
-				`docker exec ${postgresContainerId} pg_restore -v -U dokploy -d dokploy /tmp/database.sql`,
+				`docker exec ${postgresContainerId} pg_restore -v -U notploy -d notploy /tmp/database.sql`,
 			);
 
 			// Cleanup the temporary file in the container

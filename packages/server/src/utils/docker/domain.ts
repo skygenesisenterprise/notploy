@@ -1,10 +1,10 @@
 import fs, { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { paths } from "@dokploy/server/constants";
-import { db } from "@dokploy/server/db";
-import { network, patch } from "@dokploy/server/db/schema";
-import type { Compose } from "@dokploy/server/services/compose";
-import type { Domain } from "@dokploy/server/services/domain";
+import { paths } from "@notploy/server/constants";
+import { db } from "@notploy/server/db";
+import { network, patch } from "@notploy/server/db/schema";
+import type { Compose } from "@notploy/server/services/compose";
+import type { Domain } from "@notploy/server/services/domain";
 import { eq, inArray } from "drizzle-orm";
 import { quote } from "shell-quote";
 import { parse, stringify } from "yaml";
@@ -296,7 +296,7 @@ export const addDomainToCompose = async (
 				: "traefik.swarm.network";
 		const networkName = compose.isolatedDeployment
 			? compose.suffix || compose.appName
-			: "dokploy-network";
+			: "notploy-network";
 
 		if (Array.isArray(labels)) {
 			if (!labels.includes("traefik.enable=true")) {
@@ -319,8 +319,8 @@ export const addDomainToCompose = async (
 		}
 
 		if (!compose.isolatedDeployment) {
-			// Add the dokploy-network to the service
-			result.services[serviceName].networks = addDokployNetworkToService(
+			// Add the notploy-network to the service
+			result.services[serviceName].networks = addNotployNetworkToService(
 				result.services[serviceName].networks,
 			);
 		}
@@ -360,17 +360,17 @@ export const applyServiceNetworks = async (
 		for (const networkId of config.networkIds) {
 			const match = networks.find((n) => n.networkId === networkId);
 			if (!match) continue;
-			service.networks = addDokployNetworkToService(
+			service.networks = addNotployNetworkToService(
 				service.networks,
 				match.name,
 			);
 			injectedNetworkNames.add(match.name);
 		}
 
-		if (config.detachDokployNetwork) {
-			removeNetworkFromService(service, "dokploy-network");
+		if (config.detachNotployNetwork) {
+			removeNetworkFromService(service, "notploy-network");
 			removeNetworkFromService(service, "default");
-			removeDokployNetworkLabel(service);
+			removeNotployNetworkLabel(service);
 		}
 	}
 
@@ -389,12 +389,12 @@ export const declareUsedNetworksInRoot = (
 			return false;
 		});
 
-	if (isUsed("dokploy-network")) {
-		result.networks = addDokployNetworkToRoot(result.networks);
+	if (isUsed("notploy-network")) {
+		result.networks = addNotployNetworkToRoot(result.networks);
 	}
 	for (const name of injectedNetworkNames) {
 		if (isUsed(name)) {
-			result.networks = addDokployNetworkToRoot(result.networks, name);
+			result.networks = addNotployNetworkToRoot(result.networks, name);
 		}
 	}
 };
@@ -510,9 +510,9 @@ export const createDomainLabels = (
 	return labels;
 };
 
-export const addDokployNetworkToService = (
+export const addNotployNetworkToService = (
 	networkService: DefinitionsService["networks"],
-	networkName = "dokploy-network",
+	networkName = "notploy-network",
 ) => {
 	let networks = networkService;
 	const network = networkName;
@@ -552,13 +552,13 @@ export const removeNetworkFromService = (
 	}
 };
 
-const removeDokployNetworkLabel = (service: DefinitionsService) => {
+const removeNotployNetworkLabel = (service: DefinitionsService) => {
 	const stripped = (labels: DefinitionsService["labels"]) => {
 		if (Array.isArray(labels)) {
 			return labels.filter(
 				(l) =>
-					l !== "traefik.docker.network=dokploy-network" &&
-					l !== "traefik.swarm.network=dokploy-network",
+					l !== "traefik.docker.network=notploy-network" &&
+					l !== "traefik.swarm.network=notploy-network",
 			);
 		}
 		return labels;
@@ -568,9 +568,9 @@ const removeDokployNetworkLabel = (service: DefinitionsService) => {
 		service.deploy.labels = stripped(service.deploy.labels);
 };
 
-export const addDokployNetworkToRoot = (
+export const addNotployNetworkToRoot = (
 	networkRoot: PropertiesNetworks | undefined,
-	networkName = "dokploy-network",
+	networkName = "notploy-network",
 ) => {
 	let networks = networkRoot;
 	const network = networkName;

@@ -1,13 +1,13 @@
 ---
 title: AWS Secrets Manager
-description: "Use AWS Secrets Manager secrets in your Dokploy environment variables."
+description: "Use AWS Secrets Manager secrets in your Notploy environment variables."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
 ## Create IAM Credentials
 
-Create an IAM user (or use an existing one) with programmatic access and a least-privilege policy for the secrets Dokploy should reach:
+Create an IAM user (or use an existing one) with programmatic access and a least-privilege policy for the secrets Notploy should reach:
 
 ```json
 {
@@ -16,7 +16,7 @@ Create an IAM user (or use an existing one) with programmatic access and a least
 		{
 			"Effect": "Allow",
 			"Action": ["secretsmanager:GetSecretValue", "secretsmanager:ListSecrets"],
-			"Resource": "arn:aws:secretsmanager:*:*:secret:dokploy/*"
+			"Resource": "arn:aws:secretsmanager:*:*:secret:notploy/*"
 		}
 	]
 }

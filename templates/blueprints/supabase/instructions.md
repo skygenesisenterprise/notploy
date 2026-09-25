@@ -2,8 +2,8 @@
 
 ## Deploy
 
-1. In Dokploy, create the service from the **Supabase** template (requires Dokploy `>= 0.22.5`).
-2. Dokploy automatically generates all secrets for you (`POSTGRES_PASSWORD`, `JWT_SECRET`, `ANON_KEY`, `SERVICE_ROLE_KEY`, `DASHBOARD_PASSWORD`, etc.). You can review them in the **Environment** tab of the service.
+1. In Notploy, create the service from the **Supabase** template (requires Notploy `>= 0.22.5`).
+2. Notploy automatically generates all secrets for you (`POSTGRES_PASSWORD`, `JWT_SECRET`, `ANON_KEY`, `SERVICE_ROLE_KEY`, `DASHBOARD_PASSWORD`, etc.). You can review them in the **Environment** tab of the service.
 3. Deploy and wait for all containers to become healthy. The first deploy can take several minutes while the Postgres database initializes.
 
 ## Log in to Supabase Studio
@@ -13,7 +13,7 @@ The main domain of the template points to the `kong` API gateway (port `8000`), 
 - **Username**: the value of `DASHBOARD_USERNAME` (default: `supabase`)
 - **Password**: the value of `DASHBOARD_PASSWORD`
 
-Both values are in the **Environment** tab of the service in Dokploy.
+Both values are in the **Environment** tab of the service in Notploy.
 
 ## API URL and keys
 
@@ -25,7 +25,7 @@ To connect an application (for example with `supabase-js`):
 
 ### New API keys (`sb_publishable_…` / `sb_secret_…`)
 
-Dokploy also generates the newer opaque API keys, so you can use either style:
+Notploy also generates the newer opaque API keys, so you can use either style:
 
 - **publishable key**: the value of `SUPABASE_PUBLISHABLE_KEY` (browser-safe, replaces the anon key)
 - **secret key**: the value of `SUPABASE_SECRET_KEY` (server-side only, replaces the service_role key)
@@ -37,7 +37,7 @@ so clients never hold a decodable token. Both styles stay valid at the same time
 ## Optional: sign tokens with an ES256 key pair
 
 Everything is signed with the symmetric `JWT_SECRET` (HS256) by default. Moving
-to an asymmetric key pair needs an EC P-256 key, which Dokploy's variable
+to an asymmetric key pair needs an EC P-256 key, which Notploy's variable
 helpers cannot generate, so `JWT_KEYS` and `JWT_JWKS` ship empty. To switch:
 
 1. Clone the Supabase repo and go to its `docker/` directory:
@@ -87,7 +87,7 @@ To actually change the password, use one of these options:
 
 ### Option A: change it inside the database (keeps your data)
 
-1. Open a terminal into the `db` container (in Dokploy: your Supabase service, `db` container, **Terminal**) and run `psql -U postgres`.
+1. Open a terminal into the `db` container (in Notploy: your Supabase service, `db` container, **Terminal**) and run `psql -U postgres`.
 2. Execute the following, using your new password:
 
 ```sql

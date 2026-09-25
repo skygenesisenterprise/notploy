@@ -24,7 +24,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
 	title: "Security, Access Control, & Governance",
 	description:
-		"Dokploy gives teams enterprise-grade security with SSO, fine-grained RBAC, audit logs, and 2FA – built for compliance and infrastructure control.",
+		"Notploy gives teams enterprise-grade security with SSO, fine-grained RBAC, audit logs, and 2FA – built for compliance and infrastructure control.",
 };
 
 const ssoFeatures = [
@@ -32,7 +32,7 @@ const ssoFeatures = [
 		icon: Link2,
 		title: "Integrate with OIDC and SAML",
 		description:
-			"Dokploy's SSO supports both OpenID Connect and SAML 2.0, so it works with virtually any enterprise IdP—no custom engineering work required.",
+			"Notploy's SSO supports both OpenID Connect and SAML 2.0, so it works with virtually any enterprise IdP—no custom engineering work required.",
 	},
 	{
 		icon: Plug,
@@ -44,13 +44,13 @@ const ssoFeatures = [
 		icon: UserMinus,
 		title: "Centralize user provisioning",
 		description:
-			"When you add or remove a user in your IdP, it's reflected in Dokploy. No parallel user management, no accounts lingering after someone leaves.",
+			"When you add or remove a user in your IdP, it's reflected in Notploy. No parallel user management, no accounts lingering after someone leaves.",
 	},
 	{
 		icon: ShieldCheck,
 		title: "Enforce your auth policies",
 		description:
-			"MFA requirements, session timeouts, and conditional access rules configured in your IdP apply to Dokploy automatically so your security posture stays consistent.",
+			"MFA requirements, session timeouts, and conditional access rules configured in your IdP apply to Notploy automatically so your security posture stays consistent.",
 	},
 ];
 
@@ -162,19 +162,19 @@ const infrastructureFeatures = [
 		icon: Lock,
 		title: "Automate SSL/TLS certificate management",
 		description:
-			"Dokploy handles certificate provisioning and renewal automatically via Traefik, so your services stay encrypted without manual intervention or renewal tracking.",
+			"Notploy handles certificate provisioning and renewal automatically via Traefik, so your services stay encrypted without manual intervention or renewal tracking.",
 	},
 	{
 		icon: KeyRound,
 		title: "Authenticate with SSH keys, not passwords",
 		description:
-			"Dokploy's built-in security checks recommend disabling password authentication on your servers and switching to key-based SSH. You can manage your keys directly within the platform.",
+			"Notploy's built-in security checks recommend disabling password authentication on your servers and switching to key-based SSH. You can manage your keys directly within the platform.",
 	},
 	{
 		icon: Server,
 		title: "Keep your data on your own infrastructure",
 		description:
-			"Self-hosted Dokploy means your deployments, credentials, and configurations stay on servers you control. No vendor accesses your environment.",
+			"Self-hosted Notploy means your deployments, credentials, and configurations stay on servers you control. No vendor accesses your environment.",
 	},
 ];
 
@@ -190,23 +190,23 @@ const relatedFeatures = [
 		icon: Shield,
 		title: "RBAC",
 		description:
-			"Define exactly what each user can do once they're in Dokploy, with granular role and permission controls across projects, services, and features.",
+			"Define exactly what each user can do once they're in Notploy, with granular role and permission controls across projects, services, and features.",
 		href: "/features/role-based-access-control",
 	},
 	{
 		icon: ScrollText,
 		title: "Audit logs",
 		description:
-			"Keep a full record of every login, logout, and action taken across your Dokploy environment for compliance and accountability.",
+			"Keep a full record of every login, logout, and action taken across your Notploy environment for compliance and accountability.",
 		href: "/features/audit-logs",
 	},
 ];
 
 const faqs = [
 	{
-		question: "What SSO providers does Dokploy support?",
+		question: "What SSO providers does Notploy support?",
 		answer:
-			"Dokploy supports any OIDC or SAML 2.0 provider. Pre-configured integrations are available for Okta, Azure AD (now Microsoft Entra ID), Auth0, Keycloak, and Zitadel. If your provider isn't listed, you can configure it manually using standard endpoints.",
+			"Notploy supports any OIDC or SAML 2.0 provider. Pre-configured integrations are available for Okta, Azure AD (now Microsoft Entra ID), Auth0, Keycloak, and Zitadel. If your provider isn't listed, you can configure it manually using standard endpoints.",
 	},
 	{
 		question: "Is RBAC available on every plan?",
@@ -219,14 +219,14 @@ const faqs = [
 			"Every meaningful action: logins and logouts, user and role changes, deployments, domain and certificate changes, environment variable edits, backup events, and infrastructure modifications.",
 	},
 	{
-		question: "Does Dokploy support SOC 2 or GDPR compliance?",
+		question: "Does Notploy support SOC 2 or GDPR compliance?",
 		answer:
-			"Dokploy's Enterprise features—SSO, custom RBAC, and audit logs—are designed to support compliance with SOC 2, GDPR, and internal governance requirements. For MSA/SLA and compliance documentation, contact the Dokploy team.",
+			"Notploy's Enterprise features—SSO, custom RBAC, and audit logs—are designed to support compliance with SOC 2, GDPR, and internal governance requirements. For MSA/SLA and compliance documentation, contact the Notploy team.",
 	},
 	{
-		question: "Can I use SSO on Dokploy Cloud and self-hosted?",
+		question: "Can I use SSO on Notploy Cloud and self-hosted?",
 		answer:
-			"SSO is available on both Dokploy Cloud and self-hosted Enterprise instances. Contact sales for configuration support.",
+			"SSO is available on both Notploy Cloud and self-hosted Enterprise instances. Contact sales for configuration support.",
 	},
 ];
 
@@ -250,7 +250,7 @@ export default function SecurityPage() {
 							Lock down your deployments without blocking your team
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Dokploy gives you layered security at every level, from how your
+							Notploy gives you layered security at every level, from how your
 							team authenticates to exactly what each user can access. Get SSO,
 							custom roles, a complete audit trail, and host in your own secure
 							environment.
@@ -258,8 +258,8 @@ export default function SecurityPage() {
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
-									aria-label="Get Started with Dokploy"
+									href="https://app.notploy.com/register"
+									aria-label="Get Started with Notploy"
 									target="_blank"
 								>
 									Get Started
@@ -283,7 +283,7 @@ export default function SecurityPage() {
 						<p className="mt-4 text-lg text-muted-foreground">
 							Enterprise users can authenticate through any OIDC or SAML
 							2.0-compatible identity provider. If your organization already
-							runs Okta, Azure AD, or Keycloak, Dokploy connects to it.
+							runs Okta, Azure AD, or Keycloak, Notploy connects to it.
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
@@ -440,7 +440,7 @@ export default function SecurityPage() {
 							Security from the infrastructure up
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Access control is only one part of the picture. Dokploy is built
+							Access control is only one part of the picture. Notploy is built
 							with server-level security in mind, including built-in guidance to
 							keep your infrastructure hardened alongside your access policies.
 						</p>
@@ -493,7 +493,7 @@ export default function SecurityPage() {
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Explore Dokploy&apos;s security features in depth
+							Explore Notploy&apos;s security features in depth
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Dive deeper into the access control and governance features that
@@ -525,18 +525,18 @@ export default function SecurityPage() {
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Deploy securely with Dokploy
+							Deploy securely with Notploy
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Start shipping applications today with Dokploy, safe in the
+							Start shipping applications today with Notploy, safe in the
 							knowledge that your environment is secure. For additional
 							governance, choose our Enterprise plan.
 						</p>
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
-									aria-label="Get Started with Dokploy"
+									href="https://app.notploy.com/register"
+									aria-label="Get Started with Notploy"
 									target="_blank"
 								>
 									Get Started

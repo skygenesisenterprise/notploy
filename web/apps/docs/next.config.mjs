@@ -13,7 +13,7 @@ const config = {
 		remotePatterns: [
 			{
 				protocol: "https",
-				hostname: "templates.dokploy.com",
+				hostname: "templates.notploy.com",
 			},
 		],
 	},
@@ -21,12 +21,12 @@ const config = {
 		return [
 			{
 				source: "/docs/templates",
-				destination: "https://dokploy.com/templates",
+				destination: "https://notploy.com/templates",
 				permanent: true,
 			},
 			{
 				source: "/docs/templates/:id*",
-				destination: "https://dokploy.com/templates/:id*",
+				destination: "https://notploy.com/templates/:id*",
 				permanent: true,
 			},
 		];

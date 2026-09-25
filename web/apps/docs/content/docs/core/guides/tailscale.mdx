@@ -1,13 +1,13 @@
 ---
 title: Tailscale
-description: Learn how to use Tailscale to securely access your Dokploy applications and servers through a private network without opening ports.
+description: Learn how to use Tailscale to securely access your Notploy applications and servers through a private network without opening ports.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Tailscale creates a secure, private network that connects your devices and servers using WireGuard. This allows you to access your Dokploy applications and servers securely without opening ports on your firewall or exposing services to the public internet.
+Tailscale creates a secure, private network that connects your devices and servers using WireGuard. This allows you to access your Notploy applications and servers securely without opening ports on your firewall or exposing services to the public internet.
 
-**Tailscale is particularly useful for preventing unauthorized access to your services.** By keeping your Dokploy instance and applications on a private network, only devices that are explicitly added to your Tailscale network can access them. This means your services remain completely private and invisible to the public internet, significantly reducing the attack surface and preventing unauthorized users from discovering or accessing your infrastructure.
+**Tailscale is particularly useful for preventing unauthorized access to your services.** By keeping your Notploy instance and applications on a private network, only devices that are explicitly added to your Tailscale network can access them. This means your services remain completely private and invisible to the public internet, significantly reducing the attack surface and preventing unauthorized users from discovering or accessing your infrastructure.
 
 ## What is Tailscale?
 
@@ -26,36 +26,36 @@ Tailscale is a zero-config VPN that creates a mesh network between your devices 
 
 ## Prerequisites
 
-Before setting up Tailscale with Dokploy, ensure you have:
+Before setting up Tailscale with Notploy, ensure you have:
 
 - A Tailscale account (free tier works)
-- Dokploy installed and running
+- Notploy installed and running
 - Access to your server via SSH or console
 - Tailscale installed on your client devices (optional, for accessing services)
 
 <Callout type="info">
-  Tailscale works great for accessing Dokploy's admin interface and your applications from anywhere, without exposing them to the public internet. This keeps your services private and prevents unauthorized users from discovering or accessing them.
+  Tailscale works great for accessing Notploy's admin interface and your applications from anywhere, without exposing them to the public internet. This keeps your services private and prevents unauthorized users from discovering or accessing them.
 </Callout>
 
 ## Tailscale Setup
 
-This guide will walk you through setting up Tailscale to securely access your Dokploy server and applications through a private network.
+This guide will walk you through setting up Tailscale to securely access your Notploy server and applications through a private network.
 
 ### Step 1: Prerequisites
 
 Before starting, ensure you have:
 
-1. **Dokploy installed and running** - Follow the [installation guide](/docs/core/installation) if needed
+1. **Notploy installed and running** - Follow the [installation guide](/docs/core/installation) if needed
 2. **A Tailscale account** - Create one at [tailscale.com](https://login.tailscale.com/login) (free tier works)
 
 ### Step 2: Get Docker Network Subnet
 
-First, we need to identify the Docker network subnet that Dokploy uses. This will be advertised to the Tailscale network to allow access to your containers.
+First, we need to identify the Docker network subnet that Notploy uses. This will be advertised to the Tailscale network to allow access to your containers.
 
-Run the following command on your Dokploy server:
+Run the following command on your Notploy server:
 
 ```bash
-docker network inspect dokploy-network | grep Subnet
+docker network inspect notploy-network | grep Subnet
 ```
 
 You should see output like this:
@@ -68,7 +68,7 @@ Copy the subnet value (e.g., `10.254.0.0/24`) - you'll need it in the next step.
 
 ### Step 3: Configure Tailscale Server
 
-Now we'll set up Tailscale on your Dokploy server with subnet routing enabled.
+Now we'll set up Tailscale on your Notploy server with subnet routing enabled.
 
 #### 3.1: Create Server in Tailscale Admin
 
@@ -100,7 +100,7 @@ curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up --ssh --ad
 
 #### 3.3: Run the Command
 
-Execute the modified command on your Dokploy server terminal.
+Execute the modified command on your Notploy server terminal.
 
 #### 3.4: Approve Subnet Routes
 
@@ -128,7 +128,7 @@ This will return something like:
 100.100.100.100
 ```
 
-Copy this IPv4 address - you'll use it to access your server and Dokploy.
+Copy this IPv4 address - you'll use it to access your server and Notploy.
 
 ### Step 4: Configure Client Devices
 
@@ -160,11 +160,11 @@ Now you'll set up client devices (your computer, phone, etc.) to connect to the 
 
 Login to your Tailscale account and you should see both your server and client device connected to the network it will also display in the tailscale dashboard.
 
-### Step 5: Access Dokploy via Tailscale
+### Step 5: Access Notploy via Tailscale
 
-Now you can access Dokploy and your applications through the Tailscale network.
+Now you can access Notploy and your applications through the Tailscale network.
 
-#### Access Dokploy Dashboard
+#### Access Notploy Dashboard
 
 1. Use your server's Tailscale IP address (from Step 3.5):
    ```
@@ -188,16 +188,16 @@ ssh root@100.100.100.100
 Replace `100.100.100.100` with your server's Tailscale IP address.
 
 <Callout type="info">
-  With this setup, you can access Dokploy and your applications without any port forwarding or exposing services to the public internet. Only devices in your Tailscale network can access these services, ensuring they remain private and protected from unauthorized access.
+  With this setup, you can access Notploy and your applications without any port forwarding or exposing services to the public internet. Only devices in your Tailscale network can access these services, ensuring they remain private and protected from unauthorized access.
 </Callout>
 
 ## Configuring Applications
 
 ### Accessing Applications via Tailscale
 
-Once Tailscale is set up, you can access your Dokploy applications through the Tailscale network:
+Once Tailscale is set up, you can access your Notploy applications through the Tailscale network:
 
-1. **Using Tailscale IP**: Access applications directly using your server's Tailscale IP and the port configured in Dokploy
+1. **Using Tailscale IP**: Access applications directly using your server's Tailscale IP and the port configured in Notploy
 2. **Using Tailscale DNS**: Use your server's Tailscale hostname (e.g., `your-server.tailscale.ts.net`)
 
 ### Example: Accessing an Application
@@ -228,7 +228,7 @@ MagicDNS provides automatic DNS resolution for devices in your Tailscale network
 
 With MagicDNS enabled, you can access your server using its hostname.
 
-For example, to access the Dokploy dashboard (which runs on port 3000):
+For example, to access the Notploy dashboard (which runs on port 3000):
 
 ```
 http://your-server-name.tailscale.ts.net:3000
@@ -236,14 +236,14 @@ http://your-server-name.tailscale.ts.net:3000
 
 ### Using Custom Domains with MagicDNS
 
-If you want to use a custom domain for your Dokploy server, you'll need to find the Full Domain assigned by Tailscale:
+If you want to use a custom domain for your Notploy server, you'll need to find the Full Domain assigned by Tailscale:
 
 1. Go to [Tailscale Admin Console](https://login.tailscale.com/admin/machines/)
 2. Navigate to **Machines** and search for your server
 3. Scroll down to find the **Full Domain** field
 4. The Full Domain will look something like: `ubuntu-2gb-ash-4.tail1ff529.ts.net`
 
-Once you have the Full Domain, you can use it to access your Dokploy server:
+Once you have the Full Domain, you can use it to access your Notploy server:
 
 ```
 http://ubuntu-2gb-ash-4.tail1ff529.ts.net:3000
@@ -268,7 +268,7 @@ Servers on the public internet are constantly scanned and attacked by bots looki
 - **Eliminate attack surface**: Your server becomes invisible to attackers on the public internet
 - **Prevent bot scans**: No more failed login attempts in your logs
 - **Maintain easy access**: You can still access everything through your private Tailscale network
-- **Keep services private**: Dokploy (port 3000) and Traefik (ports 80/443) are only accessible through Tailscale
+- **Keep services private**: Notploy (port 3000) and Traefik (ports 80/443) are only accessible through Tailscale
 
 ### Step 1: SSH Over Tailscale
 
@@ -314,7 +314,7 @@ sudo ufw allow in on tailscale0
 
 This ensures all Tailscale connections work properly, including:
 - SSH access
-- Dokploy dashboard (port 3000)
+- Notploy dashboard (port 3000)
 - Traefik (ports 80/443)
 - All your applications
 
@@ -337,12 +337,12 @@ Anywhere (v6) on tailscale0 ALLOW       Anywhere (v6)
 Since we're using Tailscale for all access, your server is now configured to only accept connections through the Tailscale network. This means:
 
 - ✅ **SSH access**: Only available via Tailscale IP
-- ✅ **Dokploy dashboard**: Only accessible via Tailscale IP
+- ✅ **Notploy dashboard**: Only accessible via Tailscale IP
 - ✅ **Traefik**: Only accessible via Tailscale IP
 - ✅ **All applications**: Only accessible via Tailscale IP
 
 <Callout type="warn">
-  **Important Note About Docker and UFW**: Docker directly manipulates `iptables`, which can bypass UFW rules. This means Docker-published ports (like Dokploy on port 3000 or Traefik on ports 80/443) might still be accessible from the public internet even with UFW configured.
+  **Important Note About Docker and UFW**: Docker directly manipulates `iptables`, which can bypass UFW rules. This means Docker-published ports (like Notploy on port 3000 or Traefik on ports 80/443) might still be accessible from the public internet even with UFW configured.
 
   **Solutions:**
   
@@ -352,7 +352,7 @@ Since we're using Tailscale for all access, your server is now configured to onl
   
   3. **Bind Docker ports to localhost**: Modify Docker services to bind to `127.0.0.1` instead of `0.0.0.0`, but this may break Tailscale access unless configured carefully.
 
-  For Dokploy with Tailscale, the recommended approach is to use your VPS provider's firewall to block public access, as this provides the most reliable protection.
+  For Notploy with Tailscale, the recommended approach is to use your VPS provider's firewall to block public access, as this provides the most reliable protection.
 </Callout>
 
-With this configuration, your server is now protected from public internet access. All services (SSH, Dokploy, Traefik, and applications) are only accessible through your private Tailscale network, ensuring they remain secure and invisible to unauthorized users.
+With this configuration, your server is now protected from public internet access. All services (SSH, Notploy, Traefik, and applications) are only accessible through your private Tailscale network, ensuring they remain secure and invisible to unauthorized users.

@@ -58,7 +58,7 @@ export default function ContactPage() {
 						</h1>
 						<p className="mt-6 text-lg leading-8 text-muted-foreground">
 							Get in touch with our team. We're here to help with any questions
-							about Dokploy.
+							about Notploy.
 						</p>
 					</div>
 

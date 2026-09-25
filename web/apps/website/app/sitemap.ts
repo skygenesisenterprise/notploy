@@ -2,7 +2,7 @@ import { getPosts } from "@/lib/ghost";
 import { getTemplates } from "@/lib/templates";
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://dokploy.com";
+const BASE_URL = "https://notploy.com";
 
 const corePages: { path: string; priority: number }[] = [
 	{ path: "/pricing", priority: 0.9 },
@@ -27,12 +27,12 @@ const featurePages = [
 
 const comparisonPages = [
 	"/comparison",
-	"/dokploy-vs-coolify",
-	"/dokploy-vs-portainer",
-	"/dokploy-vs-caprover",
-	"/dokploy-vs-dokku",
-	"/dokploy-vs-render",
-	"/dokploy-vs-vercel",
+	"/notploy-vs-coolify",
+	"/notploy-vs-portainer",
+	"/notploy-vs-caprover",
+	"/notploy-vs-dokku",
+	"/notploy-vs-render",
+	"/notploy-vs-vercel",
 ];
 
 const industryPages = [

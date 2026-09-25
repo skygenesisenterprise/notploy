@@ -34,9 +34,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
 	title: "Application & Software Deployment Platform",
 	description:
-		"Dokploy's flexible, powerful application and software deployment platform enables self-hosting and secure AI app deployment, with Docker Compose support.",
+		"Notploy's flexible, powerful application and software deployment platform enables self-hosting and secure AI app deployment, with Docker Compose support.",
 	alternates: {
-		canonical: "https://dokploy.com/lp/deployment-platform",
+		canonical: "https://notploy.com/lp/deployment-platform",
 	},
 	robots: {
 		index: false,
@@ -49,13 +49,13 @@ const professionalFeatures = [
 		icon: Code2,
 		title: "Support for multiple languages",
 		description:
-			"Deploy apps written in Node, PHP, Python, Go, Ruby, and more. Dokploy does not restrict programming languages.",
+			"Deploy apps written in Node, PHP, Python, Go, Ruby, and more. Notploy does not restrict programming languages.",
 	},
 	{
 		icon: Boxes,
 		title: "Deploy any app with any stack",
 		description:
-			"Dokploy supports single services and multi-service apps. Deploy from Git, a container registry, or Docker Compose.",
+			"Notploy supports single services and multi-service apps. Deploy from Git, a container registry, or Docker Compose.",
 	},
 	{
 		icon: Unlock,
@@ -126,7 +126,7 @@ const comparisonRows = [
 	},
 ];
 
-const competitors = ["Dokploy", "Coolify", "Dokku", "Vercel", "Heroku"];
+const competitors = ["Notploy", "Coolify", "Dokku", "Vercel", "Heroku"];
 
 const statusIcon = {
 	yes: <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-primary" />,
@@ -196,11 +196,11 @@ const platformFeatures = [
 
 const faqs = [
 	{
-		question: "Can I deploy Docker Compose apps with Dokploy?",
+		question: "Can I deploy Docker Compose apps with Notploy?",
 		answer: (
 			<>
 				<p>
-					Yes. Dokploy supports deploying applications with Docker Compose,
+					Yes. Notploy supports deploying applications with Docker Compose,
 					which is ideal when your implementation spans multiple services, data
 					stores, and supporting tools.
 				</p>
@@ -217,7 +217,7 @@ const faqs = [
 		answer: (
 			<>
 				<p>
-					Dokploy integrates seamlessly with popular version control systems and
+					Notploy integrates seamlessly with popular version control systems and
 					workflows, including GitHub and other git providers such as GitLab,
 					Gitea, Bitbucket, and other Atlassian tools.
 				</p>
@@ -227,7 +227,7 @@ const faqs = [
 					practices.
 				</p>
 				<p className="mt-3">
-					If your team already uses GitHub Actions or Atlassian tools, Dokploy
+					If your team already uses GitHub Actions or Atlassian tools, Notploy
 					fits into that process without forcing a new way of working.
 				</p>
 			</>
@@ -251,13 +251,13 @@ const faqs = [
 		),
 	},
 	{
-		question: "How do preview deployments work in Dokploy?",
+		question: "How do preview deployments work in Notploy?",
 		answer: (
 			<>
 				<p>
 					Preview deployments create environments for testing code changes
 					before they reach production environments. When a pull request or
-					branch updates, Dokploy can trigger automated deployments and
+					branch updates, Notploy can trigger automated deployments and
 					deployment workflows so developers can validate functionality,
 					reliability, and security in an isolated environment.
 				</p>
@@ -343,7 +343,7 @@ export default function DeploymentPlatformLandingPage() {
 							</Button>
 							<Button variant="outline" className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
+									href="https://app.notploy.com/register"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -386,15 +386,15 @@ export default function DeploymentPlatformLandingPage() {
 				</Container>
 			</section>
 
-			{/* Dokploy vs. the competition */}
+			{/* Notploy vs. the competition */}
 			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Dokploy vs. the competition
+							Notploy vs. the competition
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Learn why so many development teams are choosing Dokploy.
+							Learn why so many development teams are choosing Notploy.
 						</p>
 					</div>
 
@@ -409,7 +409,7 @@ export default function DeploymentPlatformLandingPage() {
 										<th
 											key={name}
 											className={
-												name === "Dokploy"
+												name === "Notploy"
 													? "p-4 font-semibold text-primary"
 													: "p-4 font-semibold text-white"
 											}
@@ -493,14 +493,14 @@ export default function DeploymentPlatformLandingPage() {
 							Hundreds of templates to get started
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Deploy popular open-source apps in one click with Dokploy
+							Deploy popular open-source apps in one click with Notploy
 							Templates, a ready-to-run library of pre-configured apps you can
 							deploy fast, without rebuilding the same stack from scratch.
 						</p>
 						<div className="mt-10">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://templates.dokploy.com"
+									href="https://templates.notploy.com"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -520,7 +520,7 @@ export default function DeploymentPlatformLandingPage() {
 							Everything you need in a deployment platform
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy is the software deployment platform for shipping anything
+							Notploy is the software deployment platform for shipping anything
 							from a single service to a full multi-container stack.
 						</p>
 					</div>

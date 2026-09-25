@@ -1,7 +1,7 @@
-# Dokploy Examples
+# Notploy Examples
 
 ---
-This repository contains examples of how to deploy applications using Dokploy.
+This repository contains examples of how to deploy applications using Notploy.
 - [x] 11ty
 - [x] Astro
 - [x] Astro SSR

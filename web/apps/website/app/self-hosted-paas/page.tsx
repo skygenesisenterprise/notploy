@@ -32,9 +32,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "The Self-Hosted PaaS Built for Developers",
 	description:
-		"Start using Dokploy, the free, open source PaaS that enables developers to deploy apps and databases on their own infrastructure.",
+		"Start using Notploy, the free, open source PaaS that enables developers to deploy apps and databases on their own infrastructure.",
 	alternates: {
-		canonical: "https://dokploy.com/self-hosted-paas",
+		canonical: "https://notploy.com/self-hosted-paas",
 	},
 };
 
@@ -43,7 +43,7 @@ const controlFeatures = [
 		icon: Wallet,
 		title: "Save on infrastructure costs",
 		description:
-			"Run Dokploy on any VPS or bare metal server you already own. No per-seat fees, no per-deployment charges—just your underlying infrastructure costs.",
+			"Run Notploy on any VPS or bare metal server you already own. No per-seat fees, no per-deployment charges—just your underlying infrastructure costs.",
 	},
 	{
 		icon: Unlock,
@@ -110,21 +110,21 @@ const setupSteps = [
 		icon: ServerCog,
 		title: "Provision a server",
 		description:
-			"Spin up any Linux VPS from a cloud provider of your choice, or use hardware you already own. Dokploy has minimal overhead and runs comfortably on modest specs.",
+			"Spin up any Linux VPS from a cloud provider of your choice, or use hardware you already own. Notploy has minimal overhead and runs comfortably on modest specs.",
 	},
 	{
 		number: "02",
 		icon: TerminalSquare,
 		title: "Run one install command",
 		description:
-			"Install Dokploy with a single command. Docker is the only prerequisite, the installer handles the rest in just a few commands.",
+			"Install Notploy with a single command. Docker is the only prerequisite, the installer handles the rest in just a few commands.",
 	},
 	{
 		number: "03",
 		icon: MonitorSmartphone,
 		title: "Open the web UI",
 		description:
-			"Once installed, open the Dokploy web UI in your browser, create your admin account, and you're in. No complex cluster setup, no Kubernetes complexity.",
+			"Once installed, open the Notploy web UI in your browser, create your admin account, and you're in. No complex cluster setup, no Kubernetes complexity.",
 	},
 	{
 		number: "04",
@@ -165,7 +165,7 @@ const faqs = [
 					third-party cloud provider.
 				</p>
 				<p className="mt-3">
-					Dokploy is an open source PaaS you can install on any server with a
+					Notploy is an open source PaaS you can install on any server with a
 					single command.
 				</p>
 			</>
@@ -181,7 +181,7 @@ const faqs = [
 					on.
 				</p>
 				<p className="mt-3">
-					Dokploy is a strong open source PaaS alternative to Heroku and similar
+					Notploy is a strong open source PaaS alternative to Heroku and similar
 					hosted platforms. It supports application deployment, Docker Compose,
 					MySQL and other databases, Heroku Buildpacks, multi-server management,
 					and enterprise features like SSO and audit logs.
@@ -194,34 +194,34 @@ const faqs = [
 		),
 	},
 	{
-		question: "Is Dokploy really free to self-host?",
+		question: "Is Notploy really free to self-host?",
 		answer: (
 			<p>
-				Yes. The open source version of Dokploy is free to install and run on
+				Yes. The open source version of Notploy is free to install and run on
 				your own servers. You pay only for the infrastructure you provision,
-				meaning no per-seat or per-deployment fees. Dokploy Cloud plans start at
+				meaning no per-seat or per-deployment fees. Notploy Cloud plans start at
 				$4.50 per server per month if you prefer managed uptime.
 			</p>
 		),
 	},
 	{
-		question: "What's the difference between Dokploy Cloud and self-hosted?",
+		question: "What's the difference between Notploy Cloud and self-hosted?",
 		answer: (
 			<p>
 				Both versions are functionally identical. Every feature available in
 				self-hosted is also available in Cloud, and vice versa. The difference
-				is purely operational: with self-hosted, you manage the Dokploy instance
-				itself, including updates and uptime. With Cloud, Dokploy manages the
+				is purely operational: with self-hosted, you manage the Notploy instance
+				itself, including updates and uptime. With Cloud, Notploy manages the
 				control plane for you. Your applications always run on your own servers
 				in both cases.
 			</p>
 		),
 	},
 	{
-		question: "Does Dokploy support multi-tenancy?",
+		question: "Does Notploy support multi-tenancy?",
 		answer: (
 			<p>
-				Yes. Dokploy includes multi-tenancy support via organizations and
+				Yes. Notploy includes multi-tenancy support via organizations and
 				projects, with role-based access controls that let you manage
 				permissions across teams. Enterprise plans include fine-grained RBAC and
 				custom roles for more complex access requirements.
@@ -229,10 +229,10 @@ const faqs = [
 		),
 	},
 	{
-		question: "What infrastructure does Dokploy support?",
+		question: "What infrastructure does Notploy support?",
 		answer: (
 			<p>
-				Dokploy runs on any Linux server—a VPS from any cloud provider, bare
+				Notploy runs on any Linux server—a VPS from any cloud provider, bare
 				metal, or even a Raspberry Pi for testing. It uses Docker Swarm for
 				container orchestration and Traefik as a reverse proxy, so you get load
 				balancing, SSL, and routing out of the box without managing those layers
@@ -242,7 +242,7 @@ const faqs = [
 	},
 ];
 
-const INSTALL_COMMAND = "curl -sSL https://dokploy.com/install.sh | sh";
+const INSTALL_COMMAND = "curl -sSL https://notploy.com/install.sh | sh";
 
 export default function SelfHostedPaasPage() {
 	return (
@@ -264,7 +264,7 @@ export default function SelfHostedPaasPage() {
 							The Self-Hosted PaaS Built for Developers
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Dokploy is a free, open source PaaS that enables developers to
+							Notploy is a free, open source PaaS that enables developers to
 							deploy apps and databases on their own infrastructure. Full
 							control, no vendor lock-in, and none of the Kubernetes complexity.
 							Install it with a single command and start deploying in minutes.
@@ -272,8 +272,8 @@ export default function SelfHostedPaasPage() {
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
-									aria-label="Get Started with Dokploy"
+									href="https://app.notploy.com/register"
+									aria-label="Get Started with Notploy"
 									target="_blank"
 								>
 									Get Started
@@ -347,19 +347,19 @@ export default function SelfHostedPaasPage() {
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							For organizations that need more than the open source version,
-							Dokploy Enterprise adds the security, compliance, and support
+							Notploy Enterprise adds the security, compliance, and support
 							features that larger teams require, deployable on-premises or in
 							your own cloud, with no external dependencies.
 						</p>
 						<div className="mt-8">
 							<Button className="rounded-full" asChild>
-								<Link href="/enterprise">Learn more about Dokploy Enterprise</Link>
+								<Link href="/enterprise">Learn more about Notploy Enterprise</Link>
 							</Button>
 						</div>
 					</div>
 					<div className="mx-auto mt-16 max-w-3xl">
 						<h3 className="text-center text-lg font-semibold text-white">
-							What you get with Dokploy Enterprise
+							What you get with Notploy Enterprise
 						</h3>
 						<div className="mt-8 grid gap-6 sm:grid-cols-2">
 							{enterpriseFeatures.map((feature) => (
@@ -388,11 +388,11 @@ export default function SelfHostedPaasPage() {
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							How to get set up with self-hosted Dokploy
+							How to get set up with self-hosted Notploy
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Getting a self-hosted PaaS running doesn&apos;t have to be an
-							infrastructure project. Dokploy is designed for minimal overhead,
+							infrastructure project. Notploy is designed for minimal overhead,
 							so you can go from a blank server to a running deployment platform
 							in under ten minutes.
 						</p>
@@ -440,7 +440,7 @@ export default function SelfHostedPaasPage() {
 							<h3 className="text-2xl font-semibold text-white">Self-Hosted</h3>
 							<p className="mt-3 text-sm text-muted-foreground">
 								Choose Self-Hosted if you want zero cost beyond your server
-								bills, full control over everything, or need to run Dokploy in
+								bills, full control over everything, or need to run Notploy in
 								an air-gapped or private network.
 							</p>
 							<ul className="mt-6 space-y-3 text-sm text-muted-foreground">
@@ -457,12 +457,12 @@ export default function SelfHostedPaasPage() {
 								<Cloud className="h-6 w-6" />
 							</div>
 							<h3 className="text-2xl font-semibold text-white">
-								Dokploy Cloud
+								Notploy Cloud
 							</h3>
 							<p className="mt-3 text-sm text-muted-foreground">
-								Choose Cloud if you&apos;d rather not maintain the Dokploy
+								Choose Cloud if you&apos;d rather not maintain the Notploy
 								instance itself. Your apps still run on your own servers —
-								Dokploy manages the control plane for you.
+								Notploy manages the control plane for you.
 							</p>
 							<ul className="mt-6 space-y-3 text-sm text-muted-foreground">
 								{cloudBullets.map((bullet) => (
@@ -485,7 +485,7 @@ export default function SelfHostedPaasPage() {
 							One product, two ways to run the control plane
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy&apos;s deployment engine is identical in both options. The
+							Notploy&apos;s deployment engine is identical in both options. The
 							only difference is where the control plane—the UI, PostgreSQL
 							database, and Redis instance—runs.
 						</p>
@@ -505,7 +505,7 @@ export default function SelfHostedPaasPage() {
 							<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
 								<Cloud className="h-6 w-6" />
 							</div>
-							<h3 className="text-xl font-semibold">Dokploy Cloud</h3>
+							<h3 className="text-xl font-semibold">Notploy Cloud</h3>
 							<p className="mt-3 text-sm text-muted-foreground">
 								Your apps keep running independently even if the Cloud control
 								plane is temporarily unavailable.
@@ -523,7 +523,7 @@ export default function SelfHostedPaasPage() {
 							Your own PaaS, up and running today
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy is free to self-host and takes just a few commands to
+							Notploy is free to self-host and takes just a few commands to
 							install. Create your account, follow the setup guide, and
 							you&apos;ll have a fully functional open source PaaS running on
 							your own infrastructure in minutes.
@@ -531,7 +531,7 @@ export default function SelfHostedPaasPage() {
 						<div className="mt-10">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
+									href="https://app.notploy.com/register"
 									target="_blank"
 									rel="noopener noreferrer"
 								>

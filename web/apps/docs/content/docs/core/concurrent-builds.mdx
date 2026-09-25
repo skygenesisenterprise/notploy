@@ -1,15 +1,15 @@
 ---
 title: Concurrent Builds
-description: "Learn how Dokploy manages build/deployment concurrency per server and how to configure it."
+description: "Learn how Notploy manages build/deployment concurrency per server and how to configure it."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Dokploy processes deployments through a queue that is scoped **per server**. Every server, including the Dokploy server itself, has its own independent concurrency setting that controls how many builds can run at the same time on it.
+Notploy processes deployments through a queue that is scoped **per server**. Every server, including the Notploy server itself, has its own independent concurrency setting that controls how many builds can run at the same time on it.
 
 ## How the Queue Works
 
-Each server (the local Dokploy server, and every remote/build server) has its own queue partition:
+Each server (the local Notploy server, and every remote/build server) has its own queue partition:
 
 - Jobs are grouped by server, so builds on different servers never block each other.
 - Within a server's queue, up to **N** jobs can run in parallel, where **N** is that server's configured concurrency.
@@ -19,12 +19,12 @@ This means increasing concurrency lets **different** applications on the same se
 
 ## Default Concurrency
 
-By default, every server, the Dokploy server and any remote server, has a concurrency of **1**. This means builds on that server run one at a time.
+By default, every server, the Notploy server and any remote server, has a concurrency of **1**. This means builds on that server run one at a time.
 
 ## Limits
 
 <Callout type="info">
-  Concurrent builds are a self-hosted feature and are configured per server. They are not available on Dokploy Cloud, where build scheduling is managed by the platform.
+  Concurrent builds are a self-hosted feature and are configured per server. They are not available on Notploy Cloud, where build scheduling is managed by the platform.
 </Callout>
 
 Concurrent builds are fully available in the open-source version — no license required. You can set each server's concurrency to any value between **1** and **100**.
@@ -32,9 +32,9 @@ Concurrent builds are fully available in the open-source version — no license 
 ## Configuring Concurrency
 
 1. Go to **Dashboard → Settings → Deployments**.
-2. Under **Dokploy Server**, set the concurrency for the local server.
+2. Under **Notploy Server**, set the concurrency for the local server.
 3. Under **Remote Servers**, set the concurrency for each remote or build server individually.
 
 <ImageZoom src="/assets/images/ui/concurrent-builds.png" alt="Per-server concurrency configuration under Settings > Deployments" width={1600} height={775} className="rounded-lg"/>
 
-Each server's concurrency is configured independently, so you can, for example, keep the Dokploy server at 1 while increasing concurrency on a dedicated [build server](/docs/core/remote-servers/build-server) with more resources.
+Each server's concurrency is configured independently, so you can, for example, keep the Notploy server at 1 while increasing concurrency on a dedicated [build server](/docs/core/remote-servers/build-server) with more resources.

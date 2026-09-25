@@ -1,10 +1,10 @@
-# Dokploy MCP Server
+# Notploy MCP Server
 
-[![npm version](https://img.shields.io/npm/v/@dokploy/mcp.svg)](https://www.npmjs.com/package/@dokploy/mcp) [<img alt="Install in VS Code (npx)" src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Dokploy%20MCP&color=0098FF">](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%7B%22name%22%3A%22dokploy-mcp%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40dokploy%2Fmcp%40latest%22%5D%7D)
+[![npm version](https://img.shields.io/npm/v/@notploy/mcp.svg)](https://www.npmjs.com/package/@notploy/mcp) [<img alt="Install in VS Code (npx)" src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Notploy%20MCP&color=0098FF">](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%7B%22name%22%3A%22notploy-mcp%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40notploy%2Fmcp%40latest%22%5D%7D)
 
-Dokploy MCP Server exposes **all Dokploy API endpoints** as tools consumable via the Model Context Protocol (MCP). It allows MCP-compatible clients (e.g., AI models, other applications) to interact with your Dokploy server programmatically.
+Notploy MCP Server exposes **all Notploy API endpoints** as tools consumable via the Model Context Protocol (MCP). It allows MCP-compatible clients (e.g., AI models, other applications) to interact with your Notploy server programmatically.
 
-With **508 tools** across **49 categories**, this server provides complete coverage of the Dokploy API — from project and application management to databases, notifications, SSO, Docker, backups, and more.
+With **508 tools** across **49 categories**, this server provides complete coverage of the Notploy API — from project and application management to databases, notifications, SSO, Docker, backups, and more.
 
 ## Getting Started
 
@@ -12,7 +12,7 @@ With **508 tools** across **49 categories**, this server provides complete cover
 
 - Node.js >= v18.0.0 (or Docker)
 - Cursor, VS Code, Claude Desktop, or another MCP Client
-- A running Dokploy server instance
+- A running Notploy server instance
 
 ### Install in Cursor
 
@@ -23,12 +23,12 @@ Add this to your Cursor `~/.cursor/mcp.json` file. You may also install in a spe
 ```json
 {
   "mcpServers": {
-    "dokploy-mcp": {
+    "notploy-mcp": {
       "command": "npx",
-      "args": ["-y", "@dokploy/mcp"],
+      "args": ["-y", "@notploy/mcp"],
       "env": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       }
     }
   }
@@ -41,12 +41,12 @@ Add this to your Cursor `~/.cursor/mcp.json` file. You may also install in a spe
 ```json
 {
   "mcpServers": {
-    "dokploy-mcp": {
+    "notploy-mcp": {
       "command": "bunx",
-      "args": ["-y", "@dokploy/mcp"],
+      "args": ["-y", "@notploy/mcp"],
       "env": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       }
     }
   }
@@ -61,12 +61,12 @@ Add this to your Cursor `~/.cursor/mcp.json` file. You may also install in a spe
 ```json
 {
   "mcpServers": {
-    "dokploy-mcp": {
+    "notploy-mcp": {
       "command": "deno",
-      "args": ["run", "--allow-env", "--allow-net", "npm:@dokploy/mcp"],
+      "args": ["run", "--allow-env", "--allow-net", "npm:@notploy/mcp"],
       "env": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       }
     }
   }
@@ -82,12 +82,12 @@ Add this to your Windsurf MCP config file. See [Windsurf MCP docs](https://docs.
 ```json
 {
   "mcpServers": {
-    "dokploy-mcp": {
+    "notploy-mcp": {
       "command": "npx",
-      "args": ["-y", "@dokploy/mcp"],
+      "args": ["-y", "@notploy/mcp"],
       "env": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       }
     }
   }
@@ -96,21 +96,21 @@ Add this to your Windsurf MCP config file. See [Windsurf MCP docs](https://docs.
 
 ### Install in VS Code
 
-[<img alt="Install in VS Code (npx)" src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Dokploy%20MCP&color=0098FF">](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%7B%22name%22%3A%22dokploy-mcp%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40dokploy%2Fmcp%40latest%22%5D%7D)
-[<img alt="Install in VS Code Insiders (npx)" src="https://img.shields.io/badge/VS_Code_Insiders-VS_Code_Insiders?style=flat-square&label=Install%20Dokploy%20MCP&color=24bfa5">](https://insiders.vscode.dev/redirect?url=vscode-insiders%3Amcp%2Finstall%3F%7B%22name%22%3A%22dokploy-mcp%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40dokploy%2Fmcp%40latest%22%5D%7D)
+[<img alt="Install in VS Code (npx)" src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Notploy%20MCP&color=0098FF">](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%7B%22name%22%3A%22notploy-mcp%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40notploy%2Fmcp%40latest%22%5D%7D)
+[<img alt="Install in VS Code Insiders (npx)" src="https://img.shields.io/badge/VS_Code_Insiders-VS_Code_Insiders?style=flat-square&label=Install%20Notploy%20MCP&color=24bfa5">](https://insiders.vscode.dev/redirect?url=vscode-insiders%3Amcp%2Finstall%3F%7B%22name%22%3A%22notploy-mcp%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40notploy%2Fmcp%40latest%22%5D%7D)
 
 Add this to your VS Code MCP config file. See [VS Code MCP docs](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for more info.
 
 ```json
 {
   "servers": {
-    "dokploy-mcp": {
+    "notploy-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@dokploy/mcp"],
+      "args": ["-y", "@notploy/mcp"],
       "env": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       }
     }
   }
@@ -122,13 +122,13 @@ Add this to your VS Code MCP config file. See [VS Code MCP docs](https://code.vi
 Add the MCP server to Claude Code using the CLI:
 
 ```bash
-claude mcp add dokploy-mcp -- npx -y @dokploy/mcp
+claude mcp add notploy-mcp -- npx -y @notploy/mcp
 ```
 
 Then set the environment variables in your `.claude/settings.json` or pass them inline:
 
 ```bash
-DOKPLOY_URL=https://your-dokploy-server.com DOKPLOY_API_KEY=your-token claude
+NOTPLOY_URL=https://your-notploy-server.com NOTPLOY_API_KEY=your-token claude
 ```
 
 ### Install in Zed
@@ -138,12 +138,12 @@ Add this to your Zed `settings.json`. See [Zed Context Server docs](https://zed.
 ```json
 {
   "context_servers": {
-    "dokploy-mcp": {
+    "notploy-mcp": {
       "command": "npx",
-      "args": ["-y", "@dokploy/mcp"],
+      "args": ["-y", "@notploy/mcp"],
       "env": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       }
     }
   }
@@ -157,12 +157,12 @@ Add this to your Claude Desktop `claude_desktop_config.json` file. See [Claude D
 ```json
 {
   "mcpServers": {
-    "dokploy-mcp": {
+    "notploy-mcp": {
       "command": "npx",
-      "args": ["-y", "@dokploy/mcp"],
+      "args": ["-y", "@notploy/mcp"],
       "env": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       }
     }
   }
@@ -176,12 +176,12 @@ Open the "Settings" page of the app, navigate to "Plugins," and enter the follow
 ```json
 {
   "mcpServers": {
-    "dokploy-mcp": {
+    "notploy-mcp": {
       "command": "npx",
-      "args": ["-y", "@dokploy/mcp"],
+      "args": ["-y", "@notploy/mcp"],
       "env": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       }
     }
   }
@@ -195,12 +195,12 @@ Add this to your OpenCode configuration (located by default in ~/.config/opencod
 ```json
 {
   "mcp": {
-    "dokploy": {
+    "notploy": {
       "type": "local",
-      "command": ["npx", "-y", "@dokploy/mcp"],
+      "command": ["npx", "-y", "@notploy/mcp"],
       "environment": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       },
       "enabled": true
     }
@@ -215,9 +215,9 @@ The Docker container supports both **stdio** and **HTTP** transport modes, makin
 1.  **Build the Docker Image:**
 
     ```bash
-    git clone https://github.com/Dokploy/mcp.git
+    git clone https://github.com/Notploy/mcp.git
     cd mcp
-    docker build -t dokploy-mcp .
+    docker build -t notploy-mcp .
     ```
 
 2.  **Manual Docker Commands:**
@@ -226,9 +226,9 @@ The Docker container supports both **stdio** and **HTTP** transport modes, makin
 
     ```bash
     docker run -it --rm \
-      -e DOKPLOY_URL=https://your-dokploy-server.com \
-      -e DOKPLOY_API_KEY=your_token_here \
-      dokploy-mcp
+      -e NOTPLOY_URL=https://your-notploy-server.com \
+      -e NOTPLOY_API_KEY=your_token_here \
+      notploy-mcp
     ```
 
     **HTTP Mode (for web applications):**
@@ -237,9 +237,9 @@ The Docker container supports both **stdio** and **HTTP** transport modes, makin
     docker run -it --rm \
       -p 8080:3000 \
       -e MCP_TRANSPORT=http \
-      -e DOKPLOY_URL=https://your-dokploy-server.com \
-      -e DOKPLOY_API_KEY=your_token_here \
-      dokploy-mcp
+      -e NOTPLOY_URL=https://your-notploy-server.com \
+      -e NOTPLOY_API_KEY=your_token_here \
+      notploy-mcp
     ```
 
 3.  **Docker Compose:**
@@ -248,10 +248,10 @@ The Docker container supports both **stdio** and **HTTP** transport modes, makin
 
     ```bash
     # Start HTTP service
-    docker-compose up -d dokploy-mcp-http
+    docker-compose up -d notploy-mcp-http
 
     # View logs
-    docker-compose logs -f dokploy-mcp-http
+    docker-compose logs -f notploy-mcp-http
     ```
 
 4.  **MCP Client Configuration:**
@@ -261,17 +261,17 @@ The Docker container supports both **stdio** and **HTTP** transport modes, makin
     ```json
     {
       "mcpServers": {
-        "dokploy-mcp": {
+        "notploy-mcp": {
           "command": "docker",
           "args": [
             "run",
             "-i",
             "--rm",
             "-e",
-            "DOKPLOY_URL=https://your-dokploy-server.com",
+            "NOTPLOY_URL=https://your-notploy-server.com",
             "-e",
-            "DOKPLOY_API_KEY=your_token_here",
-            "dokploy-mcp"
+            "NOTPLOY_API_KEY=your_token_here",
+            "notploy-mcp"
           ]
         }
       }
@@ -289,12 +289,12 @@ The configuration on Windows is slightly different compared to Linux or macOS. U
 ```json
 {
   "mcpServers": {
-    "dokploy-mcp": {
+    "notploy-mcp": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@dokploy/mcp"],
+      "args": ["/c", "npx", "-y", "@notploy/mcp"],
       "env": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       }
     }
   }
@@ -305,22 +305,22 @@ The configuration on Windows is slightly different compared to Linux or macOS. U
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `DOKPLOY_URL` | Yes | Your Dokploy server URL (e.g., `https://your-dokploy-server.com`) |
-| `DOKPLOY_API_KEY` | Yes | Your Dokploy API authentication token |
-| `DOKPLOY_CUSTOM_HEADERS` | No | JSON object of additional upstream request headers. Header names and values must be strings. Reserved headers cannot be set here: `x-api-key`, `content-type`, `accept`. |
-| `DOKPLOY_TOOL_PRESET` | No | Predefined toolset to load: `all` (default), `minimal`, `core`, `deploy`, `databases`, or `git`. Useful for clients/providers that struggle with very large tool lists. |
-| `DOKPLOY_ENABLED_TAGS` | No | Comma-separated list of tags to filter which tools are loaded (e.g., `project,application,postgres`) |
-| `DOKPLOY_DISABLED_TAGS` | No | Comma-separated list of tags to exclude from the selected toolset. Applied after `DOKPLOY_TOOL_PRESET` or `DOKPLOY_ENABLED_TAGS`. |
-| `DOKPLOY_TIMEOUT` | No | Request timeout in milliseconds (default: `30000`) |
-| `DOKPLOY_RETRY_ATTEMPTS` | No | Number of retry attempts (default: `3`) |
-| `DOKPLOY_RETRY_DELAY` | No | Delay between retries in milliseconds (default: `1000`) |
-| `DOKPLOY_REDACT_ENV` | No | Redacts secret-bearing fields (env vars, compose files, passwords, tokens, keys) from API responses before they reach the MCP client (default: `true`). Set to `false` only if you explicitly need raw secret values in LLM context. |
-| `DOKPLOY_REDACT_FIELDS` | No | Comma-separated list of response field names to redact when `DOKPLOY_REDACT_ENV=true`. Matched case-insensitively at any nesting depth. Defaults to: `env`, `buildArgs`, `composeFile`, `dockerCompose`, `environment`, `buildSecrets`, `previewBuildSecrets`, `password`, `currentPassword`, `appPassword`, `databasePassword`, `databaseRootPassword`, `redisPassword`, `mariadbPassword`, `mongoPassword`, `mysqlPassword`, `postgresPassword`, `registryPassword`, `token`, `accessToken`, `appToken`, `apiToken`, `botToken`, `refreshToken`, `secret`, `clientSecret`, `apiKey`, `secretAccessKey`, `accessKey`, `licenseKey`, `userKey`, `privateKey`, `privateKeyPass`, `encPrivateKey`, `encPrivateKeyPass`, `sshKey`, `sshPrivateKey`, `customGitSSHKey`, `dockerAuth`. |
+| `NOTPLOY_URL` | Yes | Your Notploy server URL (e.g., `https://your-notploy-server.com`) |
+| `NOTPLOY_API_KEY` | Yes | Your Notploy API authentication token |
+| `NOTPLOY_CUSTOM_HEADERS` | No | JSON object of additional upstream request headers. Header names and values must be strings. Reserved headers cannot be set here: `x-api-key`, `content-type`, `accept`. |
+| `NOTPLOY_TOOL_PRESET` | No | Predefined toolset to load: `all` (default), `minimal`, `core`, `deploy`, `databases`, or `git`. Useful for clients/providers that struggle with very large tool lists. |
+| `NOTPLOY_ENABLED_TAGS` | No | Comma-separated list of tags to filter which tools are loaded (e.g., `project,application,postgres`) |
+| `NOTPLOY_DISABLED_TAGS` | No | Comma-separated list of tags to exclude from the selected toolset. Applied after `NOTPLOY_TOOL_PRESET` or `NOTPLOY_ENABLED_TAGS`. |
+| `NOTPLOY_TIMEOUT` | No | Request timeout in milliseconds (default: `30000`) |
+| `NOTPLOY_RETRY_ATTEMPTS` | No | Number of retry attempts (default: `3`) |
+| `NOTPLOY_RETRY_DELAY` | No | Delay between retries in milliseconds (default: `1000`) |
+| `NOTPLOY_REDACT_ENV` | No | Redacts secret-bearing fields (env vars, compose files, passwords, tokens, keys) from API responses before they reach the MCP client (default: `true`). Set to `false` only if you explicitly need raw secret values in LLM context. |
+| `NOTPLOY_REDACT_FIELDS` | No | Comma-separated list of response field names to redact when `NOTPLOY_REDACT_ENV=true`. Matched case-insensitively at any nesting depth. Defaults to: `env`, `buildArgs`, `composeFile`, `dockerCompose`, `environment`, `buildSecrets`, `previewBuildSecrets`, `password`, `currentPassword`, `appPassword`, `databasePassword`, `databaseRootPassword`, `redisPassword`, `mariadbPassword`, `mongoPassword`, `mysqlPassword`, `postgresPassword`, `registryPassword`, `token`, `accessToken`, `appToken`, `apiToken`, `botToken`, `refreshToken`, `secret`, `clientSecret`, `apiKey`, `secretAccessKey`, `accessKey`, `licenseKey`, `userKey`, `privateKey`, `privateKeyPass`, `encPrivateKey`, `encPrivateKeyPass`, `sshKey`, `sshPrivateKey`, `customGitSSHKey`, `dockerAuth`. |
 
-For Dokploy instances behind Cloudflare Access or a similar reverse proxy, pass service-token headers with placeholder values like this:
+For Notploy instances behind Cloudflare Access or a similar reverse proxy, pass service-token headers with placeholder values like this:
 
 ```bash
-DOKPLOY_CUSTOM_HEADERS='{"CF-Access-Client-Id":"your-client-id.access","CF-Access-Client-Secret":"your-client-secret"}'
+NOTPLOY_CUSTOM_HEADERS='{"CF-Access-Client-Id":"your-client-id.access","CF-Access-Client-Secret":"your-client-secret"}'
 ```
 
 ## Transport Modes
@@ -333,7 +333,7 @@ The default mode uses stdio for direct process communication, ideal for desktop 
 
 ```bash
 # Run with stdio (default)
-npx -y @dokploy/mcp
+npx -y @notploy/mcp
 ```
 
 ### HTTP Mode (Streamable HTTP + Legacy SSE)
@@ -345,9 +345,9 @@ Modern HTTP mode exposes the server via HTTP/HTTPS supporting **both modern and 
 
 ```bash
 # Run with HTTP mode
-npx -y @dokploy/mcp --http
+npx -y @notploy/mcp --http
 # or via environment variable
-MCP_TRANSPORT=http npx -y @dokploy/mcp
+MCP_TRANSPORT=http npx -y @notploy/mcp
 ```
 
 **Modern Streamable HTTP Endpoints:**
@@ -368,7 +368,7 @@ MCP_TRANSPORT=http npx -y @dokploy/mcp
 
 ## Available Tools (508)
 
-This MCP server provides **508 tools** covering the entire Dokploy API, organized into **49 categories**:
+This MCP server provides **508 tools** covering the entire Notploy API, organized into **49 categories**:
 
 ### Core Resources
 
@@ -445,9 +445,9 @@ This MCP server provides **508 tools** covering the entire Dokploy API, organize
 
 ### Tool Filtering
 
-By default, the server exposes all Dokploy API tools. Some MCP clients and LLM providers can be slower or less reliable when very large tool lists are sent to the model. You can reduce the loaded tools with presets or tag filters.
+By default, the server exposes all Notploy API tools. Some MCP clients and LLM providers can be slower or less reliable when very large tool lists are sent to the model. You can reduce the loaded tools with presets or tag filters.
 
-Use `DOKPLOY_TOOL_PRESET` for common workflows:
+Use `NOTPLOY_TOOL_PRESET` for common workflows:
 
 | Preset | Included tags |
 |--------|---------------|
@@ -460,24 +460,24 @@ Use `DOKPLOY_TOOL_PRESET` for common workflows:
 
 ```bash
 # Recommended starting point for clients/providers sensitive to large toolsets
-DOKPLOY_TOOL_PRESET=minimal
+NOTPLOY_TOOL_PRESET=minimal
 ```
 
-For exact control, set `DOKPLOY_ENABLED_TAGS`:
+For exact control, set `NOTPLOY_ENABLED_TAGS`:
 
 ```bash
 # Only load project, application, and postgres tools
-DOKPLOY_ENABLED_TAGS=project,application,postgres
+NOTPLOY_ENABLED_TAGS=project,application,postgres
 ```
 
 You can also remove categories from a preset:
 
 ```bash
-DOKPLOY_TOOL_PRESET=core
-DOKPLOY_DISABLED_TAGS=postgres,redis
+NOTPLOY_TOOL_PRESET=core
+NOTPLOY_DISABLED_TAGS=postgres,redis
 ```
 
-If `DOKPLOY_ENABLED_TAGS` is set, it takes precedence over `DOKPLOY_TOOL_PRESET`. `DOKPLOY_DISABLED_TAGS` is applied last.
+If `NOTPLOY_ENABLED_TAGS` is set, it takes precedence over `NOTPLOY_TOOL_PRESET`. `NOTPLOY_DISABLED_TAGS` is applied last.
 
 All tools include semantic annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`) to help MCP clients understand their behavior and safety characteristics.
 
@@ -485,10 +485,10 @@ All tools include semantic annotations (`readOnlyHint`, `destructiveHint`, `idem
 
 Built with **@modelcontextprotocol/sdk**, **TypeScript**, and **Zod** for type-safe schema validation:
 
-- **508 Tools** covering the entire Dokploy API
+- **508 Tools** covering the entire Notploy API
 - **Multiple Transports**: Stdio (default) and HTTP (Streamable HTTP + legacy SSE)
-- **Auto-generated Tools**: Tools are generated from the Dokploy OpenAPI spec via `pnpm generate:all`
-- **Tool Filtering**: Load only the categories you need via `DOKPLOY_ENABLED_TAGS`
+- **Auto-generated Tools**: Tools are generated from the Notploy OpenAPI spec via `pnpm generate:all`
+- **Tool Filtering**: Load only the categories you need via `NOTPLOY_ENABLED_TAGS`
 - **Robust Error Handling**: Centralized API client with interceptors and retry logic
 - **Type Safety**: Full TypeScript with Zod schema validation
 - **Tool Annotations**: Semantic hints for MCP client behavior understanding
@@ -498,7 +498,7 @@ Built with **@modelcontextprotocol/sdk**, **TypeScript**, and **Zod** for type-s
 Clone the project and install dependencies:
 
 ```bash
-git clone https://github.com/Dokploy/mcp.git
+git clone https://github.com/Notploy/mcp.git
 cd mcp
 pnpm install
 ```
@@ -509,7 +509,7 @@ Build:
 pnpm build
 ```
 
-Regenerate tools from the Dokploy OpenAPI spec:
+Regenerate tools from the Notploy OpenAPI spec:
 
 ```bash
 pnpm generate:all
@@ -520,12 +520,12 @@ pnpm generate:all
 ```json
 {
   "mcpServers": {
-    "dokploy-mcp": {
+    "notploy-mcp": {
       "command": "npx",
       "args": ["tsx", "/path/to/mcp/src/index.ts"],
       "env": {
-        "DOKPLOY_URL": "https://your-dokploy-server.com",
-        "DOKPLOY_API_KEY": "your-dokploy-api-token"
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
       }
     }
   }
@@ -535,7 +535,7 @@ pnpm generate:all
 ### Testing with MCP Inspector
 
 ```bash
-npx -y @modelcontextprotocol/inspector npx @dokploy/mcp
+npx -y @modelcontextprotocol/inspector npx @notploy/mcp
 ```
 
 ## Troubleshooting
@@ -546,17 +546,17 @@ npx -y @modelcontextprotocol/inspector npx @dokploy/mcp
 
 2. Make sure you are using Node v18 or higher to have native fetch support with `npx`.
 
-3. Verify your `DOKPLOY_URL` and `DOKPLOY_API_KEY` environment variables are correctly set.
+3. Verify your `NOTPLOY_URL` and `NOTPLOY_API_KEY` environment variables are correctly set.
 
-4. If too many tools are loading or your provider times out while processing tools, start with `DOKPLOY_TOOL_PRESET=minimal`, then use `DOKPLOY_ENABLED_TAGS` for exact category filtering if needed.
+4. If too many tools are loading or your provider times out while processing tools, start with `NOTPLOY_TOOL_PRESET=minimal`, then use `NOTPLOY_ENABLED_TAGS` for exact category filtering if needed.
 
 ## Contributing
 
-We welcome contributions! If you'd like to contribute to the Dokploy MCP Server, please check out our [Contributing Guide](CONTRIBUTING.md).
+We welcome contributions! If you'd like to contribute to the Notploy MCP Server, please check out our [Contributing Guide](CONTRIBUTING.md).
 
 ## Support
 
-If you encounter any issues, have questions, or want to suggest a feature, please [open an issue](https://github.com/Dokploy/mcp/issues) in our GitHub repository.
+If you encounter any issues, have questions, or want to suggest a feature, please [open an issue](https://github.com/Notploy/mcp/issues) in our GitHub repository.
 
 ## License
 

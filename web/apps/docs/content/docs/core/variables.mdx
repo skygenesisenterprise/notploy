@@ -1,13 +1,13 @@
 ---
 title: Environment Variables
-description: "Dokploy allows you to create and manage shared and service-level environment variables for your projects and environments."
+description: "Notploy allows you to create and manage shared and service-level environment variables for your projects and environments."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
 ## Overview
 
-Environment variables in Dokploy allow you to:
+Environment variables in Notploy allow you to:
 - Define configuration once and reuse it
 - Share values across multiple services
 - Reference values from within the same service
@@ -47,10 +47,10 @@ DATABASE_URL=${{project.DATABASE_URL}}
 ```
 
 <Callout type="info">
-  Dokploy will automatically replace `${{project.DATABASE_URL}}` with the value defined in the project's shared variables.
+  Notploy will automatically replace `${{project.DATABASE_URL}}` with the value defined in the project's shared variables.
 </Callout>
 
-You can use shared environment variables in all the services available in dokploy.
+You can use shared environment variables in all the services available in notploy.
 
 
 ## Environment-Level Variables
@@ -81,7 +81,7 @@ EXTERNAL_API_KEY=${{environment.API_KEY}}
 ```
 
 <Callout type="info">
-  Dokploy will automatically replace `${{environment.VARIABLE_NAME}}` with the value defined in the environment's variables.
+  Notploy will automatically replace `${{environment.VARIABLE_NAME}}` with the value defined in the environment's variables.
 </Callout>
 
 You can use environment variables in all the services available in that specific environment.
@@ -101,8 +101,8 @@ DATABASE_URL=postgresql://${{DATABASE_USER}}:${{DATABASE_PASSWORD}}@service-data
 ```
 
 <Callout type="info">
-  Preview Deployments environments also include a service-level variable called `DOKPLOY_DEPLOY_URL`, which points to the deployment URL of the service.
-  It can be used as `${{DOKPLOY_DEPLOY_URL}}` for variables like `APP_URL=https://${{DOKPLOY_DEPLOY_URL}}`.
+  Preview Deployments environments also include a service-level variable called `NOTPLOY_DEPLOY_URL`, which points to the deployment URL of the service.
+  It can be used as `${{NOTPLOY_DEPLOY_URL}}` for variables like `APP_URL=https://${{NOTPLOY_DEPLOY_URL}}`.
 </Callout>
 
 ## Secrets from External Vaults
@@ -113,7 +113,7 @@ Besides shared variables, you can reference secrets stored in an external secret
 DB_PASSWORD=${{vault.prod-vault.myapp/prod:DB_PASSWORD}}
 ```
 
-Values are fetched at deploy time and never stored in Dokploy. See [Secrets Providers](/docs/core/secrets-providers) for setup, reference formats and access control.
+Values are fetched at deploy time and never stored in Notploy. See [Secrets Providers](/docs/core/secrets-providers) for setup, reference formats and access control.
 
 ### Best Practices
 

@@ -1,8 +1,8 @@
 import path from "node:path";
-import { paths } from "@dokploy/server/constants";
-import { findComposeById } from "@dokploy/server/services/compose";
-import { findDestinationById } from "@dokploy/server/services/destination";
-import type { findVolumeBackupById } from "@dokploy/server/services/volume-backups";
+import { paths } from "@notploy/server/constants";
+import { findComposeById } from "@notploy/server/services/compose";
+import { findDestinationById } from "@notploy/server/services/destination";
+import type { findVolumeBackupById } from "@notploy/server/services/volume-backups";
 import {
 	getBackupTimestamp,
 	getS3Credentials,
@@ -27,21 +27,21 @@ export const createRestartSafeBackupCommand = ({
 	(
 		${backupCommand}
 	)
-	DOKPLOY_VOLUME_BACKUP_STATUS=$?
+	NOTPLOY_VOLUME_BACKUP_STATUS=$?
 	(
 		set -e
 		${startCommand}
 	)
-	DOKPLOY_VOLUME_RESTART_STATUS=$?
+	NOTPLOY_VOLUME_RESTART_STATUS=$?
 	set -e
-	if [ "$DOKPLOY_VOLUME_BACKUP_STATUS" -ne 0 ]; then
-		if [ "$DOKPLOY_VOLUME_RESTART_STATUS" -ne 0 ]; then
-			echo "Service restart also failed with exit code $DOKPLOY_VOLUME_RESTART_STATUS"
+	if [ "$NOTPLOY_VOLUME_BACKUP_STATUS" -ne 0 ]; then
+		if [ "$NOTPLOY_VOLUME_RESTART_STATUS" -ne 0 ]; then
+			echo "Service restart also failed with exit code $NOTPLOY_VOLUME_RESTART_STATUS"
 		fi
-		exit "$DOKPLOY_VOLUME_BACKUP_STATUS"
+		exit "$NOTPLOY_VOLUME_BACKUP_STATUS"
 	fi
-	if [ "$DOKPLOY_VOLUME_RESTART_STATUS" -ne 0 ]; then
-		exit "$DOKPLOY_VOLUME_RESTART_STATUS"
+	if [ "$NOTPLOY_VOLUME_RESTART_STATUS" -ne 0 ]; then
+		exit "$NOTPLOY_VOLUME_RESTART_STATUS"
 	fi
 	${uploadCommand}
 `;

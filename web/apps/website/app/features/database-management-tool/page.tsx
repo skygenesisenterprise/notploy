@@ -33,7 +33,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Database Management Tool & Deployment Software",
 	description:
-		"Create, manage, and back up databases easily with Dokploy's database management tool, and customize the process to suit your project needs.",
+		"Create, manage, and back up databases easily with Notploy's database management tool, and customize the process to suit your project needs.",
 };
 
 const databaseSystems = [
@@ -80,13 +80,13 @@ const protectionFeatures = [
 		icon: FileText,
 		title: "Logs",
 		description:
-			"View real-time logs from any running database directly in your Dokploy dashboard. Spot errors as they happen, trace unexpected behavior back to its source, and keep a clear record of what\u2019s happening inside your containers.",
+			"View real-time logs from any running database directly in your Notploy dashboard. Spot errors as they happen, trace unexpected behavior back to its source, and keep a clear record of what\u2019s happening inside your containers.",
 	},
 	{
 		icon: RotateCcw,
 		title: "Restore",
 		description:
-			"Restore any database from a backup stored in your S3 bucket in a few clicks\u2014critical for disaster recovery when you need to act fast. Select the source bucket, search for your backup file with autocomplete, and kick off the restoration process\u2014Dokploy handles the correct restore commands automatically.",
+			"Restore any database from a backup stored in your S3 bucket in a few clicks\u2014critical for disaster recovery when you need to act fast. Select the source bucket, search for your backup file with autocomplete, and kick off the restoration process\u2014Notploy handles the correct restore commands automatically.",
 	},
 	{
 		icon: Link2,
@@ -140,7 +140,7 @@ const securityFeatures = [
 		icon: Lock,
 		title: "Your server, your data",
 		description:
-			"Dokploy creates Docker containers on your own server. Your database data never leaves your infrastructure\u2014you have full ownership and control over where it lives.",
+			"Notploy creates Docker containers on your own server. Your database data never leaves your infrastructure\u2014you have full ownership and control over where it lives.",
 	},
 	{
 		icon: KeyRound,
@@ -152,7 +152,7 @@ const securityFeatures = [
 		icon: ShieldCheck,
 		title: "No third-party access",
 		description:
-			"Dokploy doesn\u2019t store or proxy your data. Everything runs on your machine, so there\u2019s no middleman between your applications and your databases.",
+			"Notploy doesn\u2019t store or proxy your data. Everything runs on your machine, so there\u2019s no middleman between your applications and your databases.",
 	},
 ];
 
@@ -165,12 +165,12 @@ const faqs = [
 	{
 		question: "What is the best database management tool?",
 		answer:
-			"There\u2019s no single best tool. The right choice depends on your specific use cases, team size, and infrastructure. Some tools require expertise to configure and come with a steeper learning curve, which can slow teams down. Dokploy is designed to remove that friction and improve database performance, offering a secure, scalable solution that covers deployment, monitoring, backups, and data privacy without requiring specialist knowledge. It won\u2019t replace dedicated analysis or AI assistant tooling, but it gives developers a reliable foundation for managing databases in production.",
+			"There\u2019s no single best tool. The right choice depends on your specific use cases, team size, and infrastructure. Some tools require expertise to configure and come with a steeper learning curve, which can slow teams down. Notploy is designed to remove that friction and improve database performance, offering a secure, scalable solution that covers deployment, monitoring, backups, and data privacy without requiring specialist knowledge. It won\u2019t replace dedicated analysis or AI assistant tooling, but it gives developers a reliable foundation for managing databases in production.",
 	},
 	{
-		question: "What database systems does Dokploy support?",
+		question: "What database systems does Notploy support?",
 		answer:
-			"Dokploy supports five widely used database tools: PostgreSQL, MySQL, MariaDB, MongoDB, and Redis. That covers the most common SQL server databases and NoSQL use cases, from relational workloads that rely on structured query language to flexible document and key-value stores. All five\u2014both SQL databases and noSQL systems\u2014can be deployed, backed up, and monitored using the same tools and workflows inside Dokploy.",
+			"Notploy supports five widely used database tools: PostgreSQL, MySQL, MariaDB, MongoDB, and Redis. That covers the most common SQL server databases and NoSQL use cases, from relational workloads that rely on structured query language to flexible document and key-value stores. All five\u2014both SQL databases and noSQL systems\u2014can be deployed, backed up, and monitored using the same tools and workflows inside Notploy.",
 	},
 ];
 
@@ -194,7 +194,7 @@ export default function DatabaseManagementToolPage() {
 							Database Management, Done Right
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Create, manage, and back up databases easily with Dokploy&apos;s
+							Create, manage, and back up databases easily with Notploy&apos;s
 							database tool, and customize the process to suit your project
 							needs. Deploy in minutes, maintain full control over your stored
 							data, and recover fast when it matters.
@@ -202,8 +202,8 @@ export default function DatabaseManagementToolPage() {
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
-									aria-label="Get Started with Dokploy"
+									href="https://app.notploy.com/register"
+									aria-label="Get Started with Notploy"
 									target="_blank"
 								>
 									Get Started
@@ -230,7 +230,7 @@ export default function DatabaseManagementToolPage() {
 							Deploy the database you already use
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy&apos;s database management tool supports five widely used
+							Notploy&apos;s database management tool supports five widely used
 							database systems out of the box, so you&apos;re not locked into a
 							single technology. You pick what fits your stack and your data
 							management needs.
@@ -268,7 +268,7 @@ export default function DatabaseManagementToolPage() {
 							Watch your databases in real time
 						</h2>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Dokploy surfaces live monitoring graphs for memory, CPU, disk, and
+							Notploy surfaces live monitoring graphs for memory, CPU, disk, and
 							network directly in the dashboard. The data updates as you view
 							it, so you can see exactly what your database is doing and catch
 							problems before they become incidents.
@@ -317,7 +317,7 @@ export default function DatabaseManagementToolPage() {
 							Advanced options, your way
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy goes beyond the basics, giving you granular control over
+							Notploy goes beyond the basics, giving you granular control over
 							how each database runs, from the image it uses to the resources it
 							consumes and everything in between.
 						</p>
@@ -356,7 +356,7 @@ export default function DatabaseManagementToolPage() {
 							Your data stays secure
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Your database data is stored on your own server. Dokploy creates
+							Your database data is stored on your own server. Notploy creates
 							Docker containers on your infrastructure, so you have full
 							control over your data&mdash;no third parties, no external
 							dependencies.
@@ -389,14 +389,14 @@ export default function DatabaseManagementToolPage() {
 							Start managing databases smarter
 						</h2>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Dokploy gives you everything you need to deploy, monitor, and
+							Notploy gives you everything you need to deploy, monitor, and
 							protect your databases&mdash;without the complexity. Create your
 							account and have your first database running in minutes with our
 							database management tool.
 						</p>
 						<div className="mt-10">
 							<Button className="rounded-full" asChild>
-								<Link href="https://app.dokploy.com">Create your account</Link>
+								<Link href="https://app.notploy.com">Create your account</Link>
 							</Button>
 						</div>
 					</div>

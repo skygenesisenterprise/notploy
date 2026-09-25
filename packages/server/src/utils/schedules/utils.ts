@@ -1,13 +1,13 @@
 import { createWriteStream } from "node:fs";
 import path from "node:path";
-import { IS_CLOUD, paths } from "@dokploy/server/constants";
-import type { Schedule } from "@dokploy/server/db/schema/schedule";
+import { IS_CLOUD, paths } from "@notploy/server/constants";
+import type { Schedule } from "@notploy/server/db/schema/schedule";
 import {
 	createDeploymentSchedule,
 	updateDeployment,
 	updateDeploymentStatus,
-} from "@dokploy/server/services/deployment";
-import { findScheduleById } from "@dokploy/server/services/schedule";
+} from "@notploy/server/services/deployment";
+import { findScheduleById } from "@notploy/server/services/schedule";
 import { scheduledJobs, scheduleJob as scheduleJobNode } from "node-schedule";
 import { quote } from "shell-quote";
 import { getComposeContainer, getServiceContainer } from "../docker/utils";
@@ -145,7 +145,7 @@ export const runCommand = async (scheduleId: string) => {
 					throw error;
 				}
 			}
-		} else if (scheduleType === "dokploy-server") {
+		} else if (scheduleType === "notploy-server") {
 			const writeStream = createWriteStream(deployment.logPath, { flags: "a" });
 			const { SCHEDULES_PATH } = paths();
 			const fullPath = path.join(SCHEDULES_PATH, appName || "");

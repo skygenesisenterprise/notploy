@@ -1,18 +1,18 @@
 ---
 title: HashiCorp Vault / OpenBao
-description: "Use HashiCorp Vault or OpenBao KV v2 secrets in your Dokploy environment variables."
+description: "Use HashiCorp Vault or OpenBao KV v2 secrets in your Notploy environment variables."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Dokploy talks to the KV version 2 secrets engine. The same provider works with **HashiCorp Vault** and **[OpenBao](https://openbao.org)** (the open-source fork) — their APIs are identical.
+Notploy talks to the KV version 2 secrets engine. The same provider works with **HashiCorp Vault** and **[OpenBao](https://openbao.org)** (the open-source fork) — their APIs are identical.
 
 ## Configuration
 
 In **Settings → Secrets → Add Provider**, choose **HashiCorp Vault / OpenBao** and fill in:
 
 - **Name**: the identifier used in references, e.g. `prod-vault`.
-- **Vault URL**: the address of your Vault/OpenBao server, e.g. `https://vault.example.com:8200`. It must be reachable from your Dokploy server.
+- **Vault URL**: the address of your Vault/OpenBao server, e.g. `https://vault.example.com:8200`. It must be reachable from your Notploy server.
 - **Token**: a Vault token with `read` (and `list`, for autocomplete) capabilities on the secrets you want to expose.
 - **KV Mount**: the mount path of the KV v2 engine. Defaults to `secret`.
 - **Namespace** (optional): for Vault Enterprise or OpenBao namespaces, e.g. `admin`.
@@ -20,7 +20,7 @@ In **Settings → Secrets → Add Provider**, choose **HashiCorp Vault / OpenBao
 Use **Test Connection** to validate the token before saving, then assign the projects/environments where the provider may be used.
 
 <Callout type="info">
-  Create a token from a policy that only grants read/list on the paths Dokploy needs, for example:
+  Create a token from a policy that only grants read/list on the paths Notploy needs, for example:
 
 ```hcl
 path "secret/data/myapp/*" {

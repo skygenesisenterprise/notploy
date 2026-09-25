@@ -1,13 +1,13 @@
 ---
 title: AWS Route53
-description: "Connect AWS Route53 to create A/CNAME records for your domains from Dokploy."
+description: "Connect AWS Route53 to create A/CNAME records for your domains from Notploy."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
 ## Create IAM Credentials
 
-Create an IAM user (or role) with programmatic access and a least-privilege policy for the hosted zones Dokploy should manage:
+Create an IAM user (or role) with programmatic access and a least-privilege policy for the hosted zones Notploy should manage:
 
 ```json
 {
@@ -38,7 +38,7 @@ In **Settings → DNS Providers**, add a provider, choose **AWS Route53** and fi
 Use **Test Connection** to validate the credentials before saving.
 
 <Callout type="info">
-  Route53 is a global service, so there is no region field — Dokploy talks to it directly. There is also no custom endpoint override: this integration only works against real AWS, not LocalStack or other Route53-compatible emulators.
+  Route53 is a global service, so there is no region field — Notploy talks to it directly. There is also no custom endpoint override: this integration only works against real AWS, not LocalStack or other Route53-compatible emulators.
 </Callout>
 
 ## Managing Records

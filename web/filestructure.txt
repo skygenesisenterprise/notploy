@@ -289,8 +289,8 @@
                 |-- cli
                     |-- token.png
                 |-- diagram.png
-                |-- dokploy-ssh-compose.png
-                |-- dokploy-ssh-key.png
+                |-- notploy-ssh-compose.png
+                |-- notploy-ssh-key.png
                 |-- favicon.png
                 |-- file-mount-configuration.webp
                 |-- file-mount.png
@@ -328,7 +328,7 @@
                     |-- setup.png
                     |-- shared-variables.png
                     |-- web-domain-setup
-                        |-- dokploy-setup.png
+                        |-- notploy-setup.png
                         |-- domain-setup.png
                 |-- multi-server-add-app.png
                 |-- multi-server-add-server.png

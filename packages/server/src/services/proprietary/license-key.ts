@@ -1,9 +1,9 @@
-import { db } from "@dokploy/server/db";
+import { db } from "@notploy/server/db";
 import {
 	organization,
 	organizationRole,
 	user,
-} from "@dokploy/server/db/schema";
+} from "@notploy/server/db/schema";
 import { and, eq } from "drizzle-orm";
 import { getOrganizationOwnerId } from "./sso";
 

@@ -1,4 +1,4 @@
-import type { dopplerVaultConfigSchema } from "@dokploy/server/db/schema";
+import type { dopplerVaultConfigSchema } from "@notploy/server/db/schema";
 import type { z } from "zod";
 import { type VaultClient, vaultFetch } from "./types";
 

@@ -104,7 +104,7 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
                     </a>
                   )}
                   <a
-                    href={`https://github.com/Dokploy/templates/tree/main/blueprints/${selectedTemplate?.id}`}
+                    href={`https://github.com/Notploy/templates/tree/main/blueprints/${selectedTemplate?.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-600 hover:text-gray-900"

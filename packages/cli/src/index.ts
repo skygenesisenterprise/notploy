@@ -11,9 +11,9 @@ const packageJson = JSON.parse(
 ) as { version: string };
 
 const pkg = {
-	name: "dokploy",
+	name: "notploy",
 	version: packageJson.version,
-	description: "Dokploy CLI - Manage your Dokploy server",
+	description: "Notploy CLI - Manage your Notploy server",
 };
 
 program

@@ -33,9 +33,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
 	title: "Sandbox Software for Safe Internal Deployments",
 	description:
-		"Deploy, test, and share apps internally with Dokploy's sandbox software. Give your team a safe, isolated environment to build without the risk.",
+		"Deploy, test, and share apps internally with Notploy's sandbox software. Give your team a safe, isolated environment to build without the risk.",
 	alternates: {
-		canonical: "https://dokploy.com/sandbox-software",
+		canonical: "https://notploy.com/sandbox-software",
 	},
 };
 
@@ -77,7 +77,7 @@ const vibeCodedFeatures = [
 		icon: TrendingUp,
 		title: "Scale as your team grows",
 		description:
-			"Spin up multiple instances as your team expands. Dokploy's architecture supports the kind of scale that growing companies need, with resources that flex alongside your workload rather than holding you back.",
+			"Spin up multiple instances as your team expands. Notploy's architecture supports the kind of scale that growing companies need, with resources that flex alongside your workload rather than holding you back.",
 	},
 	{
 		icon: KeyRound,
@@ -92,7 +92,7 @@ const platformFeatures = [
 		icon: Rocket,
 		title: "Deploy any application in minutes",
 		description:
-			"Dokploy supports Docker, Docker Compose, and Nixpacks out of the box, so you can deploy applications built on virtually any stack. Getting a new app into a sandbox environment takes minutes, not days.",
+			"Notploy supports Docker, Docker Compose, and Nixpacks out of the box, so you can deploy applications built on virtually any stack. Getting a new app into a sandbox environment takes minutes, not days.",
 	},
 	{
 		icon: Layers,
@@ -104,7 +104,7 @@ const platformFeatures = [
 		icon: GitBranch,
 		title: "Integrate the tools your team is using",
 		description:
-			"Dokploy connects with GitHub, GitLab, and Bitbucket, so developers can trigger deployments directly from their existing workflows. Integrated CI/CD pipelines mean new features move from commit to sandbox seamlessly.",
+			"Notploy connects with GitHub, GitLab, and Bitbucket, so developers can trigger deployments directly from their existing workflows. Integrated CI/CD pipelines mean new features move from commit to sandbox seamlessly.",
 	},
 	{
 		icon: Activity,
@@ -137,13 +137,13 @@ const enterpriseFeatures = [
 		icon: Server,
 		title: "Deploy on your own infrastructure",
 		description:
-			"Run Dokploy entirely on your own servers, in your own cloud environment, or on-premise. Your data never leaves your infrastructure, especially when you're deploying internal applications or processing sensitive files.",
+			"Run Notploy entirely on your own servers, in your own cloud environment, or on-premise. Your data never leaves your infrastructure, especially when you're deploying internal applications or processing sensitive files.",
 	},
 	{
 		icon: Headphones,
 		title: "Access dedicated support when you need it",
 		description:
-			"Enterprise customers get direct access to the Dokploy team for onboarding, troubleshooting, and ongoing support. If something needs fixing in your sandbox environment, you won't be waiting on a community forum.",
+			"Enterprise customers get direct access to the Notploy team for onboarding, troubleshooting, and ongoing support. If something needs fixing in your sandbox environment, you won't be waiting on a community forum.",
 	},
 	{
 		icon: KeyRound,
@@ -172,14 +172,14 @@ const faqs = [
 		question: "Which sandbox software is best for startups?",
 		answer: [
 			"For startups, the best sandbox software tends to be open-source or competitively priced, quick to set up, and flexible enough to support a fast-moving development process.",
-			"Dokploy is a strong option: it's self-hosted, supports Docker and Compose out of the box, and gives small teams a sandbox environment they can spin up in minutes. It also scales well as your team grows, so you won't need to switch platforms when you do.",
+			"Notploy is a strong option: it's self-hosted, supports Docker and Compose out of the box, and gives small teams a sandbox environment they can spin up in minutes. It also scales well as your team grows, so you won't need to switch platforms when you do.",
 		],
 	},
 	{
 		question: "Which sandbox software is best for agencies?",
 		answer: [
 			"Agencies need sandbox software that handles multiple clients or projects in parallel, with clear separation between environments and straightforward access controls.",
-			"Dokploy's multi-environment management and role-based permissions make it a practical choice: you can maintain isolated development environments for each client, deploy new features for review, and keep everything organized from a single dashboard.",
+			"Notploy's multi-environment management and role-based permissions make it a practical choice: you can maintain isolated development environments for each client, deploy new features for review, and keep everything organized from a single dashboard.",
 		],
 	},
 	{
@@ -192,7 +192,7 @@ const faqs = [
 	{
 		question: "How do I use sandbox software?",
 		answer: [
-			"The process varies by platform, but with Dokploy, you start by setting up your self-hosted instance, which takes just a few minutes on any VPS.",
+			"The process varies by platform, but with Notploy, you start by setting up your self-hosted instance, which takes just a few minutes on any VPS.",
 			"From there, you connect your code repository, configure your deployment settings, and deploy your application into an isolated environment.",
 			"Team members can then access the app through a URL, without ever needing access to the underlying infrastructure. You can manage multiple instances, monitor performance, and move applications through different stages of testing from the same dashboard.",
 		],
@@ -201,8 +201,8 @@ const faqs = [
 		question: "Which sandbox software is best for B2B companies?",
 		answer: [
 			"B2B companies typically need sandbox software that supports internal workflows, integrates with existing tools, and keeps sensitive data protected.",
-			"Dokploy Enterprise runs on your own infrastructure, connects with GitHub and GitLab, includes granular access controls, and supports the kind of scale that B2B teams need as they grow. You can also whitelabel the tool to create a seamless, branded experience for customers.",
-			"Dokploy is particularly useful for companies that want to deploy AI-assisted or internally developed applications to employees without routing them through a public-facing environment.",
+			"Notploy Enterprise runs on your own infrastructure, connects with GitHub and GitLab, includes granular access controls, and supports the kind of scale that B2B teams need as they grow. You can also whitelabel the tool to create a seamless, branded experience for customers.",
+			"Notploy is particularly useful for companies that want to deploy AI-assisted or internally developed applications to employees without routing them through a public-facing environment.",
 		],
 	},
 ];
@@ -227,15 +227,15 @@ export default function SandboxSoftwarePage() {
 							Your team&apos;s sandbox. Your infrastructure. Your rules.
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Dokploy gives you a fully isolated environment to build, test, and
+							Notploy gives you a fully isolated environment to build, test, and
 							ship internal and AI-coded apps, without touching your production
 							environment or putting your systems at risk.
 						</p>
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
-									aria-label="Get Started with Dokploy"
+									href="https://app.notploy.com/register"
+									aria-label="Get Started with Notploy"
 									target="_blank"
 								>
 									Get Started
@@ -289,7 +289,7 @@ export default function SandboxSoftwarePage() {
 							The smart way to release vibe-coded apps internally
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							AI-assisted development is moving fast. Dokploy gives your team
+							AI-assisted development is moving fast. Notploy gives your team
 							the infrastructure to deploy and share AI-generated applications
 							in a secure, controlled environment without slowing down the
 							development process.
@@ -315,21 +315,21 @@ export default function SandboxSoftwarePage() {
 					</div>
 					<div className="mt-12 text-center">
 						<Button variant="outline" className="rounded-full" asChild>
-							<Link href="/deploy-ai">Deploy AI software with Dokploy</Link>
+							<Link href="/deploy-ai">Deploy AI software with Notploy</Link>
 						</Button>
 					</div>
 				</Container>
 			</section>
 
-			{/* The features that make Dokploy a powerful sandbox tool */}
+			{/* The features that make Notploy a powerful sandbox tool */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							The features that make Dokploy a powerful sandbox tool
+							The features that make Notploy a powerful sandbox tool
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy is designed for teams that need flexibility, security, and
+							Notploy is designed for teams that need flexibility, security, and
 							control—whether you&apos;re running a single internal app or
 							managing development environments across multiple projects.
 						</p>
@@ -353,15 +353,15 @@ export default function SandboxSoftwarePage() {
 				</Container>
 			</section>
 
-			{/* Dokploy Enterprise: sandbox software built for teams */}
+			{/* Notploy Enterprise: sandbox software built for teams */}
 			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Dokploy Enterprise: sandbox software built for teams
+							Notploy Enterprise: sandbox software built for teams
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							For organizations running sandbox environments at scale, Dokploy
+							For organizations running sandbox environments at scale, Notploy
 							Enterprise adds the infrastructure, support, and controls that
 							make internal deployments manageable—even for large teams.
 						</p>
@@ -386,7 +386,7 @@ export default function SandboxSoftwarePage() {
 					</div>
 					<div className="mt-12 text-center">
 						<Button variant="outline" className="rounded-full" asChild>
-							<Link href="/enterprise">Discover Dokploy Enterprise</Link>
+							<Link href="/enterprise">Discover Notploy Enterprise</Link>
 						</Button>
 					</div>
 				</Container>
@@ -401,7 +401,7 @@ export default function SandboxSoftwarePage() {
 								Connect AI agents directly to your sandbox
 							</h2>
 							<p className="mt-4 text-lg text-muted-foreground">
-								Dokploy&apos;s MCP server enables AI agents to interact with
+								Notploy&apos;s MCP server enables AI agents to interact with
 								your deployment environment through the Model Context Protocol,
 								no custom integration required.
 							</p>
@@ -477,8 +477,8 @@ export default function SandboxSoftwarePage() {
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
-									aria-label="Get Started with Dokploy"
+									href="https://app.notploy.com/register"
+									aria-label="Get Started with Notploy"
 									target="_blank"
 								>
 									Get Started

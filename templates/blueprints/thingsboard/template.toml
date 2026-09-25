@@ -31,7 +31,7 @@ Change the default password before exposing the instance to production users.
 
 ## Device connectivity
 
-The web UI and HTTP device API are available through the configured domain. MQTT, CoAP, and additional transport ports are not publicly exposed by this template; expose them separately in Dokploy if your deployment requires direct device connections over those protocols.
+The web UI and HTTP device API are available through the configured domain. MQTT, CoAP, and additional transport ports are not publicly exposed by this template; expose them separately in Notploy if your deployment requires direct device connections over those protocols.
 """
 
 [config.env]

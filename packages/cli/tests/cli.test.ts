@@ -21,7 +21,7 @@ function run(...args: string[]): string {
 describe("CLI", () => {
 	it("should show help with --help", () => {
 		const output = run("--help");
-		expect(output).toContain("Dokploy CLI");
+		expect(output).toContain("Notploy CLI");
 		expect(output).toContain("auth");
 		expect(output).toContain("application");
 		expect(output).toContain("project");

@@ -1,12 +1,12 @@
 version: "3.8"
 
-# DNS collision avoidance for multi-stack Dokploy:
+# DNS collision avoidance for multi-stack Notploy:
 # Internal services renamed with `plane-*` prefix (unique cluster-wide) and
 # `links:` on the `proxy` service creates /etc/hosts entries (`<plane-web-IP>
 # web`, etc.) — /etc/hosts takes absolute priority over DNS, so the Caddy
 # inside plane-proxy (which has `reverse_proxy web:3000`/`api:8000`
 # hardcoded) resolves straight to our containers, ignoring any `web`/`api`
-# containers from other stacks on the shared Dokploy network.
+# containers from other stacks on the shared Notploy network.
 
 x-db-env: &db-env
   PGHOST: ${PGHOST:-plane-db}
@@ -40,8 +40,8 @@ x-proxy-env: &proxy-env
   # Caddy proxy: listen address (no upstream default in Caddyfile -> must be set,
   # else the `{$SITE_ADDRESS} { ... }` block is keyless and Caddy aborts).
   SITE_ADDRESS: ${SITE_ADDRESS:-:80}
-  # trusted_proxies decides which peers may set X-Forwarded-For/X-Real-IP. Dokploy's
-  # Traefik upstream always lives on Dokploy's private network, so trust only private
+  # trusted_proxies decides which peers may set X-Forwarded-For/X-Real-IP. Notploy's
+  # Traefik upstream always lives on Notploy's private network, so trust only private
   # ranges (Caddy built-in) instead of 0.0.0.0/0 to prevent client-IP spoofing if the
   # proxy is ever exposed directly. Override with your real upstream CIDR if needed.
   TRUSTED_PROXIES: ${TRUSTED_PROXIES:-private_ranges}

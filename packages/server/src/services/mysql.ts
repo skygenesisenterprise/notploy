@@ -1,17 +1,17 @@
-import { db } from "@dokploy/server/db";
+import { db } from "@notploy/server/db";
 import {
 	type apiCreateMySql,
 	backups,
 	buildAppName,
 	mysql,
-} from "@dokploy/server/db/schema";
-import { generatePassword } from "@dokploy/server/templates";
-import { buildMysql } from "@dokploy/server/utils/databases/mysql";
+} from "@notploy/server/db/schema";
+import { generatePassword } from "@notploy/server/templates";
+import { buildMysql } from "@notploy/server/utils/databases/mysql";
 import {
 	pullImage,
 	waitForSwarmServiceConvergence,
-} from "@dokploy/server/utils/docker/utils";
-import { execAsyncRemote } from "@dokploy/server/utils/process/execAsync";
+} from "@notploy/server/utils/docker/utils";
+import { execAsyncRemote } from "@notploy/server/utils/process/execAsync";
 import { TRPCError } from "@trpc/server";
 import { eq, getTableColumns } from "drizzle-orm";
 import { quote } from "shell-quote";

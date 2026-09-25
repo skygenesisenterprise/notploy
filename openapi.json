@@ -1,21 +1,21 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Dokploy API",
-    "description": "Complete API documentation for Dokploy - Deploy applications, manage databases, and orchestrate your infrastructure. This API allows you to programmatically manage all aspects of your Dokploy instance.",
+    "title": "Notploy API",
+    "description": "Complete API documentation for Notploy - Deploy applications, manage databases, and orchestrate your infrastructure. This API allows you to programmatically manage all aspects of your Notploy instance.",
     "version": "1.0.0",
     "contact": {
-      "name": "Dokploy Team",
-      "url": "https://dokploy.com"
+      "name": "Notploy Team",
+      "url": "https://notploy.com"
     },
     "license": {
       "name": "Apache 2.0",
-      "url": "https://github.com/dokploy/dokploy/blob/canary/LICENSE"
+      "url": "https://github.com/notploy/notploy/blob/canary/LICENSE"
     }
   },
   "servers": [
     {
-      "url": "https://your-dokploy-instance.com/api"
+      "url": "https://your-notploy-instance.com/api"
     }
   ],
   "tags": [
@@ -133,7 +133,7 @@
   ],
   "externalDocs": {
     "description": "Full documentation",
-    "url": "https://docs.dokploy.com"
+    "url": "https://docs.notploy.com"
   },
   "paths": {
     "/admin.setupMonitoring": {
@@ -3661,7 +3661,7 @@
                       }
                     ]
                   },
-                  "detachDokployNetwork": {
+                  "detachNotployNetwork": {
                     "type": "boolean"
                   }
                 },
@@ -9152,14 +9152,14 @@
                                 "type": "string"
                               }
                             },
-                            "detachDokployNetwork": {
+                            "detachNotployNetwork": {
                               "type": "boolean"
                             }
                           },
                           "required": [
                             "serviceName",
                             "networkIds",
-                            "detachDokployNetwork"
+                            "detachNotployNetwork"
                           ]
                         }
                       },
@@ -19467,7 +19467,7 @@
                       }
                     ]
                   },
-                  "detachDokployNetwork": {
+                  "detachNotployNetwork": {
                     "type": "boolean"
                   },
                   "createdAt": {
@@ -21406,7 +21406,7 @@
                       }
                     ]
                   },
-                  "detachDokployNetwork": {
+                  "detachNotployNetwork": {
                     "type": "boolean"
                   }
                 },
@@ -23585,7 +23585,7 @@
                       }
                     ]
                   },
-                  "detachDokployNetwork": {
+                  "detachNotployNetwork": {
                     "type": "boolean"
                   }
                 },
@@ -26496,7 +26496,7 @@
                       }
                     ]
                   },
-                  "detachDokployNetwork": {
+                  "detachNotployNetwork": {
                     "type": "boolean"
                   }
                 },
@@ -27120,13 +27120,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -27152,9 +27152,9 @@
                 "required": [
                   "appBuildError",
                   "databaseBackup",
-                  "dokployBackup",
+                  "notployBackup",
                   "volumeBackup",
-                  "dokployRestart",
+                  "notployRestart",
                   "name",
                   "appDeploy",
                   "dockerCleanup",
@@ -27247,13 +27247,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -27466,13 +27466,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -27502,9 +27502,9 @@
                 "required": [
                   "appBuildError",
                   "databaseBackup",
-                  "dokployBackup",
+                  "notployBackup",
                   "volumeBackup",
-                  "dokployRestart",
+                  "notployRestart",
                   "name",
                   "appDeploy",
                   "dockerCleanup",
@@ -27598,13 +27598,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -27827,13 +27827,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -27859,9 +27859,9 @@
                 "required": [
                   "appBuildError",
                   "databaseBackup",
-                  "dokployBackup",
+                  "notployBackup",
                   "volumeBackup",
-                  "dokployRestart",
+                  "notployRestart",
                   "name",
                   "appDeploy",
                   "dockerCleanup",
@@ -27954,13 +27954,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -28173,13 +28173,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -28225,9 +28225,9 @@
                 "required": [
                   "appBuildError",
                   "databaseBackup",
-                  "dokployBackup",
+                  "notployBackup",
                   "volumeBackup",
-                  "dokployRestart",
+                  "notployRestart",
                   "name",
                   "appDeploy",
                   "dockerCleanup",
@@ -28324,13 +28324,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -28588,13 +28588,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -28628,9 +28628,9 @@
                 "required": [
                   "appBuildError",
                   "databaseBackup",
-                  "dokployBackup",
+                  "notployBackup",
                   "volumeBackup",
-                  "dokployRestart",
+                  "notployRestart",
                   "name",
                   "appDeploy",
                   "dockerCleanup",
@@ -28724,13 +28724,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -29208,10 +29208,10 @@
                 "type": "object",
                 "properties": {
                   "ServerType": {
-                    "default": "Dokploy",
+                    "default": "Notploy",
                     "type": "string",
                     "enum": [
-                      "Dokploy",
+                      "Notploy",
                       "Remote"
                     ]
                   },
@@ -29331,13 +29331,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -29368,9 +29368,9 @@
                 "required": [
                   "appBuildError",
                   "databaseBackup",
-                  "dokployBackup",
+                  "notployBackup",
                   "volumeBackup",
-                  "dokployRestart",
+                  "notployRestart",
                   "name",
                   "appDeploy",
                   "dockerCleanup",
@@ -29464,13 +29464,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -29698,13 +29698,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -29735,9 +29735,9 @@
                 "required": [
                   "appBuildError",
                   "databaseBackup",
-                  "dokployBackup",
+                  "notployBackup",
                   "volumeBackup",
-                  "dokployRestart",
+                  "notployRestart",
                   "name",
                   "appDeploy",
                   "dockerCleanup",
@@ -29831,13 +29831,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -30066,13 +30066,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -30101,9 +30101,9 @@
                 "required": [
                   "appBuildError",
                   "databaseBackup",
-                  "dokployBackup",
+                  "notployBackup",
                   "volumeBackup",
-                  "dokployRestart",
+                  "notployRestart",
                   "name",
                   "appDeploy",
                   "dockerCleanup",
@@ -30195,13 +30195,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -30420,13 +30420,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -30544,13 +30544,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -30775,13 +30775,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -30804,9 +30804,9 @@
                 "required": [
                   "appBuildError",
                   "databaseBackup",
-                  "dokployBackup",
+                  "notployBackup",
                   "volumeBackup",
-                  "dokployRestart",
+                  "notployRestart",
                   "name",
                   "appDeploy",
                   "dockerCleanup",
@@ -30898,13 +30898,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -31111,13 +31111,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -31140,9 +31140,9 @@
                 "required": [
                   "appBuildError",
                   "databaseBackup",
-                  "dokployBackup",
+                  "notployBackup",
                   "volumeBackup",
-                  "dokployRestart",
+                  "notployRestart",
                   "name",
                   "appDeploy",
                   "dockerCleanup",
@@ -31234,13 +31234,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -31447,13 +31447,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -31643,13 +31643,13 @@
                   "databaseBackup": {
                     "type": "boolean"
                   },
-                  "dokployBackup": {
+                  "notployBackup": {
                     "type": "boolean"
                   },
                   "volumeBackup": {
                     "type": "boolean"
                   },
-                  "dokployRestart": {
+                  "notployRestart": {
                     "type": "boolean"
                   },
                   "name": {
@@ -33895,7 +33895,7 @@
                       }
                     ]
                   },
-                  "detachDokployNetwork": {
+                  "detachNotployNetwork": {
                     "type": "boolean"
                   }
                 },
@@ -37626,7 +37626,7 @@
                       }
                     ]
                   },
-                  "detachDokployNetwork": {
+                  "detachNotployNetwork": {
                     "type": "boolean"
                   }
                 },
@@ -43418,9 +43418,9 @@
         }
       }
     },
-    "/settings.getDokployVersion": {
+    "/settings.getNotployVersion": {
       "get": {
-        "operationId": "settings-getDokployVersion",
+        "operationId": "settings-getNotployVersion",
         "tags": [
           "settings"
         ],
@@ -45358,9 +45358,9 @@
         }
       }
     },
-    "/settings.getDokployCloudIps": {
+    "/settings.getNotployCloudIps": {
       "get": {
-        "operationId": "settings-getDokployCloudIps",
+        "operationId": "settings-getNotployCloudIps",
         "tags": [
           "settings"
         ],
@@ -55830,7 +55830,7 @@
                       "application",
                       "compose",
                       "server",
-                      "dokploy-server"
+                      "notploy-server"
                     ]
                   },
                   "command": {
@@ -56033,7 +56033,7 @@
                       "application",
                       "compose",
                       "server",
-                      "dokploy-server"
+                      "notploy-server"
                     ]
                   },
                   "command": {
@@ -56287,7 +56287,7 @@
                 "application",
                 "compose",
                 "server",
-                "dokploy-server"
+                "notploy-server"
               ]
             },
             "required": true
@@ -60400,7 +60400,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "API key authentication. Generate an API key from your Dokploy dashboard under Settings > API Keys."
+        "description": "API key authentication. Generate an API key from your Notploy dashboard under Settings > API Keys."
       }
     }
   },

@@ -128,7 +128,7 @@ export const compose = pgTable("compose", {
 			Array<{
 				serviceName: string;
 				networkIds: string[];
-				detachDokployNetwork: boolean;
+				detachNotployNetwork: boolean;
 			}>
 		>()
 		.default([]),
@@ -204,7 +204,7 @@ const createSchema = createInsertSchema(compose, {
 			z.object({
 				serviceName: z.string(),
 				networkIds: z.array(z.string()),
-				detachDokployNetwork: z.boolean(),
+				detachNotployNetwork: z.boolean(),
 			}),
 		)
 		.optional(),

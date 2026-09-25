@@ -2,7 +2,7 @@ import { getLLMText, source } from "@/lib/source";
 
 export const revalidate = false;
 
-const baseUrl = "https://docs.dokploy.com";
+const baseUrl = "https://docs.notploy.com";
 
 export async function GET() {
 	const pages = source

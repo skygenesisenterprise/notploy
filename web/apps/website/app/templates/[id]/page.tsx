@@ -45,14 +45,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		return { title: "Template Not Found" };
 	}
 
-	const title = `Deploy ${template.name} on Dokploy`;
-	const description = `${template.description} Deploy ${template.name} on your own server with one click using Dokploy's open source template.`;
-	const url = `https://dokploy.com/templates/${template.id}`;
+	const title = `Deploy ${template.name} on Notploy`;
+	const description = `${template.description} Deploy ${template.name} on your own server with one click using Notploy's open source template.`;
+	const url = `https://notploy.com/templates/${template.id}`;
 
 	const ogUrl = new URL(
 		"/api/og",
 		process.env.NODE_ENV === "production"
-			? "https://dokploy.com"
+			? "https://notploy.com"
 			: "http://localhost:3001",
 	);
 	ogUrl.searchParams.set("template", template.id);
@@ -109,7 +109,7 @@ export default async function TemplatePage({ params }: Props) {
 		description: template.description,
 		applicationCategory: "DeveloperApplication",
 		operatingSystem: "Docker",
-		url: `https://dokploy.com/templates/${template.id}`,
+		url: `https://notploy.com/templates/${template.id}`,
 		image: logoUrl,
 		softwareVersion: template.version,
 		offers: {
@@ -165,7 +165,7 @@ export default async function TemplatePage({ params }: Props) {
 					</div>
 				</div>
 				<a href="#deploy" className={`${primaryButtonClasses} h-11 px-8`}>
-					Deploy on Dokploy
+					Deploy on Notploy
 				</a>
 			</div>
 
@@ -204,27 +204,27 @@ export default async function TemplatePage({ params }: Props) {
 
 			<section id="deploy" className="mt-12 scroll-mt-24">
 				<h2 className="text-2xl font-semibold">
-					Deploy {template.name} on Dokploy
+					Deploy {template.name} on Notploy
 				</h2>
 				<ol className="mt-4 list-decimal space-y-2 pl-6 text-muted-foreground">
 					<li>
 						<a
-							href="https://docs.dokploy.com/docs/core/installation"
+							href="https://docs.notploy.com/docs/core/installation"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-blue-500 hover:text-blue-500/80"
 						>
-							Install Dokploy
+							Install Notploy
 						</a>{" "}
 						on your server if you haven't already.
 					</li>
 					<li>
-						In your Dokploy panel, open a project and click{" "}
+						In your Notploy panel, open a project and click{" "}
 						<strong>Create Service → Template</strong>.
 					</li>
 					<li>
 						Search for <strong>{template.name}</strong> and click{" "}
-						<strong>Create</strong> — Dokploy configures domains, environment
+						<strong>Create</strong> — Notploy configures domains, environment
 						variables, and volumes for you.
 					</li>
 				</ol>
@@ -284,13 +284,13 @@ export default async function TemplatePage({ params }: Props) {
 					Self-host {template.name} in minutes
 				</h2>
 				<p className="text-muted-foreground">
-					Dokploy is a free, open source deployment platform. Deploy{" "}
+					Notploy is a free, open source deployment platform. Deploy{" "}
 					{template.name} and {templates.length - 1}+ other templates on your
 					own infrastructure with a single click.
 				</p>
 				<div className="flex flex-wrap gap-3">
 					<a
-						href="https://docs.dokploy.com/docs/core/installation"
+						href="https://docs.notploy.com/docs/core/installation"
 						target="_blank"
 						rel="noopener noreferrer"
 						className={`${primaryButtonClasses} h-10 px-4 py-2`}

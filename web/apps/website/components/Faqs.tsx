@@ -8,19 +8,19 @@ import { Container } from "./Container";
 
 const faqs = [
 	{
-		question: "What is Dokploy?",
+		question: "What is Notploy?",
 		answer:
-			"Dokploy is a stable, easy-to-use deployment solution designed to simplify the application management process. Think of Dokploy as a free alternative self-hostable solution to platforms like Heroku, Vercel, and Netlify.",
+			"Notploy is a stable, easy-to-use deployment solution designed to simplify the application management process. Think of Notploy as a free alternative self-hostable solution to platforms like Heroku, Vercel, and Netlify.",
 	},
 	{
-		question: "How does Dokploy's Open Source plan work?",
+		question: "How does Notploy's Open Source plan work?",
 		answer:
-			"You can host Dokploy UI on your own infrastructure and you will be responsible for the maintenance and updates.",
+			"You can host Notploy UI on your own infrastructure and you will be responsible for the maintenance and updates.",
 	},
 	{
 		question: "Do I need to provide my own server for the managed plan?",
 		answer:
-			"Yes, in the managed plan, you provide your own server (e.g., Hetzner, Hostinger, AWS, etc.) VPS, and we manage the Dokploy UI infrastructure for you.",
+			"Yes, in the managed plan, you provide your own server (e.g., Hetzner, Hostinger, AWS, etc.) VPS, and we manage the Notploy UI infrastructure for you.",
 	},
 	{
 		question: "What happens if I need more than one server?",
@@ -40,7 +40,7 @@ const faqs = [
 	{
 		question: "What kind of support do you offer?",
 		answer:
-			"We offer community support for the open source version and priority support for paid plans (via Discord or Email at support@dokploy.com).",
+			"We offer community support for the open source version and priority support for paid plans (via Discord or Email at support@notploy.com).",
 	},
 	{
 		question: "What's the catch on the Paid Plan?",
@@ -48,23 +48,23 @@ const faqs = [
 			"Nothing, once you link your server (VPS) to your account, you can deploy unlimited applications, databases, and users, and you get unlimited updates, deployments, backups, and more.",
 	},
 	{
-		question: "Why Choose Dokploy?",
+		question: "Why Choose Notploy?",
 		answer:
-			"Dokploy offers simplicity, flexibility, and speed in application deployment and management.",
+			"Notploy offers simplicity, flexibility, and speed in application deployment and management.",
 	},
 	{
 		question: "Is it open source?",
-		answer: "Yes, Dokploy offers a plan that is open source and free to use.",
+		answer: "Yes, Notploy offers a plan that is open source and free to use.",
 	},
 	{
-		question: "Can I use Dokploy to deploy AI-built apps?",
+		question: "Can I use Notploy to deploy AI-built apps?",
 		answer:
-			"Yes. Dokploy works with code from any source, including apps built with AI coding tools. You can deploy using your existing Git, Docker, and Compose workflows, or create a sandbox environment to give teams a governed space where they can ship AI-built apps with SSO, audit logs, and multitenancy built in.",
+			"Yes. Notploy works with code from any source, including apps built with AI coding tools. You can deploy using your existing Git, Docker, and Compose workflows, or create a sandbox environment to give teams a governed space where they can ship AI-built apps with SSO, audit logs, and multitenancy built in.",
 	},
 	{
-		question: "What types of languages can I deploy with Dokploy?",
+		question: "What types of languages can I deploy with Notploy?",
 		answer:
-			"Dokploy does not restrict programming languages. You are free to choose your preferred language and framework.",
+			"Notploy does not restrict programming languages. You are free to choose your preferred language and framework.",
 	},
 	{
 		question: "How do I request a feature or report a bug?",
@@ -72,7 +72,7 @@ const faqs = [
 			"To request a feature or report a bug, please create an issue on our GitHub repository or ask in our Discord channel.",
 	},
 	{
-		question: "Do you track the usage of Dokploy?",
+		question: "Do you track the usage of Notploy?",
 		answer: "No, we don't track any usage data.",
 	},
 	{
@@ -87,14 +87,14 @@ const faqs = [
 			"We do not offer refunds. However, you can cancel your subscription at any time. Feel free to try our open-source version for free before making a purchase.",
 	},
 	{
-		question: "What types of applications can I deploy with Dokploy?",
+		question: "What types of applications can I deploy with Notploy?",
 		answer:
-			"You can deploy any application that can be Dockerized, with no limits. Dokploy supports builds from Git repositories, Dockerfiles, Nixpacks, and Buildpacks like Heroku and Paketo.",
+			"You can deploy any application that can be Dockerized, with no limits. Notploy supports builds from Git repositories, Dockerfiles, Nixpacks, and Buildpacks like Heroku and Paketo.",
 	},
 	{
-		question: "How does Dokploy handle database management?",
+		question: "How does Notploy handle database management?",
 		answer:
-			"Dokploy supports multiple database systems including Postgres, MySQL, MariaDB, MongoDB, and Redis, providing tools for easy deployment and management and backups directly from the dashboard.",
+			"Notploy supports multiple database systems including Postgres, MySQL, MariaDB, MongoDB, and Redis, providing tools for easy deployment and management and backups directly from the dashboard.",
 	},
 ];
 

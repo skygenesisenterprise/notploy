@@ -1,4 +1,4 @@
-import type { infisicalVaultConfigSchema } from "@dokploy/server/db/schema";
+import type { infisicalVaultConfigSchema } from "@notploy/server/db/schema";
 import type { z } from "zod";
 import { type VaultClient, vaultFetch } from "./types";
 

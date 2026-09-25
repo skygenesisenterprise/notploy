@@ -5,14 +5,14 @@ description: "Step-by-step guide to setup a remote server and deploy application
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Remote servers allows you to deploy your apps remotely to different servers without needing to build and run them where the Dokploy UI is installed.
+Remote servers allows you to deploy your apps remotely to different servers without needing to build and run them where the Notploy UI is installed.
 
 ## Requirements
 
-1. To install Dokploy UI, follow the [installation guide](en/docs/core/get-started/installation).
+1. To install Notploy UI, follow the [installation guide](en/docs/core/get-started/installation).
 
 <Callout type="warning">
-  If your remote server is configured with a different shell (other than bash), you must configure bash as the default shell, as Dokploy has been developed and tested with bash.
+  If your remote server is configured with a different shell (other than bash), you must configure bash as the default shell, as Notploy has been developed and tested with bash.
 </Callout>
 
 2. Create an SSH key by going to `/dashboard/settings/ssh-keys` and add a new key. Be sure to copy the public key.
@@ -27,7 +27,7 @@ Remote servers allows you to deploy your apps remotely to different servers with
 
 3. Decide which remote server to deploy your apps on. We recommend these reliable providers:
 
-- [Hostinger](https://www.hostinger.com/vps-hosting?ref=dokploy) Get 20% off with this [referral link](https://www.hostinger.com/vps-hosting?REFERRALCODE=1SIUMAURICI97).
+- [Hostinger](https://www.hostinger.com/vps-hosting?ref=notploy) Get 20% off with this [referral link](https://www.hostinger.com/vps-hosting?REFERRALCODE=1SIUMAURICI97).
 - [DigitalOcean](https://www.digitalocean.com/pricing/droplets#basic-droplets) Get $200 credits for free with this [referral link](https://m.do.co/c/7613f9ec4e85).
 - [Hetzner](https://www.hetzner.com/cloud/) Get €20 credits with this [referral link](https://hetzner.cloud/?ref=vou4fhxJ1W2D).
 - [Vultr](https://www.vultr.com/pricing/#cloud-compute) Referral Link: [Referral Link](https://www.vultr.com/?ref=9679828)
@@ -60,7 +60,7 @@ Remote servers allows you to deploy your apps remotely to different servers with
 
 6. To test connectivity, open the server dropdown and click `Enter Terminal`. If everything is correct, you should be able to interact with the remote server.
 
-7. Click `Setup Server` to proceed. There are two tabs: SSH Keys and Deployments. This guide explains the easy way, but you can follow the manual process via the Dokploy UI if you prefer.
+7. Click `Setup Server` to proceed. There are two tabs: SSH Keys and Deployments. This guide explains the easy way, but you can follow the manual process via the Notploy UI if you prefer.
 
    <ImageZoom
      src="/assets/multi-server-setup-2.png"
@@ -81,7 +81,7 @@ Remote servers allows you to deploy your apps remotely to different servers with
    />
 
 <Callout>
-  You only need to run this setup once. If Dokploy updates later, check the
+  You only need to run this setup once. If Notploy updates later, check the
   release notes to see if rerunning this command is required.
 </Callout>
 
@@ -95,8 +95,8 @@ Remote servers allows you to deploy your apps remotely to different servers with
      className="rounded-lg"
    />
 
-10. To check which server an app belongs to, you’ll see the server name at the top. If no server is selected, it defaults to `Dokploy Server`. Click `Deploy` to start building your app on the remote server. You can check the `Logs` tab to see the build process. For this example, we’ll use a test repo:  
-    Repo: `https://github.com/Dokploy/examples.git`  
+10. To check which server an app belongs to, you’ll see the server name at the top. If no server is selected, it defaults to `Notploy Server`. Click `Deploy` to start building your app on the remote server. You can check the `Logs` tab to see the build process. For this example, we’ll use a test repo:  
+    Repo: `https://github.com/Notploy/examples.git`  
     Branch: `main`  
     Build Path: `/astro`
 

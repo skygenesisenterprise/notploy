@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 # Install dependencies
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --filter=./apps/website --frozen-lockfile
 
-# Deploy only the dokploy app
+# Deploy only the notploy app
 
 ENV NODE_ENV=production
 RUN pnpm --filter=./apps/website run build
@@ -18,7 +18,7 @@ RUN pnpm --filter=./apps/website --prod deploy --legacy /prod/website
 
 RUN cp -R /usr/src/app/apps/website/.next /prod/website/.next
 
-FROM base AS dokploy
+FROM base AS notploy
 WORKDIR /app
 
 # Set production

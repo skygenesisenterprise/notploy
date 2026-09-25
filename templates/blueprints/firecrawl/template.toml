@@ -7,7 +7,7 @@ rabbitmq_password = "${hash:32}"
 bull_auth_key = "${hash:32}"
 firecrawl_org_id = "${uuid}"
 firecrawl_team_id = "${uuid}"
-# Dokploy's real hash helper returns exactly N hex characters. Force the UUID
+# Notploy's real hash helper returns exactly N hex characters. Force the UUID
 # version and variant nibbles so Firecrawl's strict API-key parser accepts it.
 firecrawl_api_key_a = "${hash:12}"
 firecrawl_api_key_b = "${hash:3}"

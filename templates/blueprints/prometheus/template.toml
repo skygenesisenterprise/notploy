@@ -10,7 +10,7 @@ port = 9_090
 host = "${main_domain}"
 
 [[config.mounts]]
-# Note: this relative path is resolved by Dokploy to the file mounted from
+# Note: this relative path is resolved by Notploy to the file mounted from
 # ../files/prometheus.yml in docker-compose, and mapped inside the container
 # to /etc/prometheus/prometheus.yml.
 filePath = "prometheus.yml"
@@ -23,7 +23,7 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    monitor: 'dokploy-prometheus'
+    monitor: 'notploy-prometheus'
 
 # Alertmanager configuration (optional)
 # alerting:

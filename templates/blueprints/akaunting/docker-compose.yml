@@ -26,7 +26,7 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
 
-    # Expose only to internal network; domain routing handled by Dokploy/Traefik
+    # Expose only to internal network; domain routing handled by Notploy/Traefik
     expose:
       - "80"
 

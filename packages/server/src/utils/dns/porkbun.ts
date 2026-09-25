@@ -1,4 +1,4 @@
-import type { porkbunDnsConfigSchema } from "@dokploy/server/db/schema";
+import type { porkbunDnsConfigSchema } from "@notploy/server/db/schema";
 import type { z } from "zod";
 import { type DnsClient, dnsFetch } from "./types";
 

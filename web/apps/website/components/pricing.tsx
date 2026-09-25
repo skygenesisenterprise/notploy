@@ -19,7 +19,7 @@ import { Badge } from "./ui/badge";
 import { Button, buttonVariants } from "./ui/button";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 
-const CLOUD_APP_URL = "https://app.dokploy.com";
+const CLOUD_APP_URL = "https://app.notploy.com";
 
 const pricingFaqs = [
 	{
@@ -60,7 +60,7 @@ const pricingFaqs = [
 	{
 		question: "Do I need to provide my own server?",
 		answer:
-			"Yes, you provide your own server (e.g., Hetzner, Hostinger, AWS, etc.) VPS, and we manage the Dokploy UI infrastructure for you.",
+			"Yes, you provide your own server (e.g., Hetzner, Hostinger, AWS, etc.) VPS, and we manage the Notploy UI infrastructure for you.",
 	},
 ];
 
@@ -353,7 +353,7 @@ export function Pricing() {
 						<p className="mt-1 text-sm text-muted-foreground">
 							Our Agency plan is uniquely tailored to the needs of agencies.
 							Please contact us below to learn more about this option, as well
-							as about becoming a certified Dokploy partner.{" "}
+							as about becoming a certified Notploy partner.{" "}
 							<Link href="/partners" className="text-primary hover:underline">
 								Learn more here
 							</Link>

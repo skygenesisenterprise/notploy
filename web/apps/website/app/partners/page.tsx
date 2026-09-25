@@ -10,7 +10,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Partners",
 	description:
-		"Join the Dokploy partner program. Agency plan, referral program, and reseller options.",
+		"Join the Notploy partner program. Agency plan, referral program, and reseller options.",
 };
 
 const PROGRAMS = [
@@ -34,7 +34,7 @@ const PROGRAMS = [
 		badge: "Available",
 		badgeVariant: "default" as const,
 		description:
-			"Earn 20% commission on every customer you refer to Dokploy.",
+			"Earn 20% commission on every customer you refer to Notploy.",
 		features: [
 			"Co-marketing opportunities",
 			"Partner dashboard",
@@ -49,7 +49,7 @@ const PROGRAMS = [
 		badge: "Coming Soon",
 		badgeVariant: "secondary" as const,
 		description:
-			"Sell Dokploy directly in your market with local presence and relationships.",
+			"Sell Notploy directly in your market with local presence and relationships.",
 		features: [
 			"Strategic market access",
 			"Cultural advantage",
@@ -78,7 +78,7 @@ export default function PartnersPage() {
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
 						<h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-							Partner with Dokploy
+							Partner with Notploy
 						</h1>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Join our partner program to unlock premium features, earn revenue
@@ -139,7 +139,7 @@ export default function PartnersPage() {
 							Get Started
 						</h2>
 						<p className="mt-3 text-center text-muted-foreground">
-							Join our partner program and start growing with Dokploy.
+							Join our partner program and start growing with Notploy.
 						</p>
 						<div className="mt-10 rounded-xl border border-border/50 bg-black/80 p-6 sm:p-8">
 							<PartnerForm />

@@ -1,10 +1,10 @@
 {
-  "name": "@dokploy/mcp",
+  "name": "@notploy/mcp",
   "version": "0.30.7",
-  "description": "MCP Server for Dokploy API",
+  "description": "MCP Server for Notploy API",
   "main": "build/index.js",
   "bin": {
-    "dokploy-mcp": "build/index.js"
+    "notploy-mcp": "build/index.js"
   },
   "files": [
     "build"
@@ -31,18 +31,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Dokploy/mcp.git"
+    "url": "git+https://github.com/Notploy/mcp.git"
   },
   "keywords": [
     "modelcontextprotocol",
     "mcp",
-    "dokploy"
+    "notploy"
   ],
   "author": "Henrique Andrade <developer@henriqueandrade.dev>",
   "bugs": {
-    "url": "https://github.com/Dokploy/mcp/issues"
+    "url": "https://github.com/Notploy/mcp/issues"
   },
-  "homepage": "https://github.com/Dokploy/mcp#readme",
+  "homepage": "https://github.com/Notploy/mcp#readme",
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {

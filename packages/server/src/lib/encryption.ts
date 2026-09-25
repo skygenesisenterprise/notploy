@@ -6,7 +6,7 @@ import {
 } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { paths } from "@dokploy/server/constants";
+import { paths } from "@notploy/server/constants";
 import { betterAuthSecret } from "./auth-secret";
 import { encryptionSecret } from "./encryption-secret";
 
@@ -17,7 +17,7 @@ const IV_LENGTH = 12;
 const AUTH_TAG_LENGTH = 16;
 
 const deriveKey = (secret: string) =>
-	createHmac("sha256", secret).update("dokploy:db-encryption:v1").digest();
+	createHmac("sha256", secret).update("notploy:db-encryption:v1").digest();
 
 const primaryKey = deriveKey(encryptionSecret ?? betterAuthSecret);
 

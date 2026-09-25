@@ -10,7 +10,7 @@
 		"jsx": "react-jsx",
 		"paths": {
 			"@/*": ["./*"],
-			"@dokploy/server/*": ["../../packages/server/src/*"]
+			"@notploy/server/*": ["../../packages/server/src/*"]
 		}
 	},
 	"exclude": ["node_modules", "dist"]

@@ -23,7 +23,7 @@ This template deploys NodeLink, a Lavalink-compatible audio server for Discord m
 Use the deployed domain as your NodeLink/Lavalink server URL:
 
 - Host: `https://${main_domain}`
-- Port: `443` when connecting through the Dokploy domain
+- Port: `443` when connecting through the Notploy domain
 - Password: the generated `server_password` value
 
 NodeLink exposes the `/version`, `/v4/stats`, and Lavalink-compatible WebSocket/API endpoints through the same domain.

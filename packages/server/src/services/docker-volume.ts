@@ -1,7 +1,7 @@
 import {
 	execAsync,
 	execAsyncRemote,
-} from "@dokploy/server/utils/process/execAsync";
+} from "@notploy/server/utils/process/execAsync";
 import { quote } from "shell-quote";
 import { CONTAINER_FILE_SIZE_LIMIT } from "./docker";
 

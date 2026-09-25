@@ -22,7 +22,7 @@
 		"outDir": "./dist",
 		/* Path Aliases */
 		"paths": {
-			"@dokploy/server/*": ["./src/*"]
+			"@notploy/server/*": ["./src/*"]
 		}
 	},
 	"include": ["next-env.d.ts", "./src/**/*.ts"],
@@ -30,7 +30,7 @@
 	"exclude": [
 		"tsup.ts",
 		"node_modules",
-		"dokploy",
+		"notploy",
 		"config",
 		"dist",
 		".next",

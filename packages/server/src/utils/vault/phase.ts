@@ -1,4 +1,4 @@
-import type { phaseVaultConfigSchema } from "@dokploy/server/db/schema";
+import type { phaseVaultConfigSchema } from "@notploy/server/db/schema";
 import type { z } from "zod";
 import { type VaultClient, vaultFetch } from "./types";
 

@@ -88,7 +88,7 @@ class TemplateValidator {
   }
 
   /**
-   * Validate helper syntax (based on Dokploy's processValue function)
+   * Validate helper syntax (based on Notploy's processValue function)
    */
   private validateHelper(helper: string, context: string = ""): void {
     const validHelpers = [
@@ -280,7 +280,7 @@ class TemplateValidator {
         this.warning("No domains configured in template.toml");
       }
 
-      // Validate env - can be array or object (as per Dokploy's processEnvVars)
+      // Validate env - can be array or object (as per Notploy's processEnvVars)
       if (data.config.env !== undefined) {
         if (Array.isArray(data.config.env)) {
           // Array format: ["KEY=VALUE", ...]
@@ -305,14 +305,14 @@ class TemplateValidator {
           });
         } else if (typeof data.config.env === "object" && data.config.env !== null) {
           // Object format: { KEY: "VALUE", ... }
-          // This is valid - Dokploy handles both formats
+          // This is valid - Notploy handles both formats
           const envKeys = Object.keys(data.config.env);
           if (envKeys.length === 0) {
             this.warning("config.env is an empty object");
           }
         } else {
           this.error(
-            "config.env must be an array or an object (as per Dokploy's processEnvVars)"
+            "config.env must be an array or an object (as per Notploy's processEnvVars)"
           );
         }
       }

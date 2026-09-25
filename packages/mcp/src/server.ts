@@ -36,9 +36,9 @@ function isToolPreset(value: string): value is ToolPreset {
 }
 
 function getEnabledTools() {
-  const enabledTags = process.env.DOKPLOY_ENABLED_TAGS;
-  const disabledTags = parseTagList(process.env.DOKPLOY_DISABLED_TAGS);
-  const requestedPreset = process.env.DOKPLOY_TOOL_PRESET?.trim().toLowerCase() || "all";
+  const enabledTags = process.env.NOTPLOY_ENABLED_TAGS;
+  const disabledTags = parseTagList(process.env.NOTPLOY_DISABLED_TAGS);
+  const requestedPreset = process.env.NOTPLOY_TOOL_PRESET?.trim().toLowerCase() || "all";
   const preset: ToolPreset = isToolPreset(requestedPreset) ? requestedPreset : "all";
 
   if (!isToolPreset(requestedPreset)) {
@@ -79,7 +79,7 @@ function getEnabledTools() {
     logger.warn("Large toolset loaded; some MCP clients or LLM providers may time out", {
       ...context,
       recommendation:
-        "Set DOKPLOY_TOOL_PRESET=minimal or DOKPLOY_ENABLED_TAGS to reduce tool count",
+        "Set NOTPLOY_TOOL_PRESET=minimal or NOTPLOY_ENABLED_TAGS to reduce tool count",
     });
   }
 
@@ -139,7 +139,7 @@ function stripUnsupportedRegexPatterns(value: unknown): void {
 // Zod→JSON Schema converter emits draft-07 by default, which causes a 400
 // error on tools/list. We bypass the SDK's auto-generated handler by
 // registering our own with pre-converted draft-2020-12 schemas.
-// See https://github.com/Dokploy/mcp/issues/32
+// See https://github.com/Notploy/mcp/issues/32
 function toDraft2020_12JsonSchema(schema: ZodObject<ZodRawShape>): Record<string, unknown> {
   const result = zodToJsonSchema(schema, {
     target: "jsonSchema2019-09",
@@ -154,7 +154,7 @@ function toDraft2020_12JsonSchema(schema: ZodObject<ZodRawShape>): Record<string
 
 export function createServer() {
   const server = new McpServer({
-    name: "dokploy",
+    name: "notploy",
     version: "2.0.0",
   });
 

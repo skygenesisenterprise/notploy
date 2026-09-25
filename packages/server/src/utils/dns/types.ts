@@ -1,7 +1,7 @@
 import type {
 	DnsProviderConfig,
 	DnsRecordType,
-} from "@dokploy/server/db/schema";
+} from "@notploy/server/db/schema";
 
 export interface DnsZone {
 	id: string;

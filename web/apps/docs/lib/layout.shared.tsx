@@ -8,12 +8,12 @@ export function baseOptions(): BaseLayoutProps {
 			title: (
 				<div className="flex items-center gap-2">
 					<Logo />
-					<span>Dokploy</span>
+					<span>Notploy</span>
 				</div>
 			),
-			url: "https://dokploy.com",
+			url: "https://notploy.com",
 			children: <NavLinks />,
 		},
-		githubUrl: "https://github.com/Dokploy/dokploy",
+		githubUrl: "https://github.com/Notploy/notploy",
 	};
 }

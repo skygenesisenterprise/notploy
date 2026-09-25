@@ -1,5 +1,5 @@
 [variables]
-SERVER_NAME = "Enshrouded Dokploy"
+SERVER_NAME = "Enshrouded Notploy"
 SERVER_PASSWORD = "${password:15}"
 
 [config]

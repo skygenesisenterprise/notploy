@@ -1,11 +1,11 @@
-# Dokploy CLI
+# Notploy CLI
 
-Dokploy CLI is a command-line tool to manage your Dokploy server remotely. It provides **449 commands** auto-generated from the Dokploy OpenAPI spec, covering every API endpoint.
+Notploy CLI is a command-line tool to manage your Notploy server remotely. It provides **449 commands** auto-generated from the Notploy OpenAPI spec, covering every API endpoint.
 
 ## Installation
 
 ```bash
-npm install -g @dokploy/cli
+npm install -g @notploy/cli
 ```
 
 ## Authentication
@@ -13,14 +13,14 @@ npm install -g @dokploy/cli
 ### Option 1: Using the `auth` command
 
 ```bash
-dokploy auth -u https://panel.dokploy.com -t YOUR_API_KEY
+notploy auth -u https://panel.notploy.com -t YOUR_API_KEY
 ```
 
 ### Option 2: Environment variables
 
 ```bash
-export DOKPLOY_URL="https://panel.dokploy.com"
-export DOKPLOY_API_KEY="YOUR_API_KEY"
+export NOTPLOY_URL="https://panel.notploy.com"
+export NOTPLOY_API_KEY="YOUR_API_KEY"
 ```
 
 ### Option 3: `.env` file
@@ -28,8 +28,8 @@ export DOKPLOY_API_KEY="YOUR_API_KEY"
 Create a `.env` file in your working directory:
 
 ```env
-DOKPLOY_URL="https://panel.dokploy.com"
-DOKPLOY_API_KEY="YOUR_API_KEY"
+NOTPLOY_URL="https://panel.notploy.com"
+NOTPLOY_API_KEY="YOUR_API_KEY"
 ```
 
 The CLI loads it automatically. Shell environment variables take priority over the `.env` file.
@@ -37,45 +37,45 @@ The CLI loads it automatically. Shell environment variables take priority over t
 ## Usage
 
 ```bash
-dokploy <group> <action> [options]
+notploy <group> <action> [options]
 ```
 
 ### Examples
 
 ```bash
 # List all projects
-dokploy project all
+notploy project all
 
 # Get a specific project
-dokploy project one --projectId abc123
+notploy project one --projectId abc123
 
 # Create an application
-dokploy application create --name "my-app" --environmentId env123
+notploy application create --name "my-app" --environmentId env123
 
 # Deploy an application
-dokploy application deploy --applicationId app123
+notploy application deploy --applicationId app123
 
 # Create a postgres database
-dokploy postgres create --name "my-db" --environmentId env123
+notploy postgres create --name "my-db" --environmentId env123
 
 # Stop a database
-dokploy postgres stop --postgresId pg123
+notploy postgres stop --postgresId pg123
 
 # Get raw JSON output
-dokploy project all --json
+notploy project all --json
 ```
 
 ### Getting help
 
 ```bash
 # List all groups
-dokploy --help
+notploy --help
 
 # List actions in a group
-dokploy application --help
+notploy application --help
 
 # See options for a specific action
-dokploy application deploy --help
+notploy application deploy --help
 ```
 
 ## Available command groups
@@ -128,17 +128,17 @@ pnpm run lint
 
 Commands are auto-generated from `openapi.json`. To update:
 
-1. Replace `openapi.json` with the latest spec from the [Dokploy repo](https://github.com/Dokploy/dokploy)
+1. Replace `openapi.json` with the latest spec from the [Notploy repo](https://github.com/Notploy/notploy)
 2. Run `pnpm run generate`
 3. Build with `pnpm run build`
 
 ## Contributing
 
-If you want to contribute to Dokploy CLI, please check out our [Contributing Guide](https://github.com/Dokploy/cli/blob/main/CONTRIBUTING.md).
+If you want to contribute to Notploy CLI, please check out our [Contributing Guide](https://github.com/Notploy/cli/blob/main/CONTRIBUTING.md).
 
 ## Support
 
-If you encounter any issues or have any questions, please [open an issue](https://github.com/Dokploy/cli/issues) in our GitHub repository.
+If you encounter any issues or have any questions, please [open an issue](https://github.com/Notploy/cli/issues) in our GitHub repository.
 
 ## License
 

@@ -21,7 +21,7 @@ filePath = "/home/container/server.properties"
 content = """
 # Minecraft server properties
 server-port=25565
-motd=Java Server powered by Dokploy
+motd=Java Server powered by Notploy
 online-mode=true
 difficulty=easy
 gamemode=survival

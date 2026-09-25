@@ -1,6 +1,6 @@
-# Dokploy Documentation (New)
+# Notploy Documentation (New)
 
-This is a fresh Fumadocs project with the complete Dokploy documentation migrated from the old docs project.
+This is a fresh Fumadocs project with the complete Notploy documentation migrated from the old docs project.
 
 ## Features
 

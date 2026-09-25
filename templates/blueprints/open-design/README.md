@@ -9,7 +9,7 @@ design systems, and an extensible plugin ecosystem.
   daemon token-gates its API when bound to a non-loopback address, and a browser
   cannot supply that bearer token — so disabling it is required for the web UI to
   load. As a result the instance is **reachable by anyone who has the URL**. If it is
-  internet-facing, put an authenticating layer in front (for example Dokploy/Traefik
+  internet-facing, put an authenticating layer in front (for example Notploy/Traefik
   basic-auth) and enable an HTTPS certificate on the domain.
 
 - **AI features.** The image intentionally does not bundle an AI agent CLI. To

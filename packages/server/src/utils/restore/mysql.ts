@@ -1,6 +1,6 @@
-import type { apiRestoreBackup } from "@dokploy/server/db/schema";
-import type { Destination } from "@dokploy/server/services/destination";
-import type { MySql } from "@dokploy/server/services/mysql";
+import type { apiRestoreBackup } from "@notploy/server/db/schema";
+import type { Destination } from "@notploy/server/services/destination";
+import type { MySql } from "@notploy/server/services/mysql";
 import { quote } from "shell-quote";
 import type { z } from "zod";
 import { getS3Credentials } from "../backups/utils";

@@ -7,9 +7,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Dokploy Jobs & Open Positions",
+	title: "Notploy Jobs & Open Positions",
 	description:
-		"Join Dokploy and help developers and teams ship faster with open-source and scalable deployment tools built for the modern web.",
+		"Join Notploy and help developers and teams ship faster with open-source and scalable deployment tools built for the modern web.",
 };
 
 const OPEN_POSITIONS: {

@@ -14,26 +14,26 @@ type Props = {
 };
 
 export const metadata: Metadata = {
-	metadataBase: new URL("https://dokploy.com"),
+	metadataBase: new URL("https://notploy.com"),
 	title: {
-		default: "Dokploy - Deploy your applications with ease",
-		template: "%s | Dokploy",
+		default: "Notploy - Deploy your applications with ease",
+		template: "%s | Notploy",
 	},
-	description: "Deploy your applications with ease using Dokploy",
+	description: "Deploy your applications with ease using Notploy",
 	icons: {
 		icon: "/icon.svg",
 		apple: "/apple-touch-icon.png",
 	},
 	openGraph: {
-		title: "Dokploy - Deploy your applications with ease",
-		description: "Deploy your applications with ease using Dokploy",
+		title: "Notploy - Deploy your applications with ease",
+		description: "Deploy your applications with ease using Notploy",
 		images: "/og.png",
 		type: "website",
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Dokploy - Deploy your applications with ease",
-		description: "Deploy your applications with ease using Dokploy",
+		title: "Notploy - Deploy your applications with ease",
+		description: "Deploy your applications with ease using Notploy",
 		images: ["/og.png"],
 	},
 };
@@ -73,7 +73,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 			<body>
 				<GoogleAnalytics gaId="G-0RTZ5EPB26" />
 				<OpenPanelComponent
-					apiUrl="https://openpanel.dokploy.com/api"
+					apiUrl="https://openpanel.notploy.com/api"
 					clientId="bf5a178b-7f28-4461-bf47-d63feff15922"
 					trackScreenViews={true}
 					trackOutgoingLinks={true}

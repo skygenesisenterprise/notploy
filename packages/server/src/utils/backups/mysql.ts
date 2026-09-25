@@ -1,12 +1,12 @@
-import type { BackupSchedule } from "@dokploy/server/services/backup";
+import type { BackupSchedule } from "@notploy/server/services/backup";
 import {
 	createDeploymentBackup,
 	updateDeploymentStatus,
-} from "@dokploy/server/services/deployment";
-import { findDestinationById } from "@dokploy/server/services/destination";
-import { findEnvironmentById } from "@dokploy/server/services/environment";
-import type { MySql } from "@dokploy/server/services/mysql";
-import { findProjectById } from "@dokploy/server/services/project";
+} from "@notploy/server/services/deployment";
+import { findDestinationById } from "@notploy/server/services/destination";
+import { findEnvironmentById } from "@notploy/server/services/environment";
+import type { MySql } from "@notploy/server/services/mysql";
+import { findProjectById } from "@notploy/server/services/project";
 import { sendDatabaseBackupNotifications } from "../notifications/database-backup";
 import { execAsync, execAsyncRemote } from "../process/execAsync";
 import {

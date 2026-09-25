@@ -18,23 +18,23 @@ A `200 OK` response means the server is up.
    curl -sSf https://install.spacetimedb.com | sh
    ```
 
-2. Register your Dokploy instance as a server and make it the default:
+2. Register your Notploy instance as a server and make it the default:
 
    ```bash
-   spacetime server add --url https://your-domain.com dokploy --default
+   spacetime server add --url https://your-domain.com notploy --default
    ```
 
 3. Log in (or create an anonymous local identity) and publish a module:
 
    ```bash
    spacetime login
-   spacetime publish --server dokploy my-database
+   spacetime publish --server notploy my-database
    ```
 
 4. Check connectivity at any time:
 
    ```bash
-   spacetime server ping dokploy
+   spacetime server ping notploy
    ```
 
 From your game or app, connect with any SpacetimeDB client SDK (Rust, C#, TypeScript) using `https://your-domain.com` as the host URI. See the [getting started guide](https://spacetimedb.com/docs/getting-started) for a full walkthrough.

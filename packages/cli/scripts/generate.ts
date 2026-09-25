@@ -1,5 +1,5 @@
 /**
- * Generates CLI commands from the Dokploy OpenAPI spec.
+ * Generates CLI commands from the Notploy OpenAPI spec.
  *
  * Usage: npx tsx scripts/generate.ts
  *

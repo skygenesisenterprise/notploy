@@ -17,7 +17,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Role-Based Access Control for Teams",
 	description:
-		"Control who can access what across your Dokploy projects. Fine-grained RBAC keeps your infrastructure secure as your team scales.",
+		"Control who can access what across your Notploy projects. Fine-grained RBAC keeps your infrastructure secure as your team scales.",
 };
 
 const coreFeatures = [
@@ -25,7 +25,7 @@ const coreFeatures = [
 		icon: Users,
 		title: "Set organization-wide roles",
 		description:
-			"Assign owners, admins, and members across your organization, with each role scoping what that user can access and action within Dokploy.",
+			"Assign owners, admins, and members across your organization, with each role scoping what that user can access and action within Notploy.",
 	},
 	{
 		icon: FolderLock,
@@ -59,14 +59,14 @@ const relatedFeatures = [
 		icon: ScrollText,
 		title: "Audit logs",
 		description:
-			"Keep a full record of every action taken across your Dokploy environment for compliance and accountability.",
+			"Keep a full record of every action taken across your Notploy environment for compliance and accountability.",
 		href: "/features/audit-logs",
 	},
 	{
 		icon: Paintbrush,
 		title: "White labeling",
 		description:
-			"Present Dokploy as your own product, with custom branding for your clients or organization.",
+			"Present Notploy as your own product, with custom branding for your clients or organization.",
 		href: "/features/white-labeling",
 	},
 ];
@@ -101,7 +101,7 @@ export default function RoleBasedAccessControlPage() {
 							</Button>
 							<Button variant="outline" className="rounded-full" asChild>
 								<Link
-									href="https://docs.dokploy.com/docs/core"
+									href="https://docs.notploy.com/docs/core"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -121,7 +121,7 @@ export default function RoleBasedAccessControlPage() {
 							Control without compromise
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							RBAC in Dokploy lets you define exactly what each person on your
+							RBAC in Notploy lets you define exactly what each person on your
 							team can see, create, control, and manage.
 						</p>
 					</div>
@@ -152,7 +152,7 @@ export default function RoleBasedAccessControlPage() {
 							Powerful features for growing teams
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy scales with your team, with features and plans for when
+							Notploy scales with your team, with features and plans for when
 							you&apos;re ready to take the next step.
 						</p>
 					</div>
@@ -187,7 +187,7 @@ export default function RoleBasedAccessControlPage() {
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Talk to us about fine-grained RBAC and the rest of
-							Dokploy&apos;s higher-tier feature set.
+							Notploy&apos;s higher-tier feature set.
 						</p>
 						<div className="mt-10">
 							<Button className="rounded-full" asChild>

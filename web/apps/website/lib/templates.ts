@@ -1,4 +1,4 @@
-const TEMPLATES_BASE_URL = "https://templates.dokploy.com";
+const TEMPLATES_BASE_URL = "https://templates.notploy.com";
 const REVALIDATE_SECONDS = 3600;
 
 export interface TemplateLinks {
@@ -73,7 +73,7 @@ export async function getTemplateFiles(id: string): Promise<TemplateFiles> {
 	return { dockerCompose, templateToml, instructions };
 }
 
-// Same payload format the Dokploy UI expects for Compose → Advanced → Base64 import
+// Same payload format the Notploy UI expects for Compose → Advanced → Base64 import
 export function templateToBase64(
 	dockerCompose: string | null,
 	config: string | null,

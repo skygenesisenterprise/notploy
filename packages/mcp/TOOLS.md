@@ -1,6 +1,6 @@
-# Dokploy MCP Server - Tools Documentation
+# Notploy MCP Server - Tools Documentation
 
-> Auto-generated from the [Dokploy OpenAPI spec](https://docs.dokploy.com/openapi.json). Run `pnpm generate` to update.
+> Auto-generated from the [Notploy OpenAPI spec](https://docs.notploy.com/openapi.json). Run `pnpm generate` to update.
 
 - **Total Tools**: 604
 - **Categories**: 57
@@ -530,41 +530,41 @@
 
 | Tool | Method | Parameters |
 |------|--------|------------|
-| `notification-createSlack` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `dokployBackup` (boolean), `volumeBackup` (boolean), `dokployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string), `channel` (string) |
+| `notification-createSlack` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string), `channel` (string) |
 | `notification-updateSlack` | POST | `notificationId` (string), `slackId` (string), +12 optional |
 | `notification-testSlackConnection` | POST | `webhookUrl` (string), `channel` (string) |
-| `notification-createTelegram` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `dokployBackup` (boolean), `volumeBackup` (boolean), `dokployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `botToken` (string), `chatId` (string), `messageThreadId` (string) |
+| `notification-createTelegram` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `botToken` (string), `chatId` (string), `messageThreadId` (string) |
 | `notification-updateTelegram` | POST | `notificationId` (string), `telegramId` (string), +13 optional |
 | `notification-testTelegramConnection` | POST | `botToken` (string), `chatId` (string), `messageThreadId` (string) |
-| `notification-createDiscord` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `dokployBackup` (boolean), `volumeBackup` (boolean), `dokployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string), `decoration` (boolean) |
+| `notification-createDiscord` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string), `decoration` (boolean) |
 | `notification-updateDiscord` | POST | `notificationId` (string), `discordId` (string), +12 optional |
 | `notification-testDiscordConnection` | POST | `webhookUrl` (string), `decoration`? |
-| `notification-createEmail` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `dokployBackup` (boolean), `volumeBackup` (boolean), `dokployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `smtpServer` (string), `smtpPort` (number), `username` (string), `password` (string), `fromAddress` (string), `toAddresses` (string[]) |
+| `notification-createEmail` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `smtpServer` (string), `smtpPort` (number), `username` (string), `password` (string), `fromAddress` (string), `toAddresses` (string[]) |
 | `notification-updateEmail` | POST | `notificationId` (string), `emailId` (string), +16 optional |
 | `notification-testEmailConnection` | POST | `smtpServer` (string), `smtpPort` (number), `username` (string), `password` (string), `toAddresses` (string[]), `fromAddress` (string) |
-| `notification-createResend` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `dokployBackup` (boolean), `volumeBackup` (boolean), `dokployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `apiKey` (string), `fromAddress` (string), `toAddresses` (string[]) |
+| `notification-createResend` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `apiKey` (string), `fromAddress` (string), `toAddresses` (string[]) |
 | `notification-updateResend` | POST | `notificationId` (string), `resendId` (string), +13 optional |
 | `notification-testResendConnection` | POST | `apiKey` (string), `fromAddress` (string), `toAddresses` (string[]) |
 | `notification-remove` | POST | `notificationId` (string) |
 | `notification-one` | GET | `notificationId` (string) |
 | `notification-all` | GET | None |
 | `notification-receiveNotification` | POST | `Type` ("Memory" | "CPU"), `Value` (number), `Threshold` (number), `Message` (string), `Timestamp` (string), `Token` (string), `ServerType`? |
-| `notification-createGotify` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `dokployBackup` (boolean), `volumeBackup` (boolean), `dokployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `serverUrl` (string), `appToken` (string), `priority` (number), `decoration` (boolean) |
+| `notification-createGotify` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `serverUrl` (string), `appToken` (string), `priority` (number), `decoration` (boolean) |
 | `notification-updateGotify` | POST | `notificationId` (string), `gotifyId` (string), +14 optional |
 | `notification-testGotifyConnection` | POST | `serverUrl` (string), `appToken` (string), `priority` (number), `decoration`? |
-| `notification-createNtfy` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `dokployBackup` (boolean), `volumeBackup` (boolean), `dokployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `serverUrl` (string), `topic` (string), `accessToken` (string), `priority` (number) |
+| `notification-createNtfy` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `serverUrl` (string), `topic` (string), `accessToken` (string), `priority` (number) |
 | `notification-updateNtfy` | POST | `notificationId` (string), `ntfyId` (string), +14 optional |
 | `notification-testNtfyConnection` | POST | `serverUrl` (string), `topic` (string), `accessToken` (string), `priority` (number) |
-| `notification-createMattermost` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `dokployBackup` (boolean), `volumeBackup` (boolean), `dokployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string), `channel`?, `username`? |
+| `notification-createMattermost` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string), `channel`?, `username`? |
 | `notification-updateMattermost` | POST | `notificationId` (string), `mattermostId` (string), +13 optional |
 | `notification-testMattermostConnection` | POST | `webhookUrl` (string), `channel`?, `username`? |
 | `notification-createCustom` | POST | `name` (string), `endpoint` (string), +9 optional |
 | `notification-updateCustom` | POST | `notificationId` (string), `customId` (string), +12 optional |
 | `notification-testCustomConnection` | POST | `endpoint` (string), `headers`? |
-| `notification-createLark` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `dokployBackup` (boolean), `volumeBackup` (boolean), `dokployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string) |
+| `notification-createLark` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string) |
 | `notification-updateLark` | POST | `notificationId` (string), `larkId` (string), +11 optional |
 | `notification-testLarkConnection` | POST | `webhookUrl` (string) |
-| `notification-createTeams` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `dokployBackup` (boolean), `volumeBackup` (boolean), `dokployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string) |
+| `notification-createTeams` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string) |
 | `notification-updateTeams` | POST | `notificationId` (string), `teamsId` (string), +11 optional |
 | `notification-testTeamsConnection` | POST | `webhookUrl` (string) |
 | `notification-createPushover` | POST | `name` (string), `userKey` (string), `apiToken` (string), +11 optional |
@@ -724,7 +724,7 @@
 | `schedule-create` | POST | `name` (string), `cronExpression` (string), `command` (string), +14 optional |
 | `schedule-update` | POST | `scheduleId` (string), `name` (string), `cronExpression` (string), `command` (string), +13 optional |
 | `schedule-delete` | POST | `scheduleId` (string) |
-| `schedule-list` | GET | `id` (string), `scheduleType` ("application" | "compose" | "server" | "dokploy-server") |
+| `schedule-list` | GET | `id` (string), `scheduleType` ("application" | "compose" | "server" | "notploy-server") |
 | `schedule-one` | GET | `scheduleId` (string) |
 | `schedule-runManually` | POST | `scheduleId` (string) |
 
@@ -801,7 +801,7 @@
 | `settings-updateMiddlewareTraefikConfig` | POST | `traefikConfig` (string) |
 | `settings-getUpdateData` | POST | None |
 | `settings-updateServer` | POST | None |
-| `settings-getDokployVersion` | GET | None |
+| `settings-getNotployVersion` | GET | None |
 | `settings-getReleaseTag` | GET | None |
 | `settings-readDirectories` | GET | `serverId`? |
 | `settings-updateTraefikFile` | POST | `path` (string), `traefikConfig` (string), `serverId`? |
@@ -824,7 +824,7 @@
 | `settings-getTraefikPorts` | GET | `serverId`? |
 | `settings-updateLogCleanup` | POST | `cronExpression` (string | null) |
 | `settings-getLogCleanupStatus` | GET | None |
-| `settings-getDokployCloudIps` | GET | None |
+| `settings-getNotployCloudIps` | GET | None |
 
 ## sshKey
 
@@ -961,4 +961,4 @@ All tools include semantic annotations to help MCP clients understand their beha
 - **readOnlyHint**: GET endpoints that only retrieve data
 - **destructiveHint**: Operations that delete or remove resources
 - **idempotentHint**: Safe to repeat without side effects
-- **openWorldHint**: All tools interact with the external Dokploy API
+- **openWorldHint**: All tools interact with the external Notploy API

@@ -17,7 +17,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "White Label Deployment Platform",
 	description:
-		"Rebrand Dokploy as your own product. Customize the name, logo, colors and more to deliver a seamless experience under your own brand.",
+		"Rebrand Notploy as your own product. Customize the name, logo, colors and more to deliver a seamless experience under your own brand.",
 };
 
 const coreFeatures = [
@@ -25,7 +25,7 @@ const coreFeatures = [
 		icon: Type,
 		title: "Customize your name and logo",
 		description:
-			"Replace Dokploy across the entire interface with your own application name. Upload your logo for the sidebar, header, and login page, and set a custom favicon so your branding carries through to the browser tab.",
+			"Replace Notploy across the entire interface with your own application name. Upload your logo for the sidebar, header, and login page, and set a custom favicon so your branding carries through to the browser tab.",
 	},
 	{
 		icon: Palette,
@@ -37,7 +37,7 @@ const coreFeatures = [
 		icon: Link2,
 		title: "Control the metadata and support links",
 		description:
-			"Set your own page title, footer text, sidebar links, and more for documentation and support, so users are always directed to your resources, not Dokploy\u2019s.",
+			"Set your own page title, footer text, sidebar links, and more for documentation and support, so users are always directed to your resources, not Notploy\u2019s.",
 	},
 	{
 		icon: MonitorCheck,
@@ -52,7 +52,7 @@ const relatedFeatures = [
 		icon: Shield,
 		title: "RBAC",
 		description:
-			"Define exactly what each user can do once they\u2019re in Dokploy, with fine-grained permissions across projects, features, and services.",
+			"Define exactly what each user can do once they\u2019re in Notploy, with fine-grained permissions across projects, features, and services.",
 		href: "/features/role-based-access-control",
 	},
 	{
@@ -91,7 +91,7 @@ export default function WhiteLabelingPage() {
 							Deploy applications under your own brand
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Replace every Dokploy mention with your own name, logo, branding,
+							Replace every Notploy mention with your own name, logo, branding,
 							and visual identity.
 						</p>
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -100,7 +100,7 @@ export default function WhiteLabelingPage() {
 							</Button>
 							<Button variant="outline" className="rounded-full" asChild>
 								<Link
-									href="https://docs.dokploy.com/docs/core"
+									href="https://docs.notploy.com/docs/core"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -120,7 +120,7 @@ export default function WhiteLabelingPage() {
 							Your product, your brand
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy&apos;s white labeling lets enterprise teams and agencies
+							Notploy&apos;s white labeling lets enterprise teams and agencies
 							deliver a fully branded, professional deployment platform.
 						</p>
 					</div>
@@ -151,7 +151,7 @@ export default function WhiteLabelingPage() {
 							Powerful features for growing teams
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy scales with your team, with features and plans for when
+							Notploy scales with your team, with features and plans for when
 							you&apos;re ready to take the next step.
 						</p>
 					</div>
@@ -185,7 +185,7 @@ export default function WhiteLabelingPage() {
 							Ready to launch your own platform?
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Talk to us about white labeling and the rest of Dokploy&apos;s
+							Talk to us about white labeling and the rest of Notploy&apos;s
 							higher-tier features.
 						</p>
 						<div className="mt-10">

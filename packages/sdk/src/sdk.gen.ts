@@ -1454,12 +1454,12 @@ import type {
 	SettingsGetDockerDiskUsageData,
 	SettingsGetDockerDiskUsageErrors,
 	SettingsGetDockerDiskUsageResponses,
-	SettingsGetDokployCloudIpsData,
-	SettingsGetDokployCloudIpsErrors,
-	SettingsGetDokployCloudIpsResponses,
-	SettingsGetDokployVersionData,
-	SettingsGetDokployVersionErrors,
-	SettingsGetDokployVersionResponses,
+	SettingsGetNotployCloudIpsData,
+	SettingsGetNotployCloudIpsErrors,
+	SettingsGetNotployCloudIpsResponses,
+	SettingsGetNotployVersionData,
+	SettingsGetNotployVersionErrors,
+	SettingsGetNotployVersionResponses,
 	SettingsGetIpData,
 	SettingsGetIpErrors,
 	SettingsGetIpResponses,
@@ -7667,14 +7667,14 @@ export const settingsUpdateServer = <ThrowOnError extends boolean = false>(
 		ThrowOnError
 	>({ url: "/settings.updateServer", ...options });
 
-export const settingsGetDokployVersion = <ThrowOnError extends boolean = false>(
-	options?: Options<SettingsGetDokployVersionData, ThrowOnError>,
+export const settingsGetNotployVersion = <ThrowOnError extends boolean = false>(
+	options?: Options<SettingsGetNotployVersionData, ThrowOnError>,
 ) =>
 	(options?.client ?? client).get<
-		SettingsGetDokployVersionResponses,
-		SettingsGetDokployVersionErrors,
+		SettingsGetNotployVersionResponses,
+		SettingsGetNotployVersionErrors,
 		ThrowOnError
-	>({ url: "/settings.getDokployVersion", ...options });
+	>({ url: "/settings.getNotployVersion", ...options });
 
 export const settingsGetReleaseTag = <ThrowOnError extends boolean = false>(
 	options?: Options<SettingsGetReleaseTagData, ThrowOnError>,
@@ -7935,16 +7935,16 @@ export const settingsGetLogCleanupStatus = <
 		ThrowOnError
 	>({ url: "/settings.getLogCleanupStatus", ...options });
 
-export const settingsGetDokployCloudIps = <
+export const settingsGetNotployCloudIps = <
 	ThrowOnError extends boolean = false,
 >(
-	options?: Options<SettingsGetDokployCloudIpsData, ThrowOnError>,
+	options?: Options<SettingsGetNotployCloudIpsData, ThrowOnError>,
 ) =>
 	(options?.client ?? client).get<
-		SettingsGetDokployCloudIpsResponses,
-		SettingsGetDokployCloudIpsErrors,
+		SettingsGetNotployCloudIpsResponses,
+		SettingsGetNotployCloudIpsErrors,
 		ThrowOnError
-	>({ url: "/settings.getDokployCloudIps", ...options });
+	>({ url: "/settings.getNotployCloudIps", ...options });
 
 export const sshKeyCreate = <ThrowOnError extends boolean = false>(
 	options: Options<SshKeyCreateData, ThrowOnError>,

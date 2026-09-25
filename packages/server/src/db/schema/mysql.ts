@@ -94,7 +94,7 @@ export const mysql = pgTable("mysql", {
 		onDelete: "cascade",
 	}),
 	networkIds: text("networkIds").array().default([]),
-	detachDokployNetwork: boolean("detachDokployNetwork")
+	detachNotployNetwork: boolean("detachNotployNetwork")
 		.notNull()
 		.default(false),
 });
@@ -157,7 +157,7 @@ const createSchema = createInsertSchema(mysql, {
 	endpointSpecSwarm: EndpointSpecSwarmSchema.nullable(),
 	ulimitsSwarm: UlimitsSwarmSchema.nullable(),
 	networkIds: z.array(z.string()).optional(),
-	detachDokployNetwork: z.boolean().optional(),
+	detachNotployNetwork: z.boolean().optional(),
 });
 
 export const apiCreateMySql = createSchema.pick({

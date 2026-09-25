@@ -1,9 +1,9 @@
 ---
 title: Installation
-description: "Get Dokploy up and running on your server within minutes with this easy-to-follow installation guide."
+description: "Get Notploy up and running on your server within minutes with this easy-to-follow installation guide."
 ---
 
-Follow these steps in order to set up Dokploy locally and deploy it to your server, effectively managing Docker containers and applications:
+Follow these steps in order to set up Notploy locally and deploy it to your server, effectively managing Docker containers and applications:
 
 You need to follow this steps in the same order:
 
@@ -29,9 +29,9 @@ We have tested on the following Linux Distros:
 
 ### Providers
 
-- [Hostinger](https://www.hostinger.com/vps-hosting?ref=dokploy) Get 20% Discount using this referral link: [Referral Link](https://www.hostinger.com/vps-hosting?REFERRALCODE=1SIUMAURICI97)
-- [AmericanCloud](https://app.americancloud.com/register?ref=dokploy) Receive 20$ credits for free: [Referral Link](https://app.americancloud.com/register?ref=dokploy)
-- [Teramont](https://teramont.net/dokploy) Get 15% discount for free: [Referral Link](https://teramont.net/?partner_coupon=DOKPLOY&aff_link=https%3A%2F%2Fbilling.teramont.net%2Faff.php%3Faff%3D53%26url%3Dhttps%3A%2F%2Fteramont.net%2Fdokploy-hosting)
+- [Hostinger](https://www.hostinger.com/vps-hosting?ref=notploy) Get 20% Discount using this referral link: [Referral Link](https://www.hostinger.com/vps-hosting?REFERRALCODE=1SIUMAURICI97)
+- [AmericanCloud](https://app.americancloud.com/register?ref=notploy) Receive 20$ credits for free: [Referral Link](https://app.americancloud.com/register?ref=notploy)
+- [Teramont](https://teramont.net/notploy) Get 15% discount for free: [Referral Link](https://teramont.net/?partner_coupon=NOTPLOY&aff_link=https%3A%2F%2Fbilling.teramont.net%2Faff.php%3Faff%3D53%26url%3Dhttps%3A%2F%2Fteramont.net%2Fnotploy-hosting)
 - [Hetzner](https://www.hetzner.com/cloud/) Get 20€ credits for free with this referral link: [Referral Link](https://hetzner.cloud/?ref=vou4fhxJ1W2D)
 - [DigitalOcean](https://www.digitalocean.com/pricing/droplets#basic-droplets) Get 200$ credits for free with this referral link: [Referral Link](https://m.do.co/c/7613f9ec4e85)
 - [Vultr](https://www.vultr.com/pricing/#cloud-compute) Referral Link: [Referral Link](https://www.vultr.com/?ref=9679828)
@@ -42,7 +42,7 @@ We have tested on the following Linux Distros:
 
 ### Requirements
 
-To ensure a smooth experience with Dokploy, your server should have at least 2GB of RAM and 30GB of disk space. This specification helps to handle the resources consumed by Docker during builds and prevents system freezes.
+To ensure a smooth experience with Notploy, your server should have at least 2GB of RAM and 30GB of disk space. This specification helps to handle the resources consumed by Docker during builds and prevents system freezes.
 
 import { Callout } from "fumadocs-ui/components/callout";
 
@@ -53,11 +53,11 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 ### Port Requirements
 
-Before installing Dokploy, ensure the following ports are available on your server:
+Before installing Notploy, ensure the following ports are available on your server:
 
 - **Port 80**: HTTP traffic (used by Traefik)
 - **Port 443**: HTTPS traffic (used by Traefik)
-- **Port 3000**: Dokploy web interface
+- **Port 3000**: Notploy web interface
 
 <Callout type='warn'>
   **Important:** The installation will fail if any of these ports are already in use. Make sure to stop any services using these ports before running the installation script.
@@ -65,19 +65,19 @@ Before installing Dokploy, ensure the following ports are available on your serv
 
 ### Docker
 
-Dokploy utilizes Docker, so it is essential to have Docker installed on your server. If Docker is not already installed, Dokploy's installation script will install it automatically. Use the following command to install Dokploy:
+Notploy utilizes Docker, so it is essential to have Docker installed on your server. If Docker is not already installed, Notploy's installation script will install it automatically. Use the following command to install Notploy:
 
 
 <div className="flex flex-col gap-10 px-4 bg-green-200 dark:bg-[#031F10] text-green-900 dark:text-green-300 rounded-lg">
 
- Dokploy Cloud:  Use Dokploy directly without worrying about maintenance or updates. Enjoy a hassle-free experience with Dokploy Cloud.  <a href="https://app.dokploy.com/register" className="text-green-600 underline">Sign up</a>
+ Notploy Cloud:  Use Notploy directly without worrying about maintenance or updates. Enjoy a hassle-free experience with Notploy Cloud.  <a href="https://app.notploy.com/register" className="text-green-600 underline">Sign up</a>
 </div>
 
 ```bash
-curl -sSL https://dokploy.com/install.sh | sh
+curl -sSL https://notploy.com/install.sh | sh
 ```
 
-See [Manual Installation](/docs/core/manual-installation) if you want to customize your Dokploy installation.
+See [Manual Installation](/docs/core/manual-installation) if you want to customize your Notploy installation.
 
 
 ### Advanced Installation Options
@@ -88,24 +88,24 @@ The installation script automatically detects and installs the latest stable ver
 
 **Install Canary Version (Development):**
 ```bash
-export DOKPLOY_VERSION=canary && curl -sSL https://dokploy.com/install.sh | sh
+export NOTPLOY_VERSION=canary && curl -sSL https://notploy.com/install.sh | sh
 ```
 
 **Install Latest Stable:**
 ```bash
-export DOKPLOY_VERSION=latest && curl -sSL https://dokploy.com/install.sh | sh
+export NOTPLOY_VERSION=latest && curl -sSL https://notploy.com/install.sh | sh
 ```
 
 **Install a Specific Version:**
 
-Every [Dokploy release](https://github.com/Dokploy/dokploy/releases) includes its own `install.sh` as a release asset, which installs exactly that version with the setup it expects. Replace the version tag in the URL with the one you want:
+Every [Notploy release](https://github.com/Notploy/notploy/releases) includes its own `install.sh` as a release asset, which installs exactly that version with the setup it expects. Replace the version tag in the URL with the one you want:
 
 ```bash
-curl -sL https://github.com/Dokploy/dokploy/releases/download/v0.26.6/install.sh | sh
+curl -sL https://github.com/Notploy/notploy/releases/download/v0.26.6/install.sh | sh
 ```
 
 <Callout type='info'>
-  Don't use `DOKPLOY_VERSION` to install a specific version — the main script at `dokploy.com/install.sh` always targets the latest release, so its setup may not be compatible with older versions.
+  Don't use `NOTPLOY_VERSION` to install a specific version — the main script at `notploy.com/install.sh` always targets the latest release, so its setup may not be compatible with older versions.
 </Callout>
 
 #### Custom Network Configuration
@@ -114,7 +114,7 @@ If you need to customize the Docker Swarm network configuration (useful to avoid
 
 ```bash
 export DOCKER_SWARM_INIT_ARGS="--default-addr-pool 172.20.0.0/16 --default-addr-pool-mask-length 24"
-curl -sSL https://dokploy.com/install.sh | sh
+curl -sSL https://notploy.com/install.sh | sh
 ```
 
 #### Manual Advertise Address
@@ -122,11 +122,11 @@ curl -sSL https://dokploy.com/install.sh | sh
 If the script cannot detect your server's IP automatically, or you want the Swarm to use a specific interface (e.g. a VPN/WireGuard IP), specify it manually:
 
 ```bash
-curl -sSL https://dokploy.com/install.sh | sudo ADVERTISE_ADDR=192.168.1.100 sh
+curl -sSL https://notploy.com/install.sh | sudo ADVERTISE_ADDR=192.168.1.100 sh
 ```
 
 <Callout type='warn'>
-  If you run the installer with `sudo`, don't rely on `export ADVERTISE_ADDR=...` from your user shell — `sudo` resets the environment, so the variable never reaches the script and it falls back to auto-detection. Pass the variable inline as shown above, or use `sudo -E sh` to preserve your environment. The same applies to `DOKPLOY_VERSION`, `DOCKER_SWARM_INIT_ARGS`, and `ENDPOINT_MODE`.
+  If you run the installer with `sudo`, don't rely on `export ADVERTISE_ADDR=...` from your user shell — `sudo` resets the environment, so the variable never reaches the script and it falls back to auto-detection. Pass the variable inline as shown above, or use `sudo -E sh` to preserve your environment. The same applies to `NOTPLOY_VERSION`, `DOCKER_SWARM_INIT_ARGS`, and `ENDPOINT_MODE`.
 </Callout>
 
 #### Kernels Without IPVS Support
@@ -134,7 +134,7 @@ curl -sSL https://dokploy.com/install.sh | sudo ADVERTISE_ADDR=192.168.1.100 sh
 Docker Swarm's default service discovery requires IPVS support in the kernel. Some minimal or appliance-style distributions (e.g. ZimaOS and other Buildroot-based images) ship kernels without it. On those systems, install with DNSRR endpoint mode:
 
 ```bash
-curl -sSL https://dokploy.com/install.sh | sudo ENDPOINT_MODE=dnsrr sh
+curl -sSL https://notploy.com/install.sh | sudo ENDPOINT_MODE=dnsrr sh
 ```
 
 See [Services Can't Reach Each Other (Missing IPVS Kernel Modules)](/docs/core/troubleshooting/networking#services-cant-reach-each-other-missing-ipvs-kernel-modules) for how to detect this situation and its trade-offs.
@@ -145,38 +145,38 @@ See [Services Can't Reach Each Other (Missing IPVS Kernel Modules)](/docs/core/t
   The installation script automatically detects Proxmox LXC containers and applies the necessary configurations (`--endpoint-mode dnsrr`) for compatibility.
 </Callout>
 
-### Updating Dokploy
+### Updating Notploy
 
-To update your Dokploy installation to the latest version:
+To update your Notploy installation to the latest version:
 
 ```bash
-curl -sSL https://dokploy.com/install.sh | sh -s update
+curl -sSL https://notploy.com/install.sh | sh -s update
 ```
 
 **Update to Specific Version:**
 
-Use the `install.sh` from that version's [GitHub release](https://github.com/Dokploy/dokploy/releases):
+Use the `install.sh` from that version's [GitHub release](https://github.com/Notploy/notploy/releases):
 
 ```bash
-curl -sL https://github.com/Dokploy/dokploy/releases/download/v0.26.6/install.sh | sh -s update
+curl -sL https://github.com/Notploy/notploy/releases/download/v0.26.6/install.sh | sh -s update
 ```
 
 ## Completing the Setup
 
-After running the installation script, Dokploy and its dependencies will be set up on your server. Here's how to finalize the setup and start using Dokploy:
+After running the installation script, Notploy and its dependencies will be set up on your server. Here's how to finalize the setup and start using Notploy:
 
-### Accessing Dokploy
+### Accessing Notploy
 
-Open your web browser and navigate to `http://your-ip-from-your-vps:3000`. You will be directed to the initial setup page where you can configure the administrative account for Dokploy.
+Open your web browser and navigate to `http://your-ip-from-your-vps:3000`. You will be directed to the initial setup page where you can configure the administrative account for Notploy.
 
 <Callout type='warn'>
     **Important:** Ensure that your server's firewall allows traffic on port
-    3000 to access the Dokploy web interface.
+    3000 to access the Notploy web interface.
 </Callout>
 
 ### Initial Configuration
 
-1. **Create an Admin Account:** Fill in the necessary details to set up your administrator account. This account will be the admin account for Dokploy.
+1. **Create an Admin Account:** Fill in the necessary details to set up your administrator account. This account will be the admin account for Notploy.
 
 {" "}
 
@@ -189,21 +189,21 @@ Open your web browser and navigate to `http://your-ip-from-your-vps:3000`. You w
 />
 
 ### Secure Your Installation
-After setting up your admin account, it's crucial to secure your Dokploy installation by enabling HTTPS.
+After setting up your admin account, it's crucial to secure your Notploy installation by enabling HTTPS.
 
-To configure a domain with SSL/TLS certificates for your Dokploy panel, please refer to the [Domains](/docs/core/domains) section where you'll find detailed instructions for different SSL configurations including Let's Encrypt, Cloudflare, and custom certificates.
+To configure a domain with SSL/TLS certificates for your Notploy panel, please refer to the [Domains](/docs/core/domains) section where you'll find detailed instructions for different SSL configurations including Let's Encrypt, Cloudflare, and custom certificates.
 
 ### Disable access via ip:port (Optional but Recommended) 
-To enhance security, it's advisable to restrict access to Dokploy via the server's IP address and port.
+To enhance security, it's advisable to restrict access to Notploy via the server's IP address and port.
 
 <Callout type='warn'>
-    **Important:** Before disabling IP:port access, make sure you have configured a domain with HTTPS working properly. Otherwise, you will lose access to your Dokploy installation. See the [Domains](/docs/core/domains) section to set this up first.
+    **Important:** Before disabling IP:port access, make sure you have configured a domain with HTTPS working properly. Otherwise, you will lose access to your Notploy installation. See the [Domains](/docs/core/domains) section to set this up first.
 </Callout>
 
 Once you have verified that your domain is working correctly, you can disable IP:port access by running this command on the server:
 
 ```bash
-docker service update --publish-rm "published=3000,target=3000,mode=host" dokploy
+docker service update --publish-rm "published=3000,target=3000,mode=host" notploy
 ```
 
 To further secure your installation, consider reading the [Security recommendations](/docs/core/remote-servers/security#security-recommendations) section.

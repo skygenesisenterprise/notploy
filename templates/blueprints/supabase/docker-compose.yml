@@ -3,7 +3,7 @@
 #   Stop:               docker compose down
 #   Reset everything:   ./reset.sh
 #
-# Dokploy: Kong is exposed on port 8000 for domain routing. Storage uses local file
+# Notploy: Kong is exposed on port 8000 for domain routing. Storage uses local file
 # backend by default; edit the storage service env in this file to switch to S3/MinIO.
 
 name: supabase

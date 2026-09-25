@@ -1,26 +1,26 @@
 {
-	"name": "dokploy",
+	"name": "notploy",
 	"private": true,
 	"workspaces": [
 		"apps/*",
 		"packages/*"
 	],
 	"scripts": {
-		"dokploy:setup": "pnpm --filter=dokploy run setup",
-		"dokploy:dev": "pnpm --filter=dokploy run dev",
-		"dokploy:build": "pnpm --filter=dokploy run build",
-		"dokploy:start": "pnpm --filter=dokploy run start",
-		"test": "pnpm --filter=dokploy run test",
+		"notploy:setup": "pnpm --filter=notploy run setup",
+		"notploy:dev": "pnpm --filter=notploy run dev",
+		"notploy:build": "pnpm --filter=notploy run build",
+		"notploy:start": "pnpm --filter=notploy run start",
+		"test": "pnpm --filter=notploy run test",
 		"server:script": "pnpm --filter=server run switch:dev",
 		"server:dev": "pnpm --filter=server run dev",
 		"server:build": "pnpm --filter=server run build",
-		"docker:build:canary": "./apps/dokploy/docker/build.sh canary",
+		"docker:build:canary": "./apps/notploy/docker/build.sh canary",
 		"typecheck": "pnpm -r run typecheck",
 		"build": "pnpm -r run build",
 		"format-and-lint": "biome check .",
 		"check": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true",
 		"format-and-lint:fix": "biome check . --write",
-		"generate:openapi": "pnpm --filter=dokploy run generate:openapi"
+		"generate:openapi": "pnpm --filter=notploy run generate:openapi"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.7",

@@ -38,7 +38,7 @@ export interface IndustryPageData {
 		heading: string;
 		description: string;
 		without: { title: string; items: string[] };
-		withDokploy: { title: string; items: string[] };
+		withNotploy: { title: string; items: string[] };
 	};
 	workflow: {
 		heading: string;
@@ -82,7 +82,7 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
+									href="https://app.notploy.com/register"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -159,10 +159,10 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 						</div>
 						<div className="rounded-xl border border-primary/40 bg-card p-8">
 							<h3 className="text-xl font-semibold text-primary">
-								{data.comparison.withDokploy.title}
+								{data.comparison.withNotploy.title}
 							</h3>
 							<ul className="mt-6 space-y-4">
-								{data.comparison.withDokploy.items.map((item) => (
+								{data.comparison.withNotploy.items.map((item) => (
 									<li key={item} className="flex items-start gap-3">
 										<CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
 										<span className="text-sm text-muted-foreground">
@@ -226,7 +226,7 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 						<div className="flex-1">
 							<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 								<Image
-									src="/images/dokploy-environments.png"
+									src="/images/notploy-environments.png"
 									alt={data.builtFor.screenshotAlt}
 									fill
 									className="object-cover object-top"
@@ -252,7 +252,7 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Area</th>
 									<th className="px-4 py-4 text-left font-semibold">
-										What Dokploy supports
+										What Notploy supports
 									</th>
 								</tr>
 							</thead>

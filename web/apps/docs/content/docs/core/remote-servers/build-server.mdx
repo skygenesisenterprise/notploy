@@ -13,7 +13,7 @@ Build servers allow you to separate the build process from your deployment serve
 
 ## Overview
 
-A **Build Server** is a remote server dedicated to building and compiling your applications. Instead of building your application on the deployment server, Dokploy will:
+A **Build Server** is a remote server dedicated to building and compiling your applications. Instead of building your application on the deployment server, Notploy will:
 
 1. Connect to the build server
 2. Clone your repository and build your application
@@ -31,10 +31,10 @@ This approach offers several benefits:
 
 Before setting up a build server, ensure you have:
 
-1. A Dokploy instance running
+1. A Notploy instance running
 2. A remote server for builds (VPS, cloud instance, or dedicated server)
 3. SSH access to the build server
-4. Docker installed on the build server (or use Dokploy's automatic setup)
+4. Docker installed on the build server (or use Notploy's automatic setup)
 5. A Docker registry to store your built images (Docker Hub, GitHub Container Registry, etc.)
 
 <Callout type="info">
@@ -45,7 +45,7 @@ Before setting up a build server, ensure you have:
 
 ### Step 1: Add a New Server
 
-Navigate to **Dashboard → Remote Servers → Add Server -> Build Type (Build Server)** in your Dokploy dashboard.
+Navigate to **Dashboard → Remote Servers → Add Server -> Build Type (Build Server)** in your Notploy dashboard.
 
 Fill in the server details:
 - **Name**: A descriptive name (e.g., "Build Server - EU")
@@ -114,13 +114,13 @@ When creating or editing an application:
 When you deploy an application with a custom build server:
 
 1. **Build Phase**:
-   - Dokploy connects to your build server via SSH
+   - Notploy connects to your build server via SSH
    - Clones your repository on the build server
    - Builds the Docker image on the build server
    - Pushes the image to your configured registry
 
 2. **Deploy Phase**:
-   - Dokploy connects to your deployment server(s)
+   - Notploy connects to your deployment server(s)
    - Pulls the built image from the registry
    - Deploys the container on your deployment server(s)
 

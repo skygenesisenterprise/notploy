@@ -1,5 +1,5 @@
-import { decryptValue, encryptValue } from "@dokploy/server/lib/encryption";
-import { generatePassword } from "@dokploy/server/templates";
+import { decryptValue, encryptValue } from "@notploy/server/lib/encryption";
+import { generatePassword } from "@notploy/server/templates";
 import { faker } from "@faker-js/faker";
 import { customType } from "drizzle-orm/pg-core";
 import { customAlphabet } from "nanoid";

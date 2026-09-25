@@ -36,7 +36,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Application & Software Deployment Platform",
 	description:
-		"Dokploy's flexible, powerful application and software deployment platform enables you to put code written in Node.js, PHP, Python, Go, and Ruby live.",
+		"Notploy's flexible, powerful application and software deployment platform enables you to put code written in Node.js, PHP, Python, Go, and Ruby live.",
 };
 
 const professionalFeatures = [
@@ -44,13 +44,13 @@ const professionalFeatures = [
 		icon: Code2,
 		title: "Support for multiple languages",
 		description:
-			"Deploy apps written in Node, PHP, Python, Go, Ruby, and more. Dokploy does not restrict programming languages.",
+			"Deploy apps written in Node, PHP, Python, Go, Ruby, and more. Notploy does not restrict programming languages.",
 	},
 	{
 		icon: Layers,
 		title: "Deploy any app with any stack",
 		description:
-			"Dokploy supports single services and multi-service apps. Deploy from Git, a container registry, or Docker Compose.",
+			"Notploy supports single services and multi-service apps. Deploy from Git, a container registry, or Docker Compose.",
 	},
 	{
 		icon: Wrench,
@@ -148,7 +148,7 @@ const aiDeploymentFeatures = [
 		icon: Users,
 		title: "Anyone can deploy",
 		description:
-			"Once Dokploy is set up, non-technical users can take code from an AI tool to a running app without engineering support.",
+			"Once Notploy is set up, non-technical users can take code from an AI tool to a running app without engineering support.",
 	},
 	{
 		icon: Layers,
@@ -160,7 +160,7 @@ const aiDeploymentFeatures = [
 		icon: Bot,
 		title: "AI agents via MCP",
 		description:
-			"Dokploy's MCP server lets AI agents trigger deployments, query app state, and manage services without a custom integration.",
+			"Notploy's MCP server lets AI agents trigger deployments, query app state, and manage services without a custom integration.",
 	},
 	{
 		icon: Shield,
@@ -172,14 +172,14 @@ const aiDeploymentFeatures = [
 
 const faqs = [
 	{
-		question: "Can I deploy Docker Compose apps with Dokploy?",
+		question: "Can I deploy Docker Compose apps with Notploy?",
 		answer:
-			"Yes. Dokploy supports deploying applications with Docker Compose, which is ideal when your implementation spans multiple services, data stores, and supporting tools. You can deploy a Compose stack as part of your deployment workflows, keep configuration in configuration files, and manage environments without increasing complexity as you scale.",
+			"Yes. Notploy supports deploying applications with Docker Compose, which is ideal when your implementation spans multiple services, data stores, and supporting tools. You can deploy a Compose stack as part of your deployment workflows, keep configuration in configuration files, and manage environments without increasing complexity as you scale.",
 	},
 	{
 		question: "Which Git providers can I deploy from?",
 		answer:
-			"Dokploy integrates seamlessly with popular version control systems and workflows, including GitHub and other git providers such as GitLab, Gitea, Bitbucket, and other Atlassian tools. You can connect repos from these version control systems, automate deployments on code changes, and align deployment workflows with CI/CD practices. If your team already uses GitHub Actions or Atlassian tools, Dokploy fits into that process without forcing a new way of working.",
+			"Notploy integrates seamlessly with popular version control systems and workflows, including GitHub and other git providers such as GitLab, Gitea, Bitbucket, and other Atlassian tools. You can connect repos from these version control systems, automate deployments on code changes, and align deployment workflows with CI/CD practices. If your team already uses GitHub Actions or Atlassian tools, Notploy fits into that process without forcing a new way of working.",
 	},
 	{
 		question: "Can I deploy from a Docker registry?",
@@ -187,9 +187,9 @@ const faqs = [
 			"Yes. You can deploy a Docker image directly from a registry, which is useful when you already build artifacts elsewhere or want tighter control over technologies and build tooling. This approach supports consistent deployments across environments and production, especially when combined with automation and rollback capabilities for safer releases.",
 	},
 	{
-		question: "How do preview deployments work in Dokploy?",
+		question: "How do preview deployments work in Notploy?",
 		answer:
-			"Preview deployments create environments for testing code changes before they reach production environments. When a pull request or branch updates, Dokploy can trigger automated deployments and deployment workflows so developers can validate functionality, reliability, and security in an isolated environment. This setup supports multiple environments, speeds up testing for new features, and helps teams reduce errors before customers and users see changes in production.",
+			"Preview deployments create environments for testing code changes before they reach production environments. When a pull request or branch updates, Notploy can trigger automated deployments and deployment workflows so developers can validate functionality, reliability, and security in an isolated environment. This setup supports multiple environments, speeds up testing for new features, and helps teams reduce errors before customers and users see changes in production.",
 	},
 	{
 		question: "What is a deployment platform?",
@@ -203,9 +203,9 @@ const faqs = [
 			"In practice, they overlap. A deployment platform often focuses on the mechanics of deployment tools and infrastructure, while a software deployment platform emphasizes end-to-end software delivery, including CI/CD, continuous integration, and continuous delivery. A software deployment platform typically ties deployment workflows to version control systems, configuration files, and multiple environments, so teams can maintain consistency from development to production, with rollback capabilities when code changes introduce issues.",
 	},
 	{
-		question: "Can I use Dokploy to deploy AI-generated apps?",
+		question: "Can I use Notploy to deploy AI-generated apps?",
 		answer:
-			"Yes. Dokploy works with code from any source, including apps built or scaffolded by AI coding tools. You deploy using the same Git, Docker, and Compose workflows as any other application—there's no separate process for AI-generated code.",
+			"Yes. Notploy works with code from any source, including apps built or scaffolded by AI coding tools. You deploy using the same Git, Docker, and Compose workflows as any other application—there's no separate process for AI-generated code.",
 	},
 ];
 
@@ -236,8 +236,8 @@ export default function ApplicationDeploymentPlatformPage() {
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
-									aria-label="Get Started with Dokploy"
+									href="https://app.notploy.com/register"
+									aria-label="Get Started with Notploy"
 									target="_blank"
 								>
 									Get Started
@@ -295,7 +295,7 @@ export default function ApplicationDeploymentPlatformPage() {
 							Deploy the apps your teams are already building with AI
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							AI coding tools are changing how applications get written. Dokploy handles the deployment side, from AI-generated code to a live URL, powered by your existing workflows.
+							AI coding tools are changing how applications get written. Notploy handles the deployment side, from AI-generated code to a live URL, powered by your existing workflows.
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -317,11 +317,11 @@ export default function ApplicationDeploymentPlatformPage() {
 					<div className="mx-auto mt-16 max-w-2xl rounded-xl border border-border/50 bg-card p-8 text-center">
 						<h3 className="text-xl font-semibold">Need a governed environment for AI tools?</h3>
 						<p className="mt-3 text-muted-foreground">
-							See how Dokploy handles sandboxed deploys, non-technical users, and enterprise security for AI-built apps.
+							See how Notploy handles sandboxed deploys, non-technical users, and enterprise security for AI-built apps.
 						</p>
 						<div className="mt-6">
 							<Button className="rounded-full" asChild>
-								<Link href="/enterprise">Deploy AI tools with Dokploy</Link>
+								<Link href="/enterprise">Deploy AI tools with Notploy</Link>
 							</Button>
 						</div>
 					</div>
@@ -381,12 +381,12 @@ export default function ApplicationDeploymentPlatformPage() {
 				</Container>
 			</section>
 
-			{/* Host Dokploy where your business needs it */}
+			{/* Host Notploy where your business needs it */}
 			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Host Dokploy where your business needs it
+							Host Notploy where your business needs it
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Choose a deployment option that suits your business–on your
@@ -435,7 +435,7 @@ export default function ApplicationDeploymentPlatformPage() {
 							Hundreds of templates to get started
 						</h2>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Deploy popular open-source apps in one click with Dokploy Templates,
+							Deploy popular open-source apps in one click with Notploy Templates,
 							a ready-to-run library of pre-configured apps you can deploy fast,
 							without rebuilding the same stack from scratch.
 						</p>
@@ -449,7 +449,7 @@ export default function ApplicationDeploymentPlatformPage() {
 					<div className="mx-auto max-w-6xl overflow-hidden rounded-xl border border-border/50 shadow-2xl">
 						<Image
 							src="/dashboard.png"
-							alt="Dokploy dashboard showing projects and deployed services"
+							alt="Notploy dashboard showing projects and deployed services"
 							width={1200}
 							height={750}
 							className="w-full object-cover"
@@ -468,7 +468,7 @@ export default function ApplicationDeploymentPlatformPage() {
 							Everything you need in a deployment platform
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy is the software deployment platform for shipping anything
+							Notploy is the software deployment platform for shipping anything
 							from a single service to a full multi-container stack.
 						</p>
 					</div>

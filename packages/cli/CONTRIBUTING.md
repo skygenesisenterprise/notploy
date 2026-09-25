@@ -1,13 +1,13 @@
 # Contributing
 
-Thanks for your interest in contributing to Dokploy CLI!
+Thanks for your interest in contributing to Notploy CLI!
 
-Before you start, please discuss the feature/bug via [GitHub issues](https://github.com/Dokploy/cli/issues).
+Before you start, please discuss the feature/bug via [GitHub issues](https://github.com/Notploy/cli/issues).
 
 ## Setup
 
 ```bash
-git clone https://github.com/Dokploy/cli.git
+git clone https://github.com/Notploy/cli.git
 cd cli
 pnpm install
 ```
@@ -15,8 +15,8 @@ pnpm install
 Create a `.env` file with your credentials:
 
 ```env
-DOKPLOY_URL="https://your-server.dokploy.com"
-DOKPLOY_API_KEY="YOUR_API_KEY"
+NOTPLOY_URL="https://your-server.notploy.com"
+NOTPLOY_API_KEY="YOUR_API_KEY"
 ```
 
 ## Development
@@ -39,7 +39,7 @@ pnpm run lint
 
 Commands in `src/generated/commands.ts` are auto-generated from `openapi.json`. Never edit that file manually. To update:
 
-1. Replace `openapi.json` with the latest spec from the [Dokploy repo](https://github.com/Dokploy/dokploy)
+1. Replace `openapi.json` with the latest spec from the [Notploy repo](https://github.com/Notploy/notploy)
 2. Run `pnpm run generate`
 
 ## Commit convention

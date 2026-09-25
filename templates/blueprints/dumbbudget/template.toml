@@ -20,5 +20,5 @@ INSTANCE_NAME = ""
 ALLOWED_ORIGINS = "${main_domain}"
 
 # The named volume 'dumbbudget-data' is defined in the docker-compose.yml.
-# According to Dokploy's template examples, volumes declared in the compose
+# According to Notploy's template examples, volumes declared in the compose
 # file are automatically managed and do not require a separate entry here.

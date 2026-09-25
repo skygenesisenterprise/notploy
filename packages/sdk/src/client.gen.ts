@@ -22,6 +22,6 @@ export type CreateClientConfig<T extends ClientOptions = ClientOptions2> = (
 
 export const client = createClient(
 	createConfig<ClientOptions2>({
-		baseUrl: "https://your-dokploy-instance.com/api",
+		baseUrl: "https://your-notploy-instance.com/api",
 	}),
 );

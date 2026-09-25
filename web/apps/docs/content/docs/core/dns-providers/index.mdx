@@ -1,13 +1,13 @@
 ---
 title: DNS Providers
-description: "Connect Cloudflare or AWS Route53 to create and manage A/CNAME records for your domains without leaving Dokploy."
+description: "Connect Cloudflare or AWS Route53 to create and manage A/CNAME records for your domains without leaving Notploy."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
 ## What are DNS Providers?
 
-DNS Providers let you connect Dokploy to Cloudflare or AWS Route53 so you can browse your zones and create the **A** or **CNAME** record a domain needs, instead of switching to your DNS provider's dashboard by hand.
+DNS Providers let you connect Notploy to Cloudflare or AWS Route53 so you can browse your zones and create the **A** or **CNAME** record a domain needs, instead of switching to your DNS provider's dashboard by hand.
 
 <Callout type="info">
   Enterprise feature. Managing DNS providers is covered by the `dnsProvider` permission resource — grant it granularly with a [custom role](/docs/core/enterprise/custom-roles), or use it as owner/admin.
@@ -28,18 +28,18 @@ Credentials are masked in the UI after saving; leaving a masked field untouched 
 
 From the provider list, click **View Domains** to open the zones your credentials can see. Click a zone to expand its records:
 
-- Records of type **A** and **CNAME** are editable and deletable from Dokploy.
+- Records of type **A** and **CNAME** are editable and deletable from Notploy.
 - Other record types (MX, TXT, NS, etc.) returned by the provider are listed read-only.
 
 To add a record, click **Add Record** and fill in:
 
 - **Type**: A or CNAME.
 - **Name**: the hostname, e.g. `app.example.com`. Use `@` for the zone's root/apex domain.
-- **Content**: labeled **IPv4 Address** for A records or **Target** for CNAME records. For A records, an optional **Fill from server** dropdown auto-fills this with the public IP of the Dokploy panel server or any registered remote server.
+- **Content**: labeled **IPv4 Address** for A records or **Target** for CNAME records. For A records, an optional **Fill from server** dropdown auto-fills this with the public IP of the Notploy panel server or any registered remote server.
 - **TTL** (optional): leave empty for the provider's automatic/default TTL.
 
 <Callout type="warn">
-  Deleting a record from this screen removes it from the actual DNS provider, not just from Dokploy — the confirmation dialog calls this out explicitly.
+  Deleting a record from this screen removes it from the actual DNS provider, not just from Notploy — the confirmation dialog calls this out explicitly.
 </Callout>
 
 ## Relationship to Domains

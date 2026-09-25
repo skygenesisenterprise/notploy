@@ -12,7 +12,7 @@
 		"rootDir": "./src",
 		"jsx": "react-jsx",
 		"paths": {
-			"@dokploy/server/*": ["./src/*"]
+			"@notploy/server/*": ["./src/*"]
 		}
 	},
 	"include": ["next-env.d.ts", "./src/**/*"],

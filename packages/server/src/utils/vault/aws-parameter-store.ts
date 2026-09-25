@@ -4,7 +4,7 @@ import {
 	paginateDescribeParameters,
 	SSMClient,
 } from "@aws-sdk/client-ssm";
-import type { awsParameterStoreVaultConfigSchema } from "@dokploy/server/db/schema";
+import type { awsParameterStoreVaultConfigSchema } from "@notploy/server/db/schema";
 import type { z } from "zod";
 import type { VaultClient } from "./types";
 

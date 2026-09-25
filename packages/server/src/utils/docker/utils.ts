@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { Readable } from "node:stream";
-import { docker, paths } from "@dokploy/server/constants";
-import type { Compose } from "@dokploy/server/services/compose";
+import { docker, paths } from "@notploy/server/constants";
+import type { Compose } from "@notploy/server/services/compose";
 import type { ContainerInfo, ResourceRequirements } from "dockerode";
 import { parse } from "dotenv";
 import { quote } from "shell-quote";
@@ -149,7 +149,7 @@ export const getContainerByName = (name: string): Promise<ContainerInfo> => {
 /**
  * Docker commands sent using this method are held in a hold when Docker is busy.
  *
- * https://github.com/Dokploy/dokploy/pull/3064
+ * https://github.com/Notploy/notploy/pull/3064
  */
 export const dockerSafeExec = (exec: string) => `
 CHECK_INTERVAL=10
@@ -359,7 +359,7 @@ export const getBuildCache = async (
 /**
  * Volume cleanup should always be performed manually by the user. The reason is that during automatic cleanup, a volume may be deleted due to a stopped container, which is a dangerous situation.
  *
- * https://github.com/Dokploy/dokploy/pull/3267
+ * https://github.com/Notploy/notploy/pull/3267
  */
 const excludedCleanupAllCommands: (keyof typeof cleanupCommands)[] = [
 	"volumes",
@@ -986,20 +986,20 @@ export const waitForSwarmServiceConvergence = async (
 };
 
 export const checkPostgresHealth = async (): Promise<ServiceHealthStatus> => {
-	const serviceCheck = await checkSwarmServiceRunning("dokploy-postgres");
+	const serviceCheck = await checkSwarmServiceRunning("notploy-postgres");
 	if (serviceCheck.status === "unhealthy") {
 		return serviceCheck;
 	}
 
 	// Verify PostgreSQL actually accepts connections
-	const containerId = await getSwarmServiceContainerId("dokploy-postgres");
+	const containerId = await getSwarmServiceContainerId("notploy-postgres");
 	if (!containerId) {
 		return { status: "unhealthy", message: "Could not find running container" };
 	}
 
 	try {
 		const exec = await docker.getContainer(containerId).exec({
-			Cmd: ["pg_isready", "-U", "dokploy"],
+			Cmd: ["pg_isready", "-U", "notploy"],
 			AttachStdout: true,
 			AttachStderr: true,
 		});
@@ -1034,7 +1034,7 @@ export const checkPostgresHealth = async (): Promise<ServiceHealthStatus> => {
 export const checkTraefikHealth = async (): Promise<ServiceHealthStatus> => {
 	// Traefik can run as a standalone container or a swarm service
 	try {
-		const container = docker.getContainer("dokploy-traefik");
+		const container = docker.getContainer("notploy-traefik");
 		const info = await container.inspect();
 		if (!info.State.Running) {
 			return {
@@ -1045,6 +1045,6 @@ export const checkTraefikHealth = async (): Promise<ServiceHealthStatus> => {
 		return { status: "healthy" };
 	} catch {
 		// Not a standalone container, check as swarm service
-		return checkSwarmServiceRunning("dokploy-traefik");
+		return checkSwarmServiceRunning("notploy-traefik");
 	}
 };

@@ -1,5 +1,5 @@
-import { db } from "@dokploy/server/db";
-import { type apiCreateNetwork, network } from "@dokploy/server/db/schema";
+import { db } from "@notploy/server/db";
+import { type apiCreateNetwork, network } from "@notploy/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import type Dockerode from "dockerode";
 import { and, eq, inArray, isNull } from "drizzle-orm";
@@ -14,7 +14,7 @@ const RESERVED_NETWORKS = [
 	"none",
 	"ingress",
 	"docker_gwbridge",
-	"dokploy-network",
+	"notploy-network",
 ];
 
 type DockerNetworkInfo = {
@@ -367,7 +367,7 @@ export const resolveServiceNetworks = async (
 		return application.networkSwarm;
 	}
 
-	const { networkIds, detachDokployNetwork } = application;
+	const { networkIds, detachNotployNetwork } = application;
 	const rows =
 		networkIds && networkIds.length > 0
 			? await db.query.network.findMany({
@@ -379,7 +379,7 @@ export const resolveServiceNetworks = async (
 				})
 			: [];
 
-	const networks = detachDokployNetwork ? [] : ["dokploy-network"];
+	const networks = detachNotployNetwork ? [] : ["notploy-network"];
 	for (const row of rows) {
 		networks.push(row.name);
 	}

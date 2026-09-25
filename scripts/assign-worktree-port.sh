@@ -8,7 +8,7 @@ if [ -z "$WORKTREE_PATH" ]; then
 	exit 0
 fi
 
-ENV_FILE="$WORKTREE_PATH/apps/dokploy/.env"
+ENV_FILE="$WORKTREE_PATH/apps/notploy/.env"
 if [ ! -f "$ENV_FILE" ]; then
 	exit 0
 fi
@@ -19,4 +19,4 @@ sed -i.bak "s/^PORT=.*/PORT=$FREE_PORT/" "$ENV_FILE"
 sed -i.bak -E "s#^(BETTER_AUTH_URL=https?://[^:/]+):[0-9]+#\1:$FREE_PORT#" "$ENV_FILE"
 rm -f "$ENV_FILE.bak"
 
-echo "Worktree $WORKTREE_PATH -> dokploy dev PORT=$FREE_PORT"
+echo "Worktree $WORKTREE_PATH -> notploy dev PORT=$FREE_PORT"

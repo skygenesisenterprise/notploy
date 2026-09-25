@@ -950,7 +950,7 @@ export function registerGeneratedCommands(program: Command) {
 		.option('--buildServerId <value>', 'buildServerId')
 		.option('--buildRegistryId <value>', 'buildRegistryId')
 		.option('--networkIds <value>', 'networkIds')
-		.option('--detachDokployNetwork', 'detachDokployNetwork')
+		.option('--detachNotployNetwork', 'detachNotployNetwork')
 		.option('--json', 'Output raw JSON')
 		.action(async (opts: Record<string, any>) => {
 			const jsonOutput = opts.json; delete opts.json;
@@ -968,7 +968,7 @@ export function registerGeneratedCommands(program: Command) {
 			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
 			if (opts["isStaticSpa"] != null) opts["isStaticSpa"] = opts["isStaticSpa"] === true || opts["isStaticSpa"] === "true";
 			if (opts["createEnvFile"] != null) opts["createEnvFile"] = opts["createEnvFile"] === true || opts["createEnvFile"] === "true";
-			if (opts["detachDokployNetwork"] != null) opts["detachDokployNetwork"] = opts["detachDokployNetwork"] === true || opts["detachDokployNetwork"] === "true";
+			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
 			const data = await apiPost("application.update", opts);
 			if (jsonOutput) {
 				console.log(JSON.stringify(data, null, 2));
@@ -4472,7 +4472,7 @@ export function registerGeneratedCommands(program: Command) {
 		.option('--endpointSpecSwarm <value>', 'endpointSpecSwarm')
 		.option('--replicas <value>', 'replicas')
 		.option('--networkIds <value>', 'networkIds')
-		.option('--detachDokployNetwork', 'detachDokployNetwork')
+		.option('--detachNotployNetwork', 'detachNotployNetwork')
 		.option('--createdAt <value>', 'createdAt')
 		.option('--environmentId <value>', 'environmentId')
 		.option('--json', 'Output raw JSON')
@@ -4483,7 +4483,7 @@ export function registerGeneratedCommands(program: Command) {
 			if (opts["externalGRPCPort"] != null) opts["externalGRPCPort"] = Number(opts["externalGRPCPort"]);
 			if (opts["externalAdminPort"] != null) opts["externalAdminPort"] = Number(opts["externalAdminPort"]);
 			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["detachDokployNetwork"] != null) opts["detachDokployNetwork"] = opts["detachDokployNetwork"] === true || opts["detachDokployNetwork"] === "true";
+			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
 			const data = await apiPost("libsql.update", opts);
 			if (jsonOutput) {
 				console.log(JSON.stringify(data, null, 2));
@@ -4893,13 +4893,13 @@ export function registerGeneratedCommands(program: Command) {
 		.option('--createdAt <value>', 'createdAt')
 		.option('--environmentId <value>', 'environmentId')
 		.option('--networkIds <value>', 'networkIds')
-		.option('--detachDokployNetwork', 'detachDokployNetwork')
+		.option('--detachNotployNetwork', 'detachNotployNetwork')
 		.option('--json', 'Output raw JSON')
 		.action(async (opts: Record<string, any>) => {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
 			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["detachDokployNetwork"] != null) opts["detachDokployNetwork"] = opts["detachDokployNetwork"] === true || opts["detachDokployNetwork"] === "true";
+			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
 			const data = await apiPost("mariadb.update", opts);
 			if (jsonOutput) {
 				console.log(JSON.stringify(data, null, 2));
@@ -5209,14 +5209,14 @@ export function registerGeneratedCommands(program: Command) {
 		.option('--environmentId <value>', 'environmentId')
 		.option('--replicaSets', 'replicaSets')
 		.option('--networkIds <value>', 'networkIds')
-		.option('--detachDokployNetwork', 'detachDokployNetwork')
+		.option('--detachNotployNetwork', 'detachNotployNetwork')
 		.option('--json', 'Output raw JSON')
 		.action(async (opts: Record<string, any>) => {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
 			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
 			if (opts["replicaSets"] != null) opts["replicaSets"] = opts["replicaSets"] === true || opts["replicaSets"] === "true";
-			if (opts["detachDokployNetwork"] != null) opts["detachDokployNetwork"] = opts["detachDokployNetwork"] === true || opts["detachDokployNetwork"] === "true";
+			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
 			const data = await apiPost("mongo.update", opts);
 			if (jsonOutput) {
 				console.log(JSON.stringify(data, null, 2));
@@ -5649,13 +5649,13 @@ export function registerGeneratedCommands(program: Command) {
 		.option('--createdAt <value>', 'createdAt')
 		.option('--environmentId <value>', 'environmentId')
 		.option('--networkIds <value>', 'networkIds')
-		.option('--detachDokployNetwork', 'detachDokployNetwork')
+		.option('--detachNotployNetwork', 'detachNotployNetwork')
 		.option('--json', 'Output raw JSON')
 		.action(async (opts: Record<string, any>) => {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
 			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["detachDokployNetwork"] != null) opts["detachDokployNetwork"] = opts["detachDokployNetwork"] === true || opts["detachDokployNetwork"] === "true";
+			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
 			const data = await apiPost("mysql.update", opts);
 			if (jsonOutput) {
 				console.log(JSON.stringify(data, null, 2));
@@ -5843,9 +5843,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createCustom')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -5857,9 +5857,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -5876,9 +5876,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createDiscord')
 		.requiredOption('--appBuildError', 'appBuildError')
 		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--dokployBackup', 'dokployBackup')
+		.requiredOption('--notployBackup', 'notployBackup')
 		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--dokployRestart', 'dokployRestart')
+		.requiredOption('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.requiredOption('--appDeploy', 'appDeploy')
 		.requiredOption('--dockerCleanup', 'dockerCleanup')
@@ -5890,9 +5890,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -5910,9 +5910,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createEmail')
 		.requiredOption('--appBuildError', 'appBuildError')
 		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--dokployBackup', 'dokployBackup')
+		.requiredOption('--notployBackup', 'notployBackup')
 		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--dokployRestart', 'dokployRestart')
+		.requiredOption('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.requiredOption('--appDeploy', 'appDeploy')
 		.requiredOption('--dockerCleanup', 'dockerCleanup')
@@ -5928,9 +5928,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -5948,9 +5948,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createGotify')
 		.requiredOption('--appBuildError', 'appBuildError')
 		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--dokployBackup', 'dokployBackup')
+		.requiredOption('--notployBackup', 'notployBackup')
 		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--dokployRestart', 'dokployRestart')
+		.requiredOption('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.requiredOption('--appDeploy', 'appDeploy')
 		.requiredOption('--dockerCleanup', 'dockerCleanup')
@@ -5964,9 +5964,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -5985,9 +5985,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createLark')
 		.requiredOption('--appBuildError', 'appBuildError')
 		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--dokployBackup', 'dokployBackup')
+		.requiredOption('--notployBackup', 'notployBackup')
 		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--dokployRestart', 'dokployRestart')
+		.requiredOption('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.requiredOption('--appDeploy', 'appDeploy')
 		.requiredOption('--dockerCleanup', 'dockerCleanup')
@@ -5998,9 +5998,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6017,9 +6017,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createMattermost')
 		.requiredOption('--appBuildError', 'appBuildError')
 		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--dokployBackup', 'dokployBackup')
+		.requiredOption('--notployBackup', 'notployBackup')
 		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--dokployRestart', 'dokployRestart')
+		.requiredOption('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.requiredOption('--appDeploy', 'appDeploy')
 		.requiredOption('--dockerCleanup', 'dockerCleanup')
@@ -6032,9 +6032,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6051,9 +6051,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createNtfy')
 		.requiredOption('--appBuildError', 'appBuildError')
 		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--dokployBackup', 'dokployBackup')
+		.requiredOption('--notployBackup', 'notployBackup')
 		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--dokployRestart', 'dokployRestart')
+		.requiredOption('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.requiredOption('--appDeploy', 'appDeploy')
 		.requiredOption('--dockerCleanup', 'dockerCleanup')
@@ -6067,9 +6067,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6087,9 +6087,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createPushover')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6104,9 +6104,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6126,9 +6126,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createResend')
 		.requiredOption('--appBuildError', 'appBuildError')
 		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--dokployBackup', 'dokployBackup')
+		.requiredOption('--notployBackup', 'notployBackup')
 		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--dokployRestart', 'dokployRestart')
+		.requiredOption('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.requiredOption('--appDeploy', 'appDeploy')
 		.requiredOption('--dockerCleanup', 'dockerCleanup')
@@ -6141,9 +6141,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6160,9 +6160,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createSlack')
 		.requiredOption('--appBuildError', 'appBuildError')
 		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--dokployBackup', 'dokployBackup')
+		.requiredOption('--notployBackup', 'notployBackup')
 		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--dokployRestart', 'dokployRestart')
+		.requiredOption('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.requiredOption('--appDeploy', 'appDeploy')
 		.requiredOption('--dockerCleanup', 'dockerCleanup')
@@ -6174,9 +6174,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6193,9 +6193,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createTeams')
 		.requiredOption('--appBuildError', 'appBuildError')
 		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--dokployBackup', 'dokployBackup')
+		.requiredOption('--notployBackup', 'notployBackup')
 		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--dokployRestart', 'dokployRestart')
+		.requiredOption('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.requiredOption('--appDeploy', 'appDeploy')
 		.requiredOption('--dockerCleanup', 'dockerCleanup')
@@ -6206,9 +6206,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6225,9 +6225,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification createTelegram')
 		.requiredOption('--appBuildError', 'appBuildError')
 		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--dokployBackup', 'dokployBackup')
+		.requiredOption('--notployBackup', 'notployBackup')
 		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--dokployRestart', 'dokployRestart')
+		.requiredOption('--notployRestart', 'notployRestart')
 		.requiredOption('--name <value>', 'name')
 		.requiredOption('--appDeploy', 'appDeploy')
 		.requiredOption('--dockerCleanup', 'dockerCleanup')
@@ -6240,9 +6240,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6289,7 +6289,7 @@ export function registerGeneratedCommands(program: Command) {
 	g_notification
 		.command('receive-notification')
 		.description('notification receiveNotification')
-		.option('--ServerType <value>', 'ServerType (Dokploy, Remote)')
+		.option('--ServerType <value>', 'ServerType (Notploy, Remote)')
 		.requiredOption('--Type <value>', 'Type (Memory, CPU)')
 		.requiredOption('--Value <value>', 'Value')
 		.requiredOption('--Threshold <value>', 'Threshold')
@@ -6549,9 +6549,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateCustom')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6566,9 +6566,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6585,9 +6585,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateDiscord')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6602,9 +6602,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6622,9 +6622,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateEmail')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6643,9 +6643,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6663,9 +6663,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateGotify')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6682,9 +6682,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6703,9 +6703,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateLark')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6719,9 +6719,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6738,9 +6738,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateMattermost')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6756,9 +6756,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6775,9 +6775,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateNtfy')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6794,9 +6794,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6822,9 +6822,9 @@ export function registerGeneratedCommands(program: Command) {
 		.option('--expire <value>', 'expire')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6837,9 +6837,9 @@ export function registerGeneratedCommands(program: Command) {
 			if (opts["expire"] != null) opts["expire"] = Number(opts["expire"]);
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6856,9 +6856,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateResend')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6874,9 +6874,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6893,9 +6893,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateSlack')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6910,9 +6910,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6929,9 +6929,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateTeams')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6945,9 +6945,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -6964,9 +6964,9 @@ export function registerGeneratedCommands(program: Command) {
 		.description('notification updateTelegram')
 		.option('--appBuildError', 'appBuildError')
 		.option('--databaseBackup', 'databaseBackup')
-		.option('--dokployBackup', 'dokployBackup')
+		.option('--notployBackup', 'notployBackup')
 		.option('--volumeBackup', 'volumeBackup')
-		.option('--dokployRestart', 'dokployRestart')
+		.option('--notployRestart', 'notployRestart')
 		.option('--name <value>', 'name')
 		.option('--appDeploy', 'appDeploy')
 		.option('--dockerCleanup', 'dockerCleanup')
@@ -6982,9 +6982,9 @@ export function registerGeneratedCommands(program: Command) {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
 			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["dokployBackup"] != null) opts["dokployBackup"] = opts["dokployBackup"] === true || opts["dokployBackup"] === "true";
+			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
 			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["dokployRestart"] != null) opts["dokployRestart"] = opts["dokployRestart"] === true || opts["dokployRestart"] === "true";
+			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
 			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
 			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
 			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
@@ -7821,13 +7821,13 @@ export function registerGeneratedCommands(program: Command) {
 		.option('--createdAt <value>', 'createdAt')
 		.option('--environmentId <value>', 'environmentId')
 		.option('--networkIds <value>', 'networkIds')
-		.option('--detachDokployNetwork', 'detachDokployNetwork')
+		.option('--detachNotployNetwork', 'detachNotployNetwork')
 		.option('--json', 'Output raw JSON')
 		.action(async (opts: Record<string, any>) => {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
 			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["detachDokployNetwork"] != null) opts["detachDokployNetwork"] = opts["detachDokployNetwork"] === true || opts["detachDokployNetwork"] === "true";
+			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
 			const data = await apiPost("postgres.update", opts);
 			if (jsonOutput) {
 				console.log(JSON.stringify(data, null, 2));
@@ -8466,13 +8466,13 @@ export function registerGeneratedCommands(program: Command) {
 		.option('--replicas <value>', 'replicas')
 		.option('--environmentId <value>', 'environmentId')
 		.option('--networkIds <value>', 'networkIds')
-		.option('--detachDokployNetwork', 'detachDokployNetwork')
+		.option('--detachNotployNetwork', 'detachNotployNetwork')
 		.option('--json', 'Output raw JSON')
 		.action(async (opts: Record<string, any>) => {
 			const jsonOutput = opts.json; delete opts.json;
 			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
 			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["detachDokployNetwork"] != null) opts["detachDokployNetwork"] = opts["detachDokployNetwork"] === true || opts["detachDokployNetwork"] === "true";
+			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
 			const data = await apiPost("redis.update", opts);
 			if (jsonOutput) {
 				console.log(JSON.stringify(data, null, 2));
@@ -8660,7 +8660,7 @@ export function registerGeneratedCommands(program: Command) {
 		.option('--appName <value>', 'appName')
 		.option('--serviceName <value>', 'serviceName')
 		.option('--shellType <value>', 'shellType (bash, sh)')
-		.option('--scheduleType <value>', 'scheduleType (application, compose, server, dokploy-server)')
+		.option('--scheduleType <value>', 'scheduleType (application, compose, server, notploy-server)')
 		.requiredOption('--command <value>', 'command')
 		.option('--script <value>', 'script')
 		.option('--applicationId <value>', 'applicationId')
@@ -8702,7 +8702,7 @@ export function registerGeneratedCommands(program: Command) {
 		.command('list')
 		.description('schedule list')
 		.requiredOption('--id <value>', 'id')
-		.requiredOption('--scheduleType <value>', 'scheduleType (application, compose, server, dokploy-server)')
+		.requiredOption('--scheduleType <value>', 'scheduleType (application, compose, server, notploy-server)')
 		.option('--json', 'Output raw JSON')
 		.action(async (opts: Record<string, any>) => {
 			const jsonOutput = opts.json; delete opts.json;
@@ -8757,7 +8757,7 @@ export function registerGeneratedCommands(program: Command) {
 		.option('--appName <value>', 'appName')
 		.option('--serviceName <value>', 'serviceName')
 		.option('--shellType <value>', 'shellType (bash, sh)')
-		.option('--scheduleType <value>', 'scheduleType (application, compose, server, dokploy-server)')
+		.option('--scheduleType <value>', 'scheduleType (application, compose, server, notploy-server)')
 		.requiredOption('--command <value>', 'command')
 		.option('--script <value>', 'script')
 		.option('--applicationId <value>', 'applicationId')
@@ -9437,14 +9437,14 @@ export function registerGeneratedCommands(program: Command) {
 		});
 
 	g_settings
-		.command('get-dokploy-cloud-ips')
-		.description('settings getDokployCloudIps')
+		.command('get-notploy-cloud-ips')
+		.description('settings getNotployCloudIps')
 		
 		.option('--json', 'Output raw JSON')
 		.action(async (opts: Record<string, any>) => {
 			const jsonOutput = opts.json; delete opts.json;
 
-			const data = await apiGet("settings.getDokployCloudIps", opts);
+			const data = await apiGet("settings.getNotployCloudIps", opts);
 			if (jsonOutput) {
 				console.log(JSON.stringify(data, null, 2));
 			} else {
@@ -9453,14 +9453,14 @@ export function registerGeneratedCommands(program: Command) {
 		});
 
 	g_settings
-		.command('get-dokploy-version')
-		.description('settings getDokployVersion')
+		.command('get-notploy-version')
+		.description('settings getNotployVersion')
 		
 		.option('--json', 'Output raw JSON')
 		.action(async (opts: Record<string, any>) => {
 			const jsonOutput = opts.json; delete opts.json;
 
-			const data = await apiGet("settings.getDokployVersion", opts);
+			const data = await apiGet("settings.getNotployVersion", opts);
 			if (jsonOutput) {
 				console.log(JSON.stringify(data, null, 2));
 			} else {

@@ -1,17 +1,17 @@
-import { db } from "@dokploy/server/db";
+import { db } from "@notploy/server/db";
 import {
 	type apiCreateMariaDB,
 	backups,
 	buildAppName,
 	mariadb,
-} from "@dokploy/server/db/schema";
-import { generatePassword } from "@dokploy/server/templates";
-import { buildMariadb } from "@dokploy/server/utils/databases/mariadb";
+} from "@notploy/server/db/schema";
+import { generatePassword } from "@notploy/server/templates";
+import { buildMariadb } from "@notploy/server/utils/databases/mariadb";
 import {
 	pullImage,
 	waitForSwarmServiceConvergence,
-} from "@dokploy/server/utils/docker/utils";
-import { execAsyncRemote } from "@dokploy/server/utils/process/execAsync";
+} from "@notploy/server/utils/docker/utils";
+import { execAsyncRemote } from "@notploy/server/utils/process/execAsync";
 import { TRPCError } from "@trpc/server";
 import { eq, getTableColumns } from "drizzle-orm";
 import { quote } from "shell-quote";

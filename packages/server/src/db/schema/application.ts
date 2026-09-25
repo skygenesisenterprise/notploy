@@ -1,4 +1,4 @@
-import { VALID_BRANCH_REGEX } from "@dokploy/server/utils/git-branch-validation";
+import { VALID_BRANCH_REGEX } from "@notploy/server/utils/git-branch-validation";
 import { relations } from "drizzle-orm";
 import {
 	bigint,
@@ -234,7 +234,7 @@ export const applications = pgTable("application", {
 		},
 	),
 	networkIds: text("networkIds").array().default([]),
-	detachDokployNetwork: boolean("detachDokployNetwork")
+	detachNotployNetwork: boolean("detachNotployNetwork")
 		.notNull()
 		.default(false),
 });
@@ -379,7 +379,7 @@ const createSchema = createInsertSchema(applications, {
 	watchPaths: z.array(z.string()).optional().optional(),
 	previewLabels: z.array(z.string()).optional(),
 	networkIds: z.array(z.string()).optional(),
-	detachDokployNetwork: z.boolean().optional(),
+	detachNotployNetwork: z.boolean().optional(),
 	cleanCache: z.boolean().optional(),
 	stopGracePeriodSwarm: z.number().nullable(),
 	endpointSpecSwarm: EndpointSpecSwarmSchema.nullable(),

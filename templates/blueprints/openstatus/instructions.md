@@ -27,7 +27,7 @@ so the first deployment takes a few extra minutes while it builds.
 1. Open the dashboard domain and choose **magic link** login with your e-mail.
 2. If you did not configure `RESEND_API_KEY`, the magic link is not e-mailed —
    it is printed to the **dashboard service logs**. Open the dashboard
-   container logs in Dokploy and copy the `>>> Magic Link: ...` URL into your
+   container logs in Notploy and copy the `>>> Magic Link: ...` URL into your
    browser. If the printed link starts with `http://0.0.0.0:3000`, replace that
    host with your dashboard domain before opening it. (Optionally, once HTTPS
    is enabled on your dashboard domain, you can add
@@ -43,7 +43,7 @@ Self-hosted OpenStatus runs monitors through **private location probes**
 (`ghcr.io/openstatushq/private-location`) that you deploy wherever you want to
 monitor from. Point the probe at this stack's ingest server:
 
-- Expose the `private-location` service (port 8080) on a domain in Dokploy, and
+- Expose the `private-location` service (port 8080) on a domain in Notploy, and
 - set `OPENSTATUS_INGEST_URL` on the probe to that URL, together with the
   `OPENSTATUS_KEY` you create in the dashboard.
 

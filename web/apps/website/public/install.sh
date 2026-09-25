@@ -4,15 +4,15 @@
 DOCKER_VERSION="28.5.0"
 
 # Detect version from environment variable or default to latest
-# Usage with curl (export first): export DOKPLOY_VERSION=canary && curl -sSL https://dokploy.com/install.sh | sh
-# Usage with curl (export first): export DOKPLOY_VERSION=latest && curl -sSL https://dokploy.com/install.sh | sh
-# Usage with curl (bash -s): DOKPLOY_VERSION=canary bash -s < <(curl -sSL https://dokploy.com/install.sh)
-# Usage with curl (default): curl -sSL https://dokploy.com/install.sh | sh (detects latest stable version)
-# Usage with bash: DOKPLOY_VERSION=canary bash install.sh
-# Usage with bash: DOKPLOY_VERSION=latest bash install.sh
+# Usage with curl (export first): export NOTPLOY_VERSION=canary && curl -sSL https://notploy.com/install.sh | sh
+# Usage with curl (export first): export NOTPLOY_VERSION=latest && curl -sSL https://notploy.com/install.sh | sh
+# Usage with curl (bash -s): NOTPLOY_VERSION=canary bash -s < <(curl -sSL https://notploy.com/install.sh)
+# Usage with curl (default): curl -sSL https://notploy.com/install.sh | sh (detects latest stable version)
+# Usage with bash: NOTPLOY_VERSION=canary bash install.sh
+# Usage with bash: NOTPLOY_VERSION=latest bash install.sh
 # Usage with bash: bash install.sh (detects latest stable version)
 detect_version() {
-    local version="${DOKPLOY_VERSION}"
+    local version="${NOTPLOY_VERSION}"
     
     # If no version specified, get latest stable version from GitHub releases
     if [ -z "$version" ]; then
@@ -20,12 +20,12 @@ detect_version() {
         
         # Try to get latest release from GitHub by following redirects
         version=$(curl -fsSL --connect-timeout 10 -o /dev/null -w '%{url_effective}\n' \
-            https://github.com/dokploy/dokploy/releases/latest 2>/dev/null | \
+            https://github.com/notploy/notploy/releases/latest 2>/dev/null | \
             sed 's#.*/tag/##')
 
         # When the request fails (unreachable network, rate limit), curl still
         # prints the attempted URL, which would produce an invalid image tag
-        # like dokploy/dokploy:https://... Accept only values that look like a
+        # like notploy/notploy:https://... Accept only values that look like a
         # release tag (e.g. v0.29.10).
         case "$version" in
             v[0-9]*) ;;
@@ -90,12 +90,12 @@ generate_random_password() {
     echo "$password"
 }
 
-install_dokploy() {
+install_notploy() {
     # Detect version tag
     VERSION_TAG=$(detect_version)
-    DOCKER_IMAGE="dokploy/dokploy:${VERSION_TAG}"
+    DOCKER_IMAGE="notploy/notploy:${VERSION_TAG}"
     
-    echo "Installing Dokploy version: ${VERSION_TAG}"
+    echo "Installing Notploy version: ${VERSION_TAG}"
     if [ "$(id -u)" != "0" ]; then
         echo "This script must be run as root" >&2
         exit 1
@@ -128,7 +128,7 @@ install_dokploy() {
     # check if something is running on port 3000
     if ss -tulnp | grep ':3000 ' >/dev/null; then
         echo "Error: something is already running on port 3000" >&2
-        echo "Dokploy requires port 3000 to be available. Please stop any service using this port." >&2
+        echo "Notploy requires port 3000 to be available. Please stop any service using this port." >&2
         exit 1
     fi
 
@@ -230,7 +230,7 @@ install_dokploy() {
     if [ -z "$advertise_addr" ]; then
         echo "ERROR: We couldn't detect your server IP address."
         echo "Please set the ADVERTISE_ADDR environment variable manually."
-        echo "Example: curl -sSL https://dokploy.com/install.sh | sudo ADVERTISE_ADDR=192.168.1.100 sh"
+        echo "Example: curl -sSL https://notploy.com/install.sh | sudo ADVERTISE_ADDR=192.168.1.100 sh"
         exit 1
     fi
     echo "Using advertise address: $advertise_addr"
@@ -254,38 +254,38 @@ install_dokploy() {
 
     echo "Swarm initialized"
 
-    docker network rm -f dokploy-network 2>/dev/null
-    docker network create --driver overlay --attachable dokploy-network
+    docker network rm -f notploy-network 2>/dev/null
+    docker network create --driver overlay --attachable notploy-network
 
     echo "Network created"
 
-    mkdir -p /etc/dokploy
+    mkdir -p /etc/notploy
 
-    chmod 777 /etc/dokploy
+    chmod 777 /etc/notploy
 
     # Generate secure random password for Postgres
     POSTGRES_PASSWORD=$(generate_random_password)
 
     # Store password as Docker Secret (encrypted and secure)
-    echo "$POSTGRES_PASSWORD" | docker secret create dokploy_postgres_password - 2>/dev/null || true
+    echo "$POSTGRES_PASSWORD" | docker secret create notploy_postgres_password - 2>/dev/null || true
 
     # Generate secure auth secret for Better Auth
     AUTH_SECRET=$(openssl rand -hex 32)
 
     # Store auth secret as Docker Secret (encrypted and secure)
-    echo "$AUTH_SECRET" | docker secret create dokploy_auth_secret - 2>/dev/null || true
+    echo "$AUTH_SECRET" | docker secret create notploy_auth_secret - 2>/dev/null || true
 
     echo "Generated secure database credentials and auth secret (stored in Docker Secrets)"
 
     docker service create \
-    --name dokploy-postgres \
+    --name notploy-postgres \
     --constraint 'node.role==manager' \
-    --network dokploy-network \
-    --env POSTGRES_USER=dokploy \
-    --env POSTGRES_DB=dokploy \
-    --secret source=dokploy_postgres_password,target=/run/secrets/postgres_password \
+    --network notploy-network \
+    --env POSTGRES_USER=notploy \
+    --env POSTGRES_DB=notploy \
+    --secret source=notploy_postgres_password,target=/run/secrets/postgres_password \
     --env POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
-    --mount type=volume,source=dokploy-postgres,target=/var/lib/postgresql/data \
+    --mount type=volume,source=notploy-postgres,target=/var/lib/postgresql/data \
     $endpoint_mode \
     postgres:16
 
@@ -308,14 +308,14 @@ install_dokploy() {
     esac
     
     docker service create \
-      --name dokploy \
+      --name notploy \
       --replicas 1 \
-      --network dokploy-network \
+      --network notploy-network \
       --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
-      --mount type=bind,source=/etc/dokploy,target=/etc/dokploy \
-      --mount type=volume,source=dokploy,target=/root/.docker \
-      --secret source=dokploy_postgres_password,target=/run/secrets/postgres_password \
-      --secret source=dokploy_auth_secret,target=/run/secrets/dokploy_auth_secret \
+      --mount type=bind,source=/etc/notploy,target=/etc/notploy \
+      --mount type=volume,source=notploy,target=/root/.docker \
+      --secret source=notploy_postgres_password,target=/run/secrets/postgres_password \
+      --secret source=notploy_auth_secret,target=/run/secrets/notploy_auth_secret \
       --publish published=3000,target=3000,mode=host \
       --update-parallelism 1 \
       --update-order stop-first \
@@ -323,17 +323,17 @@ install_dokploy() {
       $endpoint_mode \
       $release_tag_env \
       -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
-      -e BETTER_AUTH_SECRET_FILE=/run/secrets/dokploy_auth_secret \
+      -e BETTER_AUTH_SECRET_FILE=/run/secrets/notploy_auth_secret \
       $DOCKER_IMAGE
 
     sleep 4
 
     docker run -d \
-        --name dokploy-traefik \
+        --name notploy-traefik \
         --restart always \
-        --network dokploy-network \
-        -v /etc/dokploy/traefik/traefik.yml:/etc/traefik/traefik.yml \
-        -v /etc/dokploy/traefik/dynamic:/etc/dokploy/traefik/dynamic \
+        --network notploy-network \
+        -v /etc/notploy/traefik/traefik.yml:/etc/traefik/traefik.yml \
+        -v /etc/notploy/traefik/dynamic:/etc/notploy/traefik/dynamic \
         -v /var/run/docker.sock:/var/run/docker.sock:ro \
         -p 80:80/tcp \
         -p 443:443/tcp \
@@ -343,11 +343,11 @@ install_dokploy() {
 
     # Optional: Use docker service create instead of docker run
     #   docker service create \
-    #     --name dokploy-traefik \
+    #     --name notploy-traefik \
     #     --constraint 'node.role==manager' \
-    #     --network dokploy-network \
-    #     --mount type=bind,source=/etc/dokploy/traefik/traefik.yml,target=/etc/traefik/traefik.yml \
-    #     --mount type=bind,source=/etc/dokploy/traefik/dynamic,target=/etc/dokploy/traefik/dynamic \
+    #     --network notploy-network \
+    #     --mount type=bind,source=/etc/notploy/traefik/traefik.yml,target=/etc/traefik/traefik.yml \
+    #     --mount type=bind,source=/etc/notploy/traefik/dynamic,target=/etc/notploy/traefik/dynamic \
     #     --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
     #     --publish mode=host,published=443,target=443 \
     #     --publish mode=host,published=80,target=80 \
@@ -374,7 +374,7 @@ install_dokploy() {
     private_ip=$(get_private_ip)
     formatted_addr=$(format_ip_for_url "$public_ip")
     echo ""
-    printf "${GREEN}Congratulations, Dokploy is installed!${NC}\n"
+    printf "${GREEN}Congratulations, Notploy is installed!${NC}\n"
     printf "${BLUE}Wait 15 seconds for the server to start${NC}\n"
     printf "${YELLOW}Please go to http://${formatted_addr}:3000${NC}\n"
     # Home servers and local VMs are often not reachable on their public IP
@@ -385,25 +385,25 @@ install_dokploy() {
     printf "\n"
 }
 
-update_dokploy() {
+update_notploy() {
     # Detect version tag
     VERSION_TAG=$(detect_version)
-    DOCKER_IMAGE="dokploy/dokploy:${VERSION_TAG}"
+    DOCKER_IMAGE="notploy/notploy:${VERSION_TAG}"
 
-    echo "Updating Dokploy to version: ${VERSION_TAG}"
+    echo "Updating Notploy to version: ${VERSION_TAG}"
 
     # Pull the image
     docker pull $DOCKER_IMAGE
 
     # Update the service
-    docker service update --image $DOCKER_IMAGE dokploy
+    docker service update --image $DOCKER_IMAGE notploy
 
-    echo "Dokploy has been updated to version: ${VERSION_TAG}"
+    echo "Notploy has been updated to version: ${VERSION_TAG}"
 }
 
 # Main script execution
 if [ "$1" = "update" ]; then
-    update_dokploy
+    update_notploy
 else
-    install_dokploy
+    install_notploy
 fi

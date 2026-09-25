@@ -1,9 +1,9 @@
 ---
 title: "Volume Backups"
-description: "Learn how to backup your volumes using Dokploy's Volume Backups feature"
+description: "Learn how to backup your volumes using Notploy's Volume Backups feature"
 ---
 
-Volume backups are essential when your service doesn't fit the traditional database backup solutions. This is common when your application uses SQLite databases or doesn't have a database at all, making Dokploy's dedicated database backup features (PostgreSQL, MySQL, MongoDB, etc.) unsuitable for your use case.
+Volume backups are essential when your service doesn't fit the traditional database backup solutions. This is common when your application uses SQLite databases or doesn't have a database at all, making Notploy's dedicated database backup features (PostgreSQL, MySQL, MongoDB, etc.) unsuitable for your use case.
 
 Volume backups allow you to backup [Docker named volumes](https://docs.docker.com/engine/storage/volumes/) to S3 destinations, providing a comprehensive backup solution for any type of data stored in volumes.
 
@@ -35,7 +35,7 @@ Define named volumes directly in your `docker-compose.yml` file. **Note:** Bind 
 ```yaml
 services:
   app:
-    image: dokploy/dokploy:latest
+    image: notploy/notploy:latest
     volumes:
       - my-volume:/app/data
 
@@ -72,7 +72,7 @@ volumes:
   n8n_data:
 ```
 
-Since N8N uses SQLite (stored in the `n8n_data` volume), we can't use Dokploy's database backup features. Instead, we'll backup the entire volume.
+Since N8N uses SQLite (stored in the `n8n_data` volume), we can't use Notploy's database backup features. Instead, we'll backup the entire volume.
 
 ## Creating Volume Backups
 
@@ -136,7 +136,7 @@ For Docker Compose services, volume names follow a specific pattern:
 ### Finding the Correct Volume Name
 
 1. **Check your Docker Compose file** to understand the volume structure
-2. **Verify the app name** in Dokploy (usually under the name of your service)
+2. **Verify the app name** in Notploy (usually under the name of your service)
 3. **Use the pattern**: `{appName}_{volumeName}` for Docker Compose services
 4. **For single applications**: Volume names are typically simpler and match your mount configuration
 

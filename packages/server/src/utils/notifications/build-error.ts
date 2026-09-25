@@ -1,6 +1,6 @@
-import { db } from "@dokploy/server/db";
-import { notifications } from "@dokploy/server/db/schema";
-import BuildFailedEmail from "@dokploy/server/emails/emails/build-failed";
+import { db } from "@notploy/server/db";
+import { notifications } from "@notploy/server/db/schema";
+import BuildFailedEmail from "@notploy/server/emails/emails/build-failed";
 import { render } from "@react-email/components";
 import { format } from "date-fns";
 import { and, eq } from "drizzle-orm";
@@ -90,7 +90,7 @@ export const sendBuildErrorNotifications = async ({
 				if (email) {
 					await sendEmailNotification(
 						email,
-						"Build failed for dokploy",
+						"Build failed for notploy",
 						template,
 					);
 				}
@@ -98,7 +98,7 @@ export const sendBuildErrorNotifications = async ({
 				if (resend) {
 					await sendResendNotification(
 						resend,
-						"Build failed for dokploy",
+						"Build failed for notploy",
 						template,
 					);
 				}
@@ -155,7 +155,7 @@ export const sendBuildErrorNotifications = async ({
 					],
 					timestamp: date.toISOString(),
 					footer: {
-						text: "Dokploy Build Notification",
+						text: "Notploy Build Notification",
 					},
 				});
 			}
@@ -268,7 +268,7 @@ ${errorMessage}
 
 [View Build Details](${buildLink})`,
 					channel: mattermost.channel,
-					username: mattermost.username || "Dokploy Bot",
+					username: mattermost.username || "Notploy Bot",
 				});
 			}
 

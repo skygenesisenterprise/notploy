@@ -2,7 +2,7 @@ services:
   cloudflared:
     image: 'cloudflare/cloudflared:latest'
     environment:
-      # Don't forget to set this in your Dokploy Environment
+      # Don't forget to set this in your Notploy Environment
       - 'TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:?}'
     network_mode: host
     restart: unless-stopped

@@ -1,6 +1,6 @@
-import { db } from "@dokploy/server/db";
-import { notifications } from "@dokploy/server/db/schema";
-import { VolumeBackupEmail } from "@dokploy/server/emails/emails/volume-backup";
+import { db } from "@notploy/server/db";
+import { notifications } from "@notploy/server/db/schema";
+import { VolumeBackupEmail } from "@notploy/server/emails/emails/volume-backup";
 import { render } from "@react-email/components";
 import { format } from "date-fns";
 import { and, eq } from "drizzle-orm";
@@ -176,7 +176,7 @@ export const sendVolumeBackupNotifications = async ({
 					],
 					timestamp: date.toISOString(),
 					footer: {
-						text: "Dokploy Volume Backup Notification",
+						text: "Notploy Volume Backup Notification",
 					},
 				});
 			}
@@ -317,7 +317,7 @@ export const sendVolumeBackupNotifications = async ({
 				await sendMattermostNotification(mattermost, {
 					text: `**${statusEmoji} Volume Backup ${typeStatus}**\n\n**Project:** ${projectName}\n**Application:** ${applicationName}\n**Volume Name:** ${volumeName}\n**Service Type:** ${serviceType}${sizeInfo}\n**Date:** ${format(date, "PP")}\n**Time:** ${format(date, "pp")}${errorMsg}`,
 					channel: mattermost.channel,
-					username: mattermost.username || "Dokploy",
+					username: mattermost.username || "Notploy",
 				});
 			}
 

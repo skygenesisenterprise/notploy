@@ -15,7 +15,7 @@ env = [
   "_APP_POOL_ADAPTER=stack",
   "_APP_WORKER_PER_CORE=6",
   "_APP_OPTIONS_ABUSE=enabled",
-  # Requires HTTPS to be enabled on the main domain in Dokploy (Domains tab).
+  # Requires HTTPS to be enabled on the main domain in Notploy (Domains tab).
   # Makes Appwrite generate https:// URLs (e.g. APPWRITE_FUNCTION_API_ENDPOINT for
   # Functions) and reject plain-HTTP API calls; over plain HTTP the console cannot log in.
   "_APP_OPTIONS_FORCE_HTTPS=enabled",
@@ -117,7 +117,7 @@ env = [
   "_APP_COMPUTE_MEMORY=0",
   "_APP_COMPUTE_INACTIVE_THRESHOLD=60",
   "_APP_COMPUTE_MAINTENANCE_INTERVAL=3600",
-  "_APP_COMPUTE_RUNTIMES_NETWORK=dokploy-network",
+  "_APP_COMPUTE_RUNTIMES_NETWORK=notploy-network",
   "_APP_FUNCTIONS_TIMEOUT=900",
   "_APP_FUNCTIONS_CREATION_ABUSE_LIMIT=5000",
   "_APP_FUNCTIONS_RUNTIMES=node-22,python-3.12,php-8.3,ruby-3.3,dart-3.5,go-1.23,rust-1.83,bun-1.1,deno-1.46,java-21.0,dotnet-8.0",

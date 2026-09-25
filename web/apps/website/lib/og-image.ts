@@ -14,8 +14,8 @@ interface GenerateOGImageOptions {
 	readingTime?: number;
 }
 
-// Logo de Dokploy como SVG string (versión simplificada)
-const DOKPLOY_LOGO = {
+// Logo de Notploy como SVG string (versión simplificada)
+const NOTPLOY_LOGO = {
 	type: "svg",
 	props: {
 		width: "100%",
@@ -47,7 +47,7 @@ const DOKPLOY_LOGO = {
 
 export async function generateOGImage({
 	title,
-	label = "Dokploy - Blog Post",
+	label = "Notploy - Blog Post",
 	author,
 	date,
 	readingTime,
@@ -108,7 +108,7 @@ export async function generateOGImage({
 							transform: "rotate(-10deg)",
 							color: "#ffffff",
 						},
-						children: DOKPLOY_LOGO,
+						children: NOTPLOY_LOGO,
 					},
 				},
 				{

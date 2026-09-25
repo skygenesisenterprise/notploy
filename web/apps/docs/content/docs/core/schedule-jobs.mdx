@@ -1,23 +1,23 @@
 ---
 title: "Schedule Jobs"
-description: "Learn how to automate tasks using Dokploy's Schedule Jobs feature"
+description: "Learn how to automate tasks using Notploy's Schedule Jobs feature"
 ---
 
 
-Schedule Jobs in Dokploy allows you to create and manage automated tasks that run on a specified schedule using cron expressions. Each job execution creates a log entry where you can monitor the output and execution status.
+Schedule Jobs in Notploy allows you to create and manage automated tasks that run on a specified schedule using cron expressions. Each job execution creates a log entry where you can monitor the output and execution status.
 
 ## Job Types
 
-Dokploy supports four types of scheduled jobs:
+Notploy supports four types of scheduled jobs:
 
 1. **Application Jobs**: Run commands inside specific application containers
 2. **Compose Jobs**: Execute commands in Docker Compose services
 3. **Server Jobs**: Run scripts on remote servers (executed on the host)
-4. **Dokploy Server Jobs**: Execute tasks at the container level within the Dokploy container. These jobs can interact with commands inside the Dokploy container (e.g., `docker ps`, `docker image prune`), but they are not executed directly on the host system
+4. **Notploy Server Jobs**: Execute tasks at the container level within the Notploy container. These jobs can interact with commands inside the Notploy container (e.g., `docker ps`, `docker image prune`), but they are not executed directly on the host system
 
 ## Container-based Jobs (Application and Compose)
 
-For application and compose jobs, you can run single commands that will be executed inside the target container. Dokploy internally uses Docker exec to run these commands:
+For application and compose jobs, you can run single commands that will be executed inside the target container. Notploy internally uses Docker exec to run these commands:
 
 ```bash
 docker exec -it <container_id> <command>
@@ -38,20 +38,20 @@ The target container must be running for the job to execute successfully.
 For docker compose jobs, is required to not change the COMPOSE_PROJECT_NAME environment variable, since this is used to identify the project.
 </Callout>
 
-## Server-based Jobs (Server and Dokploy Server)
+## Server-based Jobs (Server and Notploy Server)
 
 ### Server Jobs
 
 For remote servers, you can write bash scripts to perform various tasks. These scripts are executed directly on the host system and can use any command or tool available on the target server.
 
-### Dokploy Server Jobs
+### Notploy Server Jobs
 
-Dokploy Server Jobs are executed at the container level within the Dokploy container. This means:
+Notploy Server Jobs are executed at the container level within the Notploy container. This means:
 
-- Commands run inside the Dokploy container environment
+- Commands run inside the Notploy container environment
 - You can interact with Docker commands (e.g., `docker ps`, `docker image prune`, `docker system prune`)
 - Scripts have access to the Docker socket and can manage containers and images
-- Jobs do not execute directly on the host system, but within the containerized Dokploy environment
+- Jobs do not execute directly on the host system, but within the containerized Notploy environment
 
 **Example**: You can create a scheduled job to clean up unused Docker images:
 
@@ -60,7 +60,7 @@ Dokploy Server Jobs are executed at the container level within the Dokploy conta
 docker image prune -af
 ```
 
-This command will run inside the Dokploy container and can interact with Docker to clean up images.
+This command will run inside the Notploy container and can interact with Docker to clean up images.
 
 <Callout type="info">
 Make sure any required dependencies are installed on the target server before using them in your scripts.
@@ -75,7 +75,7 @@ docker system prune --force
 ```
 
 ### Example 2: Custom Database Backup
-You can create scripts to backup databases that aren't natively supported by Dokploy. Here's an example structure for a custom backup script:
+You can create scripts to backup databases that aren't natively supported by Notploy. Here's an example structure for a custom backup script:
 
 ```bash
 #!/bin/bash

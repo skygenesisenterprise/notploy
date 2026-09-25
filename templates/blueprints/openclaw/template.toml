@@ -1,6 +1,6 @@
 [variables]
 gateway_token = "${password:32}"
-auth_username = "dokploy"
+auth_username = "notploy"
 auth_password = "${password:32}"
 
 [config]

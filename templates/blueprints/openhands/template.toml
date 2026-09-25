@@ -58,7 +58,7 @@ content = """
 # Configuration for LLM models (group name starts with 'llm')
 ##############################################################################
 [llm]
-# API key to use. It is being sourced from the Dokploy template variables.
+# API key to use. It is being sourced from the Notploy template variables.
 api_key = "${openhands_api_key}" # API Key
 # base_url = ""
 # api_version = ""

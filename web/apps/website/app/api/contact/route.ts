@@ -122,17 +122,17 @@ Message:
 ${body.message}
 
 ---
-Sent from Dokploy website contact form
+Sent from Notploy website contact form
 		`.trim();
 
-		// Send email to Dokploy team
+		// Send email to Notploy team
 		const recipients =
 			body.inquiryType === "sales"
-				? ["sales@dokploy.com", "contact@dokploy.com"]
-				: ["support@dokploy.com"];
+				? ["sales@notploy.com", "contact@notploy.com"]
+				: ["support@notploy.com"];
 
 		await resend.emails.send({
-			from: "Dokploy Team <hello@notifications.dokploy.com>",
+			from: "Notploy Team <hello@notifications.notploy.com>",
 			to: recipients,
 			subject: emailSubject,
 			text: emailBody,
@@ -141,7 +141,7 @@ Sent from Dokploy website contact form
 
 		// Send confirmation email to the user
 		const confirmationSubject =
-			"Thank you for contacting Dokploy - We received your message";
+			"Thank you for contacting Notploy - We received your message";
 		const confirmationBody = `
 Hello ${body.firstName} ${body.lastName},
 
@@ -156,15 +156,15 @@ Message: ${body.message}
 We typically respond within 24-48 hours during business days. If your inquiry is urgent, please don't hesitate to reach out to us directly.
 
 Best regards,
-The Dokploy Team
+The Notploy Team
 
 ---
 This is an automated confirmation email. Please do not reply to this email.
-If you need immediate assistance, contact us at contact@dokploy.com
+If you need immediate assistance, contact us at contact@notploy.com
 		`.trim();
 
 		await resend.emails.send({
-			from: "Dokploy Team <hello@notifications.dokploy.com>",
+			from: "Notploy Team <hello@notifications.notploy.com>",
 			to: [body.email],
 			subject: confirmationSubject,
 			text: confirmationBody,

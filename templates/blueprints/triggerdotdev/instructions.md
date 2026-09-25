@@ -2,8 +2,8 @@
 
 ## Deploy
 
-1. In Dokploy, create the service from the **Trigger.dev** template.
-2. Dokploy generates all required secrets (`MAGIC_LINK_SECRET`, `SESSION_SECRET`, `ENCRYPTION_KEY`, database credentials, etc.) automatically.
+1. In Notploy, create the service from the **Trigger.dev** template.
+2. Notploy generates all required secrets (`MAGIC_LINK_SECRET`, `SESSION_SECRET`, `ENCRYPTION_KEY`, database credentials, etc.) automatically.
 3. Deploy and wait until the containers are running. The main domain points to the `webapp` service (port `3000`).
 
 If you serve the app over HTTPS, set `TRIGGER_PROTOCOL=https` in the **Environment** tab (the template defaults to `http`) so that login links use the correct scheme, then redeploy.
@@ -13,7 +13,7 @@ If you serve the app over HTTPS, set `TRIGGER_PROTOCOL=https` in the **Environme
 Trigger.dev logs you in with **magic links** sent by email. The template does not configure an email transport by default, so the email is never actually sent. Instead, **the magic link is printed to the logs of the `webapp` container**:
 
 1. Open `https://<your-domain>` and enter your email address to request a magic link.
-2. In Dokploy, go to your Trigger.dev service, open the **Logs** tab, and select the `webapp` container/service.
+2. In Notploy, go to your Trigger.dev service, open the **Logs** tab, and select the `webapp` container/service.
 3. Look for a recent log entry containing a URL like `.../magic?token=...` (search for `magic`).
 4. Copy that URL into your browser to complete the login.
 

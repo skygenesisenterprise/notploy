@@ -1,4 +1,4 @@
-# OpenAnalytics for Dokploy. Four hostnames, not four paths: the dashboard,
+# OpenAnalytics for Notploy. Four hostnames, not four paths: the dashboard,
 # the api, the collector and the realtime stream are separate origins, and all
 # four route through the `edge` service below, which strips the
 # client-settable identity headers (see the mounted Caddyfile).
@@ -82,7 +82,7 @@ ANONYMOUS_IDENTITY_SECRET = "${anonymous_identity_secret}"
 # Deployment. Replace it when you set that up.
 OA_EMAIL_FROM = "Open Analytics <analytics@analytics.example>"
 
-# The edge, behind Dokploy's Traefik.
+# The edge, behind Notploy's Traefik.
 #
 # Traefik terminates TLS, routes all four hostnames here, and writes
 # X-Forwarded-For and X-Real-Ip from the connection. What it does not do is

@@ -4,7 +4,7 @@
 #
 # After successful deployment, you need to create an admin user:
 #
-# 1. Go to your Dokploy dashboard
+# 1. Go to your Notploy dashboard
 # 2. Navigate to your Passbolt application
 # 3. Wait for both containers to be healthy - check the "Monitoring" tab
 # 4. Go to the "General" tab and click "Open Terminal" button

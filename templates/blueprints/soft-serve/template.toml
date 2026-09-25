@@ -30,12 +30,12 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... your-name
 
 ## HTTP Access
 
-The Dokploy domain routes to Soft Serve's HTTP listener:
+The Notploy domain routes to Soft Serve's HTTP listener:
 
 - HTTP public URL: `http://${main_domain}`
 - HTTP Git clone example: `git clone http://${main_domain}/repo.git`
 
-Set `http_public_url` to `https://${main_domain}` before deploying if your Dokploy domain enforces TLS.
+Set `http_public_url` to `https://${main_domain}` before deploying if your Notploy domain enforces TLS.
 
 Private HTTP access uses tokens created through the SSH admin interface.
 
@@ -47,7 +47,7 @@ Soft Serve also listens inside the deployment on:
 - Stats: `23233`
 - Git protocol: `9418`
 
-This template does not publish host TCP ports directly. Expose the SSH or Git protocol ports separately in Dokploy if you need direct terminal/TUI access, then use the configured `ssh_public_url` for clone commands.
+This template does not publish host TCP ports directly. Expose the SSH or Git protocol ports separately in Notploy if you need direct terminal/TUI access, then use the configured `ssh_public_url` for clone commands.
 
 ## Storage
 
