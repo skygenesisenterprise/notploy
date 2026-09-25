@@ -1,0 +1,249 @@
+export type LogType = "error" | "warning" | "success" | "info" | "debug";
+export type LogVariant = "red" | "yellow" | "green" | "blue" | "orange";
+
+export interface LogLine {
+	rawTimestamp: string | null;
+	timestamp: Date | null;
+	message: string;
+}
+
+interface ContainerOption {
+	containerId: string;
+}
+
+export const resolveContainerSelection = (
+	currentContainerId: string | undefined,
+	containers: readonly ContainerOption[] | undefined,
+) => {
+	if (!containers) {
+		return currentContainerId;
+	}
+
+	if (
+		currentContainerId &&
+		containers.some(({ containerId }) => containerId === currentContainerId)
+	) {
+		return currentContainerId;
+	}
+
+	return containers[0]?.containerId;
+};
+
+interface LogStyle {
+	type: LogType;
+	variant: LogVariant;
+	color: string;
+}
+
+const LOG_STYLES: Record<LogType, LogStyle> = {
+	error: {
+		type: "error",
+		variant: "red",
+		color: "bg-red-500/40",
+	},
+	warning: {
+		type: "warning",
+		variant: "orange",
+		color: "bg-orange-500/40",
+	},
+	debug: {
+		type: "debug",
+		variant: "yellow",
+		color: "bg-yellow-500/40",
+	},
+	success: {
+		type: "success",
+		variant: "green",
+		color: "bg-green-500/40",
+	},
+	info: {
+		type: "info",
+		variant: "blue",
+		color: "bg-blue-600/40",
+	},
+} as const;
+
+export function parseLogs(logString: string): LogLine[] {
+	// Regex to match the log line format
+	// Example of return :
+	// 1 2024-12-10T10:00:00.000Z The server is running on port 8080
+	// Should return :
+	// { timestamp: new Date("2024-12-10T10:00:00.000Z"),
+	// message: "The server is running on port 8080" }
+	const logRegex =
+		/^(?:(?<lineNumber>\d+)\s+)?(?<timestamp>(?:\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} UTC))?\s*(?<message>[\s\S]*)$/;
+
+	return logString
+		.split("\n")
+		.map((line) => line.trim())
+		.filter((line) => line !== "")
+		.map((line) => {
+			const match = line.match(logRegex);
+			if (!match) return null;
+
+			const { timestamp, message } = match.groups ?? {};
+
+			if (!message?.trim()) return null;
+
+			return {
+				rawTimestamp: timestamp ?? null,
+				timestamp: timestamp ? new Date(timestamp.replace(" UTC", "Z")) : null,
+				message: message.trim(),
+			};
+		})
+		.filter((log) => log !== null);
+}
+
+const LEVEL_NAME_TO_TYPE: Record<string, LogType> = {
+	trace: "debug",
+	debug: "debug",
+	info: "info",
+	information: "info",
+	notice: "info",
+	warn: "warning",
+	warning: "warning",
+	error: "error",
+	err: "error",
+	fatal: "error",
+	critical: "error",
+	panic: "error",
+	alert: "error",
+	emergency: "error",
+};
+
+const numericLevelToType = (level: number): LogType => {
+	// pino/bunyan scale: 10=trace 20=debug 30=info 40=warn 50=error 60=fatal
+	if (level >= 50) return "error";
+	if (level >= 40) return "warning";
+	if (level >= 30) return "info";
+	if (level >= 10) return "debug";
+	// syslog/GELF scale: 0=emergency ... 7=debug
+	if (level <= 3) return "error";
+	if (level === 4) return "warning";
+	if (level <= 6) return "info";
+	return "debug";
+};
+
+// Extract the log level explicitly declared by structured loggers
+// (pino, bunyan, winston, zap, slog, logfmt, GCP severity)
+const getExplicitLevelType = (message: string): LogType | null => {
+	// JSON string levels: {"level":"error"} / {"severity":"ERROR"} / {"log.level":"warn"}
+	const jsonStringMatch = message.match(
+		/"(?:level|severity|log\.level|loglevel)"\s*:\s*"([a-z]+)"/i,
+	);
+	if (jsonStringMatch?.[1]) {
+		return LEVEL_NAME_TO_TYPE[jsonStringMatch[1].toLowerCase()] ?? null;
+	}
+
+	// JSON numeric levels: {"level":50}
+	const jsonNumericMatch = message.match(/"level"\s*:\s*(\d{1,2})\b/);
+	if (jsonNumericMatch?.[1]) {
+		return numericLevelToType(Number(jsonNumericMatch[1]));
+	}
+
+	// logfmt: level=error
+	const logfmtMatch = message.match(/(?:^|\s)(?:level|severity)=([a-z]+)\b/i);
+	if (logfmtMatch?.[1]) {
+		return LEVEL_NAME_TO_TYPE[logfmtMatch[1].toLowerCase()] ?? null;
+	}
+
+	return null;
+};
+
+// Detect log type based on message content
+export const getLogType = (message: string): LogStyle => {
+	// A level explicitly declared by the logger wins over any inference
+	const explicitType = getExplicitLevelType(message);
+	if (explicitType) return LOG_STYLES[explicitType];
+
+	// Detect HTTP statusCode
+	const statusMatch = message.match(/"statusCode"\s*:\s*"?(\d{3})"?/);
+
+	if (statusMatch) {
+		const statusCode = Number(statusMatch[1]);
+
+		if (statusCode >= 500) return LOG_STYLES.error;
+		if (statusCode >= 400) return LOG_STYLES.warning;
+		if (statusCode >= 200 && statusCode < 300) return LOG_STYLES.success;
+		return LOG_STYLES.info;
+	}
+
+	const lowerMessage = message.toLowerCase();
+
+	if (
+		/(?:^|\s)(?:info|inf|information):?\s/i.test(lowerMessage) ||
+		/\[(?:info|information)\]/i.test(lowerMessage) ||
+		/\b(?:status|state|current|progress)\b:?\s/i.test(lowerMessage) ||
+		/\b(?:processing|executing|performing)\b/i.test(lowerMessage)
+	) {
+		return LOG_STYLES.info;
+	}
+
+	// Key/value pairs that explicitly report a non-error (e.g. "error: none",
+	// "failed: false") must not trigger the error keyword patterns below
+	const nonErrorColonPairs =
+		/\b(?:error|err|errors|failed|failure|failures)\s*:\s*(?:none|null|nil|false|0|no|-|""|'')(?=[,;.)\]]|$)/gi;
+	const nonErrorLogfmtPairs =
+		/\b(?:error|err|errors|failed|failure|failures)\s*=\s*(?:none|null|nil|false|0|no|-|""|'')(?=[\s,;.)\]]|$)/gi;
+	const errorScope = lowerMessage
+		.replace(nonErrorColonPairs, "")
+		.replace(nonErrorLogfmtPairs, "");
+
+	if (
+		/(?:^|\s)(?:error|err):?\s/i.test(errorScope) ||
+		/\b(?:exception|failed|failure)\b/i.test(errorScope) ||
+		/(?:stack\s?trace):\s*$/i.test(errorScope) ||
+		/^\s*at\s+[\w.]+\s*\(?.+:\d+:\d+\)?/.test(errorScope) ||
+		/\b(?:uncaught|unhandled)\s+(?:exception|error)\b/i.test(errorScope) ||
+		/Error:\s.*(?:in|at)\s+.*:\d+(?::\d+)?/.test(errorScope) ||
+		/\b(?:errno|code):\s*(?:\d+|[A-Z_]+)\b/i.test(errorScope) ||
+		/\[(?:error|err|fatal)\]/i.test(errorScope) ||
+		/\b(?:crash|critical|fatal)\b/i.test(errorScope) ||
+		/\b(?:fail(?:ed|ure)?|broken|dead)\b/i.test(errorScope)
+	) {
+		return LOG_STYLES.error;
+	}
+
+	if (
+		/(?:^|\s)(?:warning|warn):?\s/i.test(lowerMessage) ||
+		/\[(?:warn(?:ing)?|attention)\]/i.test(lowerMessage) ||
+		/(?:deprecated|obsolete)\s+(?:since|in|as\s+of)/i.test(lowerMessage) ||
+		/\b(?:caution|attention|notice):\s/i.test(lowerMessage) ||
+		/(?:might|may|could)\s+(?:not|cause|lead\s+to)/i.test(lowerMessage) ||
+		/(?:!+\s*(?:warning|caution|attention)\s*!+)/i.test(lowerMessage) ||
+		/\b(?:deprecated|obsolete)\b/i.test(lowerMessage) ||
+		/\b(?:unstable|experimental)\b/i.test(lowerMessage) ||
+		/⚠|⚠️/i.test(lowerMessage)
+	) {
+		return LOG_STYLES.warning;
+	}
+
+	if (
+		/(?:successfully|complete[d]?)\s+(?:initialized|started|completed|created|done|deployed)/i.test(
+			lowerMessage,
+		) ||
+		/\[(?:success|ok|done)\]/i.test(lowerMessage) ||
+		/(?:listening|running)\s+(?:on|at)\s+(?:port\s+)?\d+/i.test(lowerMessage) ||
+		/(?:connected|established|ready)\s+(?:to|for|on)/i.test(lowerMessage) ||
+		/\b(?:loaded|mounted|initialized)\s+successfully\b/i.test(lowerMessage) ||
+		/✓|√|✅|\[ok\]|done!/i.test(lowerMessage) ||
+		/\b(?:success(?:ful)?|completed|ready)\b/i.test(lowerMessage) ||
+		/\b(?:started|starting|active)\b/i.test(lowerMessage)
+	) {
+		return LOG_STYLES.success;
+	}
+
+	if (
+		/(?:^|\s)(?:info|inf):?\s/i.test(lowerMessage) ||
+		/\[(info|log|debug|trace|server|db|api|http|request|response)\]/i.test(
+			lowerMessage,
+		) ||
+		/\b(?:version|config|import|load|get|HTTP|PATCH|POST|debug)\b:?/i.test(
+			lowerMessage,
+		)
+	) {
+		return LOG_STYLES.debug;
+	}
+
+	return LOG_STYLES.info;
+};
