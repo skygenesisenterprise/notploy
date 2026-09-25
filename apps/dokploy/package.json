@@ -97,7 +97,7 @@
 		"cmdk": "^0.2.1",
 		"copy-to-clipboard": "^3.3.3",
 		"date-fns": "3.6.0",
-		"dockerode": "4.0.2",
+		"dockerode": "5.0.1",
 		"dompurify": "^3.3.3",
 		"dotenv": "16.4.5",
 		"drizzle-orm": "0.45.2",

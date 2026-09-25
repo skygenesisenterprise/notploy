@@ -60,7 +60,7 @@
     "bl": "6.0.11",
     "boxen": "^7.1.1",
     "date-fns": "3.6.0",
-    "dockerode": "4.0.2",
+    "dockerode": "5.0.1",
     "dotenv": "16.4.5",
     "drizzle-dbml-generator": "0.10.0",
     "drizzle-orm": "0.45.2",
