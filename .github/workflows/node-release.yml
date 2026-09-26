@@ -20,7 +20,6 @@ env:
   NODE_VERSION: "24.4.0"
   PNPM_VERSION: "10.22.0"
   NPMJS_REGISTRY: https://registry.npmjs.org
-  GITHUB_REGISTRY: https://npm.pkg.github.com
 
 jobs:
   prepare:
@@ -75,7 +74,6 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
-      packages: write
       id-token: write
     strategy:
       fail-fast: false
@@ -180,44 +178,32 @@ jobs:
             exit 1
           fi
 
-          if npm view "$PACKAGE@$VERSION" version --registry "$NPMJS_REGISTRY" > /dev/null 2>&1; then
+          if lookup="$(npm view "$PACKAGE@$VERSION" version --registry "$NPMJS_REGISTRY" 2>&1)"; then
             echo "::notice::$PACKAGE@$VERSION is already on npmjs"
             exit 0
+          elif [[ "$lookup" == *E404* || "$lookup" == *"404 Not Found"* || "$lookup" == *"Not Found - GET"* ]]; then
+            echo "::notice::$PACKAGE@$VERSION is not on npmjs yet"
+          else
+            echo "$lookup"
+            echo "::error::Could not check whether $PACKAGE@$VERSION exists on npmjs"
+            exit 1
           fi
 
-          npm publish "$TARBALL" \
+          if npm publish "$TARBALL" \
             --registry "$NPMJS_REGISTRY" \
             --access public \
-            --tag "$DIST_TAG"
+            --tag "$DIST_TAG"; then
+            exit 0
+          else
+            publish_status=$?
+          fi
 
-      - name: Configure npm for GitHub Packages
-        if: ${{ !cancelled() && steps.release.outcome == 'success' && steps.pack.outcome == 'success' }}
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          registry-url: ${{ env.GITHUB_REGISTRY }}
-          scope: '@notploy'
-
-      - name: Publish to GitHub Packages
-        id: publish-github
-        if: ${{ !cancelled() && steps.release.outcome == 'success' && steps.pack.outcome == 'success' }}
-        env:
-          PACKAGE: ${{ matrix.package }}
-          VERSION: ${{ steps.release.outputs.version }}
-          DIST_TAG: ${{ steps.release.outputs.dist_tag }}
-          TARBALL: ${{ steps.pack.outputs.tarball }}
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-
-          if npm view "$PACKAGE@$VERSION" version --registry "$GITHUB_REGISTRY" > /dev/null 2>&1; then
-            echo "::notice::$PACKAGE@$VERSION is already on GitHub Packages"
+          if npm view "$PACKAGE@$VERSION" version --registry "$NPMJS_REGISTRY" > /dev/null 2>&1; then
+            echo "::notice::$PACKAGE@$VERSION is now on npmjs; treating the publish as already completed"
             exit 0
           fi
 
-          npm publish "$TARBALL" \
-            --registry "$GITHUB_REGISTRY" \
-            --tag "$DIST_TAG"
+          exit "$publish_status"
 
       - name: Upload package tarball
         if: ${{ !cancelled() && steps.pack.outcome == 'success' }}
@@ -237,7 +223,6 @@ jobs:
           RELEASE_OUTCOME: ${{ steps.release.outcome }}
           PACK_OUTCOME: ${{ steps.pack.outcome }}
           NPMJS_OUTCOME: ${{ steps.publish-npmjs.outcome }}
-          GITHUB_OUTCOME: ${{ steps.publish-github.outcome }}
         run: |
           result_for() {
             case "$1" in
@@ -258,5 +243,4 @@ jobs:
             echo "| Version resolution | $(result_for "$RELEASE_OUTCOME") |"
             echo "| Pack | $(result_for "$PACK_OUTCOME") |"
             echo "| npmjs | $(result_for "$NPMJS_OUTCOME") |"
-            echo "| GitHub Packages | $(result_for "$GITHUB_OUTCOME") |"
           } >> "$GITHUB_STEP_SUMMARY"

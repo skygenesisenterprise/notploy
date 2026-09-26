@@ -17,21 +17,23 @@ version and publish the packages in the pnpm workspace.
 2. Review pending changesets with `pnpm changeset status` and apply version
    bumps and changelogs with `pnpm changeset version`.
 
-3. Node packages are published independently by
-   `.github/workflows/node-release.yml` when its versioned tags are pushed.
-   Docker images and their GitHub Release are managed independently by
+3. Push a version tag to publish a package through
+   `.github/workflows/node-release.yml`. Tags follow `vX.Y.Z-cli`,
+   `vX.Y.Z-sdk`, or `vX.Y.Z-trpc-openapi`; `vX.Y.Z-node` publishes all three.
+   A manual run from `master` also publishes all three. Packages are published
+   to npmjs; Docker images are published independently by
    `.github/workflows/docker-publish.yml`.
 
 ## Which packages are published
 
-Published to npm (public):
+Published to npmjs (public):
 
 - `@notploy/cli`
 - `@notploy/sdk`
-- `@notploy/mcp`
-- `@notploy/server`
+- `@notploy/trpc-openapi`
 
-Versioned but never published (they are internal or deployed as containers):
+Other workspace packages are not published by this workflow. Some may be
+versioned by Changesets or shipped as containers:
 
 - `@notploy/app` (the dashboard/server, shipped as a Docker image)
 - `@notploy/docs`, `@notploy/website` (deployed to GitHub Pages and Docker)
