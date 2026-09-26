@@ -212,6 +212,7 @@ jobs:
           tar -tzf "$tarball" | sed 's/^/  /'
 
       - name: Publish ${{ matrix.package }} to npmjs
+        id: publish-npmjs
         if: steps.plan.outputs.enabled == 'true' && steps.plan.outputs.npmjs == 'true' && steps.plan.outputs.publish == 'true'
         env:
           PKG: ${{ matrix.package }}
@@ -231,7 +232,8 @@ jobs:
           echo "Published $PKG@$VERSION to npmjs (dist-tag $TAG)"
 
       - name: Publish ${{ matrix.package }} to GitHub Packages
-        if: steps.plan.outputs.enabled == 'true' && steps.plan.outputs.github == 'true' && steps.plan.outputs.publish == 'true'
+        id: publish-github
+        if: ${{ !cancelled() && steps.plan.outputs.enabled == 'true' && steps.plan.outputs.github == 'true' && steps.plan.outputs.publish == 'true' }}
         env:
           PKG: ${{ matrix.package }}
           VERSION: ${{ steps.plan.outputs.version }}
@@ -251,7 +253,7 @@ jobs:
           echo "Published $PKG@$VERSION to GitHub Packages (dist-tag $TAG)"
 
       - name: Upload tarball
-        if: steps.plan.outputs.enabled == 'true'
+        if: ${{ !cancelled() && steps.plan.outputs.enabled == 'true' }}
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.package }}-${{ steps.plan.outputs.version }}
@@ -267,6 +269,8 @@ jobs:
           NPMJS: ${{ steps.plan.outputs.npmjs }}
           GITHUB: ${{ steps.plan.outputs.github }}
           PUBLISH: ${{ steps.plan.outputs.publish }}
+          NPMJS_OUTCOME: ${{ steps.publish-npmjs.outcome }}
+          GITHUB_OUTCOME: ${{ steps.publish-github.outcome }}
         run: |
           {
             echo "### $PKG@$VERSION"
@@ -278,9 +282,27 @@ jobs:
               echo "| --- | --- |"
               for registry in npmjs github; do
                 if [ "$registry" = "npmjs" ]; then
-                  [ "$NPMJS" = "true" ] && echo "| npmjs | \`$PKG@$VERSION\` |" || echo "| npmjs | skipped |"
+                  enabled="$NPMJS"
+                  outcome="$NPMJS_OUTCOME"
                 else
-                  [ "$GITHUB" = "true" ] && echo "| GitHub Packages (\`npm.pkg.github.com\`) | \`$PKG@$VERSION\` |" || echo "| GitHub Packages (\`npm.pkg.github.com\`) | skipped |"
+                  enabled="$GITHUB"
+                  outcome="$GITHUB_OUTCOME"
+                fi
+
+                if [ "$enabled" != "true" ]; then
+                  result=skipped
+                elif [ "$outcome" = "success" ]; then
+                  result="\`$PKG@$VERSION\` (published or already present)"
+                elif [ "$outcome" = "failure" ]; then
+                  result=failed
+                else
+                  result="not run"
+                fi
+
+                if [ "$registry" = "npmjs" ]; then
+                  echo "| npmjs | $result |"
+                else
+                  echo "| GitHub Packages (\`npm.pkg.github.com\`) | $result |"
                 fi
               done
             fi
