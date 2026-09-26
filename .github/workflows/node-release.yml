@@ -26,6 +26,7 @@ on:
       - "v*.*.*-sdk"
       - "v*.*.*-trpc-openapi"
       - "v*.*.*-node"
+  workflow_dispatch:
 
 concurrency:
   group: node-release-${{ github.ref }}
@@ -49,9 +50,21 @@ jobs:
       - name: Select package from tag
         id: package
         env:
+          EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF: ${{ github.ref }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           set -eo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ "$GITHUB_REF" != "refs/heads/master" ]; then
+              echo "::error::Manual releases can only be run from master"
+              exit 1
+            fi
+            matrix='{"include":[{"package":"@notploy/cli","dir":"packages/cli","description":"CLI to manage a Notploy server remotely"},{"package":"@notploy/sdk","dir":"packages/sdk","description":"TypeScript SDK for the Notploy API"},{"package":"@notploy/trpc-openapi","dir":"packages/trpc-openapi","description":"tRPC OpenAPI integration"}]}'
+            echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-(cli|sdk|trpc-openapi|node)$ ]]; then
             echo "::error::Unsupported release tag: $RELEASE_TAG"
             exit 1
@@ -123,6 +136,7 @@ jobs:
           PKG: ${{ matrix.package }}
           PKG_DIR: ${{ matrix.dir }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           set -eo pipefail
@@ -130,7 +144,7 @@ jobs:
           echo "enabled=true" >> "$GITHUB_OUTPUT"
 
           version="$(node -p "require('./$PKG_DIR/package.json').version")"
-          if [[ "$RELEASE_TAG" != *-node ]]; then
+          if [ "$EVENT_NAME" != "workflow_dispatch" ] && [[ "$RELEASE_TAG" != *-node ]]; then
             tag_version="${RELEASE_TAG#v}"
             tag_version="${tag_version%-${PKG##*/}}"
             if [ "$tag_version" != "$version" ]; then
