@@ -105,6 +105,7 @@ jobs:
         run: pnpm install --frozen-lockfile --filter "$PACKAGE..."
 
       - name: Build package
+        id: build
         env:
           PACKAGE: ${{ matrix.package }}
         run: pnpm --filter "$PACKAGE" run build
@@ -183,15 +184,13 @@ jobs:
             --access public \
             --tag "$DIST_TAG"
 
-      - name: Configure GitHub Packages authentication
+      - name: Configure npm for GitHub Packages
         if: ${{ !cancelled() && steps.release.outcome == 'success' && steps.pack.outcome == 'success' }}
-        env:
-          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-
-          npmrc="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
-          printf '\n//npm.pkg.github.com/:_authToken=%s\n' "$REGISTRY_TOKEN" >> "$npmrc"
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: ${{ env.GITHUB_REGISTRY }}
+          scope: '@notploy'
 
       - name: Publish to GitHub Packages
         id: publish-github
@@ -224,26 +223,34 @@ jobs:
           retention-days: 90
 
       - name: Summarize publication
-        if: always() && steps.release.outcome == 'success'
+        if: always()
         env:
           PACKAGE: ${{ matrix.package }}
           VERSION: ${{ steps.release.outputs.version }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          RELEASE_OUTCOME: ${{ steps.release.outcome }}
+          PACK_OUTCOME: ${{ steps.pack.outcome }}
           NPMJS_OUTCOME: ${{ steps.publish-npmjs.outcome }}
           GITHUB_OUTCOME: ${{ steps.publish-github.outcome }}
         run: |
           result_for() {
             case "$1" in
-              success) printf 'published or already present' ;;
+              success) printf 'success (published or already present)' ;;
               failure) printf 'failed' ;;
+              skipped) printf 'skipped' ;;
+              cancelled) printf 'cancelled' ;;
               *) printf 'not run' ;;
             esac
           }
 
           {
-            echo "### $PACKAGE@$VERSION"
+            echo "### $PACKAGE@${VERSION:-unresolved}"
             echo
             echo "| Registry | Result |"
             echo "| --- | --- |"
+            echo "| Build | $(result_for "$BUILD_OUTCOME") |"
+            echo "| Version resolution | $(result_for "$RELEASE_OUTCOME") |"
+            echo "| Pack | $(result_for "$PACK_OUTCOME") |"
             echo "| npmjs | $(result_for "$NPMJS_OUTCOME") |"
             echo "| GitHub Packages | $(result_for "$GITHUB_OUTCOME") |"
           } >> "$GITHUB_STEP_SUMMARY"
