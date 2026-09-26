@@ -1,6 +1,6 @@
 {
   "name": "@notploy/trpc-openapi",
-  "version": "0.0.19",
+  "version": "1.0.0",
   "description": "tRPC OpenAPI",
   "author": "Sky Genesis Enterprise",
   "private": false,
@@ -11,7 +11,11 @@
     "swagger"
   ],
   "homepage": "https://github.com/skygenesisenterprise/notploy/tree/master/packages/trpc-openapi",
-  "repository": "github:notploy/trpc-openapi",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skygenesisenterprise/notploy.git",
+    "directory": "packages/trpc-openapi"
+  },
   "bugs": "https://github.com/skygenesisenterprise/notploy/issues",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",

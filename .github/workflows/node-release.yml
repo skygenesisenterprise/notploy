@@ -95,6 +95,7 @@ jobs:
       contents: read
       # GitHub Packages accepts the job's own GITHUB_TOKEN; no extra secret.
       packages: write
+      id-token: write
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
@@ -113,6 +114,9 @@ jobs:
           # Packages one is added below because the runner generates the
           # npmjs one only.
           registry-url: ${{ env.NPMJS_REGISTRY }}
+
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@^11.5.1
 
       - name: Install dependencies
         # `PKG...` pulls the package and its own dependency subtree, not the
@@ -135,7 +139,6 @@ jobs:
         env:
           PKG: ${{ matrix.package }}
           PKG_DIR: ${{ matrix.dir }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           EVENT_NAME: ${{ github.event_name }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
@@ -155,15 +158,9 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "Publishing $PKG@$version"
 
-          # npmjs needs a classic automation token. Trusted publishing
-          #    (OIDC, `id-token: write`, no secret at all) is the better option
-          # once it is configured for these packages on npmjs.com.
-          if [ -n "$NPM_TOKEN" ]; then
-            echo "npmjs=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error::NPM_TOKEN is not set. Add it as a repository secret, or configure npm trusted publishing for $PKG."
-            exit 1
-          fi
+          # npmjs authentication uses the job's OIDC token; configure this
+          # workflow as a trusted publisher in each package's npm settings.
+          echo "npmjs=true" >> "$GITHUB_OUTPUT"
 
           # GitHub Packages authenticates with the job's GITHUB_TOKEN.
           echo "github=true" >> "$GITHUB_OUTPUT"
@@ -221,7 +218,6 @@ jobs:
           VERSION: ${{ steps.plan.outputs.version }}
           TAG: ${{ steps.plan.outputs.tag }}
           TARBALL: ${{ steps.pack.outputs.tarball }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -eo pipefail
           if npm view "$PKG@$VERSION" version --registry "$NPMJS_REGISTRY" > /dev/null 2>&1; then

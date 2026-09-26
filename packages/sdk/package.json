@@ -1,6 +1,6 @@
 {
   "name": "@notploy/sdk",
-  "version": "0.30.7",
+  "version": "1.0.0",
   "description": "TypeScript SDK for the Notploy API",
   "type": "module",
   "main": "./dist/index.js",
@@ -27,6 +27,11 @@
     "sdk",
     "api"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skygenesisenterprise/notploy.git",
+    "directory": "packages/sdk"
+  },
   "author": "Notploy",
   "license": "ISC",
   "packageManager": "pnpm@10.30.1",

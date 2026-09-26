@@ -19,8 +19,16 @@ version and publish the packages in the pnpm workspace.
    the version numbers or changelogs by hand.
 
 3. Merging the **Version Packages** pull request publishes the bumped packages
-   to npm and creates the matching GitHub Release. It needs the `NPM_TOKEN`
-   repository secret.
+   to npm and creates the matching GitHub Release through npm trusted
+   publishing. Configure each published package on npmjs.com with a GitHub
+   Actions trusted publisher for `skygenesisenterprise/notploy` and
+   workflow filename `release.yml`. The tag-based workflow also needs the
+   `node-release.yml` publisher for `@notploy/cli`, `@notploy/sdk`, and
+   `@notploy/trpc-openapi`.
+
+The repository setting **Allow GitHub Actions to create and approve pull
+requests** must also be enabled for the Version Packages pull request to be
+created automatically.
 
 ## Which packages are published
 

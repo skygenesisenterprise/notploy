@@ -1,6 +1,11 @@
 {
   "name": "@notploy/server",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skygenesisenterprise/notploy.git",
+    "directory": "packages/server"
+  },
   "main": "./src/index.ts",
   "type": "module",
   "exports": {

@@ -32,6 +32,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # GitHub Actions workflows.
+          - language: actions
+            build-mode: none
           # TypeScript/JS: the workspace is compiled ahead of the analysis and
           # the sources are handed to CodeQL directly. `none` build mode is
           # correct here — there is no single build command for the monorepo and

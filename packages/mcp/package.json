@@ -31,7 +31,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/skygenesisenterprise/notploy.git"
+    "url": "https://github.com/skygenesisenterprise/notploy.git",
+    "directory": "packages/mcp"
   },
   "keywords": [
     "modelcontextprotocol",

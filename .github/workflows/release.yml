@@ -41,6 +41,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      id-token: write
     outputs:
       published: ${{ steps.changesets.outputs.published }}
     steps:
@@ -57,6 +58,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@^11.5.1
 
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
@@ -65,79 +70,18 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           version: pnpm changeset version
+          publish: pnpm --filter=@notploy/server --filter=@notploy/cli --filter=@notploy/sdk --filter=@notploy/mcp run build && pnpm changeset publish
           commit: "chore: version packages"
           title: "Version Packages"
           branch: changesets/release-master
-          # Consumed by the publish job below.
-          outputFile: .changesets-release.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # @changesets/changelog-github resolves linked pull requests with this.
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Read release state
-        if: always()
-        run: |
-          if [ -f .changesets-release.json ]; then
-            cat .changesets-release.json
-          else
-            echo '{"published":false,"releaseCreated":false}' > .changesets-release.json
-            cat .changesets-release.json
-          fi
-
-  publish:
-    name: Publish to npm
-    needs: version
-    if: needs.version.outputs.published == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-      # id-token lets pnpm/npm mint a short-lived token for trusted publishing,
-      # which is preferred over a long-lived NPM_TOKEN. Keep NPM_TOKEN as the
-      # fallback for repositories that have not enabled it yet.
-      id-token: write
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - uses: pnpm/action-setup@v5
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
-
-      - name: Install workspace dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build packages
-        run: pnpm --filter=@notploy/server --filter=@notploy/cli --filter=@notploy/sdk --filter=@notploy/mcp run build
-
-      - name: Verify the npm token is configured
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "::error::NPM_TOKEN is not set. Add it as a repository secret, or enable npm trusted publishing (OIDC) for @notploy/*."
-            exit 1
-          fi
-
-      - name: Publish
-        run: pnpm changeset publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          createGithubReleases: false
 
   release:
     name: Create GitHub Release
-    needs: publish
+    needs: version
+    if: needs.version.outputs.published == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

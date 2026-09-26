@@ -1,8 +1,8 @@
 {
   "name": "@notploy/cli",
   "description": "A CLI to manage notploy server remotely",
-  "version": "0.30.7",
-  "author": "Mauricio Siu",
+  "version": "1.0.0",
+  "author": "Sky Genesis Enterprise",
   "licenses": [
     {
       "type": "MIT",
@@ -42,7 +42,11 @@
   "license": "MIT",
   "main": "dist/index.js",
   "type": "module",
-  "repository": "Notploy/cli",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skygenesisenterprise/notploy.git",
+    "directory": "packages/cli"
+  },
   "scripts": {
     "build": "tsc -b",
     "generate": "tsx scripts/generate.ts",
