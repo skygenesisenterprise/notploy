@@ -562,7 +562,7 @@ export const settingsRouter = createTRPCRouter({
 				"update",
 				"--force",
 				"--image",
-				`notploy/notploy:${data.latestVersion}`,
+				`skygenesisenterprise/notploy:${data.latestVersion}`,
 				"notploy",
 			]);
 			await audit(ctx, {

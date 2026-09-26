@@ -5,7 +5,7 @@
 Notploy lets teams deploy any application—using Nixpacks, Heroku Buildpacks, or a custom Dockerfile—alongside databases and Docker Compose stacks, across single or multiple servers. It supports Docker Swarm for clustering, real-time monitoring, automated backups, and granular role-based access control. AI-assisted deployments are supported via an MCP (Model Context Protocol) server, enabling AI agents and tools to interact with Notploy directly.
 
 Key facts:
-- Core product is open source (GitHub: github.com/notploy/notploy) with 26,000+ stars and 200+ contributors; enterprise features require a commercial licence
+- Core product is open source (GitHub: github.com/skygenesisenterprise/notploy) with 26,000+ stars and 200+ contributors; enterprise features require a commercial licence
 - Over 6 million DockerHub downloads
 - Supports MySQL, PostgreSQL, MongoDB, MariaDB, and Redis with built-in backup management
 - Multi-server and Docker Swarm cluster support with zero-configuration setup
@@ -84,7 +84,7 @@ Key facts:
 
 ## External pages
 
-- [GitHub Repository](https://github.com/notploy/notploy): Source code, issues, and contributions
+- [GitHub Repository](https://github.com/skygenesisenterprise/notploy): Source code, issues, and contributions
 - [Discord Community](https://discord.gg/2tBnJ3jDJc): Community support
 - [X / Twitter](https://x.com/getnotploy): Product updates
 - [Careers](https://notploy.com/jobs): Open roles at Notploy

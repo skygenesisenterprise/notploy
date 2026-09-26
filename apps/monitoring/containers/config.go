@@ -3,7 +3,7 @@ package containers
 import (
 	"strings"
 
-	"github.com/mauriciogm/notploy/apps/monitoring/config"
+	"github.com/skygenesisenterprise/notploy/apps/monitoring/config"
 )
 
 var monitorConfig *MonitoringConfig

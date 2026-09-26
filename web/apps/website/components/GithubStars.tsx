@@ -37,7 +37,7 @@ function extractRepoInfo(url: string): { owner: string; repo: string } | null {
 
 export function GithubStars({
 	className,
-	repoUrl = "https://github.com/notploy/notploy",
+	repoUrl = "https://github.com/skygenesisenterprise/notploy",
 	label = "GitHub Stars",
 	count: defaultCount = "26.4k",
 }: GithubStarsProps) {

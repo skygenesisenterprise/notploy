@@ -60,7 +60,7 @@ export function NavLinks() {
 		},
 		{
 			text: "Github",
-			url: "https://github.com/notploy/notploy",
+			url: "https://github.com/skygenesisenterprise/notploy",
 			icon: Github,
 		},
 		{

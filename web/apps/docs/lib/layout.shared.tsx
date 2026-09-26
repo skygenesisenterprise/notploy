@@ -14,6 +14,6 @@ export function baseOptions(): BaseLayoutProps {
 			url: "https://notploy.com",
 			children: <NavLinks />,
 		},
-		githubUrl: "https://github.com/Notploy/notploy",
+		githubUrl: "https://github.com/skygenesisenterprise/notploy",
 	};
 }

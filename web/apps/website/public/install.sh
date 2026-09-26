@@ -20,12 +20,12 @@ detect_version() {
         
         # Try to get latest release from GitHub by following redirects
         version=$(curl -fsSL --connect-timeout 10 -o /dev/null -w '%{url_effective}\n' \
-            https://github.com/notploy/notploy/releases/latest 2>/dev/null | \
+            https://github.com/skygenesisenterprise/notploy/releases/latest 2>/dev/null | \
             sed 's#.*/tag/##')
 
         # When the request fails (unreachable network, rate limit), curl still
         # prints the attempted URL, which would produce an invalid image tag
-        # like notploy/notploy:https://... Accept only values that look like a
+        # like skygenesisenterprise/notploy:https://... Accept only values that look like a
         # release tag (e.g. v0.29.10).
         case "$version" in
             v[0-9]*) ;;
@@ -93,7 +93,7 @@ generate_random_password() {
 install_notploy() {
     # Detect version tag
     VERSION_TAG=$(detect_version)
-    DOCKER_IMAGE="notploy/notploy:${VERSION_TAG}"
+    DOCKER_IMAGE="skygenesisenterprise/notploy:${VERSION_TAG}"
     
     echo "Installing Notploy version: ${VERSION_TAG}"
     if [ "$(id -u)" != "0" ]; then
@@ -388,7 +388,7 @@ install_notploy() {
 update_notploy() {
     # Detect version tag
     VERSION_TAG=$(detect_version)
-    DOCKER_IMAGE="notploy/notploy:${VERSION_TAG}"
+    DOCKER_IMAGE="skygenesisenterprise/notploy:${VERSION_TAG}"
 
     echo "Updating Notploy to version: ${VERSION_TAG}"
 

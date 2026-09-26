@@ -166,7 +166,7 @@ install_notploy() {
       --update-order stop-first \
       --constraint 'node.role == manager' \
       -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
-      notploy/notploy:latest
+      skygenesisenterprise/notploy:latest
 
 
     docker run -d \
@@ -223,10 +223,10 @@ update_notploy() {
     echo "Updating Notploy..."
     
     # Pull the latest image
-    docker pull notploy/notploy:latest
+    docker pull skygenesisenterprise/notploy:latest
 
     # Update the service
-    docker service update --image notploy/notploy:latest notploy
+    docker service update --image skygenesisenterprise/notploy:latest notploy
 
     echo "Notploy has been updated to the latest version."
 }
@@ -323,7 +323,7 @@ docker service create \
   --constraint 'node.role == manager' \
   -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
   -e BETTER_AUTH_SECRET_FILE=/run/secrets/notploy_auth_secret \
-  notploy/notploy:latest
+  skygenesisenterprise/notploy:latest
 
 # 6. Create the Traefik container
 # Notploy generates the Traefik configuration in /etc/notploy/traefik
@@ -378,10 +378,10 @@ The installation script automatically detects the latest stable version from Git
 
 **Install a Specific Version (Recommended):**
 
-Every [Notploy release](https://github.com/Notploy/notploy/releases) includes its own `install.sh` as a release asset, which installs exactly that version with the setup it expects. Just replace the version tag in the URL with the one you want:
+Every [Notploy release](https://github.com/skygenesisenterprise/notploy/releases) includes its own `install.sh` as a release asset, which installs exactly that version with the setup it expects. Just replace the version tag in the URL with the one you want:
 
 ```bash
-curl -sL https://github.com/Notploy/notploy/releases/download/v0.15.0/install.sh | sh
+curl -sL https://github.com/skygenesisenterprise/notploy/releases/download/v0.15.0/install.sh | sh
 ```
 
 <Callout type='info'>
@@ -452,5 +452,5 @@ docker network connect notploy-network notploy-traefik
 ```
 
 <Callout type='warn'>
-  **Breaking changes:** Some Traefik versions introduce breaking changes that may not be compatible with the configuration and structure Notploy uses. Before upgrading, check the [Traefik release notes](https://github.com/traefik/traefik/releases) and [Notploy releases](https://github.com/Notploy/notploy/releases) for any announced breaking changes. Using an incompatible version can cause routing issues (e.g. 404s for applications using domains).
+  **Breaking changes:** Some Traefik versions introduce breaking changes that may not be compatible with the configuration and structure Notploy uses. Before upgrading, check the [Traefik release notes](https://github.com/traefik/traefik/releases) and [Notploy releases](https://github.com/skygenesisenterprise/notploy/releases) for any announced breaking changes. Using an incompatible version can cause routing issues (e.g. 404s for applications using domains).
 </Callout>

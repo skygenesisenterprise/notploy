@@ -10,7 +10,7 @@ All examples assume you use `Nixpacks` as the build type.
 ## Server side rendering
 
 1. **Use Git Provider in Your Application**:
-   - Repository: `https://github.com/Notploy/examples.git`
+   - Repository: `https://github.com/skygenesisenterprise/notploy.git`
    - Branch: `main`
    - Build path: `/nuxt`
 
@@ -33,7 +33,7 @@ All examples assume you use `Nixpacks` as the build type.
 ## Static site
 
 1. **Use Git Provider in Your Application**:
-   - Repository: `https://github.com/Notploy/examples.git`
+   - Repository: `https://github.com/skygenesisenterprise/notploy.git`
    - Branch: `main`
    - Build path: `/nuxt`
 

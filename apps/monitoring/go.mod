@@ -1,4 +1,4 @@
-module github.com/mauriciogm/notploy/apps/monitoring
+module github.com/skygenesisenterprise/notploy/apps/monitoring
 
 go 1.20
 
@@ -31,4 +31,4 @@ require (
 	golang.org/x/sys v0.28.0 // indirect
 )
 
-replace github.com/mauriciogm/notploy/apps/monitoring => ./
+replace github.com/skygenesisenterprise/notploy/apps/monitoring => ./

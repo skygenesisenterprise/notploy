@@ -18,7 +18,7 @@ export async function GET() {
 
 	try {
 		const response = await fetch(
-			"https://hub.docker.com/v2/repositories/notploy/notploy/",
+			"https://hub.docker.com/v2/repositories/skygenesisenterprise/notploy/",
 			{
 				headers: {
 					"User-Agent": "Notploy-Website",

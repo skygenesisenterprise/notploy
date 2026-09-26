@@ -31,7 +31,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Notploy/mcp.git"
+    "url": "git+https://github.com/skygenesisenterprise/notploy.git"
   },
   "keywords": [
     "modelcontextprotocol",
@@ -40,9 +40,9 @@
   ],
   "author": "Henrique Andrade <developer@henriqueandrade.dev>",
   "bugs": {
-    "url": "https://github.com/Notploy/mcp/issues"
+    "url": "https://github.com/skygenesisenterprise/notploy/issues"
   },
-  "homepage": "https://github.com/Notploy/mcp#readme",
+  "homepage": "https://github.com/skygenesisenterprise/notploy/tree/master/packages/mcp#readme",
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {

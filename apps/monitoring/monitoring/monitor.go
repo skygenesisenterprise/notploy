@@ -18,8 +18,8 @@ import (
 	"github.com/shirou/gopsutil/v3/mem"
 	"github.com/shirou/gopsutil/v3/net"
 
-	"github.com/mauriciogm/notploy/apps/monitoring/config"
-	"github.com/mauriciogm/notploy/apps/monitoring/database"
+	"github.com/skygenesisenterprise/notploy/apps/monitoring/config"
+	"github.com/skygenesisenterprise/notploy/apps/monitoring/database"
 )
 
 type SystemMetrics struct {

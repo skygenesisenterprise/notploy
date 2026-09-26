@@ -215,7 +215,7 @@ The Docker container supports both **stdio** and **HTTP** transport modes, makin
 1.  **Build the Docker Image:**
 
     ```bash
-    git clone https://github.com/Notploy/mcp.git
+    git clone https://github.com/skygenesisenterprise/notploy.git
     cd mcp
     docker build -t notploy-mcp .
     ```
@@ -498,7 +498,7 @@ Built with **@modelcontextprotocol/sdk**, **TypeScript**, and **Zod** for type-s
 Clone the project and install dependencies:
 
 ```bash
-git clone https://github.com/Notploy/mcp.git
+git clone https://github.com/skygenesisenterprise/notploy.git
 cd mcp
 pnpm install
 ```
@@ -556,7 +556,7 @@ We welcome contributions! If you'd like to contribute to the Notploy MCP Server,
 
 ## Support
 
-If you encounter any issues, have questions, or want to suggest a feature, please [open an issue](https://github.com/Notploy/mcp/issues) in our GitHub repository.
+If you encounter any issues, have questions, or want to suggest a feature, please [open an issue](https://github.com/skygenesisenterprise/notploy/issues) in our GitHub repository.
 
 ## License
 

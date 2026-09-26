@@ -22,7 +22,7 @@ const LEGIT_VALUES = [
 	"main",
 	"feature/login-v2",
 	"release-1.2.3",
-	"https://github.com/notploy/notploy.git",
+	"https://github.com/skygenesisenterprise/notploy.git",
 	"https://gitlab.example.com/group/sub/project.git",
 ];
 

@@ -4,7 +4,7 @@ This repository contains an example of Qwikjs application that is deployed on No
 
 
 1. **Use Git Provider in Your Application**:
-   - Repository: `https://github.com/Notploy/examples.git`
+   - Repository: `https://github.com/skygenesisenterprise/notploy.git`
    - Branch: `main`
    - Build path: `/qwik`
    - Publish Directory: `./dist` (Nixpacks)

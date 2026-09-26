@@ -32,7 +32,7 @@ docker ps
 
 You should see all three of these containers running:
 ```bash
-2a5b955c32b6   notploy/notploy:latest      "docker-entrypoint.s…"   4 days ago     Up 4 days     0.0.0.0:3000->3000/tcp, :::3000->3000/tcp                                                                             notploy.1.4bkuszk98muz372kw5mvwkw0h
+2a5b955c32b6   skygenesisenterprise/notploy:latest      "docker-entrypoint.s…"   4 days ago     Up 4 days     0.0.0.0:3000->3000/tcp, :::3000->3000/tcp                                                                             notploy.1.4bkuszk98muz372kw5mvwkw0h
 5a989bf52bc6   postgres:16                 "docker-entrypoint.s…"   4 days ago     Up 4 days     5432/tcp                                                                                                              notploy-postgres.1.9hvjaxrmby7ex2denjtwo0csf
 05be01c5612f   traefik:v2.5                "/entrypoint.sh trae…"   4 days ago     Up 4 days     0.0.0.0:80->80/tcp, :::80->80/tcp, 0.0.0.0:443->443/tcp, :::443->443/tcp, 0.0.0.0:8080->8080/tcp, :::8080->8080/tcp   notploy-traefik.1.2oktabjmfu558x2d2dy6czt8m
 ```
@@ -267,7 +267,7 @@ docker service create \
   --constraint 'node.role == manager' \
   -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
   -e BETTER_AUTH_SECRET_FILE=/run/secrets/notploy_auth_secret \
-  notploy/notploy:latest
+  skygenesisenterprise/notploy:latest
 ```
 
 **For Proxmox LXC environments**, add the `--endpoint-mode dnsrr` flag to all services:
@@ -289,7 +289,7 @@ docker service create \
   --endpoint-mode dnsrr \
   -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
   -e BETTER_AUTH_SECRET_FILE=/run/secrets/notploy_auth_secret \
-  notploy/notploy:latest
+  skygenesisenterprise/notploy:latest
 ```
 
 

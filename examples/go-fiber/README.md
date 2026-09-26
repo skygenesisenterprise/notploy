@@ -4,7 +4,7 @@ This repository contains an example of Go fiber application that is deployed on 
 
 
 1. **Use Git Provider in Your Application**:
-   - Repository: `https://github.com/Notploy/examples.git`
+   - Repository: `https://github.com/skygenesisenterprise/notploy.git`
    - Branch: `main`
    - Build path: `/go-fiber`
 

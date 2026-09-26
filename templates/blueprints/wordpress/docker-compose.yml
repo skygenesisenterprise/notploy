@@ -4,7 +4,7 @@ services:
     # Resolve the site's own domain to the Traefik container instead of the
     # server's public IP. Loopback requests (REST API, WP-Cron, Site Health)
     # otherwise depend on hairpin NAT, which times out on many hosts
-    # (cURL error 28). See https://github.com/Notploy/templates/issues/128
+    # (cURL error 28). See https://github.com/Dokploy/templates/issues/128
     command:
       - bash
       - -c

@@ -194,7 +194,7 @@ export function Footer() {
 							</svg>
 						</Link>
 						<Link
-							href="https://github.com/notploy/notploy"
+							href="https://github.com/skygenesisenterprise/notploy"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-muted-foreground hover:text-muted-foreground/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black rounded"

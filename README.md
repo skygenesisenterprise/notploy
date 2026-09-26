@@ -49,8 +49,8 @@ For detailed documentation, visit [docs.notploy.com](https://docs.notploy.com).
 
 ### Contributors 🤝
 
-<a href="https://github.com/notploy/notploy/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=notploy/notploy" alt="Contributors" />
+<a href="https://github.com/skygenesisenterprise/notploy/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=skygenesisenterprise/notploy" alt="Contributors" />
 </a>
 
 ## 📺 Video Tutorial

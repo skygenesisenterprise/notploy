@@ -7,7 +7,7 @@
   "links": {
     "github": "https://github.com/OpenLabs-so/openanalytics",
     "website": "https://getopen.so",
-    "docs": "https://github.com/OpenLabs-so/openanalytics/blob/main/infra/selfhost/NOTPLOY.md"
+    "docs": "https://github.com/OpenLabs-so/openanalytics/blob/main/infra/selfhost/DOKPLOY.md"
   },
   "tags": ["analytics"]
 }

@@ -10,7 +10,7 @@ const Navigation = () => {
     const fetchGithubStars = async () => {
       try {
         const response = await fetch(
-          "https://api.github.com/repos/notploy/notploy"
+          "https://api.github.com/repos/skygenesisenterprise/notploy"
         );
         const data = await response.json();
         setGithubStars(
@@ -34,7 +34,7 @@ const Navigation = () => {
         <Button
           onClick={() => {
             window.open(
-              "https://github.com/Notploy/templates/issues/new",
+              "https://github.com/skygenesisenterprise/notploy/issues/new",
               "_blank"
             );
           }}
@@ -45,7 +45,7 @@ const Navigation = () => {
 
         <Button
           onClick={() => {
-            window.open("https://github.com/notploy/notploy", "_blank");
+            window.open("https://github.com/skygenesisenterprise/notploy", "_blank");
           }}
           variant="outline"
           //   className="flex cursor-pointer hover:bg-gray-400 flex-row gap-2 items-center"

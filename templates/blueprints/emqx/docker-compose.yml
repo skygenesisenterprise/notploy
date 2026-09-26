@@ -2,7 +2,7 @@
 # for port 8883 (mqtts over TCP)
 #
 # For the full instructions, refer to:
-# - https://github.com/Notploy/notploy/discussions/3126
+# - https://github.com/Dokploy/dokploy/discussions/3126
 #
 # The initial login credentials are:
 # - USERNAME: admin

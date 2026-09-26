@@ -50,7 +50,7 @@ export const getUpdateData = async (
 ): Promise<IUpdateData> => {
 	try {
 		const baseUrl =
-			"https://hub.docker.com/v2/repositories/notploy/notploy/tags";
+			"https://hub.docker.com/v2/repositories/skygenesisenterprise/notploy/tags";
 		let url: string | null = `${baseUrl}?page_size=100`;
 		let allResults: { digest: string; name: string }[] = [];
 
@@ -295,7 +295,7 @@ export const reloadDockerResource = async (
 				imageTag = currentImageTag;
 			}
 
-			command = `docker service update --force --image notploy/notploy:${imageTag} ${resourceName}`;
+			command = `docker service update --force --image skygenesisenterprise/notploy:${imageTag} ${resourceName}`;
 		} else {
 			command = `docker service update --force ${resourceName}`;
 		}

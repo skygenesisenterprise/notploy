@@ -4,7 +4,7 @@ This repository contains an example of Preact application that is deployed on No
 
 
 1. **Use Git Provider in Your Application**:
-   - Repository: `https://github.com/Notploy/examples.git`
+   - Repository: `https://github.com/skygenesisenterprise/notploy.git`
    - Branch: `main`
    - Build path: `/preact`
    - Publish Directory: `./dist` (Nixpacks)

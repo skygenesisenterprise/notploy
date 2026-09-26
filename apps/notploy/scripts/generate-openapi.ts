@@ -77,7 +77,7 @@ async function generateOpenAPI() {
 			},
 			license: {
 				name: "Apache 2.0",
-				url: "https://github.com/notploy/notploy/blob/canary/LICENSE",
+				url: "https://github.com/skygenesisenterprise/notploy/blob/master/LICENSE",
 			},
 		};
 

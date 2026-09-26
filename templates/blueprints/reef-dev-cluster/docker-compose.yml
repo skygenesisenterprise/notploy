@@ -77,7 +77,7 @@ services:
         echo '📥 Downloading cluster bootstrap...'
 
         wget -O /workspace/run-cluster.sh \
-          https://raw.githubusercontent.com/anukulpandey/notploy-templates/d8a82420dad013a3eb7e5d8afc0b9f2700a0045a/blueprints/reef-dev-cluster/run-cluster.sh
+          https://raw.githubusercontent.com/skygenesisenterprise/notploy/master/templates/blueprints/reef-dev-cluster/run-cluster.sh
 
         echo '🔧 Making script executable...'
 
@@ -85,7 +85,7 @@ services:
 
         echo '🚀 Starting self-contained network...'
 
-        exec env TEMPLATE_ASSET_REF=d8a82420dad013a3eb7e5d8afc0b9f2700a0045a \
+        exec env TEMPLATE_ASSET_REF="${TEMPLATE_ASSET_REF:-master}" \
           /workspace/run-cluster.sh
 
   reef-dev-cluster-eth-rpc:

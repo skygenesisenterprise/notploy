@@ -670,7 +670,7 @@ export const notificationRouter = createTRPCRouter({
 					input,
 					"Test Notification",
 					"",
-					"view, visit Notploy on Github, https://github.com/notploy/notploy, clear=true;",
+					"view, visit Notploy on Github, https://github.com/skygenesisenterprise/notploy, clear=true;",
 					"Hi, From Notploy 👋",
 				);
 				return true;

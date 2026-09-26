@@ -128,17 +128,17 @@ pnpm run lint
 
 Commands are auto-generated from `openapi.json`. To update:
 
-1. Replace `openapi.json` with the latest spec from the [Notploy repo](https://github.com/Notploy/notploy)
+1. Replace `openapi.json` with the latest spec from the [Notploy repo](https://github.com/skygenesisenterprise/notploy)
 2. Run `pnpm run generate`
 3. Build with `pnpm run build`
 
 ## Contributing
 
-If you want to contribute to Notploy CLI, please check out our [Contributing Guide](https://github.com/Notploy/cli/blob/main/CONTRIBUTING.md).
+If you want to contribute to Notploy CLI, please check out our [Contributing Guide](https://github.com/skygenesisenterprise/notploy/blob/master/packages/cli/CONTRIBUTING.md).
 
 ## Support
 
-If you encounter any issues or have any questions, please [open an issue](https://github.com/Notploy/cli/issues) in our GitHub repository.
+If you encounter any issues or have any questions, please [open an issue](https://github.com/skygenesisenterprise/notploy/issues) in our GitHub repository.
 
 ## License
 

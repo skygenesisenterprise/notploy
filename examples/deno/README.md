@@ -4,7 +4,7 @@ This repository contains an example of Deno application that is deployed on Notp
 
 
 1. **Use Git Provider in Your Application**:
-   - Repository: `https://github.com/Notploy/examples.git`
+   - Repository: `https://github.com/skygenesisenterprise/notploy.git`
    - Branch: `main`
    - Build path: `/deno`
    - Select `Dockerfile` as Build Type

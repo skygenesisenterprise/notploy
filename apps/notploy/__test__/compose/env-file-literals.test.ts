@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { getCreateEnvFileCommand } from "@notploy/server/utils/builders/compose";
 import { afterEach, describe, expect, it } from "vitest";
 
-// Regression coverage for https://github.com/Notploy/notploy/issues/4694 —
+// Regression coverage for https://github.com/Dokploy/dokploy/issues/4694 —
 // values must survive Docker Compose's own `.env` parsing, not just base64 decode.
 const appName = `env-file-literals-${process.pid}`;
 const projectPath = join(process.cwd(), ".docker", "compose", appName);

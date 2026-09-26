@@ -142,8 +142,8 @@ const createPushRequest = (
 			repository: {
 				name: "notploy",
 				full_name: "agentHits/notploy",
-				clone_url: "https://github.com/agentHits/notploy.git",
-				html_url: "https://github.com/agentHits/notploy",
+				clone_url: "https://github.com/agentHits/dokploy.git",
+				html_url: "https://github.com/agentHits/dokploy",
 				owner,
 			},
 		},
@@ -359,7 +359,7 @@ describe("GitHub app webhook preview deployments", () => {
 					id: 987,
 					number: 42,
 					title: "feat: add preview",
-					html_url: "https://github.com/agentHits/notploy/pull/42",
+					html_url: "https://github.com/agentHits/dokploy/pull/42",
 					labels: [],
 					user: {
 						login: "agentHits",

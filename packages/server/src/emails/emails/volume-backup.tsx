@@ -53,7 +53,7 @@ export const VolumeBackupEmail = ({
 						<Section className="mt-[32px]">
 							<Img
 								src={
-									"https://raw.githubusercontent.com/Notploy/notploy/refs/heads/canary/apps/notploy/logo.png"
+									"https://raw.githubusercontent.com/skygenesisenterprise/notploy/refs/heads/master/apps/notploy/logo.png"
 								}
 								width="100"
 								height="50"

@@ -47,7 +47,7 @@ export const TrialExpiringEmail = ({
 					<Container className="my-[40px] mx-auto max-w-[520px]">
 						<Section className="bg-[#09090b] rounded-t-xl px-[40px] py-[32px] text-center">
 							<Img
-								src="https://raw.githubusercontent.com/Notploy/website/refs/heads/main/apps/docs/public/logo-notploy-blackpng.png"
+								src="https://raw.githubusercontent.com/skygenesisenterprise/notploy/refs/heads/master/web/apps/docs/public/logo-notploy-blackpng.png"
 								width="190"
 								height="120"
 								alt="Notploy"

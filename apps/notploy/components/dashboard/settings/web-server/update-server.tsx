@@ -247,7 +247,7 @@ export const UpdateServer = ({
 							<div className="text-[#5B9DFF]">
 								We recommend reviewing the{" "}
 								<Link
-									href="https://github.com/Notploy/notploy/releases"
+									href="https://github.com/skygenesisenterprise/notploy/releases"
 									target="_blank"
 									className="text-white underline hover:text-zinc-200"
 								>

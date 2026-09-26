@@ -149,7 +149,7 @@ export const getContainerByName = (name: string): Promise<ContainerInfo> => {
 /**
  * Docker commands sent using this method are held in a hold when Docker is busy.
  *
- * https://github.com/Notploy/notploy/pull/3064
+ * https://github.com/Dokploy/dokploy/pull/3064
  */
 export const dockerSafeExec = (exec: string) => `
 CHECK_INTERVAL=10
@@ -359,7 +359,7 @@ export const getBuildCache = async (
 /**
  * Volume cleanup should always be performed manually by the user. The reason is that during automatic cleanup, a volume may be deleted due to a stopped container, which is a dangerous situation.
  *
- * https://github.com/Notploy/notploy/pull/3267
+ * https://github.com/Dokploy/dokploy/pull/3267
  */
 const excludedCleanupAllCommands: (keyof typeof cleanupCommands)[] = [
 	"volumes",

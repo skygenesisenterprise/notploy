@@ -26,7 +26,7 @@ We will use Github Actions as an example, but you can use any CI/CD pipeline tha
 We will use the following configuration:
 
 1. **Use Git Provider in Your Application**:
-   - Repository: `https://github.com/Notploy/production-example`
+   - Repository: `https://github.com/skygenesisenterprise/production-example`
    - Branch: `main`
    - Build path: `/`
 
@@ -150,7 +150,7 @@ jobs:
        ...Same as step 7 from the previous example
           
       - name: Trigger Notploy Deployment
-        uses: notploy/notploy-action@v1
+        uses: Dokploy/dokploy-action@v1
         run: |
             curl -X 'POST' \
             'https://<your-notploy-domain>/api/application.deploy' \
@@ -162,7 +162,7 @@ jobs:
             }'
 ```
 
-You can also use this Github Action [Action](https://github.com/marketplace/actions/notploy-deployment) to automate the deployment.
+You can also use this Github Action [Action](https://github.com/marketplace/actions/dokploy-deployment) to automate the deployment.
 
 ## Healthcheck & Rollbacks
 

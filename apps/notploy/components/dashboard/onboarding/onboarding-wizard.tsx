@@ -192,7 +192,7 @@ export const OnboardingWizard = ({ onClose }: Props) => {
 							)}
 							<div className="flex items-center gap-3 text-zinc-500">
 								<Link
-									href="https://github.com/notploy/notploy"
+									href="https://github.com/skygenesisenterprise/notploy"
 									target="_blank"
 									className="hover:text-zinc-200 transition-colors"
 								>

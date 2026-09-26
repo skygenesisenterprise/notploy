@@ -45,7 +45,7 @@ export const OnboardingLayout = ({ children, leftPanel }: Props) => {
 				</div>
 				<div className="mx-auto flex w-full max-w-lg items-center justify-center gap-1 pb-6 text-muted-foreground sm:justify-end">
 					<Button variant="ghost" size="icon">
-						<Link href="https://github.com/notploy/notploy">
+						<Link href="https://github.com/skygenesisenterprise/notploy">
 							<GithubIcon />
 						</Link>
 					</Button>

@@ -139,7 +139,7 @@ function stripUnsupportedRegexPatterns(value: unknown): void {
 // Zod→JSON Schema converter emits draft-07 by default, which causes a 400
 // error on tools/list. We bypass the SDK's auto-generated handler by
 // registering our own with pre-converted draft-2020-12 schemas.
-// See https://github.com/Notploy/mcp/issues/32
+// See https://github.com/Dokploy/mcp/issues/32
 function toDraft2020_12JsonSchema(schema: ZodObject<ZodRawShape>): Record<string, unknown> {
   const result = zodToJsonSchema(schema, {
     target: "jsonSchema2019-09",

@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mauriciogm/notploy/apps/monitoring/config"
-	"github.com/mauriciogm/notploy/apps/monitoring/database"
+	"github.com/skygenesisenterprise/notploy/apps/monitoring/config"
+	"github.com/skygenesisenterprise/notploy/apps/monitoring/database"
 )
 
 type ContainerMonitor struct {
