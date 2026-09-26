@@ -2,6 +2,7 @@ import { getTemplates, getTopTags } from "@/lib/templates";
 import type { Metadata } from "next";
 import { SearchAndFilter } from "../blog/components/SearchAndFilter";
 import { TemplateCard } from "./components/TemplateCard";
+import { FilterableList } from "../filterable-list";
 
 export const metadata: Metadata = {
 	title: "Open Source Templates - One-Click Self-Hosted Deployments",
@@ -19,31 +20,18 @@ export const metadata: Metadata = {
 	},
 };
 
-export default async function TemplatesPage({
-	searchParams,
-}: {
-	searchParams: { [key: string]: string | string[] | undefined };
-}) {
-	const resolvedParams = await searchParams;
+export default async function TemplatesPage() {
+	// No `searchParams` here: awaiting it makes the page dynamic, which
+	// `output: "export"` rejects. The full set is rendered and FilterableList
+	// narrows it on the client from the same `?search=` / `?tag=` parameters.
 	const templates = await getTemplates();
 	const topTags = getTopTags(templates);
 
-	const search =
-		typeof resolvedParams.search === "string" ? resolvedParams.search : "";
-	const selectedTag =
-		typeof resolvedParams.tag === "string" ? resolvedParams.tag : "";
-
-	const filteredTemplates = templates.filter((template) => {
-		const matchesSearch =
-			search === "" ||
-			template.name.toLowerCase().includes(search.toLowerCase()) ||
-			template.description.toLowerCase().includes(search.toLowerCase());
-
-		const matchesTag =
-			selectedTag === "" || template.tags.includes(selectedTag);
-
-		return matchesSearch && matchesTag;
-	});
+	const items = templates.map((template) => ({
+		key: template.id,
+		search: `${template.name} ${template.description}`,
+		tags: template.tags,
+	}));
 
 	return (
 		<div className="container mx-auto max-w-7xl px-4 py-12 mt-14">
@@ -60,27 +48,22 @@ export default async function TemplatesPage({
 
 			<SearchAndFilter
 				tags={topTags.map((tag) => ({ id: tag, name: tag, slug: tag }))}
-				initialSearch={search}
-				initialTag={selectedTag}
+				initialSearch=""
+				initialTag=""
 				searchPlaceholder="Search templates..."
 				allTagsText="All Tags"
 			/>
 
-			{filteredTemplates.length === 0 ? (
-				<div className="flex min-h-[20vh] items-center justify-center py-12 text-center">
-					<p className="text-xl text-muted-foreground">
-						{search || selectedTag
-							? "No templates found matching your criteria"
-							: "No templates available"}
-					</p>
-				</div>
-			) : (
-				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{filteredTemplates.map((template) => (
-						<TemplateCard key={template.id} template={template} />
-					))}
-				</div>
-			)}
+			<FilterableList
+				items={items}
+				searchPlaceholder="templates"
+				emptyMessage="No templates available"
+				className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+			>
+				{templates.map((template) => (
+					<TemplateCard key={template.id} template={template} />
+				))}
+			</FilterableList>
 		</div>
 	);
 }

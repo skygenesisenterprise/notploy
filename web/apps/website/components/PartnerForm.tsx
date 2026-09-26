@@ -1,6 +1,7 @@
 "use client";
 
 import { trackGAEvent } from "@/components/analitycs";
+import { submitContactForm } from "@/lib/contact";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -67,20 +68,16 @@ export function PartnerForm() {
 					?.label ?? formData.programInterest;
 			const fullMessage = `Program Interest: ${programLabel}\n\n${formData.message}`;
 
-			const response = await fetch("/api/contact", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					inquiryType: "sales",
-					firstName: formData.firstName,
-					lastName: formData.lastName,
-					email: formData.email,
-					company: formData.company,
-					message: fullMessage,
-				}),
+			const result = await submitContactForm({
+				inquiryType: "sales",
+				firstName: formData.firstName,
+				lastName: formData.lastName,
+				email: formData.email,
+				company: formData.company,
+				message: fullMessage,
 			});
 
-			if (response.ok) {
+			if (result.ok) {
 				trackGAEvent({
 					action: "Partner Form Submitted",
 					category: "Partners",
@@ -88,7 +85,7 @@ export function PartnerForm() {
 				});
 				setIsSubmitted(true);
 			} else {
-				throw new Error("Failed to submit");
+				throw new Error(result.error ?? "Failed to submit");
 			}
 		} catch {
 			setErrors({ message: "Something went wrong. Please try again." });

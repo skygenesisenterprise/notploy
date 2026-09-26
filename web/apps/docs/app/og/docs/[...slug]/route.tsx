@@ -3,7 +3,10 @@ import { generate as DefaultImage } from "fumadocs-ui/og";
 import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
 
-export const revalidate = false;
+// All data comes from the filesystem MDX source at build time.
+// "force-static" is required by `output: "export"` (GitHub Pages) and is a
+// no-op change for the standalone server.
+export const dynamic = "force-static";
 
 export async function GET(
 	_req: Request,

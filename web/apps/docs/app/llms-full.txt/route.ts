@@ -1,6 +1,9 @@
 import { getLLMText, source } from "@/lib/source";
 
-export const revalidate = false;
+// All data comes from the filesystem MDX source at build time.
+// "force-static" is required by `output: "export"` (GitHub Pages) and is a
+// no-op change for the standalone server.
+export const dynamic = "force-static";
 
 const baseUrl = "https://docs.notploy.com";
 

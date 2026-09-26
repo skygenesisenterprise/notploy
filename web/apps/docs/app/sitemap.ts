@@ -21,3 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		...pages,
 	];
 }
+
+// Required by `output: "export"` (GitHub Pages) so the route is emitted
+// as a static file instead of being skipped.
+export const dynamic = "force-static";

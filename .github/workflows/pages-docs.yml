@@ -1,0 +1,161 @@
+name: Deploy docs to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "web/apps/docs/**"
+      - "web/package.json"
+      - "web/biome.json"
+      - "web/pnpm-lock.yaml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/pages-docs.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "web/apps/docs/**"
+      - "web/package.json"
+      - "web/biome.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/pages-docs.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24.4.0"
+  PNPM_VERSION: "10.22.0"
+
+jobs:
+  build:
+    name: Build static export
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      base_path: ${{ steps.config.outputs.base_path }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Resolve asset prefix
+        id: config
+        run: |
+          # If Pages is served from a project sub-path (https://<org>.github.io/<repo>/)
+          # Next.js needs basePath + assetPrefix. `base_path` is emitted by
+          # actions/configure-pages and is empty for user/org sites.
+          base_path="${{ steps.pages.outputs.base_path }}"
+          echo "base_path=$base_path" >> "$GITHUB_OUTPUT"
+          echo "Serving docs from base path: '${base_path:-/ (domain root)}'"
+
+      - name: Generate OpenAPI reference pages
+        run: pnpm --filter=@notploy/docs run build:docs
+
+      - name: Build static export
+        env:
+          # Switches web/apps/docs/next.config.mjs from `output: "standalone"`
+          # (used by the Docker image) to `output: "export"`.
+          NEXT_OUTPUT: export
+          NEXT_BASE_PATH: ${{ steps.config.outputs.base_path }}
+          # NEXT_PUBLIC_* are inlined into the client bundle at build time.
+          # SearchDialog.tsx reads these to decide between the static Orama
+          # index and the runtime search route, so they must be set here or the
+          # exported site silently falls back to the runtime endpoint.
+          NEXT_PUBLIC_NOTPLOY_OUTPUT: export
+          NEXT_PUBLIC_BASE_PATH: ${{ steps.config.outputs.base_path }}
+        run: pnpm --filter=@notploy/docs run build
+
+      - name: Verify export output
+        run: |
+          out="web/apps/docs/out"
+          if [ ! -d "$out" ]; then
+            echo "::error::No static export found at $out"
+            exit 1
+          fi
+          # There is no app/page.tsx: the docs entry point is /docs/core (marked
+          # `root: true` in content/docs/core/meta.json). `output: "export"` does
+          # not support `redirect()` in a server component, so the site root is a
+          # small static redirect written here rather than a route in the app.
+          pages="$(du -sh "$out" | cut -f1)"
+          pages_count="$(find "$out" -name '*.html' | wc -l)"
+          echo "Exported $pages_count HTML files ($pages)."
+
+          if [ ! -f "$out/docs/core/index.html" ]; then
+            echo "::error::$out/docs/core/index.html is missing — the redirect target does not exist"
+            exit 1
+          fi
+          if [ ! -f "$out/api/search" ]; then
+            echo "::error::$out/api/search is missing — the static search index was not emitted"
+            exit 1
+          fi
+          # A 2-byte body means Response.json() serialised a Promise instead of
+          # the resolved index, which silently breaks search in the browser.
+          search_size="$(wc -c < "$out/api/search")"
+          if [ "$search_size" -lt 1024 ]; then
+            echo "::error::Static search index is only ${search_size}B, expected a full Orama index"
+            exit 1
+          fi
+          echo "Search index: $(numfmt --to=iec "$search_size")"
+
+          cat > "$out/index.html" <<HTML
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8" />
+              <title>Notploy Documentation</title>
+              <link rel="canonical" href="${{ steps.config.outputs.base_path }}/docs/core" />
+              <meta http-equiv="refresh" content="0; url=${{ steps.config.outputs.base_path }}/docs/core" />
+            </head>
+            <body>
+              <p>Redirecting to <a href="${{ steps.config.outputs.base_path }}/docs/core">the Notploy documentation</a>&hellip;</p>
+            </body>
+          </html>
+          HTML
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: web/apps/docs/out
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    # Production deploys only: master pushes and manual runs. Pull requests get
+    # the build + artifact so the export is validated, but pushing a preview
+    # from a fork would fail (no Pages token) and from a branch requires a
+    # configured deployment branch.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5

@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BlogPostCard } from "./components/BlogPostCard";
 import { SearchAndFilter } from "./components/SearchAndFilter";
+import { FilterableList } from "../filterable-list";
 
 interface Tag {
 	id: string;
@@ -17,30 +18,18 @@ export const metadata: Metadata = {
 	description: "Latest news, updates, and articles from Notploy",
 };
 
-export default async function BlogPage({
-	searchParams,
-}: {
-	searchParams: { [key: string]: string | string[] | undefined };
-}) {
-	const searchParams2 = await searchParams;
+export default async function BlogPage() {
+	// No `searchParams` here: awaiting it makes the page dynamic, which
+	// `output: "export"` rejects. The full set is rendered and FilterableList
+	// narrows it on the client from the same `?search=` / `?tag=` parameters.
 	const posts = await getPosts();
 	const tags = (await getTags()) as Tag[];
-	const search =
-		typeof searchParams2.search === "string" ? searchParams2.search : "";
-	const selectedTag =
-		typeof searchParams2.tag === "string" ? searchParams2.tag : "";
 
-	const filteredPosts = posts.filter((post) => {
-		const matchesSearch =
-			search === "" ||
-			post.title.toLowerCase().includes(search.toLowerCase()) ||
-			post.excerpt.toLowerCase().includes(search.toLowerCase());
-
-		const matchesTag =
-			selectedTag === "" || post.tags?.some((tag) => tag.slug === selectedTag);
-
-		return matchesSearch && matchesTag;
-	});
+	const items = posts.map((post: Post) => ({
+		key: post.id,
+		search: `${post.title} ${post.excerpt}`,
+		tags: (post.tags ?? []).map((tag) => tag.slug),
+	}));
 
 	return (
 		<div className="container mx-auto max-w-5xl px-4 py-12">
@@ -61,27 +50,22 @@ export default async function BlogPage({
 
 			<SearchAndFilter
 				tags={tags}
-				initialSearch={search}
-				initialTag={selectedTag}
+				initialSearch=""
+				initialTag=""
 				searchPlaceholder="Search posts..."
 				allTagsText="All Tags"
 			/>
 
-			{filteredPosts.length === 0 ? (
-				<div className="flex min-h-[20vh] items-center justify-center py-12 text-center">
-					<p className="text-xl text-muted-foreground">
-						{search || selectedTag
-							? "No posts found matching your criteria"
-							: "No posts available"}
-					</p>
-				</div>
-			) : (
-				<div className="space-y-8">
-					{filteredPosts.map((post: Post) => (
-						<BlogPostCard key={post.id} post={post} />
-					))}
-				</div>
-			)}
+			<FilterableList
+				items={items}
+				searchPlaceholder="posts"
+				emptyMessage="No posts available"
+				className="space-y-8"
+			>
+				{posts.map((post: Post) => (
+					<BlogPostCard key={post.id} post={post} />
+				))}
+			</FilterableList>
 		</div>
 	);
 }

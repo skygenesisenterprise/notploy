@@ -1,6 +1,14 @@
 import { getPosts } from "@/lib/ghost";
 import { NextResponse } from "next/server";
 
+/**
+ * Feeds only read the CMS, so it is written to out/rss.xml at build time.
+ * Without this the route is dynamic and `output: "export"` rejects it.
+ */
+export const dynamic = "force-static";
+
+// generated from the Ghost content API during the build
+
 function escapeXml(unsafe: string): string {
 	return unsafe.replace(/[<>&'"]/g, (c) => {
 		switch (c) {

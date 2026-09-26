@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
 
+/**
+ * Contributor count, baked at build time.
+ *
+ * Under `output: "export"` a route handler must be static; this one only reads
+ * the network, so the snapshot is written to
+ * out/api/github-contributors.json at build time and refreshed on every deploy.
+ */
+export const dynamic = "force-static";
+
 let cachedContributors: { count: number; timestamp: number } | null = null;
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 

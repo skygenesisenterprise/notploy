@@ -1,4 +1,5 @@
 import { getPost, getPosts } from "@/lib/ghost";
+import { ogImageUrl } from "@/lib/og-image-url";
 import type { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,6 +23,17 @@ type Props = {
 	params: { slug: string };
 };
 
+/**
+ * Enumerate every post at build time. Required by the Pages workflow: with
+ * `output: "export"` a dynamic segment without generateStaticParams is dynamic
+ * and the build fails. The Node deployment prerenders these too, so a new post
+ * shows up without a redeploy of the first request.
+ */
+export async function generateStaticParams() {
+	const posts = await getPosts();
+	return posts.map((post) => ({ slug: post.slug }));
+}
+
 export async function generateMetadata(
 	{ params }: Props,
 	parent: ResolvingMetadata,
@@ -35,13 +47,9 @@ export async function generateMetadata(
 		};
 	}
 
-	const ogUrl = new URL(
-		"/api/og",
-		process.env.NODE_ENV === "production"
-			? "https://notploy.com"
-			: "http://localhost:3001",
-	);
-	ogUrl.searchParams.set("slug", slug);
+	// Resolved to the static card on the Pages build, /api/og?slug= on the Node
+	// deployment. See lib/og-image-url.ts.
+	const ogUrl = ogImageUrl({ slug });
 
 	return {
 		title: post.title,
@@ -53,7 +61,7 @@ export async function generateMetadata(
 			url: `${process.env.NEXT_PUBLIC_APP_URL}/blog/${post.slug}`,
 			images: [
 				{
-					url: ogUrl.toString(),
+					url: ogUrl,
 					width: 1200,
 					height: 630,
 					alt: post.title,
@@ -64,7 +72,7 @@ export async function generateMetadata(
 			card: "summary_large_image",
 			title: post.title,
 			description: post.custom_excerpt || post.excerpt,
-			images: [ogUrl.toString()],
+			images: [ogUrl],
 		},
 	};
 }

@@ -1,0 +1,157 @@
+name: Deploy website to GitHub Pages
+
+# Static export of web/apps/website. The same source also ships as a Node
+# process through web/Dockerfile.website; NEXT_OUTPUT=export is what selects
+# this pipeline. See web/apps/website/next.config.js.
+on:
+  push:
+    branches: [master]
+    paths:
+      - "web/apps/website/**"
+      - "web/package.json"
+      - "web/biome.json"
+      - "web/next-env.d.ts"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/pages-website.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "web/apps/website/**"
+      - "web/package.json"
+      - "web/biome.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/pages-website.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: pages-website-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24.4.0"
+  PNPM_VERSION: "10.22.0"
+
+jobs:
+  build:
+    name: Build static export
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Build static export
+        working-directory: web
+        env:
+          # Flips web/apps/website/next.config.js to `output: "export"`,
+          # `trailingSlash: true` and `images.unoptimized`.
+          NEXT_OUTPUT: export
+          NEXT_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          # Consumed by lib/og-image-url.ts and lib/contact.ts.
+          NEXT_PAGES_ORIGIN: ${{ steps.pages.outputs.origin }}
+          # Optional: an absolute URL that accepts the contact/partner form
+          # payload (Formspree, a Worker, or the Docker deployment's
+          # /api/contact). Leave unset and the forms fall back to mailto:.
+          NEXT_PUBLIC_CONTACT_ENDPOINT: ${{ vars.CONTACT_FORM_ENDPOINT }}
+          # Baked into build output and metadata; defaults to
+          # https://notploy.com in lib/og-image-url.ts.
+          NEXT_PUBLIC_APP_URL: ${{ vars.PUBLIC_SITE_URL || 'https://notploy.com' }}
+        run: pnpm --filter=@notploy/website run build
+
+      - name: Verify export output
+        run: |
+          out="web/apps/website/out"
+          if [ ! -d "$out" ]; then
+            echo "::error::No static export found at $out"
+            exit 1
+          fi
+
+          count="$(find "$out" -name '*.html' | wc -l)"
+          size="$(du -sh "$out" | cut -f1)"
+          echo "Exported $count HTML files ($size)."
+
+          for required in index.html blog/index.html templates/index.html \
+                          robots.txt sitemap.xml rss.xml og.png; do
+            if [ ! -e "$out/$required" ]; then
+              echo "::error::$out/$required is missing from the export"
+              exit 1
+            fi
+          done
+
+          # Every /blog/<slug> and /templates/<id> page must exist as a
+          # directory index because trailingSlash is on. A missing one means
+          # generateStaticParams did not run and the link would 404 on Pages.
+          blog_pages="$(find "$out/blog" -mindepth 1 -maxdepth 1 -type d ! -name tag | wc -l)"
+          template_pages="$(find "$out/templates" -mindepth 1 -maxdepth 1 -type d | wc -l)"
+          echo "blog/$blog_pages slugs, templates/$template_pages ids prerendered."
+
+          if [ "$blog_pages" -eq 0 ]; then
+            echo "::error::No blog posts were prerendered — generateStaticParams returned nothing"
+            exit 1
+          fi
+          if [ "$template_pages" -eq 0 ]; then
+            echo "::error::No templates were prerendered — generateStaticParams returned nothing"
+            exit 1
+          fi
+
+          # A static build cannot run the contact route. The forms either post to
+          # NEXT_PUBLIC_CONTACT_ENDPOINT or hand off to mailto:, so an exported
+          # app/api/contact is a leftover, not a feature.
+          if [ -e "$out/api/contact" ]; then
+            echo "::warning::out/api/contact exists; the contact forms post to \${NEXT_PUBLIC_CONTACT_ENDPOINT:-mailto:} instead"
+          fi
+
+          # GitHub Pages rejects a deployment over 1 GB.
+          bytes="$(du -sb "$out" | cut -f1)"
+          if [ "$bytes" -gt 900000000 ]; then
+            echo "::error::Export is $(numfmt --to=iec "$bytes"), too close to the 1 GB GitHub Pages limit"
+            exit 1
+          fi
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: web/apps/website/out
+
+  deploy:
+    name: Deploy to GitHub Pages
+    # pull_request builds verify the export without publishing it.
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+      - name: Record deployment URL
+        run: |
+          echo "Website is live at ${{ steps.deployment.outputs.page_url }}"

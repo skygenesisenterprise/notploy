@@ -1,6 +1,7 @@
 "use client";
 
 import { trackGAEvent } from "@/components/analitycs";
+import { submitContactForm } from "@/lib/contact";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -114,15 +115,11 @@ export function ContactForm({
 		setIsSubmitting(true);
 
 		try {
-			const response = await fetch("/api/contact", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(formData),
-			});
+			// /api/contact under the Node deployment, NEXT_PUBLIC_CONTACT_ENDPOINT
+			// or a mailto: hand-off on the Pages build. See lib/contact.ts.
+			const result = await submitContactForm(formData);
 
-			if (response.ok) {
+			if (result.ok) {
 				trackGAEvent({
 					action: "Contact Form Submitted",
 					category: "Contact",
@@ -146,7 +143,7 @@ export function ContactForm({
 					onSuccess();
 				}
 			} else {
-				throw new Error("Failed to submit form");
+				throw new Error(result.error ?? "Failed to submit form");
 			}
 		} catch (error) {
 			console.error("Error submitting form:", error);

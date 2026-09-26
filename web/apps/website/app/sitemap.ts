@@ -2,6 +2,11 @@ import { getPosts } from "@/lib/ghost";
 import { getTemplates } from "@/lib/templates";
 import type { MetadataRoute } from "next";
 
+// Baked into out/sitemap.xml during the Pages build; see app/robots.ts.
+export const dynamic = "force-static";
+
+// every route is prerendered, so a request-time recompute would be wasted work
+
 const BASE_URL = "https://notploy.com";
 
 const corePages: { path: string; priority: number }[] = [

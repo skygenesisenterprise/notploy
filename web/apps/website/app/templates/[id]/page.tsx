@@ -8,6 +8,7 @@ import {
 	templateToBase64,
 } from "@/lib/templates";
 import { ArrowLeft, BookOpen, Github, Globe } from "lucide-react";
+import { ogImageUrl } from "@/lib/og-image-url";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -29,12 +30,16 @@ const buttonBaseClasses =
 const primaryButtonClasses = `${buttonBaseClasses} bg-primary text-primary-foreground hover:bg-primary/90`;
 const outlineButtonClasses = `${buttonBaseClasses} border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2`;
 
-export const revalidate = 3600;
-export const dynamicParams = true;
+// NOTE: no `export const revalidate` here. ISR is unavailable under
+// `output: "export"`, and Next rejects a route that sets it. The data layer in
+// lib/templates.ts already revalidates its fetches hourly, so the Node
+// deployment still sees fresh data; only the HTML shell is cached.
 
 export async function generateStaticParams() {
 	const templates = await getTemplates();
-	return templates.slice(0, 30).map((template) => ({ id: template.id }));
+	// The whole catalogue, not the first 30: the Pages workflow has to emit an
+	// HTML file for every template detail page.
+	return templates.map((template) => ({ id: template.id }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -49,13 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const description = `${template.description} Deploy ${template.name} on your own server with one click using Notploy's open source template.`;
 	const url = `https://notploy.com/templates/${template.id}`;
 
-	const ogUrl = new URL(
-		"/api/og",
-		process.env.NODE_ENV === "production"
-			? "https://notploy.com"
-			: "http://localhost:3001",
-	);
-	ogUrl.searchParams.set("template", template.id);
+	const ogUrl = ogImageUrl({ template: template.id });
 
 	return {
 		title,
@@ -70,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 			url,
 			images: [
 				{
-					url: ogUrl.toString(),
+					url: ogUrl,
 					width: 1200,
 					height: 630,
 					alt: title,
@@ -81,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 			card: "summary_large_image",
 			title,
 			description,
-			images: [ogUrl.toString()],
+			images: [ogUrl],
 		},
 	};
 }

@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
 
+/**
+ * Docker Hub pull count, baked at build time.
+ *
+ * Under `output: "export"` a route handler must be static, and this one only
+ * reads the network, so the snapshot below is written to
+ * out/api/docker-stats.json at build time and refreshed on every deploy.
+ */
+export const dynamic = "force-static";
+
 let cachedPulls: { count: number; timestamp: number } | null = null;
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
