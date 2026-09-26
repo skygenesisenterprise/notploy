@@ -1,4 +1,4 @@
-name: notploy-docs
+name: docs
 
 # Publishes the documentation (docs.notploy.com) as its own GitHub Pages site.
 #
@@ -53,6 +53,7 @@ concurrency:
 
 permissions:
   contents: read
+  deployments: write
 
 env:
   NODE_VERSION: "24.4.0"
@@ -63,14 +64,10 @@ env:
   CUSTOM_DOMAIN: ${{ vars.DOCS_SITE_URL_HOSTNAME || 'docs.notploy.com' }}
 
 jobs:
-  publish:
-    name: Build and publish notploy-docs
+  build:
+    name: Build notploy-docs
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      # Read through env so the token is masked and never interpolated into the
-      # script body.
-      PUBLISH_TOKEN: ${{ secrets.PAGES_PUBLISH_TOKEN }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -90,17 +87,6 @@ jobs:
 
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Verify the publish credentials
-        # A missing token is fatal here rather than at the push: the build is
-        # the expensive part and there is no point running it twice.
-        run: |
-          set -eo pipefail
-          if [ -z "$PUBLISH_TOKEN" ]; then
-            echo "::error::PAGES_PUBLISH_TOKEN is not set. Add a fine-grained token with Contents: Read and write on $TARGET_REPOSITORY."
-            exit 1
-          fi
-          echo "Publishing to $TARGET_REPOSITORY (gh-pages)"
 
       - name: Generate OpenAPI reference pages
         run: pnpm --filter=@notploy/docs run build:docs
@@ -177,10 +163,40 @@ jobs:
           </html>
           HTML
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docs-pages
+          path: web/apps/docs/out
+
+  publish:
+    name: Publish notploy-docs
+    if: github.event_name != 'pull_request' && inputs.dry-run != true
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: docs
+      url: https://${{ vars.DOCS_SITE_URL_HOSTNAME || 'docs.notploy.com' }}/docs/core
+    env:
+      # Read through env so the token is masked and never interpolated into the
+      # script body.
+      PUBLISH_TOKEN: ${{ secrets.PAGES_PUBLISH_TOKEN }}
+    steps:
+      - name: Verify the publish credentials
+        run: |
+          set -eo pipefail
+          if [ -z "$PUBLISH_TOKEN" ]; then
+            echo "::error::PAGES_PUBLISH_TOKEN is not set. Add a fine-grained token with Contents: Read and write on $TARGET_REPOSITORY."
+            exit 1
+          fi
+          echo "Publishing to $TARGET_REPOSITORY (gh-pages)"
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-pages
+          path: web/apps/docs/out
+
       - name: Publish
-        # Pull requests only build: a fork has no token, and a branch has no
-        # Pages deployment to update.
-        if: github.event_name != 'pull_request' && inputs.dry-run != true
         env:
           OUT: web/apps/docs/out
         run: |
