@@ -171,8 +171,14 @@ jobs:
           VERSION: ${{ steps.release.outputs.version }}
           DIST_TAG: ${{ steps.release.outputs.dist_tag }}
           TARBALL: ${{ steps.pack.outputs.tarball }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
+
+          if [[ -z "${NODE_AUTH_TOKEN:-}" ]]; then
+            echo "::error::Repository secret NPM_TOKEN is required to publish to npmjs"
+            exit 1
+          fi
 
           if npm view "$PACKAGE@$VERSION" version --registry "$NPMJS_REGISTRY" > /dev/null 2>&1; then
             echo "::notice::$PACKAGE@$VERSION is already on npmjs"
