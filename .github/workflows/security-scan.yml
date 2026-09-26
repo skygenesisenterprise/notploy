@@ -77,15 +77,14 @@ jobs:
         with:
           scan-type: secret
           scan-ref: .
-          # Trivy's own rules; the free GitHub secret scanning is enabled
-          # separately in repository settings.
-          trivyignores: |
-            node_modules
-            pnpm-lock.yaml
-            .next
-            out
-            dist
-          report: false
+          # Build output and lockfiles hold no hand-written secret and only slow
+          # the scan down. `trivyignores` is not used here: it takes paths to
+          # .trivyignore files, not patterns. The free GitHub secret scanning is
+          # enabled separately in repository settings.
+          skip-dirs: node_modules,.next,out,dist
+          skip-files: pnpm-lock.yaml
+          # Findings are reported, they just do not fail the job.
+          exit-code: "0"
 
   # ---------------------------------------------------------------------------
   # SBOM for the shipped images. Attaching the CycloneDX document to the release

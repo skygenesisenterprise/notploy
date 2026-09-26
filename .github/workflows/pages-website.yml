@@ -1,8 +1,26 @@
-name: Deploy website to GitHub Pages
+name: notploy-website
 
-# Static export of web/apps/website. The same source also ships as a Node
-# process through web/Dockerfile.website; NEXT_OUTPUT=export is what selects
-# this pipeline. See web/apps/website/next.config.js.
+# Publishes the official site (notploy.com) as its own GitHub Pages site.
+#
+#   this repo -> build web/apps/website -> notploy-website repo, gh-pages branch
+#             -> GitHub Pages (Deploy from a branch) -> notploy.com
+#
+# A repository serves a single Pages site with a single custom domain, so two
+# domains cannot both be served from here: the site and the documentation each
+# need their own repository. This repository stays the single source of truth
+# and publishes the two sites into their own repositories (see
+# .github/workflows/pages-docs.yml for docs.notploy.com).
+#
+# The same source also ships as a Node process through web/Dockerfile.website;
+# NEXT_OUTPUT=export is what selects this pipeline.
+#
+# One-time setup, outside this workflow:
+#   1. create the target repository (default: skygenesisenterprise/notploy-website)
+#   2. Settings -> Pages -> Source: "Deploy from a branch", gh-pages / (root)
+#   3. add a fine-grained token as the PAGES_PUBLISH_TOKEN secret, with
+#      "Contents: Read and write" on the target repository only
+#   4. point notploy.com (A record, or ALIAS/ANAME for the apex) at
+#      <owner>.github.io and set the custom domain on the Pages settings
 on:
   push:
     branches: [master]
@@ -26,10 +44,17 @@ on:
       - "package.json"
       - ".github/workflows/pages-website.yml"
   workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Build and verify only, publish nothing"
+        type: boolean
+        default: false
 
 concurrency:
+  # One publish at a time per ref: the gh-pages branch is force-pushed, so two
+  # overlapping runs would race for it.
   group: pages-website-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -37,14 +62,27 @@ permissions:
 env:
   NODE_VERSION: "24.4.0"
   PNPM_VERSION: "10.22.0"
+  # Target repository and domain. Override the repository with the
+  # PAGES_WEBSITE_REPOSITORY variable to publish a fork's site elsewhere.
+  TARGET_REPOSITORY: ${{ vars.PAGES_WEBSITE_REPOSITORY || 'skygenesisenterprise/notploy-website' }}
+  CUSTOM_DOMAIN: ${{ vars.PUBLIC_SITE_URL_HOSTNAME || 'notploy.com' }}
 
 jobs:
-  build:
-    name: Build static export
+  publish:
+    name: Build and publish notploy-website
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      # Read through env so the token is masked and never interpolated into the
+      # script body.
+      PUBLISH_TOKEN: ${{ secrets.PAGES_PUBLISH_TOKEN }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          # checkout persists a token for *this* repository in the local git
+          # config; that credential would be sent to the target repository
+          # instead of the one below.
+          persist-credentials: false
 
       - uses: pnpm/action-setup@v5
         with:
@@ -58,9 +96,16 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Configure GitHub Pages
-        id: pages
-        uses: actions/configure-pages@v6
+      - name: Verify the publish credentials
+        # A missing token is fatal here rather than at the push: the build is
+        # the expensive part and there is no point running it twice.
+        run: |
+          set -eo pipefail
+          if [ -z "$PUBLISH_TOKEN" ]; then
+            echo "::error::PAGES_PUBLISH_TOKEN is not set. Add a fine-grained token with Contents: Read and write on $TARGET_REPOSITORY."
+            exit 1
+          fi
+          echo "Publishing to $TARGET_REPOSITORY (gh-pages)"
 
       - name: Build static export
         working-directory: web
@@ -68,20 +113,23 @@ jobs:
           # Flips web/apps/website/next.config.js to `output: "export"`,
           # `trailingSlash: true` and `images.unoptimized`.
           NEXT_OUTPUT: export
-          NEXT_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          # Consumed by lib/og-image-url.ts and lib/contact.ts.
-          NEXT_PAGES_ORIGIN: ${{ steps.pages.outputs.origin }}
+          # The site is served from its own domain root, so there is no base
+          # path to prefix.
+          NEXT_BASE_PATH: ""
+          # The exported pages emit absolute URLs; they have to point at the
+          # site that is actually being published.
+          NEXT_PAGES_ORIGIN: https://${{ env.CUSTOM_DOMAIN }}
           # Optional: an absolute URL that accepts the contact/partner form
           # payload (Formspree, a Worker, or the Docker deployment's
           # /api/contact). Leave unset and the forms fall back to mailto:.
           NEXT_PUBLIC_CONTACT_ENDPOINT: ${{ vars.CONTACT_FORM_ENDPOINT }}
-          # Baked into build output and metadata; defaults to
-          # https://notploy.com in lib/og-image-url.ts.
-          NEXT_PUBLIC_APP_URL: ${{ vars.PUBLIC_SITE_URL || 'https://notploy.com' }}
+          # Baked into build output and metadata.
+          NEXT_PUBLIC_APP_URL: https://${{ env.CUSTOM_DOMAIN }}
         run: pnpm --filter=@notploy/website run build
 
       - name: Verify export output
         run: |
+          set -eo pipefail
           out="web/apps/website/out"
           if [ ! -d "$out" ]; then
             echo "::error::No static export found at $out"
@@ -123,6 +171,10 @@ jobs:
             echo "::warning::out/api/contact exists; the contact forms post to \${NEXT_PUBLIC_CONTACT_ENDPOINT:-mailto:} instead"
           fi
 
+          # The domain is declared by the CNAME file at the root of the
+          # deployment, which is how Pages knows which custom domain to serve.
+          echo "$CUSTOM_DOMAIN" > "$out/CNAME"
+
           # GitHub Pages rejects a deployment over 1 GB.
           bytes="$(du -sb "$out" | cut -f1)"
           if [ "$bytes" -gt 900000000 ]; then
@@ -130,28 +182,27 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/upload-pages-artifact@v4
-        with:
-          path: web/apps/website/out
-
-  deploy:
-    name: Deploy to GitHub Pages
-    # pull_request builds verify the export without publishing it.
-    if: github.event_name != 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v5
-
-      - name: Record deployment URL
+      - name: Publish
+        # Pull requests only build: a fork has no token, and a branch has no
+        # Pages deployment to update.
+        if: github.event_name != 'pull_request' && inputs.dry-run != true
+        env:
+          OUT: web/apps/website/out
         run: |
-          echo "Website is live at ${{ steps.deployment.outputs.page_url }}"
+          set -eo pipefail
+          # The export becomes a single-commit orphan history on gh-pages: the
+          # branch is a deployment target, not a source branch, and Pages reads
+          # the tree as-is. --force is safe because this workflow is its only
+          # writer (enforced by the concurrency group above).
+          work="$(mktemp -d)"
+          cp -a "$OUT/." "$work/"
+          cd "$work"
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Deploy ${GITHUB_SHA::7} from ${GITHUB_REF_NAME}"
+          git push --force \
+            "https://x-access-token:${PUBLISH_TOKEN}@github.com/${TARGET_REPOSITORY}.git" \
+            HEAD:refs/heads/gh-pages
+          echo "Published https://${CUSTOM_DOMAIN}/ from $GITHUB_SHA"

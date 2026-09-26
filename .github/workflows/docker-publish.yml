@@ -1,36 +1,36 @@
 name: Docker Publish
 
-# Publishes every container image in the repository to the GitHub Container
-# Registry. One matrix entry per Dockerfile; the build context is always the
-# repository root because the whole monorepo is a single pnpm workspace.
+# Publishes the product container images to the GitHub Container Registry.
+#
+#   GitHub Actions -> Buildx -> GHCR -> cosign (keyless)
+#
+# The four entries of the publish matrix below are the whole catalog: adding an
+# image means adding it there and to the `image` choices of the workflow_dispatch
+# input. The build context is always the repository root because the whole
+# monorepo is a single pnpm workspace.
+#
+# Pull requests do not run this workflow at all: ci.yml's `docker` job already
+# builds the images (amd64, no push) so a pull request stays fast and this job
+# can hold `packages: write` without ever being reachable from a fork. That is
+# also why the permissions below are granted to the job rather than to the
+# workflow.
 on:
   push:
     branches: [master]
+    # Path filters are not evaluated for tag pushes, so a `v*` tag still
+    # publishes even when none of these paths changed.
     paths:
-      - "Dockerfile*"
-      - "packages/mcp/Dockerfile"
-      - "web/Dockerfile.*"
-      - "apps/**"
-      - "packages/**"
-      - "web/apps/**"
+      - "Dockerfile"
+      - "Dockerfile.cloud"
+      - "apps/notploy/**"
+      - "packages/server/**"
+      - "packages/mcp/**"
+      - "packages/github/**"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "package.json"
       - ".github/workflows/docker-publish.yml"
     tags: ["v*"]
-  pull_request:
-    branches: [master]
-    paths:
-      - "Dockerfile*"
-      - "packages/mcp/Dockerfile"
-      - "web/Dockerfile.*"
-      - "apps/**"
-      - "packages/**"
-      - "web/apps/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "package.json"
-      - ".github/workflows/docker-publish.yml"
   workflow_dispatch:
     inputs:
       image:
@@ -42,12 +42,9 @@ on:
         options:
           - all
           - notploy
-          - notploy-server
-          - notploy-schedules
-          - notploy-monitoring
+          - notploy-cloud
           - notploy-mcp
-          - notploy-docs
-          - notploy-website
+          - notploy-github
       push:
         description: "Push to the registry (off = build only)"
         type: boolean
@@ -55,14 +52,10 @@ on:
 
 concurrency:
   group: docker-publish-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
-  packages: write
-  # Keyless cosign signing mints a short-lived OIDC token to Fulcio; without
-  # this the sign step fails with "no OIDC token found".
-  id-token: write
 
 env:
   # ghcr.io/<owner>/<image>. Override with the IMAGE_PREFIX repository variable
@@ -74,33 +67,32 @@ jobs:
     name: ${{ matrix.image }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    permissions:
+      contents: read
+      packages: write
+      # Keyless cosign signing mints a short-lived OIDC token to Fulcio; without
+      # this the sign step fails with "no OIDC token found".
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
         include:
+          # `notploy` is the self-hosted image: on top of the dashboard and the
+          # server it ships the build tooling a customer's deployments need
+          # (Docker daemon, nixpacks, railpack, pack). `notploy-cloud` is the
+          # managed one, the same application without that tooling.
           - image: notploy
+            file: ./Dockerfile
+            description: Notploy self-hosted (dashboard, server and build tooling)
+          - image: notploy-cloud
             file: ./Dockerfile.cloud
-            description: Notploy dashboard + server (single image)
-          - image: notploy-server
-            file: ./Dockerfile.server
-            description: Notploy agent/server
-          - image: notploy-schedules
-            file: ./Dockerfile.schedule
-            description: Schedule worker
-          - image: notploy-monitoring
-            file: ./Dockerfile.monitoring
-            description: Monitoring service (Go)
+            description: Notploy Cloud (dashboard + server)
           - image: notploy-mcp
             file: ./packages/mcp/Dockerfile
-            description: Model Context Protocol server
-          - image: notploy-docs
-            file: ./web/Dockerfile.docs
-            description: Documentation site
-          - image: notploy-website
-            file: ./web/Dockerfile.website
-            description: Marketing website
-    outputs:
-      enabled: ${{ steps.select.outputs.enabled }}
+            description: Notploy MCP server
+          - image: notploy-github
+            file: ./packages/github/Dockerfile
+            description: Notploy GitHub integration
     steps:
       - uses: actions/checkout@v6
         with:
@@ -108,23 +100,42 @@ jobs:
           # commit that an image was built from.
           fetch-depth: 0
 
-      - name: Select requested image
+      - name: Prepare the build context
+        if: matrix.file == './Dockerfile'
+        # The self-hosted Dockerfile bakes the repository-root .env.production
+        # into the image as /app/.env, and only the PORT / NODE_ENV defaults are
+        # committed: the real configuration is injected at runtime by the
+        # reverse proxy, which means shipping the defaults file is correct.
+        run: |
+          set -eo pipefail
+          cp apps/notploy/.env.production.example .env.production
+
+      - name: Select image to publish
         id: select
         env:
           # Read through env so the shell compares plain values instead of
           # interpolating them into the script body.
           EVENT_NAME: ${{ github.event_name }}
           REQUESTED: ${{ inputs.image }}
-          CANDIDATE: ${{ matrix.image }}
+          IMAGE: ${{ matrix.image }}
+          DOCKERFILE: ${{ matrix.file }}
         run: |
+          set -eo pipefail
           if [ "$EVENT_NAME" = "workflow_dispatch" ] \
             && [ "$REQUESTED" != "all" ] \
-            && [ "$REQUESTED" != "$CANDIDATE" ]; then
+            && [ "$REQUESTED" != "$IMAGE" ]; then
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping $CANDIDATE: dispatch requested '$REQUESTED'"
-          else
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::skipping $IMAGE: dispatch requested '$REQUESTED'"
+            exit 0
           fi
+          # An image can be listed before its Dockerfile lands; it is then
+          # reported and left out instead of failing the whole matrix.
+          if [ ! -f "$DOCKERFILE" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::skipping $IMAGE: '$DOCKERFILE' does not exist yet"
+            exit 0
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
 
       - name: Derive tags
         id: meta
@@ -133,12 +144,10 @@ jobs:
         with:
           images: ${{ env.IMAGE_PREFIX }}/${{ matrix.image }}
           tags: |
-            type=ref,event=branch,branch=master
-            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
             type=sha,format=short
+            type=ref,event=branch
             type=raw,value=latest,enable={{is_default_branch}}
           flavor: |
             latest=auto
@@ -146,13 +155,14 @@ jobs:
             org.opencontainers.image.title=${{ matrix.image }}
             org.opencontainers.image.description=${{ matrix.description }}
             org.opencontainers.image.vendor=skygenesisenterprise
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
 
       - uses: docker/setup-buildx-action@v4
         if: steps.select.outputs.enabled == 'true'
 
       - name: Log in to ${{ env.IMAGE_PREFIX }}
-        # Pull requests only build; forks do not get the registry token.
-        if: steps.select.outputs.enabled == 'true' && github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.push)
+        if: steps.select.outputs.enabled == 'true' && (github.event_name != 'workflow_dispatch' || inputs.push)
         uses: docker/login-action@v4
         with:
           registry: ${{ env.IMAGE_PREFIX }}
@@ -163,9 +173,7 @@ jobs:
         id: flags
         if: steps.select.outputs.enabled == 'true'
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "push=false" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.push }}" != "true" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.push }}" != "true" ]; then
             echo "push=false" >> "$GITHUB_OUTPUT"
           else
             echo "push=true" >> "$GITHUB_OUTPUT"
@@ -200,9 +208,20 @@ jobs:
           cosign sign --yes \
             "${{ env.IMAGE_PREFIX }}/${{ matrix.image }}@${DIGEST}"
 
+      - name: Upload image metadata
+        if: steps.select.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: image-metadata-${{ matrix.image }}
+          path: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ steps.meta.outputs.labels }}
+          if-no-files-found: ignore
+          retention-days: 30
+
   # ---------------------------------------------------------------------------
-  # Tag a release so `v*` pushes have a matching GitHub Release with the image
-  # digests, and so dependabot/renovate can track the published images.
+  # Tag a release so `v*` pushes have a matching GitHub Release listing the
+  # published images, and so dependabot/renovate can track them.
   # ---------------------------------------------------------------------------
   release:
     name: GitHub Release
@@ -231,13 +250,10 @@ jobs:
 
             | Image | Description |
             | --- | --- |
-            | `notploy` | Notploy dashboard + server (single image) |
-            | `notploy-server` | Notploy agent/server |
-            | `notploy-schedules` | Schedule worker |
-            | `notploy-monitoring` | Monitoring service (Go) |
-            | `notploy-mcp` | Model Context Protocol server |
-            | `notploy-docs` | Documentation site |
-            | `notploy-website` | Marketing website |
+            | `notploy` | Notploy self-hosted (dashboard, server and build tooling) |
+            | `notploy-cloud` | Notploy Cloud (dashboard + server) |
+            | `notploy-mcp` | Notploy MCP server |
+            | `notploy-github` | Notploy GitHub integration |
 
             ```bash
             docker pull ${{ env.IMAGE_PREFIX }}/notploy:${{ github.ref_name }}

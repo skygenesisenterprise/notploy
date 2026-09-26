@@ -1,5 +1,24 @@
-name: Deploy docs to GitHub Pages
+name: notploy-docs
 
+# Publishes the documentation (docs.notploy.com) as its own GitHub Pages site.
+#
+#   this repo -> build web/apps/docs -> notploy-docs repo, gh-pages branch
+#             -> GitHub Pages (Deploy from a branch) -> docs.notploy.com
+#
+# A repository serves a single Pages site with a single custom domain, so the
+# documentation cannot share the marketing site's repository: it gets its own.
+# .github/workflows/pages-website.yml does the same for notploy.com.
+#
+# The same source also ships as a Node process through web/Dockerfile.docs;
+# NEXT_OUTPUT=export is what selects this pipeline.
+#
+# One-time setup, outside this workflow:
+#   1. create the target repository (default: skygenesisenterprise/notploy-docs)
+#   2. Settings -> Pages -> Source: "Deploy from a branch", gh-pages / (root)
+#   3. add a fine-grained token as the PAGES_PUBLISH_TOKEN secret, with
+#      "Contents: Read and write" on the target repository only
+#   4. point docs.notploy.com (CNAME) at <owner>.github.io and set the custom
+#      domain on the Pages settings
 on:
   push:
     branches: [master]
@@ -7,7 +26,6 @@ on:
       - "web/apps/docs/**"
       - "web/package.json"
       - "web/biome.json"
-      - "web/pnpm-lock.yaml"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "package.json"
@@ -23,10 +41,15 @@ on:
       - "package.json"
       - ".github/workflows/pages-docs.yml"
   workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Build and verify only, publish nothing"
+        type: boolean
+        default: false
 
 concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  group: pages-docs-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -34,16 +57,27 @@ permissions:
 env:
   NODE_VERSION: "24.4.0"
   PNPM_VERSION: "10.22.0"
+  # Target repository and domain. Override the repository with the
+  # PAGES_DOCS_REPOSITORY variable to publish a fork's docs elsewhere.
+  TARGET_REPOSITORY: ${{ vars.PAGES_DOCS_REPOSITORY || 'skygenesisenterprise/notploy-docs' }}
+  CUSTOM_DOMAIN: ${{ vars.DOCS_SITE_URL_HOSTNAME || 'docs.notploy.com' }}
 
 jobs:
-  build:
-    name: Build static export
+  publish:
+    name: Build and publish notploy-docs
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    outputs:
-      base_path: ${{ steps.config.outputs.base_path }}
+    env:
+      # Read through env so the token is masked and never interpolated into the
+      # script body.
+      PUBLISH_TOKEN: ${{ secrets.PAGES_PUBLISH_TOKEN }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          # checkout persists a token for *this* repository in the local git
+          # config; that credential would be sent to the target repository
+          # instead of the one below.
+          persist-credentials: false
 
       - uses: pnpm/action-setup@v5
         with:
@@ -57,19 +91,16 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Configure GitHub Pages
-        id: pages
-        uses: actions/configure-pages@v6
-
-      - name: Resolve asset prefix
-        id: config
+      - name: Verify the publish credentials
+        # A missing token is fatal here rather than at the push: the build is
+        # the expensive part and there is no point running it twice.
         run: |
-          # If Pages is served from a project sub-path (https://<org>.github.io/<repo>/)
-          # Next.js needs basePath + assetPrefix. `base_path` is emitted by
-          # actions/configure-pages and is empty for user/org sites.
-          base_path="${{ steps.pages.outputs.base_path }}"
-          echo "base_path=$base_path" >> "$GITHUB_OUTPUT"
-          echo "Serving docs from base path: '${base_path:-/ (domain root)}'"
+          set -eo pipefail
+          if [ -z "$PUBLISH_TOKEN" ]; then
+            echo "::error::PAGES_PUBLISH_TOKEN is not set. Add a fine-grained token with Contents: Read and write on $TARGET_REPOSITORY."
+            exit 1
+          fi
+          echo "Publishing to $TARGET_REPOSITORY (gh-pages)"
 
       - name: Generate OpenAPI reference pages
         run: pnpm --filter=@notploy/docs run build:docs
@@ -79,30 +110,28 @@ jobs:
           # Switches web/apps/docs/next.config.mjs from `output: "standalone"`
           # (used by the Docker image) to `output: "export"`.
           NEXT_OUTPUT: export
-          NEXT_BASE_PATH: ${{ steps.config.outputs.base_path }}
+          # The docs own their domain root, so there is no base path to prefix.
+          NEXT_BASE_PATH: ""
           # NEXT_PUBLIC_* are inlined into the client bundle at build time.
           # SearchDialog.tsx reads these to decide between the static Orama
           # index and the runtime search route, so they must be set here or the
           # exported site silently falls back to the runtime endpoint.
           NEXT_PUBLIC_NOTPLOY_OUTPUT: export
-          NEXT_PUBLIC_BASE_PATH: ${{ steps.config.outputs.base_path }}
+          NEXT_PUBLIC_BASE_PATH: ""
         run: pnpm --filter=@notploy/docs run build
 
       - name: Verify export output
         run: |
+          set -eo pipefail
           out="web/apps/docs/out"
           if [ ! -d "$out" ]; then
             echo "::error::No static export found at $out"
             exit 1
           fi
-          # There is no app/page.tsx: the docs entry point is /docs/core (marked
+          # There is no app/page.tsx: the entry point is /docs/core (marked
           # `root: true` in content/docs/core/meta.json). `output: "export"` does
           # not support `redirect()` in a server component, so the site root is a
           # small static redirect written here rather than a route in the app.
-          pages="$(du -sh "$out" | cut -f1)"
-          pages_count="$(find "$out" -name '*.html' | wc -l)"
-          echo "Exported $pages_count HTML files ($pages)."
-
           if [ ! -f "$out/docs/core/index.html" ]; then
             echo "::error::$out/docs/core/index.html is missing — the redirect target does not exist"
             exit 1
@@ -118,7 +147,20 @@ jobs:
             echo "::error::Static search index is only ${search_size}B, expected a full Orama index"
             exit 1
           fi
-          echo "Search index: $(numfmt --to=iec "$search_size")"
+
+          count="$(find "$out" -name '*.html' | wc -l)"
+          echo "Exported $count HTML files ($(du -sh "$out" | cut -f1)), search index $(numfmt --to=iec "$search_size")."
+
+          # The domain is declared by the CNAME file at the root of the
+          # deployment, which is how Pages knows which custom domain to serve.
+          echo "$CUSTOM_DOMAIN" > "$out/CNAME"
+
+          # GitHub Pages rejects a deployment over 1 GB.
+          bytes="$(du -sb "$out" | cut -f1)"
+          if [ "$bytes" -gt 900000000 ]; then
+            echo "::error::Export is $(numfmt --to=iec "$bytes"), too close to the 1 GB GitHub Pages limit"
+            exit 1
+          fi
 
           cat > "$out/index.html" <<HTML
           <!doctype html>
@@ -126,36 +168,36 @@ jobs:
             <head>
               <meta charset="utf-8" />
               <title>Notploy Documentation</title>
-              <link rel="canonical" href="${{ steps.config.outputs.base_path }}/docs/core" />
-              <meta http-equiv="refresh" content="0; url=${{ steps.config.outputs.base_path }}/docs/core" />
+              <link rel="canonical" href="https://${CUSTOM_DOMAIN}/docs/core" />
+              <meta http-equiv="refresh" content="0; url=https://${CUSTOM_DOMAIN}/docs/core" />
             </head>
             <body>
-              <p>Redirecting to <a href="${{ steps.config.outputs.base_path }}/docs/core">the Notploy documentation</a>&hellip;</p>
+              <p>Redirecting to <a href="https://${CUSTOM_DOMAIN}/docs/core">the Notploy documentation</a>&hellip;</p>
             </body>
           </html>
           HTML
 
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: web/apps/docs/out
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    # Production deploys only: master pushes and manual runs. Pull requests get
-    # the build + artifact so the export is validated, but pushing a preview
-    # from a fork would fail (no Pages token) and from a branch requires a
-    # configured deployment branch.
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      pages: write
-      id-token: write
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Publish
+        # Pull requests only build: a fork has no token, and a branch has no
+        # Pages deployment to update.
+        if: github.event_name != 'pull_request' && inputs.dry-run != true
+        env:
+          OUT: web/apps/docs/out
+        run: |
+          set -eo pipefail
+          # The export becomes a single-commit orphan history on gh-pages: the
+          # branch is a deployment target, not a source branch, and Pages reads
+          # the tree as-is. --force is safe because this workflow is its only
+          # writer (enforced by the concurrency group above).
+          work="$(mktemp -d)"
+          cp -a "$OUT/." "$work/"
+          cd "$work"
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Deploy ${GITHUB_SHA::7} from ${GITHUB_REF_NAME}"
+          git push --force \
+            "https://x-access-token:${PUBLISH_TOKEN}@github.com/${TARGET_REPOSITORY}.git" \
+            HEAD:refs/heads/gh-pages
+          echo "Published https://${CUSTOM_DOMAIN}/docs/core from $GITHUB_SHA"

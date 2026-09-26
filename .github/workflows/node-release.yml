@@ -1,0 +1,305 @@
+name: Node Release
+
+# Publishes the two consumer-facing Node packages to two registries:
+#
+#   @notploy/sdk -> npmjs + GitHub Packages
+#   @notploy/cli -> npmjs + GitHub Packages
+#
+# Both registries receive the exact same build: the package is built once, the
+# tarball is packed and inspected, then uploaded to each registry in turn, so a
+# consumer resolves identical bits whether it comes from npmjs or from
+# npm.pkg.github.com.
+#
+# The version is whatever the package.json holds. Versioning is changesets'
+# job (see .changeset/README.md), this workflow only ships what it finds, which
+# means the two packages stay on the same version as the rest of the fleet.
+#
+# Publishing is idempotent: a version the target registry already serves is
+# skipped instead of retried. That is what makes a re-run of this workflow, a
+# second push on the same version, or the changesets publish job in
+# release.yml harmless — none of them can fail on "cannot publish over the
+# previously published versions".
+on:
+  push:
+    branches: [master]
+    # Only a change that can alter a published artifact re-triggers a publish.
+    paths:
+      - "packages/sdk/**"
+      - "packages/cli/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/node-release.yml"
+  workflow_dispatch:
+    inputs:
+      package:
+        # A choice input cannot use "" as an option value, so "all" is the
+        # explicit "publish both" value rather than an empty string.
+        description: "Package to publish (both when 'all')"
+        type: choice
+        default: all
+        options:
+          - all
+          - "@notploy/sdk"
+          - "@notploy/cli"
+      registry:
+        description: "Registry to publish to"
+        type: choice
+        default: both
+        options:
+          - both
+          - npmjs
+          - github
+      dry-run:
+        description: "Build and pack only, publish nothing"
+        type: boolean
+        default: false
+
+concurrency:
+  group: node-release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24.4.0"
+  PNPM_VERSION: "10.22.0"
+  NPMJS_REGISTRY: https://registry.npmjs.org
+  GITHUB_REGISTRY: https://npm.pkg.github.com
+
+jobs:
+  publish:
+    name: ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      # GitHub Packages accepts the job's own GITHUB_TOKEN; no extra secret.
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: "@notploy/sdk"
+            dir: packages/sdk
+            description: TypeScript SDK for the Notploy API
+          - package: "@notploy/cli"
+            dir: packages/cli
+            description: CLI to manage a Notploy server remotely
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          # setup-node writes the //registry.npmjs.org auth line; the GitHub
+          # Packages one is added below because the runner generates the
+          # npmjs one only.
+          registry-url: ${{ env.NPMJS_REGISTRY }}
+
+      - name: Install dependencies
+        # `PKG...` pulls the package and its own dependency subtree, not the
+        # whole monorepo: neither package depends on a workspace sibling, so
+        # this is a handful of packages instead of the entire install.
+        env:
+          PKG: ${{ matrix.package }}
+        run: |
+          set -eo pipefail
+          pnpm install --frozen-lockfile --filter "$PKG..."
+
+      - name: Build ${{ matrix.package }}
+        env:
+          PKG: ${{ matrix.package }}
+        run: |
+          set -eo pipefail
+          pnpm --filter "$PKG" run build
+
+      - name: Resolve what to publish
+        id: plan
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED: ${{ inputs.package }}
+          REGISTRY: ${{ inputs.registry }}
+          DRY_RUN: ${{ inputs.dry-run }}
+          PKG: ${{ matrix.package }}
+          PKG_DIR: ${{ matrix.dir }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -eo pipefail
+
+          # 1. A manual run either targets one package or ships both.
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$REQUESTED" != "all" ] && [ "$REQUESTED" != "$PKG" ]; then
+            echo "::notice::skipping $PKG: dispatch requested '$REQUESTED'"
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+          # 2. The version comes from the package itself, never from the event:
+          #    a push on master is not what decides the version to ship.
+          version="$(node -p "require('./$PKG_DIR/package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Publishing $PKG@$version"
+
+          # 3. npmjs needs a classic automation token. Trusted publishing
+          #    (OIDC, `id-token: write`, no secret at all) is the better option
+          #    once it is configured for these two packages on npmjs.com; until
+          #    then a missing token is fatal on a push (nothing would ship) and
+          #    only a warning on a manual run, where the operator may well have
+          #    asked for the GitHub registry alone.
+          if [ "$REGISTRY" = "npmjs" ] || [ "$REGISTRY" = "both" ]; then
+            if [ -n "$NPM_TOKEN" ]; then
+              echo "npmjs=true" >> "$GITHUB_OUTPUT"
+            elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+              echo "::warning::NPM_TOKEN is not set: skipping $PKG on npmjs"
+              echo "npmjs=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "::error::NPM_TOKEN is not set. Add it as a repository secret, or configure npm trusted publishing for $PKG."
+              exit 1
+            fi
+          else
+            echo "npmjs=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # 4. GitHub Packages authenticates with the job's GITHUB_TOKEN, so it
+          #    is always available; the scope mapping is the only extra config.
+          if [ "$REGISTRY" = "github" ] || [ "$REGISTRY" = "both" ]; then
+            echo "github=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "github=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::dry run: packing $PKG@$version without publishing it"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          # 5. A prerelease must not become `latest`: `latest` is what an
+          #    unqualified `npm install @notploy/cli` resolves to.
+          case "$version" in
+            *-*) tag="${version##*-}" ;;
+            *) tag=latest ;;
+          esac
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate against GitHub Packages
+        if: steps.plan.outputs.enabled == 'true' && steps.plan.outputs.github == 'true' && steps.plan.outputs.publish == 'true'
+        env:
+          # Passed through the environment rather than written into the script
+          # body; the token itself is masked in the log.
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REGISTRY: ${{ env.GITHUB_REGISTRY }}
+        run: |
+          set -eo pipefail
+          # setup-node points NPM_CONFIG_USERCONFIG at the file it generated
+          # with the npmjs auth line; append to it rather than replacing it.
+          npmrc="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
+          # ${REGISTRY_TOKEN} is expanded by npm when the config is read.
+          echo "//npm.pkg.github.com/:_authToken=${REGISTRY_TOKEN}" >> "$npmrc"
+          # No `@notploy:registry=` mapping on purpose: a scope mapping wins over
+          # the `--registry` flag, and the same job publishes to both registries.
+
+      - name: Pack ${{ matrix.package }}
+        id: pack
+        if: steps.plan.outputs.enabled == 'true'
+        # The tarball is what both registries receive, so packing it here — and
+        # listing its content — validates the `files` field before anything is
+        # public. It is also the dry-run artifact.
+        env:
+          PKG: ${{ matrix.package }}
+          VERSION: ${{ steps.plan.outputs.version }}
+        run: |
+          set -eo pipefail
+          pack_dir="${RUNNER_TEMP}/pack"
+          rm -rf "$pack_dir"
+          mkdir -p "$pack_dir"
+          pnpm --filter "$PKG" pack --pack-destination "$pack_dir"
+          tarball="$(find "$pack_dir" -name '*.tgz' -print -quit)"
+          [ -n "$tarball" ] || { echo "::error::pnpm pack produced no tarball for $PKG"; exit 1; }
+          echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
+          echo "Contents of $(basename "$tarball"):"
+          tar -tzf "$tarball" | sed 's/^/  /'
+
+      - name: Publish ${{ matrix.package }} to npmjs
+        if: steps.plan.outputs.enabled == 'true' && steps.plan.outputs.npmjs == 'true' && steps.plan.outputs.publish == 'true'
+        env:
+          PKG: ${{ matrix.package }}
+          VERSION: ${{ steps.plan.outputs.version }}
+          TAG: ${{ steps.plan.outputs.tag }}
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -eo pipefail
+          if npm view "$PKG@$VERSION" version --registry "$NPMJS_REGISTRY" > /dev/null 2>&1; then
+            echo "::notice::$PKG@$VERSION is already on npmjs: nothing to publish"
+            exit 0
+          fi
+          npm publish "$TARBALL" \
+            --registry "$NPMJS_REGISTRY" \
+            --access public \
+            --tag "$TAG"
+          echo "Published $PKG@$VERSION to npmjs (dist-tag $TAG)"
+
+      - name: Publish ${{ matrix.package }} to GitHub Packages
+        if: steps.plan.outputs.enabled == 'true' && steps.plan.outputs.github == 'true' && steps.plan.outputs.publish == 'true'
+        env:
+          PKG: ${{ matrix.package }}
+          VERSION: ${{ steps.plan.outputs.version }}
+          TAG: ${{ steps.plan.outputs.tag }}
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+        run: |
+          set -eo pipefail
+          if npm view "$PKG@$VERSION" version --registry "$GITHUB_REGISTRY" > /dev/null 2>&1; then
+            echo "::notice::$PKG@$VERSION is already on GitHub Packages: nothing to publish"
+            exit 0
+          fi
+          # No --access here: the visibility of a GitHub package is a setting
+          # of the package itself, not something the publish call decides.
+          npm publish "$TARBALL" \
+            --registry "$GITHUB_REGISTRY" \
+            --tag "$TAG"
+          echo "Published $PKG@$VERSION to GitHub Packages (dist-tag $TAG)"
+
+      - name: Upload tarball
+        if: steps.plan.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.package }}-${{ steps.plan.outputs.version }}
+          path: ${{ steps.pack.outputs.tarball }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Summarize
+        if: always() && steps.plan.outputs.enabled == 'true'
+        env:
+          PKG: ${{ matrix.package }}
+          VERSION: ${{ steps.plan.outputs.version }}
+          NPMJS: ${{ steps.plan.outputs.npmjs }}
+          GITHUB: ${{ steps.plan.outputs.github }}
+          PUBLISH: ${{ steps.plan.outputs.publish }}
+        run: |
+          {
+            echo "### $PKG@$VERSION"
+            echo ""
+            if [ "$PUBLISH" != "true" ]; then
+              echo "Dry run: the tarball was built and attached to this run, nothing was published."
+            else
+              echo "| Registry | Published |"
+              echo "| --- | --- |"
+              for registry in npmjs github; do
+                if [ "$registry" = "npmjs" ]; then
+                  [ "$NPMJS" = "true" ] && echo "| npmjs | \`$PKG@$VERSION\` |" || echo "| npmjs | skipped |"
+                else
+                  [ "$GITHUB" = "true" ] && echo "| GitHub Packages (\`npm.pkg.github.com\`) | \`$PKG@$VERSION\` |" || echo "| GitHub Packages (\`npm.pkg.github.com\`) | skipped |"
+                fi
+              done
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
