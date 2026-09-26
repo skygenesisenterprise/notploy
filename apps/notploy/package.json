@@ -64,7 +64,7 @@
 		"@codemirror/search": "^6.6.0",
 		"@codemirror/view": "^6.39.15",
 		"@notploy/server": "workspace:*",
-		"@dokploy/trpc-openapi": "0.0.18",
+		"@notploy/trpc-openapi": "npm:@dokploy/trpc-openapi@0.0.18",
 		"@faker-js/faker": "^8.4.1",
 		"@hookform/resolvers": "^5.2.2",
 		"@octokit/auth-app": "^6.1.3",

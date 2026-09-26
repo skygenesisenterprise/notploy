@@ -48,7 +48,7 @@ import {
 } from "@notploy/server";
 import { db } from "@notploy/server/db";
 import { checkPermission } from "@notploy/server/services/permission";
-import { generateOpenApiDocument } from "@dokploy/trpc-openapi";
+import { generateOpenApiDocument } from "@notploy/trpc-openapi";
 import { TRPCError } from "@trpc/server";
 import { eq, sql } from "drizzle-orm";
 import { scheduledJobs, scheduleJob } from "node-schedule";

@@ -150,7 +150,7 @@ jobs:
        ...Same as step 7 from the previous example
           
       - name: Trigger Notploy Deployment
-        uses: Dokploy/dokploy-action@v1
+        uses: skygenesisenterprise/notploy-action@v1
         run: |
             curl -X 'POST' \
             'https://<your-notploy-domain>/api/application.deploy' \
@@ -162,7 +162,7 @@ jobs:
             }'
 ```
 
-You can also use this Github Action [Action](https://github.com/marketplace/actions/dokploy-deployment) to automate the deployment.
+You can also use this Github Action [Action](https://github.com/marketplace/actions/notploy-deployment) to automate the deployment.
 
 ## Healthcheck & Rollbacks
 

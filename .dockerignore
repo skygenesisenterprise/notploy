@@ -1,14 +1,34 @@
+# Dependency and build artifacts
 node_modules
+**/node_modules
+**/.next
+**/dist
+**/*.tsbuildinfo
+.turbo
+coverage
+
+# Version control and CI
+.git
 .gitignore
-README.md
+.github
+
+# Local environment files (keep the committed *.example files)
 .env
+.env.production
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+!.env.example
+
+# Editor / OS noise
+.DS_Store
+.vscode
+.idea
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.DS_Store
-*.tsbuildinfo
-*.log
+
+# Docs and non-runtime assets are not needed to build the image.
+README.md

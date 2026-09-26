@@ -13,7 +13,7 @@ import { hasValidLicense } from "@notploy/server/index";
 import type { statements } from "@notploy/server/lib/access-control";
 import { validateRequest } from "@notploy/server/lib/auth";
 import { checkPermission } from "@notploy/server/services/permission";
-import type { OpenApiMeta } from "@dokploy/trpc-openapi";
+import type { OpenApiMeta } from "@notploy/trpc-openapi";
 import { initTRPC, TRPCError } from "@trpc/server";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import type { Session, User } from "better-auth";

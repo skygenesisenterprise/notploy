@@ -3,7 +3,7 @@ import {
 	OPENAPI_MAX_UPLOAD_SIZE,
 	validateRequest,
 } from "@notploy/server";
-import { createOpenApiNextHandler } from "@dokploy/trpc-openapi";
+import { createOpenApiNextHandler } from "@notploy/trpc-openapi";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { appRouter } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";

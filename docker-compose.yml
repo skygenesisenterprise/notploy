@@ -1,0 +1,161 @@
+# Notploy — root Docker Compose stack.
+#
+# This is the single entry point for running Notploy from the repository root.
+# It builds the root `Dockerfile` and exposes the dashboard in the browser.
+#
+#   docker compose up -d          # self-hosted (build + run)  -> http://localhost:3000
+#   docker compose logs -f
+#   docker compose down
+#
+# Switching flavors (all use the same Dockerfile targets):
+#
+#   self-hosted  docker compose up -d                                (default)
+#   cloud        NOTPLOY_FLAVOR=cloud NOTPLOY_IMAGE=ghcr.io/skygenesisenterprise/notploy-cloud docker compose up -d --build
+#   pinned image NOTPLOY_IMAGE=ghcr.io/skygenesisenterprise/notploy NOTPLOY_VERSION=v0.30.6 docker compose up -d
+#   development  docker compose --profile dev up --watch notploy-dev  -> http://localhost:3001
+#
+# Or use the Makefile wrappers: `make docker-up`, `make docker-up FLAVOR=cloud`,
+# `make docker-dev`.
+#
+# Architecture: Notploy talks to the *host* Docker Engine through the mounted
+# socket — it is not Docker-in-Docker. Notploy creates and manages its own
+# `notploy-traefik` container on demand, so Traefik is intentionally NOT
+# declared here (declaring it would collide with the managed container).
+
+name: notploy
+
+services:
+  # -------------------------------------------------------------------------
+  # PostgreSQL 16 — the database Notploy stores its state in.
+  # -------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-notploy}
+      POSTGRES_DB: ${POSTGRES_DB:-notploy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notploy}
+    volumes:
+      - notploy-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-notploy} -d ${POSTGRES_DB:-notploy}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - notploy
+
+  # -------------------------------------------------------------------------
+  # Notploy — the application. Flavor is selected by NOTPLOY_FLAVOR
+  # (selfhosted | cloud), which maps to a Dockerfile target.
+  # -------------------------------------------------------------------------
+  notploy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ${NOTPLOY_FLAVOR:-selfhosted}
+    image: ${NOTPLOY_IMAGE:-ghcr.io/skygenesisenterprise/notploy}:${NOTPLOY_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      # Internal service name — never localhost from inside the container.
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      DATABASE_URL: postgres://${POSTGRES_USER:-notploy}:${POSTGRES_PASSWORD:-notploy}@postgres:5432/${POSTGRES_DB:-notploy}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-notploy-insecure-default-change-me}
+      # Cloud flavor (FLAVOR=cloud / NOTPLOY_FLAVOR=cloud) sets this to true.
+      IS_CLOUD: ${IS_CLOUD:-false}
+      TZ: ${TZ:-UTC}
+    ports:
+      # Host port is configurable; the container always listens on 3000.
+      - "${NOTPLOY_PORT:-3000}:3000"
+    volumes:
+      # Host Docker Engine access (required: Notploy deploys and manages
+      # containers). Socket access, not Docker-in-Docker.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persistent Notploy state: Traefik config, applications, compose files,
+      # SSH keys, certificates, logs.
+      - notploy-config:/etc/notploy
+      # Docker registry/credential state used by the deployment pipeline.
+      - notploy-docker:/root/.docker
+    networks:
+      - notploy
+
+  # -------------------------------------------------------------------------
+  # Notploy in development mode (hot reload). Opt-in via the `dev` profile and
+  # run explicitly so it never races the production service for the port:
+  #   docker compose --profile dev up --watch notploy-dev
+  # -------------------------------------------------------------------------
+  notploy-dev:
+    profiles:
+      - dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    image: notploy-dev:local
+    working_dir: /usr/src/app
+    # entrypoint.sh waits for PostgreSQL, applies migrations and starts the dev
+    # server (Next client + tRPC API).
+    environment:
+      NODE_ENV: development
+      NOTPLOY_MODE: development
+      PORT: 3000
+      HOST: 0.0.0.0
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      DATABASE_URL: postgres://${POSTGRES_USER:-notploy}:${POSTGRES_PASSWORD:-notploy}@postgres:5432/${POSTGRES_DB:-notploy}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-notploy-insecure-default-change-me}
+      TZ: ${TZ:-UTC}
+    ports:
+      - "${NOTPLOY_DEV_PORT:-3001}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - notploy-config:/etc/notploy
+    # Sync host edits into the container instead of bind-mounting the whole
+    # repository over node_modules. Run with `--watch` (see `make docker-dev`).
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/notploy
+          target: /usr/src/app/apps/notploy
+          ignore:
+            - node_modules
+            - .next
+            - dist
+        - action: sync
+          path: ./packages/server
+          target: /usr/src/app/packages/server
+          ignore:
+            - node_modules
+            - dist
+        - action: rebuild
+          path: pnpm-lock.yaml
+    networks:
+      - notploy
+
+networks:
+  notploy:
+    name: notploy
+    driver: bridge
+
+volumes:
+  notploy-postgres-data:
+    name: notploy-postgres-data
+  notploy-config:
+    name: notploy-config
+  notploy-docker:
+    name: notploy-docker

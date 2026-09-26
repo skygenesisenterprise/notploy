@@ -1,11 +1,59 @@
 # syntax=docker/dockerfile:1
+#
+# Notploy — single canonical Dockerfile for the main product.
+#
+# Built from the repository root: the whole monorepo is one pnpm workspace with
+# a single `pnpm-lock.yaml`, so only the root context is ever used.
+#
+#   docker build -t notploy .                      # self-hosted (default target)
+#   docker build --target cloud -t notploy-cloud . # cloud (no build tooling)
+#   docker build --target dev -t notploy-dev .     # development image
+#   docker buildx build --target selfhosted .
+#
+# Stages / targets
+#   base        Node + pnpm toolchain
+#   dev         dependencies only, runs `pnpm dev` (hot-reload via compose)
+#   builder     installs + compiles the app, deploys a pruned /prod/notploy
+#   runtime     shared production runtime (artifacts, healthcheck, entrypoint)
+#   cloud       FROM runtime; Notploy Cloud (same app, no self-hosted tooling)
+#   selfhosted  FROM runtime + Docker/nixpacks/railpack/pack (LAST => default)
+#
+# Runtime note: Notploy manages the host Docker Engine through the mounted
+# /var/run/docker.sock and writes state to /etc/notploy and /root/.docker, both
+# of which require root inside the container. This is socket access to the host
+# engine, NOT Docker-in-Docker.
+
+# ---------------------------------------------------------------------------
+# Toolchain
+# ---------------------------------------------------------------------------
 FROM node:24.4.0-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 RUN corepack prepare pnpm@10.22.0 --activate
 
-FROM base AS build
+# ---------------------------------------------------------------------------
+# Development image (dependencies only; the source is synced at runtime by the
+# `dev` compose profile, so this stage is fast and never runs Next's build).
+# ---------------------------------------------------------------------------
+FROM base AS dev
+COPY . /usr/src/app
+WORKDIR /usr/src/app
+
+RUN apt-get update && apt-get install -y python3 make g++ git python3-pip pkg-config libsecret-1-dev && rm -rf /var/lib/apt/lists/*
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+ENV NODE_ENV=development
+
+# All launch logic (wait for DB, migrations, server) lives in entrypoint.sh.
+COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# ---------------------------------------------------------------------------
+# Builder (production artifacts)
+# ---------------------------------------------------------------------------
+FROM base AS builder
 COPY . /usr/src/app
 WORKDIR /usr/src/app
 
@@ -14,7 +62,15 @@ RUN apt-get update && apt-get install -y python3 make g++ git python3-pip pkg-co
 # Install dependencies
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-# Deploy only the notploy app
+# Public build-time configuration (cloud builds only; empty for self-hosted).
+ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+
+# The build reads .env.production (esbuild bakes its values as build-time
+# defines, and the file becomes /app/.env at runtime). The committed example
+# only carries safe defaults (PORT, NODE_ENV), which keeps this stage
+# reproducible and lets `docker build .` work with an unprepared context.
+COPY apps/notploy/.env.production.example ./.env.production
 
 ENV NODE_ENV=production
 RUN pnpm --filter=@notploy/server build
@@ -25,37 +81,72 @@ RUN pnpm --filter=./apps/notploy --prod deploy --legacy /prod/notploy
 RUN cp -R /usr/src/app/apps/notploy/.next /prod/notploy/.next
 RUN cp -R /usr/src/app/apps/notploy/dist /prod/notploy/dist
 
-FROM base AS notploy
+# ---------------------------------------------------------------------------
+# Shared production runtime
+# ---------------------------------------------------------------------------
+FROM base AS runtime
 WORKDIR /app
 
-# Set production
 ENV NODE_ENV=production
 
-RUN apt-get update && apt-get install -y tini curl unzip zip apache2-utils iproute2 rsync git-lfs && git lfs install && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y tini curl unzip zip apache2-utils && rm -rf /var/lib/apt/lists/*
 
-# Copy only the necessary files
-COPY --from=build /prod/notploy/.next ./.next
-COPY --from=build /prod/notploy/dist ./dist
-COPY --from=build /prod/notploy/next.config.mjs ./next.config.mjs
-COPY --from=build /prod/notploy/public ./public
-COPY --from=build /prod/notploy/package.json ./package.json
-COPY --from=build /prod/notploy/drizzle ./drizzle
-COPY .env.production ./.env
-COPY --from=build /prod/notploy/components.json ./components.json
-COPY --from=build /prod/notploy/node_modules ./node_modules
+# Copy only what the runtime needs
+COPY --from=builder /prod/notploy/.next ./.next
+COPY --from=builder /prod/notploy/dist ./dist
+COPY --from=builder /prod/notploy/next.config.mjs ./next.config.mjs
+COPY --from=builder /prod/notploy/public ./public
+COPY --from=builder /prod/notploy/package.json ./package.json
+COPY --from=builder /prod/notploy/drizzle ./drizzle
+COPY --from=builder /prod/notploy/components.json ./components.json
+COPY --from=builder /prod/notploy/node_modules ./node_modules
+# Safe defaults only (PORT, NODE_ENV); real configuration is injected at runtime.
+COPY apps/notploy/.env.production.example ./.env
 
+# rclone (backup destinations) and tsx (runtime scripts) are shared by both
+# cloud and self-hosted.
+RUN curl https://rclone.org/install.sh | bash && pnpm install -g tsx
 
-# Install docker
-RUN curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh --version 28.5.2 && rm get-docker.sh && curl https://rclone.org/install.sh | bash
+ARG NOTPLOY_VERSION=dev
+LABEL org.opencontainers.image.title="notploy" \
+      org.opencontainers.image.description="Notploy (dashboard, server and build tooling)" \
+      org.opencontainers.image.source="https://github.com/skygenesisenterprise/notploy" \
+      org.opencontainers.image.version="${NOTPLOY_VERSION}" \
+      org.opencontainers.image.licenses="Apache-2.0"
 
-# Install Nixpacks and tsx
-# | VERBOSE=1 VERSION=1.21.0 bash
+EXPOSE 3000
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
+  CMD curl -fs http://localhost:3000/api/trpc/settings.health || exit 1
+
+# All launch logic (wait for DB, migrations, server) lives in entrypoint.sh.
+COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# tini reaps child processes that the entrypoint/server leave defunct.
+ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
+
+# ---------------------------------------------------------------------------
+# Notploy Cloud — same application without the self-hosted build tooling.
+# ---------------------------------------------------------------------------
+FROM runtime AS cloud
+
+# ---------------------------------------------------------------------------
+# Notploy self-hosted — Cloud plus the tooling deployments need on the host.
+# This is the default target (last stage in the file).
+# ---------------------------------------------------------------------------
+FROM runtime AS selfhosted
+
+RUN apt-get update && apt-get install -y iproute2 rsync git-lfs && git lfs install && rm -rf /var/lib/apt/lists/*
+
+# Install Docker (the CLI/daemon the deployment pipeline drives through the
+# mounted socket). Pinned for reproducibility.
+RUN curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh --version 28.5.2 && rm get-docker.sh
+
+# Install Nixpacks
 ARG NIXPACKS_VERSION=1.41.0
 RUN curl -sSL https://nixpacks.com/install.sh -o install.sh \
     && chmod +x install.sh \
-    && ./install.sh \
-    && pnpm install -g tsx
+    && ./install.sh
 
 # Install Railpack
 ARG RAILPACK_VERSION=0.15.4
@@ -63,14 +154,3 @@ RUN curl -sSL https://railpack.com/install.sh | bash
 
 # Install buildpacks
 COPY --from=buildpacksio/pack:0.39.1 /usr/local/bin/pack /usr/local/bin/pack
-
-EXPOSE 3000
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
-  CMD curl -fs http://localhost:3000/api/trpc/settings.health || exit 1
-
-# tini reaps HEALTHCHECK child processes that Node (as PID 1) leaves defunct.
-ENTRYPOINT ["/usr/bin/tini", "--"]
-
-# Ejecutar node directamente: pnpm como wrapper queda residente (~100MB RSS)
-  CMD ["sh", "-c", "node -r dotenv/config dist/wait-for-postgres.mjs && node -r dotenv/config dist/migration.mjs && exec node -r dotenv/config dist/server.mjs"]

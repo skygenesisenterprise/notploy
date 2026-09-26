@@ -1,0 +1,47 @@
+# Docker Compose for the Notploy GitHub App service.
+#
+# All credentials are injected at runtime from the environment or a .env file
+# (never committed). Nothing secret is baked into the image.
+#
+# Usage:
+#   cp .env.example .env   # fill in the values
+#   docker compose up -d
+
+services:
+  notploy-github:
+    build:
+      context: ../..
+      dockerfile: packages/github/Dockerfile
+    image: notploy-github:local
+    container_name: notploy-github
+    ports:
+      - "${EXTERNAL_PORT:-3000}:3000"
+    environment:
+      # GitHub App credentials — runtime only, never baked into the image
+      - GITHUB_APP_ID=${GITHUB_APP_ID:?set GITHUB_APP_ID in your .env}
+      - GITHUB_APP_PRIVATE_KEY=${GITHUB_APP_PRIVATE_KEY:?set GITHUB_APP_PRIVATE_KEY in your .env}
+      # Default installation used by the client when none is provided
+      - GITHUB_INSTALLATION_ID=${GITHUB_INSTALLATION_ID:-}
+      # Secret used to verify webhook signatures (X-Hub-Signature-256)
+      - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET:?set GITHUB_WEBHOOK_SECRET in your .env}
+      # GitHub instance (github.com, GHES or ghe.com data-residency tenant)
+      - GITHUB_BASE_URL=${GITHUB_BASE_URL:-https://api.github.com}
+      # Where the Notploy API can be reached for callbacks
+      - NOTPLOY_API_URL=${NOTPLOY_API_URL:-http://host.docker.internal:3000}
+      - NODE_ENV=production
+    restart: unless-stopped
+    extra_hosts:
+      # Allows the container to reach services on the Docker host
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3

@@ -21,7 +21,6 @@ on:
     # publishes even when none of these paths changed.
     paths:
       - "Dockerfile"
-      - "Dockerfile.cloud"
       - "apps/notploy/**"
       - "packages/server/**"
       - "packages/mcp/**"
@@ -83,9 +82,11 @@ jobs:
           # managed one, the same application without that tooling.
           - image: notploy
             file: ./Dockerfile
+            target: selfhosted
             description: Notploy self-hosted (dashboard, server and build tooling)
           - image: notploy-cloud
-            file: ./Dockerfile.cloud
+            file: ./Dockerfile
+            target: cloud
             description: Notploy Cloud (dashboard + server)
           - image: notploy-mcp
             file: ./packages/mcp/Dockerfile
@@ -99,16 +100,6 @@ jobs:
           # cosign (keyless signing) needs the full tag history to resolve the
           # commit that an image was built from.
           fetch-depth: 0
-
-      - name: Prepare the build context
-        if: matrix.file == './Dockerfile'
-        # The self-hosted Dockerfile bakes the repository-root .env.production
-        # into the image as /app/.env, and only the PORT / NODE_ENV defaults are
-        # committed: the real configuration is injected at runtime by the
-        # reverse proxy, which means shipping the defaults file is correct.
-        run: |
-          set -eo pipefail
-          cp apps/notploy/.env.production.example .env.production
 
       - name: Select image to publish
         id: select
@@ -186,6 +177,7 @@ jobs:
         with:
           context: .
           file: ${{ matrix.file }}
+          target: ${{ matrix.target }}
           platforms: linux/amd64,linux/arm64
           push: ${{ steps.flags.outputs.push }}
           tags: ${{ steps.meta.outputs.tags }}

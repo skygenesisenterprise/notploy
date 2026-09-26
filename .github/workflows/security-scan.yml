@@ -92,7 +92,7 @@ jobs:
   #
   # The image has to be built and loaded into the local Docker daemon first:
   # `scan-type: image` resolves a real image, not a Dockerfile path, so pointing
-  # it at ./Dockerfile.cloud would fail to pull.
+  # it at the root ./Dockerfile would fail to pull.
   # ---------------------------------------------------------------------------
   sbom:
     name: SBOM (${{ matrix.image }})
@@ -103,7 +103,8 @@ jobs:
       matrix:
         include:
           - image: notploy
-            file: Dockerfile.cloud
+            file: Dockerfile
+            target: cloud
           - image: notploy-docs
             file: web/Dockerfile.docs
     steps:
@@ -116,6 +117,7 @@ jobs:
         with:
           context: .
           file: ${{ matrix.file }}
+          target: ${{ matrix.target }}
           # load: true is required — Trivy reads the image from the local
           # daemon, and build-push-action does not export to one by default.
           load: true

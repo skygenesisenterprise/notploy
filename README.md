@@ -44,6 +44,36 @@ curl -sSL https://notploy.com/install.sh | bash
 
 For detailed documentation, visit [docs.notploy.com](https://docs.notploy.com).
 
+### Run with Docker
+
+Everything is driven by the root `Dockerfile`, `docker-compose.yml` and `Makefile`:
+
+```bash
+git clone https://github.com/skygenesisenterprise/notploy.git
+cd notploy
+cp .env.example .env   # then edit POSTGRES_PASSWORD and BETTER_AUTH_SECRET
+make docker-up         # or: docker compose up -d
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+```bash
+make docker-logs   # follow the stack logs
+make docker-ps     # show stack status
+make docker-down   # stop the stack (named volumes are preserved)
+```
+
+Switch flavors and modes with the same stack:
+
+```bash
+make docker-up FLAVOR=cloud      # Notploy Cloud (no self-hosted build tooling)
+make docker-build VERSION=local  # build/tag a local image
+make docker-dev                  # containerized dev server, http://localhost:3001
+make dev                         # development on the host
+```
+
+Run `make help` for the full list of commands.
+
 
 [Github Sponsors](https://github.com/sponsors/Siumauricio)
 

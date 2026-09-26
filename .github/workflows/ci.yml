@@ -40,6 +40,7 @@ jobs:
         include:
           - dir: apps/notploy
           - dir: packages/cli
+          - dir: packages/github
           - dir: packages/mcp
           - dir: packages/sdk
           - dir: web
@@ -65,7 +66,7 @@ jobs:
   # ---------------------------------------------------------------------------
   # Type check — advisory, same rationale as `lint`. Every package currently has
   # pre-existing errors (`PageProps`/`RouteContext` globals missing in docs,
-  # `@dokploy/server/*` leftovers in packages/server, RHF generics in the app).
+  # RHF generics in the app).
   # ---------------------------------------------------------------------------
   typecheck:
     name: Typecheck (${{ matrix.dir }})
@@ -118,6 +119,8 @@ jobs:
             command: exec vitest run --config __test__/vitest.config.ts
           - dir: packages/cli
             command: run test
+          - dir: packages/github
+            command: run test
           - dir: packages/mcp
             command: run test
           - dir: packages/sdk
@@ -140,7 +143,7 @@ jobs:
       # The CLI/SDK/MCP test suites import from their own `dist`/`build`
       # output, so those packages have to be compiled first.
       - name: Build packages under test
-        run: pnpm --filter=@notploy/sdk --filter=@notploy/mcp --filter=@notploy/cli run build
+        run: pnpm --filter=@notploy/sdk --filter=@notploy/mcp --filter=@notploy/cli --filter=@notploy/github run build
 
       - name: Run tests
         working-directory: ${{ matrix.dir }}
@@ -163,7 +166,7 @@ jobs:
           - target: app
             filters: --filter=@notploy/app
           - target: packages
-            filters: --filter=@notploy/cli --filter=@notploy/sdk --filter=@notploy/mcp
+            filters: --filter=@notploy/cli --filter=@notploy/sdk --filter=@notploy/mcp --filter=@notploy/github
           - target: docs
             filters: --filter=@notploy/docs
     steps:
@@ -207,7 +210,8 @@ jobs:
       matrix:
         include:
           - image: notploy
-            file: ./Dockerfile.cloud
+            file: ./Dockerfile
+            target: cloud
           - image: notploy-docs
             file: ./web/Dockerfile.docs
     steps:
@@ -220,6 +224,7 @@ jobs:
         with:
           context: .
           file: ${{ matrix.file }}
+          target: ${{ matrix.target }}
           platforms: linux/amd64
           push: false
           cache-from: type=gha,scope=${{ matrix.image }}

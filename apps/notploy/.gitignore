@@ -22,7 +22,7 @@ traefik.yml
 /.next/
 /out/
 next-env.d.ts
-/dokploy
+/notploy
 /config
 
 # production
