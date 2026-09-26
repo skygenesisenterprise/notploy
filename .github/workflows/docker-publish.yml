@@ -1,218 +1,252 @@
-name: Docker Build & Publish
+name: Docker Publish
 
+# Publishes every container image in the repository to the GitHub Container
+# Registry. One matrix entry per Dockerfile; the build context is always the
+# repository root because the whole monorepo is a single pnpm workspace.
 on:
   push:
-    tags: ["v*.*.*"]
+    branches: [master]
+    paths:
+      - "Dockerfile*"
+      - "packages/mcp/Dockerfile"
+      - "web/Dockerfile.*"
+      - "apps/**"
+      - "packages/**"
+      - "web/apps/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/docker-publish.yml"
+    tags: ["v*"]
   pull_request:
-    branches: ["main"]
+    branches: [master]
+    paths:
+      - "Dockerfile*"
+      - "packages/mcp/Dockerfile"
+      - "web/Dockerfile.*"
+      - "apps/**"
+      - "packages/**"
+      - "web/apps/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/docker-publish.yml"
   workflow_dispatch:
     inputs:
-      version:
-        description: "Version to build (e.g., 1.0.0)"
-        required: true
-        type: string
+      image:
+        # A choice input cannot use "" as an option value, so "all" is the
+        # explicit "build everything" value rather than an empty string.
+        description: "Image to publish (all images when 'all')"
+        type: choice
+        default: all
+        options:
+          - all
+          - notploy
+          - notploy-server
+          - notploy-schedules
+          - notploy-monitoring
+          - notploy-mcp
+          - notploy-docs
+          - notploy-website
+      push:
+        description: "Push to the registry (off = build only)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: docker-publish-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  packages: write
+  # Keyless cosign signing mints a short-lived OIDC token to Fulcio; without
+  # this the sign step fails with "no OIDC token found".
+  id-token: write
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: skygenesisenterprise/aether-bank
-  DOCKERHUB_REGISTRY: docker.io
-  DOCKERHUB_IMAGE_NAME: skygenesisenterprise/aether-bank
+  # ghcr.io/<owner>/<image>. Override with the IMAGE_PREFIX repository variable
+  # to publish under a different owner (or a mirror on forks).
+  IMAGE_PREFIX: ${{ vars.IMAGE_PREFIX || format('ghcr.io/{0}', github.repository_owner) }}
 
 jobs:
-  build:
+  publish:
+    name: ${{ matrix.image }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
-
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: notploy
+            file: ./Dockerfile.cloud
+            description: Notploy dashboard + server (single image)
+          - image: notploy-server
+            file: ./Dockerfile.server
+            description: Notploy agent/server
+          - image: notploy-schedules
+            file: ./Dockerfile.schedule
+            description: Schedule worker
+          - image: notploy-monitoring
+            file: ./Dockerfile.monitoring
+            description: Monitoring service (Go)
+          - image: notploy-mcp
+            file: ./packages/mcp/Dockerfile
+            description: Model Context Protocol server
+          - image: notploy-docs
+            file: ./web/Dockerfile.docs
+            description: Documentation site
+          - image: notploy-website
+            file: ./web/Dockerfile.website
+            description: Marketing website
     outputs:
-      version: ${{ steps.version.outputs.version }}
-      package_version: ${{ steps.version.outputs.package_version }}
-
+      enabled: ${{ steps.select.outputs.enabled }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          # cosign (keyless signing) needs the full tag history to resolve the
+          # commit that an image was built from.
+          fetch-depth: 0
 
-      - name: Extract version from tag
-        id: version
+      - name: Select requested image
+        id: select
+        env:
+          # Read through env so the shell compares plain values instead of
+          # interpolating them into the script body.
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED: ${{ inputs.image }}
+          CANDIDATE: ${{ matrix.image }}
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            INPUT_VERSION="${{ github.event.inputs.version }}"
-            CLEAN_VERSION="${INPUT_VERSION#v}"
-            VERSION="v${CLEAN_VERSION}"
-            PACKAGE_VERSION="${CLEAN_VERSION}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] \
+            && [ "$REQUESTED" != "all" ] \
+            && [ "$REQUESTED" != "$CANDIDATE" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping $CANDIDATE: dispatch requested '$REQUESTED'"
           else
-            TAG="${{ github.ref_name }}"
-            CLEAN_VERSION="${TAG#v}"
-            VERSION="v${CLEAN_VERSION}"
-            PACKAGE_VERSION="${CLEAN_VERSION}"
-          fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "package_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
-          echo "Tag version: $VERSION"
-          echo "Package version: $PACKAGE_VERSION"
-
-      - name: Verify Dockerfile.cloud exists
-        run: |
-          if [ -f "Dockerfile.cloud" ]; then
-            echo "✅ Dockerfile.cloud found"
-          else
-            echo "❌ Dockerfile.cloud not found"
-            find . -name "Dockerfile*" -type f
-            exit 1
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+      - name: Derive tags
+        id: meta
+        if: steps.select.outputs.enabled == 'true'
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch,branch=master
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+          flavor: |
+            latest=auto
+          labels: |
+            org.opencontainers.image.title=${{ matrix.image }}
+            org.opencontainers.image.description=${{ matrix.description }}
+            org.opencontainers.image.vendor=skygenesisenterprise
 
-      - name: Log into GitHub Container Registry
-        if: github.event_name != 'pull_request'
+      - uses: docker/setup-buildx-action@v4
+        if: steps.select.outputs.enabled == 'true'
+
+      - name: Log in to ${{ env.IMAGE_PREFIX }}
+        # Pull requests only build; forks do not get the registry token.
+        if: steps.select.outputs.enabled == 'true' && github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.push)
         uses: docker/login-action@v4
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.IMAGE_PREFIX }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log into Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Compute push flag
+        id: flags
+        if: steps.select.outputs.enabled == 'true'
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "push=false" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.push }}" != "true" ]; then
+            echo "push=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "push=true" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Extract Docker metadata for GHCR
-        id: meta-ghcr
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=${{ steps.version.outputs.version }}
-            type=raw,value=latest,enable={{is_default_branch}}
-          flavor: |
-            latest=auto
-
-      - name: Extract Docker metadata for Docker Hub
-        id: meta-dockerhub
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}
-          tags: |
-            type=raw,value=${{ steps.version.outputs.version }}
-            type=raw,value=latest,enable={{is_default_branch}}
-          flavor: |
-            latest=auto
-
-      - name: Build and push Docker image to GHCR
-        id: build-ghcr
+      - name: Build and push ${{ matrix.image }}
+        id: build
+        if: steps.select.outputs.enabled == 'true'
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: ./Dockerfile.cloud
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta-ghcr.outputs.tags }}
-          labels: ${{ steps.meta-ghcr.outputs.labels }}
+          file: ${{ matrix.file }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          push: ${{ steps.flags.outputs.push }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
           provenance: false
 
-      - name: Build and push Docker image to Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: ./Dockerfile.cloud
-          push: true
-          tags: ${{ steps.meta-dockerhub.outputs.tags }}
-          labels: ${{ steps.meta-dockerhub.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          provenance: false
+      - name: Install cosign
+        if: steps.select.outputs.enabled == 'true' && steps.flags.outputs.push == 'true'
+        uses: sigstore/cosign-installer@v3
 
-      - name: Sign Docker image
-        if: github.event_name != 'pull_request'
+      - name: Sign image (keyless)
+        if: steps.select.outputs.enabled == 'true' && steps.flags.outputs.push == 'true'
         env:
-          TAGS: ${{ steps.meta-ghcr.outputs.tags }}
-          DIGEST: ${{ steps.build-ghcr.outputs.digest }}
+          DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+          # Signing every tag would burn a Fulcio/OIDC certificate per tag; the
+          # digest is what consumers actually pin to, so sign that once.
+          cosign sign --yes \
+            "${{ env.IMAGE_PREFIX }}/${{ matrix.image }}@${DIGEST}"
 
-      - name: Update docker-compose.cloud.yml image tag
-        run: |
-          sed -i 's|image: aetherbank:latest|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}|' docker-compose.cloud.yml
-
-      - name: Upload docker-compose.cloud.yml
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v7
-        with:
-          name: docker-compose-cloud
-          path: docker-compose.cloud.yml
-          retention-days: 30
-
+  # ---------------------------------------------------------------------------
+  # Tag a release so `v*` pushes have a matching GitHub Release with the image
+  # digests, and so dependabot/renovate can track the published images.
+  # ---------------------------------------------------------------------------
   release:
-    name: Create GitHub Release
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/') && github.event_name != 'pull_request'
+    name: GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: publish
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
-      packages: write
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Download docker-compose
-        uses: actions/download-artifact@v8
-        with:
-          name: docker-compose-cloud
-          path: .
+      - uses: actions/checkout@v6
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
-          name: Aether Bank v${{ needs.build.outputs.package_version }}
+          name: Notploy ${{ github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: false
           body: |
-            ## Aether Bank v${{ needs.build.outputs.package_version }}
+            ## Container images
 
-            🐳 **Docker Images**:
-            - **GitHub Container Registry**: `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }}`
-            - **Docker Hub**: `${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}:${{ needs.build.outputs.version }}`
+            All images are multi-architecture (`linux/amd64`, `linux/arm64`),
+            published to `${{ env.IMAGE_PREFIX }}` and signed with cosign
+            (keyless, Fulcio/OIDC).
 
-            ### 🚀 Quick Start
+            | Image | Description |
+            | --- | --- |
+            | `notploy` | Notploy dashboard + server (single image) |
+            | `notploy-server` | Notploy agent/server |
+            | `notploy-schedules` | Schedule worker |
+            | `notploy-monitoring` | Monitoring service (Go) |
+            | `notploy-mcp` | Model Context Protocol server |
+            | `notploy-docs` | Documentation site |
+            | `notploy-website` | Marketing website |
 
             ```bash
-            # Pull from GHCR
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }}
-            docker run -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }}
-
-            # Or use docker-compose
-            wget https://raw.githubusercontent.com/skygenesisenterprise/aether-bank/${{ github.ref_name }}/docker-compose.cloud.yml
-            docker-compose -f docker-compose.cloud.yml up -d
+            docker pull ${{ env.IMAGE_PREFIX }}/notploy:${{ github.ref_name }}
             ```
 
-            ### 📋 Components
+            Verify a signature with:
 
-            - **Next.js Frontend**: Port 3000 (public)
-            - **Go API Server**: Port 8080 (internal)
-            - **Embedded PostgreSQL**: Port 5432 (internal)
-
-            ### 🔧 Environment Variables
-
-            Required:
-            - `DB_PASSWORD`: PostgreSQL password
-            - `JWT_SECRET`: JWT signing secret
-
-            Optional:
-            - `CORS_ALLOWED_ORIGINS`: CORS origins (default: bank.skygenesisenterprise.com)
-
-            ---
-
-            📦 **Made with ❤️ by [Sky Genesis Enterprise](https://skygenesisenterprise.com)**
-          draft: false
-          prerelease: false
+            ```bash
+            cosign verify ${{ env.IMAGE_PREFIX }}/notploy@<digest> \
+              --certificate-identity-regexp 'https://github.com/skygenesisenterprise/notploy/' \
+              --certificate-oidc-issuer https://token.actions.githubusercontent.com
+            ```

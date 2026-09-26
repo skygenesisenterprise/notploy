@@ -1,0 +1,141 @@
+name: Security Scan
+
+# Repository-wide vulnerability scanning, independent of any release. Replaces
+# the per-workflow Trivy steps that were attached to the non-functional
+# Aether release pipelines.
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    # Weekly, Monday 04:17 UTC. Off the hour on purpose: the top of the hour is
+    # when every other scheduled workflow on GitHub runs.
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  filesystem:
+    name: Filesystem vulnerabilities
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Trivy scans go.mod/go.sum and the lockfiles.
+          fetch-depth: 0
+
+      - name: Trivy scan (filesystem)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-filesystem.sarif
+          severity: CRITICAL,HIGH
+          # Unfixed findings are noise on a monorepo this size; they are still
+          # reported, they just do not fail the job.
+          ignore-unfixed: true
+          exit-code: "0"
+          vuln-type: os,library
+
+      - name: Upload results to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-filesystem.sarif
+          category: trivy-filesystem
+
+  # ---------------------------------------------------------------------------
+  # Secret scanning. GitHub's own engine, surfaced as a SARIF so it lands in the
+  # same Security tab as everything else.
+  # ---------------------------------------------------------------------------
+  secrets:
+    name: Secret scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Trivy scan (secrets)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: secret
+          scan-ref: .
+          # Trivy's own rules; the free GitHub secret scanning is enabled
+          # separately in repository settings.
+          trivyignores: |
+            node_modules
+            pnpm-lock.yaml
+            .next
+            out
+            dist
+          report: false
+
+  # ---------------------------------------------------------------------------
+  # SBOM for the shipped images. Attaching the CycloneDX document to the release
+  # lets downstream users run their own vulnerability matching.
+  #
+  # The image has to be built and loaded into the local Docker daemon first:
+  # `scan-type: image` resolves a real image, not a Dockerfile path, so pointing
+  # it at ./Dockerfile.cloud would fail to pull.
+  # ---------------------------------------------------------------------------
+  sbom:
+    name: SBOM (${{ matrix.image }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: notploy
+            file: Dockerfile.cloud
+          - image: notploy-docs
+            file: web/Dockerfile.docs
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build ${{ matrix.image }} image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ matrix.file }}
+          # load: true is required — Trivy reads the image from the local
+          # daemon, and build-push-action does not export to one by default.
+          load: true
+          push: false
+          tags: sbom-${{ matrix.image }}:local
+          cache-from: type=gha,scope=sbom-${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=sbom-${{ matrix.image }}
+
+      - name: Generate CycloneDX SBOM
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: sbom-${{ matrix.image }}:local
+          format: cyclonedx
+          output: sbom-${{ matrix.image }}.cdx.json
+          scanners: none
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sbom-${{ matrix.image }}
+          path: sbom-${{ matrix.image }}.cdx.json
+          retention-days: 90

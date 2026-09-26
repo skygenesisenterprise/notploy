@@ -1,0 +1,168 @@
+name: Release
+
+# Changesets-driven versioning and publishing.
+#
+#   1. Every push to master runs `changesets/action`, which opens or updates the
+#      "Version Packages" pull request from the pending changesets in .changeset/.
+#   2. Merging that pull request consumes the changesets, so the next run finds
+#      no pending changesets and the `publish` job takes over: bumped packages go
+#      to npm and a GitHub Release is created.
+#
+# See .changeset/README.md for the developer-facing workflow.
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    paths:
+      - ".changeset/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24.4.0"
+  PNPM_VERSION: "10.22.0"
+
+jobs:
+  version:
+    name: Version packages
+    # Only the default branch maintains the release pull request.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # changesets/action reads the commit history to build changelog links.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create or update the release pull request
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: pnpm changeset version
+          commit: "chore: version packages"
+          title: "Version Packages"
+          branch: changesets/release-master
+          # Consumed by the publish job below.
+          outputFile: .changesets-release.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # @changesets/changelog-github resolves linked pull requests with this.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Read release state
+        if: always()
+        run: |
+          if [ -f .changesets-release.json ]; then
+            cat .changesets-release.json
+          else
+            echo '{"published":false,"releaseCreated":false}' > .changesets-release.json
+            cat .changesets-release.json
+          fi
+
+  publish:
+    name: Publish to npm
+    needs: version
+    if: needs.version.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      # id-token lets pnpm/npm mint a short-lived token for trusted publishing,
+      # which is preferred over a long-lived NPM_TOKEN. Keep NPM_TOKEN as the
+      # fallback for repositories that have not enabled it yet.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm --filter=@notploy/server --filter=@notploy/cli --filter=@notploy/sdk --filter=@notploy/mcp run build
+
+      - name: Verify the npm token is configured
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "::error::NPM_TOKEN is not set. Add it as a repository secret, or enable npm trusted publishing (OIDC) for @notploy/*."
+            exit 1
+          fi
+
+      - name: Publish
+        run: pnpm changeset publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    name: Create GitHub Release
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release tag
+        id: tag
+        run: |
+          # The tag is the version of the highest-priority package that was just
+          # published, so the UI, the CLI, the SDK and the images all line up on
+          # a single tag.
+          version="$(node -p "require('./packages/cli/package.json').version")"
+          tag="v${version}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Releasing $tag"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Notploy ${{ steps.tag.outputs.version }}
+          generate_release_notes: true
+          fail_on_unmatched_files: false
