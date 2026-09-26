@@ -21,10 +21,18 @@
 		"format-and-lint": "biome check .",
 		"check": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true",
 		"format-and-lint:fix": "biome check . --write",
-		"generate:openapi": "pnpm --filter=@notploy/app run generate:openapi"
+		"generate:openapi": "pnpm --filter=@notploy/app run generate:openapi",
+		"changeset": "changeset",
+		"changeset:add": "changeset add",
+		"changeset:status": "changeset status",
+		"changeset:version": "changeset version"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.7",
+		"@changesets/changelog-github": "^1.0.1",
+		"@changesets/cli": "^2.29.7",
+		"@commitlint/cli": "^19.3.0",
+		"@commitlint/config-conventional": "^19.2.2",
 		"@types/node": "^24.4.0",
 		"dotenv": "16.4.5",
 		"esbuild": "0.20.2",

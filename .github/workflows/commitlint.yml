@@ -1,0 +1,76 @@
+name: Commitlint
+
+# Enforces Conventional Commits on pull request titles and on the individual
+# commits in a branch. The rules come from the repository root .commitlintrc
+# (type-enum, conventional config), which husky already applies locally through
+# lint-staged — this makes it a merge requirement.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  title:
+    name: Pull request title
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # commitlint resolves its shareable configs relative to the repository
+          # root, so the root config files must be present.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: "10.22.0"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.4.0"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint the pull request title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          # commitlint's own binary, not a third-party action, so the rules can
+          # never drift from .commitlintrc.
+        run: |
+          printf '%s\n' "$TITLE" | pnpm exec commitlint --verbose
+
+  commits:
+    name: Commit messages
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Needs the history to lint the commits added by the push.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: "10.22.0"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.4.0"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint commit messages
+        run: |
+          # "" fetches everything; the range excludes the commits that were
+          # already on the branch before this push.
+          pnpm exec commitlint --from "${{ github.event.before }}" --to "${{ github.sha }}" --verbose
