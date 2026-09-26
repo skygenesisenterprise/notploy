@@ -1,24 +1,5 @@
 name: Node Release
 
-# Publishes one package to two registries for package-specific version tags:
-#
-#   @notploy/sdk -> npmjs + GitHub Packages
-#   @notploy/cli -> npmjs + GitHub Packages
-#   @notploy/trpc-openapi -> npmjs + GitHub Packages
-#
-# Both registries receive the exact same build: the package is built once, the
-# tarball is packed and inspected, then uploaded to each registry in turn, so a
-# consumer resolves identical bits whether it comes from npmjs or from
-# npm.pkg.github.com.
-#
-# Tags use vX.Y.Z-{cli|sdk|trpc-openapi} to publish one matching package, or
-# vX.Y.Z-node to publish all three at the versions in their package.json files.
-#
-# Publishing is idempotent: a version the target registry already serves is
-# skipped instead of retried. That is what makes a re-run of this workflow, a
-# second push on the same version, or the changesets publish job in
-# release.yml harmless — none of them can fail on "cannot publish over the
-# previously published versions".
 on:
   push:
     tags:
@@ -45,265 +26,224 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.package.outputs.matrix }}
+      matrix: ${{ steps.select.outputs.matrix }}
     steps:
-      - name: Select package from tag
-        id: package
+      - name: Select packages from trigger
+        id: select
         env:
           EVENT_NAME: ${{ github.event_name }}
-          GITHUB_REF: ${{ github.ref }}
+          REF: ${{ github.ref }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          set -eo pipefail
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            if [ "$GITHUB_REF" != "refs/heads/master" ]; then
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ "$REF" != "refs/heads/master" ]]; then
               echo "::error::Manual releases can only be run from master"
               exit 1
             fi
-            matrix='{"include":[{"package":"@notploy/cli","dir":"packages/cli","description":"CLI to manage a Notploy server remotely"},{"package":"@notploy/sdk","dir":"packages/sdk","description":"TypeScript SDK for the Notploy API"},{"package":"@notploy/trpc-openapi","dir":"packages/trpc-openapi","description":"tRPC OpenAPI integration"}]}'
-            echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-            exit 0
+            suffix=node
+          else
+            if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-(cli|sdk|trpc-openapi|node)$ ]]; then
+              echo "::error::Unsupported release tag: $RELEASE_TAG"
+              exit 1
+            fi
+            suffix="${BASH_REMATCH[1]}"
           fi
 
-          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-(cli|sdk|trpc-openapi|node)$ ]]; then
-            echo "::error::Unsupported release tag: $RELEASE_TAG"
-            exit 1
-          fi
-
-          case "${RELEASE_TAG##*-}" in
+          case "$suffix" in
             cli)
-              matrix='{"include":[{"package":"@notploy/cli","dir":"packages/cli","description":"CLI to manage a Notploy server remotely"}]}'
+              matrix="$(jq -cn '{include:[{package:"@notploy/cli",dir:"packages/cli"}]}')"
               ;;
             sdk)
-              matrix='{"include":[{"package":"@notploy/sdk","dir":"packages/sdk","description":"TypeScript SDK for the Notploy API"}]}'
+              matrix="$(jq -cn '{include:[{package:"@notploy/sdk",dir:"packages/sdk"}]}')"
               ;;
             trpc-openapi)
-              matrix='{"include":[{"package":"@notploy/trpc-openapi","dir":"packages/trpc-openapi","description":"tRPC OpenAPI integration"}]}'
+              matrix="$(jq -cn '{include:[{package:"@notploy/trpc-openapi",dir:"packages/trpc-openapi"}]}')"
               ;;
             node)
-              matrix='{"include":[{"package":"@notploy/cli","dir":"packages/cli","description":"CLI to manage a Notploy server remotely"},{"package":"@notploy/sdk","dir":"packages/sdk","description":"TypeScript SDK for the Notploy API"},{"package":"@notploy/trpc-openapi","dir":"packages/trpc-openapi","description":"tRPC OpenAPI integration"}]}'
+              matrix="$(jq -cn '{include:[{package:"@notploy/cli",dir:"packages/cli"},{package:"@notploy/sdk",dir:"packages/sdk"},{package:"@notploy/trpc-openapi",dir:"packages/trpc-openapi"}]}')"
               ;;
           esac
+
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   publish:
-    name: ${{ matrix.package }}
+    name: Publish ${{ matrix.package }}
     needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: read
-      # GitHub Packages accepts the job's own GITHUB_TOKEN; no extra secret.
       packages: write
       id-token: write
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v6
+      - name: Check out repository
+        uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v5
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v5
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
-          # setup-node writes the //registry.npmjs.org auth line; the GitHub
-          # Packages one is added below because the runner generates the
-          # npmjs one only.
           registry-url: ${{ env.NPMJS_REGISTRY }}
 
-      - name: Install npm with trusted publishing support
+      - name: Enable npm trusted publishing
         run: npm install --global npm@^11.5.1
 
       - name: Install dependencies
-        # `PKG...` pulls the package and its own dependency subtree, not the
-        # whole monorepo.
         env:
-          PKG: ${{ matrix.package }}
-        run: |
-          set -eo pipefail
-          pnpm install --frozen-lockfile --filter "$PKG..."
+          PACKAGE: ${{ matrix.package }}
+        run: pnpm install --frozen-lockfile --filter "$PACKAGE..."
 
-      - name: Build ${{ matrix.package }}
+      - name: Build package
         env:
-          PKG: ${{ matrix.package }}
-        run: |
-          set -eo pipefail
-          pnpm --filter "$PKG" run build
+          PACKAGE: ${{ matrix.package }}
+        run: pnpm --filter "$PACKAGE" run build
 
-      - name: Resolve what to publish
-        id: plan
+      - name: Resolve release version
+        id: release
         env:
-          PKG: ${{ matrix.package }}
-          PKG_DIR: ${{ matrix.dir }}
+          PACKAGE_DIR: ${{ matrix.dir }}
           EVENT_NAME: ${{ github.event_name }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          set -eo pipefail
+          set -euo pipefail
 
-          echo "enabled=true" >> "$GITHUB_OUTPUT"
-
-          version="$(node -p "require('./$PKG_DIR/package.json').version")"
-          if [ "$EVENT_NAME" != "workflow_dispatch" ] && [[ "$RELEASE_TAG" != *-node ]]; then
+          version="$(node -p "require('./$PACKAGE_DIR/package.json').version")"
+          if [[ "$EVENT_NAME" != "workflow_dispatch" && "$RELEASE_TAG" != *-node ]]; then
             tag_version="${RELEASE_TAG#v}"
-            tag_version="${tag_version%-${PKG##*/}}"
-            if [ "$tag_version" != "$version" ]; then
-              echo "::error::Tag $RELEASE_TAG does not match $PKG version $version"
+            package_suffix="${PACKAGE_DIR##*/}"
+            tag_version="${tag_version%-${package_suffix}}"
+            if [[ "$tag_version" != "$version" ]]; then
+              echo "::error::Tag $RELEASE_TAG does not match $PACKAGE_DIR version $version"
               exit 1
             fi
           fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "Publishing $PKG@$version"
 
-          # npmjs authentication uses the job's OIDC token; configure this
-          # workflow as a trusted publisher in each package's npm settings.
-          echo "npmjs=true" >> "$GITHUB_OUTPUT"
-
-          # GitHub Packages authenticates with the job's GITHUB_TOKEN.
-          echo "github=true" >> "$GITHUB_OUTPUT"
-          echo "publish=true" >> "$GITHUB_OUTPUT"
-
-          # A prerelease must not become `latest`.
           case "$version" in
-            *-*) tag="${version##*-}" ;;
-            *) tag=latest ;;
+            *-*) dist_tag="${version##*-}" ;;
+            *) dist_tag=latest ;;
           esac
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
-      - name: Authenticate against GitHub Packages
-        if: steps.plan.outputs.enabled == 'true' && steps.plan.outputs.github == 'true' && steps.plan.outputs.publish == 'true'
-        env:
-          # Passed through the environment rather than written into the script
-          # body; the token itself is masked in the log.
-          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REGISTRY: ${{ env.GITHUB_REGISTRY }}
-        run: |
-          set -eo pipefail
-          # setup-node points NPM_CONFIG_USERCONFIG at the file it generated
-          # with the npmjs auth line; append to it rather than replacing it.
-          npmrc="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
-          # ${REGISTRY_TOKEN} is expanded by npm when the config is read.
-          echo "//npm.pkg.github.com/:_authToken=${REGISTRY_TOKEN}" >> "$npmrc"
-          # No `@notploy:registry=` mapping on purpose: a scope mapping wins over
-          # the `--registry` flag, and the same job publishes to both registries.
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "dist_tag=$dist_tag" >> "$GITHUB_OUTPUT"
+          echo "Publishing $PACKAGE_DIR@$version"
 
-      - name: Pack ${{ matrix.package }}
+      - name: Pack package
         id: pack
-        if: steps.plan.outputs.enabled == 'true'
-        # The tarball is what both registries receive, so packing it here — and
-        # listing its content — validates the `files` field before anything is
-        # public. It is also the dry-run artifact.
         env:
-          PKG: ${{ matrix.package }}
-          VERSION: ${{ steps.plan.outputs.version }}
+          PACKAGE: ${{ matrix.package }}
         run: |
-          set -eo pipefail
+          set -euo pipefail
+
           pack_dir="${RUNNER_TEMP}/pack"
-          rm -rf "$pack_dir"
           mkdir -p "$pack_dir"
-          pnpm --filter "$PKG" pack --pack-destination "$pack_dir"
+          pnpm --filter "$PACKAGE" pack --pack-destination "$pack_dir"
+
           tarball="$(find "$pack_dir" -name '*.tgz' -print -quit)"
-          [ -n "$tarball" ] || { echo "::error::pnpm pack produced no tarball for $PKG"; exit 1; }
+          if [[ -z "$tarball" ]]; then
+            echo "::error::pnpm pack produced no tarball for $PACKAGE"
+            exit 1
+          fi
+
+          artifact_name="${PACKAGE#@}"
+          artifact_name="${artifact_name//\//-}"
           echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
+          echo "artifact-name=$artifact_name" >> "$GITHUB_OUTPUT"
           echo "Contents of $(basename "$tarball"):"
           tar -tzf "$tarball" | sed 's/^/  /'
 
-      - name: Publish ${{ matrix.package }} to npmjs
+      - name: Publish to npmjs
         id: publish-npmjs
-        if: steps.plan.outputs.enabled == 'true' && steps.plan.outputs.npmjs == 'true' && steps.plan.outputs.publish == 'true'
+        if: steps.release.outcome == 'success' && steps.pack.outcome == 'success'
         env:
-          PKG: ${{ matrix.package }}
-          VERSION: ${{ steps.plan.outputs.version }}
-          TAG: ${{ steps.plan.outputs.tag }}
+          PACKAGE: ${{ matrix.package }}
+          VERSION: ${{ steps.release.outputs.version }}
+          DIST_TAG: ${{ steps.release.outputs.dist_tag }}
           TARBALL: ${{ steps.pack.outputs.tarball }}
         run: |
-          set -eo pipefail
-          if npm view "$PKG@$VERSION" version --registry "$NPMJS_REGISTRY" > /dev/null 2>&1; then
-            echo "::notice::$PKG@$VERSION is already on npmjs: nothing to publish"
+          set -euo pipefail
+
+          if npm view "$PACKAGE@$VERSION" version --registry "$NPMJS_REGISTRY" > /dev/null 2>&1; then
+            echo "::notice::$PACKAGE@$VERSION is already on npmjs"
             exit 0
           fi
+
           npm publish "$TARBALL" \
             --registry "$NPMJS_REGISTRY" \
             --access public \
-            --tag "$TAG"
-          echo "Published $PKG@$VERSION to npmjs (dist-tag $TAG)"
+            --tag "$DIST_TAG"
 
-      - name: Publish ${{ matrix.package }} to GitHub Packages
-        id: publish-github
-        if: ${{ !cancelled() && steps.plan.outputs.enabled == 'true' && steps.plan.outputs.github == 'true' && steps.plan.outputs.publish == 'true' }}
+      - name: Configure GitHub Packages authentication
+        if: ${{ !cancelled() && steps.release.outcome == 'success' && steps.pack.outcome == 'success' }}
         env:
-          PKG: ${{ matrix.package }}
-          VERSION: ${{ steps.plan.outputs.version }}
-          TAG: ${{ steps.plan.outputs.tag }}
-          TARBALL: ${{ steps.pack.outputs.tarball }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -eo pipefail
-          if npm view "$PKG@$VERSION" version --registry "$GITHUB_REGISTRY" > /dev/null 2>&1; then
-            echo "::notice::$PKG@$VERSION is already on GitHub Packages: nothing to publish"
+          set -euo pipefail
+
+          npmrc="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
+          printf '\n//npm.pkg.github.com/:_authToken=%s\n' "$REGISTRY_TOKEN" >> "$npmrc"
+
+      - name: Publish to GitHub Packages
+        id: publish-github
+        if: ${{ !cancelled() && steps.release.outcome == 'success' && steps.pack.outcome == 'success' }}
+        env:
+          PACKAGE: ${{ matrix.package }}
+          VERSION: ${{ steps.release.outputs.version }}
+          DIST_TAG: ${{ steps.release.outputs.dist_tag }}
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if npm view "$PACKAGE@$VERSION" version --registry "$GITHUB_REGISTRY" > /dev/null 2>&1; then
+            echo "::notice::$PACKAGE@$VERSION is already on GitHub Packages"
             exit 0
           fi
-          # No --access here: the visibility of a GitHub package is a setting
-          # of the package itself, not something the publish call decides.
+
           npm publish "$TARBALL" \
             --registry "$GITHUB_REGISTRY" \
-            --tag "$TAG"
-          echo "Published $PKG@$VERSION to GitHub Packages (dist-tag $TAG)"
+            --tag "$DIST_TAG"
 
-      - name: Upload tarball
-        if: ${{ !cancelled() && steps.plan.outputs.enabled == 'true' }}
+      - name: Upload package tarball
+        if: ${{ !cancelled() && steps.pack.outcome == 'success' }}
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.package }}-${{ steps.plan.outputs.version }}
+          name: ${{ steps.pack.outputs.artifact-name }}-${{ steps.release.outputs.version }}
           path: ${{ steps.pack.outputs.tarball }}
           if-no-files-found: error
           retention-days: 90
 
-      - name: Summarize
-        if: always() && steps.plan.outputs.enabled == 'true'
+      - name: Summarize publication
+        if: always() && steps.release.outcome == 'success'
         env:
-          PKG: ${{ matrix.package }}
-          VERSION: ${{ steps.plan.outputs.version }}
-          NPMJS: ${{ steps.plan.outputs.npmjs }}
-          GITHUB: ${{ steps.plan.outputs.github }}
-          PUBLISH: ${{ steps.plan.outputs.publish }}
+          PACKAGE: ${{ matrix.package }}
+          VERSION: ${{ steps.release.outputs.version }}
           NPMJS_OUTCOME: ${{ steps.publish-npmjs.outcome }}
           GITHUB_OUTCOME: ${{ steps.publish-github.outcome }}
         run: |
+          result_for() {
+            case "$1" in
+              success) printf 'published or already present' ;;
+              failure) printf 'failed' ;;
+              *) printf 'not run' ;;
+            esac
+          }
+
           {
-            echo "### $PKG@$VERSION"
-            echo ""
-            if [ "$PUBLISH" != "true" ]; then
-              echo "Dry run: the tarball was built and attached to this run, nothing was published."
-            else
-              echo "| Registry | Published |"
-              echo "| --- | --- |"
-              for registry in npmjs github; do
-                if [ "$registry" = "npmjs" ]; then
-                  enabled="$NPMJS"
-                  outcome="$NPMJS_OUTCOME"
-                else
-                  enabled="$GITHUB"
-                  outcome="$GITHUB_OUTCOME"
-                fi
-
-                if [ "$enabled" != "true" ]; then
-                  result=skipped
-                elif [ "$outcome" = "success" ]; then
-                  result="\`$PKG@$VERSION\` (published or already present)"
-                elif [ "$outcome" = "failure" ]; then
-                  result=failed
-                else
-                  result="not run"
-                fi
-
-                if [ "$registry" = "npmjs" ]; then
-                  echo "| npmjs | $result |"
-                else
-                  echo "| GitHub Packages (\`npm.pkg.github.com\`) | $result |"
-                fi
-              done
-            fi
+            echo "### $PACKAGE@$VERSION"
+            echo
+            echo "| Registry | Result |"
+            echo "| --- | --- |"
+            echo "| npmjs | $(result_for "$NPMJS_OUTCOME") |"
+            echo "| GitHub Packages | $(result_for "$GITHUB_OUTCOME") |"
           } >> "$GITHUB_STEP_SUMMARY"
