@@ -1,26 +1,24 @@
 {
-	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"$schema": "../../node_modules/@biomejs/biome/configuration_schema.json",
 	"files": {
-		// CSS is excluded on purpose: web/apps/website is Tailwind v3 (@tailwind
-		// base/components/utilities) while web/apps/docs is Tailwind v4 (@theme,
-		// @custom-variant, @plugin). Biome's `css.parser.tailwindDirectives`
-		// understands only the v4 syntax, so no single setting parses both —
-		// enabling it turns the v3 file into ~79k parse errors. Revisit once the
-		// website is on Tailwind v4.
+		"ignoreUnknown": true,
 		"includes": [
 			"**",
 			"!**/node_modules/**",
-			"!**/.source",
 			"!**/.next/**",
+			"!**/dist/**",
+			"!**/build/**",
+			"!**/out/**",
+			"!**/coverage/**",
 			"!**/drizzle/**",
-			"!**/.docker",
-			"!**/dist",
-			"!**/*.css"
-		]
+			"!__test__/**"
+		],
+		"maxSize": 2097152
 	},
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"linter": {
 		"rules": {
+			"recommended": true,
 			"security": {
 				"noDangerouslySetInnerHtml": "off"
 			},
@@ -30,15 +28,21 @@
 			},
 			"correctness": {
 				"useExhaustiveDependencies": "off",
-				"noUnsafeOptionalChaining": "off"
+				"noUnsafeOptionalChaining": "off",
+				"noUnusedImports": "error",
+				"noUnusedFunctionParameters": "error",
+				"noUnusedVariables": "off"
 			},
 			"style": {
-				"noNonNullAssertion": "off"
+				"noNonNullAssertion": "off",
+				"useTemplate": "off",
+				"noParameterAssign": "off"
 			},
 			"suspicious": {
 				"noArrayIndexKey": "off",
 				"noExplicitAny": "off",
-				"noRedeclare": "off"
+				"noRedeclare": "off",
+				"noTsIgnore": "off"
 			},
 			"a11y": {
 				"noSvgWithoutTitle": "off",
