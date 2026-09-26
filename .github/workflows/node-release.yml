@@ -1,18 +1,18 @@
 name: Node Release
 
-# Publishes the two consumer-facing Node packages to two registries:
+# Publishes one package to two registries for package-specific version tags:
 #
 #   @notploy/sdk -> npmjs + GitHub Packages
 #   @notploy/cli -> npmjs + GitHub Packages
+#   @notploy/trpc-openapi -> npmjs + GitHub Packages
 #
 # Both registries receive the exact same build: the package is built once, the
 # tarball is packed and inspected, then uploaded to each registry in turn, so a
 # consumer resolves identical bits whether it comes from npmjs or from
 # npm.pkg.github.com.
 #
-# The version is whatever the package.json holds. Versioning is changesets'
-# job (see .changeset/README.md), this workflow only ships what it finds, which
-# means the two packages stay on the same version as the rest of the fleet.
+# Tags use vX.Y.Z-{cli|sdk|trpc-openapi} to publish one matching package, or
+# vX.Y.Z-node to publish all three at the versions in their package.json files.
 #
 # Publishing is idempotent: a version the target registry already serves is
 # skipped instead of retried. That is what makes a re-run of this workflow, a
@@ -21,39 +21,11 @@ name: Node Release
 # previously published versions".
 on:
   push:
-    branches: [master]
-    # Only a change that can alter a published artifact re-triggers a publish.
-    paths:
-      - "packages/sdk/**"
-      - "packages/cli/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "package.json"
-      - ".github/workflows/node-release.yml"
-  workflow_dispatch:
-    inputs:
-      package:
-        # A choice input cannot use "" as an option value, so "all" is the
-        # explicit "publish both" value rather than an empty string.
-        description: "Package to publish (both when 'all')"
-        type: choice
-        default: all
-        options:
-          - all
-          - "@notploy/sdk"
-          - "@notploy/cli"
-      registry:
-        description: "Registry to publish to"
-        type: choice
-        default: both
-        options:
-          - both
-          - npmjs
-          - github
-      dry-run:
-        description: "Build and pack only, publish nothing"
-        type: boolean
-        default: false
+    tags:
+      - "v*.*.*-cli"
+      - "v*.*.*-sdk"
+      - "v*.*.*-trpc-openapi"
+      - "v*.*.*-node"
 
 concurrency:
   group: node-release-${{ github.ref }}
@@ -69,8 +41,41 @@ env:
   GITHUB_REGISTRY: https://npm.pkg.github.com
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.package.outputs.matrix }}
+    steps:
+      - name: Select package from tag
+        id: package
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -eo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-(cli|sdk|trpc-openapi|node)$ ]]; then
+            echo "::error::Unsupported release tag: $RELEASE_TAG"
+            exit 1
+          fi
+
+          case "${RELEASE_TAG##*-}" in
+            cli)
+              matrix='{"include":[{"package":"@notploy/cli","dir":"packages/cli","description":"CLI to manage a Notploy server remotely"}]}'
+              ;;
+            sdk)
+              matrix='{"include":[{"package":"@notploy/sdk","dir":"packages/sdk","description":"TypeScript SDK for the Notploy API"}]}'
+              ;;
+            trpc-openapi)
+              matrix='{"include":[{"package":"@notploy/trpc-openapi","dir":"packages/trpc-openapi","description":"tRPC OpenAPI integration"}]}'
+              ;;
+            node)
+              matrix='{"include":[{"package":"@notploy/cli","dir":"packages/cli","description":"CLI to manage a Notploy server remotely"},{"package":"@notploy/sdk","dir":"packages/sdk","description":"TypeScript SDK for the Notploy API"},{"package":"@notploy/trpc-openapi","dir":"packages/trpc-openapi","description":"tRPC OpenAPI integration"}]}'
+              ;;
+          esac
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
   publish:
     name: ${{ matrix.package }}
+    needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -79,14 +84,7 @@ jobs:
       packages: write
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - package: "@notploy/sdk"
-            dir: packages/sdk
-            description: TypeScript SDK for the Notploy API
-          - package: "@notploy/cli"
-            dir: packages/cli
-            description: CLI to manage a Notploy server remotely
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v6
 
@@ -105,8 +103,7 @@ jobs:
 
       - name: Install dependencies
         # `PKG...` pulls the package and its own dependency subtree, not the
-        # whole monorepo: neither package depends on a workspace sibling, so
-        # this is a handful of packages instead of the entire install.
+        # whole monorepo.
         env:
           PKG: ${{ matrix.package }}
         run: |
@@ -123,67 +120,42 @@ jobs:
       - name: Resolve what to publish
         id: plan
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          REQUESTED: ${{ inputs.package }}
-          REGISTRY: ${{ inputs.registry }}
-          DRY_RUN: ${{ inputs.dry-run }}
           PKG: ${{ matrix.package }}
           PKG_DIR: ${{ matrix.dir }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           set -eo pipefail
 
-          # 1. A manual run either targets one package or ships both.
-          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$REQUESTED" != "all" ] && [ "$REQUESTED" != "$PKG" ]; then
-            echo "::notice::skipping $PKG: dispatch requested '$REQUESTED'"
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
           echo "enabled=true" >> "$GITHUB_OUTPUT"
 
-          # 2. The version comes from the package itself, never from the event:
-          #    a push on master is not what decides the version to ship.
           version="$(node -p "require('./$PKG_DIR/package.json').version")"
+          if [[ "$RELEASE_TAG" != *-node ]]; then
+            tag_version="${RELEASE_TAG#v}"
+            tag_version="${tag_version%-${PKG##*/}}"
+            if [ "$tag_version" != "$version" ]; then
+              echo "::error::Tag $RELEASE_TAG does not match $PKG version $version"
+              exit 1
+            fi
+          fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "Publishing $PKG@$version"
 
-          # 3. npmjs needs a classic automation token. Trusted publishing
+          # npmjs needs a classic automation token. Trusted publishing
           #    (OIDC, `id-token: write`, no secret at all) is the better option
-          #    once it is configured for these two packages on npmjs.com; until
-          #    then a missing token is fatal on a push (nothing would ship) and
-          #    only a warning on a manual run, where the operator may well have
-          #    asked for the GitHub registry alone.
-          if [ "$REGISTRY" = "npmjs" ] || [ "$REGISTRY" = "both" ]; then
-            if [ -n "$NPM_TOKEN" ]; then
-              echo "npmjs=true" >> "$GITHUB_OUTPUT"
-            elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-              echo "::warning::NPM_TOKEN is not set: skipping $PKG on npmjs"
-              echo "npmjs=false" >> "$GITHUB_OUTPUT"
-            else
-              echo "::error::NPM_TOKEN is not set. Add it as a repository secret, or configure npm trusted publishing for $PKG."
-              exit 1
-            fi
+          # once it is configured for these packages on npmjs.com.
+          if [ -n "$NPM_TOKEN" ]; then
+            echo "npmjs=true" >> "$GITHUB_OUTPUT"
           else
-            echo "npmjs=false" >> "$GITHUB_OUTPUT"
+            echo "::error::NPM_TOKEN is not set. Add it as a repository secret, or configure npm trusted publishing for $PKG."
+            exit 1
           fi
 
-          # 4. GitHub Packages authenticates with the job's GITHUB_TOKEN, so it
-          #    is always available; the scope mapping is the only extra config.
-          if [ "$REGISTRY" = "github" ] || [ "$REGISTRY" = "both" ]; then
-            echo "github=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "github=false" >> "$GITHUB_OUTPUT"
-          fi
+          # GitHub Packages authenticates with the job's GITHUB_TOKEN.
+          echo "github=true" >> "$GITHUB_OUTPUT"
+          echo "publish=true" >> "$GITHUB_OUTPUT"
 
-          if [ "$DRY_RUN" = "true" ]; then
-            echo "publish=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::dry run: packing $PKG@$version without publishing it"
-          else
-            echo "publish=true" >> "$GITHUB_OUTPUT"
-          fi
-
-          # 5. A prerelease must not become `latest`: `latest` is what an
-          #    unqualified `npm install @notploy/cli` resolves to.
+          # A prerelease must not become `latest`.
           case "$version" in
             *-*) tag="${version##*-}" ;;
             *) tag=latest ;;
