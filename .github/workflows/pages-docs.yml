@@ -22,14 +22,6 @@ name: docs
 on:
   push:
     branches: [master]
-    paths:
-      - "web/apps/docs/**"
-      - "web/package.json"
-      - "web/biome.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "package.json"
-      - ".github/workflows/pages-docs.yml"
   pull_request:
     branches: [master]
     paths:
@@ -98,6 +90,7 @@ jobs:
           NEXT_OUTPUT: export
           # The docs own their domain root, so there is no base path to prefix.
           NEXT_BASE_PATH: ""
+          NEXT_PUBLIC_APP_URL: https://${{ env.CUSTOM_DOMAIN }}
           # NEXT_PUBLIC_* are inlined into the client bundle at build time.
           # SearchDialog.tsx reads these to decide between the static Orama
           # index and the runtime search route, so they must be set here or the

@@ -1,3 +1,6 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
 const TEMPLATES_BASE_URL = "https://templates.notploy.com";
 const REVALIDATE_SECONDS = 3600;
 
@@ -24,6 +27,13 @@ export interface TemplateFiles {
 }
 
 export async function getTemplates(): Promise<Template[]> {
+	const metadataFile = process.env.TEMPLATES_METADATA_FILE;
+	if (metadataFile) {
+		const contents = await readFile(metadataFile, "utf8");
+		const templates: Template[] = JSON.parse(contents);
+		return templates.sort((a, b) => a.name.localeCompare(b.name));
+	}
+
 	try {
 		const response = await fetch(`${TEMPLATES_BASE_URL}/meta.json`, {
 			next: { revalidate: REVALIDATE_SECONDS },
@@ -49,6 +59,19 @@ async function getBlueprintFile(
 	id: string,
 	fileName: string,
 ): Promise<string | null> {
+	const blueprintsDir = process.env.TEMPLATES_BLUEPRINTS_DIR;
+	if (blueprintsDir) {
+		try {
+			const text = await readFile(join(blueprintsDir, id, fileName), "utf8");
+			return text.trim() || null;
+		} catch (error) {
+			if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+				return null;
+			}
+			throw error;
+		}
+	}
+
 	try {
 		const response = await fetch(
 			`${TEMPLATES_BASE_URL}/blueprints/${id}/${fileName}`,

@@ -15,6 +15,9 @@ import {
   type Completion,
 } from "@codemirror/autocomplete";
 import { useTheme } from "@/theme-provider";
+
+type CompletionApply = Exclude<NonNullable<Completion["apply"]>, string>;
+
 // Docker Compose completion options
 const dockerComposeServices = [
   { label: "services", type: "keyword", info: "Define services" },
@@ -25,7 +28,7 @@ const dockerComposeServices = [
   { label: "secrets", type: "keyword", info: "Define secrets" },
 ].map((opt) => ({
   ...opt,
-  apply: (view: EditorView, completion: Completion) => {
+  apply: ((view, completion) => {
     const insert = `${completion.label}:`;
     view.dispatch({
       changes: {
@@ -35,7 +38,7 @@ const dockerComposeServices = [
       },
       selection: { anchor: view.state.selection.main.from + insert.length },
     });
-  },
+  }) satisfies CompletionApply,
 }));
 
 const dockerComposeServiceOptions = [
@@ -73,7 +76,7 @@ const dockerComposeServiceOptions = [
   { label: "networks", type: "keyword", info: "Networks to join" },
 ].map((opt) => ({
   ...opt,
-  apply: (view: EditorView, completion: Completion) => {
+  apply: ((view, completion) => {
     const insert = `${completion.label}: `;
     view.dispatch({
       changes: {
@@ -83,7 +86,7 @@ const dockerComposeServiceOptions = [
       },
       selection: { anchor: view.state.selection.main.from + insert.length },
     });
-  },
+  }) satisfies CompletionApply,
 }));
 
 function dockerComposeComplete(

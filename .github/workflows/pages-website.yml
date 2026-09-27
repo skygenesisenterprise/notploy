@@ -24,19 +24,11 @@ name: website
 on:
   push:
     branches: [master]
-    paths:
-      - "web/apps/website/**"
-      - "web/package.json"
-      - "web/biome.json"
-      - "web/next-env.d.ts"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "package.json"
-      - ".github/workflows/pages-website.yml"
   pull_request:
     branches: [master]
     paths:
       - "web/apps/website/**"
+      - "templates/**"
       - "web/package.json"
       - "web/biome.json"
       - "pnpm-lock.yaml"
@@ -93,12 +85,32 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate template metadata
+        run: pnpm --filter=@notploy/templates-app run generate-meta
+
+      - name: Verify Ghost Content API credentials
+        env:
+          GHOST_URL: ${{ vars.GHOST_URL }}
+          GHOST_KEY: ${{ secrets.GHOST_KEY }}
+        run: |
+          set -eo pipefail
+          if [ -z "$GHOST_URL" ] || [ -z "$GHOST_KEY" ]; then
+            echo "::error::Configure the GHOST_URL repository variable and GHOST_KEY repository secret to build the blog pages."
+            exit 1
+          fi
+
       - name: Build static export
         working-directory: web
         env:
           # Flips web/apps/website/next.config.js to `output: "export"`,
           # `trailingSlash: true` and `images.unoptimized`.
           NEXT_OUTPUT: export
+          # Use this repository's template source for a reproducible static
+          # build rather than depending on templates.notploy.com being live.
+          TEMPLATES_METADATA_FILE: ${{ github.workspace }}/templates/app/public/meta.json
+          TEMPLATES_BLUEPRINTS_DIR: ${{ github.workspace }}/templates/blueprints
+          GHOST_URL: ${{ vars.GHOST_URL }}
+          GHOST_KEY: ${{ secrets.GHOST_KEY }}
           # The site is served from its own domain root, so there is no base
           # path to prefix.
           NEXT_BASE_PATH: ""
