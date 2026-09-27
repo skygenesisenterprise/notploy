@@ -101,6 +101,9 @@ jobs:
             description: Notploy GitHub integration
           - image: notploy-website
             file: ./web/Dockerfile.website
+            # Next.js currently crashes with SIGILL when its build worker runs
+            # under QEMU for arm64; publish this site image as amd64 only.
+            platforms: linux/amd64
             description: Notploy official website
           - image: notploy-docs
             file: ./web/Dockerfile.docs
@@ -192,7 +195,7 @@ jobs:
           context: .
           file: ${{ matrix.file }}
           target: ${{ matrix.target }}
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.platforms || 'linux/amd64,linux/arm64' }}
           push: ${{ steps.flags.outputs.push }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -250,9 +253,11 @@ jobs:
           body: |
             ## Container images
 
-            All images are multi-architecture (`linux/amd64`, `linux/arm64`),
-            published to `${{ env.IMAGE_PREFIX }}` and signed with cosign
-            (keyless, Fulcio/OIDC).
+            Images are published to `${{ env.IMAGE_PREFIX }}` and signed with
+            cosign (keyless, Fulcio/OIDC). All images support
+            `linux/amd64` and `linux/arm64` except `notploy-website`, which is
+            currently published for `linux/amd64` only because the Next.js
+            build worker crashes under QEMU arm64.
 
             | Image | Description |
             | --- | --- |
