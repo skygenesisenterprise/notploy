@@ -88,28 +88,35 @@ jobs:
           - image: notploy
             file: ./Dockerfile
             target: selfhosted
+            tag_suffix: "-app"
             description: Notploy self-hosted (dashboard, server and build tooling)
           - image: notploy-cloud
             file: ./Dockerfile
             target: cloud
+            tag_suffix: "-cloud"
             description: Notploy Cloud (dashboard + server)
           - image: notploy-mcp
             file: ./packages/mcp/Dockerfile
+            tag_suffix: "-mcp"
             description: Notploy MCP server
           - image: notploy-github
             file: ./packages/github/Dockerfile
+            tag_suffix: "-github"
             description: Notploy GitHub integration
           - image: notploy-website
             file: ./web/Dockerfile.website
             # Next.js currently crashes with SIGILL when its build worker runs
             # under QEMU for arm64; publish this site image as amd64 only.
             platforms: linux/amd64
+            tag_suffix: "-website"
             description: Notploy official website
           - image: notploy-docs
             file: ./web/Dockerfile.docs
+            tag_suffix: "-docs"
             description: Notploy documentation
           - image: notploy-templates
             file: ./templates/Dockerfile
+            tag_suffix: "-templates"
             description: Notploy templates gallery
     steps:
       - uses: actions/checkout@v6
@@ -154,6 +161,8 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},prefix=v,suffix=${{ matrix.tag_suffix }}
+            type=semver,pattern={{major}}.{{minor}},prefix=v,suffix=${{ matrix.tag_suffix }}
             type=sha,format=short
             type=ref,event=branch
             type=raw,value=latest,enable={{is_default_branch}}
@@ -268,6 +277,13 @@ jobs:
             | `notploy-website` | Notploy official website |
             | `notploy-docs` | Notploy documentation |
             | `notploy-templates` | Notploy templates gallery |
+
+            Version tags use the `v<major>.<minor>.<patch><variant>` format,
+            with a minor-version alias. For example, Cloud is published as
+            `notploy-cloud:v1.2.3-cloud` and `notploy-cloud:v1.2-cloud`;
+            MCP, GitHub, website, docs, and templates use `-mcp`, `-github`,
+            `-website`, `-docs`, and `-templates` respectively. The base
+            `notploy` image uses `v1.2.3` and `v1.2`.
 
             ```bash
             docker pull ${{ env.IMAGE_PREFIX }}/notploy:${{ github.ref_name }}
