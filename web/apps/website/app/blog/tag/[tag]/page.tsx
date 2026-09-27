@@ -1,4 +1,4 @@
-import { getPostsByTag, getTags } from "@/lib/ghost";
+import { getPostsByTag } from "@/lib/ghost";
 import type { Post } from "@/lib/ghost";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -6,8 +6,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 type Props = {
-	params: { tag: string };
+	params: Promise<{ tag: string }>;
 };
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { tag } = await params;
@@ -27,11 +29,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		title: `${tagName} Posts`,
 		description: `Browse all posts tagged with ${tagName}`,
 	};
-}
-
-export async function generateStaticParams() {
-	const tags = await getTags();
-	return tags.map((tag: { slug: string }) => ({ tag: tag.slug }));
 }
 
 export default async function TagPage({ params }: Props) {

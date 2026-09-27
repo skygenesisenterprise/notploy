@@ -4,10 +4,10 @@ name: Docker Publish
 #
 #   GitHub Actions -> Buildx -> GHCR -> cosign (keyless)
 #
-# The four entries of the publish matrix below are the whole catalog: adding an
-# image means adding it there and to the `image` choices of the workflow_dispatch
-# input. The build context is always the repository root because the whole
-# monorepo is a single pnpm workspace.
+# The seven entries of the publish matrix below are the whole catalog: adding
+# an image means adding it there and to the `image` choices of the
+# workflow_dispatch input. The build context is always the repository root
+# because the whole monorepo is a single pnpm workspace.
 #
 # Pull requests do not run this workflow at all: ci.yml's `docker` job already
 # builds the images (amd64, no push) so a pull request stays fast and this job
@@ -25,6 +25,8 @@ on:
       - "packages/server/**"
       - "packages/mcp/**"
       - "packages/github/**"
+      - "web/**"
+      - "templates/**"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "package.json"
@@ -44,6 +46,9 @@ on:
           - notploy-cloud
           - notploy-mcp
           - notploy-github
+          - notploy-website
+          - notploy-docs
+          - notploy-templates
       push:
         description: "Push to the registry (off = build only)"
         type: boolean
@@ -94,6 +99,15 @@ jobs:
           - image: notploy-github
             file: ./packages/github/Dockerfile
             description: Notploy GitHub integration
+          - image: notploy-website
+            file: ./web/Dockerfile.website
+            description: Notploy official website
+          - image: notploy-docs
+            file: ./web/Dockerfile.docs
+            description: Notploy documentation
+          - image: notploy-templates
+            file: ./templates/Dockerfile
+            description: Notploy templates gallery
     steps:
       - uses: actions/checkout@v6
         with:
@@ -246,6 +260,9 @@ jobs:
             | `notploy-cloud` | Notploy Cloud (dashboard + server) |
             | `notploy-mcp` | Notploy MCP server |
             | `notploy-github` | Notploy GitHub integration |
+            | `notploy-website` | Notploy official website |
+            | `notploy-docs` | Notploy documentation |
+            | `notploy-templates` | Notploy templates gallery |
 
             ```bash
             docker pull ${{ env.IMAGE_PREFIX }}/notploy:${{ github.ref_name }}

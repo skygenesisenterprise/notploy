@@ -5,29 +5,26 @@
 //   (default)          -> web/Dockerfile.website, runs the marketing site as a
 //                         Node process behind the Notploy reverse proxy.
 //
-//   NEXT_OUTPUT=export -> .github/workflows/pages-website.yml, emits
-//                         web/apps/website/out for GitHub Pages.
+//   NEXT_OUTPUT=export -> static export for environments that serve the
+//                         website without a Node.js runtime.
 //
-// The static target cannot run the app/api routes or read request cookies, so
-// everything they served is baked at build time instead:
-//   * blog + template detail pages come from generateStaticParams
+// The static target cannot run app/api routes or read request cookies, so
+// server-backed features need build-time alternatives:
 //   * /api/github-stars, /api/github-contributors and /api/docker-stats become
-//     build-time snapshots refreshed on every deploy
+//     build-time snapshots refreshed on every export
 //   * /api/og serves one static card instead of a per-slug rendered PNG
 //   * the contact form posts to NEXT_PUBLIC_CONTACT_ENDPOINT, or falls back to
 //     mailto: when that is unset
 const isStaticExport = process.env.NEXT_OUTPUT === "export";
 
-// Set by actions/configure-pages. Empty when Pages is served from a domain root
-// (notploy.com); "/<repo>" when it is served from <org>.github.io/<repo>/.
+// Optional path prefix for static hosting under a subpath.
 const basePath = process.env.NEXT_BASE_PATH ?? "";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	basePath,
-	// `next export` writes <route>.html; GitHub Pages only resolves
-	// extensionless URLs to <route>/index.html, so without this every deep link
-	// would 404. Harmless for the Node server, which 301s to the same place.
+	// Directory indexes make deep links work on static hosts that do not perform
+	// Next.js route resolution.
 	trailingSlash: true,
 	...(isStaticExport ? { output: "export" } : {}),
 	typescript: {

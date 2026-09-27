@@ -2,8 +2,8 @@
  * Contact form delivery.
  *
  * The Node deployment (web/Dockerfile.website) runs app/api/contact, which
- * forwards to HubSpot and Resend. A GitHub Pages build has no server at all, so
- * there the form is delivered by one of:
+ * forwards to HubSpot and Resend. A static export has no server, so the form is
+ * delivered by one of:
  *
  *   1. NEXT_PUBLIC_CONTACT_ENDPOINT, when set: any endpoint that accepts the
  *      same JSON body (a form service such as Formspree, or the contact route
@@ -15,7 +15,7 @@
 
 const isStaticExport = process.env.NEXT_OUTPUT === "export";
 
-/** Set on the Pages build only. Absolute URL, never a relative path. */
+/** Set for static exports only. Absolute URL, never a relative path. */
 const externalEndpoint =
 	process.env.NEXT_PUBLIC_CONTACT_ENDPOINT?.trim() || undefined;
 

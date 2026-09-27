@@ -1,94 +1,106 @@
-<div align="center">
-  <a href="https://notploy.com">
-    <img src=".github/sponsors/logo.png" alt="Notploy - Open Source Alternative to Vercel, Heroku and Netlify." width="100%"  />
-  </a>
-  </br>
-  </br>
-  <p>Join us on Discord for help, feedback, and discussions!</p>
-  <a href="https://discord.gg/2tBnJ3jDJc">
-    <img src="https://discordapp.com/api/guilds/1234073262418563112/widget.png?style=banner2" alt="Discord Shield"/>
-  </a>
-</div>
-<br />
+# Notploy
 
+Notploy is an open-source, self-hostable platform for deploying and operating applications. It provides a web control plane for application and database deployments, Docker Compose projects, servers, and clusters. Run it on your own infrastructure, or use [Notploy Cloud](https://app.notploy.com).
 
-Notploy is a free, self-hostable Platform as a Service (PaaS) that simplifies the deployment and management of applications and databases.
+## What you can do
 
-## ✨ Features
+- Deploy applications from Git providers or container images using Docker, Nixpacks, Railpack, or buildpacks.
+- Run Docker Compose projects and manage their services, configuration, logs, and deployments.
+- Provision and operate PostgreSQL, MySQL, MariaDB, MongoDB, and Redis databases, with scheduled backups.
+- Route applications with Traefik, manage domains and certificates, and configure environment variables, volumes, and resource limits.
+- Monitor resource usage and logs, and send deployment notifications to supported providers.
+- Deploy to the local server, independent remote servers over SSH, or a Docker Swarm cluster.
+- Automate operations with the Notploy API, CLI, TypeScript SDK, or MCP server.
+- Browse one-click application blueprints in the [Notploy Templates gallery](https://templates.notploy.com).
 
-Notploy includes multiple features to make your life easier.
+See the [feature guide](https://docs.notploy.com/docs/core/features) and [deployment options](https://docs.notploy.com/docs/core/deployment-options) for details.
 
-- **Applications**: Deploy any type of application (Node.js, PHP, Python, Go, Ruby, etc.).
-- **Databases**: Create and manage databases with support for MySQL, PostgreSQL, MongoDB, MariaDB, libsql, and Redis.
-- **Backups**: Automate backups for databases to an external storage destination.
-- **Docker Compose**: Native support for Docker Compose to manage complex applications.
-- **Multi Node**: Scale applications to multiple nodes using Docker Swarm to manage the cluster.
-- **Templates**: Deploy open-source templates (Plausible, Pocketbase, Calcom, etc.) with a single click.
-- **Traefik Integration**: Automatically integrates with Traefik for routing and load balancing.
-- **Real-time Monitoring**: Monitor CPU, memory, storage, and network usage for every resource.
-- **Docker Management**: Easily deploy and manage Docker containers.
-- **CLI/API**: Manage your applications and databases using the command line or through the API.
-- **Notifications**: Get notified when your deployments succeed or fail (via Slack, Discord, Telegram, Email, etc.).
-- **Multi Server**: Deploy and manage your applications remotely to external servers.
-- **Self-Hosted**: Self-host Notploy on your VPS.
+## Quick start: self-host with Docker Compose
 
-## 🚀 Getting Started
-
-To get started, run the following command on a VPS:
-
-Want to skip the installation process? [Try the Notploy Cloud](https://app.notploy.com).
-
-```bash
-curl -sSL https://notploy.com/install.sh | bash
-```
-
-For detailed documentation, visit [docs.notploy.com](https://docs.notploy.com).
-
-### Run with Docker
-
-Everything is driven by the root `Dockerfile`, `docker-compose.yml` and `Makefile`:
+Requirements: Docker Engine with the Compose plugin. The self-hosted container needs access to the host Docker socket to build and manage workloads; treat this permission as highly privileged.
 
 ```bash
 git clone https://github.com/skygenesisenterprise/notploy.git
 cd notploy
-cp .env.example .env   # then edit POSTGRES_PASSWORD and BETTER_AUTH_SECRET
-make docker-up         # or: docker compose up -d
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Edit `.env` before starting the stack. Set unique values for `POSTGRES_PASSWORD` and `BETTER_AUTH_SECRET` (for example, generate each with `openssl rand -hex 32`), then start Notploy:
 
 ```bash
-make docker-logs   # follow the stack logs
-make docker-ps     # show stack status
-make docker-down   # stop the stack (named volumes are preserved)
+docker compose up --build -d
+docker compose logs -f notploy
 ```
 
-Switch flavors and modes with the same stack:
+Open [http://localhost:3000](http://localhost:3000) and complete the initial setup. Keep the `.env` file private and do not expose the dashboard publicly until you have configured authentication and HTTPS. For production installation, updates, networking, and TLS guidance, follow the [installation documentation](https://docs.notploy.com/docs/core/installation).
+
+Useful Compose commands:
 
 ```bash
-make docker-up FLAVOR=cloud      # Notploy Cloud (no self-hosted build tooling)
-make docker-build VERSION=local  # build/tag a local image
-make docker-dev                  # containerized dev server, http://localhost:3001
-make dev                         # development on the host
+docker compose ps
+docker compose logs -f
+docker compose down
 ```
 
-Run `make help` for the full list of commands.
+`docker compose down` preserves the named data volumes. Do not remove them if you need to keep your Notploy database and configuration.
 
+## Development
 
-[Github Sponsors](https://github.com/sponsors/Siumauricio)
+The monorepo uses **Node.js 24.4 or later in the 24.x line** and **pnpm 10.22 or later**. Install dependencies from the repository root:
 
-### Contributors 🤝
+```bash
+pnpm install --frozen-lockfile
+```
 
-<a href="https://github.com/skygenesisenterprise/notploy/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=skygenesisenterprise/notploy" alt="Contributors" />
-</a>
+The root development commands include:
 
-## 📺 Video Tutorial
+| Command | Purpose |
+| --- | --- |
+| `pnpm dev` | Run the Notploy application |
+| `pnpm build` | Build workspace packages |
+| `pnpm test` | Run the application test suite |
+| `pnpm typecheck` | Type-check workspace packages |
+| `pnpm lint` | Run Biome checks |
+| `pnpm web:dev` / `pnpm web:build` | Run or build the official website |
+| `pnpm docs:dev` / `pnpm docs:build` | Run or build the documentation site |
 
-<a href="https://youtu.be/mznYKPvhcfw">
-  <img src="https://notploy.com/banner.png" alt="Watch the video" width="400"/>
-</a>
+The application requires PostgreSQL and its runtime environment configuration. For a ready-to-run local stack with PostgreSQL, use Docker Compose as described above. See `.env.example`, the [installation guide](https://docs.notploy.com/docs/core/installation), and the package scripts for service-specific development commands.
 
-## 🤝 Contributing
+## Repository structure
 
-Check out the [Contributing Guide](CONTRIBUTING.md) for more information.
+This repository is a pnpm monorepo with a single root lockfile and workspace definition:
+
+| Path | Role |
+| --- | --- |
+| `apps/notploy` | Main web dashboard, API, and application server |
+| `packages/server` | Shared server, deployment, database, and platform logic |
+| `apps/api` | API and background-work service |
+| `apps/schedules` | Scheduled jobs service |
+| `packages/cli` | Notploy command-line client |
+| `packages/sdk` | Generated TypeScript API SDK |
+| `packages/mcp` | Model Context Protocol server |
+| `packages/trpc-openapi`, `packages/github` | Shared API and integration packages |
+| `web/apps/website` | Official marketing website |
+| `web/apps/docs` | Product documentation |
+| `templates` | Template gallery, blueprint catalogue, and validation/build scripts |
+| `examples` | Standalone deployment examples; intentionally outside the pnpm workspace |
+
+The root `Dockerfile` has `selfhosted`, `cloud`, and `dev` targets. The default self-hosted image includes deployment tooling; the cloud target uses the same application runtime without that tooling. The root Compose stack runs PostgreSQL and Notploy, while Notploy manages Traefik through the host Docker Engine when needed.
+
+## Documentation and community
+
+- Product docs: [docs.notploy.com](https://docs.notploy.com)
+- Website: [notploy.com](https://notploy.com)
+- Templates: [templates.notploy.com](https://templates.notploy.com)
+- Questions and discussions: [Notploy Discord](https://discord.gg/2tBnJ3jDJc)
+- Bugs and feature requests: [GitHub Issues](https://github.com/skygenesisenterprise/notploy/issues)
+
+Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before participating. Contributions and suggestions are welcome through GitHub issues and pull requests.
+
+## Security
+
+Do not report security vulnerabilities in public issues. Follow the private reporting instructions in [SECURITY.md](SECURITY.md).
+
+## License
+
+The root project is licensed under the [MIT License](LICENSE). Some separately published packages or included components may have their own license terms; check the relevant package's license file before redistributing it.

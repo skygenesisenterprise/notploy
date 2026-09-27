@@ -20,19 +20,10 @@ import { TableOfContents } from "./components/TableOfContents";
 import { ZoomableImage } from "./components/ZoomableImage";
 
 type Props = {
-	params: { slug: string };
+	params: Promise<{ slug: string }>;
 };
 
-/**
- * Enumerate every post at build time. Required by the Pages workflow: with
- * `output: "export"` a dynamic segment without generateStaticParams is dynamic
- * and the build fails. The Node deployment prerenders these too, so a new post
- * shows up without a redeploy of the first request.
- */
-export async function generateStaticParams() {
-	const posts = await getPosts();
-	return posts.map((post) => ({ slug: post.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(
 	{ params }: Props,
@@ -47,8 +38,7 @@ export async function generateMetadata(
 		};
 	}
 
-	// Resolved to the static card on the Pages build, /api/og?slug= on the Node
-	// deployment. See lib/og-image-url.ts.
+	// The Node deployment renders the image for this post on demand.
 	const ogUrl = ogImageUrl({ slug });
 
 	return {

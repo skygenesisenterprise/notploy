@@ -12,15 +12,13 @@ const tracingRoot = path.join(import.meta.dirname, "../../..");
 //   NEXT_OUTPUT=standalone (default) -> web/Dockerfile.docs, runs the docs
 //       server as a Node process behind the Notploy reverse proxy.
 //
-//   NEXT_OUTPUT=export              -> .github/workflows/pages-docs.yml, emits
-//       web/apps/docs/out for GitHub Pages.
+//   NEXT_OUTPUT=export              -> emits web/apps/docs/out for static hosting.
 //
 // `output: "export"` is mutually exclusive with standalone tracing and does not
 // support `redirects`, so the two modes diverge here rather than in the CI file.
 const isStaticExport = process.env.NEXT_OUTPUT === "export";
 
-// Set by actions/configure-pages. Empty when Pages is served from a domain root
-// (docs.notploy.com); "/<repo>" when it is served from <org>.github.io/<repo>/.
+// Optional path prefix for static hosting under a subpath.
 const basePath = process.env.NEXT_BASE_PATH ?? "";
 
 /** @type {import('next').NextConfig} */
@@ -52,13 +50,11 @@ const config = {
 			},
 		],
 	},
-	// `next export` writes <route>.html; GitHub Pages only resolves
-	// extensionless URLs to <route>/index.html, so without this every deep link
-	// into /docs/... would 404.
+	// Directory indexes make deep links work on static hosts that do not perform
+	// Next.js route resolution.
 	...(isStaticExport ? { trailingSlash: true } : {}),
 	// `redirects()` is unsupported under `output: "export"`. The template
-	// gallery moved to the marketing site, so on Pages the links are rewritten
-	// in source instead of relying on a server redirect.
+	// gallery moved to the marketing site, so static exports omit these redirects.
 	...(isStaticExport
 		? {}
 		: {

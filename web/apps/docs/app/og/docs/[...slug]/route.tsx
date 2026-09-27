@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
 
 // All data comes from the filesystem MDX source at build time.
-// "force-static" is required by `output: "export"` (GitHub Pages) and is a
+// "force-static" lets static exports emit these build-time images and is a
 // no-op change for the standalone server.
 export const dynamic = "force-static";
 

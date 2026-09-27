@@ -38,6 +38,4 @@ GHOST_URL=""
 GHOST_KEY=""
 ```
 
-The Pages workflow reads `GHOST_URL` from a repository Actions variable and
-`GHOST_KEY` from a repository Actions secret. Both must be configured for the
-static blog pages to build.
+Set `GHOST_URL` and `GHOST_KEY` in the runtime environment to load blog content.

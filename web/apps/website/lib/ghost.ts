@@ -82,10 +82,10 @@ export interface Post {
 
 export async function getPosts(options = {}): Promise<Post[]> {
 	try {
-		const result = (await api.posts.browse({
+		const result = await api.posts.browse<Post>({
 			include: "authors",
 			limit: "all",
-		})) as Post[];
+		});
 		return result;
 	} catch (error) {
 		console.error("Error fetching posts:", error);
@@ -95,10 +95,10 @@ export async function getPosts(options = {}): Promise<Post[]> {
 
 export async function getPost(slug: string): Promise<Post | null> {
 	try {
-		const result = (await api.posts.read({
+		const result = await api.posts.read<Post>({
 			slug,
 			include: "authors",
-		})) as Post;
+		});
 
 		return result;
 	} catch (error) {
@@ -119,7 +119,7 @@ export async function getTags() {
 
 export async function getPostsByTag(tag: string) {
 	try {
-		const result = await api.posts.browse({
+		const result = await api.posts.browse<Post>({
 			limit: "all",
 			filter: `tag:${tag}`,
 			include: ["tags", "authors"],

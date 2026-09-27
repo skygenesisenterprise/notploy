@@ -21,8 +21,8 @@ function buildIndex(page: Page) {
 }
 
 // All data comes from the filesystem MDX source at build time.
-// "force-static" is required by `output: "export"` (GitHub Pages) and is a
-// no-op change for the standalone server.
+// "force-static" lets static exports emit this build-time search index and is
+// a no-op change for the standalone server.
 export const dynamic = "force-static";
 
 const isStaticExport = process.env.NEXT_OUTPUT === "export";

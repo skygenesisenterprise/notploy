@@ -1,13 +1,9 @@
 /**
  * Absolute URL helpers for metadata.
  *
- * The static export cannot render a per-slug PNG at request time, so on Pages
- * every page points at the single card in `public/og.png`. Under the Node
- * deployment (web/Dockerfile.website) the dynamic /api/og route is used and
- * still takes a slug/template query parameter.
- *
- * NEXT_BASE_PATH is set by actions/configure-pages when Pages is served from
- * https://<org>.github.io/<repo>/ rather than a custom domain root.
+ * A static export cannot render a per-slug PNG at request time, so every page
+ * points at the single card in `public/og.png`. Under the Node deployment
+ * (web/Dockerfile.website) the dynamic /api/og route renders per-page images.
  */
 const isStaticExport = process.env.NEXT_OUTPUT === "export";
 
@@ -18,10 +14,6 @@ function siteOrigin(): string {
 		return process.env.NEXT_PUBLIC_APP_URL;
 	}
 
-	if (isStaticExport) {
-		return `https://${process.env.NEXT_PAGES_ORIGIN ?? "notploy.github.io"}`;
-	}
-
 	return process.env.NODE_ENV === "production"
 		? "https://notploy.com"
 		: "http://localhost:3001";
@@ -29,7 +21,7 @@ function siteOrigin(): string {
 
 export const SITE_URL = siteOrigin();
 
-/** Absolute URL for a static asset, honouring the Pages base path. */
+/** Absolute URL for a static asset, honouring the configured base path. */
 export function assetUrl(path: string): string {
 	return new URL(`${basePath}${path}`, SITE_URL).toString();
 }

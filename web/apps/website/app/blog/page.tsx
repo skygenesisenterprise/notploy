@@ -7,6 +7,8 @@ import { BlogPostCard } from "./components/BlogPostCard";
 import { SearchAndFilter } from "./components/SearchAndFilter";
 import { FilterableList } from "../filterable-list";
 
+export const dynamic = "force-dynamic";
+
 interface Tag {
 	id: string;
 	name: string;

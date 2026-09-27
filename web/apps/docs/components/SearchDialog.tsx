@@ -22,8 +22,8 @@ export default function CustomSearchDialog(props: SharedProps) {
 	// When tag is "all", don't filter by tag (pass undefined)
 	const tagFilter = tag === "all" ? undefined : tag;
 	// `NEXT_PUBLIC_*` because this is a client component: the flag is inlined at
-	// build time. Under `output: "export"` (GitHub Pages) there is no server to
-	// query, so the prebuilt index at /api/search is downloaded and searched in
+	// build time. Under `output: "export"` there is no server to query, so the
+	// prebuilt index at /api/search is downloaded and searched in
 	// the browser. See app/api/search/route.ts for the matching route handler.
 	const { search, setSearch, query } = useDocsSearch(
 		process.env.NEXT_PUBLIC_NOTPLOY_OUTPUT === "export"
