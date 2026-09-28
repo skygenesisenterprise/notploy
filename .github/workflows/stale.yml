@@ -21,7 +21,7 @@ jobs:
       # per-type messages are `stale-issue-message` / `stale-pr-message` /
       # `close-issue-message` / `close-pr-message`, and there is no
       # `exempt-all-pull-requests` or `messages`/`prMessage` input.
-      - uses: actions/stale@v9
+      - uses: actions/stale@v11
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
