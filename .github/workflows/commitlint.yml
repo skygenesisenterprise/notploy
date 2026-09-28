@@ -26,7 +26,7 @@ jobs:
           # root, so the root config files must be present.
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v5
+      - uses: pnpm/action-setup@v6
         with:
           version: "10.22.0"
 
@@ -57,7 +57,7 @@ jobs:
           # Needs the history to lint the commits added by the push.
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v5
+      - uses: pnpm/action-setup@v6
         with:
           version: "10.22.0"
 
