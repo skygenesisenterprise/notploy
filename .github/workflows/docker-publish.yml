@@ -4,6 +4,12 @@ name: Docker Publish
 #
 #   GitHub Actions -> Buildx -> GHCR -> cosign (keyless)
 #
+# A push to master rebuilds the catalog and moves `latest`. A tag says what to
+# publish: `v1.2.3` is a full release, `v1.2.3-website` rebuilds the website
+# image alone, and a tag matching no module (`v1.0.0-node`, owned by
+# node-release.yml) leaves the registry alone. A tag always moves `latest` of
+# the image it publishes, a full release moves it for all of them.
+#
 # The seven entries of the publish matrix below are the whole catalog: adding
 # an image means adding it there and to the `image` choices of the
 # workflow_dispatch input. The build context is always the repository root
@@ -17,8 +23,9 @@ name: Docker Publish
 on:
   push:
     branches: [master]
-    # Path filters are not evaluated for tag pushes, so a `v*` tag still
-    # publishes even when none of these paths changed.
+    # Path filters are not evaluated for tag pushes, so a `v*` tag always
+    # reaches the matrix; which images it builds is decided by the tag name
+    # in the "Select image to publish" step.
     paths:
       - "Dockerfile"
       - "apps/notploy/**"
@@ -131,11 +138,41 @@ jobs:
           # Read through env so the shell compares plain values instead of
           # interpolating them into the script body.
           EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          TAG_NAME: ${{ github.ref_name }}
           REQUESTED: ${{ inputs.image }}
           IMAGE: ${{ matrix.image }}
+          TAG_SUFFIX: ${{ matrix.tag_suffix }}
           DOCKERFILE: ${{ matrix.file }}
         run: |
           set -eo pipefail
+
+          # A tag names what to publish: `v1.2.3` releases the catalog,
+          # `v1.2.3-website` rebuilds the website image alone, and a tag
+          # matching no module (`v1.0.0-node`, ...) publishes nothing.
+          catalog=true
+          version=
+          if [ "$REF_TYPE" = "tag" ]; then
+            if [[ "$TAG_NAME" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-(.+))?$ ]]; then
+              version="v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+              variant="${BASH_REMATCH[5]:-}"
+            else
+              echo "::warning::tag $TAG_NAME is not a v<major>.<minor>.<patch>[-<module>] release tag, nothing published"
+              echo "enabled=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [ -n "$variant" ]; then
+              # A module tag moves the version tags of that module only, so
+              # the catalog-wide ones (1.2.3, 1.2) are left alone.
+              catalog=false
+              if [ "$variant" != "${TAG_SUFFIX#-}" ]; then
+                echo "enabled=false" >> "$GITHUB_OUTPUT"
+                echo "::notice::skipping $IMAGE: tag $TAG_NAME publishes '$variant'"
+                exit 0
+              fi
+            fi
+          fi
+
           if [ "$EVENT_NAME" = "workflow_dispatch" ] \
             && [ "$REQUESTED" != "all" ] \
             && [ "$REQUESTED" != "$IMAGE" ]; then
@@ -151,6 +188,10 @@ jobs:
             exit 0
           fi
           echo "enabled=true" >> "$GITHUB_OUTPUT"
+          echo "catalog=$catalog" >> "$GITHUB_OUTPUT"
+          # Handed to metadata-action as the semver `value` so a module tag
+          # resolves to v1.2.3 instead of the v1.2.3-website prerelease.
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Derive tags
         id: meta
@@ -159,8 +200,11 @@ jobs:
         with:
           images: ${{ env.IMAGE_PREFIX }}/${{ matrix.image }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            # `value` carries the version stripped of any module suffix, so the
+            # minor alias stays v1.2-website instead of inheriting the
+            # prerelease part metadata-action keeps on {{major}}.{{minor}}.
+            type=semver,pattern={{version}},value=${{ steps.select.outputs.version }},enable=${{ steps.select.outputs.catalog == 'true' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.select.outputs.version }},enable=${{ steps.select.outputs.catalog == 'true' }}
             type=semver,pattern={{major}}.{{minor}}.{{patch}},prefix=v,suffix=${{ matrix.tag_suffix }}
             type=semver,pattern={{major}}.{{minor}},prefix=v,suffix=${{ matrix.tag_suffix }}
             type=sha,format=short
@@ -239,11 +283,13 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Tag a release so `v*` pushes have a matching GitHub Release listing the
-  # published images, and so dependabot/renovate can track them.
+  # published images, and so dependabot/renovate can track them. Only a plain
+  # `v1.2.3` tag releases the catalog: a `v1.2.3-website` module tag publishes
+  # one image, and `v1.0.0-node` belongs to node-release.yml.
   # ---------------------------------------------------------------------------
   release:
     name: GitHub Release
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-')
     needs: publish
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -282,11 +328,14 @@ jobs:
             with a minor-version alias. For example, Cloud is published as
             `notploy-cloud:v1.2.3-cloud` and `notploy-cloud:v1.2-cloud`;
             MCP, GitHub, website, docs, and templates use `-mcp`, `-github`,
-            `-website`, `-docs`, and `-templates` respectively. The base
-            `notploy` image uses `v1.2.3` and `v1.2`.
+            `-website`, `-docs`, and `-templates` respectively. A full release
+            also moves the unprefixed `1.2.3` and `1.2` tags of every image.
+
+            Pushing a single module tag such as `v1.2.3-website` rebuilds and
+            pushes that image only.
 
             ```bash
-            docker pull ${{ env.IMAGE_PREFIX }}/notploy:${{ github.ref_name }}
+            docker pull ${{ env.IMAGE_PREFIX }}/notploy:${{ github.ref_name }}-app
             ```
 
             Verify a signature with:
