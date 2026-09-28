@@ -19,17 +19,24 @@ pnpm install
 
 ```
 sdk/
-├── openapi.json          # OpenAPI spec (source of truth)
-├── openapi-ts.config.ts  # Code generation config
+├── openapi.json            # OpenAPI spec (source of truth)
+├── openapi-ts.config.ts    # Code generation config
 ├── src/
-│   ├── types.gen.ts      # Auto-generated types (do not edit)
-│   ├── sdk.gen.ts        # Auto-generated SDK functions (do not edit)
-│   ├── client.gen.ts     # Auto-generated client config (do not edit)
-│   └── index.ts          # Auto-generated exports (do not edit)
-└── biome.json            # Linter / formatter config
+│   ├── index.ts            # Hand-written entry point (edit this one)
+│   └── generated/          # Auto-generated only (never edit)
+│       ├── index.ts        # Generated barrel
+│       ├── types.gen.ts    # Generated types
+│       ├── sdk.gen.ts      # Generated SDK functions
+│       ├── client.gen.ts   # Generated client config
+│       ├── client/         # Generated fetch client + types
+│       └── core/           # Generated serializers, SSE, auth
+└── biome.json              # Linter / formatter config
 ```
 
-> All files inside `src/` are auto-generated. **Do not edit them manually** — your changes will be overwritten on the next `pnpm generate`.
+> Everything inside `src/generated/` is auto-generated. **Do not edit it manually** — your changes will be overwritten on the next `pnpm generate`.
+>
+> `src/index.ts` is hand-written and is the only place where the public surface of the
+> package is defined. Keep it to re-exports.
 
 ## Updating the SDK
 
@@ -43,6 +50,14 @@ pnpm generate
 ```
 
 3. Review the diff and open a PR
+
+The generator writes only to `src/generated/`, so hand-written files under `src/` are safe.
+
+## Adding a runtime helper
+
+Add it next to `src/index.ts` and re-export it from `src/index.ts`. Do not put it under
+`src/generated/`, and do not add bare `import`/`export` specifiers that Node's ESM loader
+cannot resolve: the package is consumed through bundlers.
 
 ## Code Style
 

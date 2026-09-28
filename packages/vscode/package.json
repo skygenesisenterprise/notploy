@@ -1,0 +1,574 @@
+{
+	"name": "notploy",
+	"displayName": "Notploy",
+	"description": "Manage your Notploy projects, deployments, logs and infrastructure from VS Code.",
+	"version": "0.1.0",
+	"publisher": "notploy",
+	"license": "MIT",
+	"private": true,
+	"engines": {
+		"vscode": "^1.96.0",
+		"node": ">=20.0.0"
+	},
+	"categories": [
+		"Other",
+		"SCM Providers"
+	],
+	"keywords": [
+		"notploy",
+		"deploy",
+		"deployment",
+		"docker",
+		"devops",
+		"self-hosted"
+	],
+	"icon": "icon.png",
+	"galleryBanner": {
+		"color": "#0b0f19",
+		"theme": "dark"
+	},
+	"qna": "https://github.com/skygenesisenterprise/notploy/discussions",
+	"bugs": {
+		"url": "https://github.com/skygenesisenterprise/notploy/issues"
+	},
+	"homepage": "https://notploy.com",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/skygenesisenterprise/notploy.git",
+		"directory": "packages/vscode"
+	},
+	"main": "./dist/extension.js",
+	"activationEvents": [
+		"onStartupFinished",
+		"workspaceContains:notploy.json",
+		"workspaceContains:notploy.yaml",
+		"workspaceContains:notploy.yml",
+		"workspaceContains:docker-compose.yml",
+		"workspaceContains:compose.yml"
+	],
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "notploy",
+					"title": "Notploy",
+					"icon": "media/notploy-activity.svg"
+				}
+			]
+		},
+		"views": {
+			"notploy": [
+				{
+					"id": "notploy.instances",
+					"name": "Instances",
+					"contextualTitle": "Notploy Instances"
+				},
+				{
+					"id": "notploy.projects",
+					"name": "Projects",
+					"contextualTitle": "Notploy Projects"
+				},
+				{
+					"id": "notploy.deployments",
+					"name": "Deployments",
+					"contextualTitle": "Notploy Deployments"
+				},
+				{
+					"id": "notploy.infrastructure",
+					"name": "Infrastructure",
+					"contextualTitle": "Notploy Infrastructure"
+				},
+				{
+					"id": "notploy.workspace",
+					"name": "Workspace",
+					"contextualTitle": "Notploy Workspace"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+				"view": "notploy.instances",
+				"contents": "No Notploy instance configured.\n\n[Add Instance](command:notploy.instance.add \"Add a Notploy Cloud, self-hosted or local instance\")"
+			},
+			{
+				"view": "notploy.projects",
+				"contents": "No instance selected.\n\n[Select Instance](command:notploy.instance.select \"Choose the active Notploy instance\")"
+			},
+			{
+				"view": "notploy.deployments",
+				"contents": "No instance selected.\n\n[Select Instance](command:notploy.instance.select \"Choose the active Notploy instance\")"
+			},
+			{
+				"view": "notploy.infrastructure",
+				"contents": "No instance selected.\n\n[Select Instance](command:notploy.instance.select \"Choose the active Notploy instance\")"
+			},
+			{
+				"view": "notploy.workspace",
+				"contents": "This workspace is not linked to a Notploy project.\n\n[Create / Connect Notploy Project](command:notploy.workspace.bind)"
+			}
+		],
+		"commands": [
+			{
+				"command": "notploy.open",
+				"title": "Notploy: Open",
+				"category": "Notploy",
+				"icon": "$(cloud)"
+			},
+			{
+				"command": "notploy.refresh",
+				"title": "Notploy: Refresh",
+				"category": "Notploy",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "notploy.instance.add",
+				"title": "Notploy: Add Instance",
+				"category": "Notploy",
+				"icon": "$(add)"
+			},
+			{
+				"command": "notploy.instance.remove",
+				"title": "Notploy: Remove Instance",
+				"category": "Notploy",
+				"icon": "$(trash)"
+			},
+			{
+				"command": "notploy.instance.select",
+				"title": "Notploy: Select Instance",
+				"category": "Notploy",
+				"icon": "$(check)"
+			},
+			{
+				"command": "notploy.instance.testConnection",
+				"title": "Notploy: Test Connection",
+				"category": "Notploy",
+				"icon": "$(plug)"
+			},
+			{
+				"command": "notploy.instance.openDashboard",
+				"title": "Notploy: Open Dashboard",
+				"category": "Notploy",
+				"icon": "$(link-external)"
+			},
+			{
+				"command": "notploy.instance.showCapabilities",
+				"title": "Notploy: Show Instance Capabilities",
+				"category": "Notploy",
+				"icon": "$(info)"
+			},
+			{
+				"command": "notploy.login",
+				"title": "Notploy: Login",
+				"category": "Notploy",
+				"icon": "$(key)"
+			},
+			{
+				"command": "notploy.logout",
+				"title": "Notploy: Logout",
+				"category": "Notploy",
+				"icon": "$(sign-out)"
+			},
+			{
+				"command": "notploy.deploy",
+				"title": "Notploy: Deploy",
+				"category": "Notploy",
+				"icon": "$(rocket)"
+			},
+			{
+				"command": "notploy.redeploy",
+				"title": "Notploy: Redeploy",
+				"category": "Notploy",
+				"icon": "$(sync)"
+			},
+			{
+				"command": "notploy.restartDeployment",
+				"title": "Notploy: Restart Deployment",
+				"category": "Notploy",
+				"icon": "$(debug-restart)"
+			},
+			{
+				"command": "notploy.stopDeployment",
+				"title": "Notploy: Stop Deployment",
+				"category": "Notploy",
+				"icon": "$(debug-stop)"
+			},
+			{
+				"command": "notploy.startDeployment",
+				"title": "Notploy: Start Deployment",
+				"category": "Notploy",
+				"icon": "$(debug-start)"
+			},
+			{
+				"command": "notploy.cancelDeployment",
+				"title": "Notploy: Cancel Deployment",
+				"category": "Notploy",
+				"icon": "$(circle-slash)"
+			},
+			{
+				"command": "notploy.removeDeployment",
+				"title": "Notploy: Remove Deployment",
+				"category": "Notploy",
+				"icon": "$(trash)"
+			},
+			{
+				"command": "notploy.openDeployment",
+				"title": "Notploy: Open Deployment",
+				"category": "Notploy",
+				"icon": "$(go-to-file)"
+			},
+			{
+				"command": "notploy.openProject",
+				"title": "Notploy: Open Project",
+				"category": "Notploy",
+				"icon": "$(go-to-file)"
+			},
+			{
+				"command": "notploy.openInBrowser",
+				"title": "Notploy: Open in Browser",
+				"category": "Notploy",
+				"icon": "$(link-external)"
+			},
+			{
+				"command": "notploy.viewLogs",
+				"title": "Notploy: View Logs",
+				"category": "Notploy",
+				"icon": "$(output)"
+			},
+			{
+				"command": "notploy.followLogs",
+				"title": "Notploy: Follow Logs",
+				"category": "Notploy",
+				"icon": "$(pulse)"
+			},
+			{
+				"command": "notploy.stopFollowingLogs",
+				"title": "Notploy: Stop Following Logs",
+				"category": "Notploy",
+				"icon": "$(stop-circle)"
+			},
+			{
+				"command": "notploy.clearLogs",
+				"title": "Notploy: Clear Logs",
+				"category": "Notploy",
+				"icon": "$(clear-all)"
+			},
+			{
+				"command": "notploy.copyLogs",
+				"title": "Notploy: Copy Logs",
+				"category": "Notploy",
+				"icon": "$(copy)"
+			},
+			{
+				"command": "notploy.copyId",
+				"title": "Notploy: Copy ID",
+				"category": "Notploy",
+				"icon": "$(clippy)"
+			},
+			{
+				"command": "notploy.workspace.bind",
+				"title": "Notploy: Create / Connect Notploy Project",
+				"category": "Notploy",
+				"icon": "$(link)"
+			},
+			{
+				"command": "notploy.workspace.unbind",
+				"title": "Notploy: Unlink Workspace Project",
+				"category": "Notploy",
+				"icon": "$(debug-disconnect)"
+			},
+			{
+				"command": "notploy.workspace.showInfo",
+				"title": "Notploy: Show Workspace Info",
+				"category": "Notploy",
+				"icon": "$(repo)"
+			},
+			{
+				"command": "notploy.infrastructure.refresh",
+				"title": "Notploy: Refresh Infrastructure",
+				"category": "Notploy",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "notploy.docker.refresh",
+				"title": "Notploy: Refresh Docker",
+				"category": "Notploy",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "notploy.docker.startContainer",
+				"title": "Notploy: Start Container",
+				"category": "Notploy",
+				"icon": "$(debug-start)"
+			},
+			{
+				"command": "notploy.docker.stopContainer",
+				"title": "Notploy: Stop Container",
+				"category": "Notploy",
+				"icon": "$(debug-stop)"
+			},
+			{
+				"command": "notploy.docker.restartContainer",
+				"title": "Notploy: Restart Container",
+				"category": "Notploy",
+				"icon": "$(debug-restart)"
+			},
+			{
+				"command": "notploy.docker.inspectContainer",
+				"title": "Notploy: Inspect Container",
+				"category": "Notploy",
+				"icon": "$(json)"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "notploy.refresh",
+					"when": "view =~ /^notploy\\./",
+					"group": "navigation@1"
+				},
+				{
+					"command": "notploy.instance.add",
+					"when": "view == notploy.instances",
+					"group": "navigation@2"
+				},
+				{
+					"command": "notploy.workspace.bind",
+					"when": "view == notploy.workspace",
+					"group": "navigation@2"
+				},
+				{
+					"command": "notploy.openDeployment",
+					"when": "view == notploy.deployments",
+					"group": "navigation@2"
+				},
+				{
+					"command": "notploy.docker.refresh",
+					"when": "view == notploy.infrastructure",
+					"group": "navigation@2"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "notploy.instance.select",
+					"when": "view == notploy.instances && viewItem == notploy.instance",
+					"group": "inline@1"
+				},
+				{
+					"command": "notploy.instance.testConnection",
+					"when": "view == notploy.instances && viewItem == notploy.instance",
+					"group": "inline@2"
+				},
+				{
+					"command": "notploy.instance.openDashboard",
+					"when": "view == notploy.instances && viewItem == notploy.instance",
+					"group": "1_open@1"
+				},
+				{
+					"command": "notploy.instance.showCapabilities",
+					"when": "view == notploy.instances && viewItem == notploy.instance",
+					"group": "1_open@2"
+				},
+				{
+					"command": "notploy.login",
+					"when": "view == notploy.instances && viewItem == notploy.instance",
+					"group": "2_auth@1"
+				},
+				{
+					"command": "notploy.logout",
+					"when": "view == notploy.instances && viewItem == notploy.instance.authenticated",
+					"group": "2_auth@2"
+				},
+				{
+					"command": "notploy.instance.remove",
+					"when": "view == notploy.instances && viewItem == notploy.instance",
+					"group": "3_manage@1"
+				},
+				{
+					"command": "notploy.deploy",
+					"when": "viewItem == notploy.project || viewItem == notploy.environment || viewItem == notploy.application || viewItem == notploy.deployment.application",
+					"group": "inline@1"
+				},
+				{
+					"command": "notploy.viewLogs",
+					"when": "viewItem == notploy.application || viewItem == notploy.deployment.application",
+					"group": "inline@2"
+				},
+				{
+					"command": "notploy.redeploy",
+					"when": "viewItem == notploy.application || viewItem == notploy.deployment.application",
+					"group": "1_deploy@1"
+				},
+				{
+					"command": "notploy.restartDeployment",
+					"when": "viewItem == notploy.application || viewItem == notploy.deployment.application",
+					"group": "1_deploy@2"
+				},
+				{
+					"command": "notploy.startDeployment",
+					"when": "viewItem == notploy.application || viewItem == notploy.deployment.application",
+					"group": "1_deploy@3"
+				},
+				{
+					"command": "notploy.stopDeployment",
+					"when": "viewItem == notploy.application || viewItem == notploy.deployment.application",
+					"group": "1_deploy@4"
+				},
+				{
+					"command": "notploy.openInBrowser",
+					"when": "viewItem == notploy.application || viewItem == notploy.deployment.application || viewItem == notploy.deployment",
+					"group": "2_open@1"
+				},
+				{
+					"command": "notploy.openDeployment",
+					"when": "viewItem == notploy.deployment",
+					"group": "inline@1"
+				},
+				{
+					"command": "notploy.openProject",
+					"when": "viewItem == notploy.project",
+					"group": "2_open@1"
+				},
+				{
+					"command": "notploy.viewLogs",
+					"when": "viewItem == notploy.deployment",
+					"group": "3_logs@1"
+				},
+				{
+					"command": "notploy.followLogs",
+					"when": "viewItem == notploy.deployment",
+					"group": "3_logs@2"
+				},
+				{
+					"command": "notploy.cancelDeployment",
+					"when": "viewItem == notploy.deployment.running",
+					"group": "4_manage@1"
+				},
+				{
+					"command": "notploy.removeDeployment",
+					"when": "viewItem == notploy.deployment",
+					"group": "4_manage@2"
+				},
+				{
+					"command": "notploy.copyId",
+					"when": "viewItem == notploy.project || viewItem == notploy.environment || viewItem == notploy.application || viewItem == notploy.deployment.application || viewItem == notploy.deployment || viewItem == notploy.server || viewItem == notploy.node",
+					"group": "9_copy@1"
+				},
+				{
+					"command": "notploy.docker.startContainer",
+					"when": "view == notploy.infrastructure && viewItem == notploy.docker.container",
+					"group": "inline@1"
+				},
+				{
+					"command": "notploy.docker.stopContainer",
+					"when": "view == notploy.infrastructure && viewItem == notploy.docker.container",
+					"group": "inline@2"
+				},
+				{
+					"command": "notploy.docker.restartContainer",
+					"when": "view == notploy.infrastructure && viewItem == notploy.docker.container",
+					"group": "inline@3"
+				},
+				{
+					"command": "notploy.docker.inspectContainer",
+					"when": "view == notploy.infrastructure && viewItem == notploy.docker.container",
+					"group": "1_container@1"
+				},
+				{
+					"command": "notploy.workspace.unbind",
+					"when": "viewItem == notploy.workspace.binding",
+					"group": "inline@1"
+				},
+				{
+					"command": "notploy.workspace.showInfo",
+					"when": "view == notploy.workspace",
+					"group": "1_workspace@1"
+				}
+			]
+		},
+		"configuration": {
+			"title": "Notploy",
+			"properties": {
+				"notploy.defaultInstance": {
+					"type": "string",
+					"default": "",
+					"markdownDescription": "Id of the Notploy instance selected when a workspace opens. Leave empty to remember the last selection."
+				},
+				"notploy.requestTimeout": {
+					"type": "number",
+					"default": 30000,
+					"minimum": 1000,
+					"maximum": 600000,
+					"description": "Timeout in milliseconds for every Notploy API request."
+				},
+				"notploy.autoRefreshInterval": {
+					"type": "number",
+					"default": 0,
+					"minimum": 0,
+					"maximum": 3600,
+					"description": "Seconds between automatic refreshes of the Notploy views. 0 disables background polling."
+				},
+				"notploy.logFollowInterval": {
+					"type": "number",
+					"default": 3,
+					"minimum": 1,
+					"maximum": 60,
+					"description": "Seconds between log fetches while following a deployment."
+				},
+				"notploy.logMaxLines": {
+					"type": "number",
+					"default": 5000,
+					"minimum": 100,
+					"maximum": 100000,
+					"description": "Maximum number of log lines kept in memory per followed target."
+				},
+				"notploy.deploymentHistoryLimit": {
+					"type": "number",
+					"default": 10,
+					"minimum": 1,
+					"maximum": 100,
+					"description": "Number of past deployments shown per application."
+				},
+				"notploy.confirmDestructiveActions": {
+					"type": "boolean",
+					"default": true,
+					"description": "Ask for confirmation before stop, cancel, remove and container actions."
+				},
+				"notploy.allowInsecureTls": {
+					"type": "boolean",
+					"default": false,
+					"markdownDescription": "Allow self-signed or otherwise untrusted TLS certificates. Only enable this for a Notploy instance you control on a trusted network — it disables certificate verification for that instance."
+				},
+				"notploy.kubernetes.enabled": {
+					"type": "boolean",
+					"default": false,
+					"markdownDescription": "Reserved for the Kubernetes integration. The Notploy API does not expose a Kubernetes router yet, so the Kubernetes section stays informational until it does."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"build": "node esbuild.mjs",
+		"watch": "node esbuild.mjs --watch",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"generate:icon": "node scripts/generate-icon.mjs",
+		"package": "pnpm run build && vsce package --no-dependencies --out notploy-vscode.vsix",
+		"vscode:prepublish": "pnpm run build"
+	},
+	"dependencies": {
+		"@notploy/sdk": "workspace:*",
+		"yaml": "2.8.1"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.7",
+		"@types/node": "^24.4.0",
+		"@types/vscode": "1.96.0",
+		"@vscode/vsce": "^4.0.0",
+		"esbuild": "0.20.2",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.5"
+	}
+}

@@ -24,6 +24,48 @@ client.setConfig({
 });
 ```
 
+The base URL always ends with `/api`, and authentication uses the `x-api-key` header.
+Generate a key from your Notploy dashboard under **Settings → API Keys**.
+
+### Talking to more than one instance
+
+The exported `client` is a process-wide singleton. If you need to reach several
+Notploy instances at the same time, build one client per instance with
+`createClient()` and pass it to each call — no global state involved:
+
+```ts
+type Instance = { url: string; token: string };
+
+import { createClient, projectAll } from "@notploy/sdk";
+
+function clientFor({ url, token }: Instance) {
+  return createClient({
+    baseUrl: `${url.replace(/\/+$/, "")}/api`,
+    headers: { "x-api-key": token },
+  });
+}
+
+const production = clientFor({ url: "https://notploy.example.com", token: "..." });
+const local = clientFor({ url: "http://localhost:3000", token: "..." });
+
+const [prodProjects, localProjects] = await Promise.all([
+  projectAll({ client: production }),
+  projectAll({ client: local }),
+]);
+```
+
+### Error handling
+
+Generated operations do not throw by default: they return `{ data, error, request, response }`.
+Pass `throwOnError: true` to make them reject instead.
+
+```ts
+const { data, error } = await projectAll();
+if (error) {
+  console.error("Request failed", error);
+}
+```
+
 ### Create a project
 
 ```ts

@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["ES2022"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"types": ["node"],
+		"strict": true,
+		"noUncheckedIndexedAccess": false,
+		"noImplicitOverride": true,
+		"noFallthroughCasesInSwitch": true,
+		"exactOptionalPropertyTypes": false,
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"sourceMap": true,
+		"noEmit": true
+	},
+	"include": ["src", "tests", "vitest.config.mts", "esbuild.mjs", "scripts"],
+	"exclude": ["node_modules", "dist", "out"]
+}
