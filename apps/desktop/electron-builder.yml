@@ -78,6 +78,19 @@ nsis:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: Notploy
+  # Required, and the only thing that differs from macOS and Linux: the Windows
+  # artifact name carries no architecture by default, so `x64` and `arm64` of
+  # the same target both wrote `release/Notploy Setup 1.0.2.exe` and the second
+  # one overwrote the first. The release then carried two Windows files where
+  # its notes promise four, and each was a single architecture wearing the pair's
+  # name. `${arch}` in the name is what keeps them apart.
+  artifactName: Notploy-Setup-${version}-${arch}.${ext}
+
+# `portable` is the other `.exe`, and two targets cannot share a name any more
+# than two architectures can, so it gets one of its own rather than reusing the
+# installer's.
+portable:
+  artifactName: Notploy-Portable-${version}-${arch}.${ext}
 
 linux:
   # Required: without it the AppImage target falls back to the package name
