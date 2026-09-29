@@ -184,6 +184,16 @@ jobs:
     needs: verify
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    defaults:
+      run:
+        # Every platform builds under the same shell. `windows-latest` ships Git
+        # Bash, and PowerShell is what broke this job the first time it ran:
+        # `pnpm install --frozen-lockfile --filter …` reached pnpm with its
+        # command token lost, so pnpm fell back to `add` and rejected
+        # `--frozen-lockfile` as an option that command does not have. The Linux
+        # job proves the command itself is right, so Windows gets the same shell
+        # rather than a second dialect of the same build.
+        shell: bash
     strategy:
       # One platform failing must not hide whether the other two built: a
       # release can be assembled from the two that worked once the third is
@@ -248,15 +258,29 @@ jobs:
           # Apple ID is actually configured — enabling it without credentials
           # would turn a build into a hard failure.
           NOTARIZE: ${{ matrix.platform == 'macos' && secrets.APPLE_ID != '' && '--config.mac.notarize=true' || '' }}
+          # An absent secret arrives here as an empty string, which is why the
+          # script unsets these instead of passing them through.
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK != '' && 'true' || 'false' }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        shell: bash
         run: |
           set -euo pipefail
+
+          # electron-builder reads CSC_LINK itself and does not treat an empty
+          # value as "no certificate": it takes the string as a certificate path
+          # and resolves it against the packager's own directory, which is how
+          # the first macOS run died with "⨯ …/apps/desktop not a file" right
+          # after logging "empty password will be used for code signing". An
+          # absent secret has to mean an absent variable, so it is removed
+          # rather than exported empty — and certificate auto-discovery is
+          # switched off at the same time, so nothing goes looking for an
+          # identity in the runner's keychain that was never configured.
+          if [[ -z "${CSC_LINK:-}" ]]; then
+            unset CSC_LINK CSC_KEY_PASSWORD
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+          fi
 
           # Same two steps as `pnpm package`, but spelled out: CI needs
           # `--publish never` (the release job below attaches the assets, and a
@@ -275,7 +299,6 @@ jobs:
           DESKTOP_FILTER: ${{ env.DESKTOP_FILTER }}
           DESKTOP_DIR: ${{ env.DESKTOP_DIR }}
           ASSET_DIR: ${{ env.ASSET_DIR }}
-        shell: bash
         run: |
           set -euo pipefail
 
