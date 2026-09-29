@@ -311,18 +311,44 @@ jobs:
           mkdir -p "$ASSET_DIR"
 
           count=0
-          for file in "$DESKTOP_DIR"/release/*; do
-            [[ -f "$file" ]] || continue
+          # Only the top level, because `release/` also holds the staging trees
+          # electron-builder unpacks an app into — `linux-unpacked`,
+          # `win-unpacked`, `mac/…` — which are hundreds of files that are not
+          # distributables and must never be uploaded.
+          while IFS= read -r -d '' file; do
             base="$(basename "$file")"
             case "$base" in
               *.yml|*.yaml|*.blockmap) continue ;;
             esac
+            if [[ -e "$ASSET_DIR/$base" ]]; then
+              echo "::error::Two artifacts are both named $base"
+              exit 1
+            fi
             cp "$file" "$ASSET_DIR/$base"
             count=$((count + 1))
-          done
+          done < <(find "$DESKTOP_DIR/release" -maxdepth 1 -type f -print0)
 
           if [[ "$count" -eq 0 ]]; then
             echo "::error::electron-builder produced no artifacts in $DESKTOP_DIR/release"
+            exit 1
+          fi
+
+          # The reason the step reaches only the top level at all: on Linux
+          # every target but AppImage names its artifact from the package name,
+          # so a scoped name like `@notploy/desktop` produced the *path*
+          # `release/@notploy/desktop-<version>.deb`. A directory is not a file,
+          # the loop skipped it without a word, and the release shipped one
+          # asset out of ten. That is fixed in electron-builder.yml, and this is
+          # the check that makes a regression loud instead of silent: anything
+          # below the top level that is not a staging tree is an artifact that
+          # escaped, and the release is not worth publishing without it.
+          escaped="$(find "$DESKTOP_DIR/release" -mindepth 2 -type f \
+            -not -path '*-unpacked/*' \
+            -not -path '*/mac/*' \
+            -not -path '*/mac-*/*' \
+            -print -quit)"
+          if [[ -n "$escaped" ]]; then
+            echo "::error::$escaped is below the top level of release: an artifact name must not contain a directory. Fix artifactName in electron-builder.yml."
             exit 1
           fi
 

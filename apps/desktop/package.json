@@ -1,7 +1,7 @@
 {
 	"name": "@notploy/desktop",
 	"productName": "Notploy",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"private": true,
 	"license": "MIT",
 	"description": "Native Notploy desktop client: control and operate one or several Notploy instances.",

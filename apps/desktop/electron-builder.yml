@@ -80,6 +80,21 @@ nsis:
   shortcutName: Notploy
 
 linux:
+  # Required: without it the AppImage target falls back to the package name
+  # `@notploy/desktop`, and the `@` is not a legal character for the launcher
+  # name and the squashfs paths it is embedded into. It is scoped to `linux` on
+  # purpose — at the top level it would also become `productFilename` and rename
+  # the macOS bundle and the Windows binary, which must stay `Notploy`.
+  executableName: notploy
+  # Required for the same reason, and for the same scoped package name: every
+  # Linux target except AppImage builds its artifact name from `${name}`, so
+  # `deb`, `rpm`, `pacman` and `tar.gz` all wanted to write
+  # `release/@notploy/desktop-<version>.deb` — a path with a directory in it
+  # rather than a file, which the release's staging step then skipped in
+  # silence, and the release shipped one asset out of ten. Naming them here
+  # keeps every format flat, one name per architecture, with the scope nowhere
+  # in sight.
+  artifactName: ${productName}-${version}-${arch}.${ext}
   category: Development
   maintainer: Sky Genesis Enterprise
   synopsis: Notploy desktop client
