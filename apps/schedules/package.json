@@ -10,7 +10,7 @@
 	"dependencies": {
 		"@notploy/server": "workspace:*",
 		"@hono/node-server": "^1.14.3",
-		"@hono/zod-validator": "0.7.6",
+		"@hono/zod-validator": "0.9.1",
 		"bullmq": "5.67.3",
 		"dotenv": "^16.4.5",
 		"drizzle-orm": "0.45.1",
