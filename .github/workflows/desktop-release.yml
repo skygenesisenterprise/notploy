@@ -241,14 +241,18 @@ jobs:
         run: pnpm --filter "$DESKTOP_FILTER" run generate:icon
 
       - name: Install the Linux packaging tools
-        # electron-builder shells out to `fpm` for `.deb` and `.rpm`, and those
-        # builds expect `rpm` and `fakeroot` to be present on the host; the
-        # AppImage and pacman targets only need what the image already ships.
+        # electron-builder shells out to `fpm` for `.deb`, `.rpm` and `.pacman`.
+        # Each of those wants a host tool that the runner image does not ship:
+        # `rpm` and `fakeroot` for `.deb` and `.rpm`, and `bsdtar` — from
+        # `libarchive-tools` — for `.pacman`, which fpm calls to write the
+        # package's `.MTREE` metadata. Without it the target dies as
+        # `/bin/bash failed (exit code 127)`, which is a missing command, not a
+        # packaging bug. Only the AppImage target needs nothing installed.
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends fakeroot rpm
+          sudo apt-get install -y --no-install-recommends fakeroot rpm libarchive-tools
 
       - name: Package the client
         id: package
