@@ -50,7 +50,7 @@
   "dependencies": {
     "co-body": "6.2.0",
     "h3": "1.15.1",
-    "openapi3-ts": "4.4.0"
+    "openapi3-ts": "4.6.1"
   },
   "devDependencies": {
     "@trpc/client": "^11.1.0",
