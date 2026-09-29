@@ -41,6 +41,6 @@
     "@biomejs/biome": "^2.4.14",
     "@hey-api/openapi-ts": "^0.97.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
+    "vitest": "^5.0.2"
   }
 }
