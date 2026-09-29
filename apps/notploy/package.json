@@ -85,7 +85,7 @@
 		"@xterm/addon-attach": "0.10.0",
 		"@xterm/addon-clipboard": "0.1.0",
 		"@xterm/xterm": "^5.5.0",
-		"adm-zip": "^0.5.16",
+		"adm-zip": "^0.6.1",
 		"ai": "^6.0.86",
 		"ai-sdk-ollama": "^3.7.0",
 		"bcrypt": "5.1.1",
