@@ -13,7 +13,7 @@
 		"inngest": "3.40.1",
 		"@notploy/server": "workspace:*",
 		"@hono/node-server": "^1.14.3",
-		"@hono/zod-validator": "0.7.6",
+		"@hono/zod-validator": "0.9.1",
 		"dotenv": "^16.4.5",
 		"hono": "^4.11.7",
 		"pino": "9.4.0",
