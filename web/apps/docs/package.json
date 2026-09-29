@@ -12,7 +12,7 @@
 		"build:docs": "npm run fix-openapi && node generate-docs.mjs && node scripts/fix-api-paths.mjs"
 	},
 	"dependencies": {
-		"@next/third-parties": "16.0.7",
+		"@next/third-parties": "16.3.6",
 		"@openpanel/nextjs": "^1.5.1",
 		"@radix-ui/react-dropdown-menu": "^2.1.16",
 		"class-variance-authority": "^0.7.0",

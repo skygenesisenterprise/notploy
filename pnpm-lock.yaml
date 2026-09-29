@@ -1275,8 +1275,8 @@ importers:
   web/apps/docs:
     dependencies:
       '@next/third-parties':
-        specifier: 16.0.7
-        version: 16.0.7(next@16.3.3(@opentelemetry/api@1.9.1)(@types/node@24.19.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
+        specifier: 16.3.6
+        version: 16.3.6(next@16.3.3(@opentelemetry/api@1.9.1)(@types/node@24.19.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
       '@openpanel/nextjs':
         specifier: ^1.5.1
         version: 1.5.1(next@16.3.3(@opentelemetry/api@1.9.1)(@types/node@24.19.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1357,8 +1357,8 @@ importers:
         specifier: ^0.2.0
         version: 0.2.2(tailwindcss@3.4.19(tsx@4.22.4)(yaml@2.9.1))
       '@next/third-parties':
-        specifier: 16.0.7
-        version: 16.0.7(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@20.4.6)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
+        specifier: 16.3.6
+        version: 16.3.6(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@20.4.6)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
       '@openpanel/nextjs':
         specifier: ^1.5.1
         version: 1.5.1(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@20.4.6)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -4297,8 +4297,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@next/third-parties@16.0.7':
-    resolution: {integrity: sha512-YZ1VNUCNIokMwt1PTXU+/ZcFZzRHEBZTNrjkVja58XNPWxogr30PpGhuJhDsj7StgKfAEjF0IsLTAAONMmMe4g==}
+  '@next/third-parties@16.3.6':
+    resolution: {integrity: sha512-fYLwo7M3cPW78Va4lIrqDioDmgZK6I+ODXiNIJ+kg6NuoLYQl2RtZ9Sxe1+Jz0yB26hdDxuEIt3TQYQ8vlAFTg==}
     peerDependencies:
       next: ^13.0.0 || ^14.0.0 || ^15.0.0 || ^16.0.0-beta.0
       react: ^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0
@@ -16893,13 +16893,13 @@ snapshots:
   '@next/swc-win32-x64-msvc@16.3.4':
     optional: true
 
-  '@next/third-parties@16.0.7(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@20.4.6)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)':
+  '@next/third-parties@16.3.6(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@20.4.6)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)':
     dependencies:
       next: 16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@20.4.6)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
       third-party-capital: 1.0.20
 
-  '@next/third-parties@16.0.7(next@16.3.3(@opentelemetry/api@1.9.1)(@types/node@24.19.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)':
+  '@next/third-parties@16.3.6(next@16.3.3(@opentelemetry/api@1.9.1)(@types/node@24.19.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)':
     dependencies:
       next: 16.3.3(@opentelemetry/api@1.9.1)(@types/node@24.19.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
