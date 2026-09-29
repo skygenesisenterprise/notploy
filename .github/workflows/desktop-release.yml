@@ -310,11 +310,34 @@ jobs:
           rm -rf "$ASSET_DIR"
           mkdir -p "$ASSET_DIR"
 
+          # Tripwire for the failure the staging step could not see. On Linux
+          # every target but AppImage builds its artifact name from `${name}`,
+          # so the scope of `@notploy/desktop` made the artifact a *path* —
+          # `release/@notploy/desktop-<version>.deb` — a directory rather than a
+          # file, which a loop over `release/*` skipped without a word, and the
+          # release shipped one asset out of ten. electron-builder.yml now names
+          # them; this makes a regression loud instead of silent.
+          #
+          # A package scope is the one thing that can put a directory in an
+          # artifact name, and it is always spelled with a leading `@`. No working
+          # directory electron-builder leaves in `release/` ever is: `mac`,
+          # `win-unpacked`, `linux-unpacked`, the `.icon-icns` and `.icon-ico`
+          # conversion caches, and whatever else a future version decides to
+          # stage an app into. Enumerating those instead is how this step once
+          # failed two platforms that had built perfectly, so the check names the
+          # defect rather than the symptom.
+          scoped="$(find "$DESKTOP_DIR/release" -mindepth 1 -type d -name '@*' -print -quit)"
+          if [[ -n "$scoped" ]]; then
+            echo "::error::$scoped is a package scope used as a directory, so an artifact name contains a path. Fix artifactName in electron-builder.yml."
+            exit 1
+          fi
+
           count=0
-          # Only the top level, because `release/` also holds the staging trees
-          # electron-builder unpacks an app into — `linux-unpacked`,
-          # `win-unpacked`, `mac/…` — which are hundreds of files that are not
-          # distributables and must never be uploaded.
+          # Only the top level, because `release/` also holds the trees
+          # electron-builder stages an app in — `linux-unpacked`, `win-unpacked`,
+          # `mac/…` — which are hundreds of files that are not distributables and
+          # must never be uploaded. The check above is the one thing allowed to
+          # look below it.
           while IFS= read -r -d '' file; do
             base="$(basename "$file")"
             case "$base" in
@@ -330,25 +353,6 @@ jobs:
 
           if [[ "$count" -eq 0 ]]; then
             echo "::error::electron-builder produced no artifacts in $DESKTOP_DIR/release"
-            exit 1
-          fi
-
-          # The reason the step reaches only the top level at all: on Linux
-          # every target but AppImage names its artifact from the package name,
-          # so a scoped name like `@notploy/desktop` produced the *path*
-          # `release/@notploy/desktop-<version>.deb`. A directory is not a file,
-          # the loop skipped it without a word, and the release shipped one
-          # asset out of ten. That is fixed in electron-builder.yml, and this is
-          # the check that makes a regression loud instead of silent: anything
-          # below the top level that is not a staging tree is an artifact that
-          # escaped, and the release is not worth publishing without it.
-          escaped="$(find "$DESKTOP_DIR/release" -mindepth 2 -type f \
-            -not -path '*-unpacked/*' \
-            -not -path '*/mac/*' \
-            -not -path '*/mac-*/*' \
-            -print -quit)"
-          if [[ -n "$escaped" ]]; then
-            echo "::error::$escaped is below the top level of release: an artifact name must not contain a directory. Fix artifactName in electron-builder.yml."
             exit 1
           fi
 
