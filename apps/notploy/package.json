@@ -138,7 +138,7 @@
 		"sonner": "^1.7.4",
 		"ssh2": "~1.16.0",
 		"stripe": "17.2.0",
-		"superjson": "^2.2.2",
+		"superjson": "^2.2.6",
 		"swagger-ui-react": "^5.32.6",
 		"tailwind-merge": "^2.6.1",
 		"tailwindcss-animate": "^1.0.7",
