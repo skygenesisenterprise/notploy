@@ -61,7 +61,10 @@ function describeConsoleMessage(args: unknown[]): {
  * turns that into a line in the terminal — no root children, or no bridge —
  * instead of a mystery the developer has to open DevTools to solve.
  */
-async function probeRenderer(window: BrowserWindow, logger: Logger): Promise<void> {
+async function probeRenderer(
+	window: BrowserWindow,
+	logger: Logger,
+): Promise<void> {
 	try {
 		const report = (await window.webContents.executeJavaScript(
 			`(() => ({
