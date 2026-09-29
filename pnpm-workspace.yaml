@@ -50,6 +50,10 @@ onlyBuiltDependencies:
   - better-sqlite3
   - core-js-pure
   - cpu-features
+  # Electron downloads its prebuilt binary in an install script; blocked by
+  # default in pnpm 10, which would leave `require("electron")` without a path.
+  - electron
+  - electron-winstaller
   - esbuild
   - msgpackr-extract
   - node-pty

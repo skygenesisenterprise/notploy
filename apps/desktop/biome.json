@@ -1,0 +1,51 @@
+{
+	"$schema": "../../node_modules/@biomejs/biome/configuration_schema.json",
+	"files": {
+		"ignoreUnknown": true,
+		"includes": [
+			"**",
+			"!**/node_modules",
+			"!**/dist",
+			"!**/out",
+			"!**/release",
+			"!**/coverage"
+		],
+		"maxSize": 2097152
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"linter": {
+		"rules": {
+			"security": { "noDangerouslySetInnerHtml": "off" },
+			"complexity": { "noUselessCatch": "off", "noBannedTypes": "off" },
+			"correctness": {
+				"useExhaustiveDependencies": "off",
+				"noUnsafeOptionalChaining": "off",
+				"noUnusedImports": "error",
+				"noUnusedFunctionParameters": "error",
+				"noUnusedVariables": "off"
+			},
+			"style": {
+				"noNonNullAssertion": "off",
+				"useTemplate": "off",
+				"noParameterAssign": "off"
+			},
+			"suspicious": {
+				"noConfusingVoidType": "off",
+				"noArrayIndexKey": "off",
+				"noExplicitAny": "off",
+				"noRedeclare": "off",
+				"noTsIgnore": "off"
+			},
+			"a11y": {
+				"noSvgWithoutTitle": "off",
+				"useKeyWithClickEvents": "off",
+				"useAriaPropsForRole": "off"
+			}
+		}
+	}
+}

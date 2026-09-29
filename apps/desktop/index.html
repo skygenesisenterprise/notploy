@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<!--
+			Defence in depth. The main process also rejects any request that is not
+			the renderer's own origin (see `src/main/security/content-policy.ts`),
+			so a compromised renderer cannot reach the network even if this
+			policy were relaxed.
+
+			This is the policy a packaged app ships. `pnpm dev` needs a looser one
+			for Vite's HMR socket and its inline react-refresh preamble; the dev
+			server substitutes it in the HTML transform (see `vite.config.ts`), so the
+			weaker policy never reaches a build.
+		-->
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'"
+		/>
+		<title>Notploy</title>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="module" src="/src/renderer/main.tsx"></script>
+	</body>
+</html>

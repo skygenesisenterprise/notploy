@@ -1,0 +1,27 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["ES2022"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"types": ["node"],
+		"strict": true,
+		"noUncheckedIndexedAccess": false,
+		"noImplicitOverride": true,
+		"noFallthroughCasesInSwitch": true,
+		"exactOptionalPropertyTypes": false,
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		// TypeScript 7 removed `baseUrl`; without it, `paths` are resolved
+		// relative to this config file, which is what `./` already expressed.
+		"paths": {
+			"@/*": ["./src/*"],
+			"@assets/*": ["./assets/*"]
+		}
+	},
+	"include": ["src"],
+	"exclude": ["node_modules", "dist", "out", "release"]
+}

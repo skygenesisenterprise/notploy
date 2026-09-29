@@ -1,0 +1,74 @@
+{
+	"name": "@notploy/desktop",
+	"productName": "Notploy",
+	"version": "0.1.0",
+	"private": true,
+	"license": "MIT",
+	"description": "Native Notploy desktop client: control and operate one or several Notploy instances.",
+	"author": {
+		"name": "Sky Genesis Enterprise",
+		"url": "https://notploy.com"
+	},
+	"homepage": "https://notploy.com",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/skygenesisenterprise/notploy.git",
+		"directory": "apps/desktop"
+	},
+	"bugs": {
+		"url": "https://github.com/skygenesisenterprise/notploy/issues"
+	},
+	"keywords": [
+		"notploy",
+		"desktop",
+		"electron",
+		"deployment",
+		"docker",
+		"self-hosted"
+	],
+	"type": "module",
+	"main": "dist/main/index.cjs",
+	"engines": {
+		"node": "^24.4.0",
+		"pnpm": ">=10.22.0"
+	},
+	"scripts": {
+		"dev": "node scripts/dev.mjs",
+		"build": "node scripts/build.mjs",
+		"build:main": "node scripts/build-main.mjs",
+		"build:renderer": "vite build",
+		"start": "electron .",
+		"generate:icon": "node scripts/generate-icon.mjs",
+		"typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.renderer.json",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"package": "node scripts/build.mjs && electron-builder --config electron-builder.yml",
+		"package:dir": "node scripts/build.mjs && electron-builder --config electron-builder.yml --dir"
+	},
+	"dependencies": {
+		"@notploy/sdk": "workspace:*",
+		"clsx": "^2.1.1",
+		"lucide-react": "^0.469.0",
+		"react": "19.2.7",
+		"react-dom": "19.2.7",
+		"tailwind-merge": "^2.6.1"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.7",
+		"@tailwindcss/vite": "^4.3.3",
+		"@types/node": "^24.4.0",
+		"@types/react": "^19.2.0",
+		"@types/react-dom": "^19.2.0",
+		"@vitejs/plugin-react": "^6.1.1",
+		"electron": "^44.4.5",
+		"electron-builder": "^26.15.3",
+		"esbuild": "0.28.2",
+		"tailwindcss": "^4.3.3",
+		"typescript": "^7.0.2",
+		"vite": "^8.3.1",
+		"vitest": "^4.1.11"
+	},
+	"packageManager": "pnpm@10.22.0"
+}

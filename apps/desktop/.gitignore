@@ -1,0 +1,16 @@
+# Build outputs
+dist/
+release/
+# Staged distributables, merged from the per-platform builds by the release
+# workflow before they are attached to a GitHub Release.
+release-assets/
+out/
+coverage/
+
+# Local runtime state (never committed: it can hold instance URLs and tokens)
+.tmp/
+*.log
+
+# Local environment overrides
+.env
+.env.local
