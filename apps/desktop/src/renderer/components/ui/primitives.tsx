@@ -1,126 +1,80 @@
 /**
- * The desktop client's UI primitives.
+ * The desktop client's higher-level primitives.
  *
- * Deliberately small and dependency-free beyond `cn`: the web dashboard owns the
- * full component library, and copying it wholesale into the desktop bundle would
- * duplicate a design system that is still moving. What lives here is the subset
- * the desktop actually renders — buttons, panels, status badges, form fields and
- * the four states every data view needs (loading, empty, error, ready).
+ * These are **thin compositions over the components ported from Notploy App**
+ * (`./button`, `./card`, `./badge`, `./input`, `./table`, `./alert`, `./label`,
+ * `./separator`, `./skeleton`). They exist for two reasons:
+ *
+ * 1. Every page already speaks this vocabulary (`Panel`, `PageHeader`,
+ *    `EmptyState`, `ErrorNote`, …), so building it once here gives all of them
+ *    the App's look without touching a single page.
+ * 2. Some of it is genuinely desktop-specific: a one-line page header, an
+ *    "empty vs. could-not-be-read" state, a failure block with a retry.
+ *
+ * The status chips deliberately reuse the App's own `green` / `yellow` / `red` /
+ * `blue` / `blank` Badge variants rather than inventing a parallel colour scale,
+ * so a "Running" chip here and a "Running" chip in the dashboard are the same
+ * component with the same classes.
  */
 
 import { AlertTriangle, Loader2 } from "lucide-react";
 import type * as React from "react";
 import { type BridgeFailure, failureHint } from "@/renderer/lib/bridge";
 import { cn } from "@/renderer/lib/cn";
+import type { Tone } from "@/shared/status";
+import { Alert, AlertDescription, AlertTitle } from "./alert";
+import { Badge } from "./badge";
+import { Button } from "./button";
+import { Card } from "./card";
+import { Input } from "./input";
+import { Skeleton } from "./skeleton";
 import {
-	TONE_CLASSES,
-	TONE_DOT_CLASSES,
-	type Tone,
-} from "@/renderer/lib/format";
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "./table";
 
-// ---------------------------------------------------------------------------
-// Button
-// ---------------------------------------------------------------------------
-
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
-
-export interface ButtonProps
-	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-	variant?: ButtonVariant;
-	size?: "sm" | "md";
-	/** Shows a spinner and blocks further clicks. */
-	busy?: boolean;
-}
-
-const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-	primary:
-		"bg-accent text-canvas hover:bg-accent-hover disabled:hover:bg-accent",
-	secondary:
-		"border border-border bg-surface-raised text-content hover:bg-surface-hover",
-	ghost:
-		"text-content-muted hover:bg-surface-hover hover:text-content border border-transparent",
-	danger:
-		"border border-danger/40 bg-danger-soft text-danger hover:bg-danger/20",
-};
-
-export function Button({
-	variant = "secondary",
-	size = "md",
-	busy = false,
-	className,
-	disabled,
-	children,
-	...props
-}: ButtonProps) {
-	return (
-		<button
-			type="button"
-			disabled={disabled || busy}
-			className={cn(
-				"inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-				size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm",
-				BUTTON_VARIANTS[variant],
-				className,
-			)}
-			{...props}
-		>
-			{busy ? <Loader2 aria-hidden className="size-3.5 animate-spin" /> : null}
-			{children}
-		</button>
-	);
-}
-
-// ---------------------------------------------------------------------------
-// Panel
-// ---------------------------------------------------------------------------
-
-export function Panel({
-	className,
-	children,
-	...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-	return (
-		<div
-			className={cn("rounded-lg border border-border bg-surface", className)}
-			{...props}
-		>
-			{children}
-		</div>
-	);
-}
-
-export function PanelHeader({
-	title,
-	description,
-	actions,
-}: {
-	title: string;
-	description?: string;
-	actions?: React.ReactNode;
-}) {
-	return (
-		<div className="flex items-start justify-between gap-4 border-b border-border px-4 py-3">
-			<div>
-				<h2 className="text-sm font-semibold text-content">{title}</h2>
-				{description ? (
-					<p className="mt-0.5 text-xs text-content-muted">{description}</p>
-				) : null}
-			</div>
-			{actions ? <div className="flex shrink-0 gap-2">{actions}</div> : null}
-		</div>
-	);
-}
+export type { InputProps } from "./input";
+export { Button, Input };
 
 // ---------------------------------------------------------------------------
 // Status
 // ---------------------------------------------------------------------------
+
+/**
+ * Tone → the App's Badge variant.
+ *
+ * `blank` is the neutral chip the dashboard uses for an unknown state, so
+ * "muted" maps to it instead of to a custom grey.
+ */
+const TONE_BADGE = {
+	ok: "green",
+	warn: "yellow",
+	danger: "red",
+	info: "blue",
+	muted: "blank",
+} as const satisfies Record<
+	Tone,
+	"green" | "yellow" | "red" | "blue" | "blank"
+>;
+
+const TONE_DOT_CLASSES: Record<Tone, string> = {
+	ok: "bg-emerald-500",
+	warn: "bg-yellow-500",
+	danger: "bg-red-500",
+	info: "bg-blue-500",
+	muted: "bg-muted-foreground",
+};
 
 export function StatusDot({ tone, pulse }: { tone: Tone; pulse?: boolean }) {
 	return (
 		<span
 			aria-hidden
 			className={cn(
-				"inline-block size-2 rounded-full",
+				"inline-block size-2 shrink-0 rounded-full",
 				TONE_DOT_CLASSES[tone],
 				pulse && "animate-pulse",
 			)}
@@ -138,16 +92,48 @@ export function StatusBadge({
 	className?: string;
 }) {
 	return (
-		<span
-			className={cn(
-				"inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium",
-				TONE_CLASSES[tone],
-				className,
-			)}
-		>
-			<StatusDot tone={tone} />
+		<Badge variant={TONE_BADGE[tone]} className={className}>
 			{label}
-		</span>
+		</Badge>
+	);
+}
+
+// ---------------------------------------------------------------------------
+// Surfaces
+// ---------------------------------------------------------------------------
+
+/** A panel is the App's Card: same fill, same ring, same radius. */
+export function Panel({
+	className,
+	children,
+	...props
+}: React.ComponentProps<typeof Card>) {
+	return (
+		<Card className={className} {...props}>
+			{children}
+		</Card>
+	);
+}
+
+export function PanelHeader({
+	title,
+	description,
+	actions,
+}: {
+	title: string;
+	description?: string;
+	actions?: React.ReactNode;
+}) {
+	return (
+		<div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+			<div className="min-w-0">
+				<h2 className="text-sm font-medium text-foreground">{title}</h2>
+				{description ? (
+					<p className="mt-1 text-xs text-muted-foreground">{description}</p>
+				) : null}
+			</div>
+			{actions ? <div className="flex shrink-0 gap-2">{actions}</div> : null}
+		</div>
 	);
 }
 
@@ -166,10 +152,10 @@ export function PageHeader({
 }) {
 	return (
 		<header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
-			<div>
-				<h1 className="text-lg font-semibold text-content">{title}</h1>
+			<div className="min-w-0">
+				<h1 className="text-lg font-medium text-foreground">{title}</h1>
 				{description ? (
-					<p className="mt-1 max-w-3xl text-sm text-content-muted">
+					<p className="mt-1 max-w-3xl text-sm text-muted-foreground">
 						{description}
 					</p>
 				) : null}
@@ -179,11 +165,19 @@ export function PageHeader({
 	);
 }
 
+/** The App's Skeleton, arranged as a short list of placeholder rows. */
 export function LoadingState({ label = "Loading…" }: { label?: string }) {
 	return (
-		<div className="flex items-center gap-2 px-6 py-8 text-sm text-content-muted">
-			<Loader2 aria-hidden className="size-4 animate-spin" />
-			{label}
+		<div className="space-y-2 px-6 py-6" aria-busy="true" aria-live="polite">
+			<div className="flex items-center gap-2 text-sm text-muted-foreground">
+				<Loader2 aria-hidden className="size-4 animate-spin" />
+				{label}
+			</div>
+			<div className="space-y-2 pt-2">
+				<Skeleton className="h-9 w-full" />
+				<Skeleton className="h-9 w-5/6" />
+				<Skeleton className="h-9 w-4/6" />
+			</div>
 		</div>
 	);
 }
@@ -201,11 +195,11 @@ export function EmptyState({
 }) {
 	return (
 		<div className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
-			{icon ? <div className="text-content-subtle">{icon}</div> : null}
+			{icon ? <div className="text-muted-foreground">{icon}</div> : null}
 			<div>
-				<p className="text-sm font-medium text-content">{title}</p>
+				<p className="text-sm font-medium text-foreground">{title}</p>
 				{description ? (
-					<p className="mx-auto mt-1 max-w-md text-xs text-content-muted">
+					<p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground">
 						{description}
 					</p>
 				) : null}
@@ -216,9 +210,10 @@ export function EmptyState({
 }
 
 /**
- * A failure with a way forward. Every page renders this instead of an empty
- * list when a read fails, so "nothing here" is never confused with "could not
- * be read".
+ * A failure with a way forward, on the App's destructive Alert.
+ *
+ * Every page renders this instead of an empty list when a read fails, so
+ * "nothing here" is never confused with "could not be read".
  */
 export function ErrorNote({
 	error,
@@ -231,29 +226,20 @@ export function ErrorNote({
 }) {
 	const hint = failureHint(error.code);
 	return (
-		<div
-			className={cn(
-				"flex items-start gap-3 rounded-md border border-danger/30 bg-danger-soft/60 px-3 py-2.5",
-				className,
-			)}
-			role="alert"
-		>
-			<AlertTriangle
-				aria-hidden
-				className="mt-0.5 size-4 shrink-0 text-danger"
-			/>
-			<div className="min-w-0 flex-1">
-				<p className="text-sm text-content">{error.message}</p>
-				{hint ? (
-					<p className="mt-1 text-xs text-content-muted">{hint}</p>
+		<Alert variant="destructive" className={className}>
+			<AlertTriangle aria-hidden />
+			<AlertTitle>{error.message}</AlertTitle>
+			<AlertDescription>
+				{hint ? <span>{hint}</span> : null}
+				{onRetry ? (
+					<div className="mt-2">
+						<Button size="sm" variant="outline" onClick={onRetry}>
+							Retry
+						</Button>
+					</div>
 				) : null}
-			</div>
-			{onRetry ? (
-				<Button size="sm" variant="ghost" onClick={onRetry}>
-					Retry
-				</Button>
-			) : null}
-		</div>
+			</AlertDescription>
+		</Alert>
 	);
 }
 
@@ -276,31 +262,24 @@ export function Field({
 		<div className="space-y-1.5">
 			<label
 				htmlFor={htmlFor}
-				className="block text-xs font-medium text-content-muted"
+				className="block text-xs font-medium text-muted-foreground"
 			>
 				{label}
 			</label>
 			{children}
-			{hint ? <p className="text-xs text-content-subtle">{hint}</p> : null}
+			{hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
 		</div>
 	);
 }
 
-export function Input({
-	className,
-	...props
-}: React.InputHTMLAttributes<HTMLInputElement>) {
-	return (
-		<input
-			className={cn(
-				"w-full rounded-md border border-border bg-canvas px-2.5 py-1.5 text-sm text-content placeholder:text-content-subtle focus:border-accent focus:outline-none",
-				className,
-			)}
-			{...props}
-		/>
-	);
-}
-
+/**
+ * Native controls on the App's tokens.
+ *
+ * The dashboard's `Select` and `Checkbox` are Radix components with a
+ * composition API; porting them means rewriting every call site, which is
+ * tracked in `docs/desktop/parity.md` rather than half-done here. These carry
+ * the App's border, radius and focus-ring tokens, so they already look right.
+ */
 export function Select({
 	className,
 	children,
@@ -309,7 +288,7 @@ export function Select({
 	return (
 		<select
 			className={cn(
-				"w-full rounded-md border border-border bg-canvas px-2.5 py-1.5 text-sm text-content focus:border-accent focus:outline-none",
+				"h-10 w-full min-w-0 rounded-lg border border-input bg-transparent px-3 py-2 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 dark:bg-input/30",
 				className,
 			)}
 			{...props}
@@ -328,16 +307,16 @@ export function Checkbox({
 	description?: string;
 }) {
 	return (
-		<label className="flex items-start gap-2.5 text-sm text-content">
+		<label className="flex items-start gap-2.5 text-sm text-foreground">
 			<input
 				type="checkbox"
-				className="mt-0.5 size-4 shrink-0 accent-accent"
+				className="mt-0.5 size-4 shrink-0 accent-primary"
 				{...props}
 			/>
 			<span>
 				{label}
 				{description ? (
-					<span className="mt-0.5 block text-xs text-content-muted">
+					<span className="mt-0.5 block text-xs text-muted-foreground">
 						{description}
 					</span>
 				) : null}
@@ -361,8 +340,8 @@ export function KeyValue({
 		<dl className={cn("grid gap-x-6 gap-y-3 sm:grid-cols-2", className)}>
 			{items.map((item) => (
 				<div key={item.label} className="min-w-0">
-					<dt className="text-xs text-content-subtle">{item.label}</dt>
-					<dd className="mt-0.5 truncate text-sm text-content">
+					<dt className="text-xs text-muted-foreground">{item.label}</dt>
+					<dd className="mt-0.5 truncate text-sm text-foreground">
 						{item.value ?? "—"}
 					</dd>
 				</div>
@@ -383,7 +362,7 @@ export function CodeBlock({
 }) {
 	if (!content.trim()) {
 		return (
-			<div className={cn("px-4 py-6 text-xs text-content-subtle", className)}>
+			<div className={cn("px-4 py-6 text-xs text-muted-foreground", className)}>
 				{emptyLabel}
 			</div>
 		);
@@ -391,7 +370,7 @@ export function CodeBlock({
 	return (
 		<pre
 			className={cn(
-				"max-h-96 overflow-auto whitespace-pre-wrap break-words bg-canvas px-4 py-3 font-mono text-xs leading-relaxed text-content-muted",
+				"max-h-96 overflow-auto rounded-b-xl bg-background px-4 py-3 font-mono text-xs leading-relaxed whitespace-pre-wrap break-words text-muted-foreground",
 				className,
 			)}
 		>
@@ -400,6 +379,12 @@ export function CodeBlock({
 	);
 }
 
+/**
+ * The App's Table, with the desktop's `TableShell`/`Th`/`Td`/`Tr` call shape.
+ *
+ * Keeping the shape means no page changes: `head` becomes the header row and the
+ * children become the body.
+ */
 export function TableShell({
 	head,
 	children,
@@ -411,14 +396,12 @@ export function TableShell({
 }) {
 	return (
 		<div className={cn("overflow-auto", className)}>
-			<table className="w-full border-collapse text-sm">
-				<thead className="sticky top-0 bg-surface">
-					<tr className="border-b border-border text-left text-xs uppercase tracking-wide text-content-subtle">
-						{head}
-					</tr>
-				</thead>
-				<tbody>{children}</tbody>
-			</table>
+			<Table>
+				<TableHeader>
+					<TableRow className="hover:bg-transparent">{head}</TableRow>
+				</TableHeader>
+				<TableBody>{children}</TableBody>
+			</Table>
 		</div>
 	);
 }
@@ -429,9 +412,9 @@ export function Th({
 	...props
 }: React.ThHTMLAttributes<HTMLTableCellElement>) {
 	return (
-		<th className={cn("px-4 py-2 font-medium", className)} {...props}>
+		<TableHead className={className} {...props}>
 			{children}
-		</th>
+		</TableHead>
 	);
 }
 
@@ -441,9 +424,9 @@ export function Td({
 	...props
 }: React.TdHTMLAttributes<HTMLTableCellElement>) {
 	return (
-		<td className={cn("px-4 py-2 align-top", className)} {...props}>
+		<TableCell className={className} {...props}>
 			{children}
-		</td>
+		</TableCell>
 	);
 }
 
@@ -453,14 +436,8 @@ export function Tr({
 	...props
 }: React.HTMLAttributes<HTMLTableRowElement>) {
 	return (
-		<tr
-			className={cn(
-				"border-b border-border/60 hover:bg-surface-hover/50",
-				className,
-			)}
-			{...props}
-		>
+		<TableRow className={className} {...props}>
 			{children}
-		</tr>
+		</TableRow>
 	);
 }

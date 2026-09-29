@@ -209,7 +209,7 @@ export function ProjectsPage({
 											size="sm"
 											variant="ghost"
 											className="mt-3"
-											onClick={() => onNavigate("applications")}
+											onClick={() => onNavigate({ section: "applications" })}
 										>
 											Open Applications
 										</Button>

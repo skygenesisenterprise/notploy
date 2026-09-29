@@ -1,89 +1,25 @@
 /**
  * Display formatting.
  *
- * The status vocabularies come from the API and are mapped in one place, so a
- * deployment shown in the deployments table and in the overview cannot drift
- * apart in wording or colour.
+ * The status vocabularies themselves live in `@/shared/status`, because the
+ * main process renders the same states in the tray. What stays here is what is
+ * renderer-only: the CSS classes a tone maps to, and the time helpers.
  */
 
-import type {
-	ApplicationStatus,
-	ConnectionStatus,
-	DeploymentStatus,
-} from "@/shared/domain";
-
-export type Tone = "ok" | "warn" | "danger" | "info" | "muted";
-
-export interface StatusDisplay {
-	label: string;
-	tone: Tone;
-}
-
-export function deploymentStatus(
-	status: DeploymentStatus | undefined,
-): StatusDisplay {
-	switch (status) {
-		case "running":
-			return { label: "Running", tone: "info" };
-		case "done":
-			return { label: "Done", tone: "ok" };
-		case "error":
-			return { label: "Failed", tone: "danger" };
-		case "cancelled":
-			return { label: "Cancelled", tone: "muted" };
-		default:
-			return { label: "Unknown", tone: "muted" };
-	}
-}
-
-export function applicationStatus(
-	status: ApplicationStatus | undefined,
-): StatusDisplay {
-	switch (status) {
-		case "running":
-			return { label: "Running", tone: "info" };
-		case "done":
-			return { label: "Deployed", tone: "ok" };
-		case "error":
-			return { label: "Failed", tone: "danger" };
-		case "idle":
-			return { label: "Idle", tone: "muted" };
-		default:
-			return { label: "Unknown", tone: "muted" };
-	}
-}
-
-export function connectionStatus(status: ConnectionStatus): StatusDisplay {
-	switch (status) {
-		case "connected":
-			return { label: "Connected", tone: "ok" };
-		case "checking":
-			return { label: "Checking…", tone: "info" };
-		case "disconnected":
-			return { label: "No credential", tone: "warn" };
-		case "unavailable":
-			return { label: "Unreachable", tone: "danger" };
-		default:
-			return { label: "Not checked", tone: "muted" };
-	}
-}
-
-/** Colour classes per tone, so the mapping is not repeated per component. */
-export const TONE_CLASSES: Record<Tone, string> = {
-	ok: "bg-ok/15 text-ok border-ok/30",
-	warn: "bg-warn/15 text-warn border-warn/30",
-	danger: "bg-danger/15 text-danger border-danger/30",
-	info: "bg-accent/15 text-accent border-accent/30",
-	muted: "bg-surface-hover text-content-muted border-border",
-};
-
-export const TONE_DOT_CLASSES: Record<Tone, string> = {
-	ok: "bg-ok",
-	warn: "bg-warn",
-	danger: "bg-danger",
-	info: "bg-accent",
-	muted: "bg-content-subtle",
-};
+/**
+ * The status vocabularies are the App's and live in `@/shared/status`, because
+ * the main process renders the same states in the tray. The colour mapping a
+ * tone resolves to now lives with the components that use it, as the App's own
+ * Badge variants (`@/renderer/components/ui/primitives`).
+ */
+export {
+	applicationStatus,
+	connectionStatus,
+	databaseStatus,
+	deploymentStatus,
+	type StatusDisplay,
+	type Tone,
+} from "@/shared/status";
 
 const RELATIVE_UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
 	["second", 1000],

@@ -105,7 +105,7 @@ export function OverviewPage({
 										<Button
 											size="sm"
 											variant="ghost"
-											onClick={() => onNavigate("deployments")}
+											onClick={() => onNavigate({ section: "deployments" })}
 										>
 											All deployments
 										</Button>

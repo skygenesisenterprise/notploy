@@ -279,7 +279,7 @@ export function ConnectionForm({
 					<Button variant="ghost" onClick={onClose} disabled={busy}>
 						Close
 					</Button>
-					<Button type="submit" variant="primary" busy={busy}>
+					<Button type="submit" variant="default" busy={busy}>
 						{editing ? "Save and test" : "Add and test"}
 					</Button>
 				</div>

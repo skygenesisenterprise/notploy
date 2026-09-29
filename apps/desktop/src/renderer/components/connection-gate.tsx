@@ -15,12 +15,12 @@
 import { Plug, ShieldAlert, WifiOff } from "lucide-react";
 import type * as React from "react";
 import { Button, EmptyState } from "@/renderer/components/ui/primitives";
-import type { RouteDefinition } from "@/renderer/lib/routes";
+import type { SectionDefinition } from "@/renderer/lib/routes";
 import type { ConnectionSummary } from "@/shared/domain";
 
 export interface ConnectionGateProps {
 	connection: ConnectionSummary | undefined;
-	route: RouteDefinition;
+	route: SectionDefinition;
 	onOpenConnections: () => void;
 	children: React.ReactNode;
 }
@@ -40,7 +40,7 @@ export function ConnectionGate({
 				title="No instance selected"
 				description="Add a Notploy Cloud, self-hosted or local instance to work with its projects, deployments and infrastructure."
 				action={
-					<Button variant="primary" onClick={onOpenConnections}>
+					<Button variant="default" onClick={onOpenConnections}>
 						Add a connection
 					</Button>
 				}
@@ -55,7 +55,7 @@ export function ConnectionGate({
 				title={`No API key for ${connection.name}`}
 				description="The Notploy API authenticates with an API key sent as an x-api-key header. Add one for this connection to read its data."
 				action={
-					<Button variant="primary" onClick={onOpenConnections}>
+					<Button variant="default" onClick={onOpenConnections}>
 						Add an API key
 					</Button>
 				}
@@ -73,7 +73,7 @@ export function ConnectionGate({
 					`The last check could not reach ${connection.url}.`
 				}
 				action={
-					<Button variant="primary" onClick={onOpenConnections}>
+					<Button variant="default" onClick={onOpenConnections}>
 						Check the connection
 					</Button>
 				}
@@ -81,13 +81,14 @@ export function ConnectionGate({
 		);
 	}
 
-	if (route.capability && connection.capabilities) {
-		const available = connection.capabilities[route.capability];
+	const capability = route.capability;
+	if (capability && connection.capabilities) {
+		const available: boolean = connection.capabilities[capability];
 		if (!available) {
 			return (
 				<EmptyState
 					title={`Not available on ${connection.name}`}
-					description={`This instance does not expose the "${route.router ?? route.capability}" router, so there is nothing to show here. Availability is read from the instance's own OpenAPI document, not from a version number.`}
+					description={`This instance does not expose the "${route.router ?? capability}" router, so there is nothing to show here. Availability is read from the instance's own OpenAPI document, not from a version number.`}
 					action={
 						<Button onClick={onOpenConnections}>View capabilities</Button>
 					}

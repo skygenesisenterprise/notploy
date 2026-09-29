@@ -6,7 +6,7 @@
  * main process holds no timer, so closing the window is enough to stop it.
  */
 
-import { ExternalLink, RefreshCw, Trash2 } from "lucide-react";
+import { ExternalLink, OctagonX, RefreshCw, Trash2 } from "lucide-react";
 import * as React from "react";
 import {
 	Button,
@@ -83,6 +83,36 @@ export function DeploymentsPage({
 		const timer = setInterval(() => logs.reload(), followSeconds * 1000);
 		return () => clearInterval(timer);
 	}, [selected, followSeconds, logs.reload]);
+
+	/**
+	 * Kills the build process of a running deployment.
+	 *
+	 * This is `deployment.killProcess`, not `application.cancelDeployment`: the
+	 * latter drops a deployment that has not started yet, which is not what an
+	 * operator wants when a build is stuck mid-flight.
+	 */
+	const kill = async (deployment: Deployment) => {
+		if (preferences.confirmDestructiveActions) {
+			const agreed = await confirm({
+				title: `Kill the build of "${deployment.title}"?`,
+				description:
+					"The running build process is killed. The deployment is left in a failed state; the application is not changed.",
+				confirmLabel: "Kill build",
+				destructive: true,
+			});
+			if (!agreed) return;
+		}
+		setFailure(undefined);
+		try {
+			await getBridge().deployments.action({
+				action: "kill",
+				deploymentId: deployment.deploymentId,
+			});
+			deployments.reload();
+		} catch (caught) {
+			setFailure(asFailure(caught));
+		}
+	};
 
 	const remove = async (deployment: Deployment) => {
 		if (preferences.confirmDestructiveActions) {
@@ -250,9 +280,18 @@ export function DeploymentsPage({
 														<ExternalLink aria-hidden className="size-3.5" />
 													</Button>
 												) : null}
+												{deployment.status === "running" ? (
+													<Button
+														size="sm"
+														title="Kill the running build"
+														onClick={() => void kill(deployment)}
+													>
+														<OctagonX aria-hidden className="size-3.5" />
+													</Button>
+												) : null}
 												<Button
 													size="sm"
-													variant="danger"
+													variant="destructive"
 													onClick={() => void remove(deployment)}
 												>
 													<Trash2 aria-hidden className="size-3.5" />

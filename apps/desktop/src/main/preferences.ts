@@ -16,6 +16,8 @@ const LIMITS = {
 	autoRefreshSeconds: { min: 0, max: 3_600 },
 	logTailLines: { min: 10, max: 100_000 },
 	requestTimeout: { min: 1_000, max: 600_000 },
+	// 0 disables the deployment watcher rather than polling every second.
+	deploymentWatchSeconds: { min: 0, max: 3_600 },
 } as const;
 
 function clamp(
@@ -55,6 +57,20 @@ export function normalizePreferences(
 			LIMITS.requestTimeout.max,
 			base.requestTimeout,
 		),
+		notifyDeploymentOutcomes:
+			typeof input.notifyDeploymentOutcomes === "boolean"
+				? input.notifyDeploymentOutcomes
+				: base.notifyDeploymentOutcomes,
+		deploymentWatchSeconds: clamp(
+			input.deploymentWatchSeconds ?? base.deploymentWatchSeconds,
+			LIMITS.deploymentWatchSeconds.min,
+			LIMITS.deploymentWatchSeconds.max,
+			base.deploymentWatchSeconds,
+		),
+		closeToTray:
+			typeof input.closeToTray === "boolean"
+				? input.closeToTray
+				: base.closeToTray,
 	};
 }
 

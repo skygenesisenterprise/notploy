@@ -1,40 +1,205 @@
 /*
- * Tailwind 4 with the desktop client's design tokens.
+ * The desktop client's stylesheet.
  *
- * The tokens mirror the Notploy dashboard's dark palette (`#0b0f19` is the
- * colour the website and the VS Code gallery banner use) so the desktop client
- * reads as the same product. They are declared once here and referenced by
- * semantic name in the components — a colour is never written twice.
+ * The token system is **Notploy App's**, copied from
+ * `apps/notploy/styles/globals.css`, not re-invented. That is the whole point:
+ * the components in `src/renderer/components/ui/` are the same shadcn/ui files
+ * the dashboard uses, and they address colour through the same semantic names
+ * (`bg-card`, `text-muted-foreground`, `border-border`, `bg-primary`, …). Give
+ * them the same variables and they render exactly as they do in App.
+ *
+ * Two differences from App's stylesheet, both deliberate:
+ *
+ * 1. **The dark palette is the only palette.** App ships `:root` (light) and
+ *    `.dark`; the desktop window has no theme toggle, so the dark values are
+ *    declared once on `:root` and `<html>` carries the `dark` class so the
+ *    `dark:` variants inside the copied components still resolve.
+ * 2. **No typography, fancy-ansi or shadcn plugin imports.** Those exist for
+ *    marketing prose, log colourisation and the shadcn registry's own layer;
+ *    none of them is used by the components ported here, and each would be a
+ *    dependency carried for nothing.
+ *
+ * The `legacy-` block at the end keeps the desktop's original token names
+ * working by aliasing them onto the App variables, so pages written before the
+ * port keep their colours instead of needing a rename in every className.
  */
 
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 @theme {
-	--color-canvas: #0b0f19;
-	--color-surface: #111827;
-	--color-surface-raised: #161f33;
-	--color-surface-hover: #1c2740;
-	--color-border: #24314d;
-	--color-border-strong: #33456b;
-
-	--color-content: #e8ecf5;
-	--color-content-muted: #9aa7c2;
-	--color-content-subtle: #6b7896;
-
-	--color-accent: #4c8dff;
-	--color-accent-hover: #6ba0ff;
-	--color-accent-soft: #17264a;
-
-	--color-ok: #34d399;
-	--color-warn: #fbbf24;
-	--color-danger: #f87171;
-	--color-danger-soft: #3b1d24;
-
 	--font-sans:
-		"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-		"Helvetica Neue", Arial, sans-serif;
+		"Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+		"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 	--font-mono:
 		ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+	/* Used by the ported Card title. App resolves it to its Inter variable. */
+	--font-heading: var(--font-sans);
+
+	--color-border: hsl(var(--border));
+	--color-input: hsl(var(--input));
+	--color-ring: hsl(var(--ring));
+	--color-background: hsl(var(--background));
+	--color-foreground: hsl(var(--foreground));
+
+	--color-primary: hsl(var(--primary));
+	--color-primary-foreground: hsl(var(--primary-foreground));
+
+	--color-secondary: hsl(var(--secondary));
+	--color-secondary-foreground: hsl(var(--secondary-foreground));
+
+	--color-destructive: hsl(var(--destructive));
+	--color-destructive-foreground: hsl(var(--destructive-foreground));
+
+	--color-muted: hsl(var(--muted));
+	--color-muted-foreground: hsl(var(--muted-foreground));
+
+	--color-accent: hsl(var(--accent));
+	--color-accent-foreground: hsl(var(--accent-foreground));
+
+	--color-popover: hsl(var(--popover));
+	--color-popover-foreground: hsl(var(--popover-foreground));
+
+	--color-card: hsl(var(--card));
+	--color-card-foreground: hsl(var(--card-foreground));
+
+	--color-sidebar: hsl(var(--sidebar-background));
+	--color-sidebar-foreground: hsl(var(--sidebar-foreground));
+	--color-sidebar-primary: hsl(var(--sidebar-primary));
+	--color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+	--color-sidebar-accent: hsl(var(--sidebar-accent));
+	--color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+	--color-sidebar-border: hsl(var(--sidebar-border));
+	--color-sidebar-ring: hsl(var(--sidebar-ring));
+
+	--radius-lg: var(--radius);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: calc(var(--radius) - 4px);
+
+	--animate-caret-blink: caret-blink 1.25s ease-out infinite;
+	--animate-accordion-down: accordion-down 0.2s ease-out;
+	--animate-accordion-up: accordion-up 0.2s ease-out;
+
+	/*
+	 * Status colours. Not App variables — App reaches for Tailwind's palette
+	 * directly (`text-emerald-500`, `text-red-500`) — so these are those same
+	 * values, hoisted into tokens because the desktop maps a status enum to a
+	 * tone in one place.
+	 */
+	--color-ok: #00bc7d;
+	--color-warn: #fd9a00;
+	--color-danger: #fb2c36;
+	--color-danger-soft: #2a1013;
+
+	@keyframes caret-blink {
+		0%,
+		70%,
+		100% {
+			opacity: 1;
+		}
+		20%,
+		50% {
+			opacity: 0;
+		}
+	}
+	@keyframes accordion-down {
+		from {
+			height: 0;
+		}
+		to {
+			height: var(--radix-accordion-content-height);
+		}
+	}
+	@keyframes accordion-up {
+		from {
+			height: var(--radix-accordion-content-height);
+		}
+		to {
+			height: 0;
+		}
+	}
+}
+
+/*
+ * The dark palette, verbatim from App's `.dark` block. This is what makes a
+ * Notploy App user recognise the desktop window immediately.
+ */
+@layer base {
+	:root {
+		--terminal-paste: rgba(255, 255, 255, 0.2);
+		--background: 0 0% 0%;
+		--foreground: 0 0% 98%;
+
+		--card: 240 4% 10%;
+		--card-foreground: 0 0% 98%;
+
+		--popover: 240 10% 3.9%;
+		--popover-foreground: 0 0% 98%;
+
+		--primary: 0 0% 98%;
+		--primary-foreground: 240 5.9% 10%;
+
+		--secondary: 240 3.7% 15.9%;
+		--secondary-foreground: 0 0% 98%;
+
+		--muted: 240 4% 10%;
+		--muted-foreground: 240 5% 64.9%;
+
+		--accent: 240 3.7% 15.9%;
+		--accent-foreground: 0 0% 98%;
+
+		--destructive: 0 84.2% 50.2%;
+		--destructive-foreground: 0 0% 98%;
+
+		--border: 240 3.7% 15.9%;
+		--input: 240 4% 10%;
+		--ring: 240 4.9% 83.9%;
+
+		--radius: 0.5rem;
+		--overlay: rgba(0, 0, 0, 0.5);
+
+		--chart-1: 220 70% 50%;
+		--chart-2: 340 75% 55%;
+		--chart-3: 30 80% 55%;
+		--chart-4: 280 65% 60%;
+		--chart-5: 160 60% 45%;
+
+		--sidebar-background: 240 5.9% 10%;
+		--sidebar-foreground: 240 4.8% 95.9%;
+		--sidebar-primary: 224.3 76.3% 48%;
+		--sidebar-primary-foreground: 0 0% 100%;
+		--sidebar-accent: 240 3.7% 15.9%;
+		--sidebar-accent-foreground: 240 4.8% 95.9%;
+		--sidebar-border: 240 3.7% 15.9%;
+		--sidebar-ring: 240 4.9% 83.9%;
+	}
+
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--color-border, currentcolor);
+	}
+}
+
+/*
+ * Aliases for the names the desktop used before the port, mapped onto the App
+ * variables. Keeping them means a page that has not been migrated yet is
+ * already on the App palette rather than a second, divergent one.
+ */
+@theme {
+	--color-canvas: hsl(var(--background));
+	--color-surface: hsl(var(--card));
+	--color-surface-raised: hsl(var(--popover));
+	--color-surface-hover: hsl(var(--secondary));
+	--color-border-strong: hsl(var(--ring));
+
+	--color-content: hsl(var(--foreground));
+	--color-content-muted: hsl(var(--muted-foreground));
+	--color-content-subtle: hsl(var(--muted-foreground));
 }
 
 html,
@@ -45,8 +210,8 @@ body,
 
 body {
 	margin: 0;
-	background-color: var(--color-canvas);
-	color: var(--color-content);
+	background-color: hsl(var(--background));
+	color: hsl(var(--foreground));
 	font-family: var(--font-sans);
 	font-size: 14px;
 	-webkit-font-smoothing: antialiased;
@@ -54,7 +219,6 @@ body {
 	overflow: hidden;
 }
 
-/* Text inputs and buttons must not inherit the OS accent in a dark UI. */
 button,
 input,
 select,
@@ -64,13 +228,14 @@ textarea {
 }
 
 ::selection {
-	background-color: var(--color-accent-soft);
+	background-color: hsl(var(--accent));
+	color: hsl(var(--accent-foreground));
 }
 
 /* Thin, unobtrusive scrollbars matching the surfaces. */
 * {
 	scrollbar-width: thin;
-	scrollbar-color: var(--color-border-strong) transparent;
+	scrollbar-color: hsl(var(--border)) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -79,7 +244,7 @@ textarea {
 }
 
 *::-webkit-scrollbar-thumb {
-	background-color: var(--color-border-strong);
+	background-color: hsl(var(--border));
 	border-radius: 9999px;
 	border: 2px solid transparent;
 	background-clip: content-box;
@@ -87,10 +252,4 @@ textarea {
 
 *::-webkit-scrollbar-track {
 	background: transparent;
-}
-
-/* The app is not a document: focus rings are for keyboard users only. */
-:focus-visible {
-	outline: 2px solid var(--color-accent);
-	outline-offset: 2px;
 }

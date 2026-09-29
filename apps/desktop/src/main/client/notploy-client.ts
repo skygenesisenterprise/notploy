@@ -28,6 +28,7 @@ import {
 	applicationStart,
 	applicationStop,
 	type Client,
+	certificatesAll,
 	clusterGetNodes,
 	composeSearch,
 	createClient,
@@ -37,6 +38,7 @@ import {
 	deploymentQueueList,
 	deploymentReadLogs,
 	deploymentRemoveDeployment,
+	destinationAll,
 	dockerGetConfig,
 	dockerGetContainers,
 	dockerGetServerHealth,
@@ -49,40 +51,115 @@ import {
 	dockerVolumeGetVolumes,
 	dockerVolumeGetVolumesSize,
 	environmentByProjectId,
+	libsqlDeploy,
+	libsqlOne,
+	libsqlReadLogs,
+	libsqlRebuild,
+	libsqlReload,
+	libsqlRemove,
+	libsqlStart,
+	libsqlStop,
+	mariadbChangePassword,
+	mariadbDeploy,
+	mariadbOne,
+	mariadbReadLogs,
+	mariadbRebuild,
+	mariadbReload,
+	mariadbRemove,
+	mariadbSearch,
+	mariadbStart,
+	mariadbStop,
+	mongoChangePassword,
+	mongoDeploy,
+	mongoOne,
+	mongoReadLogs,
+	mongoRebuild,
+	mongoReload,
+	mongoRemove,
+	mongoSearch,
+	mongoStart,
+	mongoStop,
+	mysqlChangePassword,
+	mysqlDeploy,
+	mysqlOne,
+	mysqlReadLogs,
+	mysqlRebuild,
+	mysqlReload,
+	mysqlRemove,
+	mysqlSearch,
+	mysqlStart,
+	mysqlStop,
 	networkAll,
 	notificationAll,
 	overviewServices,
+	postgresChangePassword,
+	postgresDeploy,
+	postgresOne,
+	postgresReadLogs,
+	postgresRebuild,
+	postgresReload,
+	postgresRemove,
+	postgresSearch,
+	postgresStart,
+	postgresStop,
 	projectAll,
+	redisChangePassword,
+	redisDeploy,
+	redisOne,
+	redisReadLogs,
+	redisRebuild,
+	redisReload,
+	redisRemove,
+	redisSearch,
+	redisStart,
+	redisStop,
+	registryAll,
 	serverAll,
 	settingsGetDockerDiskUsage,
 	settingsGetNotployVersion,
 	settingsGetOpenApiDocument,
 	settingsHealth,
 	settingsIsCloud,
+	sshKeyAll,
 	swarmGetNodes,
+	tagAll,
 	userSession,
 } from "@notploy/sdk";
-import type {
-	ApplicationSummary,
-	ComposeSummary,
-	ContainerHealth,
-	Deployment,
-	DeploymentQueueEntry,
-	DiskUsage,
-	DockerContainer,
-	DockerImage,
-	DockerNetwork,
-	DockerVolume,
-	EnvironmentSummary,
-	NotployServer,
-	OverviewService,
-	ProjectSummary,
-	SessionUser,
-	SwarmNode,
+import {
+	type ApplicationSummary,
+	type Certificate,
+	type ComposeSummary,
+	type ContainerHealth,
+	type DatabaseEngine,
+	type DatabaseSummary,
+	type Deployment,
+	type DeploymentQueueEntry,
+	type Destination,
+	type DiskUsage,
+	type DockerContainer,
+	type DockerImage,
+	type DockerNetwork,
+	type DockerVolume,
+	type EnvironmentSummary,
+	type NotployServer,
+	normalizeCatalog,
+	type OverviewService,
+	type ProjectSummary,
+	type Registry,
+	type SessionUser,
+	type SshKey,
+	type SwarmNode,
+	type Tag,
+	toCertificate,
+	toDatabaseSummary,
+	toDestination,
+	toRegistry,
+	toSshKey,
+	toTag,
 } from "@/shared/domain";
 import type { NotployNotification } from "@/shared/ipc";
 import type { Logger } from "../logging";
-import { toNotployError } from "./errors";
+import { NotployError, toNotployError } from "./errors";
 import { createTimeoutFetch } from "./fetch";
 
 export interface NotployClientOptions {
@@ -118,6 +195,116 @@ export interface ApplicationSearchQuery {
 	limit?: number;
 	offset?: number;
 }
+
+/**
+ * One engine's worth of generated operations, behind a uniform signature.
+ *
+ * The six database routers expose the same procedure names but the generated
+ * operations are six separate, differently-typed functions. Erasing the option
+ * type once here is what lets {@link DATABASE_OPERATIONS} be a table instead of
+ * six near-identical methods on this class — and because the entries are the
+ * *real* generated functions, a renamed or removed SDK export is still a
+ * compile error.
+ */
+type SdkOperation = (options: {
+	client: Client;
+	throwOnError: true;
+	query?: Record<string, unknown>;
+	body?: Record<string, unknown>;
+}) => Promise<{ data: unknown }>;
+
+const asOperation = (operation: unknown): SdkOperation =>
+	operation as SdkOperation;
+
+interface DatabaseEngineOperations {
+	/** Absent for LibSQL: the API has no `libsql.search`. */
+	search?: SdkOperation;
+	one: SdkOperation;
+	start: SdkOperation;
+	stop: SdkOperation;
+	deploy: SdkOperation;
+	reload: SdkOperation;
+	rebuild: SdkOperation;
+	remove: SdkOperation;
+	readLogs: SdkOperation;
+	/** Absent for LibSQL. */
+	changePassword?: SdkOperation;
+}
+
+const DATABASE_OPERATIONS: Record<DatabaseEngine, DatabaseEngineOperations> = {
+	postgres: {
+		search: asOperation(postgresSearch),
+		one: asOperation(postgresOne),
+		start: asOperation(postgresStart),
+		stop: asOperation(postgresStop),
+		deploy: asOperation(postgresDeploy),
+		reload: asOperation(postgresReload),
+		rebuild: asOperation(postgresRebuild),
+		remove: asOperation(postgresRemove),
+		readLogs: asOperation(postgresReadLogs),
+		changePassword: asOperation(postgresChangePassword),
+	},
+	mysql: {
+		search: asOperation(mysqlSearch),
+		one: asOperation(mysqlOne),
+		start: asOperation(mysqlStart),
+		stop: asOperation(mysqlStop),
+		deploy: asOperation(mysqlDeploy),
+		reload: asOperation(mysqlReload),
+		rebuild: asOperation(mysqlRebuild),
+		remove: asOperation(mysqlRemove),
+		readLogs: asOperation(mysqlReadLogs),
+		changePassword: asOperation(mysqlChangePassword),
+	},
+	mariadb: {
+		search: asOperation(mariadbSearch),
+		one: asOperation(mariadbOne),
+		start: asOperation(mariadbStart),
+		stop: asOperation(mariadbStop),
+		deploy: asOperation(mariadbDeploy),
+		reload: asOperation(mariadbReload),
+		rebuild: asOperation(mariadbRebuild),
+		remove: asOperation(mariadbRemove),
+		readLogs: asOperation(mariadbReadLogs),
+		changePassword: asOperation(mariadbChangePassword),
+	},
+	mongo: {
+		search: asOperation(mongoSearch),
+		one: asOperation(mongoOne),
+		start: asOperation(mongoStart),
+		stop: asOperation(mongoStop),
+		deploy: asOperation(mongoDeploy),
+		reload: asOperation(mongoReload),
+		rebuild: asOperation(mongoRebuild),
+		remove: asOperation(mongoRemove),
+		readLogs: asOperation(mongoReadLogs),
+		changePassword: asOperation(mongoChangePassword),
+	},
+	redis: {
+		search: asOperation(redisSearch),
+		one: asOperation(redisOne),
+		start: asOperation(redisStart),
+		stop: asOperation(redisStop),
+		deploy: asOperation(redisDeploy),
+		reload: asOperation(redisReload),
+		rebuild: asOperation(redisRebuild),
+		remove: asOperation(redisRemove),
+		readLogs: asOperation(redisReadLogs),
+		changePassword: asOperation(redisChangePassword),
+	},
+	libsql: {
+		// No `libsql.search`: LibSQL services are enumerated from the project
+		// environment tree instead.
+		one: asOperation(libsqlOne),
+		start: asOperation(libsqlStart),
+		stop: asOperation(libsqlStop),
+		deploy: asOperation(libsqlDeploy),
+		reload: asOperation(libsqlReload),
+		rebuild: asOperation(libsqlRebuild),
+		remove: asOperation(libsqlRemove),
+		readLogs: asOperation(libsqlReadLogs),
+	},
+};
 
 export class NotployClient {
 	readonly origin: string;
@@ -333,6 +520,164 @@ export class NotployClient {
 			}),
 		);
 		return Array.isArray(value?.items) ? value.items : [];
+	}
+
+	// `compose.deploy` and its siblings are deliberately not used here. The API
+	// exposes them, but `compose.readLogs` needs a *container* id and there is no
+	// compose-scoped way to enumerate a stack's containers from the compose
+	// router alone, so a Compose service is read-only in this client rather than
+	// half-implemented. See `docs/desktop/parity.md`.
+
+	// ---------------------------------------------------------------------
+	// Managed databases
+	// ---------------------------------------------------------------------
+
+	/**
+	 * Every service of one engine the credential can see.
+	 *
+	 * Returns `undefined` — rather than an empty list — when the engine has no
+	 * listing procedure or the instance does not expose its router, so the caller
+	 * can say "not enumerable here" instead of "none configured".
+	 */
+	async databasesOf(
+		engine: DatabaseEngine,
+		query: { projectId?: string; environmentId?: string; q?: string } = {},
+	): Promise<DatabaseSummary[] | undefined> {
+		const operations = DATABASE_OPERATIONS[engine];
+		if (!operations.search) return undefined;
+
+		const value = await this.request<{ items?: unknown[] } | null>(
+			`${engine}.search`,
+			operations.search({
+				client: this.client,
+				throwOnError: true,
+				query: {
+					q: query.q,
+					projectId: query.projectId,
+					environmentId: query.environmentId,
+					limit: 200,
+				},
+			}),
+		);
+		const items = Array.isArray(value?.items) ? value.items : [];
+		return items
+			.map((entry) => toDatabaseSummary(engine, entry))
+			.filter((entry): entry is DatabaseSummary => Boolean(entry));
+	}
+
+	/** One service, normalised. `one` is the route that always exists. */
+	async database(
+		engine: DatabaseEngine,
+		databaseId: string,
+	): Promise<DatabaseSummary> {
+		const operations = DATABASE_OPERATIONS[engine];
+		const value = await this.request<unknown>(
+			`${engine}.one`,
+			operations.one({
+				client: this.client,
+				throwOnError: true,
+				query: { [`${engine}Id`]: databaseId },
+			}),
+		);
+		const normalized = toDatabaseSummary(engine, value);
+		if (!normalized) {
+			throw new NotployError({
+				code: "not-found",
+				userMessage: `The instance returned no ${engine} service for that identifier.`,
+				detail: `${engine}.one returned an unrecognised payload`,
+			});
+		}
+		return normalized;
+	}
+
+	/** `start`, `stop`, `deploy`, `reload`, `rebuild` and `remove`. */
+	async databaseAction(
+		engine: DatabaseEngine,
+		databaseId: string,
+		action: "start" | "stop" | "deploy" | "reload" | "rebuild" | "remove",
+		appName?: string,
+	): Promise<void> {
+		const operations = DATABASE_OPERATIONS[engine];
+		const id = { [`${engine}Id`]: databaseId };
+
+		if (action === "reload") {
+			// `*.reload` is the one database procedure that needs the generated
+			// name as well as the id.
+			const resolved =
+				appName ?? (await this.database(engine, databaseId)).appName;
+			if (!resolved) {
+				throw new NotployError({
+					code: "bad-request",
+					userMessage:
+						"The instance did not report the generated name required to reload this service.",
+					detail: `missing appName for ${engine} ${databaseId}`,
+				});
+			}
+			await this.request(
+				`${engine}.reload`,
+				operations.reload({
+					client: this.client,
+					throwOnError: true,
+					body: { ...id, appName: resolved },
+				}),
+			);
+			return;
+		}
+
+		await this.request(
+			`${engine}.${action}`,
+			operations[action]({
+				client: this.client,
+				throwOnError: true,
+				body: id,
+			}),
+		);
+	}
+
+	async databaseLogs(
+		engine: DatabaseEngine,
+		databaseId: string,
+		tail = 200,
+	): Promise<string> {
+		const value = await this.request<string | null>(
+			`${engine}.readLogs`,
+			DATABASE_OPERATIONS[engine].readLogs({
+				client: this.client,
+				throwOnError: true,
+				query: { [`${engine}Id`]: databaseId, tail, since: "all" },
+			}),
+		);
+		return typeof value === "string" ? value : "";
+	}
+
+	/**
+	 * Rotates a service password.
+	 *
+	 * The value is sent and then dropped: it is never logged, never cached and
+	 * never written anywhere on this machine. LibSQL has no such procedure, so
+	 * the call is refused rather than pointed at another engine's route.
+	 */
+	async databaseChangePassword(
+		engine: DatabaseEngine,
+		databaseId: string,
+		password: string,
+	): Promise<void> {
+		const operation = DATABASE_OPERATIONS[engine].changePassword;
+		if (!operation) {
+			throw new NotployError({
+				code: "unsupported",
+				userMessage: `The instance's ${engine} router has no password procedure.`,
+				detail: `${engine}.changePassword is not part of the API`,
+			});
+		}
+		await this.request(
+			`${engine}.changePassword`,
+			operation({
+				client: this.client,
+				throwOnError: true,
+				body: { [`${engine}Id`]: databaseId, password },
+			}),
+		);
 	}
 
 	// ---------------------------------------------------------------------
@@ -741,6 +1086,56 @@ export class NotployClient {
 			notificationAll({ client: this.client, throwOnError: true }),
 		);
 		return Array.isArray(value) ? value : [];
+	}
+
+	// ---------------------------------------------------------------------
+	// Instance configuration
+	// ---------------------------------------------------------------------
+	//
+	// Every one of these returns a *normalised* list built field by field from
+	// the payload, never the raw records: an SSH key, a certificate, a registry
+	// and a backup destination all arrive carrying credential material, and the
+	// renderer has no use for any of it. See the normalizers in
+	// `@/shared/domain`.
+
+	async tags(): Promise<Tag[]> {
+		const value = await this.request<unknown>(
+			"tag.all",
+			tagAll({ client: this.client, throwOnError: true }),
+		);
+		return normalizeCatalog(value, toTag);
+	}
+
+	async certificates(): Promise<Certificate[]> {
+		const value = await this.request<unknown>(
+			"certificates.all",
+			certificatesAll({ client: this.client, throwOnError: true }),
+		);
+		return normalizeCatalog(value, toCertificate);
+	}
+
+	async sshKeys(): Promise<SshKey[]> {
+		const value = await this.request<unknown>(
+			"sshKey.all",
+			sshKeyAll({ client: this.client, throwOnError: true }),
+		);
+		return normalizeCatalog(value, toSshKey);
+	}
+
+	async registries(): Promise<Registry[]> {
+		const value = await this.request<unknown>(
+			"registry.all",
+			registryAll({ client: this.client, throwOnError: true }),
+		);
+		return normalizeCatalog(value, toRegistry);
+	}
+
+	async destinations(): Promise<Destination[]> {
+		const value = await this.request<unknown>(
+			"destination.all",
+			destinationAll({ client: this.client, throwOnError: true }),
+		);
+		return normalizeCatalog(value, toDestination);
 	}
 
 	/** Aggregate of the services an instance runs, used by the overview. */

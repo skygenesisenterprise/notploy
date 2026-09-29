@@ -98,7 +98,7 @@ export function ConnectionsPage({
 							<RefreshCw aria-hidden className="size-3.5" />
 							Check all
 						</Button>
-						<Button variant="primary" onClick={() => setAdding(true)}>
+						<Button variant="default" onClick={() => setAdding(true)}>
 							<Plus aria-hidden className="size-3.5" />
 							Add connection
 						</Button>
@@ -117,7 +117,7 @@ export function ConnectionsPage({
 						title="No connection yet"
 						description="Add Notploy Cloud, a self-hosted instance or one running on localhost. You can keep as many as you like and switch between them at any time."
 						action={
-							<Button variant="primary" onClick={() => setAdding(true)}>
+							<Button variant="default" onClick={() => setAdding(true)}>
 								Add connection
 							</Button>
 						}
@@ -292,7 +292,7 @@ function ConnectionRow({
 						)}
 						<Button
 							size="sm"
-							variant="danger"
+							variant="destructive"
 							onClick={onRemove}
 							disabled={busy}
 						>

@@ -15,7 +15,11 @@
  * `false` and the UI explains why instead of showing an empty page.
  */
 
-import { EMPTY_CAPABILITIES, type InstanceCapabilities } from "@/shared/domain";
+import {
+	DATABASE_ENGINES,
+	EMPTY_CAPABILITIES,
+	type InstanceCapabilities,
+} from "@/shared/domain";
 import { isNotployError, toNotployError } from "./errors";
 import type { NotployClient } from "./notploy-client";
 
@@ -59,20 +63,42 @@ export function capabilitiesFromRouters(
 	cloud: boolean,
 ): InstanceCapabilities {
 	const set = new Set(routers);
+	const has = (router: string) => set.has(router);
+
+	// One flag per engine rather than one for "databases": the routers are
+	// separate, and an instance can expose Postgres while omitting LibSQL.
+	const engines = {
+		postgres: has("postgres"),
+		mysql: has("mysql"),
+		mariadb: has("mariadb"),
+		mongo: has("mongo"),
+		redis: has("redis"),
+		libsql: has("libsql"),
+	};
+
 	return {
 		...EMPTY_CAPABILITIES,
-		deployments: set.has("deployment") && set.has("application"),
-		logs: set.has("application"),
-		docker: set.has("docker"),
-		dockerImages: set.has("dockerImage"),
-		dockerVolumes: set.has("dockerVolume"),
-		networks: set.has("network"),
-		servers: set.has("server"),
-		swarm: set.has("swarm") || set.has("cluster"),
-		compose: set.has("compose"),
-		environments: set.has("environment"),
-		notifications: set.has("notification"),
-		kubernetes: set.has(KUBERNETES_ROUTER),
+		...engines,
+		databases: DATABASE_ENGINES.some((engine) => engines[engine]),
+		deployments: has("deployment") && has("application"),
+		logs: has("application"),
+		docker: has("docker"),
+		dockerImages: has("dockerImage"),
+		dockerVolumes: has("dockerVolume"),
+		networks: has("network"),
+		servers: has("server"),
+		swarm: has("swarm") || has("cluster"),
+		compose: has("compose"),
+		environments: has("environment"),
+		notifications: has("notification"),
+		schedules: has("schedule"),
+		tags: has("tag"),
+		certificates: has("certificates"),
+		sshKeys: has("sshKey"),
+		registries: has("registry"),
+		destinations: has("destination"),
+		auditLogs: has("auditLog"),
+		kubernetes: has(KUBERNETES_ROUTER),
 		cloud,
 	};
 }
@@ -130,6 +156,41 @@ const PROBES: ProbeDefinition[] = [
 		run: (c) => c.swarmNodes(),
 		optional: true,
 	},
+	{
+		router: "postgres",
+		capability: "postgres",
+		run: (c) => c.databasesOf("postgres"),
+		optional: true,
+	},
+	{
+		router: "mysql",
+		capability: "mysql",
+		run: (c) => c.databasesOf("mysql"),
+		optional: true,
+	},
+	{
+		router: "mariadb",
+		capability: "mariadb",
+		run: (c) => c.databasesOf("mariadb"),
+		optional: true,
+	},
+	{
+		router: "mongo",
+		capability: "mongo",
+		run: (c) => c.databasesOf("mongo"),
+		optional: true,
+	},
+	{
+		router: "redis",
+		capability: "redis",
+		run: (c) => c.databasesOf("redis"),
+		optional: true,
+	},
+	// LibSQL is deliberately absent here. It has no `search` and no
+	// `readLogs`-free listing route, so a probe could only "succeed" without
+	// actually contacting the instance — a false positive. In probe mode the
+	// capability stays unknown and `probeCapabilities` says so; the OpenAPI path
+	// (the normal case) resolves it from the router list.
 ];
 
 export interface DetectCapabilitiesOptions {
@@ -178,6 +239,12 @@ export async function detectCapabilities(
 		report = await probeCapabilities(client, { version, cloud, notes });
 	}
 
+	// The aggregate flag follows the engines, so the navigation entry and the
+	// per-engine pages can never disagree.
+	report.capabilities.databases = DATABASE_ENGINES.some(
+		(engine) => report.capabilities[engine],
+	);
+
 	if (options.overrides) {
 		report.capabilities = { ...report.capabilities, ...options.overrides };
 	}
@@ -192,6 +259,9 @@ async function probeCapabilities(
 		...EMPTY_CAPABILITIES,
 		cloud: context.cloud,
 	};
+	context.notes.push(
+		"LibSQL services are only listed through a project's environment payload; they cannot be probed.",
+	);
 	const routers: string[] = [];
 	const restricted: string[] = [];
 
@@ -246,6 +316,19 @@ const CAPABILITY_LABELS: Array<[keyof InstanceCapabilities, string]> = [
 	["swarm", "Docker Swarm"],
 	["compose", "Compose projects"],
 	["environments", "Environments"],
+	["postgres", "PostgreSQL"],
+	["mysql", "MySQL"],
+	["mariadb", "MariaDB"],
+	["mongo", "MongoDB"],
+	["redis", "Redis"],
+	["libsql", "LibSQL"],
+	["schedules", "Schedules"],
+	["tags", "Tags"],
+	["certificates", "Certificates"],
+	["sshKeys", "SSH keys"],
+	["registries", "Registries"],
+	["destinations", "Backup destinations"],
+	["auditLogs", "Audit logs"],
 	["notifications", "Notifications"],
 	["cloud", "Notploy Cloud"],
 	["kubernetes", "Kubernetes"],

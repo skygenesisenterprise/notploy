@@ -15,11 +15,18 @@
  */
 
 import type { IpcMain, IpcMainInvokeEvent } from "electron";
-import type { ConnectionKind, ConnectionUpdate } from "@/shared/domain";
+import {
+	type ConnectionKind,
+	type ConnectionUpdate,
+	DATABASE_ENGINES,
+	type DatabaseEngine,
+} from "@/shared/domain";
 import type {
 	AppInfo,
 	ApplicationActionRequest,
 	ContainerActionRequest,
+	DatabaseActionRequest,
+	DatabaseQuery,
 	DeploymentActionRequest,
 	DesktopPreferences,
 	IpcArgs,
@@ -33,9 +40,11 @@ import { NotployError, toNotployError } from "./client/errors";
 import type { ConnectionManager } from "./connection/connection-manager";
 import type { Logger } from "./logging";
 import type { PreferencesService } from "./preferences";
+import type { DatabaseService } from "./services/database-service";
 import type { DeploymentService } from "./services/deployment-service";
 import type { InfrastructureService } from "./services/infrastructure-service";
 import type { MonitoringService } from "./services/monitoring-service";
+import type { OperationsService } from "./services/operations-service";
 import type { OverviewService } from "./services/overview-service";
 import type { ProjectService } from "./services/project-service";
 
@@ -50,8 +59,20 @@ export interface IpcHandlersOptions {
 	deployments: DeploymentService;
 	infrastructure: InfrastructureService;
 	monitoring: MonitoringService;
+	/** Read-only instance configuration: tags, certificates, SSH keys, … */
+	operations: OperationsService;
+	databases: DatabaseService;
 	/** Opens an `http(s)` URL in the system browser. */
 	openExternal: (url: string) => Promise<void>;
+	/** Writes to the OS clipboard. Lives in the main process on purpose: the
+	 * renderer's clipboard permission is denied by the content policy. */
+	copyText: (text: string) => void;
+	/**
+	 * Called after a preference write. Preferences drive main-process behaviour
+	 * (the deployment watcher's interval, close-to-tray), so the services that
+	 * read them have to be told rather than polling the file.
+	 */
+	onPreferencesChanged?: (preferences: DesktopPreferences) => void;
 	/** True when the invoking frame belongs to one of our windows. */
 	isTrustedSender: (event: IpcMainInvokeEvent) => boolean;
 }
@@ -121,11 +142,49 @@ function optionalSecret(value: unknown, name: string): string | undefined {
 	return value.trim();
 }
 
+/**
+ * A database engine name. Validated against the known list rather than merely
+ * being a string: the value is interpolated into an SDK operation name, so an
+ * arbitrary one must not be able to reach it.
+ */
+function requireEngine(value: unknown): DatabaseEngine {
+	if (
+		typeof value !== "string" ||
+		!(DATABASE_ENGINES as readonly string[]).includes(value)
+	) {
+		throw invalid("unknown database engine");
+	}
+	return value as DatabaseEngine;
+}
+
+/**
+ * A password on its way to the instance.
+ *
+ * Accepted on the same terms as an API key, and never echoed back: the main
+ * process passes it straight through and holds no reference to it.
+ */
+function requireNewPassword(value: unknown): string {
+	if (typeof value !== "string" || !value || value.length > 512) {
+		throw invalid("invalid password");
+	}
+	return value;
+}
+
 const CONNECTION_KINDS: ReadonlySet<string> = new Set([
 	"cloud",
 	"self-hosted",
 	"local",
 	"custom",
+]);
+
+/** The database actions the API defines. Anything else is a renderer bug. */
+const DATABASE_ACTIONS: ReadonlySet<string> = new Set([
+	"start",
+	"stop",
+	"deploy",
+	"reload",
+	"rebuild",
+	"remove",
 ]);
 
 /** Only the four known kinds are accepted; anything else is left undefined. */
@@ -187,6 +246,13 @@ export function registerIpcHandlers(options: IpcHandlersOptions): void {
 		await options.openExternal(requireHttpUrl(url, "url"));
 	});
 
+	handle(IPC_CHANNELS.appCopyText, (text) => {
+		if (typeof text !== "string" || text.length > 8_192) {
+			throw invalid("invalid clipboard payload");
+		}
+		options.copyText(text);
+	});
+
 	handle(IPC_CHANNELS.preferencesGet, () => preferences.get());
 
 	handle(IPC_CHANNELS.preferencesUpdate, (patch) => {
@@ -196,12 +262,17 @@ export function registerIpcHandlers(options: IpcHandlersOptions): void {
 		);
 		// Only known keys are considered; anything else is dropped by
 		// `normalizePreferences`.
-		return preferences.update({
+		const next = preferences.update({
 			confirmDestructiveActions: input.confirmDestructiveActions,
 			autoRefreshSeconds: input.autoRefreshSeconds,
 			logTailLines: input.logTailLines,
 			requestTimeout: input.requestTimeout,
+			notifyDeploymentOutcomes: input.notifyDeploymentOutcomes,
+			deploymentWatchSeconds: input.deploymentWatchSeconds,
+			closeToTray: input.closeToTray,
 		});
+		options.onPreferencesChanged?.(next);
+		return next;
 	});
 
 	// -------------------------------------------------------------------
@@ -459,9 +530,103 @@ export function registerIpcHandlers(options: IpcHandlersOptions): void {
 		async () => await options.monitoring.diskUsage(),
 	);
 
+	// -------------------------------------------------------------------
+	// Databases
+	// -------------------------------------------------------------------
+
+	handle(IPC_CHANNELS.databasesList, async (query) => {
+		const scoped: DatabaseQuery | undefined = query
+			? {
+					engine: query.engine ? requireEngine(query.engine) : undefined,
+					projectId: optionalId(query.projectId, "project id"),
+					environmentId: optionalId(query.environmentId, "environment id"),
+					q:
+						typeof query.q === "string" && query.q.trim()
+							? query.q.trim().slice(0, 200)
+							: undefined,
+				}
+			: undefined;
+		return await options.databases.list(scoped ?? {});
+	});
+
+	handle(
+		IPC_CHANNELS.databasesOne,
+		async (engine, databaseId) =>
+			await options.databases.one(
+				requireEngine(engine),
+				requireId(databaseId, "database id"),
+			),
+	);
+
+	handle(IPC_CHANNELS.databasesAction, async (request) => {
+		const input = requireObject<DatabaseActionRequest>(request, "action");
+		const action = input.action;
+		if (!DATABASE_ACTIONS.has(action)) throw invalid("unknown database action");
+		return await options.databases.action({
+			action,
+			engine: requireEngine(input.engine),
+			databaseId: requireId(input.databaseId, "database id"),
+			appName: optionalId(input.appName, "service name"),
+		});
+	});
+
+	handle(
+		IPC_CHANNELS.databasesLogs,
+		async (engine, databaseId, tail) =>
+			await options.databases.logs(
+				requireEngine(engine),
+				requireId(databaseId, "database id"),
+				optionalNumber(tail, "tail"),
+			),
+	);
+
+	handle(
+		IPC_CHANNELS.databasesChangePassword,
+		async (engine, databaseId, password) => {
+			await options.databases.changePassword(
+				requireEngine(engine),
+				requireId(databaseId, "database id"),
+				requireNewPassword(password),
+			);
+		},
+	);
+
 	handle(
 		IPC_CHANNELS.notificationsList,
 		async () => await options.monitoring.notifications(),
+	);
+
+	// -------------------------------------------------------------------
+	// Instance configuration
+	// -------------------------------------------------------------------
+	//
+	// No arguments to validate: every one of these is a read of the whole list
+	// for the active connection. What the renderer receives has already had its
+	// credential material removed by the client layer.
+
+	handle(
+		IPC_CHANNELS.operationsTags,
+		async () => await options.operations.tags(),
+	);
+
+	handle(
+		IPC_CHANNELS.operationsCertificates,
+		async () => await options.operations.certificates(),
+	);
+
+	handle(
+		IPC_CHANNELS.operationsSshKeys,
+		async () => await options.operations.sshKeys(),
+	);
+
+	handle(
+		IPC_CHANNELS.operationsRegistries,
+		async () => await options.operations.registries(),
+	);
+
+	handle(
+		IPC_CHANNELS.operationsDestinations,
+		async () => await options.operations.destinations(),
 	);
 
 	logger.debug(

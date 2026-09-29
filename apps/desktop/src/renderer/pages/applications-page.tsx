@@ -189,7 +189,7 @@ export function ApplicationsPage({
 											<div className="flex flex-wrap justify-end gap-1">
 												<Button
 													size="sm"
-													variant="primary"
+													variant="default"
 													busy={busy === application.applicationId}
 													onClick={() => void act(application, "deploy")}
 												>

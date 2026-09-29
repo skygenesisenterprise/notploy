@@ -38,7 +38,11 @@ export interface CreateWindowOptions {
 	onClosed: () => void;
 }
 
-const BACKGROUND_COLOR = "#0b0f19";
+// The page background, so the window does not flash a different colour between
+// `show: false` and the renderer's first paint. Kept in step with
+// `--color-canvas` in `src/renderer/styles.css`, which in turn is measured from
+// the reference Notploy App capture.
+const BACKGROUND_COLOR = "#0a0a0a";
 
 export function createMainWindow(options: CreateWindowOptions): BrowserWindow {
 	const { preloadPath, indexHtmlPath, devServerUrl } = options;

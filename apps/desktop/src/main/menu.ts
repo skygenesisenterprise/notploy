@@ -20,6 +20,7 @@ import {
 	type MenuItemConstructorOptions,
 	shell,
 } from "electron";
+import type { DeepLinkSection } from "@/shared/deep-link";
 import type { MenuCommand } from "@/shared/ipc";
 
 export interface BuildMenuOptions {
@@ -44,6 +45,34 @@ const LINKS = {
 	issues: "https://github.com/skygenesisenterprise/notploy/issues",
 } as const;
 
+/**
+ * The sections the View menu can jump to, with their accelerators.
+ *
+ * The list mirrors the sidebar, in the same order, so the menu, the sidebar and
+ * the command palette never disagree about where something lives. The first
+ * nine get `CmdOrCtrl+1`…`9`; the remainder have no accelerator and are reached
+ * through the menu item itself or the palette (`CmdOrCtrl+K`).
+ */
+const MENU_SECTIONS: Array<{ section: DeepLinkSection; label: string }> = [
+	{ section: "overview", label: "Overview" },
+	{ section: "projects", label: "Projects" },
+	{ section: "applications", label: "Applications" },
+	{ section: "deployments", label: "Deployments" },
+	{ section: "databases", label: "Databases" },
+	{ section: "infrastructure", label: "Infrastructure" },
+	{ section: "monitoring", label: "Monitoring" },
+	{ section: "tags", label: "Tags" },
+	{ section: "certificates", label: "Certificates" },
+	{ section: "ssh-keys", label: "SSH keys" },
+	{ section: "registries", label: "Registries" },
+	{ section: "destinations", label: "Destinations" },
+	{ section: "notifications", label: "Notifications" },
+	{ section: "connections", label: "Connections" },
+	{ section: "settings", label: "Settings" },
+];
+
+const ACCELERATOR_LIMIT = 9;
+
 export function buildApplicationMenu(options: BuildMenuOptions): Menu {
 	const isMac = process.platform === "darwin";
 
@@ -57,7 +86,11 @@ export function buildApplicationMenu(options: BuildMenuOptions): Menu {
 						{
 							label: "Settings…",
 							accelerator: "CmdOrCtrl+,",
-							click: () => options.sendCommand("navigate:settings"),
+							click: () =>
+								options.sendCommand({
+									type: "navigate",
+									target: { section: "settings" },
+								}),
 						},
 						{ type: "separator" },
 						{ role: "services" },
@@ -80,13 +113,17 @@ export function buildApplicationMenu(options: BuildMenuOptions): Menu {
 				{
 					label: "Add Connection…",
 					accelerator: "CmdOrCtrl+N",
-					click: () => options.sendCommand("add-connection"),
+					click: () => options.sendCommand({ type: "add-connection" }),
 				},
 				{ type: "separator" },
 				{
 					label: "Settings…",
 					accelerator: isMac ? undefined : "Ctrl+,",
-					click: () => options.sendCommand("navigate:settings"),
+					click: () =>
+						options.sendCommand({
+							type: "navigate",
+							target: { section: "settings" },
+						}),
 				},
 				{ type: "separator" },
 				isMac ? { role: "close" } : { role: "quit" },
@@ -114,22 +151,27 @@ export function buildApplicationMenu(options: BuildMenuOptions): Menu {
 			label: "View",
 			submenu: [
 				{
-					label: "Overview",
-					accelerator: "CmdOrCtrl+1",
-					click: () => options.sendCommand("navigate:overview"),
+					label: "Command Palette…",
+					accelerator: "CmdOrCtrl+K",
+					click: () => options.sendCommand({ type: "command-palette" }),
 				},
-				{
-					label: "Connections",
-					accelerator: "CmdOrCtrl+2",
-					click: () => options.sendCommand("navigate:connections"),
-				},
+				{ type: "separator" },
+				...MENU_SECTIONS.map(({ section, label }, index) => ({
+					label,
+					accelerator:
+						index < ACCELERATOR_LIMIT ? `CmdOrCtrl+${index + 1}` : undefined,
+					click: () =>
+						options.sendCommand({
+							type: "navigate",
+							target: { section },
+						}),
+				})),
 				{ type: "separator" },
 				{
 					label: "Refresh",
 					accelerator: "CmdOrCtrl+R",
-					click: () => options.sendCommand("refresh"),
+					click: () => options.sendCommand({ type: "refresh" }),
 				},
-				{ type: "separator" },
 				{ type: "separator" },
 				{ role: "resetZoom" },
 				{ role: "zoomIn" },

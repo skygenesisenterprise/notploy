@@ -50,6 +50,12 @@ export class ProjectService {
 		return await client.allApplications();
 	}
 
+	/**
+	 * Compose projects, scoped to a project or an environment.
+	 *
+	 * `compose.search` accepts the same scoping as `application.search`, so the
+	 * projects view can list the Compose services of the environment it opened.
+	 */
 	async composes(query?: {
 		projectId?: string;
 		environmentId?: string;

@@ -340,7 +340,7 @@ export function InfrastructurePage({
 												</Button>
 												<Button
 													size="sm"
-													variant="danger"
+													variant="destructive"
 													title="Remove"
 													onClick={() =>
 														void containerAction(container, "remove")

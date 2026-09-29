@@ -49,6 +49,12 @@ export class DeploymentService {
 				if (!request.applicationId) throw this.missing("an application id");
 				await client.cancelDeployment(request.applicationId);
 				return;
+			case "kill":
+				// Distinct from `cancel`: this kills a build that is already running,
+				// which `application.cancelDeployment` does not do.
+				if (!request.deploymentId) throw this.missing("a deployment id");
+				await client.killDeploymentProcess(request.deploymentId);
+				return;
 			case "start":
 				if (!request.applicationId) throw this.missing("an application id");
 				await client.startApplication(request.applicationId);

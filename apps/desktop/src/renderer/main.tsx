@@ -8,6 +8,7 @@
 
 import * as React from "react";
 import { createRoot } from "react-dom/client";
+import { Toaster } from "sonner";
 import { App } from "@/renderer/app";
 import "@/renderer/styles.css";
 
@@ -19,5 +20,11 @@ if (!container) {
 createRoot(container).render(
 	<React.StrictMode>
 		<App />
+		{/*
+			Sonner is what Notploy App uses for transient feedback, and the ported
+			components call it directly (see `ui/input.tsx`). Mounting it is what
+			makes those calls work here, with the same component and wording.
+		*/}
+		<Toaster theme="dark" position="bottom-right" />
 	</React.StrictMode>,
 );

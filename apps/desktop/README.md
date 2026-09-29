@@ -12,7 +12,10 @@ Notploy is an open-source, self-hostable platform for deploying and operating ap
 - Inspect the deployment history and the deploy queue, and read or follow a deployment's build log.
 - Work with Docker: containers (start, stop, restart, kill, remove, inspect), images, volumes, networks and Docker Swarm nodes.
 - Watch container health per server and Docker's disk usage report.
+- Manage databases as services: PostgreSQL, MySQL, MariaDB, MongoDB, Redis and LibSQL, with their lifecycle actions, logs and password rotation.
+- See what an instance has configured for the services that run on it — tags, TLS certificates, SSH keys, container registries and backup destinations — with the values worth reusing (a public key, a registry URL, a certificate path) copyable in one click.
 - Have the instance's real capabilities reported rather than guessed: the client reads the instance's own OpenAPI document and says which routers exist, so a trimmed-down self-hosted install explains itself instead of showing empty pages.
+- Get told what happened: a system tray icon with live state, OS notifications when a deployment finishes or a connection drops, and `notploy://` links that open a specific instance, section or service.
 
 ## Requirements
 
@@ -37,7 +40,9 @@ Preload                                    src/preload
 └── contextBridge — a closed list of operations, nothing else
 
 Renderer                                   src/renderer
-└── React 19 + Vite + Tailwind UI
+├── React 19 + Vite + Tailwind 4
+├── Notploy App's design tokens            styles.css
+└── components copied from App             components/ui/
 
 Identity                                   assets/
 └── generated icon and mark (generate-icon.mjs)
@@ -46,6 +51,24 @@ Identity                                   assets/
 The three layers share exactly one contract, `src/shared/ipc.ts`, which defines
 the channels, the payload types and the bridge the renderer consumes. Adding a
 channel without a handler is a type error.
+
+### Design system
+
+The desktop does not have a palette of its own. `src/renderer/styles.css`
+declares Notploy App's `--background` / `--foreground` / `--card` / `--border` /
+`--primary` / `--muted` / `--destructive` and `--sidebar-*` variables with App's
+own values, and the primitives in `src/renderer/components/ui/` are App's
+components, copied rather than reimplemented. A panel, a badge or a button
+therefore resolves to the same pixels as in the dashboard, and a saturated colour
+means the same thing in both: **status**, never decoration.
+
+### Documentation
+
+| File | What it holds |
+| --- | --- |
+| [`docs/architecture.md`](docs/architecture.md) | The layers, the client-per-instance model, what is shared with App. |
+| [`docs/parity.md`](docs/parity.md) | The feature-by-feature comparison with Notploy App, with the reason every gap exists. |
+| [`docs/navigation.md`](docs/navigation.md) | The route model, deep links, the command palette and the native menus. |
 
 ### Connections
 
@@ -159,6 +182,13 @@ rather than hiding them.
   shown as "not permitted" rather than as an empty report.
 - **Notification providers are read-only here.** Creating one means filling in a
   provider-specific credential form, which the dashboard already owns.
+- **Instance configuration is read-only here too.** Tags, certificates, SSH keys,
+  registries and backup destinations are listed but not created: every one of them
+  needs key material or a password, and those forms live in the dashboard.
+  Credential material — private keys, registry passwords, access keys — is removed
+  by the client before the payload reaches the window.
+- **Schedules are not listed.** `schedule.list` takes a service id *and* its type,
+  so the API has no instance-wide schedule route; the client will not invent one.
 - **Availability follows the instance.** Pages stay empty and explain why for
   routers an instance does not expose.
 

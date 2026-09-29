@@ -10,9 +10,11 @@
  * imports — the renderer imports the types directly.
  */
 
+import type { DeepLinkTarget } from "./deep-link";
 import type {
 	ApplicationSummary,
 	CapabilityReport,
+	Certificate,
 	ComposeSummary,
 	Connection,
 	ConnectionInput,
@@ -21,8 +23,12 @@ import type {
 	ConnectionSummary,
 	ConnectionUpdate,
 	ContainerHealth,
+	DatabaseAction,
+	DatabaseEngine,
+	DatabaseSummary,
 	Deployment,
 	DeploymentQueueEntry,
+	Destination,
 	DiskUsage,
 	DockerContainer,
 	DockerImage,
@@ -33,8 +39,11 @@ import type {
 	NotployServer,
 	OverviewService,
 	ProjectSummary,
+	Registry,
 	SessionUser,
+	SshKey,
 	SwarmNode,
+	Tag,
 } from "./domain";
 
 // ---------------------------------------------------------------------------
@@ -82,6 +91,19 @@ export interface DesktopPreferences {
 	logTailLines: number;
 	/** Milliseconds before a request is aborted, overridable per connection. */
 	requestTimeout: number;
+	/**
+	 * Notify natively when a deployment of the active instance succeeds or
+	 * fails. The watcher polls in the main process, so a long build reports its
+	 * outcome even while the window is in the background.
+	 */
+	notifyDeploymentOutcomes: boolean;
+	/** Seconds between deployment-watcher polls. 0 disables the watcher. */
+	deploymentWatchSeconds: number;
+	/**
+	 * Close the window to the system tray instead of quitting. Only meaningful
+	 * on platforms that show a tray icon.
+	 */
+	closeToTray: boolean;
 }
 
 export const DEFAULT_PREFERENCES: DesktopPreferences = {
@@ -89,15 +111,23 @@ export const DEFAULT_PREFERENCES: DesktopPreferences = {
 	autoRefreshSeconds: 0,
 	logTailLines: 300,
 	requestTimeout: 30_000,
+	notifyDeploymentOutcomes: true,
+	deploymentWatchSeconds: 30,
+	closeToTray: false,
 };
 
-/** Commands the native menu sends to the renderer. */
+/**
+ * Commands the native menu and the tray send to the renderer.
+ *
+ * Structured rather than a flat string union: navigation carries a section and
+ * an optional resource, so adding a destination never means adding a channel
+ * name that both sides have to agree on by hand.
+ */
 export type MenuCommand =
-	| "navigate:overview"
-	| "navigate:connections"
-	| "navigate:settings"
-	| "refresh"
-	| "add-connection";
+	| { type: "navigate"; target: DeepLinkTarget }
+	| { type: "refresh" }
+	| { type: "add-connection" }
+	| { type: "command-palette" };
 
 export interface OverviewSummary {
 	connectionId: string;
@@ -129,7 +159,11 @@ export type DeploymentAction =
 	| "restart"
 	| "start"
 	| "stop"
+	/** `application.cancelDeployment`: drops a deployment that is waiting. */
 	| "cancel"
+	/** `deployment.killProcess`: kills the build process of a running one. */
+	| "kill"
+	/** Removes the history record. The application is untouched. */
 	| "remove";
 
 export interface DeploymentActionRequest {
@@ -154,6 +188,43 @@ export interface ApplicationActionRequest {
 	action: "deploy" | "redeploy" | "restart" | "start" | "stop" | "cancel";
 	applicationId: string;
 	appName?: string;
+}
+
+/**
+ * A database operation.
+ *
+ * `reload`, `rebuild` and `remove` are destructive and the UI confirms them;
+ * `remove` additionally destroys the data volume, which is why it is a separate
+ * choice in the confirmation rather than a second click on "Delete".
+ */
+export interface DatabaseActionRequest {
+	engine: DatabaseEngine;
+	databaseId: string;
+	action: DatabaseAction;
+	/** `reload` needs the generated name; read by the main process when absent. */
+	appName?: string;
+}
+
+/** What a list request can be scoped by. */
+export interface DatabaseQuery {
+	/** Restrict to one engine. Absent means every engine the instance exposes. */
+	engine?: DatabaseEngine;
+	projectId?: string;
+	environmentId?: string;
+	q?: string;
+}
+
+/**
+ * A database list plus why entries may be missing.
+ *
+ * LibSQL has no `search` procedure, so its services are only reachable through
+ * the project environment tree. When that tree was not read, the page has to say
+ * so instead of implying the instance runs no LibSQL service.
+ */
+export interface DatabaseListResult {
+	databases: DatabaseSummary[];
+	/** Engines that could not be enumerated, with the reason. */
+	notes: string[];
 }
 
 /**
@@ -196,6 +267,9 @@ export type IpcResult<T> =
 export const IPC_CHANNELS = {
 	appInfo: "app:info",
 	appOpenExternal: "app:open-external",
+	/** Clipboard writes go through the main process: the renderer's clipboard
+	 * permission is denied by the content policy. */
+	appCopyText: "app:copy-text",
 	preferencesGet: "preferences:get",
 	preferencesUpdate: "preferences:update",
 
@@ -235,7 +309,25 @@ export const IPC_CHANNELS = {
 	monitoringServerHealth: "monitoring:server-health",
 	monitoringDiskUsage: "monitoring:disk-usage",
 
+	databasesList: "databases:list",
+	databasesOne: "databases:one",
+	databasesAction: "databases:action",
+	databasesLogs: "databases:logs",
+	databasesChangePassword: "databases:change-password",
+
 	notificationsList: "notifications:list",
+
+	/**
+	 * Read-only instance configuration: the things services on the instance
+	 * share. One channel per kind rather than one parameterised channel, because
+	 * each returns a different type and the invoke map is what keeps the two
+	 * sides of the bridge honest.
+	 */
+	operationsTags: "operations:tags",
+	operationsCertificates: "operations:certificates",
+	operationsSshKeys: "operations:ssh-keys",
+	operationsRegistries: "operations:registries",
+	operationsDestinations: "operations:destinations",
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];
@@ -243,6 +335,8 @@ export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];
 export const IPC_EVENTS = {
 	connectionsChanged: "event:connections-changed",
 	menuCommand: "event:menu-command",
+	/** A `notploy://` link arrived from the operating system. */
+	deepLink: "event:deep-link",
 } as const;
 
 /**
@@ -252,6 +346,7 @@ export const IPC_EVENTS = {
 export interface IpcInvokeMap {
 	[IPC_CHANNELS.appInfo]: { args: []; result: AppInfo };
 	[IPC_CHANNELS.appOpenExternal]: { args: [url: string]; result: void };
+	[IPC_CHANNELS.appCopyText]: { args: [text: string]; result: void };
 
 	[IPC_CHANNELS.preferencesGet]: { args: []; result: DesktopPreferences };
 	[IPC_CHANNELS.preferencesUpdate]: {
@@ -361,9 +456,42 @@ export interface IpcInvokeMap {
 	};
 	[IPC_CHANNELS.monitoringDiskUsage]: { args: []; result: DiskUsageResult };
 
+	[IPC_CHANNELS.databasesList]: {
+		args: [query?: DatabaseQuery];
+		result: DatabaseListResult;
+	};
+	[IPC_CHANNELS.databasesOne]: {
+		args: [engine: DatabaseEngine, databaseId: string];
+		result: DatabaseSummary;
+	};
+	[IPC_CHANNELS.databasesAction]: {
+		args: [request: DatabaseActionRequest];
+		result: void;
+	};
+	[IPC_CHANNELS.databasesLogs]: {
+		args: [engine: DatabaseEngine, databaseId: string, tail?: number];
+		result: string;
+	};
+	[IPC_CHANNELS.databasesChangePassword]: {
+		args: [engine: DatabaseEngine, databaseId: string, password: string];
+		result: void;
+	};
+
 	[IPC_CHANNELS.notificationsList]: {
 		args: [];
 		result: NotployNotification[];
+	};
+
+	[IPC_CHANNELS.operationsTags]: { args: []; result: Tag[] };
+	[IPC_CHANNELS.operationsCertificates]: {
+		args: [];
+		result: Certificate[];
+	};
+	[IPC_CHANNELS.operationsSshKeys]: { args: []; result: SshKey[] };
+	[IPC_CHANNELS.operationsRegistries]: { args: []; result: Registry[] };
+	[IPC_CHANNELS.operationsDestinations]: {
+		args: [];
+		result: Destination[];
 	};
 }
 
@@ -380,6 +508,8 @@ export interface NotployBridge {
 		info(): Promise<AppInfo>;
 		/** Opens an `http(s)` URL in the system browser. */
 		openExternal(url: string): Promise<void>;
+		/** Copies to the OS clipboard, through the main process. */
+		copyText(text: string): Promise<void>;
 		getPreferences(): Promise<DesktopPreferences>;
 		updatePreferences(
 			patch: Partial<DesktopPreferences>,
@@ -444,12 +574,48 @@ export interface NotployBridge {
 		diskUsage(): Promise<DiskUsageResult>;
 	};
 
+	databases: {
+		list(query?: DatabaseQuery): Promise<DatabaseListResult>;
+		one(engine: DatabaseEngine, databaseId: string): Promise<DatabaseSummary>;
+		action(request: DatabaseActionRequest): Promise<void>;
+		logs(
+			engine: DatabaseEngine,
+			databaseId: string,
+			tail?: number,
+		): Promise<string>;
+		/**
+		 * Rotates the service password. The new password is sent once and never
+		 * stored: the instance is the only place that needs to keep it.
+		 */
+		changePassword(
+			engine: DatabaseEngine,
+			databaseId: string,
+			password: string,
+		): Promise<void>;
+	};
+
 	notifications: {
 		list(): Promise<NotployNotification[]>;
 	};
 
+	/**
+	 * Instance configuration shared by services. Every payload has had its
+	 * credential material removed by the main process before it got here — see
+	 * the normalizers in `@/shared/domain`.
+	 */
+	operations: {
+		tags(): Promise<Tag[]>;
+		certificates(): Promise<Certificate[]>;
+		sshKeys(): Promise<SshKey[]>;
+		registries(): Promise<Registry[]>;
+		destinations(): Promise<Destination[]>;
+	};
+
 	/** Subscribes to native menu commands; returns an unsubscribe function. */
 	onMenuCommand(listener: (command: MenuCommand) => void): () => void;
+
+	/** Subscribes to `notploy://` links; returns an unsubscribe function. */
+	onDeepLink(listener: (target: DeepLinkTarget) => void): () => void;
 }
 
 /** Re-exported so the renderer can hold a connection without importing the map. */
@@ -458,5 +624,8 @@ export type {
 	Connection,
 	ConnectionKind,
 	ConnectionSummary,
+	DatabaseAction,
+	DatabaseEngine,
+	DatabaseSummary,
 	SessionUser,
 };

@@ -15,6 +15,7 @@
  */
 
 import { contextBridge, ipcRenderer } from "electron";
+import type { DeepLinkTarget } from "@/shared/deep-link";
 import {
 	IPC_CHANNELS,
 	IPC_EVENTS,
@@ -58,6 +59,7 @@ const bridge: NotployBridge = {
 	app: {
 		info: () => invoke(IPC_CHANNELS.appInfo),
 		openExternal: (url) => invoke(IPC_CHANNELS.appOpenExternal, url),
+		copyText: (text) => invoke(IPC_CHANNELS.appCopyText, text),
 		getPreferences: () => invoke(IPC_CHANNELS.preferencesGet),
 		updatePreferences: (patch) => invoke(IPC_CHANNELS.preferencesUpdate, patch),
 	},
@@ -132,8 +134,32 @@ const bridge: NotployBridge = {
 		diskUsage: () => invoke(IPC_CHANNELS.monitoringDiskUsage),
 	},
 
+	databases: {
+		list: (query) => invoke(IPC_CHANNELS.databasesList, query),
+		one: (engine, databaseId) =>
+			invoke(IPC_CHANNELS.databasesOne, engine, databaseId),
+		action: (request) => invoke(IPC_CHANNELS.databasesAction, request),
+		logs: (engine, databaseId, tail) =>
+			invoke(IPC_CHANNELS.databasesLogs, engine, databaseId, tail),
+		changePassword: (engine, databaseId, password) =>
+			invoke(
+				IPC_CHANNELS.databasesChangePassword,
+				engine,
+				databaseId,
+				password,
+			),
+	},
+
 	notifications: {
 		list: () => invoke(IPC_CHANNELS.notificationsList),
+	},
+
+	operations: {
+		tags: () => invoke(IPC_CHANNELS.operationsTags),
+		certificates: () => invoke(IPC_CHANNELS.operationsCertificates),
+		sshKeys: () => invoke(IPC_CHANNELS.operationsSshKeys),
+		registries: () => invoke(IPC_CHANNELS.operationsRegistries),
+		destinations: () => invoke(IPC_CHANNELS.operationsDestinations),
 	},
 
 	onMenuCommand: (listener) => {
@@ -142,6 +168,15 @@ const bridge: NotployBridge = {
 		ipcRenderer.on(IPC_EVENTS.menuCommand, handler);
 		return () => {
 			ipcRenderer.removeListener(IPC_EVENTS.menuCommand, handler);
+		};
+	},
+
+	onDeepLink: (listener) => {
+		const handler = (_event: unknown, target: DeepLinkTarget) =>
+			listener(target);
+		ipcRenderer.on(IPC_EVENTS.deepLink, handler);
+		return () => {
+			ipcRenderer.removeListener(IPC_EVENTS.deepLink, handler);
 		};
 	},
 };
