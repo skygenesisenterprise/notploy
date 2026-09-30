@@ -72,16 +72,13 @@ import {
 	findActiveNavigation,
 	isActiveRoute,
 	type Navigation,
+	type NavigationItem,
 } from "./navigation";
 import { UpdateServerButton } from "./update-server";
 import { UserNav } from "./user-nav";
 
 /**
- * Renders the declarative navigation as a flat list of titled sections.
- *
- * Sections are plain headings (never collapsible): Notploy now exposes many
- * more areas than a deployment centric menu did, and the whole point of the
- * hierarchy is that the entire platform stays readable at a glance.
+ * Renders each product domain as one heading with a flat list of destinations.
  */
 function SidebarNavigation({
 	navigation,
@@ -92,50 +89,58 @@ function SidebarNavigation({
 	pathname: string;
 	currentTab?: string;
 }) {
+	const renderItems = (items: NavigationItem[]) => (
+		<SidebarMenu className="gap-0.5">
+			{items.map((item) => {
+				const isActive = isActiveRoute({
+					itemUrl: item.href,
+					pathname,
+					activeTab: item.activeTab,
+					currentTab,
+				});
+
+				return (
+					<SidebarMenuItem key={item.href}>
+						<SidebarMenuButton
+							asChild
+							tooltip={item.label}
+							isActive={isActive}
+							className={cn(isActive && "bg-border")}
+						>
+							<Link href={item.href} className="flex w-full items-center gap-2">
+								<item.icon
+									aria-hidden
+									className={cn(
+										"size-4 shrink-0",
+										isActive ? "text-primary" : "text-muted-foreground",
+									)}
+								/>
+								<span className="truncate">{item.label}</span>
+							</Link>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				);
+			})}
+		</SidebarMenu>
+	);
+
 	return (
 		<>
-			{navigation.sections.map((section) => (
-				<SidebarGroup key={section.id} className="pb-1 pt-1 first:pt-0">
-					<SidebarGroupLabel className="h-6 cursor-default px-2 text-[11px] font-semibold tracking-wider text-muted-foreground/70 uppercase">
-						{section.label}
-					</SidebarGroupLabel>
-					<SidebarMenu className="gap-0.5">
-						{section.items.map((item) => {
-							const isActive = isActiveRoute({
-								itemUrl: item.href,
-								pathname,
-								activeTab: item.activeTab,
-								currentTab,
-							});
+			{navigation.sections.map((section) => {
+				const items = [
+					...section.items,
+					...(section.groups?.flatMap((group) => group.items) ?? []),
+				];
 
-							return (
-								<SidebarMenuItem key={item.href}>
-									<SidebarMenuButton
-										asChild
-										tooltip={item.label}
-										isActive={isActive}
-										className={cn(isActive && "bg-border")}
-									>
-										<Link
-											href={item.href}
-											className="flex w-full items-center gap-2"
-										>
-											<item.icon
-												aria-hidden
-												className={cn(
-													"size-4 shrink-0",
-													isActive ? "text-primary" : "text-muted-foreground",
-												)}
-											/>
-											<span className="truncate">{item.label}</span>
-										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							);
-						})}
-					</SidebarMenu>
-				</SidebarGroup>
-			))}
+				return (
+					<SidebarGroup key={section.id} className="pb-1 pt-1 first:pt-0">
+						<SidebarGroupLabel className="h-6 cursor-default px-2 text-[11px] font-semibold tracking-wider text-muted-foreground/70 uppercase">
+							{section.label}
+						</SidebarGroupLabel>
+						{renderItems(items)}
+					</SidebarGroup>
+				);
+			})}
 		</>
 	);
 }
@@ -548,6 +553,12 @@ export default function Page({ children }: Props) {
 		pathname,
 		tab: currentTab,
 	});
+	const activeSectionHref = activeNavigation
+		? (activeNavigation.section.items[0]?.href ??
+			activeNavigation.section.groups?.flatMap((group) => group.items)[0]
+				?.href ??
+			activeNavigation.item.href)
+		: undefined;
 
 	if (!isLoaded) {
 		return <div className="w-full h-screen bg-background" />; // Placeholder mientras se carga
@@ -675,7 +686,7 @@ export default function Page({ children }: Props) {
 														<BreadcrumbLink asChild>
 															<Link
 																href={
-																	activeNavigation.section.items[0]?.href ??
+																	activeSectionHref ??
 																	activeNavigation.item.href
 																}
 																className="flex items-center gap-1.5"

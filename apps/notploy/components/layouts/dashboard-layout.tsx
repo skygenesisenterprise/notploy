@@ -7,6 +7,106 @@ import { ImpersonationBar } from "../dashboard/impersonation/impersonation-bar";
 import { HubSpotWidget } from "../shared/HubSpotWidget";
 import Page from "./side";
 
+const DASHBOARD_PAGE_TITLES: Record<string, string> = {
+	"/dashboard/home": "Home",
+	"/dashboard/projects": "Projects",
+	"/dashboard/overview": "Services",
+	"/dashboard/deployments": "Deployments",
+	"/dashboard/schedules": "Schedules",
+	"/dashboard/docker": "Docker",
+	"/dashboard/monitoring": "Monitoring",
+	"/dashboard/requests": "Requests",
+	"/dashboard/traefik": "Traefik",
+	"/dashboard/settings/ai": "AI",
+	"/dashboard/settings/api-keys": "API Keys",
+	"/dashboard/settings/audit-logs": "Audit Logs",
+	"/dashboard/settings/billing": "Billing",
+	"/dashboard/settings/certificates": "Certificates",
+	"/dashboard/settings/deployments": "Build Settings",
+	"/dashboard/settings/destinations": "S3 Destinations",
+	"/dashboard/settings/dns": "DNS Providers",
+	"/dashboard/settings/git-providers": "Git Providers",
+	"/dashboard/settings/invoices": "Invoices",
+	"/dashboard/settings/notifications": "Notifications",
+	"/dashboard/settings/profile": "Profile",
+	"/dashboard/settings/registry": "Container Registries",
+	"/dashboard/settings/secrets": "Secrets",
+	"/dashboard/settings/server": "Web Server",
+	"/dashboard/settings/servers": "Servers",
+	"/dashboard/settings/sessions": "Sessions",
+	"/dashboard/settings/ssh-keys": "SSH Keys",
+	"/dashboard/settings/sso": "SSO",
+	"/dashboard/settings/tags": "Tags",
+	"/dashboard/settings/users": "Team",
+	"/dashboard/settings/whitelabeling": "Whitelabeling",
+};
+
+const TAB_TITLES: Record<string, Record<string, string>> = {
+	"/dashboard/docker": {
+		containers: "Containers",
+		events: "Docker Events",
+		health: "Health",
+		images: "Images",
+		networks: "Networks",
+		"disk-usage": "Disk Usage",
+		swarm: "Swarm",
+		volumes: "Storage",
+	},
+	"/dashboard/overview": {
+		backups: "Backups",
+		deployments: "Deployments",
+		domains: "Domains",
+		services: "Services",
+	},
+};
+
+function getDashboardPageTitle(
+	pathname: string,
+	query: Record<string, string | string[] | undefined>,
+): string {
+	const tab = query.tab;
+	if (typeof tab === "string") {
+		const tabTitles = TAB_TITLES[pathname];
+		const tabTitle = tabTitles?.[tab];
+		if (tabTitle) return tabTitle;
+	}
+
+	const knownTitle = DASHBOARD_PAGE_TITLES[pathname];
+	if (knownTitle) return knownTitle;
+
+	if (pathname === "/dashboard/settings/dns/[dnsProviderId]") {
+		return "DNS Provider";
+	}
+	if (pathname === "/dashboard/settings/dns/[dnsProviderId]/[zoneId]") {
+		return "DNS Zone";
+	}
+	if (
+		pathname === "/dashboard/project/[projectId]/environment/[environmentId]"
+	) {
+		return "Environment";
+	}
+
+	const serviceRoute = pathname.match(
+		/\/services\/(application|compose|libsql|mariadb|mongo|mysql|postgres|redis)\//,
+	);
+	if (serviceRoute) {
+		const serviceType = serviceRoute[1] ?? "";
+		const serviceTitles: Record<string, string> = {
+			application: "Application",
+			compose: "Compose Service",
+			libsql: "LibSQL",
+			mariadb: "MariaDB",
+			mongo: "MongoDB",
+			mysql: "MySQL",
+			postgres: "PostgreSQL",
+			redis: "Redis",
+		};
+		return serviceTitles[serviceType] ?? "Service";
+	}
+
+	return "Notploy";
+}
+
 interface Props {
 	children: React.ReactNode;
 	metaName?: string;
@@ -18,6 +118,8 @@ export const DashboardLayout = ({ children, metaName }: Props) => {
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 	const { config: whitelabeling } = useWhitelabeling();
 	const appName = whitelabeling?.appName || "Notploy";
+	const pageTitle =
+		metaName ?? getDashboardPageTitle(router.pathname, router.query);
 	const { data: currentPlan } = api.stripe.getCurrentPlan.useQuery(undefined, {
 		enabled: isCloud === true,
 		refetchOnWindowFocus: false,
@@ -44,13 +146,11 @@ export const DashboardLayout = ({ children, metaName }: Props) => {
 
 	return (
 		<>
-			{metaName && (
-				<Head>
-					<title>
-						{metaName} | {appName}
-					</title>
-				</Head>
-			)}
+			<Head>
+				<title>
+					{pageTitle} | {appName}
+				</title>
+			</Head>
 			<Page>{children}</Page>
 			{isChatEnabled && (
 				<>
