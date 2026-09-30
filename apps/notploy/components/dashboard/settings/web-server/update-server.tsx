@@ -37,6 +37,12 @@ interface Props {
 	onOpenChange?: (open: boolean) => void;
 }
 
+/**
+ * Release tags are also container image tags and carry the self-hosted suffix
+ * (`v1.2.3-app`), the version shown to the user is the tag without it.
+ */
+const displayVersion = (tag: string) => tag.replace(/-app$/, "");
+
 export const UpdateServer = ({
 	updateData,
 	children,
@@ -59,7 +65,7 @@ export const UpdateServer = ({
 	const handleCheckUpdates = async () => {
 		try {
 			const updateData = await getUpdateData();
-			const versionToUpdate = updateData.latestVersion || "";
+			const versionToUpdate = displayVersion(updateData.latestVersion || "");
 			setHasCheckedUpdate(true);
 			setIsUpdateAvailable(updateData.updateAvailable);
 			setLatestVersion(versionToUpdate);
@@ -230,11 +236,11 @@ export const UpdateServer = ({
 								<RefreshCcw className="h-8 w-8 animate-spin" />
 							</div>
 							<div className="text-center space-y-2">
-								<h3 className="text-lg font-medium">Checking for updates...</h3>
-								<p className="text text-muted-foreground">
-									Please wait while we pull the latest version information from
-									Docker Hub.
-								</p>
+							<h3 className="text-lg font-medium">Checking for updates...</h3>
+							<p className="text text-muted-foreground">
+								Please wait while we pull the latest version information from
+								GitHub.
+							</p>
 							</div>
 						</div>
 					</div>

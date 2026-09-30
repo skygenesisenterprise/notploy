@@ -7,6 +7,11 @@ name: Docker Publish
 # Publishing is tag-only. Each package has its own `v<major>.<minor>.<patch>`
 # tag suffix (for example, `v1.2.3-cloud` publishes only `notploy-cloud`).
 #
+# The self-hosted suffix additionally publishes a GitHub Release: a running
+# server discovers its updates through the Releases API and pulls the image
+# whose tag is that release tag, so a release has to exist for every `-app`
+# tag. The other images are released by their own workflows.
+#
 # The seven entries of the publish matrix below are the whole catalog: adding
 # an image means adding it there and adding its suffix to the tag filters above.
 # The build context is always the repository root because the whole monorepo
@@ -203,3 +208,23 @@ jobs:
             ${{ steps.meta.outputs.labels }}
           if-no-files-found: ignore
           retention-days: 30
+
+  release:
+    name: Publish the GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # The image must be pullable before the release advertises it, otherwise a
+    # server that already sees the release could be offered a missing tag.
+    needs: publish
+    if: endsWith(github.ref_name, '-app')
+    permissions:
+      contents: write
+    steps:
+      # Idempotent: re-running the workflow updates the existing release instead
+      # of failing on a tag that already has one.
+      - name: Publish the release for ${{ github.ref_name }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Notploy ${{ github.ref_name }}
+          generate_release_notes: true

@@ -19,6 +19,7 @@ import {
 	getUpdateData,
 	getWebServerSettings,
 	IS_CLOUD,
+	NOTPLOY_IMAGE,
 	parseRawConfig,
 	paths,
 	prepareEnvironmentVariables,
@@ -561,7 +562,7 @@ export const settingsRouter = createTRPCRouter({
 				"update",
 				"--force",
 				"--image",
-				`skygenesisenterprise/notploy:${data.latestVersion}`,
+				`${NOTPLOY_IMAGE}:${data.latestVersion}`,
 				"notploy",
 			]);
 			await audit(ctx, {

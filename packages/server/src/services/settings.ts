@@ -15,6 +15,7 @@ import {
 	type TraefikOptions,
 } from "../setup/traefik-setup";
 export interface IUpdateData {
+	/** Release tag of the newest self-hosted release, also the container image tag (`v1.2.3-app`). */
 	latestVersion: string | null;
 	updateAvailable: boolean;
 }
@@ -24,137 +25,157 @@ export const DEFAULT_UPDATE_DATA: IUpdateData = {
 	updateAvailable: false,
 };
 
+/** Repository publishing the Notploy releases. */
+const NOTPLOY_GITHUB_REPOSITORY = "skygenesisenterprise/notploy";
+
+/**
+ * Self-hosted image published by .github/workflows/docker-publish.yml. Releases
+ * are consumed from the GitHub Releases API, images from the GitHub Container
+ * Registry, so no Docker Hub credential is involved anymore.
+ */
+export const NOTPLOY_IMAGE = `ghcr.io/${NOTPLOY_GITHUB_REPOSITORY}`;
+
+/** Suffix docker-publish.yml appends to the self-hosted image: `v1.2.3-app` publishes `ghcr.io/skygenesisenterprise/notploy:v1.2.3-app`. */
+const APP_TAG_SUFFIX = "-app";
+
+/** Matches the self-hosted release tags only, so the other images of the publish matrix (`-cloud`, `-mcp`, ...) are ignored. */
+const SELF_HOSTED_RELEASE_REGEX = /^v?(\d+)\.(\d+)\.(\d+)-app$/;
+
+/** GitHub allows 60 anonymous requests per hour and IP, the dashboard polls this every few minutes. */
+const RELEASES_CACHE_TTL_MS = 15 * 60 * 1000;
+const RELEASES_REQUEST_TIMEOUT_MS = 10_000;
+const RELEASES_URL = `https://api.github.com/repos/${NOTPLOY_GITHUB_REPOSITORY}/releases?per_page=100`;
+
+interface SelfHostedRelease {
+	/** Release tag, usable as is as the container image tag. */
+	tag: string;
+	version: semver.SemVer;
+}
+
+let releasesCache: { fetchedAt: number; releases: SelfHostedRelease[] } | undefined;
+
 /** Returns current Notploy docker image tag or `latest` by default. */
 export const getNotployImageTag = () => {
 	return process.env.RELEASE_TAG || "latest";
 };
 
-/** Returns Notploy docker service image digest */
-export const getServiceImageDigest = async () => {
-	const { stdout } = await execAsync(
-		"docker service inspect notploy --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}'",
-	);
-
-	const currentDigest = stdout.trim().split("@")[1];
-
-	if (!currentDigest) {
-		throw new Error("Could not get current service image digest");
-	}
-
-	return currentDigest;
+/**
+ * Turns a bare version into the published release tag (`1.2.3` becomes
+ * `v1.2.3-app`). Channels such as `latest`, `canary`, `feature` or a branch name
+ * are returned untouched, they are already valid image tags.
+ */
+export const toReleaseTag = (version: string) => {
+	const tag = version.trim();
+	const release =
+		parseSelfHostedRelease(tag) ?? parseSelfHostedRelease(`${tag}-app`);
+	return release?.tag ?? tag;
 };
 
-/** Returns latest version number and information whether server update is available by comparing current image's digest against digest for provided image tag via Docker hub API. */
-export const getUpdateData = async (
-	currentVersion: string,
-): Promise<IUpdateData> => {
+const parseSelfHostedRelease = (tag: string): SelfHostedRelease | null => {
+	const match = SELF_HOSTED_RELEASE_REGEX.exec(tag.trim());
+	if (!match) return null;
+
+	const version = semver.parse(`${match[1]}.${match[2]}.${match[3]}`);
+	if (!version) return null;
+
+	return {
+		tag: `v${match[1]}.${match[2]}.${match[3]}${APP_TAG_SUFFIX}`,
+		version,
+	};
+};
+
+const getLatestOf = (releases: SelfHostedRelease[]) =>
+	releases.reduce<SelfHostedRelease | null>(
+		(latest, release) =>
+			!latest || semver.gt(release.version, latest.version) ? release : latest,
+		null,
+	);
+
+const fetchSelfHostedReleases = async (): Promise<SelfHostedRelease[]> => {
+	const now = Date.now();
+	if (releasesCache && now - releasesCache.fetchedAt < RELEASES_CACHE_TTL_MS) {
+		return releasesCache.releases;
+	}
+
+	const response = await fetch(RELEASES_URL, {
+		method: "GET",
+		headers: {
+			Accept: "application/vnd.github+json",
+			"X-GitHub-Api-Version": "2022-11-28",
+			"User-Agent": "notploy",
+			// A token is optional, it only raises the rate limit from 60 to 5000
+			// requests per hour.
+			...(process.env.GITHUB_TOKEN
+				? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
+				: {}),
+		},
+		signal: AbortSignal.timeout(RELEASES_REQUEST_TIMEOUT_MS),
+	});
+
+	// Rate limit, repository not reachable or GitHub outage: fall back to the
+	// previously known releases instead of reporting that no update exists.
+	if (!response.ok) {
+		throw new Error(`GitHub Releases answered with ${response.status}`);
+	}
+
+	const releases = (await response.json()) as {
+		draft?: boolean;
+		prerelease?: boolean;
+		tag_name?: string;
+	}[];
+
+	if (!Array.isArray(releases)) {
+		throw new Error("Unexpected GitHub Releases payload");
+	}
+
+	const parsed = releases
+		.filter((release) => !release?.draft && !release?.prerelease)
+		.map((release) => parseSelfHostedRelease(String(release?.tag_name)))
+		.filter((release): release is SelfHostedRelease => release !== null);
+
+	releasesCache = { fetchedAt: now, releases: parsed };
+	return parsed;
+};
+
+/** Returns the highest published self-hosted release, or `null` when none is reachable. */
+const getLatestSelfHostedRelease = async () => {
 	try {
-		const baseUrl =
-			"https://hub.docker.com/v2/repositories/skygenesisenterprise/notploy/tags";
-		let url: string | null = `${baseUrl}?page_size=100`;
-		const allResults: { digest: string; name: string }[] = [];
-
-		// Fetch all tags from Docker Hub
-		while (url) {
-			const response = await fetch(url, {
-				method: "GET",
-				headers: { "Content-Type": "application/json" },
-			});
-
-			// Docker Hub answers with an error payload (rate limit, 404, ...) that
-			// carries no `results`: bail out instead of concatenating junk.
-			const data = (await response.json()) as {
-				next?: string | null;
-				results?: { digest?: string; name?: string }[];
-			};
-
-			if (!response.ok || !Array.isArray(data?.results)) {
-				return DEFAULT_UPDATE_DATA;
-			}
-
-			for (const tag of data.results) {
-				if (tag && typeof tag.name === "string") {
-					allResults.push({ name: tag.name, digest: tag.digest ?? "" });
-				}
-			}
-
-			url = data.next ?? null;
-		}
-
-		if (allResults.length === 0) {
-			return DEFAULT_UPDATE_DATA;
-		}
-
-		const currentImageTag = getNotployImageTag();
-
-		// Special handling for canary and feature branches
-		// For development versions (canary/feature), don't perform update checks
-		// These are unstable versions that change frequently, and users on these
-		// branches are expected to manually manage updates
-		if (currentImageTag === "canary" || currentImageTag === "feature") {
-			const currentDigest = await getServiceImageDigest();
-			const latestDigest = allResults.find(
-				(t) => t.name === currentImageTag,
-			)?.digest;
-			if (!latestDigest) {
-				return DEFAULT_UPDATE_DATA;
-			}
-			if (currentDigest !== latestDigest) {
-				return {
-					latestVersion: currentImageTag,
-					updateAvailable: true,
-				};
-			}
-			return {
-				latestVersion: currentImageTag,
-				updateAvailable: false,
-			};
-		}
-
-		// For stable versions, use semver comparison
-		// Find the "latest" tag and get its digest
-		const latestTag = allResults.find((t) => t.name === "latest");
-
-		if (!latestTag) {
-			return DEFAULT_UPDATE_DATA;
-		}
-
-		// Find the versioned tag (v0.x.x) that has the same digest as "latest"
-		const latestVersionTag = allResults.find(
-			(t) => t.digest === latestTag.digest && t.name.startsWith("v"),
-		);
-
-		if (!latestVersionTag) {
-			return DEFAULT_UPDATE_DATA;
-		}
-
-		const latestVersion = latestVersionTag.name;
-
-		// Use semver to compare versions for stable releases
-		const cleanedCurrent = semver.clean(currentVersion);
-		const cleanedLatest = semver.clean(latestVersion);
-
-		if (!cleanedCurrent || !cleanedLatest) {
-			return DEFAULT_UPDATE_DATA;
-		}
-
-		// Check if the latest version is greater than the current version
-		const updateAvailable = semver.gt(cleanedLatest, cleanedCurrent);
-
-		return {
-			latestVersion,
-			updateAvailable,
-		};
+		return getLatestOf(await fetchSelfHostedReleases());
 	} catch (error) {
-		// The update check is best-effort: an unreachable or rate-limited Docker
-		// Hub must never surface as a server error in the logs on every call.
+		// The update check is best-effort: an unreachable or rate-limited GitHub
+		// must never surface as a server error in the logs on every call.
 		console.warn(
-			`Could not fetch update data from Docker Hub: ${
+			`Could not fetch releases from GitHub: ${
 				error instanceof Error ? error.message : String(error)
 			}`,
 		);
+		return getLatestOf(releasesCache?.releases ?? []);
+	}
+};
+
+/** Returns the latest release tag and whether it is newer than the running version. */
+export const getUpdateData = async (
+	currentVersion: string,
+	channel: string = getNotployImageTag(),
+): Promise<IUpdateData> => {
+	// `canary` and `feature` installations change too often to be updated from a
+	// dashboard, and docker-publish.yml does not publish those tags: they update
+	// themselves.
+	if (["canary", "feature"].includes(channel)) {
 		return DEFAULT_UPDATE_DATA;
 	}
+
+	const cleanedCurrent = semver.clean(currentVersion);
+	const current = cleanedCurrent ? semver.parse(cleanedCurrent) : null;
+	if (!current) return DEFAULT_UPDATE_DATA;
+
+	const latestRelease = await getLatestSelfHostedRelease();
+	if (!latestRelease) return DEFAULT_UPDATE_DATA;
+
+	return {
+		latestVersion: latestRelease.tag,
+		updateAvailable: semver.gt(latestRelease.version, current),
+	};
 };
 
 interface TreeDataItem {
@@ -311,12 +332,14 @@ export const reloadDockerResource = async (
 	if (resourceType === "service") {
 		if (resourceName === "notploy") {
 			const currentImageTag = getNotployImageTag();
-			let imageTag = version;
-			if (currentImageTag === "canary" || currentImageTag === "feature") {
-				imageTag = currentImageTag;
-			}
+			// `canary` and `feature` installations stay on their channel, every
+			// other one moves to the released version when one is given.
+			const imageTag =
+				currentImageTag === "canary" || currentImageTag === "feature"
+					? currentImageTag
+					: toReleaseTag(version || currentImageTag);
 
-			command = `docker service update --force --image skygenesisenterprise/notploy:${imageTag} ${resourceName}`;
+			command = `docker service update --force --image ${NOTPLOY_IMAGE}:${imageTag} ${resourceName}`;
 		} else {
 			command = `docker service update --force ${resourceName}`;
 		}
