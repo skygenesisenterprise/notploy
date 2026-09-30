@@ -417,7 +417,7 @@ jobs:
       contents: write
     steps:
       - name: Download every platform's assets
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           # Merging into one directory is safe because each platform's file
           # names carry their own platform and architecture: nothing is
