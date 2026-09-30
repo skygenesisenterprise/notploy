@@ -18,6 +18,10 @@
 #   cloud       FROM runtime; Notploy Cloud (same app, no self-hosted tooling)
 #   selfhosted  FROM runtime + Docker/nixpacks/railpack/pack (LAST => default)
 #
+# The deployment tooling (docker CLI, nixpacks, railpack, git-lfs, ...) is
+# installed by docker/install-deploy-tooling.sh, shared by the `dev` and
+# `selfhosted` stages so a dev container drives Docker exactly like production.
+#
 # Runtime note: Notploy manages the host Docker Engine through the mounted
 # /var/run/docker.sock and writes state to /etc/notploy and /root/.docker, both
 # of which require root inside the container. This is socket access to the host
@@ -33,14 +37,24 @@ RUN corepack enable
 RUN corepack prepare pnpm@10.22.0 --activate
 
 # ---------------------------------------------------------------------------
-# Development image (dependencies only; the source is synced at runtime by the
-# `dev` compose profile, so this stage is fast and never runs Next's build).
+# Development image (dependencies + the deployment tooling; never runs Next's
+# production build). The `dev` compose service bind-mounts apps/notploy and
+# packages over this stage's sources, so the server always runs the code on
+# the host and hot-reloads it.
 # ---------------------------------------------------------------------------
 FROM base AS dev
 COPY . /usr/src/app
 WORKDIR /usr/src/app
 
+# Build toolchain (native modules) plus the deployment tooling, so a dev
+# container behaves like the production one (docker CLI, nixpacks, railpack,
+# pack): without it every Docker page fails with `docker: not found`.
 RUN apt-get update && apt-get install -y python3 make g++ git python3-pip pkg-config libsecret-1-dev && rm -rf /var/lib/apt/lists/*
+
+COPY --chmod=0755 docker/install-deploy-tooling.sh /tmp/install-deploy-tooling.sh
+RUN /tmp/install-deploy-tooling.sh && rm -f /tmp/install-deploy-tooling.sh
+
+COPY --from=buildpacksio/pack:0.39.1 /usr/local/bin/pack /usr/local/bin/pack
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
@@ -136,21 +150,10 @@ FROM runtime AS cloud
 # ---------------------------------------------------------------------------
 FROM runtime AS selfhosted
 
-RUN apt-get update && apt-get install -y iproute2 rsync git-lfs && git lfs install && rm -rf /var/lib/apt/lists/*
-
-# Install Docker (the CLI/daemon the deployment pipeline drives through the
-# mounted socket). Pinned for reproducibility.
-RUN curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh --version 28.5.2 && rm get-docker.sh
-
-# Install Nixpacks
-ARG NIXPACKS_VERSION=1.41.0
-RUN curl -sSL https://nixpacks.com/install.sh -o install.sh \
-    && chmod +x install.sh \
-    && ./install.sh
-
-# Install Railpack
-ARG RAILPACK_VERSION=0.15.4
-RUN curl -sSL https://railpack.com/install.sh | bash
+# Cloud plus the tooling deployments need on the host — same script as the dev
+# image, so both flavours expose the same commands.
+COPY --chmod=0755 docker/install-deploy-tooling.sh /tmp/install-deploy-tooling.sh
+RUN /tmp/install-deploy-tooling.sh && rm -f /tmp/install-deploy-tooling.sh
 
 # Install buildpacks
 COPY --from=buildpacksio/pack:0.39.1 /usr/local/bin/pack /usr/local/bin/pack

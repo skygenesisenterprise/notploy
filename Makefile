@@ -10,7 +10,10 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 # --- Selectable configuration ---------------------------------------------
-# FLAVOR=selfhosted (default) or FLAVOR=cloud; VERSION overrides the image tag.
+# NOTPLOY_FLAVOR=selfhosted (default) or NOTPLOY_FLAVOR=cloud;
+# NOTPLOY_VERSION overrides the image tag.
+# NOTPLOY_PORT is left unset on purpose so docker-compose.yml keeps resolving
+# it from .env (or from the 3000 default); pass NOTPLOY_PORT=8080 to override.
 NOTPLOY_FLAVOR ?= selfhosted
 NOTPLOY_VERSION ?= latest
 NOTPLOY_REGISTRY ?= ghcr.io/skygenesisenterprise
@@ -44,9 +47,11 @@ help: ## Show this help
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "Variables: NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_VERSION=$(NOTPLOY_VERSION) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE)"
-	@echo "Examples:  make docker-up                 # self-hosted"
-	@echo "           make docker-up FLAVOR=cloud   # cloud"
-	@echo "           make docker-build VERSION=local"
+	@echo "           IS_CLOUD=$(IS_CLOUD) NOTPLOY_PORT=$${NOTPLOY_PORT:-3000}"
+	@echo "Examples:  make docker-up                      # self-hosted on :3000"
+	@echo "           make docker-up NOTPLOY_FLAVOR=cloud  # cloud on :3000"
+	@echo "           make docker-dev                     # dev (hot reload) on :3000"
+	@echo "           make docker-build NOTPLOY_VERSION=local"
 
 # ---------------------------------------------------------------------------
 # Local development (host toolchain)
@@ -71,30 +76,48 @@ lint: ## Lint/format check (pnpm lint)
 
 # ---------------------------------------------------------------------------
 # Docker (root Dockerfile + docker-compose.yml)
+#
+# `notploy` (production) and `notploy-dev` (development) both publish the
+# dashboard on NOTPLOY_PORT (3000 by default): http://localhost:3000 in both
+# modes. They share the port, so only one of them runs at a time — stop the
+# other first with `make docker-down`.
 # ---------------------------------------------------------------------------
-docker-build: ## Build the Notploy image (FLAVOR=selfhosted|cloud, VERSION=<tag>)
+docker-build: ## Build the Notploy image (NOTPLOY_FLAVOR=selfhosted|cloud, NOTPLOY_VERSION=<tag>)
 	$(COMPOSE_ENV) $(COMPOSE) build
 
-docker-up: ## Start the stack (http://localhost:3000)
+docker-up: ## Start the stack in production mode (http://localhost:3000)
 	$(COMPOSE_ENV) $(COMPOSE) up -d
 
-docker-down: ## Stop the stack (named volumes are preserved)
-	$(COMPOSE) down
+# Stops whatever is actually running. Compose only removes the containers of the
+# enabled profiles, so the dev profile has to be added as soon as a notploy-dev
+# container exists — otherwise `docker compose down` leaves it running and fails
+# to release the shared network ("Resource is still in use").
+docker-down: ## Stop the running stack, dev container included (volumes are preserved)
+	@if [ -n "$$($(COMPOSE) --profile dev ps -aq notploy-dev 2>/dev/null)" ]; then \
+		echo "==> dev container found, stopping the whole stack"; \
+		$(COMPOSE) --profile dev down --remove-orphans --timeout 15; \
+	else \
+		echo "==> no dev container, stopping the production stack"; \
+		$(COMPOSE) down --remove-orphans --timeout 15; \
+	fi
 
 docker-restart: ## Restart the stack
 	$(COMPOSE_ENV) $(COMPOSE) restart
 
 docker-logs: ## Follow the stack logs
-	$(COMPOSE) logs -f
+	$(COMPOSE) --profile dev logs -f
 
 docker-ps: ## Show stack status
-	$(COMPOSE) ps
+	$(COMPOSE) --profile dev ps -a
 
 docker-config: ## Validate and print the resolved Compose configuration
 	$(COMPOSE_ENV) $(COMPOSE) config
 
-docker-dev: ## Run the containerized dev server with hot reload (http://localhost:3001)
-	$(COMPOSE_ENV) $(COMPOSE) --profile dev up --watch notploy-dev
+docker-dev: ## Run the containerized dev server with hot reload (http://localhost:3000)
+	@# Recreate the dev container every run: reusing one whose network endpoint is
+	@# stale makes the daemon fail with "Could not attach to network ... not found".
+	@$(COMPOSE) --profile dev rm -sf notploy-dev >/dev/null 2>&1 || true
+	$(COMPOSE_ENV) $(COMPOSE) --profile dev up --build --watch notploy-dev
 
 # ---------------------------------------------------------------------------
 # Cleanup

@@ -7,6 +7,14 @@ node_modules
 .turbo
 coverage
 
+# Desktop (Electron) and website packaging artifacts: several GB of local build
+# output that the server image never needs. Without these the build context is
+# ~2.4GB instead of a few MB.
+apps/desktop/release
+apps/desktop/out
+web/apps/docs/out
+web/apps/website/.next
+
 # Version control and CI
 .git
 .gitignore

@@ -12,9 +12,19 @@
 #   self-hosted  docker compose up -d                                (default)
 #   cloud        NOTPLOY_FLAVOR=cloud NOTPLOY_IMAGE=ghcr.io/skygenesisenterprise/notploy-cloud docker compose up -d --build
 #   pinned image NOTPLOY_IMAGE=ghcr.io/skygenesisenterprise/notploy NOTPLOY_VERSION=v0.30.6 docker compose up -d
-#   development  docker compose --profile dev up --watch notploy-dev  -> http://localhost:3001
+#   development  docker compose --profile dev up --watch notploy-dev  -> http://localhost:3000
 #
-# Or use the Makefile wrappers: `make docker-up`, `make docker-up FLAVOR=cloud`,
+# The `dev` service bind-mounts `apps/notploy` and `packages` from the host and
+# restores the image's node_modules through anonymous volumes, so the dev
+# server always runs the sources on disk (and hot-reloads them) while keeping
+# the dependencies resolved from pnpm-lock.yaml.
+#
+# `notploy` (production) and `notploy-dev` (development) both publish the
+# dashboard on ${NOTPLOY_PORT:-3000}, so the app is always reachable at
+# http://localhost:3000 whatever the mode. They are mutually exclusive: only
+# one of them can own the port at a time.
+#
+# Or use the Makefile wrappers: `make docker-up`, `make docker-up NOTPLOY_FLAVOR=cloud`,
 # `make docker-dev`.
 #
 # Architecture: Notploy talks to the *host* Docker Engine through the mounted
@@ -95,6 +105,9 @@ services:
   # Notploy in development mode (hot reload). Opt-in via the `dev` profile and
   # run explicitly so it never races the production service for the port:
   #   docker compose --profile dev up --watch notploy-dev
+  #
+  # It publishes the very same URL as `notploy` (http://localhost:3000) so the
+  # dashboard behaves identically in dev and in production.
   # -------------------------------------------------------------------------
   notploy-dev:
     profiles:
@@ -116,32 +129,51 @@ services:
       POSTGRES_PORT: 5432
       DATABASE_URL: postgres://${POSTGRES_USER:-notploy}:${POSTGRES_PASSWORD:-notploy}@postgres:5432/${POSTGRES_DB:-notploy}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-notploy-insecure-default-change-me}
+      # Same flavor switch as production, so `NOTPLOY_FLAVOR=cloud make docker-dev`
+      # exercises the cloud code paths.
+      IS_CLOUD: ${IS_CLOUD:-false}
       TZ: ${TZ:-UTC}
+      # Inotify works through bind mounts on Linux. On Docker Desktop
+      # (macOS/Windows) set DEV_POLLING=true to use polling instead.
+      CHOKIDAR_USEPOLLING: ${DEV_POLLING:-false}
+      WATCHPACK_POLLING: ${DEV_POLLING:-false}
     ports:
-      - "${NOTPLOY_DEV_PORT:-3001}:3000"
+      # Same host port as production: the app is always on
+      # http://localhost:${NOTPLOY_PORT:-3000}.
+      - "${NOTPLOY_PORT:-3000}:3000"
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
+      # The sources are bind-mounted from the host so that editing a file
+      # hot-reloads the dev server. `develop.watch` is deliberately not used for
+      # the sources: its `action: sync` is a no-op on several Compose releases
+      # (it silently leaves the image's baked sources in place).
+      - ./apps/notploy:/usr/src/app/apps/notploy
+      - ./packages:/usr/src/app/packages
+      # Those bind mounts shadow the node_modules installed in the dev image.
+      # Anonymous volumes restore them from the image every time the container
+      # is created — unlike named volumes, they are never stale after a
+      # `docker compose build`. `make docker-dev` passes --build so the image
+      # always matches pnpm-lock.yaml.
+      - /usr/src/app/node_modules
+      - /usr/src/app/apps/notploy/node_modules
+      # Next's build output stays inside the container: the dev server runs as
+      # root, so a bind-mounted .next would leave root-owned files in the
+      # repository and break `make clean`.
+      - /usr/src/app/apps/notploy/.next
+      - /usr/src/app/packages/cli/node_modules
+      - /usr/src/app/packages/github/node_modules
+      - /usr/src/app/packages/mcp/node_modules
+      - /usr/src/app/packages/sdk/node_modules
+      - /usr/src/app/packages/server/node_modules
       - /var/run/docker.sock:/var/run/docker.sock
       - notploy-config:/etc/notploy
-    # Sync host edits into the container instead of bind-mounting the whole
-    # repository over node_modules. Run with `--watch` (see `make docker-dev`).
+      - notploy-docker:/root/.docker
     develop:
+      # Rebuilding on a lockfile change refreshes the node_modules anonymous
+      # volumes above as soon as a dependency is added or updated.
       watch:
-        - action: sync
-          path: ./apps/notploy
-          target: /usr/src/app/apps/notploy
-          ignore:
-            - node_modules
-            - .next
-            - dist
-        - action: sync
-          path: ./packages/server
-          target: /usr/src/app/packages/server
-          ignore:
-            - node_modules
-            - dist
         - action: rebuild
           path: pnpm-lock.yaml
     networks:
