@@ -1,0 +1,1014 @@
+{
+  "brand": {
+    "republicName": "République d'Astoria"
+  },
+  "common": {
+    "skipToContent": "Aller au contenu",
+    "skipToFooter": "Aller au pied de page",
+    "backToTop": {
+      "ariaLabel": "Revenir en haut de page"
+    },
+    "cookiePopup": {
+      "ariaLabel": "Gestion des cookies",
+      "title": "Votre vie privée",
+      "message": "Nous déposons des cookies de mesure d'audience pour améliorer votre expérience et la qualité du service.",
+      "accept": "Tout accepter",
+      "decline": "Tout refuser",
+      "manage": "Gérer mes choix"
+    }
+  },
+  "header": {
+    "homeTitle": "Registre National des Entreprises d'Astoria — Accueil",
+    "serviceTitle": "Registre National des Entreprises d'Astoria",
+    "serviceTagline": "RNEA — le registre officiel des entreprises d'Astoria",
+    "myGouv": "Mon compte",
+    "accountLabel": "Mon compte",
+    "logoutLink": "Se déconnecter",
+    "account": {
+      "profile": "Mon profil",
+      "settings": "Mes paramètres"
+    }
+  },
+  "meta": {
+    "defaultTitle": "Office National du Registre des Entreprises",
+    "suffix": "RNEA · Office National du Registre des Entreprises",
+    "description": "L'Office National du Registre des Entreprises (RNEA) : recherche d'entreprises, formalités, documents officiels, propriété intellectuelle et données publiques.",
+    "searchPlaceholder": "Rechercher une entreprise ou un numéro d'immatriculation"
+  },
+  "footer": {
+    "contentDescription": "Registre National des Entreprises d'Astoria — la source officielle d'information sur les entreprises et leurs formalités.",
+    "bottom": {
+      "contact": "Contact",
+      "planDuPortail": "Plan du portail",
+      "documentsOpposables": "Documents opposables",
+      "privacy": "Confidentialité",
+      "cookies": "Gestion des cookies",
+      "publications": "Publications officielles"
+    },
+    "license": "Sauf mention contraire, tous les contenus de ce site sont sous <link>licence APSL</link>."
+  },
+  "nav": {
+    "primary": {
+      "entreprises": "Entreprises",
+      "registre": "Registre",
+      "formalites": "Formalités",
+      "proprieteIntellectuelle": "Propriété intellectuelle",
+      "documents": "Documents",
+      "donnees": "Données",
+      "rnea": "RNEA"
+    },
+    "panel": {
+      "entreprises": {
+        "title": "Entreprises",
+        "text": "Identifiez, créez, modifiez ou cessez une entreprise du registre national.",
+        "allLink": "Tout sur les entreprises",
+        "rechercher": {
+          "title": "Rechercher une entreprise",
+          "simple": "Recherche simple",
+          "parSiren": "Recherche par SIREN",
+          "parDirigeant": "Recherche par dirigeant",
+          "avancee": "Recherche avancée"
+        },
+        "creer": {
+          "title": "Créer une entreprise",
+          "conditionsImmatriculation": "Conditions d'immatriculation",
+          "declarationActivite": "Déclaration d'activité",
+          "formalitesCreation": "Formalités de création",
+          "suiviCreation": "Suivi de la création"
+        },
+        "modifier": {
+          "title": "Modifier une entreprise",
+          "changementDirigeant": "Changement de dirigeant",
+          "changementAdresse": "Changement d'adresse",
+          "modificationActivite": "Modification de l'activité",
+          "miseAJourInformations": "Mise à jour des informations"
+        },
+        "cesser": {
+          "title": "Cesser une activité",
+          "declarationCessation": "Déclaration de cessation",
+          "radiation": "Radiation du registre",
+          "transmission": "Transmission d'entreprise",
+          "suitesCessation": "Suites de la cessation"
+        }
+      },
+      "registre": {
+        "title": "Registre",
+        "text": "Consultez les entreprises enregistrées, leurs établissements, leurs dirigeants et l'historique du registre.",
+        "allLink": "Tout sur le registre",
+        "entreprisesEnregistrees": {
+          "title": "Entreprises enregistrées",
+          "liste": "Liste des entreprises",
+          "dernieresImmatriculations": "Dernières immatriculations",
+          "etatDuRegistre": "État du registre",
+          "publicationsLegales": "Publications légales"
+        },
+        "etablissements": {
+          "title": "Établissements",
+          "liste": "Liste des établissements",
+          "parRegion": "Établissements par région",
+          "ouvertureFermeture": "Ouverture et fermeture",
+          "rechercher": "Rechercher un établissement"
+        },
+        "dirigeants": {
+          "title": "Dirigeants",
+          "liste": "Liste des dirigeants",
+          "fonctionsMandats": "Fonctions et mandats",
+          "incompatibilites": "Incompatibilités et interdictions",
+          "rechercher": "Rechercher un dirigeant"
+        },
+        "historique": {
+          "title": "Historique du registre",
+          "evenements": "Événements de la vie de l'entreprise",
+          "anciennesDenominations": "Anciennes dénominations",
+          "transfertsFusions": "Transferts et fusions",
+          "archives": "Archives du registre"
+        }
+      },
+      "formalites": {
+        "title": "Formalités",
+        "text": "Réalisez les formalités légales des entreprises : création, modification et cessation.",
+        "allLink": "Toutes les formalités",
+        "toutes": {
+          "title": "Toutes les formalités",
+          "parType": "Formalités par type",
+          "enCours": "Formalités en cours",
+          "historique": "Historique des formalités",
+          "coutsDelais": "Coûts et délais"
+        },
+        "creation": {
+          "title": "Création",
+          "immatriculation": "Immatriculation",
+          "debutActivite": "Déclaration de début d'activité",
+          "simplifiees": "Formalités simplifiées",
+          "documentsFournir": "Documents à fournir"
+        },
+        "modification": {
+          "title": "Modification",
+          "enregistrables": "Modifications enregistrables",
+          "declaration": "Déclaration de modification",
+          "piecesJustificatives": "Pièces justificatives",
+          "delaisOppositions": "Délais et oppositions"
+        },
+        "cessation": {
+          "title": "Cessation",
+          "declaration": "Déclaration de cessation",
+          "radiation": "Radiation du registre",
+          "transmissionUniverselle": "Transmission universelle",
+          "liquidation": "Liquidation"
+        }
+      },
+      "proprieteIntellectuelle": {
+        "title": "Propriété intellectuelle",
+        "text": "Protégez vos créations : marques, brevets, dessins et modèles.",
+        "allLink": "Tout sur la propriété intellectuelle",
+        "marques": {
+          "title": "Marques",
+          "deposer": "Déposer une marque",
+          "rechercher": "Rechercher une marque",
+          "renouveler": "Renouveler une marque",
+          "contester": "Contester une marque"
+        },
+        "brevets": {
+          "title": "Brevets",
+          "deposer": "Déposer un brevet",
+          "rechercher": "Rechercher un brevet",
+          "dureeEtendue": "Durée et étendue",
+          "contester": "Contester un brevet"
+        },
+        "dessinsEtModeles": {
+          "title": "Dessins et modèles",
+          "deposer": "Déposer un dessin ou modèle",
+          "rechercher": "Rechercher",
+          "protectionDuree": "Protection et durée",
+          "contester": "Contester"
+        },
+        "informations": {
+          "title": "Propriété intellectuelle",
+          "questCeQue": "Qu'est-ce que la propriété intellectuelle ?",
+          "droitsCreateurs": "Droits des créateurs",
+          "cadreJuridique": "Cadre juridique",
+          "aidesConseils": "Aides et conseils"
+        }
+      },
+      "documents": {
+        "title": "Documents",
+        "text": "Obtenez et vérifiez les documents officiels du registre : extraits, certificats et actes déposés.",
+        "allLink": "Tous les documents",
+        "extraits": {
+          "title": "Extraits RNEA",
+          "commander": "Commander un extrait",
+          "extraitK": "Extrait K",
+          "immatriculation": "Extrait d'immatriculation",
+          "certifie": "Extrait certifié"
+        },
+        "certificats": {
+          "title": "Certificats",
+          "existence": "Certificat d'existence",
+          "immatriculation": "Certificat d'immatriculation",
+          "attestations": "Attestations",
+          "legalisation": "Légalisation"
+        },
+        "documentsDeposes": {
+          "title": "Documents déposés",
+          "actes": "Actes déposés",
+          "etatsFinanciers": "États financiers",
+          "conventions": "Conventions et contrats",
+          "consultation": "Consultation en ligne"
+        },
+        "verifier": {
+          "title": "Vérifier un document",
+          "piece": "Vérifier une pièce",
+          "extrait": "Vérifier un extrait",
+          "authenticite": "Authenticité des documents",
+          "securiteFraude": "Sécurité et fraude"
+        }
+      },
+      "donnees": {
+        "title": "Données",
+        "text": "Accédez aux données publiques du registre : données ouvertes, statistiques, API et téléchargements.",
+        "allLink": "Toutes les données",
+        "donneesOuvertes": {
+          "title": "Données ouvertes",
+          "jeuxDeDonnees": "Jeux de données",
+          "licence": "Licence ouverte",
+          "qualite": "Qualité des données",
+          "reutilisation": "Réutilisation"
+        },
+        "statistiques": {
+          "title": "Statistiques",
+          "chiffresCles": "Chiffres clés",
+          "creationsCessations": "Créations et cessations",
+          "repartitionSectorielle": "Répartition sectorielle",
+          "rapportsAnnuel": "Rapports annuels"
+        },
+        "api": {
+          "title": "API",
+          "acces": "Accès aux API",
+          "documentation": "Documentation",
+          "guidesTechniques": "Guides techniques",
+          "statutService": "Statut du service"
+        },
+        "telechargements": {
+          "title": "Téléchargements",
+          "fichiers": "Fichiers du registre",
+          "misesAJour": "Mises à jour",
+          "formats": "Formats disponibles",
+          "extraction": "Extraction sur mesure"
+        }
+      },
+      "rnea": {
+        "title": "RNEA",
+        "text": "Découvrez le Registre national des entreprises d'Astoria, ses missions, ses tarifs et son assistance.",
+        "allLink": "Tout sur le RNEA",
+        "aPropos": {
+          "title": "À propos du RNEA",
+          "questCeQue": "Qu'est-ce que le RNEA ?",
+          "missions": "Missions",
+          "organisation": "Organisation",
+          "textesFondateurs": "Textes fondateurs"
+        },
+        "tarifs": {
+          "title": "Tarifs",
+          "formalites": "Tarifs des formalités",
+          "documents": "Tarifs des documents",
+          "gratuitesExonerations": "Gratuités et exonérations",
+          "paiement": "Modalités de paiement"
+        },
+        "aide": {
+          "title": "Aide",
+          "questionsFrequentes": "Questions fréquentes",
+          "guidesTutoriels": "Guides et tutoriels",
+          "demarchesPasAPas": "Démarches pas à pas",
+          "glossaire": "Glossaire"
+        },
+        "contact": {
+          "title": "Contact",
+          "nousContacter": "Nous contacter",
+          "horaires": "Horaires d'ouverture",
+          "servicesEnLigne": "Services en ligne",
+          "pressePartenaires": "Presse et partenaires"
+        }
+      }
+    }
+  },
+  "home": {
+    "metaTitle": "Registre national des entreprises d'Astoria",
+    "hero": {
+      "kicker": "Registre officiel des entreprises d'Astoria",
+      "title": "Registre national des entreprises d'Astoria",
+      "lead": "Le RNEA est la source officielle d'information sur les entreprises astoriennes : identité, dirigeants, formalités et documents légaux.",
+      "ctaSearch": "Rechercher une entreprise",
+      "ctaFormality": "Effectuer une formalité"
+    },
+    "search": {
+      "title": "Rechercher dans le registre",
+      "label": "Rechercher une entreprise",
+      "placeholder": "Nom de l'entreprise ou numéro RNEA",
+      "popularLabel": "Recherches fréquentes :",
+      "popular": {
+        "company": "Nom d'entreprise",
+        "rneaNumber": "Numéro RNEA",
+        "establishment": "Établissement",
+        "director": "Dirigeant"
+      }
+    },
+    "consult": {
+      "kicker": "Consulter le registre",
+      "title": "Rechercher dans le RNEA",
+      "lead": "Interrogez le registre national comme le ferait un greffe : une entreprise, un numéro RNEA, un établissement ou un dirigeant.",
+      "note": "Les informations sur les dirigeants sont consultables lorsque la loi les rend publiques.",
+      "items": {
+        "company": {
+          "title": "Rechercher une entreprise",
+          "desc": "Identité, forme, capital, siège et activité."
+        },
+        "rneaNumber": {
+          "title": "Rechercher par numéro RNEA",
+          "desc": "Accéder directement à une entreprise par son identifiant unique."
+        },
+        "establishment": {
+          "title": "Rechercher un établissement",
+          "desc": "Sièges et établissements secondaires enregistrés."
+        },
+        "director": {
+          "title": "Rechercher un dirigeant",
+          "desc": "Dirigeants, mandats et fonctions enregistrés."
+        }
+      }
+    },
+    "understand": {
+      "kicker": "Comprendre",
+      "title": "Comprendre le RNEA",
+      "lead": "Le registre centralise et publie les informations légales des entreprises pour sécuriser la vie économique astorienne.",
+      "items": {
+        "what": {
+          "title": "Le registre officiel",
+          "desc": "Le RNEA est le registre national unique des entreprises immatriculées en Astoria."
+        },
+        "role": {
+          "title": "Un rôle économique",
+          "desc": "Il garantit l'identité des entreprises et sécurise les échanges entre partenaires économiques."
+        },
+        "centralizes": {
+          "title": "Des informations centralisées",
+          "desc": "Immatriculations, modifications, cessations et documents légaux sont réunis en un seul lieu."
+        },
+        "public": {
+          "title": "Des données publiques",
+          "desc": "Les informations essentielles des entreprises sont librement consultables par tous."
+        }
+      }
+    },
+    "create": {
+      "kicker": "Créer",
+      "title": "Créer une entreprise",
+      "lead": "De la formalité de création à l'exercice de l'activité, le RNEA vous accompagne à chaque étape.",
+      "steps": {
+        "formalites": "Déposer la formalité de création",
+        "enregistrement": "Être immatriculé au registre",
+        "identifiant": "Recevoir son numéro RNEA",
+        "activite": "Exercer son activité"
+      },
+      "cta": "Créer une entreprise",
+      "secondaryCta": "Voir les formalités de création"
+    },
+    "manage": {
+      "kicker": "Gérer",
+      "title": "Gérer son entreprise",
+      "lead": "Le RNEA couvre toute la vie de l'entreprise : maintenez vos informations à jour, du siège à la cessation d'activité.",
+      "items": {
+        "modify": {
+          "title": "Modifier les informations",
+          "desc": "Mettre à jour les données de l'entreprise."
+        },
+        "seat": {
+          "title": "Changer le siège",
+          "desc": "Déclarer le transfert du siège social."
+        },
+        "establishment": {
+          "title": "Déclarer un établissement",
+          "desc": "Ouvrir ou fermer un établissement secondaire."
+        },
+        "directors": {
+          "title": "Modifier les dirigeants",
+          "desc": "Déclarer les changements de dirigeants."
+        },
+        "cease": {
+          "title": "Cesser l'activité",
+          "desc": "Déclarer la cessation et la radiation."
+        }
+      }
+    },
+    "documents": {
+      "kicker": "Obtenir",
+      "title": "Documents officiels",
+      "lead": "Obtenez et vérifiez les documents officiels du registre : extraits, certificats et actes déposés.",
+      "items": {
+        "extraits": {
+          "title": "Extraits RNEA",
+          "desc": "La photographie légale d'une entreprise à une date donnée."
+        },
+        "certificats": {
+          "title": "Certificats",
+          "desc": "Attestations d'existence, d'immatriculation et légalisations."
+        },
+        "deposes": {
+          "title": "Documents déposés",
+          "desc": "Actes, états financiers et conventions consultables en ligne."
+        },
+        "verifier": {
+          "title": "Vérifier un document",
+          "desc": "Contrôler l'authenticité d'un document officiel du registre."
+        }
+      },
+      "verifyTitle": "Vérifier l'authenticité d'un document",
+      "verifyText": "Tout document délivré par le RNEA peut être vérifié en ligne pour confirmer qu'il est authentique et à jour.",
+      "verifyLink": "Comment vérifier un document ?"
+    },
+    "pi": {
+      "kicker": "Protéger",
+      "title": "Propriété intellectuelle",
+      "lead": "Le dépôt et la protection de vos créations font partie de l'écosystème RNEA, distincts du registre des entreprises.",
+      "items": {
+        "marques": {
+          "title": "Marques",
+          "desc": "Déposer, rechercher et renouveler une marque."
+        },
+        "brevets": {
+          "title": "Brevets",
+          "desc": "Protéger une invention par un brevet."
+        },
+        "dessins": {
+          "title": "Dessins et modèles",
+          "desc": "Protéger l'apparence d'un produit."
+        },
+        "informations": {
+          "title": "Informations générales",
+          "desc": "Comprendre les droits de propriété intellectuelle."
+        }
+      }
+    },
+    "data": {
+      "kicker": "Exploiter",
+      "title": "Données publiques et API",
+      "lead": "Le RNEA est une infrastructure numérique publique au service des administrations, des entreprises, des développeurs et des chercheurs.",
+      "items": {
+        "open": {
+          "title": "Données ouvertes",
+          "desc": "Les jeux de données du registre, librement réutilisables."
+        },
+        "stats": {
+          "title": "Statistiques",
+          "desc": "Créations, cessations et indicateurs du registre."
+        },
+        "api": {
+          "title": "API",
+          "desc": "Interroger les données du registre de façon automatisée."
+        },
+        "downloads": {
+          "title": "Téléchargements",
+          "desc": "Les fichiers du registre, mis à jour régulièrement."
+        }
+      },
+      "exploreCta": "Explorer les données",
+      "apiCta": "Documentation API"
+    },
+    "news": {
+      "kicker": "Informations",
+      "title": "Informations du RNEA",
+      "lead": "Les évolutions du registre, des formalités et de ses services.",
+      "allLink": "Découvrir le RNEA",
+      "featured": {
+        "tag": "Nouveautés",
+        "title": "Le RNEA ouvre ses données aux réutilisateurs",
+        "text": "Les données essentielles du registre sont désormais téléchargeables librement et réutilisables pour tout projet.",
+        "date": "Septembre 2026"
+      },
+      "secondary": {
+        "extraits": {
+          "tag": "Formalités",
+          "title": "Commander un extrait en ligne, sans déplacement",
+          "date": "Septembre 2026"
+        },
+        "maintenance": {
+          "tag": "Maintenance",
+          "title": "Interruption prévue du service le dimanche",
+          "date": "Août 2026"
+        },
+        "donnees": {
+          "tag": "Données",
+          "title": "Mise à jour mensuelle des jeux de données",
+          "date": "Août 2026"
+        }
+      }
+    },
+    "institution": {
+      "kicker": "Le RNEA",
+      "title": "Le registre au service des entreprises",
+      "lead": "Découvrez l'institution, ses tarifs et l'assistance disponible pour vos démarches.",
+      "links": {
+        "aPropos": {
+          "title": "À propos du RNEA"
+        },
+        "tarifs": {
+          "title": "Tarifs"
+        },
+        "aide": {
+          "title": "Aide"
+        },
+        "contact": {
+          "title": "Contact"
+        }
+      }
+    },
+    "preferences": {
+      "kicker": "Mon espace",
+      "title": "Gérer mes préférences",
+      "lead": "Choisissez comment le RNEA peut vous contacter.",
+      "demoNote": "Exemple de démonstration : aucune donnée personnelle n'est enregistrée.",
+      "cta": "Accéder à mes préférences",
+      "items": {
+        "appels": {
+          "channel": "Appels",
+          "status": "Autorisés"
+        },
+        "sms": {
+          "channel": "SMS",
+          "status": "Autorisés"
+        },
+        "courriers": {
+          "channel": "Courriers",
+          "status": "Refusés"
+        }
+      }
+    }
+  },
+  "stayInTouch": {
+    "newsletter": {
+      "title": "Recevoir les actualités du RNEA",
+      "desc": "Une lettre d'information mensuelle sur le registre, les formalités et les données des entreprises.",
+      "invalidEmail": "Veuillez saisir une adresse électronique valide.",
+      "label": "Adresse électronique",
+      "placeholder": "Votre adresse électronique",
+      "submit": "S'abonner",
+      "success": "Votre abonnement a bien été enregistré.",
+      "hint": "Vos données ne sont utilisées que pour vous envoyer la lettre d'information."
+    },
+    "follow": {
+      "title": "Suivre le RNEA",
+      "items": {
+        "x": "X (Twitter)",
+        "facebook": "Facebook",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "threads": "Threads"
+      }
+    }
+  },
+  "pages": {
+    "legal": {
+      "meta": {
+        "title": "Informations légales",
+        "description": "Les informations légales du portail : déclaration d'accessibilité, confidentialité, conditions d'utilisation et cookies."
+      },
+      "landing": {
+        "hero": {
+          "kicker": "Informations légales",
+          "title": "Informations légales du portail",
+          "lead": "Les documents juridiques et de référence du Registre national des entreprises d'Astoria.",
+          "notice": "Ces informations sont régulièrement mises à jour."
+        }
+      },
+      "related": {
+        "title": "Informations légales",
+        "kicker": "Dans la même rubrique",
+        "accessibility": {
+          "label": "Déclaration d'accessibilité",
+          "desc": "L'état de conformité et la politique d'accessibilité du portail."
+        },
+        "privacy": {
+          "label": "Confidentialité",
+          "desc": "Comment vos données personnelles sont traitées."
+        },
+        "terms": {
+          "label": "Conditions d'utilisation",
+          "desc": "Les règles d'usage du portail."
+        },
+        "cookies": {
+          "label": "Gestion des cookies",
+          "desc": "Les cookies déposés par le portail et leur gestion."
+        },
+        "sitemap": {
+          "label": "Plan du portail",
+          "desc": "La structure complète du portail."
+        }
+      },
+      "accessibility": {
+        "meta": {
+          "title": "Déclaration d'accessibilité",
+          "description": "La déclaration d'accessibilité du Registre national des entreprises d'Astoria."
+        },
+        "hero": {
+          "kicker": "Accessibilité",
+          "title": "Déclaration d'accessibilité",
+          "lead": "Le Registre national des entreprises d'Astoria s'engage à rendre son portail accessible à tous.",
+          "notice": "Cette déclaration d'accessibilité s'applique au portail rnea.gouv.aor."
+        },
+        "sections": {
+          "declaration": {
+            "kicker": "Engagement",
+            "title": "Déclaration d'engagement",
+            "lead": "Le RNEA s'engage à rendre son portail accessible, conformément à la réglementation astorienne sur l'accessibilité numérique.",
+            "paragraphs": {
+              "p1": "Cette déclaration décrit l'état de conformité du portail avec le référentiel général d'amélioration de l'accessibilité, les contenus non accessibles et la manière de signaler un problème.",
+              "p2": "La direction du registre veille à ce que chaque nouvelle version du portail maintienne et améliore son niveau d'accessibilité."
+            }
+          },
+          "conformite": {
+            "kicker": "Conformité",
+            "title": "État de conformité",
+            "lead": "Le portail est partiellement conforme au référentiel en vigueur.",
+            "bullets": {
+              "b1": "Les contrastes de couleurs respectent les seuils recommandés sur l'ensemble des pages.",
+              "b2": "La navigation au clavier couvre les menus, la recherche et les formulaires.",
+              "b3": "Les contenus textuels disposent d'alternatives textuelles lorsque nécessaire."
+            }
+          },
+          "nonAccessibles": {
+            "kicker": "Limites",
+            "title": "Contenus non accessibles",
+            "lead": "Malgré notre vigilance, certains contenus peuvent présenter des limites d'accessibilité.",
+            "bullets": {
+              "b1": "Certains documents déposés au registre et numérisés peuvent ne pas être intégralement accessibles.",
+              "b2": "Les graphiques statistiques avancés peuvent nécessiter une lecture alternative.",
+              "b3": "Les contenus publiés avant la présente déclaration peuvent ne pas respecter l'intégralité du référentiel."
+            }
+          },
+          "etablissement": {
+            "kicker": "Établissement",
+            "title": "Établissement de cette déclaration",
+            "lead": "Cette déclaration a été établie le 1er septembre 2026.",
+            "facts": {
+              "tests": {
+                "label": "Tests effectués",
+                "value": "Vérifications réalisées sur les principales pages du portail."
+              },
+              "referentiel": {
+                "label": "Référentiel",
+                "value": "Référentiel général d'amélioration de l'accessibilité (RGAA)"
+              },
+              "outils": {
+                "label": "Outils",
+                "value": "Inspections manuelles et analyse de contraste."
+              }
+            }
+          },
+          "retour": {
+            "kicker": "Contact",
+            "title": "Retour d'information et contact",
+            "lead": "Si vous ne parvenez pas à accéder à un contenu ou à un service, vous pouvez nous le signaler.",
+            "paragraphs": {
+              "p1": "Écrivez-nous depuis la page contact du portail ou par courrier à l'adresse du Registre national des entreprises. Une réponse vous sera adressée dans les meilleurs délais."
+            }
+          },
+          "voiesRecours": {
+            "kicker": "Recours",
+            "title": "Voies de recours",
+            "lead": "Si vous estimez que votre demande n'a pas abouti, vous disposez des recours suivants.",
+            "bullets": {
+              "b1": "Écrire au médiateur des services publics astoriens.",
+              "b2": "Saisir l'autorité chargée de la défense des droits.",
+              "b3": "Saisir l'autorité administrative compétente en dernier recours."
+            }
+          }
+        }
+      },
+      "privacy": {
+        "meta": {
+          "title": "Confidentialité",
+          "description": "La politique de confidentialité du Registre national des entreprises d'Astoria : données collectées, finalités et droits."
+        },
+        "hero": {
+          "kicker": "Vos données",
+          "title": "Politique de confidentialité",
+          "lead": "Le RNEA traite vos données personnelles dans le respect de la réglementation astorienne sur la protection des données.",
+          "notice": "Cette politique s'applique au portail rnea.gouv.aor."
+        },
+        "sections": {
+          "responsable": {
+            "kicker": "Responsable",
+            "title": "Responsable de traitement",
+            "lead": "Le traitement des données personnelles est placé sous la responsabilité du Registre national des entreprises d'Astoria.",
+            "paragraphs": {
+              "p1": "Le responsable de traitement veille à ce que vos données soient collectées et utilisées de façon licite, loyale et transparente."
+            },
+            "facts": {
+              "responsable": {
+                "label": "Responsable",
+                "value": "Registre national des entreprises d'Astoria"
+              },
+              "adresse": {
+                "label": "Adresse",
+                "value": "Palais des entreprises, Astoria"
+              },
+              "dpo": {
+                "label": "Délégué à la protection des données",
+                "value": "dpo@rnea.gouv.aor"
+              }
+            }
+          },
+          "donnees": {
+            "kicker": "Collecte",
+            "title": "Données collectées",
+            "lead": "Le portail collecte uniquement les données nécessaires au fonctionnement de ses services.",
+            "bullets": {
+              "b1": "Les données que vous saisissez dans les formulaires de contact et d'abonnement.",
+              "b2": "Les données de connexion (adresse IP, journal) pour sécuriser le service.",
+              "b3": "Les données de mesure d'audience, anonymisées, pour améliorer le portail.",
+              "b4": "Aucune donnée personnelle n'est collectée lors d'une simple consultation du registre."
+            }
+          },
+          "finalites": {
+            "kicker": "Finalités",
+            "title": "Finalités et bases légales",
+            "lead": "Chaque traitement répond à une finalité précise et repose sur une base légale.",
+            "paragraphs": {
+              "p1": "Les données sont traitées pour répondre à vos demandes, assurer la sécurité du portail et mesurer son audience.",
+              "p2": "Les traitements reposent sur l'exécution de missions de service public et, pour les mesures d'audience, sur votre consentement."
+            }
+          },
+          "conservation": {
+            "kicker": "Conservation",
+            "title": "Durée de conservation",
+            "lead": "Les données ne sont conservées que le temps nécessaire à la finalité du traitement.",
+            "facts": {
+              "duree": {
+                "label": "Durée",
+                "value": "Conformément aux durées légales de conservation en vigueur."
+              },
+              "critere": {
+                "label": "Critère",
+                "value": "La finalité du traitement et les obligations légales."
+              }
+            }
+          },
+          "droits": {
+            "kicker": "Vos droits",
+            "title": "Vos droits",
+            "lead": "Vous disposez de droits sur vos données personnelles.",
+            "bullets": {
+              "b1": "Le droit d'accès à vos données.",
+              "b2": "Le droit de rectification des données inexactes.",
+              "b3": "Le droit d'opposition, dans certaines conditions.",
+              "b4": "Le droit à l'effacement, dans les cas prévus par la loi.",
+              "b5": "Le droit de retirer votre consentement pour les mesures d'audience."
+            }
+          },
+          "cookies": {
+            "kicker": "Cookies",
+            "title": "Cookies et mesure d'audience",
+            "lead": "Le portail dépose des cookies de mesure d'audience, soumis à votre consentement.",
+            "paragraphs": {
+              "p1": "Vous pouvez configurer votre consentement à tout moment depuis la page de gestion des cookies."
+            },
+            "notice": "Aucun cookie publicitaire n'est déposé par le portail.",
+            "cta": "Gérer mes cookies"
+          }
+        }
+      },
+      "cookies": {
+        "meta": {
+          "title": "Gestion des cookies",
+          "description": "La politique de cookies du Registre national des entreprises d'Astoria : familles de cookies déposés et leur gestion."
+        },
+        "hero": {
+          "kicker": "Cookies",
+          "title": "Gestion des cookies",
+          "lead": "Le portail dépose des cookies de mesure d'audience pour comprendre son usage et améliorer ses services.",
+          "notice": "Vos choix sont conservés pour une durée de six mois."
+        },
+        "sections": {
+          "definition": {
+            "kicker": "Définition",
+            "title": "Qu'est-ce qu'un cookie ?",
+            "lead": "Un cookie est un petit fichier déposé sur votre terminal lors de la visite d'un site.",
+            "paragraphs": {
+              "p1": "Il permet de reconnaître votre navigateur et de mémoriser certaines informations pour la durée de votre visite ou pour des visites ultérieures.",
+              "p2": "Certains cookies sont indispensables au fonctionnement du site, d'autres nécessitent votre consentement."
+            }
+          },
+          "cookiesDeposes": {
+            "kicker": "Inventaire",
+            "title": "Cookies déposés",
+            "lead": "Le portail dépose les familles de cookies suivantes.",
+            "table": {
+              "caption": "Familles de cookies déposés par le portail",
+              "headers": {
+                "0": "Famille",
+                "1": "Finalité",
+                "2": "Durée"
+              },
+              "rows": {
+                "0": {
+                  "0": "Mesure d'audience",
+                  "1": "Mesure anonyme de la fréquentation du portail",
+                  "2": "13 mois"
+                },
+                "1": {
+                  "0": "Fonctionnement",
+                  "1": "Mémorisation de vos préférences d'affichage",
+                  "2": "Session"
+                },
+                "2": {
+                  "0": "Consentement",
+                  "1": "Mémorisation de vos choix de cookies",
+                  "2": "6 mois"
+                },
+                "3": {
+                  "0": "Sécurité",
+                  "1": "Protection du portail contre les usages abusifs",
+                  "2": "Session"
+                }
+              },
+              "note": "Aucun cookie publicitaire n'est déposé par le portail."
+            }
+          },
+          "gestion": {
+            "kicker": "Vos choix",
+            "title": "Gestion des cookies",
+            "lead": "Vous pouvez configurer le dépôt des cookies à tout moment.",
+            "bullets": {
+              "b1": "Depuis le bandeau de consentement affiché lors de votre première visite.",
+              "b2": "En configurant votre navigateur pour refuser ou limiter les cookies.",
+              "b3": "En contactant le délégué à la protection des données du registre."
+            },
+            "notice": "Le refus des cookies de mesure d'audience n'altère pas le fonctionnement du portail."
+          }
+        }
+      },
+      "terms": {
+        "meta": {
+          "title": "Conditions d'utilisation",
+          "description": "Les conditions d'utilisation du portail du Registre national des entreprises d'Astoria."
+        },
+        "hero": {
+          "kicker": "Utilisation",
+          "title": "Conditions d'utilisation",
+          "lead": "Le présent document définit les conditions d'utilisation du portail rnea.gouv.aor.",
+          "notice": "Ces conditions s'appliquent à l'ensemble des contenus et services du portail."
+        },
+        "sections": {
+          "objet": {
+            "kicker": "Objet",
+            "title": "Objet du portail",
+            "lead": "Le portail a pour objet de faciliter l'accès aux informations et aux services du registre.",
+            "paragraphs": {
+              "p1": "Il met à disposition des informations sur les entreprises, les formalités, les documents officiels et les données publiques du registre.",
+              "p2": "Les informations publiées ont un caractère informatif et n'engagent pas la responsabilité du registre en cas d'usage commercial inapproprié."
+            }
+          },
+          "utilisation": {
+            "kicker": "Usage",
+            "title": "Utilisation du portail",
+            "lead": "Le portail est librement accessible à toute personne physique ou morale.",
+            "bullets": {
+              "b1": "L'utilisation du portail est gratuite pour la consultation publique.",
+              "b2": "Les données publiées peuvent être réutilisées dans le respect de la licence applicable.",
+              "b3": "Il est interdit d'utiliser le portail pour accéder à des informations de façon frauduleuse.",
+              "b4": "Les comptes et espaces personnels sont strictement personnels et non cessibles."
+            }
+          },
+          "contenus": {
+            "kicker": "Contenus",
+            "title": "Contenus et données",
+            "lead": "Les contenus du portail sont fournis avec la plus grande attention.",
+            "paragraphs": {
+              "p1": "Les données du registre proviennent de sources officielles et sont mises à jour régulièrement.",
+              "p2": "En cas d'erreur constatée, vous pouvez nous la signaler afin qu'elle soit corrigée dans les meilleurs délais."
+            }
+          },
+          "responsabilite": {
+            "kicker": "Responsabilité",
+            "title": "Responsabilité",
+            "lead": "Le registre s'efforce d'assurer la disponibilité et l'exactitude des informations.",
+            "paragraphs": {
+              "p1": "Le registre ne peut être tenu responsable d'une indisponibilité temporaire du portail ni d'un usage des informations contraire à leur destination.",
+              "p2": "L'utilisateur est responsable de l'usage qu'il fait des informations issues du portail."
+            }
+          },
+          "liens": {
+            "kicker": "Liens",
+            "title": "Liens externes",
+            "lead": "Le portail peut proposer des liens vers d'autres services publics astoriens.",
+            "paragraphs": {
+              "p1": "Le registre n'exerce aucun contrôle sur le contenu de ces services et décline toute responsabilité à leur égard."
+            }
+          },
+          "modification": {
+            "kicker": "Évolution",
+            "title": "Modification des conditions",
+            "lead": "Les présentes conditions peuvent évoluer pour tenir compte des évolutions du service.",
+            "paragraphs": {
+              "p1": "Toute modification prend effet à la date de sa publication sur le portail."
+            },
+            "notice": "Nous vous invitons à consulter régulièrement cette page."
+          }
+        }
+      }
+    },
+    "contact": {
+      "meta": {
+        "title": "Contact",
+        "description": "Contacter le Registre national des entreprises d'Astoria : formulaire de contact et canaux de communication."
+      },
+      "hero": {
+        "kicker": "Contact",
+        "title": "Contacter le RNEA",
+        "lead": "Une question sur le registre, une formalité ou un document ? Écrivez-nous, nous vous répondrons dans les meilleurs délais."
+      },
+      "formSection": {
+        "kicker": "Écrivez-nous",
+        "title": "Formulaire de contact",
+        "lead": "Complétez le formulaire pour adresser votre demande au service concerné."
+      },
+      "channels": {
+        "kicker": "Autres canaux",
+        "title": "Nous joindre autrement",
+        "lead": "Le RNEA est également joignable par courrier et par téléphone.",
+        "facts": {
+          "email": {
+            "label": "Courriel",
+            "value": "contact@rnea.gouv.aor"
+          },
+          "phone": {
+            "label": "Téléphone",
+            "value": "+33 1 00 00 00 00"
+          },
+          "address": {
+            "label": "Adresse",
+            "value": "Registre national des entreprises, Place des Entreprises, Astoria"
+          },
+          "hours": {
+            "label": "Horaires",
+            "value": "Du lundi au vendredi, de 9h à 17h"
+          }
+        }
+      },
+      "recipients": {
+        "presidence": "Présidence",
+        "communications": "Direction des communications",
+        "presse": "Presse",
+        "monnaie": "Affaires économiques",
+        "etablissements": "Entreprises et établissements"
+      },
+      "form": {
+        "requiredField": "Ce champ est obligatoire.",
+        "invalidEmail": "Veuillez saisir une adresse électronique valide.",
+        "recipientLabel": "Service destinataire",
+        "selectRecipient": "Sélectionnez un service",
+        "presidency": "Présidence",
+        "nameLabel": "Votre nom",
+        "namePlaceholder": "Prénom et nom",
+        "emailFieldLabel": "Votre adresse électronique",
+        "emailPlaceholder": "nom@exemple.aor",
+        "subjectLabel": "Objet de la demande",
+        "subjectPlaceholder": "Résumez votre demande",
+        "messageLabel": "Votre message",
+        "messagePlaceholder": "Décrivez votre demande en quelques lignes",
+        "sendButton": "Envoyer"
+      }
+    },
+    "sitemap": {
+      "meta": {
+        "title": "Plan du portail",
+        "description": "Le plan du portail du Registre national des entreprises d'Astoria."
+      },
+      "hero": {
+        "kicker": "Plan du portail",
+        "title": "Plan du portail",
+        "lead": "Retrouvez l'ensemble des rubriques et des pages du portail du Registre national des entreprises d'Astoria."
+      },
+      "sections": {
+        "portail": {
+          "kicker": "Navigation",
+          "title": "Les rubriques du portail",
+          "lead": "La navigation principale du portail, organisée en sept thèmes."
+        },
+        "transversal": {
+          "kicker": "Utilitaires",
+          "title": "Pages transversales",
+          "lead": "Les pages utilitaires et les informations légales du portail.",
+          "links": {
+            "contact": "Contact",
+            "accessibility": "Déclaration d'accessibilité",
+            "privacy": "Confidentialité",
+            "terms": "Conditions d'utilisation",
+            "cookies": "Gestion des cookies",
+            "publications": "Publications officielles",
+            "documentsOpposables": "Documents opposables"
+          }
+        }
+      }
+    }
+  }
+}

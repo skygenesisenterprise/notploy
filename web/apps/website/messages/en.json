@@ -1,0 +1,1014 @@
+{
+  "brand": {
+    "republicName": "Republic of Astoria"
+  },
+  "common": {
+    "skipToContent": "Skip to content",
+    "skipToFooter": "Skip to footer",
+    "backToTop": {
+      "ariaLabel": "Back to top"
+    },
+    "cookiePopup": {
+      "ariaLabel": "Cookie management",
+      "title": "Your privacy",
+      "message": "We use audience measurement cookies to improve your experience and the quality of the service.",
+      "accept": "Accept all",
+      "decline": "Decline all",
+      "manage": "Manage my choices"
+    }
+  },
+  "header": {
+    "homeTitle": "National Office of the Business Register — Home",
+    "serviceTitle": "National Office of the Business Register",
+    "serviceTagline": "RNEA — the official business register of Astoria",
+    "myGouv": "My account",
+    "accountLabel": "My account",
+    "logoutLink": "Log out",
+    "account": {
+      "profile": "My profile",
+      "settings": "My settings"
+    }
+  },
+  "meta": {
+    "defaultTitle": "National Business Register of Astoria",
+    "suffix": "RNEA · National Business Register of Astoria",
+    "description": "The National Business Register of Astoria (RNEA): company search, formalities, official documents, intellectual property and public data.",
+    "searchPlaceholder": "Search for a business or a registration number"
+  },
+  "footer": {
+    "contentDescription": "National Business Register of Astoria — the official source of information on businesses and their formalities.",
+    "bottom": {
+      "contact": "Contact",
+      "planDuPortail": "Sitemap",
+      "documentsOpposables": "Enforceable documents",
+      "privacy": "Privacy",
+      "cookies": "Cookie management",
+      "publications": "Official publications"
+    },
+    "license": "Unless otherwise stated, all content on this site is under the <link>APSL licence</link>."
+  },
+  "nav": {
+    "primary": {
+      "entreprises": "Businesses",
+      "registre": "Register",
+      "formalites": "Formalities",
+      "proprieteIntellectuelle": "Intellectual property",
+      "documents": "Documents",
+      "donnees": "Data",
+      "rnea": "RNEA"
+    },
+    "panel": {
+      "entreprises": {
+        "title": "Businesses",
+        "text": "Find, create, amend or cease a business in the national register.",
+        "allLink": "All about businesses",
+        "rechercher": {
+          "title": "Find a business",
+          "simple": "Simple search",
+          "parSiren": "Search by SIREN",
+          "parDirigeant": "Search by director",
+          "avancee": "Advanced search"
+        },
+        "creer": {
+          "title": "Create a business",
+          "conditionsImmatriculation": "Registration requirements",
+          "declarationActivite": "Business activity declaration",
+          "formalitesCreation": "Creation formalities",
+          "suiviCreation": "Track the creation"
+        },
+        "modifier": {
+          "title": "Amend a business",
+          "changementDirigeant": "Change of director",
+          "changementAdresse": "Change of address",
+          "modificationActivite": "Change of activity",
+          "miseAJourInformations": "Update the information"
+        },
+        "cesser": {
+          "title": "Cease an activity",
+          "declarationCessation": "Ceasing declaration",
+          "radiation": "Deregistration",
+          "transmission": "Transfer of a business",
+          "suitesCessation": "After the cessation"
+        }
+      },
+      "registre": {
+        "title": "Register",
+        "text": "Browse registered businesses, their establishments, their directors and the history of the register.",
+        "allLink": "All about the register",
+        "entreprisesEnregistrees": {
+          "title": "Registered businesses",
+          "liste": "List of businesses",
+          "dernieresImmatriculations": "Latest registrations",
+          "etatDuRegistre": "State of the register",
+          "publicationsLegales": "Legal publications"
+        },
+        "etablissements": {
+          "title": "Establishments",
+          "liste": "List of establishments",
+          "parRegion": "Establishments by region",
+          "ouvertureFermeture": "Opening and closure",
+          "rechercher": "Find an establishment"
+        },
+        "dirigeants": {
+          "title": "Directors",
+          "liste": "List of directors",
+          "fonctionsMandats": "Functions and mandates",
+          "incompatibilites": "Incompatibilities and bans",
+          "rechercher": "Find a director"
+        },
+        "historique": {
+          "title": "History of the register",
+          "evenements": "Business life events",
+          "anciennesDenominations": "Former names",
+          "transfertsFusions": "Transfers and mergers",
+          "archives": "Register archives"
+        }
+      },
+      "formalites": {
+        "title": "Formalities",
+        "text": "Complete the legal formalities of businesses: creation, amendment and cessation.",
+        "allLink": "All the formalities",
+        "toutes": {
+          "title": "All the formalities",
+          "parType": "Formalities by type",
+          "enCours": "Ongoing formalities",
+          "historique": "History of formalities",
+          "coutsDelais": "Costs and deadlines"
+        },
+        "creation": {
+          "title": "Creation",
+          "immatriculation": "Registration",
+          "debutActivite": "Start-of-activity declaration",
+          "simplifiees": "Simplified formalities",
+          "documentsFournir": "Documents to provide"
+        },
+        "modification": {
+          "title": "Amendment",
+          "enregistrables": "Recordable amendments",
+          "declaration": "Amendment declaration",
+          "piecesJustificatives": "Supporting documents",
+          "delaisOppositions": "Deadlines and objections"
+        },
+        "cessation": {
+          "title": "Cessation",
+          "declaration": "Ceasing declaration",
+          "radiation": "Deregistration",
+          "transmissionUniverselle": "Universal transfer",
+          "liquidation": "Liquidation"
+        }
+      },
+      "proprieteIntellectuelle": {
+        "title": "Intellectual property",
+        "text": "Protect your creations: trademarks, patents, designs and models.",
+        "allLink": "All about intellectual property",
+        "marques": {
+          "title": "Trademarks",
+          "deposer": "File a trademark",
+          "rechercher": "Search a trademark",
+          "renouveler": "Renew a trademark",
+          "contester": "Challenge a trademark"
+        },
+        "brevets": {
+          "title": "Patents",
+          "deposer": "File a patent",
+          "rechercher": "Search a patent",
+          "dureeEtendue": "Duration and scope",
+          "contester": "Challenge a patent"
+        },
+        "dessinsEtModeles": {
+          "title": "Designs and models",
+          "deposer": "File a design or model",
+          "rechercher": "Search",
+          "protectionDuree": "Protection and duration",
+          "contester": "Challenge"
+        },
+        "informations": {
+          "title": "Intellectual property",
+          "questCeQue": "What is intellectual property?",
+          "droitsCreateurs": "Creators' rights",
+          "cadreJuridique": "Legal framework",
+          "aidesConseils": "Help and advice"
+        }
+      },
+      "documents": {
+        "title": "Documents",
+        "text": "Obtain and verify the official documents of the register: extracts, certificates and filed documents.",
+        "allLink": "All the documents",
+        "extraits": {
+          "title": "RNEA extracts",
+          "commander": "Order an extract",
+          "extraitK": "K extract",
+          "immatriculation": "Registration extract",
+          "certifie": "Certified extract"
+        },
+        "certificats": {
+          "title": "Certificates",
+          "existence": "Certificate of existence",
+          "immatriculation": "Certificate of registration",
+          "attestations": "Attestations",
+          "legalisation": "Legalisation"
+        },
+        "documentsDeposes": {
+          "title": "Filed documents",
+          "actes": "Filed deeds",
+          "etatsFinanciers": "Financial statements",
+          "conventions": "Agreements and contracts",
+          "consultation": "Online consultation"
+        },
+        "verifier": {
+          "title": "Verify a document",
+          "piece": "Verify a document",
+          "extrait": "Verify an extract",
+          "authenticite": "Authenticity of documents",
+          "securiteFraude": "Security and fraud"
+        }
+      },
+      "donnees": {
+        "title": "Data",
+        "text": "Access the public data of the register: open data, statistics, APIs and downloads.",
+        "allLink": "All the data",
+        "donneesOuvertes": {
+          "title": "Open data",
+          "jeuxDeDonnees": "Datasets",
+          "licence": "Open licence",
+          "qualite": "Data quality",
+          "reutilisation": "Reuse"
+        },
+        "statistiques": {
+          "title": "Statistics",
+          "chiffresCles": "Key figures",
+          "creationsCessations": "Creations and cessations",
+          "repartitionSectorielle": "Sector breakdown",
+          "rapportsAnnuel": "Annual reports"
+        },
+        "api": {
+          "title": "API",
+          "acces": "API access",
+          "documentation": "Documentation",
+          "guidesTechniques": "Technical guides",
+          "statutService": "Service status"
+        },
+        "telechargements": {
+          "title": "Downloads",
+          "fichiers": "Register files",
+          "misesAJour": "Updates",
+          "formats": "Available formats",
+          "extraction": "Custom extraction"
+        }
+      },
+      "rnea": {
+        "title": "RNEA",
+        "text": "Discover the National Business Register of Astoria, its missions, its fees and its support.",
+        "allLink": "All about the RNEA",
+        "aPropos": {
+          "title": "About the RNEA",
+          "questCeQue": "What is the RNEA?",
+          "missions": "Missions",
+          "organisation": "Organisation",
+          "textesFondateurs": "Founding texts"
+        },
+        "tarifs": {
+          "title": "Fees",
+          "formalites": "Fees for formalities",
+          "documents": "Fees for documents",
+          "gratuitesExonerations": "Free services and exemptions",
+          "paiement": "Payment methods"
+        },
+        "aide": {
+          "title": "Help",
+          "questionsFrequentes": "Frequently asked questions",
+          "guidesTutoriels": "Guides and tutorials",
+          "demarchesPasAPas": "Step-by-step procedures",
+          "glossaire": "Glossary"
+        },
+        "contact": {
+          "title": "Contact",
+          "nousContacter": "Contact us",
+          "horaires": "Opening hours",
+          "servicesEnLigne": "Online services",
+          "pressePartenaires": "Press and partners"
+        }
+      }
+    }
+  },
+  "home": {
+    "metaTitle": "National Business Register of Astoria",
+    "hero": {
+      "kicker": "Official business register of Astoria",
+      "title": "National Business Register of Astoria",
+      "lead": "The RNEA is the official source of information on Astorian businesses: identity, directors, formalities and legal documents.",
+      "ctaSearch": "Find a business",
+      "ctaFormality": "Complete a formality"
+    },
+    "search": {
+      "title": "Search the register",
+      "label": "Find a business",
+      "placeholder": "Company name or RNEA number",
+      "popularLabel": "Popular searches:",
+      "popular": {
+        "company": "Company name",
+        "rneaNumber": "RNEA number",
+        "establishment": "Establishment",
+        "director": "Director"
+      }
+    },
+    "consult": {
+      "kicker": "Browse the register",
+      "title": "Search the RNEA",
+      "lead": "Query the national register like a registry office would: a business, an RNEA number, an establishment or a director.",
+      "note": "Information on directors is available where the law makes it public.",
+      "items": {
+        "company": {
+          "title": "Find a business",
+          "desc": "Identity, legal form, capital, seat and activity."
+        },
+        "rneaNumber": {
+          "title": "Search by RNEA number",
+          "desc": "Reach a business directly through its unique identifier."
+        },
+        "establishment": {
+          "title": "Find an establishment",
+          "desc": "Registered seats and secondary establishments."
+        },
+        "director": {
+          "title": "Find a director",
+          "desc": "Registered directors, mandates and functions."
+        }
+      }
+    },
+    "understand": {
+      "kicker": "Understand",
+      "title": "Understand the RNEA",
+      "lead": "The register centralises and publishes the legal information of businesses to secure Astoria's economic life.",
+      "items": {
+        "what": {
+          "title": "The official register",
+          "desc": "The RNEA is the single national register of businesses incorporated in Astoria."
+        },
+        "role": {
+          "title": "An economic role",
+          "desc": "It guarantees the identity of businesses and secures exchanges between business partners."
+        },
+        "centralizes": {
+          "title": "Centralised information",
+          "desc": "Registrations, amendments, cessations and legal documents are brought together in one place."
+        },
+        "public": {
+          "title": "Public data",
+          "desc": "Essential business information is freely available to everyone."
+        }
+      }
+    },
+    "create": {
+      "kicker": "Create",
+      "title": "Create a business",
+      "lead": "From the creation formality to running the activity, the RNEA supports you at every step.",
+      "steps": {
+        "formalites": "File the creation formality",
+        "enregistrement": "Get registered",
+        "identifiant": "Receive your RNEA number",
+        "activite": "Run your activity"
+      },
+      "cta": "Create a business",
+      "secondaryCta": "See the creation formalities"
+    },
+    "manage": {
+      "kicker": "Manage",
+      "title": "Manage your business",
+      "lead": "The RNEA covers the whole life of a business: keep your information up to date, from the seat to the cessation of activity.",
+      "items": {
+        "modify": {
+          "title": "Amend the information",
+          "desc": "Update the details of the business."
+        },
+        "seat": {
+          "title": "Change the seat",
+          "desc": "Declare the transfer of the registered office."
+        },
+        "establishment": {
+          "title": "Declare an establishment",
+          "desc": "Open or close a secondary establishment."
+        },
+        "directors": {
+          "title": "Change the directors",
+          "desc": "Declare changes of directors."
+        },
+        "cease": {
+          "title": "Cease the activity",
+          "desc": "Declare the cessation and the deregistration."
+        }
+      }
+    },
+    "documents": {
+      "kicker": "Obtain",
+      "title": "Official documents",
+      "lead": "Obtain and verify the official documents of the register: extracts, certificates and filed documents.",
+      "items": {
+        "extraits": {
+          "title": "RNEA extracts",
+          "desc": "The legal snapshot of a business at a given date."
+        },
+        "certificats": {
+          "title": "Certificates",
+          "desc": "Certificates of existence, registration and legalisation."
+        },
+        "deposes": {
+          "title": "Filed documents",
+          "desc": "Deeds, financial statements and agreements available online."
+        },
+        "verifier": {
+          "title": "Verify a document",
+          "desc": "Check the authenticity of an official register document."
+        }
+      },
+      "verifyTitle": "Verify the authenticity of a document",
+      "verifyText": "Any document issued by the RNEA can be verified online to confirm that it is authentic and up to date.",
+      "verifyLink": "How do I verify a document?"
+    },
+    "pi": {
+      "kicker": "Protect",
+      "title": "Intellectual property",
+      "lead": "Filing and protecting your creations is part of the RNEA ecosystem, distinct from the business register.",
+      "items": {
+        "marques": {
+          "title": "Trademarks",
+          "desc": "File, search and renew a trademark."
+        },
+        "brevets": {
+          "title": "Patents",
+          "desc": "Protect an invention with a patent."
+        },
+        "dessins": {
+          "title": "Designs and models",
+          "desc": "Protect the appearance of a product."
+        },
+        "informations": {
+          "title": "General information",
+          "desc": "Understand intellectual property rights."
+        }
+      }
+    },
+    "data": {
+      "kicker": "Explore",
+      "title": "Public data and API",
+      "lead": "The RNEA is a public digital infrastructure serving administrations, businesses, developers and researchers.",
+      "items": {
+        "open": {
+          "title": "Open data",
+          "desc": "The datasets of the register, freely reusable."
+        },
+        "stats": {
+          "title": "Statistics",
+          "desc": "Creations, cessations and register indicators."
+        },
+        "api": {
+          "title": "API",
+          "desc": "Query the register data automatically."
+        },
+        "downloads": {
+          "title": "Downloads",
+          "desc": "The register files, regularly updated."
+        }
+      },
+      "exploreCta": "Explore the data",
+      "apiCta": "API documentation"
+    },
+    "news": {
+      "kicker": "Information",
+      "title": "RNEA information",
+      "lead": "The latest developments of the register, its formalities and its services.",
+      "allLink": "Discover the RNEA",
+      "featured": {
+        "tag": "News",
+        "title": "The RNEA opens its data to reusers",
+        "text": "The essential data of the register can now be freely downloaded and reused for any project.",
+        "date": "September 2026"
+      },
+      "secondary": {
+        "extraits": {
+          "tag": "Formalities",
+          "title": "Order an extract online, without travelling",
+          "date": "September 2026"
+        },
+        "maintenance": {
+          "tag": "Maintenance",
+          "title": "Planned service interruption on Sunday",
+          "date": "August 2026"
+        },
+        "donnees": {
+          "tag": "Data",
+          "title": "Monthly update of the datasets",
+          "date": "August 2026"
+        }
+      }
+    },
+    "institution": {
+      "kicker": "The RNEA",
+      "title": "A register serving businesses",
+      "lead": "Discover the institution, its fees and the support available for your procedures.",
+      "links": {
+        "aPropos": {
+          "title": "About the RNEA"
+        },
+        "tarifs": {
+          "title": "Fees"
+        },
+        "aide": {
+          "title": "Help"
+        },
+        "contact": {
+          "title": "Contact"
+        }
+      }
+    },
+    "preferences": {
+      "kicker": "My space",
+      "title": "Manage my preferences",
+      "lead": "Choose how the RNEA may contact you.",
+      "demoNote": "Demonstration example: no personal data is stored.",
+      "cta": "Go to my preferences",
+      "items": {
+        "appels": {
+          "channel": "Calls",
+          "status": "Allowed"
+        },
+        "sms": {
+          "channel": "SMS",
+          "status": "Allowed"
+        },
+        "courriers": {
+          "channel": "Mail",
+          "status": "Refused"
+        }
+      }
+    }
+  },
+  "stayInTouch": {
+    "newsletter": {
+      "title": "Receive the RNEA news",
+      "desc": "A monthly newsletter on the register, the formalities and the business data.",
+      "invalidEmail": "Please enter a valid email address.",
+      "label": "Email address",
+      "placeholder": "Your email address",
+      "submit": "Subscribe",
+      "success": "Your subscription has been registered.",
+      "hint": "Your data is only used to send you the newsletter."
+    },
+    "follow": {
+      "title": "Follow the RNEA",
+      "items": {
+        "x": "X (Twitter)",
+        "facebook": "Facebook",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "threads": "Threads"
+      }
+    }
+  },
+  "pages": {
+    "legal": {
+      "meta": {
+        "title": "Legal information",
+        "description": "The legal information of the portal: accessibility statement, privacy, terms of use and cookies."
+      },
+      "landing": {
+        "hero": {
+          "kicker": "Legal information",
+          "title": "Legal information of the portal",
+          "lead": "The legal and reference documents of the National Business Register of Astoria.",
+          "notice": "This information is regularly updated."
+        }
+      },
+      "related": {
+        "title": "Legal information",
+        "kicker": "In the same section",
+        "accessibility": {
+          "label": "Accessibility statement",
+          "desc": "The compliance status and accessibility policy of the portal."
+        },
+        "privacy": {
+          "label": "Privacy",
+          "desc": "How your personal data is processed."
+        },
+        "terms": {
+          "label": "Terms of use",
+          "desc": "The rules for using the portal."
+        },
+        "cookies": {
+          "label": "Cookie management",
+          "desc": "The cookies set by the portal and how to manage them."
+        },
+        "sitemap": {
+          "label": "Sitemap",
+          "desc": "The complete structure of the portal."
+        }
+      },
+      "accessibility": {
+        "meta": {
+          "title": "Accessibility statement",
+          "description": "The accessibility statement of the National Business Register of Astoria."
+        },
+        "hero": {
+          "kicker": "Accessibility",
+          "title": "Accessibility statement",
+          "lead": "The National Business Register of Astoria is committed to making its portal accessible to everyone.",
+          "notice": "This accessibility statement applies to the rnea.gouv.aor portal."
+        },
+        "sections": {
+          "declaration": {
+            "kicker": "Commitment",
+            "title": "Statement of commitment",
+            "lead": "The RNEA is committed to making its portal accessible, in accordance with Astorian digital accessibility regulations.",
+            "paragraphs": {
+              "p1": "This statement describes the compliance status of the portal with the general accessibility framework, the non-accessible content and how to report a problem.",
+              "p2": "The register's management ensures that every new version of the portal maintains and improves its accessibility level."
+            }
+          },
+          "conformite": {
+            "kicker": "Compliance",
+            "title": "Compliance status",
+            "lead": "The portal is partially compliant with the applicable framework.",
+            "bullets": {
+              "b1": "Colour contrasts meet the recommended thresholds across all pages.",
+              "b2": "Keyboard navigation covers menus, search and forms.",
+              "b3": "Text content has textual alternatives where necessary."
+            }
+          },
+          "nonAccessibles": {
+            "kicker": "Limits",
+            "title": "Non-accessible content",
+            "lead": "Despite our vigilance, some content may have accessibility limitations.",
+            "bullets": {
+              "b1": "Some scanned documents filed with the register may not be fully accessible.",
+              "b2": "Advanced statistical charts may require an alternative reading.",
+              "b3": "Content published before this statement may not fully comply with the framework."
+            }
+          },
+          "etablissement": {
+            "kicker": "Establishment",
+            "title": "Establishment of this statement",
+            "lead": "This statement was established on 1 September 2026.",
+            "facts": {
+              "tests": {
+                "label": "Tests carried out",
+                "value": "Checks performed on the main pages of the portal."
+              },
+              "referentiel": {
+                "label": "Framework",
+                "value": "General framework for accessibility improvement (RGAA)"
+              },
+              "outils": {
+                "label": "Tools",
+                "value": "Manual inspections and contrast analysis."
+              }
+            }
+          },
+          "retour": {
+            "kicker": "Contact",
+            "title": "Feedback and contact",
+            "lead": "If you cannot access a content or a service, you can report it to us.",
+            "paragraphs": {
+              "p1": "Write to us through the contact page of the portal or by post to the address of the National Business Register. You will receive a response as soon as possible."
+            }
+          },
+          "voiesRecours": {
+            "kicker": "Recourse",
+            "title": "Recourse procedures",
+            "lead": "If you consider that your request has not been dealt with, the following recourses are available.",
+            "bullets": {
+              "b1": "Write to the Astorian public services ombudsman.",
+              "b2": "Contact the authority in charge of the defence of rights.",
+              "b3": "Contact the competent administrative authority as a last resort."
+            }
+          }
+        }
+      },
+      "privacy": {
+        "meta": {
+          "title": "Privacy",
+          "description": "The privacy policy of the National Business Register of Astoria: data collected, purposes and rights."
+        },
+        "hero": {
+          "kicker": "Your data",
+          "title": "Privacy policy",
+          "lead": "The RNEA processes your personal data in accordance with Astorian data protection regulations.",
+          "notice": "This policy applies to the rnea.gouv.aor portal."
+        },
+        "sections": {
+          "responsable": {
+            "kicker": "Controller",
+            "title": "Data controller",
+            "lead": "The processing of personal data is the responsibility of the National Business Register of Astoria.",
+            "paragraphs": {
+              "p1": "The data controller ensures that your data is collected and used lawfully, fairly and transparently."
+            },
+            "facts": {
+              "responsable": {
+                "label": "Controller",
+                "value": "National Business Register of Astoria"
+              },
+              "adresse": {
+                "label": "Address",
+                "value": "Business Palace, Astoria"
+              },
+              "dpo": {
+                "label": "Data protection officer",
+                "value": "dpo@rnea.gouv.aor"
+              }
+            }
+          },
+          "donnees": {
+            "kicker": "Collection",
+            "title": "Data collected",
+            "lead": "The portal only collects the data required to run its services.",
+            "bullets": {
+              "b1": "The data you enter in the contact and subscription forms.",
+              "b2": "Connection data (IP address, log) to secure the service.",
+              "b3": "Anonymised audience measurement data to improve the portal.",
+              "b4": "No personal data is collected during a simple consultation of the register."
+            }
+          },
+          "finalites": {
+            "kicker": "Purposes",
+            "title": "Purposes and legal bases",
+            "lead": "Each processing serves a specific purpose and is based on a legal ground.",
+            "paragraphs": {
+              "p1": "Data is processed to answer your requests, secure the portal and measure its audience.",
+              "p2": "The processing is based on the performance of public service missions and, for audience measurement, on your consent."
+            }
+          },
+          "conservation": {
+            "kicker": "Retention",
+            "title": "Retention period",
+            "lead": "Data is only kept for as long as needed for the purpose of the processing.",
+            "facts": {
+              "duree": {
+                "label": "Duration",
+                "value": "In accordance with the applicable legal retention periods."
+              },
+              "critere": {
+                "label": "Criterion",
+                "value": "The purpose of the processing and the legal obligations."
+              }
+            }
+          },
+          "droits": {
+            "kicker": "Your rights",
+            "title": "Your rights",
+            "lead": "You have rights over your personal data.",
+            "bullets": {
+              "b1": "The right of access to your data.",
+              "b2": "The right to rectify inaccurate data.",
+              "b3": "The right to object, under certain conditions.",
+              "b4": "The right to erasure, in the cases provided for by law.",
+              "b5": "The right to withdraw your consent for audience measurement."
+            }
+          },
+          "cookies": {
+            "kicker": "Cookies",
+            "title": "Cookies and audience measurement",
+            "lead": "The portal sets audience measurement cookies, subject to your consent.",
+            "paragraphs": {
+              "p1": "You can configure your consent at any time from the cookie management page."
+            },
+            "notice": "No advertising cookie is set by the portal.",
+            "cta": "Manage my cookies"
+          }
+        }
+      },
+      "cookies": {
+        "meta": {
+          "title": "Cookie management",
+          "description": "The cookie policy of the National Business Register of Astoria: cookie families used and how to manage them."
+        },
+        "hero": {
+          "kicker": "Cookies",
+          "title": "Cookie management",
+          "lead": "The portal sets audience measurement cookies to understand its usage and improve its services.",
+          "notice": "Your choices are kept for six months."
+        },
+        "sections": {
+          "definition": {
+            "kicker": "Definition",
+            "title": "What is a cookie?",
+            "lead": "A cookie is a small file stored on your device when you visit a website.",
+            "paragraphs": {
+              "p1": "It allows your browser to be recognised and certain information to be remembered for the duration of your visit or for later visits.",
+              "p2": "Some cookies are essential for the website to work, others require your consent."
+            }
+          },
+          "cookiesDeposes": {
+            "kicker": "Inventory",
+            "title": "Cookies set",
+            "lead": "The portal sets the following cookie families.",
+            "table": {
+              "caption": "Cookie families set by the portal",
+              "headers": {
+                "0": "Family",
+                "1": "Purpose",
+                "2": "Duration"
+              },
+              "rows": {
+                "0": {
+                  "0": "Audience measurement",
+                  "1": "Anonymous measurement of portal traffic",
+                  "2": "13 months"
+                },
+                "1": {
+                  "0": "Functioning",
+                  "1": "Storing your display preferences",
+                  "2": "Session"
+                },
+                "2": {
+                  "0": "Consent",
+                  "1": "Storing your cookie choices",
+                  "2": "6 months"
+                },
+                "3": {
+                  "0": "Security",
+                  "1": "Protecting the portal against abusive use",
+                  "2": "Session"
+                }
+              },
+              "note": "No advertising cookie is set by the portal."
+            }
+          },
+          "gestion": {
+            "kicker": "Your choices",
+            "title": "Cookie management",
+            "lead": "You can configure the use of cookies at any time.",
+            "bullets": {
+              "b1": "From the consent banner displayed on your first visit.",
+              "b2": "By configuring your browser to refuse or limit cookies.",
+              "b3": "By contacting the register's data protection officer."
+            },
+            "notice": "Refusing audience measurement cookies does not affect the operation of the portal."
+          }
+        }
+      },
+      "terms": {
+        "meta": {
+          "title": "Terms of use",
+          "description": "The terms of use of the National Business Register of Astoria portal."
+        },
+        "hero": {
+          "kicker": "Usage",
+          "title": "Terms of use",
+          "lead": "This document defines the terms of use of the rnea.gouv.aor portal.",
+          "notice": "These terms apply to all content and services of the portal."
+        },
+        "sections": {
+          "objet": {
+            "kicker": "Purpose",
+            "title": "Purpose of the portal",
+            "lead": "The portal aims to facilitate access to the information and services of the register.",
+            "paragraphs": {
+              "p1": "It provides information on businesses, formalities, official documents and public data of the register.",
+              "p2": "Published information is indicative only and does not hold the register liable in case of inappropriate commercial use."
+            }
+          },
+          "utilisation": {
+            "kicker": "Usage",
+            "title": "Using the portal",
+            "lead": "The portal is freely accessible to any natural or legal person.",
+            "bullets": {
+              "b1": "Using the portal is free of charge for public consultation.",
+              "b2": "Published data may be reused in accordance with the applicable licence.",
+              "b3": "It is forbidden to use the portal to access information fraudulently.",
+              "b4": "Accounts and personal spaces are strictly personal and non-transferable."
+            }
+          },
+          "contenus": {
+            "kicker": "Content",
+            "title": "Content and data",
+            "lead": "The content of the portal is provided with the greatest care.",
+            "paragraphs": {
+              "p1": "The register data comes from official sources and is updated regularly.",
+              "p2": "If you notice an error, you can report it so that it can be corrected as soon as possible."
+            }
+          },
+          "responsabilite": {
+            "kicker": "Liability",
+            "title": "Liability",
+            "lead": "The register strives to ensure the availability and accuracy of the information.",
+            "paragraphs": {
+              "p1": "The register cannot be held liable for a temporary unavailability of the portal or for any use of the information contrary to its purpose.",
+              "p2": "The user is responsible for the use they make of the information from the portal."
+            }
+          },
+          "liens": {
+            "kicker": "Links",
+            "title": "External links",
+            "lead": "The portal may provide links to other Astorian public services.",
+            "paragraphs": {
+              "p1": "The register has no control over the content of these services and declines all responsibility towards them."
+            }
+          },
+          "modification": {
+            "kicker": "Evolution",
+            "title": "Modification of the terms",
+            "lead": "These terms may evolve to reflect changes in the service.",
+            "paragraphs": {
+              "p1": "Any modification takes effect on the date of its publication on the portal."
+            },
+            "notice": "Please check this page regularly."
+          }
+        }
+      }
+    },
+    "contact": {
+      "meta": {
+        "title": "Contact",
+        "description": "Contact the National Business Register of Astoria: contact form and communication channels."
+      },
+      "hero": {
+        "kicker": "Contact",
+        "title": "Contact the RNEA",
+        "lead": "A question about the register, a formality or a document? Write to us, we will get back to you as soon as possible."
+      },
+      "formSection": {
+        "kicker": "Write to us",
+        "title": "Contact form",
+        "lead": "Complete the form to send your request to the relevant service."
+      },
+      "channels": {
+        "kicker": "Other channels",
+        "title": "Reach us otherwise",
+        "lead": "The RNEA can also be reached by post and by phone.",
+        "facts": {
+          "email": {
+            "label": "Email",
+            "value": "contact@rnea.gouv.aor"
+          },
+          "phone": {
+            "label": "Phone",
+            "value": "+33 1 00 00 00 00"
+          },
+          "address": {
+            "label": "Address",
+            "value": "National Business Register, Business Square, Astoria"
+          },
+          "hours": {
+            "label": "Opening hours",
+            "value": "Monday to Friday, 9am to 5pm"
+          }
+        }
+      },
+      "recipients": {
+        "presidence": "Presidency",
+        "communications": "Communications department",
+        "presse": "Press",
+        "monnaie": "Economic affairs",
+        "etablissements": "Businesses and establishments"
+      },
+      "form": {
+        "requiredField": "This field is required.",
+        "invalidEmail": "Please enter a valid email address.",
+        "recipientLabel": "Recipient service",
+        "selectRecipient": "Select a service",
+        "presidency": "Presidency",
+        "nameLabel": "Your name",
+        "namePlaceholder": "First and last name",
+        "emailFieldLabel": "Your email address",
+        "emailPlaceholder": "name@example.aor",
+        "subjectLabel": "Subject of the request",
+        "subjectPlaceholder": "Summarise your request",
+        "messageLabel": "Your message",
+        "messagePlaceholder": "Describe your request in a few lines",
+        "sendButton": "Send"
+      }
+    },
+    "sitemap": {
+      "meta": {
+        "title": "Sitemap",
+        "description": "The sitemap of the National Business Register of Astoria portal."
+      },
+      "hero": {
+        "kicker": "Sitemap",
+        "title": "Sitemap",
+        "lead": "Find all the sections and pages of the National Business Register of Astoria portal."
+      },
+      "sections": {
+        "portail": {
+          "kicker": "Navigation",
+          "title": "The sections of the portal",
+          "lead": "The main navigation of the portal, organised into seven themes."
+        },
+        "transversal": {
+          "kicker": "Utility",
+          "title": "Transversal pages",
+          "lead": "The utility pages and legal information of the portal.",
+          "links": {
+            "contact": "Contact",
+            "accessibility": "Accessibility statement",
+            "privacy": "Privacy",
+            "terms": "Terms of use",
+            "cookies": "Cookie management",
+            "publications": "Official publications",
+            "documentsOpposables": "Enforceable documents"
+          }
+        }
+      }
+    }
+  }
+}
