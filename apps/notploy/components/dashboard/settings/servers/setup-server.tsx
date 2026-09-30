@@ -157,7 +157,6 @@ export const SetupServer = ({ serverId, asButton = false }: Props) => {
 									<p className="text-primary text-base font-semibold">
 										You have two options to add SSH Keys to your server:
 									</p>
-
 									<ul>
 										<li>
 											1. Add the public SSH Key when you create a server in your
@@ -185,7 +184,6 @@ export const SetupServer = ({ serverId, asButton = false }: Props) => {
 											</div>
 										</div>
 									</div>
-
 									<div className="flex flex-col gap-2 w-full mt-2 border rounded-lg p-4">
 										<span className="text-base font-semibold text-primary">
 											Automatic process

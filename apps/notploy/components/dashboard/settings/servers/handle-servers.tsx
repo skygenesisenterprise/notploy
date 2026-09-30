@@ -50,11 +50,10 @@ const Schema = z.object({
 	}),
 	port: z.number().optional(),
 	username: z.string().optional(),
-	sshKeyId: z.string().min(1, {
-		message: "SSH Key is required",
-	}),
+	sshKeyId: z.string().optional(),
 	serverType: z.enum(["deploy", "build"]).default("deploy"),
 	enableDockerCleanup: z.boolean().default(true),
+	sshPassword: z.string().optional(),
 });
 
 type Schema = z.infer<typeof Schema>;
@@ -79,11 +78,22 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 		},
 	);
 
-	const { data: sshKeys } = api.sshKey.all.useQuery();
-	const { mutateAsync, error, isPending, isError } = serverId
-		? api.server.update.useMutation()
-		: api.server.create.useMutation();
-	const form = useForm({
+	const {
+		mutateAsync: createWithPassword,
+		error: createError,
+		isPending: isCreating,
+		isError: isCreateError,
+	} = api.server.createWithPassword.useMutation();
+	const {
+		mutateAsync: updateServer,
+		error: updateError,
+		isPending: isUpdating,
+		isError: isUpdateError,
+	} = api.server.update.useMutation();
+	const isPending = isCreating || isUpdating;
+	const error = serverId ? updateError : createError;
+	const isError = serverId ? isUpdateError : isCreateError;
+	const form = useForm<Schema>({
 		defaultValues: {
 			description: "",
 			name: "",
@@ -93,6 +103,7 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 			sshKeyId: "",
 			serverType: "deploy",
 			enableDockerCleanup: true,
+			sshPassword: "",
 		},
 		resolver: zodResolver(Schema),
 	});
@@ -104,9 +115,9 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 			ipAddress: data?.ipAddress || "",
 			port: data?.port || 22,
 			username: data?.username || "root",
-			sshKeyId: data?.sshKeyId || "",
 			serverType: data?.serverType || "deploy",
 			enableDockerCleanup: data?.enableDockerCleanup ?? true,
+			sshPassword: "",
 		});
 	}, [form, form.reset, form.formState.isSubmitSuccessful, data]);
 
@@ -115,28 +126,52 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 	}, [isOpen]);
 
 	const onSubmit = async (data: Schema) => {
-		await mutateAsync({
-			name: data.name,
-			description: data.description || "",
-			ipAddress: data.ipAddress?.trim() || "",
-			port: data.port || 22,
-			username: data.username || "root",
-			sshKeyId: data.sshKeyId || "",
-			serverType: data.serverType || "deploy",
-			enableDockerCleanup: data.enableDockerCleanup,
-			serverId: serverId || "",
-		})
-			.then(async (_data) => {
-				await utils.server.all.invalidate();
-				refetchServer();
-				toast.success(serverId ? "Server Updated" : "Server Created");
-				setIsOpen(false);
-			})
-			.catch(() => {
-				toast.error(
-					serverId ? "Error updating a server" : "Error creating a server",
-				);
-			});
+		try {
+			if (serverId) {
+				await updateServer({
+					name: data.name,
+					description: data.description || "",
+					ipAddress: data.ipAddress.trim(),
+					port: data.port || 22,
+					username: data.username || "root",
+					sshKeyId: data?.sshKeyId || "",
+					serverType: data.serverType,
+					enableDockerCleanup: data.enableDockerCleanup,
+					serverId,
+				});
+			} else {
+				if (!data.sshPassword) {
+					form.setError("sshPassword", {
+						message: "SSH password is required to connect this server.",
+					});
+					return;
+				}
+				await createWithPassword({
+					name: data.name,
+					description: data.description || "",
+					ipAddress: data.ipAddress.trim(),
+					port: data.port || 22,
+					username: data.username || "root",
+					sshPassword: data.sshPassword,
+					serverType: data.serverType,
+					enableDockerCleanup: data.enableDockerCleanup,
+				});
+			}
+
+			await utils.server.all.invalidate();
+			await refetchServer();
+			toast.success(serverId ? "Server updated" : "Server connected");
+			form.reset({ ...form.getValues(), sshPassword: "" });
+			setIsOpen(false);
+		} catch (submitError) {
+			toast.error(
+				submitError instanceof Error
+					? submitError.message
+					: serverId
+						? "Error updating server"
+						: "Error connecting server",
+			);
+		}
 	};
 
 	return (
@@ -163,78 +198,21 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 				<DialogTrigger asChild>
 					<Button className="cursor-pointer space-x-3">
 						<PlusIcon className="h-4 w-4" />
-						Create Server
+						Connect server
 					</Button>
 				</DialogTrigger>
 			)}
 			<DialogContent className="sm:max-w-3xl ">
 				<DialogHeader>
-					<DialogTitle>{serverId ? "Edit" : "Create"} Server</DialogTitle>
+					<DialogTitle>
+						{serverId ? "Edit server" : "Connect server"}
+					</DialogTitle>
 					<DialogDescription>
-						{serverId ? "Edit" : "Create"} a server to deploy your applications
-						remotely.
+						{serverId
+							? "Update the connection details and role for this execution server."
+							: "Connect an execution server. Notploy will install a dedicated SSH key using the credentials provided below."}
 					</DialogDescription>
 				</DialogHeader>
-				<div>
-					<p className="text-primary text-sm font-medium">
-						You may need to purchase or rent a Virtual Private Server (VPS) to
-						proceed. We recommend using one of these heavily tested providers:
-					</p>
-					<ul className="list-inside list-disc pl-4 text-sm text-muted-foreground mt-4">
-						<li>
-							<a
-								href="https://www.hostinger.com/vps-hosting?REFERRALCODE=1SIUMAURICI97"
-								className="text-link underline"
-							>
-								Hostinger - Get 20% Discount
-							</a>
-						</li>
-						<li>
-							<a
-								href=" https://app.americancloud.com/register?ref=notploy"
-								className="text-link underline"
-							>
-								American Cloud - Get $20 Credits
-							</a>
-						</li>
-						<li>
-							<a
-								href="https://m.do.co/c/db24efd43f35"
-								className="text-link underline"
-							>
-								DigitalOcean - Get $200 Credits
-							</a>
-						</li>
-						<li>
-							<a
-								href="https://hetzner.cloud/?ref=vou4fhxJ1W2D"
-								className="text-link underline"
-							>
-								Hetzner - Get €20 Credits
-							</a>
-						</li>
-						<li>
-							<a
-								href="https://www.vultr.com/?ref=9679828"
-								className="text-link underline"
-							>
-								Vultr
-							</a>
-						</li>
-						<li>
-							<a
-								href="https://www.linode.com/es/pricing/#compute-shared"
-								className="text-link underline"
-							>
-								Linode
-							</a>
-						</li>
-					</ul>
-					<AlertBlock className="mt-4 px-4">
-						You are free to use whatever provider, but we recommend to use one
-						of the above, to avoid issues.
-					</AlertBlock>
-				</div>
 				{!canCreateMoreServers && (
 					<AlertBlock type="warning" className="mt-4">
 						You cannot create more servers,{" "}
@@ -328,39 +306,6 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 								);
 							}}
 						/>
-						<FormField
-							control={form.control}
-							name="sshKeyId"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Select a SSH Key</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="Select a SSH Key" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectGroup>
-												{sshKeys?.map((sshKey) => (
-													<SelectItem
-														key={sshKey.sshKeyId}
-														value={sshKey.sshKeyId}
-													>
-														{sshKey.name}
-													</SelectItem>
-												))}
-												<SelectLabel>
-													Registries ({sshKeys?.length})
-												</SelectLabel>
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 						<div className="grid grid-cols-2 gap-4">
 							<FormField
 								control={form.control}
@@ -423,6 +368,30 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 								</FormItem>
 							)}
 						/>
+						{!serverId && (
+							<FormField
+								control={form.control}
+								name="sshPassword"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>SSH password</FormLabel>
+										<FormControl>
+											<Input
+												type="password"
+												enablePasswordGenerator={false}
+												autoComplete="new-password"
+												{...field}
+											/>
+										</FormControl>
+										<FormDescription>
+											Used once to add Notploy&apos;s SSH key to this account.
+											The password is not stored.
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 						<FormField
 							control={form.control}
 							name="enableDockerCleanup"
@@ -453,7 +422,7 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 							form="hook-form-add-server"
 							type="submit"
 						>
-							{serverId ? "Update" : "Create"}
+							{serverId ? "Update server" : "Connect server"}
 						</Button>
 					</DialogFooter>
 				</Form>

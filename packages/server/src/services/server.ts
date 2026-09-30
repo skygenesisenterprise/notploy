@@ -7,6 +7,7 @@ import {
 } from "@notploy/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
+import { Client } from "ssh2";
 import type { z } from "zod";
 
 export type Server = typeof server.$inferSelect;
@@ -96,6 +97,126 @@ export const deleteServer = async (serverId: string) => {
 	return currentServer;
 };
 
+const runSshCommandWithPassword = async ({
+	host,
+	port,
+	username,
+	password,
+	command,
+}: {
+	host: string;
+	port: number;
+	username: string;
+	password: string;
+	command: string;
+}) => {
+	return new Promise<void>((resolve, reject) => {
+		const client = new Client();
+		let settled = false;
+		const finish = (error?: Error) => {
+			if (settled) return;
+			settled = true;
+			clearTimeout(timeout);
+			client.end();
+			if (error) reject(error);
+			else resolve();
+		};
+		const timeout = setTimeout(
+			() => finish(new Error("SSH connection timed out")),
+			20_000,
+		);
+
+		client
+			.once("ready", () => {
+				client.exec(command, (error, stream) => {
+					if (error) {
+						finish(new Error(`Could not run SSH key setup: ${error.message}`));
+						return;
+					}
+
+					let stderr = "";
+					stream.stderr.on("data", (data: Buffer | string) => {
+						stderr += data.toString();
+					});
+					stream.once("close", (code: number | null) => {
+						if (code === 0) {
+							finish();
+						} else {
+							finish(
+								new Error(
+									stderr.trim() || `SSH key setup exited with code ${code}`,
+								),
+							);
+						}
+					});
+				});
+			})
+			.once("error", (error) => finish(error))
+			.connect({
+				host,
+				port,
+				username,
+				password,
+				readyTimeout: 20_000,
+				timeout: 20_000,
+			});
+	});
+};
+
+export const installSshKeyWithPassword = async ({
+	host,
+	port,
+	username,
+	password,
+	publicKey,
+}: {
+	host: string;
+	port: number;
+	username: string;
+	password: string;
+	publicKey: string;
+}) => {
+	const encodedPublicKey = Buffer.from(publicKey).toString("base64");
+	const keyExpression = `key=$(printf '%s' '${encodedPublicKey}' | base64 -d)`;
+	const authorizedKeys = '"$HOME/.ssh/authorized_keys"';
+	const prepareSshDirectory =
+		'umask 077; mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"; touch "$HOME/.ssh/authorized_keys"; chmod 600 "$HOME/.ssh/authorized_keys"';
+
+	await runSshCommandWithPassword({
+		host,
+		port,
+		username,
+		password,
+		command: `${prepareSshDirectory}; ${keyExpression}; if ! grep -qxF "$key" ${authorizedKeys}; then printf '%s\\n' "$key" >> ${authorizedKeys}; fi`,
+	});
+};
+
+export const removeSshKeyWithPassword = async ({
+	host,
+	port,
+	username,
+	password,
+	publicKey,
+}: {
+	host: string;
+	port: number;
+	username: string;
+	password: string;
+	publicKey: string;
+}) => {
+	const encodedPublicKey = Buffer.from(publicKey).toString("base64");
+	const keyExpression = `key=$(printf '%s' '${encodedPublicKey}' | base64 -d)`;
+	const authorizedKeys = '"$HOME/.ssh/authorized_keys"';
+
+	await runSshCommandWithPassword({
+		host,
+		port,
+		username,
+		password,
+		command: `${keyExpression}; if [ -f ${authorizedKeys} ]; then temp_file=$(mktemp); grep -vxF "$key" ${authorizedKeys} > "$temp_file"; status=$?; if [ "$status" -gt 1 ]; then rm -f "$temp_file"; exit "$status"; fi; cat "$temp_file" > ${authorizedKeys}; rm -f "$temp_file"; chmod 600 ${authorizedKeys}; fi`,
+	});
+};
+
 export const haveActiveServices = async (serverId: string) => {
 	const currentServer = await db.query.server.findFirst({
 		where: eq(server.serverId, serverId),
@@ -149,7 +270,9 @@ export interface ServerService {
 	type: (typeof SERVICE_TYPES_BY_SERVER)[number]["type"];
 	name: string;
 	projectId: string;
+	projectName: string;
 	environmentId: string;
+	environmentName: string;
 	url: string;
 }
 
@@ -215,7 +338,9 @@ export const getServicesByServerId = async (
 				type,
 				name: row.name,
 				projectId,
+				projectName: row.environment.project.name as string,
 				environmentId,
+				environmentName: row.environment.name as string,
 				url: `/dashboard/project/${projectId}/environment/${environmentId}/services/${type}/${row[idColumn]}`,
 			});
 		}

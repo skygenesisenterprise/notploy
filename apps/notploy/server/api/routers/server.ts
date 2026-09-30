@@ -5,13 +5,16 @@ import {
 	findServerById,
 	findServersByUserId,
 	findUserById,
+	generateSSHKey,
 	getAccessibleServerIds,
 	getPublicIpWithFallback,
 	getServicesByServerId,
 	haveActiveServices,
 	IS_CLOUD,
+	installSshKeyWithPassword,
 	redactServerSshKey,
 	removeDeploymentsByServerId,
+	removeSshKeyWithPassword,
 	serverAudit,
 	serverSetup,
 	serverValidate,
@@ -47,6 +50,7 @@ import {
 	postgres,
 	redis,
 	server,
+	sshKeys,
 } from "@/server/db/schema";
 import { applyDockerCleanupSchedule } from "@/server/utils/docker-cleanup";
 
@@ -93,6 +97,113 @@ export const serverRouter = createTRPCRouter({
 					cause: error,
 				});
 			}
+		}),
+	createWithPassword: withPermission("server", "create")
+		.input(
+			apiCreateServer.omit({ sshKeyId: true }).extend({
+				sshPassword: z.string().min(1),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const { sshPassword, ...serverInput } = input;
+			const user = await findUserById(ctx.user.ownerId);
+			const servers = await findServersByUserId(user.id);
+			if (IS_CLOUD && servers.length >= user.serversQuantity) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "You cannot create more servers",
+				});
+			}
+
+			const keyPair = await generateSSHKey("ed25519");
+			try {
+				await installSshKeyWithPassword({
+					host: serverInput.ipAddress,
+					port: serverInput.port,
+					username: serverInput.username,
+					password: sshPassword,
+					publicKey: keyPair.publicKey,
+				});
+			} catch (error) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message:
+						"Could not connect to the server or install its SSH key. Check the address, credentials, and that this account can write to its SSH authorized keys.",
+					cause: error,
+				});
+			}
+
+			let createdServer: typeof server.$inferSelect;
+			try {
+				const result = await db.transaction(async (tx) => {
+					const [sshKey] = await tx
+						.insert(sshKeys)
+						.values({
+							name: `${serverInput.name} managed key`,
+							description:
+								"Provisioned automatically when this server was connected.",
+							privateKey: keyPair.privateKey,
+							publicKey: keyPair.publicKey,
+							organizationId: ctx.session.activeOrganizationId,
+						})
+						.returning({ sshKeyId: sshKeys.sshKeyId });
+					if (!sshKey) {
+						throw new Error("Failed to save the generated SSH key");
+					}
+
+					const [newServer] = await tx
+						.insert(server)
+						.values({
+							...serverInput,
+							sshKeyId: sshKey.sshKeyId,
+							organizationId: ctx.session.activeOrganizationId,
+							createdAt: new Date().toISOString(),
+						})
+						.returning();
+					if (!newServer) {
+						throw new Error("Failed to save the server");
+					}
+					return newServer;
+				});
+				createdServer = result;
+			} catch (error) {
+				try {
+					await removeSshKeyWithPassword({
+						host: serverInput.ipAddress,
+						port: serverInput.port,
+						username: serverInput.username,
+						password: sshPassword,
+						publicKey: keyPair.publicKey,
+					});
+				} catch (cleanupError) {
+					console.error(
+						"Failed to remove automatically provisioned SSH key after server creation failed",
+						cleanupError,
+					);
+				}
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Server was connected but could not be saved.",
+					cause: error,
+				});
+			}
+
+			try {
+				await applyDockerCleanupSchedule(
+					createdServer.serverId,
+					ctx.session.activeOrganizationId,
+					serverInput.enableDockerCleanup,
+				);
+			} catch (error) {
+				console.error("Failed to schedule docker cleanup:", error);
+			}
+			await audit(ctx, {
+				action: "create",
+				resourceType: "server",
+				resourceId: createdServer.serverId,
+				resourceName: createdServer.name,
+			});
+			return createdServer;
 		}),
 
 	one: withPermission("server", "read")
@@ -164,7 +275,16 @@ export const serverRouter = createTRPCRouter({
 		const result = await db
 			.select({
 				...getTableColumns(server),
-				totalSum: sql<number>`cast(count(${applications.applicationId}) + count(${compose.composeId}) + count(${redis.redisId}) + count(${mariadb.mariadbId}) + count(${mongo.mongoId}) + count(${mysql.mysqlId}) + count(${postgres.postgresId}) as integer)`,
+				totalSum: sql<number>`cast(
+					count(distinct ${applications.applicationId}) +
+					count(distinct ${compose.composeId}) +
+					count(distinct ${redis.redisId}) +
+					count(distinct ${mariadb.mariadbId}) +
+					count(distinct ${mongo.mongoId}) +
+					count(distinct ${mysql.mysqlId}) +
+					count(distinct ${postgres.postgresId})
+					as integer
+				)`,
 			})
 			.from(server)
 			.leftJoin(applications, eq(applications.serverId, server.serverId))
@@ -180,7 +300,8 @@ export const serverRouter = createTRPCRouter({
 
 		return result.filter((s) => accessibleIds.has(s.serverId));
 	}),
-	allForPermissions: withPermission("member", "update").query(async ({ ctx }) => {
+	allForPermissions: withPermission("member", "update").query(
+		async ({ ctx }) => {
 			return await db.query.server.findMany({
 				columns: {
 					serverId: true,
@@ -191,7 +312,8 @@ export const serverRouter = createTRPCRouter({
 				orderBy: desc(server.createdAt),
 				where: eq(server.organizationId, ctx.session.activeOrganizationId),
 			});
-		}),
+		},
+	),
 	count: protectedProcedure.query(async ({ ctx }) => {
 		const organizations = await db.query.organization.findMany({
 			where: eq(organization.ownerId, ctx.user.id),

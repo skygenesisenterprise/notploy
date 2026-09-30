@@ -108,14 +108,14 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 			{
 				// Applications, Compose stacks and managed databases share this view.
 				label: "Services",
-				href: "/dashboard/overview",
+				href: "/dashboard/services",
 				icon: LayoutGrid,
 				activeTab: null,
 				isEnabled: ({ permissions }) => !!permissions?.service.read,
 			},
 			{
 				label: "Deployments",
-				href: "/dashboard/overview?tab=deployments",
+				href: "/dashboard/deployments",
 				icon: Rocket,
 				activeTab: "deployments",
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
@@ -158,7 +158,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Containers",
-						href: "/dashboard/docker?tab=containers",
+						href: "/dashboard/containers",
 						icon: Boxes,
 						activeTab: "containers",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -166,7 +166,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Swarm",
-						href: "/dashboard/docker?tab=swarm",
+						href: "/dashboard/swarm",
 						icon: Waypoints,
 						activeTab: "swarm",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -174,24 +174,12 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Images",
-						href: "/dashboard/docker?tab=images",
+						href: "/dashboard/images",
 						icon: Layers,
 						activeTab: "images",
 						isEnabled: ({ permissions, isCloud }) =>
 							!!(permissions?.docker.read && !isCloud),
-					},
-					{
-						label: "Health",
-						href: "/dashboard/docker?tab=health",
-						icon: HeartPulse,
-						activeTab: "health",
-						isEnabled: ({ permissions, isCloud }) =>
-							!!(
-								permissions?.docker.read &&
-								permissions?.server.read &&
-								!isCloud
-							),
-					},
+					}
 				],
 			},
 			{
@@ -200,7 +188,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				items: [
 					{
 						label: "Networks",
-						href: "/dashboard/docker?tab=networks",
+						href: "/dashboard/networks",
 						icon: Network,
 						activeTab: "networks",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -220,12 +208,12 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				items: [
 					{
 						label: "Storage",
-						href: "/dashboard/docker?tab=volumes",
+						href: "/dashboard/storage",
 						icon: HardDrive,
 						activeTab: "volumes",
 						isEnabled: ({ permissions, isCloud }) =>
 							!!(permissions?.docker.read && !isCloud),
-					}
+					},
 				],
 			},
 			{
@@ -248,7 +236,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 		items: [
 			{
 				label: "Events",
-				href: "/dashboard/docker?tab=events",
+				href: "/dashboard/events",
 				icon: Activity,
 				activeTab: "events",
 				isEnabled: ({ permissions, isCloud }) =>
@@ -266,12 +254,6 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/settings/secrets",
 				icon: Vault,
 				isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,
-			},
-			{
-				label: "SSH Keys",
-				href: "/dashboard/settings/ssh-keys",
-				icon: KeyRound,
-				isEnabled: ({ permissions }) => !!permissions?.sshKeys.read,
 			},
 			{
 				label: "SSO",
@@ -454,12 +436,6 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/settings/secrets",
 				icon: Vault,
 				isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,
-			},
-			{
-				label: "SSH Keys",
-				href: "/dashboard/settings/ssh-keys",
-				icon: KeyRound,
-				isEnabled: ({ permissions }) => !!permissions?.sshKeys.read,
 			},
 			{
 				label: "SSO",

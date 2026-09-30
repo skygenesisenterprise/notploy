@@ -34,7 +34,6 @@ const DASHBOARD_PAGE_TITLES: Record<string, string> = {
 	"/dashboard/settings/server": "Web Server",
 	"/dashboard/settings/servers": "Servers",
 	"/dashboard/settings/sessions": "Sessions",
-	"/dashboard/settings/ssh-keys": "SSH Keys",
 	"/dashboard/settings/sso": "SSO",
 	"/dashboard/settings/tags": "Tags",
 	"/dashboard/settings/users": "Team",

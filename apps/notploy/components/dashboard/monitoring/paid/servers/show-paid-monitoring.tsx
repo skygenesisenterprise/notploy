@@ -53,15 +53,11 @@ interface SystemMetrics {
 }
 
 interface Props {
-	BASE_URL?: string;
-	token?: string;
+	BASE_URL: string;
+	token: string;
 }
 
-export const ShowPaidMonitoring = ({
-	BASE_URL = process.env.NEXT_PUBLIC_METRICS_URL ||
-		"http://localhost:3001/metrics",
-	token = process.env.NEXT_PUBLIC_METRICS_TOKEN || "my-token",
-}: Props) => {
+export const ShowPaidMonitoring = ({ BASE_URL, token }: Props) => {
 	const [historicalData, setHistoricalData] = useState<SystemMetrics[]>([]);
 	const [metrics, setMetrics] = useState<SystemMetrics>({} as SystemMetrics);
 	const [dataPoints, setDataPoints] =
@@ -80,7 +76,7 @@ export const ShowPaidMonitoring = ({
 		},
 		{
 			refetchInterval:
-				dataPoints === "all" ? undefined : Number.parseInt(refreshInterval),
+				dataPoints === "all" ? undefined : Number.parseInt(refreshInterval, 10),
 			enabled: true,
 		},
 	);

@@ -17,7 +17,10 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@notploy/server/services/permission";
-import { findServerById } from "@notploy/server/services/server";
+import {
+	findServerById,
+	getAccessibleServerIds,
+} from "@notploy/server/services/server";
 import { TRPCError } from "@trpc/server";
 import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -62,7 +65,36 @@ export const deploymentRouter = createTRPCRouter({
 					message: "You don't have access to this server.",
 				});
 			}
-			return await findAllDeploymentsByServerId(input.serverId);
+			const accessibleServerIds = await getAccessibleServerIds(ctx.session);
+			if (!accessibleServerIds.has(input.serverId)) {
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "You don't have access to this server.",
+				});
+			}
+			const serverDeployments = await findAllDeploymentsByServerId(
+				input.serverId,
+			);
+			if (ctx.user.role === "owner" || ctx.user.role === "admin") {
+				return serverDeployments;
+			}
+
+			const { accessedServices } = await findMemberByUserId(
+				ctx.user.id,
+				ctx.session.activeOrganizationId,
+			);
+			if (accessedServices.length === 0) {
+				return [];
+			}
+
+			const accessibleServices = new Set(accessedServices);
+			return serverDeployments.filter(
+				(deployment) =>
+					(deployment.applicationId !== null &&
+						accessibleServices.has(deployment.applicationId)) ||
+					(deployment.composeId !== null &&
+						accessibleServices.has(deployment.composeId)),
+			);
 		}),
 	allCentralized: withPermission("deployment", "read").query(
 		async ({ ctx }) => {
