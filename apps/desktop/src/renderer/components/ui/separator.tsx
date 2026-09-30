@@ -1,9 +1,7 @@
-/* Ported from `apps/notploy/components/ui/separator.tsx`; `cn` path adapted. */
-
 import { Separator as SeparatorPrimitive } from "radix-ui";
 import type * as React from "react";
 
-import { cn } from "@/renderer/lib/cn";
+import { cn } from "@/lib/utils";
 
 function Separator({
 	className,

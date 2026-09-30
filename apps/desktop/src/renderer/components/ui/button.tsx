@@ -1,23 +1,9 @@
-/*
- * Ported from `apps/notploy/components/ui/button.tsx`.
- *
- * Changes from the App version, and only these:
- *
- * - `@/lib/utils` → `@/renderer/lib/cn` (same `cn` helper, different path).
- * - `isLoading` is kept, but the desktop also accepts the `busy` name it used
- *   before the port, so existing call sites keep working while new ones can use
- *   the App vocabulary.
- *
- * The variant and size classes are byte-for-byte the App's: that is what makes
- * a button in the desktop window indistinguishable from one in the dashboard.
- */
-
 import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 import { Slot } from "radix-ui";
 import type * as React from "react";
 
-import { cn } from "@/renderer/lib/cn";
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
 	"group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -62,7 +48,6 @@ function Button({
 	size = "default",
 	asChild = false,
 	isLoading = false,
-	busy,
 	children,
 	disabled,
 	...props
@@ -70,11 +55,8 @@ function Button({
 	VariantProps<typeof buttonVariants> & {
 		asChild?: boolean;
 		isLoading?: boolean;
-		/** Pre-port name for `isLoading`; kept so existing pages keep compiling. */
-		busy?: boolean;
 	}) {
 	const Comp = asChild ? Slot.Root : "button";
-	const loading = isLoading || busy === true;
 
 	return (
 		<Comp
@@ -82,10 +64,10 @@ function Button({
 			data-variant={variant}
 			data-size={size}
 			className={cn(buttonVariants({ variant, size, className }))}
-			disabled={loading || disabled}
+			disabled={isLoading || disabled}
 			{...props}
 		>
-			{loading && <Loader2 className="animate-spin" />}
+			{isLoading && <Loader2 className="animate-spin" />}
 			<Slot.Slottable>{children}</Slot.Slottable>
 		</Comp>
 	);

@@ -1,9 +1,7 @@
-/* Ported from `apps/notploy/components/ui/label.tsx`; `cn` path adapted. */
-
 import { Label as LabelPrimitive } from "radix-ui";
 import type * as React from "react";
 
-import { cn } from "@/renderer/lib/cn";
+import { cn } from "@/lib/utils";
 
 function Label({
 	className,

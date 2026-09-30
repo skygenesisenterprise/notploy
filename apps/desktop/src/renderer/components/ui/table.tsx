@@ -1,13 +1,8 @@
-/*
- * Ported from `apps/notploy/components/ui/table.tsx`.
- *
- * The `"use client"` directive is dropped: it is a Next.js/React-Server-
- * Components marker with no meaning in a Vite renderer bundle.
- */
+"use client";
 
 import type * as React from "react";
 
-import { cn } from "@/renderer/lib/cn";
+import { cn } from "@/lib/utils";
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
 	return (
@@ -111,11 +106,11 @@ function TableCaption({
 
 export {
 	Table,
+	TableHeader,
 	TableBody,
-	TableCaption,
-	TableCell,
 	TableFooter,
 	TableHead,
-	TableHeader,
 	TableRow,
+	TableCell,
+	TableCaption,
 };

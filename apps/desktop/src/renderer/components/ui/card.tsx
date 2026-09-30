@@ -1,14 +1,6 @@
-/*
- * Ported from `apps/notploy/components/ui/card.tsx`.
- *
- * The only change is the `cn` import path. The `ring-1 ring-foreground/10`
- * treatment is what gives the dashboard its borderless panel look, and it only
- * reads correctly on the App palette that `styles.css` now declares.
- */
-
 import type * as React from "react";
 
-import { cn } from "@/renderer/lib/cn";
+import { cn } from "@/lib/utils";
 
 function Card({
 	className,
@@ -99,10 +91,10 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 
 export {
 	Card,
-	CardAction,
-	CardContent,
-	CardDescription,
-	CardFooter,
 	CardHeader,
+	CardFooter,
 	CardTitle,
+	CardAction,
+	CardDescription,
+	CardContent,
 };

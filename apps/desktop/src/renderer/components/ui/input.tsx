@@ -1,27 +1,10 @@
-/*
- * Ported from `apps/notploy/components/ui/input.tsx`.
- *
- * Changes from the App version, and only these:
- *
- * - `cn` import path.
- * - The copy button writes through `app.copyText` (the main process) instead of
- *   the browser clipboard: the desktop renderer's clipboard permission is denied
- *   by design (see `src/main/security/content-policy.ts`).
- * - `toast` comes from `sonner`, which the desktop mounts too, so the feedback
- *   wording is identical to the dashboard.
- * - The password generator is the App's behaviour, reimplemented locally because
- *   the desktop does not carry App's `lib/password-utils`.
- *
- * The input classes are byte-for-byte the App's.
- */
-
+import copy from "copy-to-clipboard";
 import { Clipboard, EyeIcon, EyeOffIcon, RefreshCcw } from "lucide-react";
-import type * as React from "react";
-import { useCallback, useRef, useState } from "react";
+import * as React from "react";
 import { toast } from "sonner";
 
-import { getBridge } from "@/renderer/lib/bridge";
-import { cn } from "@/renderer/lib/cn";
+import { generateRandomPassword } from "@/lib/password-utils";
+import { cn } from "@/lib/utils";
 import { Button } from "./button";
 
 export interface InputProps extends React.ComponentProps<"input"> {
@@ -29,38 +12,6 @@ export interface InputProps extends React.ComponentProps<"input"> {
 	enablePasswordGenerator?: boolean;
 	passwordGeneratorLength?: number;
 	enableCopyButton?: boolean;
-}
-
-/**
- * A password with at least one of each character class.
- *
- * Kept to `crypto.getRandomValues`, which is available in the renderer; nothing
- * here needs a dependency, and a generated password never leaves the field.
- */
-export function generateRandomPassword(length = 16): string {
-	const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-	const lower = "abcdefghijkmnopqrstuvwxyz";
-	const digits = "23456789";
-	const symbols = "!@#$%^&*()-_=+";
-	const all = upper + lower + digits + symbols;
-	const pick = (source: string): string => {
-		const bytes = new Uint32Array(1);
-		crypto.getRandomValues(bytes);
-		return source[bytes[0] % source.length] as string;
-	};
-	const required = [pick(upper), pick(lower), pick(digits), pick(symbols)];
-	while (required.length < Math.max(8, length)) required.push(pick(all));
-	// Fisher-Yates with the same source, so the required characters are not
-	// always in the first four positions.
-	for (let i = required.length - 1; i > 0; i -= 1) {
-		const bytes = new Uint32Array(1);
-		crypto.getRandomValues(bytes);
-		const j = bytes[0] % (i + 1);
-		const a = required[i] as string;
-		required[i] = required[j] as string;
-		required[j] = a;
-	}
-	return required.join("");
 }
 
 function Input({
@@ -73,8 +24,8 @@ function Input({
 	ref,
 	...props
 }: InputProps) {
-	const [showPassword, setShowPassword] = useState(false);
-	const inputRef = useRef<HTMLInputElement | null>(null);
+	const [showPassword, setShowPassword] = React.useState(false);
+	const inputRef = React.useRef<HTMLInputElement | null>(null);
 	const isPassword = type === "password";
 	const shouldShowGenerator =
 		isPassword &&
@@ -83,7 +34,7 @@ function Input({
 		!props.readOnly;
 	const inputType = isPassword ? (showPassword ? "text" : "password") : type;
 
-	const setRefs = useCallback(
+	const setRefs = React.useCallback(
 		(node: HTMLInputElement | null) => {
 			inputRef.current = node;
 			if (typeof ref === "function") {
@@ -102,7 +53,9 @@ function Input({
 				: generateRandomPassword();
 
 		const input = inputRef.current;
-		if (!input) return;
+		if (!input) {
+			return;
+		}
 
 		const valueSetter = Object.getOwnPropertyDescriptor(
 			HTMLInputElement.prototype,
@@ -113,14 +66,13 @@ function Input({
 		} else {
 			input.value = nextValue;
 		}
+
 		input.dispatchEvent(new Event("input", { bubbles: true }));
 	};
 
 	const handleCopy = () => {
-		void getBridge()
-			.app.copyText(inputRef.current?.value ?? "")
-			.then(() => toast.success("Value is copied to clipboard"))
-			.catch(() => toast.error("The value could not be copied"));
+		copy(inputRef.current?.value || "");
+		toast.success("Value is copied to clipboard");
 	};
 
 	const inputElement = (
@@ -154,7 +106,6 @@ function Input({
 						type="button"
 						className="hover:text-foreground focus:outline-none"
 						onClick={() => setShowPassword(!showPassword)}
-						aria-label={showPassword ? "Hide password" : "Show password"}
 						tabIndex={-1}
 					>
 						{showPassword ? (
@@ -173,7 +124,7 @@ function Input({
 			{enableCopyButton ? (
 				<div className="flex w-full items-center space-x-2">
 					{inputElement}
-					<Button type="button" variant="secondary" onClick={handleCopy}>
+					<Button type="button" variant={"secondary"} onClick={handleCopy}>
 						<Clipboard className="size-4 text-muted-foreground" />
 					</Button>
 				</div>
@@ -189,4 +140,36 @@ function Input({
 	);
 }
 
-export { Input };
+function NumberInput({ className, ref, ...props }: InputProps) {
+	return (
+		<Input
+			type="text"
+			className={cn("text-left", className)}
+			ref={ref}
+			{...props}
+			value={props.value === undefined ? undefined : String(props.value)}
+			onChange={(e) => {
+				const value = e.target.value;
+				if (value === "") {
+					props.onChange?.(e);
+				} else {
+					const number = Number.parseInt(value, 10);
+					if (!Number.isNaN(number)) {
+						const syntheticEvent = {
+							...e,
+							target: {
+								...e.target,
+								value: number,
+							},
+						};
+						props.onChange?.(
+							syntheticEvent as unknown as React.ChangeEvent<HTMLInputElement>,
+						);
+					}
+				}
+			}}
+		/>
+	);
+}
+
+export { Input, NumberInput };

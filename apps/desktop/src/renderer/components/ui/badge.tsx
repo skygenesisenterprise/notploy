@@ -1,16 +1,8 @@
-/*
- * Ported from `apps/notploy/components/ui/badge.tsx`.
- *
- * The `green` / `red` / `yellow` / `orange` / `blue` / `blank` variants are the
- * ones the dashboard uses for service status, so the desktop's own status chips
- * are built on them rather than on a second colour vocabulary.
- */
-
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
 import type * as React from "react";
 
-import { cn } from "@/renderer/lib/cn";
+import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
 	"group/badge inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-4xl border border-transparent px-2.5 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg:not(.cursor-pointer)]:pointer-events-none [&>svg]:size-3!",
