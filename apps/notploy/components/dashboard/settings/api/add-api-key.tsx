@@ -83,7 +83,7 @@ export const AddApiKey = () => {
 	const [open, setOpen] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [newApiKey, setNewApiKey] = useState("");
-	const { refetch } = api.user.get.useQuery();
+	const { refetch } = api.user.apiKeys.useQuery();
 	const { data: organizations } = api.organization.all.useQuery();
 	const createApiKey = api.user.createApiKey.useMutation({
 		onSuccess: (data) => {

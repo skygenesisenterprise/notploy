@@ -182,6 +182,17 @@ export function dashboardUrl(instanceUrl: string, path = ""): string {
 	return `${base}/dashboard${suffix}`;
 }
 
+/**
+ * The dashboard page where API keys are created.
+ *
+ * This is the page `notploy.login` sends a user to when the instance rejects
+ * the key they pasted, so it has to be the canonical location rather than a
+ * detail buried in the profile screen.
+ */
+export function apiKeysUrl(instanceUrl: string): string {
+	return dashboardUrl(instanceUrl, "/settings/api-keys");
+}
+
 export function projectDashboardUrl(
 	instanceUrl: string,
 	projectId: string,

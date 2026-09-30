@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { NotployError } from "../core/errors";
+import { apiKeysUrl } from "../core/formatting";
 import type { InstanceStore } from "../core/instance-store";
 import type { Logger } from "../core/logger";
 import type { InstanceManager } from "./instance-manager";
@@ -7,6 +8,12 @@ import type { InstanceManager } from "./instance-manager";
 export interface LoginResult {
 	ok: boolean;
 	message: string;
+	/**
+	 * Where to create an API key, set whenever the result is about a missing or
+	 * rejected credential. The caller turns it into a shortcut so a user who
+	 * cannot find the key is one click from the page that issues it.
+	 */
+	apiKeysUrl?: string;
 }
 
 /**
@@ -41,9 +48,10 @@ export class AuthenticationService {
 			};
 		}
 
+		const keysPage = apiKeysUrl(instance.url);
 		const token = await vscode.window.showInputBox({
 			title: `Notploy: Login to ${instance.name}`,
-			prompt: `Paste an API key generated in ${instance.url} → Settings → API Keys. It is stored in VS Code secret storage and never written to settings.json.`,
+			prompt: `Paste an API key generated in ${keysPage}. It is stored in VS Code secret storage and never written to settings.json.`,
 			placeHolder: "API key",
 			password: true,
 			ignoreFocusOut: true,
@@ -67,7 +75,11 @@ export class AuthenticationService {
 			return { ok: false, message: "Unknown Notploy instance." };
 		}
 		if (!token) {
-			return { ok: false, message: "The API key is empty." };
+			return {
+				ok: false,
+				message: "The API key is empty.",
+				apiKeysUrl: apiKeysUrl(instance.url),
+			};
 		}
 
 		// Store first so the client picks the key up, then verify. If the instance
@@ -97,7 +109,9 @@ export class AuthenticationService {
 					? error.userMessage
 					: `Could not authenticate against ${instance.name}.`;
 			this.logger.warn(`Authentication failed for ${instance.name}`);
-			return { ok: false, message };
+			// The credential is the thing missing, so every failure here is
+			// recoverable by minting a new key on the dashboard.
+			return { ok: false, message, apiKeysUrl: apiKeysUrl(instance.url) };
 		}
 	}
 

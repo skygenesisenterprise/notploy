@@ -1,30 +1,58 @@
-import { ChevronsUpDown } from "lucide-react";
+import {
+	KeyRound,
+	LogOut,
+	Moon,
+	Smartphone,
+	Sun,
+	UserRound,
+} from "lucide-react";
 import { useRouter } from "next/router";
+import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
-	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
-import { getFallbackAvatarInitials } from "@/lib/utils";
+import { cn, getFallbackAvatarInitials } from "@/lib/utils";
 import { api } from "@/utils/api";
-import { ModeToggle } from "../ui/modeToggle";
 import { SidebarMenuButton } from "../ui/sidebar";
 
 const _AUTO_CHECK_UPDATES_INTERVAL_MINUTES = 7;
 
+/**
+ * Personal space of the signed in user.
+ *
+ * This menu intentionally only carries what belongs to *the user* (identity,
+ * sessions, credentials, appearance, sign out). Platform areas (workloads,
+ * infrastructure, integrations, administration) are owned by the sidebar
+ * sections, so they are not duplicated here: two places to look for the same
+ * page is how a navigation stops being trustworthy.
+ */
 export const UserNav = () => {
 	const router = useRouter();
 	const { data } = api.user.get.useQuery();
 	const { data: permissions } = api.user.getPermissions.useQuery();
-	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const { theme, setTheme } = useTheme();
 
-	// const { mutateAsync } = api.auth.logout.useMutation();
+	const user = data?.user;
+	const fullName = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
+	const displayName = fullName || user?.email || "Account";
+	// Members never hold `api:read`, the `api.read` statement is also enforced
+	// by the user.apiKeys query.
+	const canManageApiKeys = !!permissions?.api.read;
+
+	const goTo = (href: string) => () => {
+		router.push(href);
+	};
+
+	const toggleTheme = () => {
+		setTheme(theme === "dark" ? "light" : "dark");
+	};
 
 	return (
 		<DropdownMenu>
@@ -36,123 +64,109 @@ export const UserNav = () => {
 					<Avatar className="h-8 w-8 rounded-lg">
 						<AvatarImage
 							className="object-cover"
-							src={data?.user?.image || ""}
-							alt={data?.user?.image || ""}
+							src={user?.image || ""}
+							alt={user?.image || ""}
 						/>
 						<AvatarFallback className="rounded-lg">
-							{getFallbackAvatarInitials(
-								`${data?.user?.firstName} ${data?.user?.lastName}`.trim(),
-							)}
+							{getFallbackAvatarInitials(fullName)}
 						</AvatarFallback>
 					</Avatar>
 					<div className="grid flex-1 text-left text-sm leading-tight">
-						<span className="truncate font-semibold">Account</span>
-						<span className="truncate text-xs">{data?.user?.email}</span>
+						<span className="truncate font-semibold">{displayName}</span>
+						<span className="truncate text-xs text-muted-foreground">
+							{user?.email}
+						</span>
 					</div>
-					<ChevronsUpDown className="ml-auto size-4" />
 				</SidebarMenuButton>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
-				className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+				className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-lg"
 				side="bottom"
 				align="end"
 				sideOffset={4}
 			>
-				<div className="flex items-center justify-between px-2 py-1.5">
-					<DropdownMenuLabel className="flex flex-col">
-						My Account
-						<span className="text-xs font-normal text-muted-foreground">
-							{data?.user?.email}
+				<div className="flex items-center gap-3 px-2 py-2">
+					<Avatar className="size-9 shrink-0 rounded-lg">
+						<AvatarImage
+							className="object-cover"
+							src={user?.image || ""}
+							alt={user?.image || ""}
+						/>
+						<AvatarFallback className="rounded-lg">
+							{getFallbackAvatarInitials(fullName)}
+						</AvatarFallback>
+					</Avatar>
+					<div className="flex min-w-0 flex-col">
+						<span className="truncate text-sm font-medium">{displayName}</span>
+						<span className="truncate text-xs text-muted-foreground">
+							{user?.email}
 						</span>
-					</DropdownMenuLabel>
-					<ModeToggle />
+					</div>
+					{data?.role && (
+						<span className="ml-auto shrink-0 rounded-md border px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+							{data.role}
+						</span>
+					)}
 				</div>
 				<DropdownMenuSeparator />
-				<DropdownMenuGroup>
+				<DropdownMenuLabel className="px-2 py-1 text-[11px] font-semibold tracking-wider text-muted-foreground/70 uppercase">
+					Account
+				</DropdownMenuLabel>
+				<DropdownMenuItem
+					className="cursor-pointer gap-2"
+					onSelect={goTo("/dashboard/settings/profile")}
+				>
+					<UserRound className="size-4 text-muted-foreground" />
+					Profile
+				</DropdownMenuItem>
+				<DropdownMenuItem
+					className="cursor-pointer gap-2"
+					onSelect={goTo("/dashboard/settings/sessions")}
+				>
+					<Smartphone className="size-4 text-muted-foreground" />
+					Sessions
+				</DropdownMenuItem>
+				{canManageApiKeys && (
 					<DropdownMenuItem
-						className="cursor-pointer"
-						onClick={() => {
-							router.push("/dashboard/settings/profile");
-						}}
+						className="cursor-pointer gap-2"
+						onSelect={goTo("/dashboard/settings/api-keys")}
 					>
-						Profile
-					</DropdownMenuItem>
-					<DropdownMenuItem
-						className="cursor-pointer"
-						onClick={() => {
-							router.push("/dashboard/home");
-						}}
-					>
-						Projects
-					</DropdownMenuItem>
-					{!isCloud ? (
-						<>
-							<DropdownMenuItem
-								className="cursor-pointer"
-								onClick={() => {
-									router.push("/dashboard/monitoring");
-								}}
-							>
-								Monitoring
-							</DropdownMenuItem>
-							{permissions?.traefikFiles.read && (
-								<DropdownMenuItem
-									className="cursor-pointer"
-									onClick={() => {
-										router.push("/dashboard/traefik");
-									}}
-								>
-									Traefik
-								</DropdownMenuItem>
-							)}
-							{permissions?.docker.read && (
-								<DropdownMenuItem
-									className="cursor-pointer"
-									onClick={() => {
-										router.push("/dashboard/docker", undefined, {
-											shallow: true,
-										});
-									}}
-								>
-									Docker
-								</DropdownMenuItem>
-							)}
-						</>
-					) : (
-						permissions?.organization.update && (
-							<DropdownMenuItem
-								className="cursor-pointer"
-								onClick={() => {
-									router.push("/dashboard/settings/servers");
-								}}
-							>
-								Servers
-							</DropdownMenuItem>
-						)
-					)}
-				</DropdownMenuGroup>
-				{isCloud && data?.role === "owner" && (
-					<DropdownMenuItem
-						className="cursor-pointer"
-						onClick={() => {
-							router.push("/dashboard/settings/billing");
-						}}
-					>
-						Billing
+						<KeyRound className="size-4 text-muted-foreground" />
+						API Keys
 					</DropdownMenuItem>
 				)}
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
-					className="cursor-pointer"
-					onClick={async () => {
-						await authClient.signOut().then(() => {
-							router.push("/");
-						});
-						// await mutateAsync().then(() => {
-						// 	router.push("/");
-						// });
+					className="cursor-pointer gap-2"
+					onSelect={(event) => {
+						// Keep the menu open: this toggles a preference, it navigates
+						// nowhere, and closing it would look like the click failed.
+						event.preventDefault();
+						toggleTheme();
 					}}
 				>
+					{theme === "dark" ? (
+						<Sun className="size-4 text-muted-foreground" />
+					) : (
+						<Moon className="size-4 text-muted-foreground" />
+					)}
+					Appearance
+					<span className="ml-auto text-xs text-muted-foreground capitalize">
+						{theme === "dark" ? "Dark" : "Light"}
+					</span>
+				</DropdownMenuItem>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem
+					className={cn(
+						"cursor-pointer gap-2",
+						"text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:text-destructive",
+					)}
+					onSelect={async () => {
+						await authClient.signOut();
+						router.push("/");
+					}}
+				>
+					<LogOut className="size-4" />
 					Log out
 				</DropdownMenuItem>
 			</DropdownMenuContent>

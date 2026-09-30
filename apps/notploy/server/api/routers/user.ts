@@ -35,7 +35,7 @@ import { TRPCError } from "@trpc/server";
 import * as bcrypt from "bcrypt";
 import { and, asc, desc, eq, gt, ne } from "drizzle-orm";
 import { z } from "zod";
-import { apiKeyNameSchema } from "@/lib/api-keys";
+import { apiKeyNameSchema, parseApiKeyOrganizationId } from "@/lib/api-keys";
 import { audit } from "@/server/api/utils/audit";
 import {
 	adminProcedure,
@@ -152,18 +152,6 @@ export const userRouter = createTRPCRouter({
 						isEnterpriseCloud: true,
 						sendInvoiceNotifications: true,
 					},
-					with: {
-						apiKeys: {
-							columns: {
-								id: true,
-								name: true,
-								prefix: true,
-								enabled: true,
-								expiresAt: true,
-								createdAt: true,
-							},
-						},
-					},
 				},
 			},
 		});
@@ -203,7 +191,6 @@ export const userRouter = createTRPCRouter({
 								deployments: true,
 							},
 						},
-						apiKeys: true,
 					},
 				},
 			},
@@ -578,46 +565,112 @@ export const userRouter = createTRPCRouter({
 		return "token";
 	}),
 
-	deleteApiKey: protectedProcedure
+	/**
+	 * Lists the caller's API keys for the active organization.
+	 *
+	 * Dedicated instead of reusing `user.get`, which has to drag the whole
+	 * member/user graph along and previously returned keys belonging to every
+	 * organization the user belongs to — so a key scoped to org A was listed
+	 * while org B was selected. The organization now comes from the key's
+	 * `metadata` blob (see `parseApiKeyOrganizationId`), the same value
+	 * `validateRequest` uses to authenticate the key.
+	 *
+	 * The `key` column is deliberately absent: the secret is only ever shown
+	 * once, at creation, by better-auth. Everything a client needs to
+	 * recognise a key afterwards is the `prefix` plus the stored name.
+	 */
+	apiKeys: withPermission("api", "read")
+		.meta({
+			// Listing credentials is a dashboard concern, not part of the
+			// published REST surface: the response is metadata about every key a
+			// user holds, and an API key is enough to fetch it. Callers that do
+			// want the public endpoint get `user.createApiKey`/`user.deleteApiKey`.
+			openapi: { enabled: false },
+		})
+		.query(async ({ ctx }) => {
+			const organizationId = ctx.session.activeOrganizationId;
+
+			const keys = await db.query.apikey.findMany({
+				where: and(
+					eq(apikey.referenceId, ctx.user.id),
+					eq(apikey.configId, "default"),
+				),
+				columns: {
+					id: true,
+					name: true,
+					prefix: true,
+					enabled: true,
+					expiresAt: true,
+					createdAt: true,
+					lastRequest: true,
+					requestCount: true,
+					remaining: true,
+					refillAmount: true,
+					refillInterval: true,
+					rateLimitEnabled: true,
+					rateLimitTimeWindow: true,
+					rateLimitMax: true,
+					metadata: true,
+				},
+				orderBy: [desc(apikey.createdAt)],
+			});
+
+			return keys
+				.map(({ metadata, ...key }) => ({
+					...key,
+					organizationId: parseApiKeyOrganizationId(metadata),
+				}))
+				.filter((key) => key.organizationId === organizationId);
+		}),
+
+	deleteApiKey: withPermission("api", "read")
 		.input(
 			z.object({
 				apiKeyId: z.string(),
 			}),
 		)
 		.mutation(async ({ input, ctx }) => {
-			try {
-				const apiKeyToDelete = await db.query.apikey.findFirst({
-					where: eq(apikey.id, input.apiKeyId),
+			const apiKeyToDelete = await db.query.apikey.findFirst({
+				where: eq(apikey.id, input.apiKeyId),
+			});
+
+			if (!apiKeyToDelete) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "API key not found",
 				});
-
-				if (!apiKeyToDelete) {
-					throw new TRPCError({
-						code: "NOT_FOUND",
-						message: "API key not found",
-					});
-				}
-
-				if (apiKeyToDelete.referenceId !== ctx.user.id) {
-					throw new TRPCError({
-						code: "UNAUTHORIZED",
-						message: "You are not authorized to delete this API key",
-					});
-				}
-
-				await db.delete(apikey).where(eq(apikey.id, input.apiKeyId));
-				await audit(ctx, {
-					action: "delete",
-					resourceType: "user",
-					resourceId: input.apiKeyId,
-					resourceName: apiKeyToDelete.name || undefined,
-				});
-				return true;
-			} catch (error) {
-				throw error;
 			}
+
+			if (apiKeyToDelete.referenceId !== ctx.user.id) {
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "You are not authorized to delete this API key",
+				});
+			}
+
+			// Ownership alone is not enough: a key is scoped to one organization,
+			// so revoking it has to happen from that organization. Otherwise a
+			// user could delete a key belonging to an org they have since left.
+			const organizationId =
+				parseApiKeyOrganizationId(apiKeyToDelete.metadata);
+			if (organizationId !== ctx.session.activeOrganizationId) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "API key not found in this organization",
+				});
+			}
+
+			await db.delete(apikey).where(eq(apikey.id, input.apiKeyId));
+			await audit(ctx, {
+				action: "delete",
+				resourceType: "user",
+				resourceId: input.apiKeyId,
+				resourceName: apiKeyToDelete.name || undefined,
+			});
+			return true;
 		}),
 
-	createApiKey: protectedProcedure
+	createApiKey: withPermission("api", "read")
 		.input(apiCreateApiKey)
 		.mutation(async ({ input, ctx }) => {
 			// Verify user is a member of the organization specified in metadata

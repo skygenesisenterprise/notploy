@@ -308,9 +308,22 @@ export function registerInstanceCommands(
 					deps.refreshInstances();
 					deps.refresh();
 					void vscode.window.showInformationMessage(result.message);
-				} else {
-					void vscode.window.showWarningMessage(result.message);
+					return;
 				}
+				// A rejected or missing key is only half a problem: the fix lives
+				// on the dashboard, so offer the page that issues keys rather than
+				// only logging the failure.
+				const actions = ["Show Logs"];
+				if (result.apiKeysUrl) actions.unshift("Open API Keys Page");
+				void vscode.window
+					.showWarningMessage(result.message, ...actions)
+					.then(async (choice) => {
+						if (choice === "Open API Keys Page" && result.apiKeysUrl) {
+							await openExternal(result.apiKeysUrl);
+						} else if (choice === "Show Logs") {
+							services.logger.show();
+						}
+					});
 			});
 		}),
 
