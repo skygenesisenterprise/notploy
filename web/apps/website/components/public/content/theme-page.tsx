@@ -1,27 +1,33 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { FrIconClassName } from "@codegouvaor/react-ads/fr";
+import {
+  SDSContainer,
+  SDSGrid,
+  SDSHeading,
+  SDSHero,
+  SDSLead,
+  SDSLink,
+  SDSLinkList,
+  SDSSection,
+  SDSTeaserCard,
+} from "@skygenesisenterprise/react-sds/sds";
+import type { FrIconClassName } from "@skygenesisenterprise/react-sds/fr";
 import { Link } from "@/i18n/navigation";
-import { CtaButtonsGroup, LinkTile, NoticeCallout, type CtaButton } from "./ads-fragments";
+import { CtaButtonsGroup, LinkTile, NoticeCallout, type CtaButton } from "./sds-fragments";
 
 /**
- * Shared presentational layer of the BCA theme pages (Monnaie and, later,
- * the other editorial subjects of the portal). Server component: it only
- * passes serializable props (strings, hrefs) to the ADS client boundaries.
+ * Shared presentational layer of the editorial theme pages (contact, sitemap,
+ * legal…). Server component: it only passes serializable props (strings, hrefs)
+ * to the SDS client boundaries.
  *
  * Every page of a theme is composed with `ThemeArticle`, which renders a
- * *localized* content object produced by `lib/monnaie-localize.ts`. The
- * message catalogs (`apps/messages/{fr,en}.json`) hold every display string;
- * the shared blocks below only decide how to arrange those strings, the same
- * way the home page composes its sections.
+ * *localized* content object produced by the localization layer
+ * (`lib/theme-localize.ts`). The message catalogs (`messages/{fr,en}.json`) hold
+ * every display string; the shared blocks below only decide how to arrange those
+ * strings, using SDS primitives (`SDSSection`, `SDSGrid`, `SDSHeading`,
+ * `SDSLead`, `SDSHero`, `SDSLinkList`, `SDSTeaserCard`, `SDSLink`).
  */
 
-/* ---- Shared style constants (ADS design tokens, no local stylesheet) ------ */
-
-export const heroContainerStyle: CSSProperties = {
-  maxWidth: "52rem",
-  marginInline: "auto",
-  textAlign: "center",
-};
+/* ---- Shared style constants (SDS design tokens, no local stylesheet) ------ */
 
 export const teaserCardStyle: CSSProperties = {
   display: "flex",
@@ -29,11 +35,11 @@ export const teaserCardStyle: CSSProperties = {
   gap: "0.75rem",
   height: "100%",
   padding: "1.25rem",
-  background: "var(--ads-color-background)",
-  border: "1px solid var(--ads-color-border)",
-  borderTop: "3px solid var(--ads-color-primary)",
+  background: "var(--sds-color-background)",
+  border: "1px solid var(--sds-color-border)",
+  borderTop: "3px solid var(--sds-color-primary)",
   textDecoration: "none",
-  color: "var(--ads-color-text)",
+  color: "var(--sds-color-text)",
 };
 
 export const teaserTagStyle: CSSProperties = {
@@ -41,7 +47,7 @@ export const teaserTagStyle: CSSProperties = {
   fontWeight: 700,
   letterSpacing: "0.06em",
   textTransform: "uppercase",
-  color: "var(--ads-color-primary)",
+  color: "var(--sds-color-primary)",
 };
 
 export const teaserTitleStyle: CSSProperties = {
@@ -55,41 +61,7 @@ export const teaserDescStyle: CSSProperties = {
   display: "block",
   fontSize: "0.875rem",
   lineHeight: 1.55,
-  color: "var(--ads-color-text-muted)",
-};
-
-export const figureValueStyle: CSSProperties = {
-  display: "block",
-  fontSize: "clamp(1.5rem, 3vw, 2rem)",
-  lineHeight: 1.2,
-  fontWeight: 700,
-};
-
-export const figureLabelStyle: CSSProperties = {
-  display: "block",
-  fontSize: "0.9375rem",
-  fontWeight: 600,
-};
-
-export const cardGridStyle: CSSProperties = {
-  listStyle: "none",
-  margin: "0",
-  padding: "0",
-};
-
-export const iconBlockStyle: CSSProperties = {
-  fontSize: "1.375rem",
-  lineHeight: 1,
-  color: "var(--ads-color-primary)",
-};
-
-export const linkListStyle: CSSProperties = {
-  listStyle: "none",
-  margin: "0",
-  padding: "0",
-  display: "grid",
-  gap: "0",
-  maxWidth: "72rem",
+  color: "var(--sds-color-text-muted)",
 };
 
 const denominationCardStyle: CSSProperties = {
@@ -109,7 +81,7 @@ const denominationUnitStyle: CSSProperties = {
   display: "block",
   fontSize: "0.875rem",
   fontWeight: 600,
-  color: "var(--ads-color-text-muted)",
+  color: "var(--sds-color-text-muted)",
 };
 
 const stepBadgeStyle: CSSProperties = {
@@ -120,8 +92,8 @@ const stepBadgeStyle: CSSProperties = {
   height: "2rem",
   flexShrink: 0,
   borderRadius: "50%",
-  background: "var(--ads-color-primary)",
-  color: "var(--ads-color-background)",
+  background: "var(--sds-color-primary)",
+  color: "var(--sds-color-background)",
   fontSize: "0.9375rem",
   fontWeight: 700,
 };
@@ -144,12 +116,12 @@ const flowListStyle: CSSProperties = {
 
 const flowNodeStyle: CSSProperties = {
   padding: "0.625rem 1rem",
-  background: "var(--ads-color-background)",
-  border: "1px solid var(--ads-color-border)",
-  borderTop: "3px solid var(--ads-color-primary)",
+  background: "var(--sds-color-background)",
+  border: "1px solid var(--sds-color-border)",
+  borderTop: "3px solid var(--sds-color-primary)",
   fontSize: "0.9375rem",
   fontWeight: 600,
-  color: "var(--ads-color-text)",
+  color: "var(--sds-color-text)",
 };
 
 const factsListStyle: CSSProperties = {
@@ -157,20 +129,20 @@ const factsListStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(15rem, 1fr))",
   gap: "1px",
-  background: "var(--ads-color-border)",
-  border: "1px solid var(--ads-color-border)",
+  background: "var(--sds-color-border)",
+  border: "1px solid var(--sds-color-border)",
 };
 
 const factCellStyle: CSSProperties = {
   padding: "1rem 1.25rem",
-  background: "var(--ads-color-background)",
+  background: "var(--sds-color-background)",
 };
 
 const factLabelStyle: CSSProperties = {
   margin: "0 0 0.25rem",
   fontSize: "0.8125rem",
   fontWeight: 600,
-  color: "var(--ads-color-text-muted)",
+  color: "var(--sds-color-text-muted)",
 };
 
 const factValueStyle: CSSProperties = {
@@ -178,18 +150,17 @@ const factValueStyle: CSSProperties = {
   fontSize: "1.0625rem",
   lineHeight: 1.4,
   fontWeight: 600,
-  color: "var(--ads-color-text)",
+  color: "var(--sds-color-text)",
 };
 
 const heroStatStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "baseline",
   gap: "0.75rem",
-  marginTop: "1.5rem",
   padding: "0.875rem 1.25rem",
-  background: "var(--ads-color-background)",
-  border: "1px solid var(--ads-color-border)",
-  borderTop: "3px solid var(--ads-color-primary)",
+  background: "var(--sds-color-background)",
+  border: "1px solid var(--sds-color-border)",
+  borderTop: "3px solid var(--sds-color-primary)",
   textAlign: "left",
 };
 
@@ -216,7 +187,7 @@ export function FlowDiagram({
               <span
                 className="fr-icon-arrow-right-line"
                 aria-hidden="true"
-                style={{ color: "var(--ads-color-primary)" }}
+                style={{ color: "var(--sds-color-primary)" }}
               />
             ) : null}
             <span style={flowNodeStyle}>{item.label}</span>
@@ -226,7 +197,7 @@ export function FlowDiagram({
       {caption ? (
         <figcaption
           className="fr-text--sm"
-          style={{ marginTop: "0.75rem", color: "var(--ads-color-text-muted)" }}
+          style={{ marginTop: "0.75rem", color: "var(--sds-color-text-muted)" }}
         >
           {caption}
         </figcaption>
@@ -253,6 +224,10 @@ export function FactList({
   );
 }
 
+/**
+ * The institutional hero of an interior page — the SDS hero component with an
+ * optional reference figure and action buttons.
+ */
 export function ThemeHero({
   kicker,
   title,
@@ -267,27 +242,46 @@ export function ThemeHero({
   stat?: { value: string; label: string };
 }) {
   return (
-    <section className="gov-section" aria-labelledby="theme-hero-title">
-      <div className="gov-section__container" style={heroContainerStyle}>
-        <p className="gov-kicker">{kicker}</p>
-        <h1 id="theme-hero-title">{title}</h1>
-        <p className="gov-lead">{lead}</p>
-        {stat ? (
-          <p style={heroStatStyle}>
-            <span style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", lineHeight: 1.1, fontWeight: 700 }}>
-              {stat.value}
-            </span>
-            <span style={{ fontSize: "0.9375rem", fontWeight: 600, color: "var(--ads-color-text-muted)" }}>
-              {stat.label}
-            </span>
-          </p>
-        ) : null}
-        {actions ? <CtaButtonsGroup alignment="center" buttons={actions} /> : null}
-      </div>
-    </section>
+    <SDSHero
+      tone="subtle"
+      kicker={kicker}
+      title={title}
+      subtitle={lead}
+      actions={
+        stat || actions ? (
+          <>
+            {stat ? (
+              <span style={heroStatStyle}>
+                <span
+                  style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", lineHeight: 1.1, fontWeight: 700 }}
+                >
+                  {stat.value}
+                </span>
+                <span
+                  style={{
+                    fontSize: "0.9375rem",
+                    fontWeight: 600,
+                    color: "var(--sds-color-text-muted)",
+                  }}
+                >
+                  {stat.label}
+                </span>
+              </span>
+            ) : null}
+            {actions ? <CtaButtonsGroup buttons={actions} /> : null}
+          </>
+        ) : undefined
+      }
+    />
   );
 }
 
+/**
+ * A content section of an interior page, composed from the SDS section
+ * primitives: `SDSSection` provides the vertical rhythm and optional subtle
+ * tone, `SDSContainer` the centered column, and the header is built from the
+ * SDS kicker utility, `SDSHeading` and `SDSLead`.
+ */
 export function ThemeSection({
   id,
   kicker,
@@ -306,24 +300,19 @@ export function ThemeSection({
   children?: ReactNode;
 }) {
   return (
-    <section
-      className={subtle ? "gov-section gov-section--subtle" : "gov-section"}
-      aria-labelledby={id}
-    >
-      <div className="gov-section__container">
-        <div className="gov-section__header">
+    <SDSSection tone={subtle ? "subtle" : "default"}>
+      <SDSContainer>
+        <div className="gov-section__header" id={id}>
           <div>
             <p className="gov-kicker">{kicker}</p>
-            <h2 id={id} className="gov-section__title">
-              {title}
-            </h2>
-            {lead ? <p className="gov-lead">{lead}</p> : null}
+            <SDSHeading level={2}>{title}</SDSHeading>
+            {lead ? <SDSLead>{lead}</SDSLead> : null}
           </div>
           {action}
         </div>
         {children}
-      </div>
-    </section>
+      </SDSContainer>
+    </SDSSection>
   );
 }
 
@@ -335,7 +324,7 @@ export type StatItem = {
   iconId?: string;
 };
 
-/** Figure cards — the “en chiffres” pattern of the home page. */
+/** Figure cards — the “en chiffres” pattern, built on the SDS teaser card. */
 export function StatGrid({
   items,
   perRow = 4,
@@ -343,38 +332,18 @@ export function StatGrid({
   items: ReadonlyArray<StatItem>;
   perRow?: 3 | 4;
 }) {
-  const columnClass =
-    perRow === 3 ? "fr-col-12 fr-col-md-6 fr-col-lg-4" : "fr-col-12 fr-col-md-6 fr-col-lg-3";
   return (
-    <ul className="fr-grid-row fr-grid-row--gutters" role="list" style={cardGridStyle}>
-      {items.map((item) => {
-        const content = (
-          <>
-            {item.iconId ? (
-              <span className={item.iconId} aria-hidden="true" style={iconBlockStyle} />
-            ) : null}
-            <span style={figureValueStyle}>{item.value}</span>
-            <span style={figureLabelStyle}>{item.label}</span>
-            <span
-              className="fr-icon-arrow-right-line"
-              aria-hidden="true"
-              style={{ marginTop: "auto", alignSelf: "flex-end", fontSize: "1rem", color: "var(--ads-color-primary)" }}
-            />
-          </>
-        );
-        return (
-          <li key={item.key} className={columnClass}>
-            {item.href ? (
-              <Link href={item.href} style={teaserCardStyle}>
-                {content}
-              </Link>
-            ) : (
-              <div style={teaserCardStyle}>{content}</div>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+    <SDSGrid columns={{ mobile: 1, tablet: 2, desktop: perRow }} gap={5}>
+      {items.map((item) => (
+        <SDSTeaserCard
+          key={item.key}
+          href={item.href}
+          tag={item.iconId ? <span className={item.iconId} aria-hidden="true" /> : undefined}
+          title={item.value}
+          description={item.label}
+        />
+      ))}
+    </SDSGrid>
   );
 }
 
@@ -407,7 +376,7 @@ export function DataTable({
               padding: "0 0 0.75rem",
               fontSize: "0.9375rem",
               fontWeight: 600,
-              color: "var(--ads-color-text)",
+              color: "var(--sds-color-text)",
             }}
           >
             {caption}
@@ -421,7 +390,7 @@ export function DataTable({
                   style={{
                     textAlign: "left",
                     padding: "0.625rem 0.75rem",
-                    borderBottom: "2px solid var(--ads-color-border)",
+                    borderBottom: "2px solid var(--sds-color-border)",
                     fontWeight: 700,
                   }}
                 >
@@ -438,8 +407,8 @@ export function DataTable({
                     key={cellIndex}
                     style={{
                       padding: "0.625rem 0.75rem",
-                      borderBottom: "1px solid var(--ads-color-border)",
-                      background: cellIndex === 0 ? "var(--ads-color-surface-muted)" : undefined,
+                      borderBottom: "1px solid var(--sds-color-border)",
+                      background: cellIndex === 0 ? "var(--sds-color-surface-muted)" : undefined,
                       fontWeight: cellIndex === 0 ? 600 : undefined,
                     }}
                   >
@@ -452,7 +421,10 @@ export function DataTable({
         </table>
       </div>
       {note ? (
-        <figcaption className="fr-text--sm" style={{ marginTop: "0.5rem", color: "var(--ads-color-text-muted)" }}>
+        <figcaption
+          className="fr-text--sm"
+          style={{ marginTop: "0.5rem", color: "var(--sds-color-text-muted)" }}
+        >
           {note}
         </figcaption>
       ) : null}
@@ -471,41 +443,19 @@ export function RelatedPages({
   pages: ReadonlyArray<{ key: string; label: string; desc: string; href: string }>;
 }) {
   return (
-    <ThemeSection id="related-pages" kicker={kicker} title={title} subtle>
-      <ul role="list" style={linkListStyle}>
-        {pages.map((page) => (
-          <li key={page.key}>
-            <Link
-              href={page.href}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "1rem",
-                padding: "1rem 1.25rem",
-                fontWeight: 600,
-                textDecoration: "none",
-                color: "var(--ads-color-text)",
-                border: "1px solid var(--ads-color-border)",
-                borderTop: "none",
-                background: "var(--ads-color-background)",
-              }}
-            >
-              <span>
-                <span style={{ display: "block" }}>{page.label}</span>
-                <span
-                  className="fr-text--sm"
-                  style={{ display: "block", fontWeight: 400, color: "var(--ads-color-text-muted)" }}
-                >
-                  {page.desc}
-                </span>
-              </span>
-              <span className="fr-icon-arrow-right-line" aria-hidden="true" />
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </ThemeSection>
+    <SDSSection tone="subtle">
+      <SDSContainer>
+        <p className="gov-kicker">{kicker}</p>
+        <SDSLinkList
+          title={title}
+          items={pages.map((page) => ({
+            label: page.label,
+            description: page.desc,
+            href: page.href,
+          }))}
+        />
+      </SDSContainer>
+    </SDSSection>
   );
 }
 
@@ -528,7 +478,7 @@ export type LocalizedSection = {
   flow?: ReadonlyArray<{ key: string; label: string }>;
   /** Feature cards (icon + title + text). */
   cards?: ReadonlyArray<{ key: string; title: string; text: string; iconId?: string }>;
-  /** ADS tiles (title + desc + icon + link). */
+  /** SDS tiles (title + desc + icon + link). */
   tiles?: ReadonlyArray<{ key: string; title: string; desc: string; href: string; iconId: string }>;
   /** Figure cards (“en chiffres”). */
   statGrid?: ReadonlyArray<StatItem>;
@@ -570,8 +520,8 @@ export type LocalizedArticle = {
 
 /**
  * Full page composed from a *localized* content object (produced by
- * `lib/monnaie-localize.ts` from the message catalogs): hero, ordered
- * sections and cross-links.
+ * `lib/theme-localize.ts` from the message catalogs): hero, ordered sections and
+ * cross-links.
  */
 export function ThemeArticle({
   content,
@@ -602,12 +552,9 @@ export function ThemeArticle({
       />
 
       {content.hero.notice ? (
-        <div
-          className="gov-section__container"
-          style={{ maxWidth: "52rem", marginTop: "-1.5rem", marginInline: "auto" }}
-        >
+        <SDSContainer size="narrow">
           <NoticeCallout iconId="fr-icon-information-line">{content.hero.notice}</NoticeCallout>
-        </div>
+        </SDSContainer>
       ) : null}
 
       {content.sections.map((section) => (
@@ -650,39 +597,33 @@ export function ThemeArticle({
           ) : null}
 
           {section.cards ? (
-            <ul className="fr-grid-row fr-grid-row--gutters" role="list" style={cardGridStyle}>
+            <SDSGrid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap={5}>
               {section.cards.map((card) => (
-                <li key={card.key} className="fr-col-12 fr-col-md-6 fr-col-lg-3">
-                  <div style={teaserCardStyle}>
-                    {card.iconId ? (
-                      <span className={card.iconId} aria-hidden="true" style={iconBlockStyle} />
-                    ) : null}
-                    <span style={teaserTitleStyle}>{card.title}</span>
-                    <span style={teaserDescStyle}>{card.text}</span>
-                  </div>
-                </li>
+                <SDSTeaserCard
+                  key={card.key}
+                  tag={card.iconId ? <span className={card.iconId} aria-hidden="true" /> : undefined}
+                  title={card.title}
+                  description={card.text}
+                />
               ))}
-            </ul>
+            </SDSGrid>
           ) : null}
 
           {section.tiles ? (
-            <div className="fr-grid-row fr-grid-row--gutters">
+            <SDSGrid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap={5}>
               {section.tiles.map((tile) => (
-                <div key={tile.key} className="fr-col-12 fr-col-md-6 fr-col-lg-3">
-                  <LinkTile
-                    title={tile.title}
-                    desc={tile.desc}
-                    href={tile.href}
-                    iconId={tile.iconId as FrIconClassName}
-                  />
-                </div>
+                <LinkTile
+                  key={tile.key}
+                  title={tile.title}
+                  desc={tile.desc}
+                  href={tile.href}
+                  iconId={tile.iconId as FrIconClassName}
+                />
               ))}
-            </div>
+            </SDSGrid>
           ) : null}
 
-          {section.statGrid ? (
-            <StatGrid items={section.statGrid} perRow={section.statGrid.length % 3 === 0 ? 3 : 4} />
-          ) : null}
+          {section.statGrid ? <StatGrid items={section.statGrid} /> : null}
 
           {section.table ? (
             <DataTable
@@ -694,20 +635,16 @@ export function ThemeArticle({
           ) : null}
 
           {section.denominations ? (
-            <>
-              <ul className="fr-grid-row fr-grid-row--gutters" role="list" style={cardGridStyle}>
-                {section.denominations.map((denomination) => (
-                  <li key={denomination.key} className="fr-col-12 fr-col-sm-6 fr-col-lg-4">
-                    <div style={denominationCardStyle}>
-                      <span style={denominationValueStyle}>{denomination.value}</span>
-                      <span style={denominationUnitStyle}>{denomination.unit}</span>
-                      {denomination.tag ? <span style={teaserTagStyle}>{denomination.tag}</span> : null}
-                      {denomination.motif ? <span style={teaserTitleStyle}>{denomination.motif}</span> : null}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </>
+            <SDSGrid columns={{ mobile: 1, tablet: 2, desktop: 3 }} gap={5}>
+              {section.denominations.map((denomination) => (
+                <div key={denomination.key} style={denominationCardStyle}>
+                  <span style={denominationValueStyle}>{denomination.value}</span>
+                  <span style={denominationUnitStyle}>{denomination.unit}</span>
+                  {denomination.tag ? <span style={teaserTagStyle}>{denomination.tag}</span> : null}
+                  {denomination.motif ? <span style={teaserTitleStyle}>{denomination.motif}</span> : null}
+                </div>
+              ))}
+            </SDSGrid>
           ) : null}
 
           {section.steps ? (
@@ -730,8 +667,8 @@ export function ThemeArticle({
                     gap: "1rem",
                     alignItems: "flex-start",
                     padding: "1rem 1.25rem",
-                    background: "var(--ads-color-background)",
-                    border: "1px solid var(--ads-color-border)",
+                    background: "var(--sds-color-background)",
+                    border: "1px solid var(--sds-color-border)",
                   }}
                 >
                   <span style={stepBadgeStyle} aria-hidden="true">
@@ -744,7 +681,7 @@ export function ThemeArticle({
                         display: "block",
                         fontSize: "0.9375rem",
                         lineHeight: 1.55,
-                        color: "var(--ads-color-text-muted)",
+                        color: "var(--sds-color-text-muted)",
                       }}
                     >
                       {step.text}
@@ -756,39 +693,20 @@ export function ThemeArticle({
           ) : null}
 
           {section.links ? (
-            <ul role="list" style={linkListStyle}>
-              {section.links.map((link) => (
-                <li key={link.key}>
-                  <Link
-                    href={link.href}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: "1rem",
-                      padding: "1rem 1.25rem",
-                      fontWeight: 600,
-                      textDecoration: "none",
-                      color: "var(--ads-color-text)",
-                      border: "1px solid var(--ads-color-border)",
-                      borderTop: "none",
-                      background: "var(--ads-color-background)",
-                    }}
-                  >
-                    {link.label}
-                    <span className="fr-icon-arrow-right-line" aria-hidden="true" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <SDSLinkList
+              items={section.links.map((link) => ({ label: link.label, href: link.href }))}
+            />
           ) : null}
 
           {section.cta ? (
             <p>
-              <Link href={section.cta.href} style={{ fontWeight: 600, textUnderlineOffset: "0.2em" }}>
+              <SDSLink
+                href={section.cta.href}
+                variant="action"
+                iconId="fr-icon-arrow-right-line"
+              >
                 {section.cta.label}
-                <span className="fr-icon-arrow-right-line" aria-hidden="true" />
-              </Link>
+              </SDSLink>
             </p>
           ) : null}
 

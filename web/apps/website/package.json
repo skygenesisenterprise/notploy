@@ -5,13 +5,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev:web": "pnpm next dev -p 3000 -H 0.0.0.0",
+    "dev": "pnpm next dev -p 3000 -H 0.0.0.0",
     "build": "next build",
-    "build:web": "node ./scripts/build-web.mjs",
-    "web:start": "next start",
-    "web:lint": "eslint",
+    "start": "next start",
+    "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf .next out .expo"
+    "clean": "rm -rf .next out"
   },
   "dependencies": {
     "@skygenesisenterprise/react-sds": "^1.0.0",

@@ -1,7 +1,13 @@
+import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
+// Monorepo root (the directory holding the single pnpm lockfile and the
+// hoisted `.pnpm` store: `web/apps/website` → `../../..`). Turbopack must be
+// rooted here, otherwise it cannot resolve the hoisted `next`/workspace
+// packages that physically live in `<root>/node_modules/.pnpm`.
+const workspaceRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const isProduction = process.env.NODE_ENV === "production";
 const isStaticWebBuild = process.env.BUILD_WEB_STATIC === "true";
 
@@ -17,7 +23,7 @@ const imageLocalPatterns: NonNullable<NextConfig["images"]>["localPatterns"] = [
   { pathname: "/api/v1/integrations/plex/image" },
 ];
 const imageRemotePatterns: NonNullable<NextConfig["images"]>["remotePatterns"] = [
-  { protocol: "https", hostname: "defense.gouv.aor", pathname: "/**" },
+  { protocol: "https", hostname: "notploy.com", pathname: "/**" },
   { protocol: "https", hostname: "api.dicebear.com", pathname: "/**" },
   { protocol: "https", hostname: "avatars.githubusercontent.com", pathname: "/**" },
   { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
@@ -32,9 +38,9 @@ const nextConfig: NextConfig = {
   // Next.js 16 / Turbopack. See https://docs.vidstack.io/player/getting-started/installation/nextjs
   transpilePackages: ["@vidstack/react", "vidstack"],
   turbopack: {
-    root: "../",
+    root: workspaceRoot,
   },
-  allowedDevOrigins: ["defense.gouv.localhost", "api.defense.gouv.localhost", "sso.defense.gouv.localhost"],
+  allowedDevOrigins: ["notploy.localhost", "api.notploy.localhost", "sso.notploy.localhost"],
   outputFileTracingExcludes: {
     "*": ["test/**"],
   },

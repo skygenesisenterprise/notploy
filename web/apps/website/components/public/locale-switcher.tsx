@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { LanguageSelect } from "@codegouvaor/react-ads/LanguageSelect";
+import { LanguageSelect } from "@skygenesisenterprise/react-sds/LanguageSelect";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
@@ -10,7 +10,7 @@ import { localeDisplayNames } from "@/i18n/locales";
 /**
  * Language switcher shown in the Government Footer bottom bar.
  *
- * It reuses the ADS `LanguageSelect` component (visual + behaviour source of
+ * It reuses the SDS `LanguageSelect` component (visual + behaviour source of
  * truth) and plugs the next-intl router into it so that switching language:
  *  - keeps the current page,
  *  - keeps the current URL query parameters,
@@ -21,7 +21,7 @@ import { localeDisplayNames } from "@/i18n/locales";
  *
  * NOTE: this component deliberately avoids `useSearchParams`. That hook
  * suspends during server rendering and would require a Suspense boundary,
- * whose hydration can race with the ADS core (started on hydration by
+ * whose hydration can race with the SDS core (started on hydration by
  * `StartDsfrOnHydration`), producing hydration mismatches on the collapse
  * markup. The query string is read from `window.location` at click time
  * instead, keeping the tree synchronous.

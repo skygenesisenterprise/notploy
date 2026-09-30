@@ -1,18 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { BackToTop } from "@codegouvaor/react-ads/BackToTop";
+import { BackToTop } from "@skygenesisenterprise/react-sds/BackToTop";
 import { useTranslations } from "next-intl";
 
 const EXTRA_OFFSET_PX = 16;
 
 /**
- * Floating “back to top” bubble of the portal, wrapping the ADS `BackToTop`
+ * Floating “back to top” bubble of the website, wrapping the SDS `BackToTop`
  * component (the behavioural and visual source of truth).
  *
  * The only ministry-specific behaviour kept here is the vertical offset used
  * to clear the consent banner when one is displayed on the page: the banner
- * height is observed and forwarded to ADS through the `bottom` style.
+ * height is observed and forwarded to SDS through the `bottom` style.
  */
 export function BackToTopButton() {
   const t = useTranslations("common");

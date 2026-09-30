@@ -1,6 +1,7 @@
 {
   "brand": {
-    "republicName": "République d'Astoria"
+    "name": "Notploy",
+    "company": "Sky Genesis Enterprise"
   },
   "common": {
     "skipToContent": "Aller au contenu",
@@ -11,674 +12,939 @@
     "cookiePopup": {
       "ariaLabel": "Gestion des cookies",
       "title": "Votre vie privée",
-      "message": "Nous déposons des cookies de mesure d'audience pour améliorer votre expérience et la qualité du service.",
+      "message": "Ce site ne dépose aucun traceur publicitaire. Seul votre choix de langue et le souvenir de ce message sont conservés localement, dans votre navigateur.",
       "accept": "Tout accepter",
       "decline": "Tout refuser",
-      "manage": "Gérer mes choix"
+      "manage": "En savoir plus"
     }
   },
   "header": {
-    "homeTitle": "Registre National des Entreprises d'Astoria — Accueil",
-    "serviceTitle": "Registre National des Entreprises d'Astoria",
-    "serviceTagline": "RNEA — le registre officiel des entreprises d'Astoria",
-    "myGouv": "Mon compte",
-    "accountLabel": "Mon compte",
-    "logoutLink": "Se déconnecter",
-    "account": {
-      "profile": "Mon profil",
-      "settings": "Mes paramètres"
-    }
+    "homeTitle": "Notploy — Accueil",
+    "serviceTitle": "Notploy",
+    "serviceTagline": "Déployez et exploitez vos applications sur votre propre infrastructure",
+    "signIn": "Se connecter"
   },
   "meta": {
-    "defaultTitle": "Office National du Registre des Entreprises",
-    "suffix": "RNEA · Office National du Registre des Entreprises",
-    "description": "L'Office National du Registre des Entreprises (RNEA) : recherche d'entreprises, formalités, documents officiels, propriété intellectuelle et données publiques.",
-    "searchPlaceholder": "Rechercher une entreprise ou un numéro d'immatriculation"
-  },
-  "footer": {
-    "contentDescription": "Registre National des Entreprises d'Astoria — la source officielle d'information sur les entreprises et leurs formalités.",
-    "bottom": {
-      "contact": "Contact",
-      "planDuPortail": "Plan du portail",
-      "documentsOpposables": "Documents opposables",
-      "privacy": "Confidentialité",
-      "cookies": "Gestion des cookies",
-      "publications": "Publications officielles"
-    },
-    "license": "Sauf mention contraire, tous les contenus de ce site sont sous <link>licence APSL</link>."
+    "defaultTitle": "Notploy — Plateforme open source de déploiement et d'exploitation",
+    "suffix": "Notploy",
+    "description": "Notploy est une plateforme open source et auto-hébergeable pour déployer et exploiter des applications : applications et bases de données, Docker Compose, domaines et certificats, supervision et serveurs."
   },
   "nav": {
     "primary": {
-      "entreprises": "Entreprises",
-      "registre": "Registre",
-      "formalites": "Formalités",
-      "proprieteIntellectuelle": "Propriété intellectuelle",
-      "documents": "Documents",
-      "donnees": "Données",
-      "rnea": "RNEA"
+      "platform": "Plateforme",
+      "developers": "Développeurs",
+      "cloud": "Cloud",
+      "selfHosted": "Auto-hébergé",
+      "security": "Sécurité",
+      "docs": "Documentation"
+    }
+  },
+  "footer": {
+    "contentDescription": "Notploy est une plateforme open source et auto-hébergeable pour déployer et exploiter vos applications, vos bases de données et votre infrastructure.",
+    "columnsTitle": "Explorer Notploy",
+    "columns": {
+      "platform": "Plateforme",
+      "developers": "Développeurs",
+      "resources": "Ressources",
+      "product": "Produit",
+      "legal": "Informations légales"
     },
-    "panel": {
-      "entreprises": {
-        "title": "Entreprises",
-        "text": "Identifiez, créez, modifiez ou cessez une entreprise du registre national.",
-        "allLink": "Tout sur les entreprises",
-        "rechercher": {
-          "title": "Rechercher une entreprise",
-          "simple": "Recherche simple",
-          "parSiren": "Recherche par SIREN",
-          "parDirigeant": "Recherche par dirigeant",
-          "avancee": "Recherche avancée"
-        },
-        "creer": {
-          "title": "Créer une entreprise",
-          "conditionsImmatriculation": "Conditions d'immatriculation",
-          "declarationActivite": "Déclaration d'activité",
-          "formalitesCreation": "Formalités de création",
-          "suiviCreation": "Suivi de la création"
-        },
-        "modifier": {
-          "title": "Modifier une entreprise",
-          "changementDirigeant": "Changement de dirigeant",
-          "changementAdresse": "Changement d'adresse",
-          "modificationActivite": "Modification de l'activité",
-          "miseAJourInformations": "Mise à jour des informations"
-        },
-        "cesser": {
-          "title": "Cesser une activité",
-          "declarationCessation": "Déclaration de cessation",
-          "radiation": "Radiation du registre",
-          "transmission": "Transmission d'entreprise",
-          "suitesCessation": "Suites de la cessation"
-        }
+    "links": {
+      "applications": "Applications et builds",
+      "compose": "Docker Compose",
+      "databases": "Bases de données",
+      "routing": "Domaines et certificats",
+      "monitoring": "Supervision",
+      "servers": "Serveurs et clusters",
+      "api": "API REST",
+      "sdk": "SDK TypeScript",
+      "cli": "CLI",
+      "mcp": "Serveur MCP",
+      "integrations": "Intégrations",
+      "documentation": "Documentation",
+      "templates": "Galerie de templates",
+      "community": "Serveur Discord",
+      "github": "Dépôt GitHub",
+      "releases": "Publications",
+      "cloud": "Notploy Cloud",
+      "selfHosted": "Auto-hébergé",
+      "security": "Sécurité",
+      "openSource": "Licence MIT",
+      "accessibility": "Accessibilité",
+      "privacy": "Confidentialité",
+      "terms": "Conditions d'utilisation",
+      "cookies": "Cookies"
+    },
+    "bottom": {
+      "contact": "Nous contacter",
+      "sitemap": "Plan du site",
+      "security": "Signaler une vulnérabilité"
+    },
+    "license": "Notploy est publié sous licence MIT. Le code source est disponible sur <link>GitHub</link>."
+  },
+  "community": {
+    "title": "Rejoindre la communauté",
+    "lead": "Notploy se construit ouvertement : les tickets, les discussions et le serveur Discord sont les endroits où le projet se décide.",
+    "note": "Le projet est publié sous licence MIT. Les contributions passent par des tickets et des pull requests sur le dépôt GitHub.",
+    "items": {
+      "github": {
+        "title": "Dépôt GitHub",
+        "desc": "Le code source complet de la plateforme, de l'application web aux packages."
       },
-      "registre": {
-        "title": "Registre",
-        "text": "Consultez les entreprises enregistrées, leurs établissements, leurs dirigeants et l'historique du registre.",
-        "allLink": "Tout sur le registre",
-        "entreprisesEnregistrees": {
-          "title": "Entreprises enregistrées",
-          "liste": "Liste des entreprises",
-          "dernieresImmatriculations": "Dernières immatriculations",
-          "etatDuRegistre": "État du registre",
-          "publicationsLegales": "Publications légales"
-        },
-        "etablissements": {
-          "title": "Établissements",
-          "liste": "Liste des établissements",
-          "parRegion": "Établissements par région",
-          "ouvertureFermeture": "Ouverture et fermeture",
-          "rechercher": "Rechercher un établissement"
-        },
-        "dirigeants": {
-          "title": "Dirigeants",
-          "liste": "Liste des dirigeants",
-          "fonctionsMandats": "Fonctions et mandats",
-          "incompatibilites": "Incompatibilités et interdictions",
-          "rechercher": "Rechercher un dirigeant"
-        },
-        "historique": {
-          "title": "Historique du registre",
-          "evenements": "Événements de la vie de l'entreprise",
-          "anciennesDenominations": "Anciennes dénominations",
-          "transfertsFusions": "Transferts et fusions",
-          "archives": "Archives du registre"
-        }
+      "issues": {
+        "title": "Tickets",
+        "desc": "Signalez un bug ou proposez une fonctionnalité sur le suivi des tickets."
       },
-      "formalites": {
-        "title": "Formalités",
-        "text": "Réalisez les formalités légales des entreprises : création, modification et cessation.",
-        "allLink": "Toutes les formalités",
-        "toutes": {
-          "title": "Toutes les formalités",
-          "parType": "Formalités par type",
-          "enCours": "Formalités en cours",
-          "historique": "Historique des formalités",
-          "coutsDelais": "Coûts et délais"
-        },
-        "creation": {
-          "title": "Création",
-          "immatriculation": "Immatriculation",
-          "debutActivite": "Déclaration de début d'activité",
-          "simplifiees": "Formalités simplifiées",
-          "documentsFournir": "Documents à fournir"
-        },
-        "modification": {
-          "title": "Modification",
-          "enregistrables": "Modifications enregistrables",
-          "declaration": "Déclaration de modification",
-          "piecesJustificatives": "Pièces justificatives",
-          "delaisOppositions": "Délais et oppositions"
-        },
-        "cessation": {
-          "title": "Cessation",
-          "declaration": "Déclaration de cessation",
-          "radiation": "Radiation du registre",
-          "transmissionUniverselle": "Transmission universelle",
-          "liquidation": "Liquidation"
-        }
+      "discussions": {
+        "title": "Discussions",
+        "desc": "Posez vos questions, partagez vos retours et vos idées d'architecture."
       },
-      "proprieteIntellectuelle": {
-        "title": "Propriété intellectuelle",
-        "text": "Protégez vos créations : marques, brevets, dessins et modèles.",
-        "allLink": "Tout sur la propriété intellectuelle",
-        "marques": {
-          "title": "Marques",
-          "deposer": "Déposer une marque",
-          "rechercher": "Rechercher une marque",
-          "renouveler": "Renouveler une marque",
-          "contester": "Contester une marque"
-        },
-        "brevets": {
-          "title": "Brevets",
-          "deposer": "Déposer un brevet",
-          "rechercher": "Rechercher un brevet",
-          "dureeEtendue": "Durée et étendue",
-          "contester": "Contester un brevet"
-        },
-        "dessinsEtModeles": {
-          "title": "Dessins et modèles",
-          "deposer": "Déposer un dessin ou modèle",
-          "rechercher": "Rechercher",
-          "protectionDuree": "Protection et durée",
-          "contester": "Contester"
-        },
-        "informations": {
-          "title": "Propriété intellectuelle",
-          "questCeQue": "Qu'est-ce que la propriété intellectuelle ?",
-          "droitsCreateurs": "Droits des créateurs",
-          "cadreJuridique": "Cadre juridique",
-          "aidesConseils": "Aides et conseils"
-        }
+      "discord": {
+        "title": "Discord",
+        "desc": "Échangez en direct avec les mainteneurs et les autres utilisateurs."
       },
-      "documents": {
-        "title": "Documents",
-        "text": "Obtenez et vérifiez les documents officiels du registre : extraits, certificats et actes déposés.",
-        "allLink": "Tous les documents",
-        "extraits": {
-          "title": "Extraits RNEA",
-          "commander": "Commander un extrait",
-          "extraitK": "Extrait K",
-          "immatriculation": "Extrait d'immatriculation",
-          "certifie": "Extrait certifié"
-        },
-        "certificats": {
-          "title": "Certificats",
-          "existence": "Certificat d'existence",
-          "immatriculation": "Certificat d'immatriculation",
-          "attestations": "Attestations",
-          "legalisation": "Légalisation"
-        },
-        "documentsDeposes": {
-          "title": "Documents déposés",
-          "actes": "Actes déposés",
-          "etatsFinanciers": "États financiers",
-          "conventions": "Conventions et contrats",
-          "consultation": "Consultation en ligne"
-        },
-        "verifier": {
-          "title": "Vérifier un document",
-          "piece": "Vérifier une pièce",
-          "extrait": "Vérifier un extrait",
-          "authenticite": "Authenticité des documents",
-          "securiteFraude": "Sécurité et fraude"
-        }
-      },
-      "donnees": {
-        "title": "Données",
-        "text": "Accédez aux données publiques du registre : données ouvertes, statistiques, API et téléchargements.",
-        "allLink": "Toutes les données",
-        "donneesOuvertes": {
-          "title": "Données ouvertes",
-          "jeuxDeDonnees": "Jeux de données",
-          "licence": "Licence ouverte",
-          "qualite": "Qualité des données",
-          "reutilisation": "Réutilisation"
-        },
-        "statistiques": {
-          "title": "Statistiques",
-          "chiffresCles": "Chiffres clés",
-          "creationsCessations": "Créations et cessations",
-          "repartitionSectorielle": "Répartition sectorielle",
-          "rapportsAnnuel": "Rapports annuels"
-        },
-        "api": {
-          "title": "API",
-          "acces": "Accès aux API",
-          "documentation": "Documentation",
-          "guidesTechniques": "Guides techniques",
-          "statutService": "Statut du service"
-        },
-        "telechargements": {
-          "title": "Téléchargements",
-          "fichiers": "Fichiers du registre",
-          "misesAJour": "Mises à jour",
-          "formats": "Formats disponibles",
-          "extraction": "Extraction sur mesure"
-        }
-      },
-      "rnea": {
-        "title": "RNEA",
-        "text": "Découvrez le Registre national des entreprises d'Astoria, ses missions, ses tarifs et son assistance.",
-        "allLink": "Tout sur le RNEA",
-        "aPropos": {
-          "title": "À propos du RNEA",
-          "questCeQue": "Qu'est-ce que le RNEA ?",
-          "missions": "Missions",
-          "organisation": "Organisation",
-          "textesFondateurs": "Textes fondateurs"
-        },
-        "tarifs": {
-          "title": "Tarifs",
-          "formalites": "Tarifs des formalités",
-          "documents": "Tarifs des documents",
-          "gratuitesExonerations": "Gratuités et exonérations",
-          "paiement": "Modalités de paiement"
-        },
-        "aide": {
-          "title": "Aide",
-          "questionsFrequentes": "Questions fréquentes",
-          "guidesTutoriels": "Guides et tutoriels",
-          "demarchesPasAPas": "Démarches pas à pas",
-          "glossaire": "Glossaire"
-        },
-        "contact": {
-          "title": "Contact",
-          "nousContacter": "Nous contacter",
-          "horaires": "Horaires d'ouverture",
-          "servicesEnLigne": "Services en ligne",
-          "pressePartenaires": "Presse et partenaires"
-        }
+      "templates": {
+        "title": "Galerie de templates",
+        "desc": "Déployez des applications prêtes à l'emploi en un clic."
       }
     }
   },
   "home": {
-    "metaTitle": "Registre national des entreprises d'Astoria",
+    "metaTitle": "Notploy — Déployez et exploitez vos applications, sur votre infrastructure",
     "hero": {
-      "kicker": "Registre officiel des entreprises d'Astoria",
-      "title": "Registre national des entreprises d'Astoria",
-      "lead": "Le RNEA est la source officielle d'information sur les entreprises astoriennes : identité, dirigeants, formalités et documents légaux.",
-      "ctaSearch": "Rechercher une entreprise",
-      "ctaFormality": "Effectuer une formalité"
+      "kicker": "Open source · Licence MIT",
+      "title": "Déployez et exploitez vos applications, sur votre propre infrastructure",
+      "lead": "Notploy réunit applications, Docker Compose, bases de données, domaines et certificats, supervision et serveurs dans une seule interface web — auto-hébergée ou opérée pour vous.",
+      "ctaPrimary": "Installer Notploy",
+      "ctaSecondary": "Découvrir la plateforme",
+      "ctaGithub": "Voir le dépôt GitHub"
     },
-    "search": {
-      "title": "Rechercher dans le registre",
-      "label": "Rechercher une entreprise",
-      "placeholder": "Nom de l'entreprise ou numéro RNEA",
-      "popularLabel": "Recherches fréquentes :",
-      "popular": {
-        "company": "Nom d'entreprise",
-        "rneaNumber": "Numéro RNEA",
-        "establishment": "Établissement",
-        "director": "Dirigeant"
-      }
+    "stats": {
+      "kicker": "Le produit en bref",
+      "title": "Une plateforme, tout le cycle de vie",
+      "lead": "Des chiffres vérifiables dans le dépôt, pas des promesses.",
+      "databases": "moteurs de bases de données provisionnés et sauvegardés",
+      "builders": "stratégies de construction : Docker, Nixpacks, Railpack, buildpacks",
+      "targets": "cibles de déploiement : serveur local, serveurs distants, Docker Swarm",
+      "license": "licence open source, sans édition propriétaire"
     },
-    "consult": {
-      "kicker": "Consulter le registre",
-      "title": "Rechercher dans le RNEA",
-      "lead": "Interrogez le registre national comme le ferait un greffe : une entreprise, un numéro RNEA, un établissement ou un dirigeant.",
-      "note": "Les informations sur les dirigeants sont consultables lorsque la loi les rend publiques.",
+    "capabilities": {
+      "kicker": "Ce que vous faites avec Notploy",
+      "title": "Tout le cycle de vie, au même endroit",
+      "lead": "De la première connexion Git à la supervision en production : une seule interface pour vos applications, vos données et votre infrastructure.",
+      "cta": "Tout voir sur la plateforme",
       "items": {
-        "company": {
-          "title": "Rechercher une entreprise",
-          "desc": "Identité, forme, capital, siège et activité."
+        "applications": {
+          "title": "Applications",
+          "desc": "Déployez depuis un dépôt Git ou une image de conteneur, avec Docker, Nixpacks, Railpack ou les buildpacks."
         },
-        "rneaNumber": {
-          "title": "Rechercher par numéro RNEA",
-          "desc": "Accéder directement à une entreprise par son identifiant unique."
+        "compose": {
+          "title": "Docker Compose",
+          "desc": "Lancez des projets Compose complets et pilotez leurs services, leur configuration, leurs journaux et leurs déploiements."
         },
-        "establishment": {
-          "title": "Rechercher un établissement",
-          "desc": "Sièges et établissements secondaires enregistrés."
+        "databases": {
+          "title": "Bases de données",
+          "desc": "Provisionnez PostgreSQL, MySQL, MariaDB, MongoDB et Redis, avec des sauvegardes planifiées."
         },
-        "director": {
-          "title": "Rechercher un dirigeant",
-          "desc": "Dirigeants, mandats et fonctions enregistrés."
+        "routing": {
+          "title": "Domaines et certificats",
+          "desc": "Exposez vos applications avec Traefik, gérez vos domaines et vos certificats depuis l'interface."
+        },
+        "monitoring": {
+          "title": "Supervision",
+          "desc": "Suivez la consommation de ressources et les journaux, et recevez les notifications de déploiement."
+        },
+        "servers": {
+          "title": "Serveurs et clusters",
+          "desc": "Déployez sur le serveur local, des serveurs distants en SSH ou un cluster Docker Swarm."
         }
       }
     },
-    "understand": {
-      "kicker": "Comprendre",
-      "title": "Comprendre le RNEA",
-      "lead": "Le registre centralise et publie les informations légales des entreprises pour sécuriser la vie économique astorienne.",
-      "items": {
-        "what": {
-          "title": "Le registre officiel",
-          "desc": "Le RNEA est le registre national unique des entreprises immatriculées en Astoria."
-        },
-        "role": {
-          "title": "Un rôle économique",
-          "desc": "Il garantit l'identité des entreprises et sécurise les échanges entre partenaires économiques."
-        },
-        "centralizes": {
-          "title": "Des informations centralisées",
-          "desc": "Immatriculations, modifications, cessations et documents légaux sont réunis en un seul lieu."
-        },
-        "public": {
-          "title": "Des données publiques",
-          "desc": "Les informations essentielles des entreprises sont librement consultables par tous."
-        }
-      }
-    },
-    "create": {
-      "kicker": "Créer",
-      "title": "Créer une entreprise",
-      "lead": "De la formalité de création à l'exercice de l'activité, le RNEA vous accompagne à chaque étape.",
+    "workflow": {
+      "kicker": "Le flux",
+      "title": "De la source à la production",
+      "lead": "Un chemin unique et lisible, de la connexion du dépôt à l'exploitation quotidienne.",
       "steps": {
-        "formalites": "Déposer la formalité de création",
-        "enregistrement": "Être immatriculé au registre",
-        "identifiant": "Recevoir son numéro RNEA",
-        "activite": "Exercer son activité"
-      },
-      "cta": "Créer une entreprise",
-      "secondaryCta": "Voir les formalités de création"
-    },
-    "manage": {
-      "kicker": "Gérer",
-      "title": "Gérer son entreprise",
-      "lead": "Le RNEA couvre toute la vie de l'entreprise : maintenez vos informations à jour, du siège à la cessation d'activité.",
-      "items": {
-        "modify": {
-          "title": "Modifier les informations",
-          "desc": "Mettre à jour les données de l'entreprise."
-        },
-        "seat": {
-          "title": "Changer le siège",
-          "desc": "Déclarer le transfert du siège social."
-        },
-        "establishment": {
-          "title": "Déclarer un établissement",
-          "desc": "Ouvrir ou fermer un établissement secondaire."
-        },
-        "directors": {
-          "title": "Modifier les dirigeants",
-          "desc": "Déclarer les changements de dirigeants."
-        },
-        "cease": {
-          "title": "Cesser l'activité",
-          "desc": "Déclarer la cessation et la radiation."
-        }
+        "connect": "Connecter",
+        "build": "Construire",
+        "deploy": "Déployer",
+        "route": "Router",
+        "operate": "Exploiter"
       }
     },
-    "documents": {
-      "kicker": "Obtenir",
-      "title": "Documents officiels",
-      "lead": "Obtenez et vérifiez les documents officiels du registre : extraits, certificats et actes déposés.",
+    "ecosystem": {
+      "kicker": "L'écosystème",
+      "title": "Une plateforme, toutes vos surfaces",
+      "lead": "Le même produit, du tableau de bord à la ligne de commande : Notploy est exposé par une interface web, une API, un SDK, une CLI et un serveur MCP.",
+      "cta": "Voir l'espace développeurs",
       "items": {
-        "extraits": {
-          "title": "Extraits RNEA",
-          "desc": "La photographie légale d'une entreprise à une date donnée."
+        "dashboard": {
+          "title": "Interface web",
+          "desc": "Le tableau de bord complet de la plateforme, hébergé sur app.notploy.com."
         },
-        "certificats": {
-          "title": "Certificats",
-          "desc": "Attestations d'existence, d'immatriculation et légalisations."
+        "desktop": {
+          "title": "Application de bureau",
+          "desc": "L'application Electron pour piloter vos déploiements depuis votre poste."
         },
-        "deposes": {
-          "title": "Documents déposés",
-          "desc": "Actes, états financiers et conventions consultables en ligne."
+        "mobile": {
+          "title": "Application mobile",
+          "desc": "Le client mobile pour suivre vos déploiements et vos services."
         },
-        "verifier": {
-          "title": "Vérifier un document",
-          "desc": "Contrôler l'authenticité d'un document officiel du registre."
-        }
-      },
-      "verifyTitle": "Vérifier l'authenticité d'un document",
-      "verifyText": "Tout document délivré par le RNEA peut être vérifié en ligne pour confirmer qu'il est authentique et à jour.",
-      "verifyLink": "Comment vérifier un document ?"
-    },
-    "pi": {
-      "kicker": "Protéger",
-      "title": "Propriété intellectuelle",
-      "lead": "Le dépôt et la protection de vos créations font partie de l'écosystème RNEA, distincts du registre des entreprises.",
-      "items": {
-        "marques": {
-          "title": "Marques",
-          "desc": "Déposer, rechercher et renouveler une marque."
+        "cli": {
+          "title": "CLI Notploy",
+          "desc": "Automatisez vos déploiements et vos opérations depuis un terminal."
         },
-        "brevets": {
-          "title": "Brevets",
-          "desc": "Protéger une invention par un brevet."
-        },
-        "dessins": {
-          "title": "Dessins et modèles",
-          "desc": "Protéger l'apparence d'un produit."
-        },
-        "informations": {
-          "title": "Informations générales",
-          "desc": "Comprendre les droits de propriété intellectuelle."
-        }
-      }
-    },
-    "data": {
-      "kicker": "Exploiter",
-      "title": "Données publiques et API",
-      "lead": "Le RNEA est une infrastructure numérique publique au service des administrations, des entreprises, des développeurs et des chercheurs.",
-      "items": {
-        "open": {
-          "title": "Données ouvertes",
-          "desc": "Les jeux de données du registre, librement réutilisables."
-        },
-        "stats": {
-          "title": "Statistiques",
-          "desc": "Créations, cessations et indicateurs du registre."
+        "sdk": {
+          "title": "SDK TypeScript",
+          "desc": "Le SDK TypeScript généré depuis l'API, prêt pour vos scripts et vos intégrations."
         },
         "api": {
-          "title": "API",
-          "desc": "Interroger les données du registre de façon automatisée."
+          "title": "API REST",
+          "desc": "L'API complète de la plateforme, décrite par une spécification OpenAPI."
         },
-        "downloads": {
-          "title": "Téléchargements",
-          "desc": "Les fichiers du registre, mis à jour régulièrement."
-        }
-      },
-      "exploreCta": "Explorer les données",
-      "apiCta": "Documentation API"
-    },
-    "news": {
-      "kicker": "Informations",
-      "title": "Informations du RNEA",
-      "lead": "Les évolutions du registre, des formalités et de ses services.",
-      "allLink": "Découvrir le RNEA",
-      "featured": {
-        "tag": "Nouveautés",
-        "title": "Le RNEA ouvre ses données aux réutilisateurs",
-        "text": "Les données essentielles du registre sont désormais téléchargeables librement et réutilisables pour tout projet.",
-        "date": "Septembre 2026"
-      },
-      "secondary": {
-        "extraits": {
-          "tag": "Formalités",
-          "title": "Commander un extrait en ligne, sans déplacement",
-          "date": "Septembre 2026"
+        "githubActions": {
+          "title": "GitHub Actions",
+          "desc": "Déclenchez vos déploiements depuis vos pipelines GitHub."
         },
-        "maintenance": {
-          "tag": "Maintenance",
-          "title": "Interruption prévue du service le dimanche",
-          "date": "Août 2026"
+        "vscode": {
+          "title": "Extension VS Code",
+          "desc": "Gardez vos déploiements à portée de main dans votre éditeur."
         },
-        "donnees": {
-          "tag": "Données",
-          "title": "Mise à jour mensuelle des jeux de données",
-          "date": "Août 2026"
+        "mcp": {
+          "title": "Serveur MCP",
+          "desc": "Pilotez la plateforme depuis les assistants compatibles Model Context Protocol."
         }
       }
     },
-    "institution": {
-      "kicker": "Le RNEA",
-      "title": "Le registre au service des entreprises",
-      "lead": "Découvrez l'institution, ses tarifs et l'assistance disponible pour vos démarches.",
-      "links": {
-        "aPropos": {
-          "title": "À propos du RNEA"
-        },
-        "tarifs": {
-          "title": "Tarifs"
-        },
-        "aide": {
-          "title": "Aide"
-        },
-        "contact": {
-          "title": "Contact"
-        }
-      }
-    },
-    "preferences": {
-      "kicker": "Mon espace",
-      "title": "Gérer mes préférences",
-      "lead": "Choisissez comment le RNEA peut vous contacter.",
-      "demoNote": "Exemple de démonstration : aucune donnée personnelle n'est enregistrée.",
-      "cta": "Accéder à mes préférences",
+    "databases": {
+      "kicker": "Données",
+      "title": "Vos bases de données, provisionnées et sauvegardées",
+      "lead": "Notploy crée, configure et sauvegarde les moteurs dont vos applications ont besoin, sans quitter l'interface.",
       "items": {
-        "appels": {
-          "channel": "Appels",
-          "status": "Autorisés"
+        "postgresql": {
+          "title": "PostgreSQL",
+          "desc": "La base relationnelle par défaut de la plateforme, avec sauvegardes planifiées."
         },
-        "sms": {
-          "channel": "SMS",
-          "status": "Autorisés"
+        "mysql": {
+          "title": "MySQL",
+          "desc": "Le moteur relationnel le plus répandu, provisionné en quelques clics."
         },
-        "courriers": {
-          "channel": "Courriers",
-          "status": "Refusés"
+        "mariadb": {
+          "title": "MariaDB",
+          "desc": "Le fork communautaire de MySQL, compatible et disponible au même endroit."
+        },
+        "mongodb": {
+          "title": "MongoDB",
+          "desc": "La base documentaire pour les applications qui n'ont pas de schéma figé."
+        },
+        "redis": {
+          "title": "Redis",
+          "desc": "Le magasin en mémoire pour le cache, les files et les sessions."
         }
       }
-    }
-  },
-  "stayInTouch": {
-    "newsletter": {
-      "title": "Recevoir les actualités du RNEA",
-      "desc": "Une lettre d'information mensuelle sur le registre, les formalités et les données des entreprises.",
-      "invalidEmail": "Veuillez saisir une adresse électronique valide.",
-      "label": "Adresse électronique",
-      "placeholder": "Votre adresse électronique",
-      "submit": "S'abonner",
-      "success": "Votre abonnement a bien été enregistré.",
-      "hint": "Vos données ne sont utilisées que pour vous envoyer la lettre d'information."
     },
-    "follow": {
-      "title": "Suivre le RNEA",
+    "hosting": {
+      "kicker": "Hébergement",
+      "title": "Sur votre infrastructure, ou hébergé pour vous",
+      "lead": "Notploy est le même logiciel dans les deux cas : vous choisissez seulement qui l'exploite.",
+      "note": "Notploy Cloud n'est pas une édition fermée : c'est la même application, opérée pour vous.",
       "items": {
-        "x": "X (Twitter)",
-        "facebook": "Facebook",
-        "linkedin": "LinkedIn",
-        "instagram": "Instagram",
-        "threads": "Threads"
+        "selfHosted": {
+          "title": "Auto-hébergé",
+          "desc": "Installez Notploy chez vous avec Docker Compose, sur votre matériel et votre réseau."
+        },
+        "cloud": {
+          "title": "Notploy Cloud",
+          "desc": "Laissez-nous opérer la plateforme pour vous, accessible sur app.notploy.com."
+        }
       }
+    },
+    "cta": {
+      "title": "Prêt à déployer ?",
+      "lead": "L'installation prend quelques minutes avec Docker Compose ; la documentation couvre la mise en production.",
+      "primary": "Installer Notploy",
+      "secondary": "Lire la documentation",
+      "license": "Notploy est publié sous licence {license}."
     }
   },
   "pages": {
+    "product": {
+      "related": {
+        "title": "Poursuivre l'exploration",
+        "kicker": "Pages liées",
+        "platform": {
+          "label": "La plateforme",
+          "desc": "Ce que Notploy déploie et opère : applications, Compose, bases de données, routage, supervision, serveurs."
+        },
+        "developers": {
+          "label": "Espace développeurs",
+          "desc": "API, SDK, CLI, serveur MCP, GitHub Actions, extension VS Code et clients."
+        },
+        "cloud": {
+          "label": "Notploy Cloud",
+          "desc": "La plateforme opérée pour vous, accessible sur app.notploy.com."
+        },
+        "selfHosted": {
+          "label": "Auto-hébergé",
+          "desc": "Prérequis, installation Docker Compose, exploitation et passage en production."
+        },
+        "security": {
+          "label": "Sécurité",
+          "desc": "Le modèle de sécurité de la plateforme et la procédure de signalement privé."
+        }
+      },
+      "platform": {
+        "meta": {
+          "title": "La plateforme",
+          "description": "Applications, Docker Compose, bases de données, domaines et certificats, supervision, serveurs et clusters : ce que Notploy déploie et opère."
+        },
+        "hero": {
+          "kicker": "Plateforme",
+          "title": "Tout ce que vous déployez et opérez, dans une seule interface",
+          "lead": "Notploy réunit les applications, leurs dépendances et l'infrastructure qui les porte, sans script d'installation à maintenir.",
+          "cta": "Installer Notploy"
+        },
+        "sections": {
+          "applications": {
+            "kicker": "Applications",
+            "title": "Déployez depuis Git ou une image de conteneur",
+            "lead": "Chaque application est construite puis déployée par la plateforme, avec la stratégie de construction que vous choisissez.",
+            "paragraphs": {
+              "p1": "Notploy construit votre application à partir d'un dépôt Git ou d'une image de conteneur publiée, puis la déploie sur le serveur ou le cluster ciblé. Les variables d'environnement, les volumes et les limites de ressources se configurent dans l'interface, au même endroit que le déploiement."
+            },
+            "cards": {
+              "docker": {
+                "title": "Docker",
+                "desc": "Un Dockerfile dans votre dépôt, ou une image déjà publiée."
+              },
+              "nixpacks": {
+                "title": "Nixpacks",
+                "desc": "La détection automatique du langage et de la commande de construction."
+              },
+              "railpack": {
+                "title": "Railpack",
+                "desc": "La construction automatique des applications sans Dockerfile."
+              },
+              "buildpacks": {
+                "title": "Buildpacks",
+                "desc": "La construction standardisée à partir de vos sources."
+              }
+            }
+          },
+          "compose": {
+            "kicker": "Compose",
+            "title": "Lancez vos projets Docker Compose",
+            "lead": "Un fichier Compose, plusieurs services : la plateforme les pilote comme une seule unité.",
+            "bullets": {
+              "b1": "Chaque service expose sa configuration, ses variables d'environnement et ses volumes.",
+              "b2": "Les journaux et l'état de chaque conteneur restent consultables depuis l'interface.",
+              "b3": "Les déploiements et les redémarrages se déclenchent sans passer par le terminal du serveur.",
+              "b4": "Les projets Compose se placent à côté de vos autres applications, dans la même infrastructure."
+            }
+          },
+          "databases": {
+            "kicker": "Bases de données",
+            "title": "Provisionnez et sauvegardez vos moteurs de données",
+            "lead": "Notploy crée les bases de données dont vos applications ont besoin et planifie leurs sauvegardes.",
+            "cards": {
+              "postgresql": {
+                "title": "PostgreSQL",
+                "desc": "Base relationnelle, avec sauvegardes planifiées."
+              },
+              "mysql": {
+                "title": "MySQL",
+                "desc": "Base relationnelle, avec sauvegardes planifiées."
+              },
+              "mariadb": {
+                "title": "MariaDB",
+                "desc": "Compatible MySQL, avec sauvegardes planifiées."
+              },
+              "mongodb": {
+                "title": "MongoDB",
+                "desc": "Base documentaire, avec sauvegardes planifiées."
+              },
+              "redis": {
+                "title": "Redis",
+                "desc": "Magasin en mémoire pour le cache et les files d'attente."
+              }
+            }
+          },
+          "routing": {
+            "kicker": "Routage",
+            "title": "Exposez vos applications avec vos propres domaines",
+            "lead": "Traefik est piloté par la plateforme : le routage, les domaines et les certificats restent dans l'interface.",
+            "bullets": {
+              "b1": "Chaque application reçoit un ou plusieurs domaines, avec leur certificat.",
+              "b2": "Les certificats sont émis et renouvelés automatiquement.",
+              "b3": "Les règles de routage s'appliquent sans redémarrer le reste de l'infrastructure.",
+              "b4": "Le trafic peut être exposé en HTTP ou redirigé vers HTTPS."
+            }
+          },
+          "monitoring": {
+            "kicker": "Supervision",
+            "title": "Suivez vos ressources et vos journaux",
+            "lead": "La consommation et les journaux de vos charges de travail sont visibles depuis la plateforme.",
+            "bullets": {
+              "b1": "La consommation de ressources de l'hôte et des conteneurs est consultable en continu.",
+              "b2": "Les journaux de chaque application et de chaque service restent accessibles dans l'interface.",
+              "b3": "Les notifications de déploiement partent vers les fournisseurs que vous configurez."
+            }
+          },
+          "servers": {
+            "kicker": "Infrastructure",
+            "title": "Du serveur local au cluster Swarm",
+            "lead": "La plateforme distingue la machine qui l'héberge des machines qui exécutent vos charges de travail.",
+            "cards": {
+              "local": {
+                "title": "Serveur local",
+                "desc": "Déployez directement sur la machine qui exécute Notploy."
+              },
+              "remote": {
+                "title": "Serveurs distants",
+                "desc": "Ajoutez des machines distantes et pilotez-les en SSH."
+              },
+              "swarm": {
+                "title": "Docker Swarm",
+                "desc": "Répartissez vos services sur un cluster Docker Swarm."
+              }
+            },
+            "cta": "Voir l'installation auto-hébergée"
+          }
+        }
+      },
+      "developers": {
+        "meta": {
+          "title": "Espace développeurs",
+          "description": "Automatisez Notploy avec l'API REST, le SDK TypeScript, la CLI, le serveur MCP, GitHub Actions et l'extension VS Code."
+        },
+        "hero": {
+          "kicker": "Développeurs",
+          "title": "Automatisez tout ce que l'interface permet",
+          "lead": "Chaque action de la plateforme est exposée par une API, et accompagnée d'un SDK, d'une CLI, d'un serveur MCP et d'intégrations pour vos outils.",
+          "cta": "Lire la documentation"
+        },
+        "sections": {
+          "api": {
+            "kicker": "API",
+            "title": "L'API REST de la plateforme",
+            "lead": "L'ensemble des opérations de la plateforme est décrit par une spécification OpenAPI.",
+            "paragraphs": {
+              "p1": "L'API couvre les applications, les déploiements, les bases de données, les serveurs et les projets Compose. La spécification OpenAPI publiée avec le projet sert de référence pour les clients et pour la génération de code."
+            },
+            "bullets": {
+              "b1": "Une spécification OpenAPI maintenue avec le code applicatif.",
+              "b2": "Des opérations identiques à celles de l'interface web.",
+              "b3": "Une authentification par projet, adaptée à vos automatisations."
+            },
+            "cta": "Consulter la documentation"
+          },
+          "sdk": {
+            "kicker": "SDK",
+            "title": "Le SDK TypeScript",
+            "lead": "Le SDK est généré depuis l'API : il suit les mêmes ressources et la même version que la plateforme.",
+            "paragraphs": {
+              "p1": "Le SDK est publié comme package du dépôt et se met à jour avec l'API. Il s'utilise depuis un script de déploiement, un job planifié ou une intégration interne."
+            },
+            "bullets": {
+              "b1": "Généré depuis la spécification OpenAPI, jamais écrit à la main.",
+              "b2": "Typé de bout en bout, en TypeScript.",
+              "b3": "Publié avec le reste des packages du dépôt."
+            }
+          },
+          "cli": {
+            "kicker": "CLI",
+            "title": "La CLI Notploy",
+            "lead": "La ligne de commande couvre vos déploiements et vos opérations courantes.",
+            "paragraphs": {
+              "p1": "La CLI s'adresse à un serveur Notploy avec les mêmes identifiants que l'interface. Elle s'intègre dans un script shell, un pipeline d'intégration continue ou une machine d'administration."
+            },
+            "bullets": {
+              "b1": "Déployer et suivre une application depuis un terminal.",
+              "b2": "Piloter les bases de données et les serveurs enregistrés.",
+              "b3": "S'utiliser avec les mêmes permissions que l'interface web."
+            }
+          },
+          "mcp": {
+            "kicker": "MCP",
+            "title": "Le serveur MCP",
+            "lead": "Notploy expose un serveur Model Context Protocol, pour piloter la plateforme depuis un assistant.",
+            "paragraphs": {
+              "p1": "Le serveur MCP donne à un assistant compatible l'accès aux opérations de la plateforme, dans les limites des permissions accordées. Il est publié comme package du dépôt."
+            },
+            "bullets": {
+              "b1": "Un package du dépôt, installable à côté des autres.",
+              "b2": "Les mêmes ressources que l'API REST.",
+              "b3": "Des permissions à accorder explicitement, jamais implicites."
+            }
+          },
+          "integrations": {
+            "kicker": "Intégrations",
+            "title": "Dans vos outils, au quotidien",
+            "lead": "La plateforme s'intègre là où vous travaillez déjà : vos pipelines, votre éditeur et vos postes.",
+            "cards": {
+              "githubActions": {
+                "title": "GitHub Actions",
+                "desc": "Le package d'intégration pour déclencher vos déploiements depuis GitHub."
+              },
+              "vscode": {
+                "title": "Extension VS Code",
+                "desc": "Une extension d'éditeur pour suivre et déclencher vos déploiements."
+              },
+              "clients": {
+                "title": "Applications de bureau et mobile",
+                "desc": "Les clients Electron et mobile pour piloter la plateforme hors du navigateur."
+              }
+            }
+          },
+          "resources": {
+            "kicker": "Ressources",
+            "title": "Documentation, templates et code source",
+            "lead": "Tout ce qu'il faut pour partir d'un exemple existant plutôt que d'une page blanche.",
+            "tiles": {
+              "documentation": {
+                "title": "Documentation",
+                "desc": "Les guides d'installation, de configuration et d'exploitation."
+              },
+              "templates": {
+                "title": "Galerie de templates",
+                "desc": "Des applications prêtes à déployer, proposées par le projet."
+              },
+              "repository": {
+                "title": "Dépôt GitHub",
+                "desc": "Le code source complet, les tickets et les discussions."
+              }
+            }
+          }
+        }
+      },
+      "cloud": {
+        "meta": {
+          "title": "Notploy Cloud",
+          "description": "La plateforme Notploy opérée pour vous, accessible sur app.notploy.com, sans installation ni maintenance à votre charge."
+        },
+        "hero": {
+          "kicker": "Cloud",
+          "title": "La même plateforme, opérée pour vous",
+          "lead": "Notploy Cloud sert la même application que votre installation auto-hébergée, accessible sur app.notploy.com.",
+          "cta": "Ouvrir app.notploy.com"
+        },
+        "sections": {
+          "what": {
+            "kicker": "Le principe",
+            "title": "Un seul logiciel, deux façons de l'exploiter",
+            "lead": "Notploy Cloud n'est pas une édition séparée : c'est l'application du dépôt, exécutée pour vous.",
+            "paragraphs": {
+              "p1": "Notploy est publié sous licence MIT. Le code exécuté par le cloud est celui du dépôt public : les correctifs, les fonctionnalités et les limites sont donc les mêmes des deux côtés.",
+              "p2": "Vous choisissez le cloud pour ne pas administrer la plateforme elle-même — mises à jour, base de données de la plateforme, supervision — tout en gardant la main sur vos applications et l'infrastructure qui les exécute."
+            },
+            "bullets": {
+              "b1": "Aucune édition fermée : le même code que l'auto-hébergement.",
+              "b2": "La plateforme est mise à jour et supervisée pour vous.",
+              "b3": "Vos applications restent déployées sur les serveurs que vous enregistrez.",
+              "b4": "Vous pouvez revenir à une installation auto-hébergée à tout moment."
+            }
+          },
+          "differences": {
+            "kicker": "Différences",
+            "title": "Ce que le cloud prend en charge",
+            "lead": "Les trois différences réelles entre une installation auto-hébergée et l'offre hébergée.",
+            "cards": {
+              "runtime": {
+                "title": "Le même moteur",
+                "desc": "L'application Notploy, avec les mêmes déploiements et les mêmes bases de données."
+              },
+              "tooling": {
+                "title": "Pas d'outillage de déploiement local",
+                "desc": "L'image cloud embarque l'application sans l'outillage de construction réservé à l'auto-hébergement."
+              },
+              "updates": {
+                "title": "Mises à jour prises en charge",
+                "desc": "La plateforme est mise à jour et surveillée sans intervention de votre part."
+              }
+            }
+          },
+          "start": {
+            "kicker": "Démarrer",
+            "title": "Trois étapes pour le premier déploiement",
+            "lead": "Le parcours est le même que sur une installation auto-hébergée, une fois la plateforme en place.",
+            "steps": {
+              "account": {
+                "title": "Ouvrir votre espace",
+                "text": "Créez votre espace sur app.notploy.com et terminez la configuration initiale."
+              },
+              "server": {
+                "title": "Enregistrer une machine",
+                "text": "Ajoutez le serveur ou le cluster qui exécutera vos applications, en SSH ou en Swarm."
+              },
+              "deploy": {
+                "title": "Déployer",
+                "text": "Connectez un dépôt ou une image de conteneur et lancez le premier déploiement."
+              }
+            },
+            "notice": "Gardez vos secrets hors du dépôt : les variables d'environnement se configurent dans la plateforme, jamais dans le code source."
+          },
+          "sovereignty": {
+            "kicker": "Continuité",
+            "title": "Le cloud ne vous enferme pas",
+            "lead": "Le projet étant open source, l'offre hébergée reste une option, pas une dépendance.",
+            "paragraphs": {
+              "p1": "Comme le produit et l'offre hébergée sont le même logiciel, une migration vers une installation auto-hébergée ne demande pas de réécrire vos déploiements. La documentation détaille l'installation et la configuration attendues."
+            },
+            "cta": "Lire la documentation"
+          }
+        }
+      },
+      "selfHosted": {
+        "meta": {
+          "title": "Auto-hébergé",
+          "description": "Installez Notploy chez vous avec Docker Compose : prérequis, démarrage du stack, exploitation courante et passage en production."
+        },
+        "hero": {
+          "kicker": "Auto-hébergé",
+          "title": "Installez Notploy chez vous",
+          "lead": "Une pile Docker Compose, votre matériel, votre réseau : l'installation auto-hébergée embarque l'outillage de déploiement complet.",
+          "cta": "Lire la documentation d'installation"
+        },
+        "sections": {
+          "requirements": {
+            "kicker": "Prérequis",
+            "title": "Ce qu'il faut avant de commencer",
+            "lead": "L'installation auto-hébergée s'exécute dans des conteneurs et pilote le moteur Docker de l'hôte.",
+            "bullets": {
+              "b1": "Docker Engine avec le plugin Compose, sur la machine qui hébergera Notploy.",
+              "b2": "Un accès au socket Docker de l'hôte, nécessaire pour construire et gérer les charges de travail.",
+              "b3": "Cet accès est hautement privilégié : traitez la machine comme un serveur d'administration et ne l'exposez pas publiquement avant d'avoir configuré l'authentification et HTTPS."
+            }
+          },
+          "install": {
+            "kicker": "Installation",
+            "title": "Quatre étapes, un fichier Compose",
+            "lead": "Le dépôt fournit le fichier Compose et un exemple de configuration à adapter.",
+            "steps": {
+              "clone": {
+                "title": "Récupérer le dépôt",
+                "text": "Clonez le dépôt du projet sur la machine cible, puis placez-vous dans le dossier créé."
+              },
+              "configure": {
+                "title": "Configurer l'environnement",
+                "text": "Copiez le fichier d'exemple en .env et renseignez des secrets uniques, notamment le mot de passe PostgreSQL et la clé d'authentification."
+              },
+              "start": {
+                "title": "Démarrer la pile",
+                "text": "Construisez et démarrez les conteneurs avec Docker Compose, puis suivez les journaux du service applicatif."
+              },
+              "setup": {
+                "title": "Terminer la configuration initiale",
+                "text": "Ouvrez la plateforme sur le port indiqué et terminez la configuration initiale."
+              }
+            },
+            "notice": "Conservez le fichier d'environnement privé et ne l'ajoutez jamais au dépôt : il contient les secrets de votre installation."
+          },
+          "operations": {
+            "kicker": "Exploitation",
+            "title": "Les commandes du quotidien",
+            "lead": "Une installation se pilote avec les commandes Compose habituelles.",
+            "paragraphs": {
+              "p1": "Les données de la plateforme et de ses bases vivent dans des volumes nommés, conservés entre les redémarrages. Les commandes ci-dessous couvrent l'état des services, leurs journaux et l'arrêt de la pile."
+            },
+            "bullets": {
+              "b1": "Consulter l'état des services de la pile.",
+              "b2": "Suivre les journaux de l'application ou d'un service précis.",
+              "b3": "Arrêter la pile sans supprimer les volumes de données."
+            }
+          },
+          "production": {
+            "kicker": "Production",
+            "title": "Avant d'ouvrir le service",
+            "lead": "Une installation accessible depuis Internet demande trois choses, dans cet ordre.",
+            "cards": {
+              "https": {
+                "title": "HTTPS",
+                "desc": "Terminez le chiffrement avant toute exposition publique du tableau de bord."
+              },
+              "authentication": {
+                "title": "Authentification",
+                "desc": "Créez le compte administrateur et vérifiez les règles d'accès avant l'ouverture."
+              },
+              "updates": {
+                "title": "Mises à jour",
+                "desc": "Suivez le rythme de publication du projet pour appliquer les correctifs."
+              }
+            },
+            "cta": "Lire la documentation d'installation"
+          }
+        }
+      },
+      "security": {
+        "meta": {
+          "title": "Sécurité",
+          "description": "Le modèle de sécurité de Notploy — accès privilégié au moteur Docker, authentification et TLS à la charge de l'opérateur — et la procédure de signalement privé."
+        },
+        "hero": {
+          "kicker": "Sécurité",
+          "title": "Un modèle de sécurité explicite",
+          "lead": "Notploy pilote des charges de travail : ses privilèges, ses limites et la procédure de signalement sont documentés ici, sans zone d'ombre."
+        },
+        "sections": {
+          "model": {
+            "kicker": "Modèle",
+            "title": "La plateforme pilote, vous gardez la main",
+            "lead": "Notploy n'est pas un service multi-tenant : c'est une plateforme que vous exécutez et que vous administrez.",
+            "paragraphs": {
+              "p1": "Une installation Notploy s'exécute dans des conteneurs et commande le moteur Docker de la machine qui l'héberge. Ce lien est la condition de son fonctionnement : c'est lui qui permet de construire les images et de lancer les applications.",
+              "p2": "L'authentification, le réseau et le chiffrement du transport relèvent de l'opérateur. La documentation d'installation décrit la configuration attendue avant toute exposition publique."
+            }
+          },
+          "privileges": {
+            "kicker": "Privilèges",
+            "title": "Un accès à traiter comme un accès administrateur",
+            "lead": "Le privilège accordé à la plateforme est réel et doit être en conséquence limité.",
+            "bullets": {
+              "b1": "L'accès au socket Docker équivaut à un accès root sur la machine hôte.",
+              "b2": "Ne publiez pas le tableau de bord avant d'avoir configuré l'authentification et HTTPS.",
+              "b3": "N'accordez cet accès qu'aux machines que vous administrez effectivement."
+            }
+          },
+          "reporting": {
+            "kicker": "Signalement",
+            "title": "Signaler une vulnérabilité en privé",
+            "lead": "Les vulnérabilités ne se signalent jamais dans les tickets publics.",
+            "paragraphs": {
+              "p1": "Le fichier SECURITY.md du dépôt décrit la procédure de signalement privé. Utilisez-la pour toute faille de sécurité : elle permet de corriger le problème avant sa divulgation."
+            },
+            "bullets": {
+              "b1": "Un signalement privé, jamais un ticket public.",
+              "b2": "Les détails techniques utiles : reproduction, version, portée de l'impact."
+            },
+            "cta": "Lire la politique de sécurité"
+          },
+          "practices": {
+            "kicker": "Bonnes pratiques",
+            "title": "Trois réflexes pour une installation saine",
+            "lead": "Le plus gros des risques se couvre en configuration, pas en correctif.",
+            "cards": {
+              "secrets": {
+                "title": "Secrets",
+                "desc": "Gardez le fichier d'environnement privé et unique à chaque installation."
+              },
+              "transport": {
+                "title": "Chiffrement",
+                "desc": "Terminez le chiffrement du transport avant d'exposer le tableau de bord."
+              },
+              "updates": {
+                "title": "Mises à jour",
+                "desc": "Appliquez les publications du projet, qui corrigent les vulnérabilités connues."
+              }
+            }
+          }
+        }
+      }
+    },
+    "sitemap": {
+      "meta": {
+        "title": "Plan du site",
+        "description": "Le plan complet du site Notploy : les pages produit, les colonnes de navigation et les informations légales."
+      },
+      "hero": {
+        "kicker": "Navigation",
+        "title": "Plan du site",
+        "lead": "Toutes les pages publiques du site, regroupées comme dans la navigation et le pied de page."
+      },
+      "sections": {
+        "navigation": {
+          "kicker": "Navigation principale",
+          "title": "Les pages produit",
+          "lead": "Les entrées qui structurent le site public."
+        },
+        "directory": {
+          "kicker": "Répertoire",
+          "title": "Toutes les destinations",
+          "lead": "Les mêmes liens que dans le pied de page, colonne par colonne."
+        },
+        "transversal": {
+          "kicker": "Informations",
+          "title": "Pages transversales",
+          "lead": "Les pages utilitaires et les informations légales.",
+          "links": {
+            "contact": "Nous contacter",
+            "accessibility": "Accessibilité",
+            "privacy": "Confidentialité",
+            "terms": "Conditions d'utilisation",
+            "cookies": "Cookies"
+          }
+        }
+      }
+    },
+    "contact": {
+      "meta": {
+        "title": "Nous contacter",
+        "description": "Où signaler un bug, poser une question, échanger avec les mainteneurs ou divulguer une vulnérabilité de Notploy."
+      },
+      "hero": {
+        "kicker": "Contact",
+        "title": "Échanger avec le projet",
+        "lead": "Notploy est un projet ouvert : chaque besoin a un canal dédié, public ou privé selon le sujet."
+      },
+      "channels": {
+        "kicker": "Canaux",
+        "title": "Où adresser votre demande",
+        "lead": "Quatre canaux, chacun pour un type de demande précis.",
+        "items": {
+          "issues": {
+            "title": "Signaler un bug",
+            "desc": "Le suivi des tickets du dépôt, pour les bugs reproductibles et les propositions de fonctionnalités."
+          },
+          "discussions": {
+            "title": "Poser une question",
+            "desc": "Les discussions du dépôt, pour les questions d'usage et d'architecture."
+          },
+          "discord": {
+            "title": "Échanger en direct",
+            "desc": "Le serveur Discord, pour les échanges informels avec les mainteneurs et les utilisateurs."
+          },
+          "security": {
+            "title": "Divulguer une vulnérabilité",
+            "desc": "La procédure de signalement privé, à utiliser pour toute faille de sécurité."
+          }
+        }
+      },
+      "resources": {
+        "kicker": "Ressources",
+        "title": "Avant d'écrire",
+        "lead": "La réponse se trouve souvent déjà dans la documentation ou dans un exemple existant.",
+        "items": {
+          "documentation": {
+            "title": "Documentation",
+            "desc": "Les guides d'installation, de configuration et d'exploitation."
+          },
+          "templates": {
+            "title": "Galerie de templates",
+            "desc": "Des applications prêtes à déployer pour partir d'un exemple."
+          },
+          "repository": {
+            "title": "Dépôt GitHub",
+            "desc": "Le code source complet et l'historique du projet."
+          },
+          "releases": {
+            "title": "Publications",
+            "desc": "Les versions publiées et leurs notes de changement."
+          }
+        }
+      }
+    },
     "legal": {
       "meta": {
         "title": "Informations légales",
-        "description": "Les informations légales du portail : déclaration d'accessibilité, confidentialité, conditions d'utilisation et cookies."
+        "description": "Les documents légaux du site Notploy : accessibilité, confidentialité, conditions d'utilisation et cookies."
       },
       "landing": {
         "hero": {
           "kicker": "Informations légales",
-          "title": "Informations légales du portail",
-          "lead": "Les documents juridiques et de référence du Registre national des entreprises d'Astoria.",
-          "notice": "Ces informations sont régulièrement mises à jour."
+          "title": "Les documents légaux du site",
+          "lead": "Quatre documents encadrent l'usage de ce site : son accessibilité, le traitement des données, ses conditions d'utilisation et le recours aux cookies.",
+          "notice": "Notploy est un logiciel publié sous licence MIT. Ces documents couvrent le site public ; le logiciel lui-même relève de sa licence."
         }
       },
       "related": {
-        "title": "Informations légales",
-        "kicker": "Dans la même rubrique",
+        "title": "Poursuivre votre lecture",
+        "kicker": "Dans cette rubrique",
         "accessibility": {
-          "label": "Déclaration d'accessibilité",
-          "desc": "L'état de conformité et la politique d'accessibilité du portail."
+          "label": "Accessibilité",
+          "desc": "L'état de conformité du site et les moyens de signaler un défaut d'accessibilité."
         },
         "privacy": {
           "label": "Confidentialité",
-          "desc": "Comment vos données personnelles sont traitées."
+          "desc": "Les données traitées par le site, leurs finalités et vos droits."
         },
         "terms": {
           "label": "Conditions d'utilisation",
-          "desc": "Les règles d'usage du portail."
+          "desc": "Les règles applicables à l'usage de ce site."
         },
         "cookies": {
-          "label": "Gestion des cookies",
-          "desc": "Les cookies déposés par le portail et leur gestion."
+          "label": "Cookies",
+          "desc": "Les cookies utilisés par le site et la manière de les gérer."
         },
         "sitemap": {
-          "label": "Plan du portail",
-          "desc": "La structure complète du portail."
+          "label": "Plan du site",
+          "desc": "Toutes les pages publiques du site."
         }
       },
       "accessibility": {
         "meta": {
-          "title": "Déclaration d'accessibilité",
-          "description": "La déclaration d'accessibilité du Registre national des entreprises d'Astoria."
+          "title": "Accessibilité",
+          "description": "Déclaration d'accessibilité du site Notploy : engagement, état de conformité, contenus non accessibles, établissement de cette déclaration et voies de recours."
         },
         "hero": {
           "kicker": "Accessibilité",
           "title": "Déclaration d'accessibilité",
-          "lead": "Le Registre national des entreprises d'Astoria s'engage à rendre son portail accessible à tous.",
-          "notice": "Cette déclaration d'accessibilité s'applique au portail rnea.gouv.aor."
+          "lead": "L'accessibilité du site public est un engagement de conception, pas un ajout de dernière minute : le site est construit sur un système de design qui porte lui-même les exigences d'accessibilité.",
+          "notice": "Cette déclaration porte sur le site public. Le logiciel Notploy et sa documentation disposent de leurs propres canaux de retour."
         },
         "sections": {
           "declaration": {
             "kicker": "Engagement",
-            "title": "Déclaration d'engagement",
-            "lead": "Le RNEA s'engage à rendre son portail accessible, conformément à la réglementation astorienne sur l'accessibilité numérique.",
+            "title": "Notre engagement",
+            "lead": "Le site vise une utilisation sans barrière par le plus grand nombre.",
             "paragraphs": {
-              "p1": "Cette déclaration décrit l'état de conformité du portail avec le référentiel général d'amélioration de l'accessibilité, les contenus non accessibles et la manière de signaler un problème.",
-              "p2": "La direction du registre veille à ce que chaque nouvelle version du portail maintienne et améliore son niveau d'accessibilité."
+              "p1": "Ce site repose sur un système de design accessible : structure sémantique, contrastes vérifiés, navigation au clavier et libellés explicites pour les technologies d'assistance. Les composants utilisés portent ces exigences par construction, ce qui évite de les réintroduire page par page.",
+              "p2": "Les contenus sont rédigés en langage clair et structurés en sections titrées, afin que la lecture linéaire, comme la lecture rapide, restent possibles."
             }
           },
           "conformite": {
             "kicker": "Conformité",
             "title": "État de conformité",
-            "lead": "Le portail est partiellement conforme au référentiel en vigueur.",
+            "lead": "Le site est conçu pour satisfaire les exigences applicables aux sites d'information.",
             "bullets": {
-              "b1": "Les contrastes de couleurs respectent les seuils recommandés sur l'ensemble des pages.",
-              "b2": "La navigation au clavier couvre les menus, la recherche et les formulaires.",
-              "b3": "Les contenus textuels disposent d'alternatives textuelles lorsque nécessaire."
+              "b1": "Les pages sont structurées avec un titre principal unique et une hiérarchie de titres continue.",
+              "b2": "La navigation au clavier et les liens d'évitement permettent d'atteindre le contenu et le pied de page.",
+              "b3": "Les couleurs et les tailles de texte reposent sur des jetons du système de design, pensés pour les contrastes."
             }
           },
           "nonAccessibles": {
             "kicker": "Limites",
-            "title": "Contenus non accessibles",
-            "lead": "Malgré notre vigilance, certains contenus peuvent présenter des limites d'accessibilité.",
+            "title": "Contenus non accessibles connus",
+            "lead": "Les limitations connues sont déclarées ici plutôt que tues.",
             "bullets": {
-              "b1": "Certains documents déposés au registre et numérisés peuvent ne pas être intégralement accessibles.",
-              "b2": "Les graphiques statistiques avancés peuvent nécessiter une lecture alternative.",
-              "b3": "Les contenus publiés avant la présente déclaration peuvent ne pas respecter l'intégralité du référentiel."
+              "b1": "Certaines visualisations de chiffres et de flux sont des représentations graphiques accompagnées d'un texte équivalent, mais restent difficiles à appréhender hors du visuel.",
+              "b2": "Les contenus vidéo ou animés, lorsqu'ils existent, ne disposent pas tous d'une alternative complète.",
+              "b3": "Les documents téléchargeables peuvent conserver une mise en forme issue de leur outil de production."
             }
           },
           "etablissement": {
             "kicker": "Établissement",
             "title": "Établissement de cette déclaration",
-            "lead": "Cette déclaration a été établie le 1er septembre 2026.",
+            "lead": "Les conditions dans lesquelles cette déclaration a été rédigée.",
             "facts": {
               "tests": {
-                "label": "Tests effectués",
-                "value": "Vérifications réalisées sur les principales pages du portail."
+                "label": "Tests réalisés",
+                "value": "Vérifications automatisées et revue manuelle des parcours principaux"
               },
               "referentiel": {
                 "label": "Référentiel",
-                "value": "Référentiel général d'amélioration de l'accessibilité (RGAA)"
+                "value": "Règles d'accessibilité des contenus web (RGAA 4.1), niveau visé AA"
               },
               "outils": {
                 "label": "Outils",
-                "value": "Inspections manuelles et analyse de contraste."
+                "value": "Outils d'analyse d'accessibilité du navigateur et vérifications manuelles"
               }
             }
           },
           "retour": {
-            "kicker": "Contact",
-            "title": "Retour d'information et contact",
-            "lead": "Si vous ne parvenez pas à accéder à un contenu ou à un service, vous pouvez nous le signaler.",
+            "kicker": "Retour",
+            "title": "Signaler un défaut d'accessibilité",
+            "lead": "Un défaut signalé est un défaut corrigeable.",
             "paragraphs": {
-              "p1": "Écrivez-nous depuis la page contact du portail ou par courrier à l'adresse du Registre national des entreprises. Une réponse vous sera adressée dans les meilleurs délais."
+              "p1": "Si une partie du site vous est inaccessible, signalez-le en décrivant la page, l'action tentée et l'obstacle rencontré. Les signalements d'accessibilité peuvent passer par les mêmes canaux que les autres retours sur le site."
             }
           },
           "voiesRecours": {
             "kicker": "Recours",
             "title": "Voies de recours",
-            "lead": "Si vous estimez que votre demande n'a pas abouti, vous disposez des recours suivants.",
+            "lead": "Si le signalement reste sans réponse, ces voies restent ouvertes.",
             "bullets": {
-              "b1": "Écrire au médiateur des services publics astoriens.",
-              "b2": "Saisir l'autorité chargée de la défense des droits.",
-              "b3": "Saisir l'autorité administrative compétente en dernier recours."
+              "b1": "Rétablir le contact par un autre canal public du projet.",
+              "b2": "Documenter précisément le problème (page, navigateur, technologie d'assistance utilisée).",
+              "b3": "Saisir l'autorité compétente en matière d'accessibilité si aucune réponse n'est obtenue."
             }
           }
         }
@@ -686,326 +952,232 @@
       "privacy": {
         "meta": {
           "title": "Confidentialité",
-          "description": "La politique de confidentialité du Registre national des entreprises d'Astoria : données collectées, finalités et droits."
+          "description": "Politique de confidentialité du site Notploy : données traitées, finalités, durées de conservation et droits des personnes."
         },
         "hero": {
-          "kicker": "Vos données",
+          "kicker": "Confidentialité",
           "title": "Politique de confidentialité",
-          "lead": "Le RNEA traite vos données personnelles dans le respect de la réglementation astorienne sur la protection des données.",
-          "notice": "Cette politique s'applique au portail rnea.gouv.aor."
+          "lead": "Ce site public ne cherche pas à vous identifier : il n'ouvre pas de compte, ne vend rien et n'installe aucun traceur publicitaire.",
+          "notice": "Cette politique couvre le site public. Une installation Notploy que vous administrez relève de vos propres règles de confidentialité."
         },
         "sections": {
           "responsable": {
             "kicker": "Responsable",
-            "title": "Responsable de traitement",
-            "lead": "Le traitement des données personnelles est placé sous la responsabilité du Registre national des entreprises d'Astoria.",
+            "title": "Qui traite les données",
+            "lead": "Le responsable du traitement est l'éditeur du site.",
             "paragraphs": {
-              "p1": "Le responsable de traitement veille à ce que vos données soient collectées et utilisées de façon licite, loyale et transparente."
+              "p1": "Le site public est édité par Sky Genesis Enterprise, qui détermine les finalités et les moyens du traitement décrit ci-dessous."
             },
             "facts": {
               "responsable": {
-                "label": "Responsable",
-                "value": "Registre national des entreprises d'Astoria"
+                "label": "Responsable du traitement",
+                "value": "Sky Genesis Enterprise"
               },
               "adresse": {
-                "label": "Adresse",
-                "value": "Palais des entreprises, Astoria"
+                "label": "Contact",
+                "value": "Les canaux publics du projet (tickets, discussions, Discord)"
               },
               "dpo": {
-                "label": "Délégué à la protection des données",
-                "value": "dpo@rnea.gouv.aor"
+                "label": "Référent données personnelles",
+                "value": "Joignable via les mêmes canaux"
               }
             }
           },
           "donnees": {
-            "kicker": "Collecte",
-            "title": "Données collectées",
-            "lead": "Le portail collecte uniquement les données nécessaires au fonctionnement de ses services.",
+            "kicker": "Données",
+            "title": "Les données effectivement traitées",
+            "lead": "Le site ne collecte que ce qui est nécessaire à son fonctionnement technique.",
             "bullets": {
-              "b1": "Les données que vous saisissez dans les formulaires de contact et d'abonnement.",
-              "b2": "Les données de connexion (adresse IP, journal) pour sécuriser le service.",
-              "b3": "Les données de mesure d'audience, anonymisées, pour améliorer le portail.",
-              "b4": "Aucune donnée personnelle n'est collectée lors d'une simple consultation du registre."
+              "b1": "Les journaux techniques du serveur (adresse IP, date, page demandée), générés par tout service web.",
+              "b2": "Votre choix de langue, conservé localement dans votre navigateur.",
+              "b3": "Le souvenir de votre réponse au bandeau d'information, conservé dans votre navigateur.",
+              "b4": "Aucune donnée publicitaire, aucun profil, aucune revente."
             }
           },
           "finalites": {
             "kicker": "Finalités",
-            "title": "Finalités et bases légales",
-            "lead": "Chaque traitement répond à une finalité précise et repose sur une base légale.",
+            "title": "Pourquoi ces données sont traitées",
+            "lead": "Chaque traitement répond à un besoin identifié.",
             "paragraphs": {
-              "p1": "Les données sont traitées pour répondre à vos demandes, assurer la sécurité du portail et mesurer son audience.",
-              "p2": "Les traitements reposent sur l'exécution de missions de service public et, pour les mesures d'audience, sur votre consentement."
+              "p1": "Les journaux techniques servent à faire fonctionner le site, à détecter les erreurs et à prévenir les abus. Votre préférence de langue sert à afficher les pages dans la langue choisie.",
+              "p2": "Le site n'utilise aucun outil de mesure d'audience qui vous identifie, et ne croise pas ces données avec d'autres sources."
             }
           },
           "conservation": {
             "kicker": "Conservation",
-            "title": "Durée de conservation",
-            "lead": "Les données ne sont conservées que le temps nécessaire à la finalité du traitement.",
+            "title": "Combien de temps",
+            "lead": "Les durées sont limitées au strict nécessaire.",
             "facts": {
               "duree": {
-                "label": "Durée",
-                "value": "Conformément aux durées légales de conservation en vigueur."
+                "label": "Journaux techniques",
+                "value": "Durée limitée, le temps de l'exploitation et du diagnostic"
               },
               "critere": {
-                "label": "Critère",
-                "value": "La finalité du traitement et les obligations légales."
+                "label": "Préférences locales",
+                "value": "Jusqu'à leur suppression dans votre navigateur"
               }
             }
           },
           "droits": {
-            "kicker": "Vos droits",
+            "kicker": "Droits",
             "title": "Vos droits",
-            "lead": "Vous disposez de droits sur vos données personnelles.",
+            "lead": "Vous pouvez exercer ces droits via les canaux publics du projet.",
             "bullets": {
-              "b1": "Le droit d'accès à vos données.",
-              "b2": "Le droit de rectification des données inexactes.",
-              "b3": "Le droit d'opposition, dans certaines conditions.",
-              "b4": "Le droit à l'effacement, dans les cas prévus par la loi.",
-              "b5": "Le droit de retirer votre consentement pour les mesures d'audience."
+              "b1": "Droit d'accès aux données qui vous concernent.",
+              "b2": "Droit de rectification des données inexactes.",
+              "b3": "Droit à l'effacement, dans les limites des obligations légales.",
+              "b4": "Droit d'opposition au traitement.",
+              "b5": "Droit d'introduire une réclamation auprès de l'autorité de contrôle compétente."
             }
           },
           "cookies": {
             "kicker": "Cookies",
-            "title": "Cookies et mesure d'audience",
-            "lead": "Le portail dépose des cookies de mesure d'audience, soumis à votre consentement.",
+            "title": "Mesure d'audience et traceurs",
+            "lead": "Le site ne dépose aucun traceur publicitaire.",
             "paragraphs": {
-              "p1": "Vous pouvez configurer votre consentement à tout moment depuis la page de gestion des cookies."
+              "p1": "Les seuls éléments conservés localement servent au fonctionnement du site : la langue active et le souvenir du bandeau d'information. Aucun de ces éléments n'est utilisé pour vous suivre sur d'autres sites."
             },
-            "notice": "Aucun cookie publicitaire n'est déposé par le portail.",
-            "cta": "Gérer mes cookies"
-          }
-        }
-      },
-      "cookies": {
-        "meta": {
-          "title": "Gestion des cookies",
-          "description": "La politique de cookies du Registre national des entreprises d'Astoria : familles de cookies déposés et leur gestion."
-        },
-        "hero": {
-          "kicker": "Cookies",
-          "title": "Gestion des cookies",
-          "lead": "Le portail dépose des cookies de mesure d'audience pour comprendre son usage et améliorer ses services.",
-          "notice": "Vos choix sont conservés pour une durée de six mois."
-        },
-        "sections": {
-          "definition": {
-            "kicker": "Définition",
-            "title": "Qu'est-ce qu'un cookie ?",
-            "lead": "Un cookie est un petit fichier déposé sur votre terminal lors de la visite d'un site.",
-            "paragraphs": {
-              "p1": "Il permet de reconnaître votre navigateur et de mémoriser certaines informations pour la durée de votre visite ou pour des visites ultérieures.",
-              "p2": "Certains cookies sont indispensables au fonctionnement du site, d'autres nécessitent votre consentement."
-            }
-          },
-          "cookiesDeposes": {
-            "kicker": "Inventaire",
-            "title": "Cookies déposés",
-            "lead": "Le portail dépose les familles de cookies suivantes.",
-            "table": {
-              "caption": "Familles de cookies déposés par le portail",
-              "headers": {
-                "0": "Famille",
-                "1": "Finalité",
-                "2": "Durée"
-              },
-              "rows": {
-                "0": {
-                  "0": "Mesure d'audience",
-                  "1": "Mesure anonyme de la fréquentation du portail",
-                  "2": "13 mois"
-                },
-                "1": {
-                  "0": "Fonctionnement",
-                  "1": "Mémorisation de vos préférences d'affichage",
-                  "2": "Session"
-                },
-                "2": {
-                  "0": "Consentement",
-                  "1": "Mémorisation de vos choix de cookies",
-                  "2": "6 mois"
-                },
-                "3": {
-                  "0": "Sécurité",
-                  "1": "Protection du portail contre les usages abusifs",
-                  "2": "Session"
-                }
-              },
-              "note": "Aucun cookie publicitaire n'est déposé par le portail."
-            }
-          },
-          "gestion": {
-            "kicker": "Vos choix",
-            "title": "Gestion des cookies",
-            "lead": "Vous pouvez configurer le dépôt des cookies à tout moment.",
-            "bullets": {
-              "b1": "Depuis le bandeau de consentement affiché lors de votre première visite.",
-              "b2": "En configurant votre navigateur pour refuser ou limiter les cookies.",
-              "b3": "En contactant le délégué à la protection des données du registre."
-            },
-            "notice": "Le refus des cookies de mesure d'audience n'altère pas le fonctionnement du portail."
+            "notice": "Le détail des cookies utilisés est décrit dans la page dédiée.",
+            "cta": "Lire la page Cookies"
           }
         }
       },
       "terms": {
         "meta": {
           "title": "Conditions d'utilisation",
-          "description": "Les conditions d'utilisation du portail du Registre national des entreprises d'Astoria."
+          "description": "Conditions d'utilisation du site Notploy : objet, règles d'usage, contenus, responsabilité, liens externes et modification."
         },
         "hero": {
-          "kicker": "Utilisation",
-          "title": "Conditions d'utilisation",
-          "lead": "Le présent document définit les conditions d'utilisation du portail rnea.gouv.aor.",
-          "notice": "Ces conditions s'appliquent à l'ensemble des contenus et services du portail."
+          "kicker": "Conditions d'utilisation",
+          "title": "Conditions d'utilisation du site",
+          "lead": "Ce site présente un logiciel open source. Son usage est encadré par les conditions ci-dessous et, pour le logiciel lui-même, par sa licence.",
+          "notice": "Le logiciel Notploy est distribué sous licence MIT. Ces conditions concernent l'usage du site public."
         },
         "sections": {
           "objet": {
             "kicker": "Objet",
-            "title": "Objet du portail",
-            "lead": "Le portail a pour objet de faciliter l'accès aux informations et aux services du registre.",
+            "title": "Ce que ces conditions couvrent",
+            "lead": "Ces conditions définissent les règles d'usage du site public.",
             "paragraphs": {
-              "p1": "Il met à disposition des informations sur les entreprises, les formalités, les documents officiels et les données publiques du registre.",
-              "p2": "Les informations publiées ont un caractère informatif et n'engagent pas la responsabilité du registre en cas d'usage commercial inapproprié."
+              "p1": "Le site présente le projet Notploy, sa documentation, sa galerie de templates et ses canaux communautaires. Son contenu est fourni à titre informatif.",
+              "p2": "L'utilisation du logiciel Notploy, de son code source et de ses packages est régie par la licence du projet et par celles de ses composants tiers."
             }
           },
           "utilisation": {
             "kicker": "Usage",
-            "title": "Utilisation du portail",
-            "lead": "Le portail est librement accessible à toute personne physique ou morale.",
+            "title": "Règles d'usage du site",
+            "lead": "Quelques règles simples, pour que le site reste disponible pour tous.",
             "bullets": {
-              "b1": "L'utilisation du portail est gratuite pour la consultation publique.",
-              "b2": "Les données publiées peuvent être réutilisées dans le respect de la licence applicable.",
-              "b3": "Il est interdit d'utiliser le portail pour accéder à des informations de façon frauduleuse.",
-              "b4": "Les comptes et espaces personnels sont strictement personnels et non cessibles."
+              "b1": "Ne pas tenter de perturber le fonctionnement du site ou de ses services.",
+              "b2": "Ne pas extraire massivement les contenus au détriment des autres visiteurs.",
+              "b3": "Ne pas présenter le projet d'une manière qui induise en erreur sur son origine ou sa licence.",
+              "b4": "Utiliser les canaux communautaires pour ce à quoi ils sont destinés."
             }
           },
           "contenus": {
             "kicker": "Contenus",
-            "title": "Contenus et données",
-            "lead": "Les contenus du portail sont fournis avec la plus grande attention.",
+            "title": "Contenus et propriété intellectuelle",
+            "lead": "Le code, les textes et les marques restent soumis à leurs droits.",
             "paragraphs": {
-              "p1": "Les données du registre proviennent de sources officielles et sont mises à jour régulièrement.",
-              "p2": "En cas d'erreur constatée, vous pouvez nous la signaler afin qu'elle soit corrigée dans les meilleurs délais."
+              "p1": "Le code source du projet est publié sous licence MIT. Les textes, les illustrations et les marques restent la propriété de leurs titulaires.",
+              "p2": "La référence aux autres projets et aux autres offres citées sur le site sert à situer Notploy, sans affiliation ni partenariat implicite."
             }
           },
           "responsabilite": {
             "kicker": "Responsabilité",
             "title": "Responsabilité",
-            "lead": "Le registre s'efforce d'assurer la disponibilité et l'exactitude des informations.",
+            "lead": "Le site est fourni en l'état, sans garantie de fonctionnement.",
             "paragraphs": {
-              "p1": "Le registre ne peut être tenu responsable d'une indisponibilité temporaire du portail ni d'un usage des informations contraire à leur destination.",
-              "p2": "L'utilisateur est responsable de l'usage qu'il fait des informations issues du portail."
+              "p1": "L'éditeur s'efforce de maintenir le site exact et disponible, sans pouvoir garantir l'absence d'erreur ou d'interruption.",
+              "p2": "L'usage d'un logiciel de déploiement reste sous votre responsabilité, en particulier l'administration des machines et la conservation des secrets."
             }
           },
           "liens": {
             "kicker": "Liens",
-            "title": "Liens externes",
-            "lead": "Le portail peut proposer des liens vers d'autres services publics astoriens.",
+            "title": "Liens vers des sites tiers",
+            "lead": "Les liens externes mènent vers des sites que l'éditeur ne contrôle pas.",
             "paragraphs": {
-              "p1": "Le registre n'exerce aucun contrôle sur le contenu de ces services et décline toute responsabilité à leur égard."
+              "p1": "Le site renvoie vers la documentation, la galerie de templates, le dépôt de code et les canaux communautaires du projet. L'éditeur n'est pas responsable du contenu des sites tiers qu'il ne gère pas."
             }
           },
           "modification": {
             "kicker": "Évolution",
             "title": "Modification des conditions",
-            "lead": "Les présentes conditions peuvent évoluer pour tenir compte des évolutions du service.",
+            "lead": "Ces conditions peuvent évoluer avec le site.",
             "paragraphs": {
-              "p1": "Toute modification prend effet à la date de sa publication sur le portail."
+              "p1": "Toute modification est publiée sur cette page. La version applicable est celle en ligne au moment de votre consultation."
             },
-            "notice": "Nous vous invitons à consulter régulièrement cette page."
-          }
-        }
-      }
-    },
-    "contact": {
-      "meta": {
-        "title": "Contact",
-        "description": "Contacter le Registre national des entreprises d'Astoria : formulaire de contact et canaux de communication."
-      },
-      "hero": {
-        "kicker": "Contact",
-        "title": "Contacter le RNEA",
-        "lead": "Une question sur le registre, une formalité ou un document ? Écrivez-nous, nous vous répondrons dans les meilleurs délais."
-      },
-      "formSection": {
-        "kicker": "Écrivez-nous",
-        "title": "Formulaire de contact",
-        "lead": "Complétez le formulaire pour adresser votre demande au service concerné."
-      },
-      "channels": {
-        "kicker": "Autres canaux",
-        "title": "Nous joindre autrement",
-        "lead": "Le RNEA est également joignable par courrier et par téléphone.",
-        "facts": {
-          "email": {
-            "label": "Courriel",
-            "value": "contact@rnea.gouv.aor"
-          },
-          "phone": {
-            "label": "Téléphone",
-            "value": "+33 1 00 00 00 00"
-          },
-          "address": {
-            "label": "Adresse",
-            "value": "Registre national des entreprises, Place des Entreprises, Astoria"
-          },
-          "hours": {
-            "label": "Horaires",
-            "value": "Du lundi au vendredi, de 9h à 17h"
+            "notice": "En cas de divergence entre ces conditions et la licence du logiciel, la licence s'applique au logiciel."
           }
         }
       },
-      "recipients": {
-        "presidence": "Présidence",
-        "communications": "Direction des communications",
-        "presse": "Presse",
-        "monnaie": "Affaires économiques",
-        "etablissements": "Entreprises et établissements"
-      },
-      "form": {
-        "requiredField": "Ce champ est obligatoire.",
-        "invalidEmail": "Veuillez saisir une adresse électronique valide.",
-        "recipientLabel": "Service destinataire",
-        "selectRecipient": "Sélectionnez un service",
-        "presidency": "Présidence",
-        "nameLabel": "Votre nom",
-        "namePlaceholder": "Prénom et nom",
-        "emailFieldLabel": "Votre adresse électronique",
-        "emailPlaceholder": "nom@exemple.aor",
-        "subjectLabel": "Objet de la demande",
-        "subjectPlaceholder": "Résumez votre demande",
-        "messageLabel": "Votre message",
-        "messagePlaceholder": "Décrivez votre demande en quelques lignes",
-        "sendButton": "Envoyer"
-      }
-    },
-    "sitemap": {
-      "meta": {
-        "title": "Plan du portail",
-        "description": "Le plan du portail du Registre national des entreprises d'Astoria."
-      },
-      "hero": {
-        "kicker": "Plan du portail",
-        "title": "Plan du portail",
-        "lead": "Retrouvez l'ensemble des rubriques et des pages du portail du Registre national des entreprises d'Astoria."
-      },
-      "sections": {
-        "portail": {
-          "kicker": "Navigation",
-          "title": "Les rubriques du portail",
-          "lead": "La navigation principale du portail, organisée en sept thèmes."
+      "cookies": {
+        "meta": {
+          "title": "Cookies",
+          "description": "Cookies utilisés par le site Notploy : définition, cookies déposés et gestion."
         },
-        "transversal": {
-          "kicker": "Utilitaires",
-          "title": "Pages transversales",
-          "lead": "Les pages utilitaires et les informations légales du portail.",
-          "links": {
-            "contact": "Contact",
-            "accessibility": "Déclaration d'accessibilité",
-            "privacy": "Confidentialité",
-            "terms": "Conditions d'utilisation",
-            "cookies": "Gestion des cookies",
-            "publications": "Publications officielles",
-            "documentsOpposables": "Documents opposables"
+        "hero": {
+          "kicker": "Cookies",
+          "title": "Cookies et stockage local",
+          "lead": "Ce site ne dépose aucun traceur publicitaire. Ce qui est conservé localement l'est pour son seul fonctionnement.",
+          "notice": "Aucun consentement n'est requis pour le stockage strictement nécessaire, mais vous pouvez le supprimer à tout moment depuis votre navigateur."
+        },
+        "sections": {
+          "definition": {
+            "kicker": "Définition",
+            "title": "De quoi parle-t-on",
+            "lead": "Un cookie est un petit fichier déposé par un site sur votre appareil.",
+            "paragraphs": {
+              "p1": "Les cookies et le stockage local permettent à un site de se souvenir d'une information entre deux visites : une langue choisie, une préférence d'affichage ou un état de connexion.",
+              "p2": "Cette mémoire peut être utile au fonctionnement du site ou servir à vous suivre à des fins publicitaires. Ce site se limite au premier cas."
+            }
+          },
+          "cookiesDeposes": {
+            "kicker": "Dépôt",
+            "title": "Ce qui est conservé sur votre appareil",
+            "lead": "Le détail des éléments conservés, leur rôle et leur durée.",
+            "table": {
+              "caption": "Éléments conservés localement par le site",
+              "headers": [
+                "Nom",
+                "Finalité",
+                "Durée"
+              ],
+              "rows": [
+                [
+                  "Préférence de langue",
+                  "Afficher les pages dans la langue choisie",
+                  "Jusqu'à suppression"
+                ],
+                [
+                  "Bandeau d'information",
+                  "Ne pas réafficher le message après votre réponse",
+                  "Jusqu'à suppression"
+                ],
+                [
+                  "Session applicative",
+                  "Uniquement pour les pages du tableau de bord, jamais sur le site public",
+                  "Le temps de la session"
+                ],
+                [
+                  "Traceurs publicitaires",
+                  "Aucun",
+                  "Sans objet"
+                ]
+              ],
+              "note": "Les éléments conservés côté navigateur restent sous votre contrôle : vos réglages de navigateur permettent de les supprimer à tout moment."
+            }
+          },
+          "gestion": {
+            "kicker": "Gestion",
+            "title": "Gérer vos préférences",
+            "lead": "Vous gardez la main sur le stockage local.",
+            "bullets": {
+              "b1": "Supprimer les données du site depuis les réglages de votre navigateur.",
+              "b2": "Bloquer le stockage local pour ce site ; le site reste consultable, seules vos préférences ne sont plus conservées.",
+              "b3": "Naviguer en fenêtre de navigation privée pour ne rien conserver après la fermeture."
+            },
+            "notice": "Désactiver le stockage local ne dégrade pas l'accès aux contenus : seuls la langue choisie et le souvenir du bandeau sont perdus."
           }
         }
       }
