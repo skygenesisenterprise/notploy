@@ -16,11 +16,6 @@ const mockDb = vi.hoisted(() => ({
 }));
 vi.mock("@notploy/server/db", () => ({ db: mockDb }));
 
-const mockHasValidLicense = vi.hoisted(() => vi.fn());
-vi.mock("@notploy/server/services/proprietary/license-key", () => ({
-	hasValidLicense: mockHasValidLicense,
-}));
-
 import { assertGitProviderAccess } from "@notploy/server/services/git-provider";
 
 const ORG = "org-1";
@@ -42,7 +37,6 @@ const providerOther = {
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	mockHasValidLicense.mockResolvedValue(false);
 	mockDb.query.gitProvider.findMany.mockResolvedValue([
 		providerMine,
 		providerOther,

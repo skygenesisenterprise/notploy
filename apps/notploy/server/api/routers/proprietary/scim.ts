@@ -5,7 +5,7 @@ import { auth } from "@notploy/server/lib/auth";
 import { TRPCError } from "@trpc/server";
 import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { createTRPCRouter, enterpriseProcedure } from "@/server/api/trpc";
+import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
 
 const providerIdSchema = z
 	.string()
@@ -17,7 +17,7 @@ const providerIdSchema = z
 	);
 
 export const scimRouter = createTRPCRouter({
-	listProviders: enterpriseProcedure.query(async ({ ctx }) => {
+	listProviders: adminProcedure.query(async ({ ctx }) => {
 		const providers = await db.query.scimProvider.findMany({
 			where: eq(scimProvider.organizationId, ctx.session.activeOrganizationId),
 			columns: {
@@ -29,7 +29,7 @@ export const scimRouter = createTRPCRouter({
 		});
 		return providers;
 	}),
-	generateToken: enterpriseProcedure
+	generateToken: adminProcedure
 		.input(z.object({ providerId: providerIdSchema }))
 		.mutation(async ({ ctx, input }) => {
 			const existing = await db.query.scimProvider.findFirst({
@@ -51,7 +51,7 @@ export const scimRouter = createTRPCRouter({
 			});
 			return { scimToken: result.scimToken, providerId: input.providerId };
 		}),
-	deleteProvider: enterpriseProcedure
+	deleteProvider: adminProcedure
 		.input(z.object({ providerId: providerIdSchema }))
 		.mutation(async ({ ctx, input }) => {
 			const [deleted] = await db

@@ -203,11 +203,11 @@ describe("InMemoryQueue concurrency", () => {
 		expect(started).toEqual([1, 2]);
 	});
 
-	it("clamps concurrency below 1 up to 1 (license-disabled behaviour)", async () => {
+	it("clamps concurrency below 1 up to 1", async () => {
 		const started: string[] = [];
 		const tasks = new Map<string, ReturnType<typeof deferred>>();
 
-		// Simulate a non-licensed resolver returning 0 — must still run 1.
+		// Simulate a resolver returning 0 — must still run 1.
 		const queue = new InMemoryQueue({ resolveConcurrency: () => 0, now });
 		queue.process(async (job) => {
 			const id = (job.data as any).applicationId;
@@ -248,7 +248,7 @@ describe("InMemoryQueue concurrency", () => {
 		await flush();
 		expect(started).toEqual(["a"]);
 
-		// Raise the limit (e.g. license activated) and release the running job
+		// Raise the limit and release the running job
 		// so a new tick observes the new concurrency.
 		limit = 2;
 		tasks.get("a")!.release();

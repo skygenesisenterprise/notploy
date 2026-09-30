@@ -11,7 +11,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { EnterpriseFeatureGate } from "@/components/proprietary/enterprise-feature-gate";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Button } from "@/components/ui/button";
@@ -90,7 +89,7 @@ const RESOURCE_META: Record<string, { label: string; description: string }> = {
 		label: "API / CLI",
 		description: "Access to API keys and CLI usage",
 	},
-	// Enterprise-only resources
+	// Service-level and org-level resources
 	volume: {
 		label: "Volumes",
 		description: "Manage persistent volumes and mounts attached to services",
@@ -617,16 +616,7 @@ export const ManageCustomRoles = () => {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="border-t pt-6">
-					<EnterpriseFeatureGate
-						lockedProps={{
-							title: "Custom Roles",
-							description:
-								"Custom roles with fine-grained permissions are part of Notploy Enterprise. Add a valid license to create and assign custom roles.",
-							ctaLabel: "Go to License",
-						}}
-					>
-						<CustomRolesContent />
-					</EnterpriseFeatureGate>
+					<CustomRolesContent />
 				</CardContent>
 			</div>
 		</Card>

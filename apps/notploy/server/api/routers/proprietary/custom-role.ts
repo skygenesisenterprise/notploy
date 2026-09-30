@@ -11,7 +11,7 @@ import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
 import {
 	createTRPCRouter,
-	enterpriseProcedure,
+	adminProcedure,
 	protectedProcedure,
 } from "../../trpc";
 import { audit } from "../../utils/audit";
@@ -74,7 +74,7 @@ export const customRoleRouter = createTRPCRouter({
 		return Array.from(roleMap.values());
 	}),
 
-	create: enterpriseProcedure
+	create: adminProcedure
 		.input(
 			z.object({
 				roleName: z
@@ -131,7 +131,7 @@ export const customRoleRouter = createTRPCRouter({
 			return created;
 		}),
 
-	update: enterpriseProcedure
+	update: adminProcedure
 		.input(
 			z.object({
 				roleName: z.string().min(1),
@@ -212,7 +212,7 @@ export const customRoleRouter = createTRPCRouter({
 			return updated;
 		}),
 
-	remove: enterpriseProcedure
+	remove: adminProcedure
 		.input(
 			z.object({
 				roleName: z.string().min(1),

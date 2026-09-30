@@ -18,11 +18,6 @@ const mockDb = vi.hoisted(() => ({
 
 vi.mock("@notploy/server/db", () => ({ db: mockDb }));
 
-const mockHasValidLicense = vi.hoisted(() => vi.fn());
-vi.mock("@notploy/server/services/proprietary/license-key", () => ({
-	hasValidLicense: mockHasValidLicense,
-}));
-
 const ORG_ID = "org-1";
 const USER_OWNER = "user-owner";
 const USER_ADMIN = "user-admin";
@@ -64,7 +59,6 @@ function session(userId: string) {
 beforeEach(() => {
 	vi.clearAllMocks();
 	mockDb.query.gitProvider.findMany.mockResolvedValue(allProviders);
-	mockHasValidLicense.mockResolvedValue(false);
 });
 
 describe("getAccessibleGitProviderIds", () => {
@@ -108,83 +102,40 @@ describe("getAccessibleGitProviderIds", () => {
 		});
 	});
 
-	describe("member without enterprise license", () => {
-		beforeEach(() => {
+	describe("member", () => {
+		function asMember(accessedGitProviders: string[]) {
 			mockDb.query.member.findFirst.mockResolvedValue({
 				role: "member",
-				accessedGitProviders: [providerPrivate.gitProviderId],
+				accessedGitProviders,
 			});
-			mockHasValidLicense.mockResolvedValue(false);
-		});
+		}
 
 		it("can access their own provider", async () => {
+			asMember([]);
 			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
 			expect(ids.has(providerOwned.gitProviderId)).toBe(true);
 		});
 
-		it("can access shared providers", async () => {
+		it("can access shared providers without any assignment", async () => {
+			asMember([]);
 			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
 			expect(ids.has(providerShared.gitProviderId)).toBe(true);
 		});
 
-		it("cannot access private providers of other users even if assigned (no license)", async () => {
-			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
-			expect(ids.has(providerPrivate.gitProviderId)).toBe(false);
-		});
-
-		it("cannot access providers of other members", async () => {
-			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
-			expect(ids.has(providerOtherMember.gitProviderId)).toBe(false);
-		});
-	});
-
-	describe("member with enterprise license", () => {
-		beforeEach(() => {
-			mockHasValidLicense.mockResolvedValue(true);
-		});
-
-		it("can access provider explicitly assigned to them", async () => {
-			mockDb.query.member.findFirst.mockResolvedValue({
-				role: "member",
-				accessedGitProviders: [providerPrivate.gitProviderId],
-			});
+		it("can use a private provider explicitly assigned to them", async () => {
+			asMember([providerPrivate.gitProviderId]);
 			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
 			expect(ids.has(providerPrivate.gitProviderId)).toBe(true);
 		});
 
-		it("cannot access provider not assigned and not shared", async () => {
-			mockDb.query.member.findFirst.mockResolvedValue({
-				role: "member",
-				accessedGitProviders: [],
-			});
+		it("cannot access a private provider that is neither owned, shared nor assigned", async () => {
+			asMember([]);
 			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
 			expect(ids.has(providerPrivate.gitProviderId)).toBe(false);
-			expect(ids.has(providerOtherMember.gitProviderId)).toBe(false);
 		});
 
-		it("can access shared provider even without explicit assignment", async () => {
-			mockDb.query.member.findFirst.mockResolvedValue({
-				role: "member",
-				accessedGitProviders: [],
-			});
-			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
-			expect(ids.has(providerShared.gitProviderId)).toBe(true);
-		});
-
-		it("can access own provider regardless of assignments", async () => {
-			mockDb.query.member.findFirst.mockResolvedValue({
-				role: "member",
-				accessedGitProviders: [],
-			});
-			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
-			expect(ids.has(providerOwned.gitProviderId)).toBe(true);
-		});
-
-		it("cannot access provider of other member even with license but no assignment", async () => {
-			mockDb.query.member.findFirst.mockResolvedValue({
-				role: "member",
-				accessedGitProviders: [],
-			});
+		it("cannot access private providers of other members when not assigned", async () => {
+			asMember([providerPrivate.gitProviderId]);
 			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
 			expect(ids.has(providerOtherMember.gitProviderId)).toBe(false);
 		});
@@ -193,36 +144,12 @@ describe("getAccessibleGitProviderIds", () => {
 	describe("member with no member record", () => {
 		beforeEach(() => {
 			mockDb.query.member.findFirst.mockResolvedValue(null);
-			mockHasValidLicense.mockResolvedValue(true);
 		});
 
 		it("only returns own providers and shared ones", async () => {
 			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
 			expect(ids.has(providerOwned.gitProviderId)).toBe(true);
 			expect(ids.has(providerShared.gitProviderId)).toBe(true);
-			expect(ids.has(providerPrivate.gitProviderId)).toBe(false);
-		});
-	});
-
-	describe("enterprise license — member assigned to a provider they do not own", () => {
-		// getAccessibleGitProviderIds still returns the provider (member can connect NEW deploys)
-		it("member assigned to owner's private provider can USE the provider for new deploys", async () => {
-			mockHasValidLicense.mockResolvedValue(true);
-			mockDb.query.member.findFirst.mockResolvedValue({
-				role: "member",
-				accessedGitProviders: [providerPrivate.gitProviderId],
-			});
-			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
-			expect(ids.has(providerPrivate.gitProviderId)).toBe(true);
-		});
-
-		it("member NOT assigned to owner's private provider cannot use it at all", async () => {
-			mockHasValidLicense.mockResolvedValue(true);
-			mockDb.query.member.findFirst.mockResolvedValue({
-				role: "member",
-				accessedGitProviders: [],
-			});
-			const ids = await getAccessibleGitProviderIds(session(USER_MEMBER));
 			expect(ids.has(providerPrivate.gitProviderId)).toBe(false);
 		});
 	});
@@ -246,7 +173,6 @@ describe("getAccessibleGitProviderIds", () => {
 describe("canEditDeployGitSource", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		mockHasValidLicense.mockResolvedValue(true);
 	});
 
 	describe("owner", () => {
@@ -331,9 +257,9 @@ describe("canEditDeployGitSource", () => {
 			expect(result).toBe(true);
 		});
 
-		it("cannot edit deploy using owner's private provider even with enterprise license and assignment", async () => {
-			// This is the key case: enterprise, provider del owner, no compartido,
-			// member tiene accessedGitProviders asignado — pero NO puede cambiar la branch del deploy del owner
+		it("cannot edit deploy using owner's private provider even when assigned", async () => {
+			// Key case: provider owned by the owner and not shared, member has it
+			// in accessedGitProviders but still cannot change the branch of the owner deploy
 			mockDb.query.gitProvider.findFirst.mockResolvedValue({
 				userId: USER_OWNER,
 				sharedWithOrganization: false,

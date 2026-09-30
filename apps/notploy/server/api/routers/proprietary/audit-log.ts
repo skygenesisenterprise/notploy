@@ -1,21 +1,9 @@
 import { getAuditLogs } from "@notploy/server/services/proprietary/audit-log";
-import { hasValidLicense } from "@notploy/server/services/proprietary/license-key";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, withPermission } from "../../trpc";
 
 export const auditLogRouter = createTRPCRouter({
 	all: withPermission("auditLog", "read")
-		.use(async ({ ctx, next }) => {
-			const licensed = await hasValidLicense(ctx.session.activeOrganizationId);
-			if (!licensed) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "Valid enterprise license required",
-				});
-			}
-			return next();
-		})
 		.input(
 			z.object({
 				userId: z.string().optional(),

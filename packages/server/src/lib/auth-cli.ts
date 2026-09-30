@@ -26,8 +26,6 @@ export const auth = betterAuth({
 			ownerId: { type: "string", input: false },
 			allowImpersonation: { type: "boolean", defaultValue: false },
 			lastName: { type: "string", required: false, defaultValue: "" },
-			enableEnterpriseFeatures: { type: "boolean", required: false },
-			isValidEnterpriseLicense: { type: "boolean", required: false },
 		},
 	},
 	plugins: [

@@ -52,7 +52,7 @@ export const getUpdateData = async (
 		const baseUrl =
 			"https://hub.docker.com/v2/repositories/skygenesisenterprise/notploy/tags";
 		let url: string | null = `${baseUrl}?page_size=100`;
-		let allResults: { digest: string; name: string }[] = [];
+		const allResults: { digest: string; name: string }[] = [];
 
 		// Fetch all tags from Docker Hub
 		while (url) {
@@ -61,13 +61,28 @@ export const getUpdateData = async (
 				headers: { "Content-Type": "application/json" },
 			});
 
+			// Docker Hub answers with an error payload (rate limit, 404, ...) that
+			// carries no `results`: bail out instead of concatenating junk.
 			const data = (await response.json()) as {
-				next: string | null;
-				results: { digest: string; name: string }[];
+				next?: string | null;
+				results?: { digest?: string; name?: string }[];
 			};
 
-			allResults = allResults.concat(data.results);
-			url = data?.next;
+			if (!response.ok || !Array.isArray(data?.results)) {
+				return DEFAULT_UPDATE_DATA;
+			}
+
+			for (const tag of data.results) {
+				if (tag && typeof tag.name === "string") {
+					allResults.push({ name: tag.name, digest: tag.digest ?? "" });
+				}
+			}
+
+			url = data.next ?? null;
+		}
+
+		if (allResults.length === 0) {
+			return DEFAULT_UPDATE_DATA;
 		}
 
 		const currentImageTag = getNotployImageTag();
@@ -131,7 +146,13 @@ export const getUpdateData = async (
 			updateAvailable,
 		};
 	} catch (error) {
-		console.error("Error fetching update data:", error);
+		// The update check is best-effort: an unreachable or rate-limited Docker
+		// Hub must never surface as a server error in the logs on every call.
+		console.warn(
+			`Could not fetch update data from Docker Hub: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+		);
 		return DEFAULT_UPDATE_DATA;
 	}
 };

@@ -54,14 +54,7 @@ export const user = pgTable("user", {
 	// Metrics
 	enablePaidFeatures: boolean("enablePaidFeatures").notNull().default(false),
 	allowImpersonation: boolean("allowImpersonation").notNull().default(false),
-	// Enterprise / proprietary features
-	enableEnterpriseFeatures: boolean("enableEnterpriseFeatures")
-		.notNull()
-		.default(false),
-	licenseKey: text("licenseKey"),
-	isValidEnterpriseLicense: boolean("isValidEnterpriseLicense")
-		.notNull()
-		.default(false),
+	// Cloud billing
 	stripeCustomerId: text("stripeCustomerId"),
 	stripeSubscriptionId: text("stripeSubscriptionId"),
 	serversQuantity: integer("serversQuantity").notNull().default(0),
@@ -96,7 +89,6 @@ const createSchema = createInsertSchema(user, {
 	role: true,
 	trustedOrigins: true,
 	bookmarkedTemplates: true,
-	isValidEnterpriseLicense: true,
 	isEnterpriseCloud: true,
 	onboardingCompletedAt: true,
 });

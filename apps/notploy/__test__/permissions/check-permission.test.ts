@@ -43,10 +43,6 @@ vi.mock("@notploy/server/db", () => ({
 	},
 }));
 
-vi.mock("@notploy/server/services/proprietary/license-key", () => ({
-	hasValidLicense: vi.fn(() => Promise.resolve(false)),
-}));
-
 const { checkPermission } = await import("@notploy/server/services/permission");
 
 const ctx = {
@@ -58,22 +54,22 @@ beforeEach(() => {
 	vi.clearAllMocks();
 });
 
-describe("owner and admin bypass enterprise resources", () => {
-	it("owner bypasses deployment.read", async () => {
+describe("owner and admin have full access", () => {
+	it("owner is granted deployment.read", async () => {
 		memberToReturn = mockMemberData("owner");
 		await expect(
 			checkPermission(ctx, { deployment: ["read"] }),
 		).resolves.toBeUndefined();
 	});
 
-	it("admin bypasses backup.create", async () => {
+	it("admin is granted backup.create", async () => {
 		memberToReturn = mockMemberData("admin");
 		await expect(
 			checkPermission(ctx, { backup: ["create"] }),
 		).resolves.toBeUndefined();
 	});
 
-	it("owner bypasses multiple enterprise permissions at once", async () => {
+	it("owner is granted multiple permissions at once", async () => {
 		memberToReturn = mockMemberData("owner");
 		await expect(
 			checkPermission(ctx, {
@@ -85,7 +81,7 @@ describe("owner and admin bypass enterprise resources", () => {
 	});
 });
 
-describe("member is denied org-level enterprise resources (CVE: bypass via staticRoles)", () => {
+describe("member is denied org-level resources (CVE: bypass via staticRoles)", () => {
 	it("member is denied registry.read", async () => {
 		memberToReturn = mockMemberData("member");
 		await expect(
@@ -141,7 +137,7 @@ describe("member is denied org-level enterprise resources (CVE: bypass via stati
 	});
 });
 
-describe("static roles validate free-tier resources", () => {
+describe("static roles validate base resources", () => {
 	it("owner passes project.create", async () => {
 		memberToReturn = mockMemberData("owner");
 		await expect(

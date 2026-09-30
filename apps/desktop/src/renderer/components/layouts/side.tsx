@@ -21,7 +21,6 @@ import {
 	Globe,
 	HardDrive,
 	House,
-	Key,
 	KeyRound,
 	LayoutGrid,
 	Loader2,
@@ -44,7 +43,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TruncateTooltip } from "@/components/shared/truncate-tooltip";
-import { Badge } from "@/components/ui/badge";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -421,18 +419,10 @@ const MENU: Menu = {
 		},
 		{
 			isSingle: true,
-			title: "License",
-			url: "/dashboard/settings/license",
-			icon: Key,
-			// Only enabled for owners
-			isEnabled: ({ auth }) => !!(auth?.role === "owner"),
-		},
-		{
-			isSingle: true,
 			title: "SSO",
 			url: "/dashboard/settings/sso",
 			icon: LogIn,
-			// Enabled for admins in both cloud and self-hosted (enterprise)
+			// Enabled for admins in both cloud and self-hosted
 			isEnabled: ({ permissions }) => !!permissions?.organization.update,
 		},
 		{
@@ -440,7 +430,7 @@ const MENU: Menu = {
 			title: "Whitelabeling",
 			url: "/dashboard/settings/whitelabeling",
 			icon: Palette,
-			// Only enabled for owners in non-cloud environments (enterprise)
+			// Only enabled for owners in non-cloud environments
 			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && !isCloud),
 		},
 	],
@@ -586,8 +576,6 @@ function SidebarLogo() {
 	const { isMobile } = useSidebar();
 	const isCollapsed = state === "collapsed" && !isMobile;
 	const { data: activeOrganization } = api.organization.active.useQuery();
-	const { data: haveValidLicense } =
-		api.licenseKey.haveValidLicenseKey.useQuery();
 
 	const { data: invitations, refetch: refetchInvitations } =
 		api.user.getInvitations.useQuery();
@@ -664,11 +652,6 @@ function SidebarLogo() {
 													}
 													className="text-sm font-medium"
 												/>
-												{haveValidLicense && (
-													<Badge variant="blue" className="shrink-0">
-														Enterprise
-													</Badge>
-												)}
 											</div>
 										</div>
 									</div>

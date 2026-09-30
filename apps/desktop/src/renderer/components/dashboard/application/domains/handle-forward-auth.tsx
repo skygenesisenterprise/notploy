@@ -23,9 +23,6 @@ interface Props {
 export const HandleForwardAuth = ({ domainId, applicationId }: Props) => {
 	const [isOpen, setIsOpen] = useState(false);
 
-	const { data: haveValidLicense } =
-		api.licenseKey.haveValidLicenseKey.useQuery();
-
 	const utils = api.useUtils();
 
 	const { data: status } = api.forwardAuth.status.useQuery(
@@ -37,10 +34,6 @@ export const HandleForwardAuth = ({ domainId, applicationId }: Props) => {
 		api.forwardAuth.enable.useMutation();
 	const { mutateAsync: disable, isPending: isDisabling } =
 		api.forwardAuth.disable.useMutation();
-
-	if (!haveValidLicense) {
-		return null;
-	}
 
 	const isEnabled = !!status?.enabled;
 	const isPending = isEnabling || isDisabling;

@@ -41,10 +41,6 @@ vi.mock("@notploy/server/db", () => ({
 	},
 }));
 
-vi.mock("@notploy/server/services/proprietary/license-key", () => ({
-	hasValidLicense: vi.fn(() => Promise.resolve(true)),
-}));
-
 const { checkPermission, resolvePermissions } = await import(
 	"@notploy/server/services/permission"
 );

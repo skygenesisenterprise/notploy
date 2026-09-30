@@ -15,8 +15,7 @@ import type { DeploymentJob } from "./queue-types";
  *   same container name, etc).
  *
  * The concurrency is resolved lazily per partition through `resolveConcurrency`
- * so it can be gated by the enterprise license at run time (a non-licensed
- * instance always resolves to 1).
+ * so configuration changes are picked up without restarting the queue.
  *
  * The public surface (`add`, `getJobs`, `close`, `on`) mirrors the subset of
  * BullMQ used by the routers so it can be a drop-in replacement.
@@ -75,7 +74,7 @@ interface Partition {
 export interface InMemoryQueueOptions {
 	/**
 	 * Returns the max number of jobs that may run in parallel for a given
-	 * partition. Called on every scheduling tick so license/config changes are
+	 * partition. Called on every scheduling tick so config changes are
 	 * picked up without restarting the queue. Must return a value >= 1.
 	 */
 	resolveConcurrency: (partition: string) => Promise<number> | number;

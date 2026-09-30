@@ -22,13 +22,13 @@ import {
 import { TRPCError } from "@trpc/server";
 import {
 	createTRPCRouter,
-	enterpriseProcedure,
+	adminProcedure,
 	withPermission,
 } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
 
 export const forwardAuthRouter = createTRPCRouter({
-	getAuthDomain: enterpriseProcedure
+	getAuthDomain: adminProcedure
 		.input(apiForwardAuthServerTarget)
 		.query(async ({ ctx, input }) => {
 			if (input.serverId) {
@@ -54,7 +54,7 @@ export const forwardAuthRouter = createTRPCRouter({
 			};
 		}),
 
-	setAuthDomain: enterpriseProcedure
+	setAuthDomain: adminProcedure
 		.input(apiSetForwardAuthSettings)
 		.mutation(async ({ ctx, input }) => {
 			if (input.serverId) {
@@ -83,7 +83,7 @@ export const forwardAuthRouter = createTRPCRouter({
 			return result;
 		}),
 
-	removeAuthDomain: enterpriseProcedure
+	removeAuthDomain: adminProcedure
 		.input(apiForwardAuthServerTarget)
 		.mutation(async ({ ctx, input }) => {
 			if (input.serverId) {
@@ -105,15 +105,15 @@ export const forwardAuthRouter = createTRPCRouter({
 			return result;
 		}),
 
-	listProviders: enterpriseProcedure.query(({ ctx }) =>
+	listProviders: adminProcedure.query(({ ctx }) =>
 		listSsoProvidersForOrg(ctx.session.activeOrganizationId),
 	),
 
-	serverStatus: enterpriseProcedure.query(({ ctx }) =>
+	serverStatus: adminProcedure.query(({ ctx }) =>
 		getForwardAuthServerStatus(ctx.session.activeOrganizationId),
 	),
 
-	deployOnServer: enterpriseProcedure
+	deployOnServer: adminProcedure
 		.input(apiDeployForwardAuthOnServer)
 		.mutation(async ({ ctx, input }) => {
 			if (input.serverId) {
@@ -139,7 +139,7 @@ export const forwardAuthRouter = createTRPCRouter({
 			return result;
 		}),
 
-	removeOnServer: enterpriseProcedure
+	removeOnServer: adminProcedure
 		.input(apiForwardAuthServerTarget)
 		.mutation(async ({ ctx, input }) => {
 			if (input.serverId) {

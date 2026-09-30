@@ -37,7 +37,6 @@ import { projectRouter } from "./routers/project";
 import { auditLogRouter } from "./routers/proprietary/audit-log";
 import { customRoleRouter } from "./routers/proprietary/custom-role";
 import { forwardAuthRouter } from "./routers/proprietary/forward-auth";
-import { licenseKeyRouter } from "./routers/proprietary/license-key";
 import { scimRouter } from "./routers/proprietary/scim";
 import { ssoRouter } from "./routers/proprietary/sso";
 import { whitelabelingRouter } from "./routers/proprietary/whitelabeling";
@@ -107,7 +106,6 @@ export const appRouter = createTRPCRouter({
 	vaultProvider: vaultProviderRouter,
 	ai: aiRouter,
 	organization: organizationRouter,
-	licenseKey: licenseKeyRouter,
 	sso: ssoRouter,
 	scim: scimRouter,
 	forwardAuth: forwardAuthRouter,

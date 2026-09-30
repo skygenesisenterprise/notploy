@@ -20,7 +20,6 @@ import {
 } from "@notploy/server";
 import { db } from "@notploy/server/db";
 import { findMemberByUserId } from "@notploy/server/services/permission";
-import { hasValidLicense } from "@notploy/server/services/proprietary/license-key";
 import { TRPCError } from "@trpc/server";
 import { observable } from "@trpc/server/observable";
 import { and, desc, eq, getTableColumns, isNotNull, sql } from "drizzle-orm";
@@ -181,18 +180,7 @@ export const serverRouter = createTRPCRouter({
 
 		return result.filter((s) => accessibleIds.has(s.serverId));
 	}),
-	allForPermissions: withPermission("member", "update")
-		.use(async ({ ctx, next }) => {
-			const licensed = await hasValidLicense(ctx.session.activeOrganizationId);
-			if (!licensed) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "Valid enterprise license required",
-				});
-			}
-			return next();
-		})
-		.query(async ({ ctx }) => {
+	allForPermissions: withPermission("member", "update").query(async ({ ctx }) => {
 			return await db.query.server.findMany({
 				columns: {
 					serverId: true,

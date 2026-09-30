@@ -48,7 +48,7 @@
     "@better-auth/api-key": "1.6.23",
     "@better-auth/passkey": "1.6.23",
     "@better-auth/scim": "1.6.23",
-    "@better-auth/sso": "1.7.6",
+    "@better-auth/sso": "1.6.23",
     "@better-auth/utils": "0.4.2",
     "@faker-js/faker": "^8.4.1",
     "@octokit/auth-app": "^6.1.3",

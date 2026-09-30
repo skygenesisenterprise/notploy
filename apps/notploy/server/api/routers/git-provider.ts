@@ -6,7 +6,6 @@ import {
 } from "@notploy/server";
 import { db } from "@notploy/server/db";
 import { findMemberByUserId } from "@notploy/server/services/permission";
-import { hasValidLicense } from "@notploy/server/services/proprietary/license-key";
 import { TRPCError } from "@trpc/server";
 import { desc, eq, inArray } from "drizzle-orm";
 import {
@@ -111,18 +110,7 @@ export const gitProviderRouter = createTRPCRouter({
 			});
 		}),
 
-	allForPermissions: withPermission("member", "update")
-		.use(async ({ ctx, next }) => {
-			const licensed = await hasValidLicense(ctx.session.activeOrganizationId);
-			if (!licensed) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "Valid enterprise license required",
-				});
-			}
-			return next();
-		})
-		.query(async ({ ctx }) => {
+	allForPermissions: withPermission("member", "update").query(async ({ ctx }) => {
 			return await db.query.gitProvider.findMany({
 				columns: {
 					gitProviderId: true,

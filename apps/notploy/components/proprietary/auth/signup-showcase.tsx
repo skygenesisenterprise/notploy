@@ -46,7 +46,7 @@ const SLIDES: ShowcaseItem[][] = [
 		},
 		{
 			icon: Shield,
-			title: "Enterprise ready",
+			title: "Scale with confidence",
 			description:
 				"Scale when you're ready with granular RBAC, SSO, audit logs, rollback and multi-tenancy.",
 		},

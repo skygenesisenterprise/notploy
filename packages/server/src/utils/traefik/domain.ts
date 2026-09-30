@@ -203,7 +203,7 @@ export const createRouterConfig = async (
 			routerConfig.middlewares?.push(middlewareName);
 		}
 
-		// Enterprise SSO forward-auth gate. Placed before custom middlewares so
+		// SSO forward-auth gate. Placed before custom middlewares so
 		// authentication runs first. No-op unless the domain links a provider.
 		// The -errors middleware must come first so a 401 from the auth check is
 		// rewritten to a 302 redirect to the login page.
