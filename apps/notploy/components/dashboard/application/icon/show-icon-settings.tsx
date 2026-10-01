@@ -202,7 +202,7 @@ export const ShowIconSettings = ({
 						/>
 					</div>
 
-					<div className="max-h-[300px] overflow-y-auto border rounded-lg p-4">
+					<div className="max-h-75 overflow-y-auto border rounded-lg p-4">
 						{displayedIcons.length === 0 ? (
 							<div className="text-center py-8 text-sm text-muted-foreground">
 								No icons found

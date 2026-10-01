@@ -17,7 +17,6 @@ import {
 	GitBranch,
 	Globe,
 	HardDrive,
-	HeartPulse,
 	House,
 	KeyRound,
 	Layers,
@@ -26,7 +25,6 @@ import {
 	type LucideIcon,
 	Network,
 	Package,
-	Palette,
 	Rocket,
 	Server,
 	ShieldCheck,
@@ -90,7 +88,7 @@ export type Navigation = {
 const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 	{
 		id: "home",
-		label: "Home",
+		label: "Overview",
 		items: [
 			{ label: "Home", href: "/dashboard/home", icon: House },
 			{
@@ -352,20 +350,6 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions, isCloud }) =>
 					!!(permissions?.organization.update && !isCloud),
 			},
-			{
-				label: "Whitelabeling",
-				href: "/dashboard/settings/whitelabeling",
-				icon: Palette,
-				isEnabled: ({ auth, isCloud }) =>
-					!!(auth?.role === "owner" && !isCloud),
-			},
-			{ label: "Profile", href: "/dashboard/settings/profile", icon: User },
-			{
-				label: "Billing",
-				href: "/dashboard/settings/billing",
-				icon: CreditCard,
-				isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && isCloud),
-			},
 		],
 	},
 ];
@@ -539,7 +523,7 @@ const EXTERNAL_LINKS: ExternalNavigationItem[] = [
 	},
 	{
 		label: "Support",
-		href: "https://discord.gg/2tBnJ3jDJc",
+		href: "https://support.skygenesisenterprise.com/",
 		icon: CircleHelp,
 	},
 ];

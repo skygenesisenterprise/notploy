@@ -12,8 +12,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
-import { HandleProject } from "@/components/dashboard/projects/handle-project";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/utils/api";
 import type { AppRouter } from "@/server/api/root";
@@ -383,7 +381,6 @@ export const ShowHome = () => {
 		(service) => service.status === "running",
 	).length;
 	const projectCards = useMemo(() => projects.slice(0, 6), [projects]);
-	const canCreateProject = !!permissions?.project.create;
 
 	const projectsSection = (
 		<section className="space-y-3" aria-label="Projects">
@@ -424,33 +421,9 @@ export const ShowHome = () => {
 			<div className="flex h-full flex-col gap-6 rounded-xl bg-background p-4 shadow-md sm:p-6">
 				<header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
 					<div className="space-y-1">
-						<p className="text-sm text-muted-foreground">
-							{isCloud
-								? "Your projects and managed workloads"
-								: "Your workloads and platform"}
-						</p>
 						<h1 className="text-3xl font-semibold tracking-tight">
 							{firstName ? `Welcome back, ${firstName}` : "Welcome back"}
 						</h1>
-					</div>
-					<div className="flex flex-wrap items-center gap-2">
-						{canCreateProject && <HandleProject />}
-						{canReadDeployments && (
-							<Button asChild variant="outline">
-								<Link href="/dashboard/overview?tab=deployments">
-									<Rocket className="size-4" aria-hidden />
-									Deployments
-								</Link>
-							</Button>
-						)}
-						{!isCloud && permissions?.monitoring.read && (
-							<Button asChild variant="outline">
-								<Link href="/dashboard/monitoring">
-									<Clock3 className="size-4" aria-hidden />
-									Monitoring
-								</Link>
-							</Button>
-						)}
 					</div>
 				</header>
 
