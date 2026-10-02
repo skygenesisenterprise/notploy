@@ -45,7 +45,7 @@
 		"@ai-sdk/azure": "^3.0.30",
 		"@ai-sdk/cohere": "^3.0.21",
 		"@ai-sdk/deepinfra": "^2.0.34",
-		"@ai-sdk/mistral": "^4.0.52",
+		"@ai-sdk/mistral": "3.0.67",
 		"@ai-sdk/openai": "^3.0.29",
 		"@ai-sdk/openai-compatible": "^2.0.30",
 		"@aws-sdk/client-route-53": "^3.1108.0",
