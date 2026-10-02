@@ -37,7 +37,6 @@ import {
 	Users,
 	Vault,
 	Waypoints,
-	Wrench,
 } from "lucide-react";
 import type { AppRouter } from "@/server/api/root";
 
@@ -339,13 +338,6 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/settings/tags",
 				icon: Tags,
 				isEnabled: ({ permissions }) => !!permissions?.tag.read,
-			},
-			{
-				label: "Build Settings",
-				href: "/dashboard/settings/deployments",
-				icon: Wrench,
-				isEnabled: ({ permissions, isCloud }) =>
-					!!(permissions?.server.read && !isCloud),
 			},
 			{
 				label: "Web Server",
