@@ -4,7 +4,7 @@ import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 import superjson from "superjson";
-import { ShowHome } from "@/components/dashboard/home/show-home";
+import { OperationsCenter } from "@/components/dashboard/home/operations-center";
 import {
 	clearOnboardingActive,
 	isOnboardingActive,
@@ -43,7 +43,7 @@ const Home = () => {
 		);
 	}
 
-	return <ShowHome />;
+	return <OperationsCenter />;
 };
 
 export default Home;
@@ -80,6 +80,17 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 	await helpers.settings.isCloud.prefetch();
 	await helpers.user.get.prefetch();
 	await helpers.project.onboardingStatus.prefetch();
+
+	// Hydrate the operational panels on the first render. The home dashboard
+	// deliberately sources every panel from Notploy's own authenticated API,
+	// rather than showing example observability data while the client loads.
+	await Promise.all([
+		helpers.user.getPermissions.prefetch(),
+		helpers.project.homeStats.prefetch(),
+		helpers.overview.services.prefetch(),
+		helpers.deployment.homeActivity.prefetch(),
+		helpers.server.all.prefetch(),
+	]);
 
 	return {
 		props: {

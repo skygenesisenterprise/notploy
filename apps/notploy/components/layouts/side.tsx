@@ -663,52 +663,29 @@ export default function Page({ children }: Props) {
 								<Separator orientation="vertical" className="mr-2 h-4" />
 								<Breadcrumb>
 									<BreadcrumbList>
-										{activeNavigation ? (
-											activeNavigation.section.label ===
-											activeNavigation.item.label ? (
+										{activeNavigation && (
+											<>
 												<BreadcrumbItem>
 													<BreadcrumbLink asChild>
 														<Link
-															href={activeNavigation.item.href}
+															href={
+																activeSectionHref ??
+																activeNavigation.item.href
+															}
 															className="flex items-center gap-1.5"
 														>
-															{activeNavigation.item.label}
+															{activeNavigation.section.label}
 														</Link>
 													</BreadcrumbLink>
 												</BreadcrumbItem>
-											) : (
-												// The crumb reflects the conceptual model
-												// ("Infrastructure / Servers"), not the technical
-												// route, which still lives under
-												// /dashboard/settings.
-												<>
-													<BreadcrumbItem>
-														<BreadcrumbLink asChild>
-															<Link
-																href={
-																	activeSectionHref ??
-																	activeNavigation.item.href
-																}
-																className="flex items-center gap-1.5"
-															>
-																{activeNavigation.section.label}
-															</Link>
-														</BreadcrumbLink>
-													</BreadcrumbItem>
-													<BreadcrumbSeparator />
-													<BreadcrumbItem>
-														<BreadcrumbLink asChild>
-															<Link
-																href={activeNavigation.item.href}
-																className="flex items-center gap-1.5"
-															>
-																{activeNavigation.item.label}
-															</Link>
-														</BreadcrumbLink>
-													</BreadcrumbItem>
-												</>
-											)
-										) : null}
+												<BreadcrumbSeparator />
+												<BreadcrumbItem>
+													<span aria-current="page">
+														{activeNavigation.item.label}
+													</span>
+												</BreadcrumbItem>
+											</>
+										)}
 									</BreadcrumbList>
 								</Breadcrumb>{" "}
 							</div>

@@ -942,6 +942,47 @@ export const findAllDeploymentsCentralized = async (
 	});
 };
 
+export const findHomeDeploymentsCentralized = async (
+	orgId: string,
+	accessedServices: string[] | null,
+) => {
+	if (accessedServices !== null && accessedServices.length === 0) {
+		return { recent: [], failed: [] };
+	}
+
+	const [appIds, compIds] = await Promise.all([
+		getApplicationIdsInOrg(orgId, accessedServices),
+		getComposeIdsInOrg(orgId, accessedServices),
+	]);
+
+	const conditions = [
+		...(appIds.length > 0 ? [inArray(deployments.applicationId, appIds)] : []),
+		...(compIds.length > 0 ? [inArray(deployments.composeId, compIds)] : []),
+	];
+	if (conditions.length === 0) {
+		return { recent: [], failed: [] };
+	}
+
+	const whereClause =
+		conditions.length === 1 ? conditions[0] : or(...conditions);
+	const [recent, failed] = await Promise.all([
+		db.query.deployments.findMany({
+			where: whereClause,
+			orderBy: desc(deployments.createdAt),
+			limit: 30,
+			with: centralizedDeploymentsWith,
+		}),
+		db.query.deployments.findMany({
+			where: and(whereClause, eq(deployments.status, "error")),
+			orderBy: desc(deployments.createdAt),
+			limit: 5,
+			with: centralizedDeploymentsWith,
+		}),
+	]);
+
+	return { recent, failed };
+};
+
 export const updateDeployment = async (
 	deploymentId: string,
 	deploymentData: Partial<Deployment>,
