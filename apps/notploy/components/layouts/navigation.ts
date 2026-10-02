@@ -383,7 +383,7 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 			},
 			{
 				label: "Deployments",
-				href: "/dashboard/overview?tab=deployments",
+				href: "/dashboard/deployments",
 				icon: Rocket,
 				activeTab: "deployments",
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
@@ -402,7 +402,7 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 		items: [
 			{
 				label: "Domains",
-				href: "/dashboard/overview?tab=domains",
+				href: "/dashboard/domains",
 				icon: Earth,
 				activeTab: "domains",
 				isEnabled: ({ permissions }) => !!permissions?.domain.read,
