@@ -1,102 +1,142 @@
-import { ClipboardList } from "lucide-react";
+import { format, startOfDay, endOfDay } from "date-fns";
+import { ClipboardList, RefreshCw } from "lucide-react";
 import React from "react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { api } from "@/utils/api";
-import { columns } from "./columns";
 import { type AuditLogFilters, DataTable } from "./data-table";
 
 function AuditLogsContent() {
 	const [pageIndex, setPageIndex] = React.useState(0);
 	const [pageSize, setPageSize] = React.useState(50);
+	const [sortOrder, setSortOrder] = React.useState<"desc" | "asc">("desc");
 	const [filters, setFilters] = React.useState<AuditLogFilters>({
-		userEmail: "",
-		resourceName: "",
 		action: "",
 		resourceType: "",
 		dateRange: undefined,
 	});
-
-	const [debouncedText, setDebouncedText] = React.useState({
-		userEmail: "",
-		resourceName: "",
-	});
+	const [search, setSearch] = React.useState("");
+	const [debouncedSearch, setDebouncedSearch] = React.useState("");
 
 	React.useEffect(() => {
-		const t = setTimeout(() => {
-			setDebouncedText({
-				userEmail: filters.userEmail,
-				resourceName: filters.resourceName,
-			});
+		const timeout = setTimeout(() => {
+			setDebouncedSearch(search.trim());
 			setPageIndex(0);
-		}, 400);
-		return () => clearTimeout(t);
-	}, [filters.userEmail, filters.resourceName]);
+		}, 300);
+		return () => clearTimeout(timeout);
+	}, [search]);
 
 	const handleFilterChange = <K extends keyof AuditLogFilters>(
 		key: K,
 		value: AuditLogFilters[K],
 	) => {
-		setFilters((prev) => ({ ...prev, [key]: value }));
-		if (key !== "userEmail" && key !== "resourceName") {
-			setPageIndex(0);
-		}
-	};
-
-	const handlePageSizeChange = (size: number) => {
-		setPageSize(size);
+		setFilters((previous) => ({ ...previous, [key]: value }));
 		setPageIndex(0);
 	};
 
-	const { data, isLoading } = api.auditLog.all.useQuery({
-		userEmail: debouncedText.userEmail || undefined,
-		resourceName: debouncedText.resourceName || undefined,
-		action: filters.action || undefined,
-		resourceType: filters.resourceType || undefined,
-		from: filters.dateRange?.from,
-		to: filters.dateRange?.to,
-		limit: pageSize,
-		offset: pageIndex * pageSize,
-	});
+	const clearFilters = () => {
+		setSearch("");
+		setDebouncedSearch("");
+		setFilters({
+			action: "",
+			resourceType: "",
+			dateRange: undefined,
+		});
+		setPageIndex(0);
+	};
+
+	const from = filters.dateRange?.from
+		? startOfDay(filters.dateRange.from)
+		: undefined;
+	const to = filters.dateRange?.to
+		? endOfDay(filters.dateRange.to)
+		: filters.dateRange?.from
+			? endOfDay(filters.dateRange.from)
+			: undefined;
+	const query = api.auditLog.all.useQuery(
+		{
+			search: debouncedSearch || undefined,
+			action: filters.action || undefined,
+			resourceType: filters.resourceType || undefined,
+			from,
+			to,
+			limit: pageSize,
+			offset: pageIndex * pageSize,
+			sortOrder,
+		},
+		{
+			placeholderData: (previousData) => previousData,
+			refetchOnWindowFocus: false,
+		},
+	);
+
+	const presets = [
+		{ label: "Today", days: 0 },
+		{ label: "7 days", days: 7 },
+		{ label: "30 days", days: 30 },
+	];
 
 	return (
-		<DataTable
-			columns={columns}
-			data={data?.logs ?? []}
-			total={data?.total ?? 0}
-			pageIndex={pageIndex}
-			pageSize={pageSize}
-			filters={filters}
-			onPageChange={setPageIndex}
-			onPageSizeChange={handlePageSizeChange}
-			onFilterChange={handleFilterChange}
-			isLoading={isLoading}
-		/>
+		<Card className="min-h-[85vh] w-full rounded-xl bg-sidebar p-2.5">
+			<div className="flex h-full min-h-[calc(85vh-1.25rem)] flex-col gap-6 rounded-xl bg-background p-4 shadow-md sm:p-6">
+				<header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+					<div className="space-y-1">
+						<h1 className="flex items-center gap-2 text-3xl font-semibold tracking-tight">
+							<ClipboardList
+								className="size-6 text-muted-foreground"
+								aria-hidden
+							/>
+							Audit Logs
+						</h1>
+						<p className="text-sm text-muted-foreground">
+							Track user and administrative actions across your Notploy
+							organization.
+						</p>
+					</div>
+					<Button
+						variant="outline"
+						onClick={() => void query.refetch()}
+						disabled={query.isFetching}
+					>
+						<RefreshCw
+							className={`size-4 ${query.isFetching ? "animate-spin" : ""}`}
+							aria-hidden
+						/>
+						Refresh
+					</Button>
+				</header>
+
+				<DataTable
+					data={query.data?.logs ?? []}
+					total={query.data?.total ?? 0}
+					pageIndex={pageIndex}
+					pageSize={pageSize}
+					filters={filters}
+					search={search}
+					sortOrder={sortOrder}
+					presets={presets}
+					isLoading={query.isPending}
+					isError={query.isError}
+					errorMessage={query.error?.message}
+					onRetry={() => void query.refetch()}
+					onSearchChange={setSearch}
+					onSortOrderChange={(order) => {
+						setSortOrder(order);
+						setPageIndex(0);
+					}}
+					onPageChange={setPageIndex}
+					onPageSizeChange={(size) => {
+						setPageSize(size);
+						setPageIndex(0);
+					}}
+					onFilterChange={handleFilterChange}
+					onClearFilters={clearFilters}
+				/>
+			</div>
+		</Card>
 	);
 }
 
 export function ShowAuditLogs() {
-	return (
-		<Card className="h-full bg-sidebar p-2.5 rounded-xl max-w-6xl w-full mx-auto">
-			<div className="rounded-xl bg-background shadow-md ">
-				<CardHeader>
-						<CardTitle className="text-xl flex flex-row gap-2">
-							<ClipboardList className="h-5 w-5 text-muted-foreground self-center" />
-							Audit Logs
-						</CardTitle>
-						<CardDescription>
-							Track all actions performed by members in your organization.
-						</CardDescription>
-					</CardHeader>
-				<CardContent className="space-y-2 py-8 border-t">
-					<AuditLogsContent />
-				</CardContent>
-			</div>
-		</Card>
-	);
+	return <AuditLogsContent />;
 }

@@ -11,7 +11,10 @@ import {
 	getContainersByAppLabel,
 	getContainersByAppNameMatch,
 	getDockerEvents,
+	getAccessibleServerIds,
 	getServerHealth as getServerHealthData,
+	getRemoteDocker,
+	IS_CLOUD,
 	getServiceContainersByAppName,
 	getStackContainersByAppName,
 	listContainerFiles,
@@ -19,10 +22,13 @@ import {
 	uploadFileToContainer,
 	writeContainerFile,
 } from "@notploy/server";
+import { db } from "@notploy/server/db";
 import { checkPermission } from "@notploy/server/services/permission";
 import { TRPCError } from "@trpc/server";
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { audit } from "@/server/api/utils/audit";
+import { server } from "@/server/db/schema";
 import { uploadFileToContainerSchema } from "@/utils/schema";
 import { createTRPCRouter, protectedProcedure, withPermission } from "../trpc";
 
@@ -38,6 +44,68 @@ const containerPathSchema = z
 	);
 
 export const dockerRouter = createTRPCRouter({
+	getEngineInfo: withPermission("docker", "read")
+		.input(z.object({ serverId: z.string().optional() }))
+		.query(async ({ input, ctx }) => {
+			if (input.serverId) {
+				const server = await findServerById(input.serverId);
+				if (server.organizationId !== ctx.session.activeOrganizationId) {
+					throw new TRPCError({ code: "UNAUTHORIZED" });
+				}
+			}
+
+			const docker = await getRemoteDocker(input.serverId);
+			const [info, version, containers, images, networks, volumes] =
+				await Promise.all([
+					docker.info(),
+					docker.version(),
+					docker.listContainers({ all: true }),
+					docker.listImages(),
+					docker.listNetworks(),
+					docker.listVolumes(),
+				]);
+			const running = containers.filter((container) => container.State === "running")
+				.length;
+			const paused = containers.filter((container) => container.State === "paused")
+				.length;
+
+			return {
+				engine: {
+					version: version.Version,
+					apiVersion: version.ApiVersion,
+					minimumApiVersion: version.MinAPIVersion,
+					hostname: info.Name,
+					operatingSystem: info.OperatingSystem,
+					osType: info.OSType,
+					architecture: info.Architecture,
+					kernelVersion: info.KernelVersion,
+					dockerRootDir: info.DockerRootDir,
+					storageDriver: info.Driver,
+					loggingDriver: info.LoggingDriver,
+					cgroupDriver: info.CgroupDriver,
+					defaultRuntime: info.DefaultRuntime,
+					runtimes: info.Runtimes ? Object.keys(info.Runtimes) : [],
+					securityOptions: info.SecurityOptions ?? [],
+					liveRestoreEnabled: info.LiveRestoreEnabled,
+					experimentalBuild: info.ExperimentalBuild,
+				},
+				capacity: {
+					containers: containers.length,
+					running,
+					paused,
+					stopped: containers.length - running - paused,
+					images: images.length,
+					networks: networks.length,
+					volumes: volumes.Volumes?.length,
+				},
+				swarm: {
+					state: info.Swarm?.LocalNodeState,
+					isManager: info.Swarm?.ControlAvailable,
+				},
+				checkedAt: new Date().toISOString(),
+			};
+		}),
+
 	getContainers: withPermission("docker", "read")
 		.input(
 			z.object({
@@ -53,6 +121,49 @@ export const dockerRouter = createTRPCRouter({
 			}
 			return await getContainers(input.serverId);
 		}),
+
+	getFleetContainers: withPermission("docker", "read").query(async ({ ctx }) => {
+		const accessibleIds = await getAccessibleServerIds(ctx.session);
+		const configuredServers = await db.query.server.findMany({
+			columns: {
+				serverId: true,
+				name: true,
+				sshKeyId: true,
+			},
+			where: eq(server.organizationId, ctx.session.activeOrganizationId),
+			orderBy: desc(server.createdAt),
+		});
+		const targets = [
+			...(!IS_CLOUD
+				? [{ serverId: null, name: "Notploy instance", local: true }]
+				: []),
+			...configuredServers
+				.filter((item) => accessibleIds.has(item.serverId) && item.sshKeyId)
+				.map((item) => ({
+					serverId: item.serverId,
+					name: item.name,
+					local: false,
+				})),
+		];
+
+		return Promise.all(
+			targets.map(async (target) => {
+				try {
+					const containers = await getContainers(target.serverId);
+					return { ...target, containers, error: null };
+				} catch (error) {
+					return {
+						...target,
+						containers: [],
+						error:
+							error instanceof Error
+								? error.message
+								: "Could not connect to the Docker Engine.",
+					};
+				}
+			}),
+		);
+	}),
 
 	// Host-level diagnostics, so this requires docker.read AND server.read.
 	getServerHealth: protectedProcedure

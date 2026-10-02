@@ -1,7 +1,7 @@
 import { db } from "@notploy/server/db";
 import type { AuditAction, AuditResourceType } from "@notploy/server/db/schema";
 import { auditLog } from "@notploy/server/db/schema";
-import { and, desc, eq, gte, ilike, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, lte, or } from "drizzle-orm";
 
 export type { AuditAction, AuditResourceType };
 
@@ -43,11 +43,13 @@ export interface GetAuditLogsInput {
 	organizationId: string;
 	userId?: string;
 	userEmail?: string;
+	search?: string;
 	resourceName?: string;
 	action?: AuditAction;
 	resourceType?: AuditResourceType;
 	from?: Date;
 	to?: Date;
+	sortOrder?: "asc" | "desc";
 	limit?: number;
 	offset?: number;
 }
@@ -57,11 +59,13 @@ export const getAuditLogs = async (input: GetAuditLogsInput) => {
 		organizationId,
 		userId,
 		userEmail,
+		search,
 		resourceName,
 		action,
 		resourceType,
 		from,
 		to,
+		sortOrder = "desc",
 		limit = 50,
 		offset = 0,
 	} = input;
@@ -70,6 +74,17 @@ export const getAuditLogs = async (input: GetAuditLogsInput) => {
 
 	if (userId) conditions.push(eq(auditLog.userId, userId));
 	if (userEmail) conditions.push(ilike(auditLog.userEmail, `%${userEmail}%`));
+	if (search?.trim()) {
+		const term = `%${search.trim()}%`;
+		const searchCondition = or(
+			ilike(auditLog.userEmail, term),
+			ilike(auditLog.action, term),
+			ilike(auditLog.resourceType, term),
+			ilike(auditLog.resourceId, term),
+			ilike(auditLog.resourceName, term),
+		);
+		if (searchCondition) conditions.push(searchCondition);
+	}
 	if (resourceName)
 		conditions.push(ilike(auditLog.resourceName, `%${resourceName}%`));
 	if (action) conditions.push(eq(auditLog.action, action));
@@ -80,7 +95,10 @@ export const getAuditLogs = async (input: GetAuditLogsInput) => {
 	const [logs, total] = await Promise.all([
 		db.query.auditLog.findMany({
 			where: and(...conditions),
-			orderBy: [desc(auditLog.createdAt)],
+			orderBy:
+				sortOrder === "asc"
+					? [asc(auditLog.createdAt), asc(auditLog.id)]
+					: [desc(auditLog.createdAt), desc(auditLog.id)],
 			limit,
 			offset,
 		}),

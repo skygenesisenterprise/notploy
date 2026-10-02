@@ -14,6 +14,7 @@ const DASHBOARD_PAGE_TITLES: Record<string, string> = {
 	"/dashboard/deployments": "Deployments",
 	"/dashboard/schedules": "Schedules",
 	"/dashboard/docker": "Docker",
+	"/dashboard/containers": "Containers",
 	"/dashboard/monitoring": "Monitoring",
 	"/dashboard/requests": "Requests",
 	"/dashboard/traefik": "Traefik",

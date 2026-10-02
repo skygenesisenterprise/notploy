@@ -271,6 +271,13 @@ export function OperationsCenter() {
 	return (
 		<Card className="min-h-[85vh] w-full rounded-xl bg-sidebar p-2.5">
 			<div className="flex h-full min-h-[calc(85vh-1.25rem)] flex-col gap-6 rounded-xl bg-background p-4 shadow-md sm:p-6">
+				<header className="space-y-1">
+					<h1 className="text-3xl font-semibold tracking-tight">Overview</h1>
+					<p className="text-sm text-muted-foreground">
+						A concise view of your projects, workloads, deployments, and the
+						issues that need attention.
+					</p>
+				</header>
 				<section
 					aria-label="Key status"
 					className="grid grid-cols-2 gap-3 xl:grid-cols-4"

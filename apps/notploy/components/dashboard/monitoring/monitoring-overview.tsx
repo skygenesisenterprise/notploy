@@ -294,7 +294,7 @@ export function MonitoringOverview() {
 		<Card className="min-h-[85vh] w-full rounded-xl bg-sidebar p-2.5">
 			<div className="flex h-full min-h-[calc(85vh-1.25rem)] flex-col gap-6 rounded-xl bg-background p-4 shadow-md sm:p-6">
 				<header className="space-y-1">
-					<div className="flex flex-wrap items-center gap-3">
+					<div className="flex flex-wrap items-center justify-between gap-3">
 						<h1 className="text-3xl font-semibold tracking-tight">
 							Monitoring
 						</h1>

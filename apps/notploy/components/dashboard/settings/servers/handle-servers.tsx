@@ -198,7 +198,7 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 				<DialogTrigger asChild>
 					<Button className="cursor-pointer space-x-3">
 						<PlusIcon className="h-4 w-4" />
-						Connect server
+						Add server
 					</Button>
 				</DialogTrigger>
 			)}

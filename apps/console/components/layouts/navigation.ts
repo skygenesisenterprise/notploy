@@ -160,7 +160,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Containers",
-						href: "/dashboard/docker?tab=containers",
+						href: "/dashboard/containers",
 						icon: Boxes,
 						activeTab: "containers",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -168,7 +168,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Swarm",
-						href: "/dashboard/docker?tab=swarm",
+						href: "/dashboard/swarm",
 						icon: Waypoints,
 						activeTab: "swarm",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -176,7 +176,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Images",
-						href: "/dashboard/docker?tab=images",
+						href: "/dashboard/images",
 						icon: Layers,
 						activeTab: "images",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -184,7 +184,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Events",
-						href: "/dashboard/docker?tab=events",
+						href: "/dashboard/events",
 						icon: Activity,
 						activeTab: "events",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -192,7 +192,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Health",
-						href: "/dashboard/docker?tab=health",
+						href: "/dashboard/health",
 						icon: HeartPulse,
 						activeTab: "health",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -210,7 +210,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				items: [
 					{
 						label: "Networks",
-						href: "/dashboard/docker?tab=networks",
+						href: "/dashboard/networks",
 						icon: Network,
 						activeTab: "networks",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -230,7 +230,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				items: [
 					{
 						label: "Volumes",
-						href: "/dashboard/docker?tab=volumes",
+						href: "/dashboard/volumes",
 						icon: HardDrive,
 						activeTab: "volumes",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -388,7 +388,7 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 			},
 			{
 				label: "Deployments",
-				href: "/dashboard/overview?tab=deployments",
+				href: "/dashboard/deployments",
 				icon: Rocket,
 				activeTab: "deployments",
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
@@ -407,7 +407,7 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 		items: [
 			{
 				label: "Domains",
-				href: "/dashboard/overview?tab=domains",
+				href: "/dashboard/domains",
 				icon: Earth,
 				activeTab: "domains",
 				isEnabled: ({ permissions }) => !!permissions?.domain.read,
