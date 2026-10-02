@@ -357,6 +357,21 @@ test("CertificateType on websecure entrypoint", async () => {
 	expect(router.tls?.certResolver).toBe("letsencrypt");
 });
 
+test("Local HTTPS uses Traefik's available certificate without public ACME", async () => {
+	const router = await createRouterConfig(
+		baseApp,
+		{
+			...baseDomain,
+			host: "api.localhost",
+			https: true,
+			certificateType: "letsencrypt",
+		},
+		"websecure",
+	);
+
+	expect(router.tls).toEqual({});
+});
+
 test("Custom entrypoint on http domain", async () => {
 	const router = await createRouterConfig(
 		baseApp,

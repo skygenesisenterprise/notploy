@@ -248,7 +248,7 @@ export const applicationRouter = createTRPCRouter({
 
 			return {
 				applicationId: newApplication.applicationId,
-				domainUrl: `http://${domain.host}`,
+				domainUrl: `${domain.https ? "https" : "http"}://${domain.host}`,
 			};
 		}),
 

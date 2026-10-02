@@ -18,6 +18,7 @@ import {
 import { checkServicePermissionAndAccess } from "@notploy/server/services/permission";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { getDomainRequirements } from "@notploy/server/utils/domain-scope";
 import {
 	createTRPCRouter,
 	protectedProcedure,
@@ -105,6 +106,21 @@ export const domainRouter = createTRPCRouter({
 		.input(apiUpdateDomain)
 		.mutation(async ({ input, ctx }) => {
 			const currentDomain = await findDomainById(input.domainId);
+			const targetHost = input.host ?? currentDomain.host;
+			const targetHttps = input.https ?? currentDomain.https;
+			const targetCertificateType =
+				input.certificateType ?? currentDomain.certificateType;
+			if (
+				targetHttps &&
+				targetCertificateType !== "none" &&
+				!getDomainRequirements(targetHost).allowsPublicAcme
+			) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message:
+						"Public certificate resolvers cannot be used for internal domains",
+				});
+			}
 			const serviceId = currentDomain.applicationId || currentDomain.composeId;
 			if (serviceId) {
 				await checkServicePermissionAndAccess(ctx, serviceId, {

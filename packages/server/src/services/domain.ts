@@ -15,6 +15,7 @@ import { type apiCreateDomain, domains } from "../db/schema";
 import { findApplicationById } from "./application";
 import { detectCDNProvider } from "./cdn";
 import { findServerById } from "./server";
+import { getDomainRequirements } from "../utils/domain-scope";
 
 export type Domain = typeof domains.$inferSelect;
 
@@ -181,17 +182,29 @@ export const validateDomain = async (
 	expectedIps?: string[],
 ): Promise<{
 	isValid: boolean;
+	skipped?: boolean;
+	reason?: string;
 	resolvedIp?: string;
 	error?: string;
 	isCloudflare?: boolean;
 	cdnProvider?: string;
 }> => {
+	const cleanDomain = domain.replace(/^https?:\/\//, "").split("/")[0] || "";
+	if (!getDomainRequirements(cleanDomain).requiresPublicDns) {
+		return {
+			isValid: true,
+			skipped: true,
+			reason:
+				getDomainRequirements(cleanDomain).scope === "lan"
+					? "LAN hostname resolution depends on your local DNS or hosts configuration."
+					: "Public DNS validation is not required for this internal hostname.",
+		};
+	}
+
 	try {
 		// Remove protocol and path if present
-		const cleanDomain = domain.replace(/^https?:\/\//, "").split("/")[0];
-
 		// Resolve the domain to get its IP
-		const ips = await resolveDns(cleanDomain || "");
+		const ips = await resolveDns(cleanDomain);
 
 		const resolvedIps = ips.map((ip) => ip.toString());
 

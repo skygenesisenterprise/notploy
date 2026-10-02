@@ -2,6 +2,7 @@ import {
 	INVALID_HOSTNAME_MESSAGE,
 	VALID_HOSTNAME_REGEX,
 } from "@notploy/server/utils/hostname-validation";
+import { getDomainRequirements } from "@notploy/server/utils/domain-scope";
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
 import { DatabaseZap, Dices, RefreshCw, X } from "lucide-react";
 import Link from "next/link";
@@ -93,6 +94,18 @@ export const domain = z
 				code: z.ZodIssueCode.custom,
 				path: ["customCertResolver"],
 				message: "Required",
+			});
+		}
+		if (
+			input.https &&
+			input.certificateType &&
+			input.certificateType !== "none" &&
+			!getDomainRequirements(input.host).allowsPublicAcme
+		) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["certificateType"],
+				message: "Public certificate resolvers cannot be used for internal domains",
 			});
 		}
 
@@ -238,6 +251,7 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 	const https = form.watch("https");
 	const domainType = form.watch("domainType");
 	const host = form.watch("host");
+	const domainRequirements = getDomainRequirements(host || "");
 	const isTraefikMeDomain = host?.includes("sslip.io") || false;
 
 	useEffect(() => {
@@ -509,7 +523,15 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 																</Tooltip>
 															</TooltipProvider>
 														</div>
-
+														{field.value && domainRequirements.scope !== "public" && (
+															<FormDescription>
+																{domainRequirements.scope === "localhost"
+																	? "Localhost domain. Public DNS is not required; HTTPS must use a certificate already available in Traefik."
+																	: domainRequirements.scope === "lan"
+																		? "LAN domain. This hostname must resolve to your Notploy server through your local DNS or hosts configuration."
+																		: "Internal domain. Public DNS and Let's Encrypt are not required."}
+															</FormDescription>
+														)}
 														<FormMessage />
 													</FormItem>
 												)}
@@ -767,10 +789,14 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 															</FormControl>
 															<SelectContent>
 																<SelectItem value={"none"}>None</SelectItem>
-																<SelectItem value={"letsencrypt"}>
-																	Let's Encrypt
-																</SelectItem>
-																<SelectItem value={"custom"}>Custom</SelectItem>
+																{domainRequirements.allowsPublicAcme && (
+																	<SelectItem value={"letsencrypt"}>
+																		Let's Encrypt
+																	</SelectItem>
+																)}
+																{domainRequirements.allowsPublicAcme && (
+																	<SelectItem value={"custom"}>Custom</SelectItem>
+																)}
 															</SelectContent>
 														</Select>
 														<FormDescription>

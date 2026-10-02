@@ -22,6 +22,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { RouterOutputs } from "@/utils/api";
+import { getDomainRequirements } from "@notploy/server/utils/domain-scope";
 import { DnsHelperModal } from "./dns-helper-modal";
 import { AddDomain } from "./handle-domain";
 import type { ValidationStates } from "./show-domains";
@@ -90,6 +91,7 @@ export const createColumns = ({
 		},
 		cell: ({ row }) => {
 			const domain = row.original;
+			const requirements = getDomainRequirements(domain.host);
 			return (
 				<Link
 					className="flex items-center gap-2 font-medium hover:underline"
@@ -98,6 +100,9 @@ export const createColumns = ({
 				>
 					{domain.host}
 					<ExternalLink className="size-3" />
+					<Badge variant="secondary" className="capitalize">
+						{requirements.scope}
+					</Badge>
 				</Link>
 			);
 		},
@@ -165,6 +170,8 @@ export const createColumns = ({
 		cell: ({ row }) => {
 			const domain = row.original;
 			const validationState = validationStates[domain.host];
+			const requiresPublicDns =
+				getDomainRequirements(domain.host).requiresPublicDns;
 
 			return (
 				<div className="flex items-center gap-2">
@@ -173,7 +180,7 @@ export const createColumns = ({
 							{domain.certificateType}
 						</Badge>
 					)}
-					{!domain.host.includes("sslip.io") && (
+					{requiresPublicDns && !domain.host.includes("sslip.io") && (
 						<TooltipProvider>
 							<Tooltip>
 								<TooltipTrigger asChild>
@@ -299,7 +306,7 @@ export const createColumns = ({
 
 			return (
 				<div className="flex items-center gap-2">
-					{!domain.host.includes("sslip.io") && (
+					{requiresPublicDns && !domain.host.includes("sslip.io") && (
 						<DnsHelperModal
 							domain={{
 								host: domain.host,

@@ -23,6 +23,7 @@ import type {
 	PropertiesNetworks,
 } from "./types";
 import { encodeBase64 } from "./utils";
+import { getDomainRequirements } from "../domain-scope";
 
 export const cloneCompose = async (compose: Compose) => {
 	let command = "set -e;";
@@ -492,15 +493,23 @@ export const createDomainLabels = (
 
 	// Add TLS configuration for websecure
 	if (entrypoint === "websecure" || (customEntrypoint && https)) {
-		if (certificateType === "letsencrypt") {
+		const allowsPublicAcme = getDomainRequirements(host).allowsPublicAcme;
+		if (certificateType === "letsencrypt" && allowsPublicAcme) {
 			labels.push(
 				`traefik.http.routers.${routerName}.tls.certresolver=letsencrypt`,
 			);
-		} else if (certificateType === "custom" && customCertResolver) {
+		} else if (
+			certificateType === "custom" &&
+			customCertResolver &&
+			allowsPublicAcme
+		) {
 			labels.push(
 				`traefik.http.routers.${routerName}.tls.certresolver=${customCertResolver}`,
 			);
-		} else if (certificateType === "none" && https) {
+		} else if (
+			(certificateType === "none" || !allowsPublicAcme) &&
+			https
+		) {
 			// No cert resolver, but HTTPS is enabled (default/custom certificate):
 			// explicitly enable TLS so Traefik serves the router over HTTPS.
 			labels.push(`traefik.http.routers.${routerName}.tls=true`);

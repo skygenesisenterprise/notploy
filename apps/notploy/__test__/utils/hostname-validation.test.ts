@@ -12,6 +12,10 @@ describe("VALID_HOSTNAME_REGEX", () => {
 		"example",
 		"notploy-server",
 		"localhost",
+		"app.localhost",
+		"api.lan",
+		"service.internal.example",
+		"app.home.arpa",
 	])("accepts valid hostname %s", (host) => {
 		expect(VALID_HOSTNAME_REGEX.test(host)).toBe(true);
 	});

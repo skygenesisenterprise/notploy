@@ -3,6 +3,7 @@ import {
 	INVALID_HOSTNAME_MESSAGE,
 	VALID_HOSTNAME_REGEX,
 } from "../../utils/hostname-validation";
+import { getDomainRequirements } from "../../utils/domain-scope";
 
 export const domain = z
 	.object({
@@ -43,6 +44,28 @@ export const domain = z
 				code: z.ZodIssueCode.custom,
 				path: ["customCertResolver"],
 				message: "Required when certificate type is custom",
+			});
+		}
+
+		if (
+			input.certificateType === "letsencrypt" &&
+			!getDomainRequirements(input.host).allowsPublicAcme
+		) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["certificateType"],
+				message: "Let's Encrypt requires a public domain",
+			});
+		}
+
+		if (
+			input.certificateType === "custom" &&
+			!getDomainRequirements(input.host).allowsPublicAcme
+		) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["certificateType"],
+				message: "Public certificate resolvers cannot be used for internal domains",
 			});
 		}
 
@@ -110,6 +133,28 @@ export const domainCompose = z
 				code: z.ZodIssueCode.custom,
 				path: ["customCertResolver"],
 				message: "Required when certificate type is custom",
+			});
+		}
+
+		if (
+			input.certificateType === "letsencrypt" &&
+			!getDomainRequirements(input.host).allowsPublicAcme
+		) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["certificateType"],
+				message: "Let's Encrypt requires a public domain",
+			});
+		}
+
+		if (
+			input.certificateType === "custom" &&
+			!getDomainRequirements(input.host).allowsPublicAcme
+		) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["certificateType"],
+				message: "Public certificate resolvers cannot be used for internal domains",
 			});
 		}
 

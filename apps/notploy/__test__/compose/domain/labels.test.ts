@@ -105,6 +105,23 @@ describe("createDomainLabels", () => {
 		);
 	});
 
+	it("does not configure public ACME for localhost HTTPS", async () => {
+		const localDomain = {
+			...baseDomain,
+			host: "api.localhost",
+			https: true,
+			certificateType: "letsencrypt" as const,
+		};
+
+		const labels = createDomainLabels("test-app", localDomain, "websecure");
+		expect(labels).not.toContain(
+			"traefik.http.routers.test-app--1-websecure.tls.certresolver=letsencrypt",
+		);
+		expect(labels).toContain(
+			"traefik.http.routers.test-app--1-websecure.tls=true",
+		);
+	});
+
 	it("should add tls=true for certificateType none on websecure entrypoint", async () => {
 		const noneDomain = {
 			...baseDomain,

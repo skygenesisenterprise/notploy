@@ -11,6 +11,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { nanoid } from "nanoid";
 import { z } from "zod";
+import { getDomainRequirements } from "../../utils/domain-scope";
 import { domain } from "../validations/domain";
 import { applications } from "./application";
 import { compose } from "./compose";
@@ -97,6 +98,19 @@ export const apiCreateDomain = createSchema.pick({
 	stripPath: true,
 	middlewares: true,
 	forwardAuthEnabled: true,
+}).superRefine((input, ctx) => {
+	if (
+		input.https &&
+		input.certificateType &&
+		input.certificateType !== "none" &&
+		!getDomainRequirements(input.host).allowsPublicAcme
+	) {
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			path: ["certificateType"],
+			message: "Public certificate resolvers cannot be used for internal domains",
+		});
+	}
 });
 
 export const apiFindDomain = z.object({
@@ -132,4 +146,20 @@ export const apiUpdateDomain = createSchema
 		forwardAuthEnabled: true,
 		enabled: true,
 	})
-	.merge(createSchema.pick({ domainId: true }).required());
+	.merge(createSchema.pick({ domainId: true }).required())
+	.superRefine((input, ctx) => {
+		if (
+			input.host &&
+			input.https &&
+			input.certificateType &&
+			input.certificateType !== "none" &&
+			!getDomainRequirements(input.host).allowsPublicAcme
+		) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["certificateType"],
+				message:
+					"Public certificate resolvers cannot be used for internal domains",
+			});
+		}
+	});

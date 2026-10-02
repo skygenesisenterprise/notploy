@@ -16,6 +16,7 @@ import {
 	removeForwardAuthMiddleware,
 } from "./forward-auth";
 import { createPathMiddlewares, removePathMiddlewares } from "./middleware";
+import { getDomainRequirements } from "../domain-scope";
 
 export const manageDomain = async (app: ApplicationNested, domain: Domain) => {
 	const { appName } = app;
@@ -220,7 +221,10 @@ export const createRouterConfig = async (
 	}
 
 	if (entryPoint === "websecure" || (customEntrypoint && https)) {
-		if (certificateType === "letsencrypt") {
+		const allowsPublicAcme = getDomainRequirements(host).allowsPublicAcme;
+		if (!allowsPublicAcme && https) {
+			routerConfig.tls = {};
+		} else if (certificateType === "letsencrypt") {
 			routerConfig.tls = { certResolver: "letsencrypt" };
 		} else if (certificateType === "custom" && domain.customCertResolver) {
 			routerConfig.tls = { certResolver: domain.customCertResolver };
