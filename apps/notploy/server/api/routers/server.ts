@@ -23,6 +23,7 @@ import {
 } from "@notploy/server";
 import { db } from "@notploy/server/db";
 import { findMemberByUserId } from "@notploy/server/services/permission";
+import { getWebServerSettings } from "@notploy/server/services/web-server-settings";
 import { TRPCError } from "@trpc/server";
 import { observable } from "@trpc/server/observable";
 import { and, desc, eq, getTableColumns, isNotNull, sql } from "drizzle-orm";
@@ -53,6 +54,59 @@ import {
 	sshKeys,
 } from "@/server/db/schema";
 import { applyDockerCleanupSchedule } from "@/server/utils/docker-cleanup";
+
+export interface ServerMetrics {
+	cpu: string;
+	cpuModel: string;
+	cpuCores: number;
+	cpuPhysicalCores: number;
+	cpuSpeed: number;
+	os: string;
+	distro: string;
+	kernel: string;
+	arch: string;
+	memUsed: string;
+	memUsedGB: string;
+	memTotal: string;
+	uptime: number;
+	diskUsed: string;
+	totalDisk: string;
+	networkIn: string;
+	networkOut: string;
+	timestamp: string;
+}
+
+async function fetchServerMetrics(input: {
+	url: string;
+	token: string;
+	dataPoints: string;
+}): Promise<ServerMetrics[]> {
+	const url = new URL(input.url);
+	url.searchParams.append("limit", input.dataPoints);
+	const response = await fetch(url.toString(), {
+		headers: {
+			Authorization: `Bearer ${input.token}`,
+		},
+	});
+	if (!response.ok) {
+		throw new Error(
+			`Error ${response.status}: ${response.statusText}. Ensure the container is running and this service is included in the monitoring configuration.`,
+		);
+	}
+
+	const data = await response.json();
+	if (!Array.isArray(data) || data.length === 0) {
+		throw new Error(
+			[
+				"No monitoring data available. This could be because:",
+				"",
+				"1. You don't have setup the monitoring service, you can do in web server section.",
+				"2. If you already have setup the monitoring service, wait a few minutes and refresh the page.",
+			].join("\n"),
+		);
+	}
+	return data as ServerMetrics[];
+}
 
 export const serverRouter = createTRPCRouter({
 	create: withPermission("server", "create")
@@ -366,6 +420,135 @@ export const serverRouter = createTRPCRouter({
 		});
 		return result.filter((s) => accessibleIds.has(s.serverId));
 	}),
+	getMonitoringWorkspaces: withPermission("monitoring", "read").query(
+		async ({ ctx }) => {
+			const accessibleIds = await getAccessibleServerIds(ctx.session);
+			const servers = await db.query.server.findMany({
+				columns: {
+					serverId: true,
+					name: true,
+				},
+				where: eq(server.organizationId, ctx.session.activeOrganizationId),
+				orderBy: desc(server.createdAt),
+			});
+
+			return servers.filter((item) => accessibleIds.has(item.serverId));
+		},
+	),
+	getWorkspaceMetrics: withPermission("monitoring", "read")
+		.input(
+			z.object({
+				workspace: z.discriminatedUnion("type", [
+					z.object({ type: z.literal("global") }),
+					z.object({
+						type: z.literal("server"),
+						serverId: z.string().min(1),
+					}),
+				]),
+				dataPoints: z.string(),
+			}),
+		)
+		.query(async ({ ctx, input }) => {
+			const accessibleIds = await getAccessibleServerIds(ctx.session);
+			const servers = await db.query.server.findMany({
+				columns: {
+					serverId: true,
+					name: true,
+					ipAddress: true,
+					metricsConfig: true,
+				},
+				where: eq(server.organizationId, ctx.session.activeOrganizationId),
+			});
+			const accessibleServers = servers.filter((item) =>
+				accessibleIds.has(item.serverId),
+			);
+			const workspace = input.workspace;
+			const selectedServers =
+				workspace.type === "global"
+					? accessibleServers
+					: accessibleServers.filter(
+							(item) => item.serverId === workspace.serverId,
+						);
+
+			if (workspace.type === "server" && selectedServers.length === 0) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "The selected monitoring server is unavailable.",
+				});
+			}
+
+			const metricTargets = selectedServers.map((item) => ({
+				serverId: item.serverId,
+				name: item.name,
+				ipAddress: item.ipAddress,
+				metricsConfig: item.metricsConfig,
+			}));
+
+			if (workspace.type === "global") {
+				const webServerSettings = await getWebServerSettings();
+				if (webServerSettings) {
+					metricTargets.unshift({
+						serverId: "notploy-instance",
+						name: "Notploy instance",
+						ipAddress: webServerSettings.serverIp ?? "",
+						metricsConfig: webServerSettings.metricsConfig,
+					});
+				}
+			}
+
+			return Promise.all(
+				metricTargets.map(async (item) => {
+					const port = item.metricsConfig?.server?.port;
+					const token = item.metricsConfig?.server?.token;
+					if (!port || !token) {
+						return {
+							serverId: item.serverId,
+							name: item.name,
+							data: null,
+							error: "Monitoring is not configured for this server.",
+						};
+					}
+					if (!item.ipAddress) {
+						return {
+							serverId: item.serverId,
+							name: item.name,
+							data: null,
+							error: "No metrics IP address is configured for this server.",
+						};
+					}
+
+					const hostname =
+						item.ipAddress.includes(":") && !item.ipAddress.startsWith("[")
+							? `[${item.ipAddress}]`
+							: item.ipAddress;
+					const url = `http://${hostname}:${port}/metrics`;
+
+					try {
+						const data = await fetchServerMetrics({
+							url,
+							token,
+							dataPoints: input.dataPoints,
+						});
+						return {
+							serverId: item.serverId,
+							name: item.name,
+							data,
+							error: null,
+						};
+					} catch (error) {
+						return {
+							serverId: item.serverId,
+							name: item.name,
+							data: null,
+							error:
+								error instanceof Error
+									? error.message
+									: "Failed to fetch monitoring data.",
+						};
+					}
+				}),
+			);
+		}),
 	setup: withPermission("server", "create")
 		.input(apiFindOneServer)
 		.mutation(async ({ input, ctx }) => {
@@ -682,50 +865,7 @@ export const serverRouter = createTRPCRouter({
 		)
 		.query(async ({ input }) => {
 			try {
-				const url = new URL(input.url);
-				url.searchParams.append("limit", input.dataPoints);
-				const response = await fetch(url.toString(), {
-					headers: {
-						Authorization: `Bearer ${input.token}`,
-					},
-				});
-				if (!response.ok) {
-					throw new Error(
-						`Error ${response.status}: ${response.statusText}. Ensure the container is running and this service is included in the monitoring configuration.`,
-					);
-				}
-
-				const data = await response.json();
-				if (!Array.isArray(data) || data.length === 0) {
-					throw new Error(
-						[
-							"No monitoring data available. This could be because:",
-							"",
-							"1. You don't have setup the monitoring service, you can do in web server section.",
-							"2. If you already have setup the monitoring service, wait a few minutes and refresh the page.",
-						].join("\n"),
-					);
-				}
-				return data as {
-					cpu: string;
-					cpuModel: string;
-					cpuCores: number;
-					cpuPhysicalCores: number;
-					cpuSpeed: number;
-					os: string;
-					distro: string;
-					kernel: string;
-					arch: string;
-					memUsed: string;
-					memUsedGB: string;
-					memTotal: string;
-					uptime: number;
-					diskUsed: string;
-					totalDisk: string;
-					networkIn: string;
-					networkOut: string;
-					timestamp: string;
-				}[];
+				return await fetchServerMetrics(input);
 			} catch (error) {
 				throw error;
 			}

@@ -654,47 +654,58 @@ export default function Page({ children }: Props) {
 				<SidebarRail />
 			</Sidebar>
 			<SidebarInset>
-				{isCloud === true && <TrialBanner />}
-				{!includesProjects && (
-					<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-						<div className="flex items-center justify-between w-full px-4">
-							<div className="flex items-center gap-2">
-								<SidebarTrigger className="-ml-1" />
-								<Separator orientation="vertical" className="mr-2 h-4" />
-								<Breadcrumb>
-									<BreadcrumbList>
-										{activeNavigation && (
-											<>
-												<BreadcrumbItem>
-													<BreadcrumbLink asChild>
-														<Link
-															href={
-																activeSectionHref ??
-																activeNavigation.item.href
-															}
-															className="flex items-center gap-1.5"
-														>
-															{activeNavigation.section.label}
-														</Link>
-													</BreadcrumbLink>
-												</BreadcrumbItem>
-												<BreadcrumbSeparator />
-												<BreadcrumbItem>
-													<span aria-current="page">
-														{activeNavigation.item.label}
-													</span>
-												</BreadcrumbItem>
-											</>
-										)}
-									</BreadcrumbList>
-								</Breadcrumb>{" "}
+				<div className="z-30 shrink-0 bg-background">
+					{isCloud === true && <TrialBanner />}
+					{!includesProjects && (
+						<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+							<div className="flex w-full min-w-0 items-center gap-3 px-4">
+								<div className="flex min-w-0 flex-1 items-center gap-2">
+									<SidebarTrigger className="-ml-1 shrink-0" />
+									<Separator
+										orientation="vertical"
+										className="mx-1 h-4 self-center"
+									/>
+									<Breadcrumb className="min-w-0">
+										<BreadcrumbList className="flex-nowrap">
+											{activeNavigation && (
+												<>
+													<BreadcrumbItem>
+														<BreadcrumbLink asChild>
+															<Link
+																href={
+																	activeSectionHref ??
+																	activeNavigation.item.href
+																}
+																className="flex items-center gap-1.5 whitespace-nowrap"
+															>
+																{activeNavigation.section.label}
+															</Link>
+														</BreadcrumbLink>
+													</BreadcrumbItem>
+													<BreadcrumbSeparator />
+													<BreadcrumbItem className="min-w-0">
+														<span aria-current="page" className="truncate">
+															{activeNavigation.item.label}
+														</span>
+													</BreadcrumbItem>
+												</>
+											)}
+										</BreadcrumbList>
+									</Breadcrumb>{" "}
+								</div>
+								{!isCloud && (
+									<div className="shrink-0">
+										<TimeBadge />
+									</div>
+								)}
 							</div>
-							{!isCloud && <TimeBadge />}
-						</div>
-					</header>
-				)}
+						</header>
+					)}
+				</div>
 
-				<div className="flex flex-col w-full p-4 pt-0">{children}</div>
+				<div className="min-h-0 flex-1 overflow-y-auto">
+					<div className="flex w-full flex-col p-4 pt-0">{children}</div>
+				</div>
 			</SidebarInset>
 		</SidebarProvider>
 	);

@@ -190,9 +190,10 @@ type AddPermissions = z.infer<typeof addPermissions>;
 interface Props {
 	userId: string;
 	role?: string;
+	onSuccess?: () => void;
 }
 
-export const AddUserPermissions = ({ userId, role }: Props) => {
+export const AddUserPermissions = ({ userId, role, onSuccess }: Props) => {
 	const isCustomRole = !!role && !["owner", "admin", "member"].includes(role);
 	const [isOpen, setIsOpen] = useState(false);
 	const { data: projects } = api.project.allForPermissions.useQuery(undefined, {
@@ -289,6 +290,7 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 			.then(async () => {
 				toast.success("Permissions updated");
 				refetch();
+				onSuccess?.();
 				setIsOpen(false);
 			})
 			.catch(() => {

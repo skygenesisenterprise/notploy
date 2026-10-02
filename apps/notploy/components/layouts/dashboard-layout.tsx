@@ -36,7 +36,7 @@ const DASHBOARD_PAGE_TITLES: Record<string, string> = {
 	"/dashboard/settings/sessions": "Sessions",
 	"/dashboard/settings/sso": "SSO",
 	"/dashboard/settings/tags": "Tags",
-	"/dashboard/settings/users": "Team",
+	"/dashboard/settings/users": "Users",
 	"/dashboard/settings/whitelabeling": "Whitelabeling",
 };
 

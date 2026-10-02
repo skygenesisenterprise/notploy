@@ -144,6 +144,8 @@ export const userRouter = createTRPCRouter({
 						lastName: true,
 						email: true,
 						image: true,
+						banned: true,
+						createdAt: true,
 						allowImpersonation: true,
 						twoFactorEnabled: true,
 						stripeCustomerId: true,
@@ -651,8 +653,7 @@ export const userRouter = createTRPCRouter({
 			// Ownership alone is not enough: a key is scoped to one organization,
 			// so revoking it has to happen from that organization. Otherwise a
 			// user could delete a key belonging to an org they have since left.
-			const organizationId =
-				parseApiKeyOrganizationId(apiKeyToDelete.metadata);
+			const organizationId = parseApiKeyOrganizationId(apiKeyToDelete.metadata);
 			if (organizationId !== ctx.session.activeOrganizationId) {
 				throw new TRPCError({
 					code: "NOT_FOUND",

@@ -43,9 +43,15 @@ interface Props {
 	memberId: string;
 	currentRole: string;
 	userEmail: string;
+	onSuccess?: () => void;
 }
 
-export const ChangeRole = ({ memberId, currentRole, userEmail }: Props) => {
+export const ChangeRole = ({
+	memberId,
+	currentRole,
+	userEmail,
+	onSuccess,
+}: Props) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const utils = api.useUtils();
 
@@ -79,6 +85,7 @@ export const ChangeRole = ({ memberId, currentRole, userEmail }: Props) => {
 			.then(async () => {
 				toast.success("Role updated successfully");
 				await utils.user.all.invalidate();
+				onSuccess?.();
 				setIsOpen(false);
 			})
 			.catch((error) => {

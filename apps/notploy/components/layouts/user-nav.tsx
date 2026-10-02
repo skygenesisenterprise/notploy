@@ -1,11 +1,4 @@
-import {
-	KeyRound,
-	LogOut,
-	Moon,
-	Smartphone,
-	Sun,
-	UserRound,
-} from "lucide-react";
+import { LogOut, Moon, Smartphone, Sun, UserRound } from "lucide-react";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,16 +29,11 @@ const _AUTO_CHECK_UPDATES_INTERVAL_MINUTES = 7;
 export const UserNav = () => {
 	const router = useRouter();
 	const { data } = api.user.get.useQuery();
-	const { data: permissions } = api.user.getPermissions.useQuery();
 	const { theme, setTheme } = useTheme();
 
 	const user = data?.user;
 	const fullName = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
 	const displayName = fullName || user?.email || "Account";
-	// Members never hold `api:read`, the `api.read` statement is also enforced
-	// by the user.apiKeys query.
-	const canManageApiKeys = !!permissions?.api.read;
-
 	const goTo = (href: string) => () => {
 		router.push(href);
 	};
@@ -126,15 +114,6 @@ export const UserNav = () => {
 					<Smartphone className="size-4 text-muted-foreground" />
 					Sessions
 				</DropdownMenuItem>
-				{canManageApiKeys && (
-					<DropdownMenuItem
-						className="cursor-pointer gap-2"
-						onSelect={goTo("/dashboard/settings/api-keys")}
-					>
-						<KeyRound className="size-4 text-muted-foreground" />
-						API Keys
-					</DropdownMenuItem>
-				)}
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					className="cursor-pointer gap-2"

@@ -5,11 +5,13 @@ import {
 	ClockIcon,
 	ExternalLinkIcon,
 	KeyIcon,
+	Loader2,
 	Tag,
 	Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { AlertBlock } from "@/components/shared/alert-block";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,40 +53,65 @@ const STATE_BADGE: Record<
 };
 
 export const ShowApiKeys = () => {
-	const { data: apiKeys, refetch, isLoading } = api.user.apiKeys.useQuery();
+	const {
+		data: apiKeys,
+		refetch,
+		isLoading,
+		isError,
+		error,
+	} = api.user.apiKeys.useQuery();
 	const { mutateAsync: deleteApiKey, isPending: isLoadingDelete } =
 		api.user.deleteApiKey.useMutation();
+	const activeKeyCount = apiKeys?.filter(
+		(apiKey) => stateOf(apiKey) === "active",
+	).length;
 
 	return (
-		<Card className="bg-sidebar p-2.5 rounded-xl w-full">
-			<div className="rounded-xl bg-background shadow-md">
-				<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center">
-					<div>
-						<CardTitle className="text-xl flex items-center gap-2">
-							<KeyIcon className="size-5" />
-							API Keys
-						</CardTitle>
-						<CardDescription>
-							Keys authenticate the API, the CLI and the VS Code extension
-						</CardDescription>
+		<Card className="w-full">
+			<CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+				<div>
+					<CardTitle className="text-xl flex items-center gap-2">
+						<KeyIcon className="size-5" />
+						API Keys
+					</CardTitle>
+					<CardDescription>
+						Personal keys authenticate your tools with Notploy. Secrets are
+						shown only once when a key is created.
+					</CardDescription>
+					{activeKeyCount !== undefined && (
+						<p className="mt-1 text-xs text-muted-foreground">
+							{activeKeyCount} active {activeKeyCount === 1 ? "key" : "keys"}
+						</p>
+					)}
+				</div>
+				<div className="flex flex-row gap-2 max-sm:flex-wrap items-end">
+					<span className="text-sm font-medium text-muted-foreground">
+						Swagger API:
+					</span>
+					<Link
+						href="/swagger"
+						target="_blank"
+						className="flex flex-row gap-2 items-center"
+					>
+						<span className="text-sm font-medium">View</span>
+						<ExternalLinkIcon className="size-4" />
+					</Link>
+				</div>
+			</CardHeader>
+			<CardContent className="space-y-6 border-t pt-5">
+				{isError ? (
+					<AlertBlock type="error">
+						{error instanceof Error
+							? error.message
+							: "Unable to load API keys."}
+					</AlertBlock>
+				) : isLoading ? (
+					<div className="flex min-h-24 items-center justify-center">
+						<Loader2 className="size-5 animate-spin text-muted-foreground" />
 					</div>
-					<div className="flex flex-row gap-2 max-sm:flex-wrap items-end">
-						<span className="text-sm font-medium text-muted-foreground">
-							Swagger API:
-						</span>
-						<Link
-							href="/swagger"
-							target="_blank"
-							className="flex flex-row gap-2 items-center"
-						>
-							<span className="text-sm font-medium">View</span>
-							<ExternalLinkIcon className="size-4" />
-						</Link>
-					</div>
-				</CardHeader>
-				<CardContent className="space-y-6">
+				) : (
 					<div className="flex flex-col gap-4">
-						{isLoading ? null : apiKeys && apiKeys.length > 0 ? (
+						{apiKeys && apiKeys.length > 0 ? (
 							apiKeys.map((apiKey) => {
 								const state = stateOf(apiKey);
 								return (
@@ -113,7 +140,8 @@ export const ShowApiKeys = () => {
 													<span className="flex items-center gap-1">
 														<ClockIcon className="size-3.5" />
 														Created{" "}
-														{formatDistanceToNow(new Date(apiKey.createdAt))} ago
+														{formatDistanceToNow(new Date(apiKey.createdAt))}{" "}
+														ago
 													</span>
 													<span className="flex items-center gap-1">
 														<ActivityIcon className="size-3.5" />
@@ -141,8 +169,10 @@ export const ShowApiKeys = () => {
 															{apiKey.rateLimitMax} req /{" "}
 															{apiKey.rateLimitTimeWindow
 																? formatDistanceToNow(
-										new Date(Date.now() - apiKey.rateLimitTimeWindow),
-									)
+																		new Date(
+																			Date.now() - apiKey.rateLimitTimeWindow,
+																		),
+																	)
 																: "window"}
 														</Badge>
 													)}
@@ -188,12 +218,12 @@ export const ShowApiKeys = () => {
 							</div>
 						)}
 					</div>
+				)}
 
-					<div className="flex justify-end pt-4 border-t">
-						<AddApiKey />
-					</div>
-				</CardContent>
-			</div>
+				<div className="flex justify-end border-t pt-4">
+					<AddApiKey />
+				</div>
+			</CardContent>
 		</Card>
 	);
 };

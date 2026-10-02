@@ -2,6 +2,7 @@ import copy from "copy-to-clipboard";
 import { format, isPast } from "date-fns";
 import { Loader2, Mail, MoreHorizontal, Users } from "lucide-react";
 import { toast } from "sonner";
+import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,208 +17,241 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-	Table,
-	TableBody,
-	TableCaption,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
-import { api } from "@/utils/api";
+import { api, type RouterOutputs } from "@/utils/api";
 import { AddInvitation } from "./add-invitation";
 
-export const ShowInvitations = () => {
-	const { data, isPending, refetch } =
-		api.organization.allInvitations.useQuery();
+type Invitation = RouterOutputs["organization"]["allInvitations"][number];
 
+export const ShowInvitations = () => {
+	const { data: invitations, isPending, isError, error, refetch } =
+		api.organization.allInvitations.useQuery();
 	const { mutateAsync: removeInvitation } =
 		api.organization.removeInvitation.useMutation();
 
+	const handleCancel = async (invitation: Invitation) => {
+		const result = await authClient.organization.cancelInvitation({
+			invitationId: invitation.id,
+		});
+		if (result.error) {
+			toast.error(result.error.message);
+			return;
+		}
+		toast.success("Invitation canceled");
+		await refetch();
+	};
+
+	const handleRemove = async (invitation: Invitation) => {
+		try {
+			await removeInvitation({ invitationId: invitation.id });
+			toast.success("Invitation removed");
+			await refetch();
+		} catch (removeError) {
+			toast.error(
+				removeError instanceof Error
+					? removeError.message
+					: "Unable to remove invitation",
+			);
+		}
+	};
+
 	return (
-		<div className="w-full">
-			<Card className="h-full bg-sidebar  p-2.5 rounded-xl w-full">
-				<div className="rounded-xl bg-background shadow-md ">
-					<CardHeader className="">
-						<CardTitle className="text-xl flex flex-row gap-2">
-							<Mail className="size-6 text-muted-foreground self-center" />
-							Invitations
-						</CardTitle>
-						<CardDescription>
-							Create invitations to your organization.
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-2 py-8 border-t">
-						{isPending ? (
-							<div className="flex flex-row gap-2 items-center justify-center text-sm text-muted-foreground min-h-[25vh]">
-								<span>Loading...</span>
-								<Loader2 className="animate-spin size-4" />
-							</div>
-						) : (
-							<>
-								{data?.length === 0 ? (
-									<div className="flex flex-col items-center gap-3  min-h-[25vh] justify-center">
-										<Users className="size-8 self-center text-muted-foreground" />
-										<span className="text-base text-muted-foreground">
-											Invite users to your organization
-										</span>
-										<AddInvitation />
-									</div>
-								) : (
-									<div className="flex flex-col gap-4  min-h-[25vh]">
-										<Table>
-											<TableCaption>See all invitations</TableCaption>
-											<TableHeader>
-												<TableRow>
-													<TableHead className="w-[100px]">Email</TableHead>
-													<TableHead className="text-center">Role</TableHead>
-													<TableHead className="text-center">Status</TableHead>
-													<TableHead className="text-center">
-														Expires At
-													</TableHead>
-													<TableHead className="text-right">Actions</TableHead>
-												</TableRow>
-											</TableHeader>
-											<TableBody>
-												{data?.map((invitation) => {
-													const isExpired = isPast(
-														new Date(invitation.expiresAt),
-													);
-													return (
-														<TableRow key={invitation.id}>
-															<TableCell className="w-[100px]">
-																{invitation.email}
-															</TableCell>
-															<TableCell className="text-center">
-																<Badge
-																	variant={
-																		invitation.role === "owner"
-																			? "default"
-																			: "secondary"
-																	}
-																>
-																	{invitation.role}
-																</Badge>
-															</TableCell>
-															<TableCell className="text-center">
-																<Badge
-																	variant={
-																		invitation.status === "pending"
-																			? "secondary"
-																			: invitation.status === "canceled"
-																				? "destructive"
-																				: "default"
-																	}
-																>
-																	{invitation.status}
-																</Badge>
-															</TableCell>
-															<TableCell className="text-center">
-																{format(new Date(invitation.expiresAt), "PPpp")}{" "}
-																{isExpired ? (
-																	<span className="text-muted-foreground">
-																		(Expired)
-																	</span>
-																) : null}
-															</TableCell>
-
-															<TableCell className="text-right flex justify-end">
-																<DropdownMenu>
-																	<DropdownMenuTrigger asChild>
-																		<Button
-																			variant="ghost"
-																			className="h-8 w-8 p-0"
-																		>
-																			<span className="sr-only">Open menu</span>
-																			<MoreHorizontal className="h-4 w-4" />
-																		</Button>
-																	</DropdownMenuTrigger>
-																	<DropdownMenuContent align="end">
-																		<DropdownMenuLabel>
-																			Actions
-																		</DropdownMenuLabel>
-																		{!isExpired && (
-																			<>
-																				{invitation.status === "pending" && (
-																					<DropdownMenuItem
-																						className="w-full cursor-pointer"
-																						onSelect={() => {
-																							copy(
-																								`${origin}/invitation?token=${invitation.id}`,
-																							);
-																							toast.success(
-																								"Invitation Copied to clipboard",
-																							);
-																						}}
-																					>
-																						Copy Invitation
-																					</DropdownMenuItem>
-																				)}
-
-																				{invitation.status === "pending" && (
-																					<DropdownMenuItem
-																						className="w-full cursor-pointer"
-																						onSelect={async () => {
-																							const result =
-																								await authClient.organization.cancelInvitation(
-																									{
-																										invitationId: invitation.id,
-																									},
-																								);
-
-																							if (result.error) {
-																								toast.error(
-																									result.error.message,
-																								);
-																							} else {
-																								toast.success(
-																									"Invitation deleted",
-																								);
-																								refetch();
-																							}
-																						}}
-																					>
-																						Cancel Invitation
-																					</DropdownMenuItem>
-																				)}
-																			</>
-																		)}
-																		<DropdownMenuItem
-																			className="w-full cursor-pointer"
-																			onSelect={async () => {
-																				await removeInvitation({
-																					invitationId: invitation.id,
-																				}).then(() => {
-																					refetch();
-																					toast.success("Invitation removed");
-																				});
-																			}}
-																		>
-																			Remove Invitation
-																		</DropdownMenuItem>
-																	</DropdownMenuContent>
-																</DropdownMenu>
-															</TableCell>
-														</TableRow>
-													);
-												})}
-											</TableBody>
-										</Table>
-
-										<div className="flex flex-row gap-2 flex-wrap w-full justify-end mr-4">
-											<AddInvitation />
-										</div>
-									</div>
-								)}
-							</>
-						)}
-					</CardContent>
+		<Card className="w-full">
+			<CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
+				<div className="space-y-1">
+					<CardTitle className="flex items-center gap-2 text-xl">
+						<Mail className="size-5 text-muted-foreground" aria-hidden />
+						Invitations
+					</CardTitle>
+					<CardDescription>
+						Track pending invitations and manage their access links.
+					</CardDescription>
 				</div>
-			</Card>
-		</div>
+				<AddInvitation />
+			</CardHeader>
+			<CardContent className="border-t p-0">
+				{isPending ? (
+					<div className="flex min-h-48 items-center justify-center gap-2 text-sm text-muted-foreground">
+						<span>Loading invitations…</span>
+						<Loader2 className="size-4 animate-spin" />
+					</div>
+				) : isError ? (
+					<div role="alert" className="p-6 text-sm text-destructive">
+						Unable to load invitations: {error.message}
+					</div>
+				) : invitations?.length ? (
+					<>
+						<div className="hidden overflow-x-auto md:block">
+							<table className="w-full text-sm">
+								<thead className="border-b bg-muted/30 text-left text-xs text-muted-foreground">
+									<tr>
+										<th className="px-5 py-3 font-medium">Email</th>
+										<th className="px-4 py-3 font-medium">Role</th>
+										<th className="px-4 py-3 font-medium">Status</th>
+										<th className="px-4 py-3 font-medium">Expires</th>
+										<th className="px-4 py-3 text-right font-medium">
+											Actions
+										</th>
+									</tr>
+								</thead>
+								<tbody className="divide-y">
+									{invitations.map((invitation) => (
+										<tr key={invitation.id} className="hover:bg-muted/20">
+											<td className="px-5 py-3 font-medium">
+												{invitation.email}
+											</td>
+											<td className="px-4 py-3">
+												<Badge
+													variant={
+														invitation.role === "owner"
+															? "default"
+															: "secondary"
+													}
+												>
+													{invitation.role}
+												</Badge>
+											</td>
+											<td className="px-4 py-3">
+												<InvitationStatus invitation={invitation} />
+											</td>
+											<td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
+												{format(new Date(invitation.expiresAt), "PPpp")}
+											</td>
+											<td className="px-4 py-3 text-right">
+												<InvitationActions
+													invitation={invitation}
+													onCancel={() => handleCancel(invitation)}
+													onRemove={() => handleRemove(invitation)}
+												/>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+						<div className="divide-y md:hidden">
+							{invitations.map((invitation) => (
+								<div
+									key={invitation.id}
+									className="flex items-start justify-between gap-3 p-4"
+								>
+									<div className="min-w-0 space-y-2">
+										<p className="break-all text-sm font-medium">
+											{invitation.email}
+										</p>
+										<div className="flex flex-wrap items-center gap-2">
+											<Badge variant="secondary">{invitation.role}</Badge>
+											<InvitationStatus invitation={invitation} />
+										</div>
+										<p className="text-xs text-muted-foreground">
+											Expires {format(new Date(invitation.expiresAt), "PPpp")}
+										</p>
+									</div>
+									<InvitationActions
+										invitation={invitation}
+										onCancel={() => handleCancel(invitation)}
+										onRemove={() => handleRemove(invitation)}
+									/>
+								</div>
+							))}
+						</div>
+					</>
+				) : (
+					<div className="flex min-h-56 flex-col items-center justify-center gap-3 p-6 text-center">
+						<Users className="size-8 text-muted-foreground" aria-hidden />
+						<p className="text-sm text-muted-foreground">
+							No invitations yet. Invite someone to join your organization.
+						</p>
+						<AddInvitation />
+					</div>
+				)}
+			</CardContent>
+		</Card>
 	);
 };
+
+function InvitationStatus({ invitation }: { invitation: Invitation }) {
+	const expired = isPast(new Date(invitation.expiresAt));
+	const status = invitation.status === "pending" && expired ? "expired" : invitation.status;
+	return (
+		<Badge
+			variant={
+				status === "pending"
+					? "secondary"
+					: status === "canceled" || status === "expired"
+						? "destructive"
+						: "default"
+			}
+		>
+			{status}
+		</Badge>
+	);
+}
+
+function InvitationActions({
+	invitation,
+	onCancel,
+	onRemove,
+}: {
+	invitation: Invitation;
+	onCancel: () => void;
+	onRemove: () => void;
+}) {
+	const isPending = invitation.status === "pending";
+	const isExpired = isPast(new Date(invitation.expiresAt));
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					aria-label={`Actions for invitation to ${invitation.email}`}
+				>
+					<MoreHorizontal className="size-4" />
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end">
+				<DropdownMenuLabel>Invitation</DropdownMenuLabel>
+				{isPending && !isExpired && (
+					<DropdownMenuItem
+						onSelect={() => {
+							copy(`${window.location.origin}/invitation?token=${invitation.id}`);
+							toast.success("Invitation copied to clipboard");
+						}}
+					>
+						Copy invitation link
+					</DropdownMenuItem>
+				)}
+				{isPending && (
+					<DialogAction
+						title="Cancel invitation"
+						description={`Cancel the invitation sent to ${invitation.email}?`}
+						onClick={onCancel}
+						type="destructive"
+					>
+						<DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+							Cancel invitation
+						</DropdownMenuItem>
+					</DialogAction>
+				)}
+				{isPending && <DropdownMenuSeparator />}
+				<DialogAction
+					title="Remove invitation"
+					description={`Remove the invitation record for ${invitation.email}?`}
+					onClick={onRemove}
+					type="destructive"
+				>
+					<DropdownMenuItem
+						className="text-destructive focus:text-destructive"
+						onSelect={(event) => event.preventDefault()}
+					>
+						Remove invitation
+					</DropdownMenuItem>
+				</DialogAction>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}

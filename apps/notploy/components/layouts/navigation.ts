@@ -21,14 +21,13 @@ import {
 	HardDrive,
 	HeartPulse,
 	House,
-	KeyRound,
 	Layers,
 	LayoutGrid,
 	LogIn,
 	type LucideIcon,
 	Network,
-	PanelsTopLeft,
 	Package,
+	PanelsTopLeft,
 	Rocket,
 	Server,
 	ShieldCheck,
@@ -118,7 +117,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 			},
 			{
 				label: "Deployments",
-				href: "/dashboard/overview?tab=deployments",
+				href: "/dashboard/deployments",
 				icon: Rocket,
 				activeTab: "deployments",
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
@@ -161,7 +160,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Containers",
-						href: "/dashboard/docker?tab=containers",
+						href: "/dashboard/containers",
 						icon: Boxes,
 						activeTab: "containers",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -169,7 +168,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Swarm",
-						href: "/dashboard/docker?tab=swarm",
+						href: "/dashboard/swarm",
 						icon: Waypoints,
 						activeTab: "swarm",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -177,7 +176,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Images",
-						href: "/dashboard/docker?tab=images",
+						href: "/dashboard/images",
 						icon: Layers,
 						activeTab: "images",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -185,15 +184,22 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					},
 					{
 						label: "Events",
-						href: "/dashboard/docker?tab=events",
+						href: "/dashboard/events",
 						icon: Activity,
 						activeTab: "events",
 						isEnabled: ({ permissions, isCloud }) =>
 							!!(permissions?.docker.read && !isCloud),
 					},
 					{
+						label: "Requests",
+						href: "/dashboard/requests",
+						icon: Forward,
+						isEnabled: ({ permissions, isCloud }) =>
+							!!(permissions?.docker.read && !isCloud),
+					},
+					{
 						label: "Health",
-						href: "/dashboard/docker?tab=health",
+						href: "/dashboard/health",
 						icon: HeartPulse,
 						activeTab: "health",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -211,7 +217,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				items: [
 					{
 						label: "Networks",
-						href: "/dashboard/docker?tab=networks",
+						href: "/dashboard/networks",
 						icon: Network,
 						activeTab: "networks",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -231,7 +237,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				items: [
 					{
 						label: "Volumes",
-						href: "/dashboard/docker?tab=volumes",
+						href: "/dashboard/volumes",
 						icon: HardDrive,
 						activeTab: "volumes",
 						isEnabled: ({ permissions, isCloud }) =>
@@ -250,31 +256,6 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 						isEnabled: ({ permissions }) => !!permissions?.certificate.read,
 					},
 				],
-			},
-		],
-	},
-	{
-		id: "security",
-		label: "Security",
-		items: [
-			{
-				label: "Requests",
-				href: "/dashboard/requests",
-				icon: Forward,
-				isEnabled: ({ permissions, isCloud }) =>
-					!!(permissions?.docker.read && !isCloud),
-			},
-			{
-				label: "Secrets",
-				href: "/dashboard/settings/secrets",
-				icon: Vault,
-				isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,
-			},
-			{
-				label: "SSO",
-				href: "/dashboard/settings/sso",
-				icon: LogIn,
-				isEnabled: ({ permissions }) => !!permissions?.organization.update,
 			},
 		],
 	},
@@ -299,6 +280,12 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/settings/dns",
 				icon: Globe,
 				isEnabled: ({ permissions }) => !!permissions?.dnsProvider.read,
+			},
+			{
+				label: "SSO",
+				href: "/dashboard/settings/sso",
+				icon: LogIn,
+				isEnabled: ({ permissions }) => !!permissions?.organization.update,
 			},
 			{
 				label: "S3 Destinations",
@@ -336,10 +323,10 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				icon: Smartphone,
 			},
 			{
-				label: "API Keys",
-				href: "/dashboard/settings/api-keys",
-				icon: KeyRound,
-				isEnabled: ({ permissions }) => !!permissions?.api.read,
+				label: "Secrets",
+				href: "/dashboard/settings/secrets",
+				icon: Vault,
+				isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,
 			},
 			{
 				label: "Audit Logs",
@@ -497,12 +484,6 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/settings/users",
 				icon: Users,
 				isEnabled: ({ permissions }) => !!permissions?.member.read,
-			},
-			{
-				label: "API Keys",
-				href: "/dashboard/settings/api-keys",
-				icon: KeyRound,
-				isEnabled: ({ permissions }) => !!permissions?.api.read,
 			},
 			{
 				label: "Sessions",

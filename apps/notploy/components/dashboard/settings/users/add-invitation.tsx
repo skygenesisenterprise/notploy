@@ -94,12 +94,26 @@ const addInvitation = z
 
 type AddInvitation = z.infer<typeof addInvitation>;
 
-export const AddInvitation = () => {
+interface Props {
+	triggerLabel?: string;
+	initialMode?: AddInvitation["mode"];
+	credentialsOnly?: boolean;
+}
+
+export const AddInvitation = ({
+	triggerLabel = "Add Invitation",
+	initialMode = "invitation",
+	credentialsOnly = false,
+}: Props) => {
 	const [open, setOpen] = useState(false);
 	const utils = api.useUtils();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
-	const { data: emailProviders } =
-		api.notification.getEmailProviders.useQuery();
+	const { data: emailProviders } = api.notification.getEmailProviders.useQuery(
+		undefined,
+		{
+			enabled: !credentialsOnly,
+		},
+	);
 	const { mutateAsync: inviteMember, isPending: isInviting } =
 		api.organization.inviteMember.useMutation();
 	const { mutateAsync: sendInvitation } = api.user.sendInvitation.useMutation();
@@ -111,7 +125,7 @@ export const AddInvitation = () => {
 
 	const form = useForm<AddInvitation>({
 		defaultValues: {
-			mode: "invitation",
+			mode: initialMode,
 			email: "",
 			role: "member",
 			notificationId: "",
@@ -184,10 +198,10 @@ export const AddInvitation = () => {
 			setError(message);
 			toast.error(message);
 		} finally {
-			await Promise.all([
-				utils.organization.allInvitations.invalidate(),
-				utils.user.all.invalidate(),
-			]);
+			await utils.user.all.invalidate();
+			if (!credentialsOnly || data.mode !== "credentials") {
+				await utils.organization.allInvitations.invalidate();
+			}
 		}
 	};
 
@@ -195,12 +209,14 @@ export const AddInvitation = () => {
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger className="" asChild>
 				<Button>
-					<PlusIcon className="h-4 w-4" /> Add Invitation
+					<PlusIcon className="h-4 w-4" /> {triggerLabel}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
-					<DialogTitle>Add Invitation</DialogTitle>
+					<DialogTitle>
+						{mode === "credentials" ? "Create user" : "Add Invitation"}
+					</DialogTitle>
 					<DialogDescription>
 						{mode === "credentials"
 							? "Create a user with initial credentials"
@@ -215,7 +231,7 @@ export const AddInvitation = () => {
 						onSubmit={form.handleSubmit(onSubmit)}
 						className="grid w-full gap-4 "
 					>
-						{!isCloud && (
+						{!isCloud && !credentialsOnly && (
 							<FormField
 								control={form.control}
 								name="mode"
@@ -344,7 +360,7 @@ export const AddInvitation = () => {
 							/>
 						)}
 
-						{!isCloud && mode === "credentials" && (
+						{!isCloud && (credentialsOnly || mode === "credentials") && (
 							<>
 								<FormField
 									control={form.control}

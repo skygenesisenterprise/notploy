@@ -26,7 +26,7 @@ export const TrialBanner = () => {
 	const daysLabel = `${daysRemaining} day${daysRemaining === 1 ? "" : "s"}`;
 
 	return (
-		<div className="sticky top-0 z-20 mx-4 mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-lg border border-primary/20 bg-primary/10 px-4 py-2 text-sm">
+		<div className="mx-4 mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-lg border border-primary/20 bg-primary/10 px-4 py-2 text-sm">
 			<span className="flex items-center gap-2">
 				<Rocket className="h-4 w-4 text-primary shrink-0" />
 				{daysRemaining > 0
