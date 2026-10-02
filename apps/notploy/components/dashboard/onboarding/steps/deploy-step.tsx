@@ -280,7 +280,7 @@ export const DeployStep = ({ environmentId, onNext, plainTitle }: Props) => {
 								className="justify-start"
 							>
 								<img
-									src={`https://templates.notploy.com/blueprints/${template.id}/${template.logo}`}
+									src={`/api/templates/${template.id}/${template.logo}`}
 									alt={template.name}
 									className="size-4 object-contain shrink-0"
 								/>

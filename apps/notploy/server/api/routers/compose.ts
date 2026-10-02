@@ -42,13 +42,14 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@notploy/server/services/permission";
+import { processTemplate } from "@notploy/server/templates/processors";
 import {
 	type CompleteTemplate,
-	fetchTemplateFiles,
-	fetchTemplateLogo,
-	fetchTemplatesList,
-} from "@notploy/server/templates/github";
-import { processTemplate } from "@notploy/server/templates/processors";
+	getTemplatesLogoBaseUrl,
+	resolveTemplateFiles,
+	resolveTemplateLogo,
+	resolveTemplatesList,
+} from "@notploy/server/templates/resolver";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import _ from "lodash";
@@ -613,8 +614,8 @@ export const composeRouter = createTRPCRouter({
 			}
 
 			const [template, templateLogo] = await Promise.all([
-				fetchTemplateFiles(input.id, input.baseUrl),
-				fetchTemplateLogo(input.id, input.baseUrl),
+				resolveTemplateFiles(input.id, input.baseUrl),
+				resolveTemplateLogo(input.id, input.baseUrl),
 			]);
 
 			let serverIp = "127.0.0.1";
@@ -696,25 +697,25 @@ export const composeRouter = createTRPCRouter({
 		.input(z.object({ baseUrl: z.string().optional() }))
 		.query(async ({ input }) => {
 			try {
-				const githubTemplates = await fetchTemplatesList(input.baseUrl);
-
-				if (githubTemplates.length > 0) {
-					return githubTemplates;
-				}
+				const templates = await resolveTemplatesList(input.baseUrl);
+				const logoBaseUrl = getTemplatesLogoBaseUrl(input.baseUrl);
+				return templates.map((template) => ({
+					...template,
+					logoUrl: template.logo
+						? `${logoBaseUrl}/${template.id}/${template.logo}`
+						: null,
+				}));
 			} catch (error) {
-				console.warn(
-					"Failed to fetch templates from GitHub, falling back to local templates:",
-					error,
-				);
+				console.warn("Failed to fetch templates:", error);
+				return [];
 			}
-			return [];
 		}),
 
 	getTags: protectedProcedure
 		.input(z.object({ baseUrl: z.string().optional() }))
 		.query(async ({ input }) => {
 			try {
-				const githubTemplates = await fetchTemplatesList(input.baseUrl);
+				const githubTemplates = await resolveTemplatesList(input.baseUrl);
 				const allTags = githubTemplates.flatMap((template) => template.tags);
 				return _.uniq(allTags);
 			} catch (error) {

@@ -133,6 +133,9 @@ services:
       # exercises the cloud code paths.
       IS_CLOUD: ${IS_CLOUD:-false}
       TZ: ${TZ:-UTC}
+      # Serve templates from the bind-mounted blueprints directory instead of
+      # https://templates.notploy.com, so dev never depends on that domain.
+      NOTPLOY_TEMPLATES_DIR: /usr/src/app/templates/blueprints
       # Inotify works through bind mounts on Linux. On Docker Desktop
       # (macOS/Windows) set DEV_POLLING=true to use polling instead.
       CHOKIDAR_USEPOLLING: ${DEV_POLLING:-false}
@@ -151,6 +154,7 @@ services:
       # (it silently leaves the image's baked sources in place).
       - ./apps/notploy:/usr/src/app/apps/notploy
       - ./packages:/usr/src/app/packages
+      - ./templates:/usr/src/app/templates
       # Those bind mounts shadow the node_modules installed in the dev image.
       # Anonymous volumes restore them from the image every time the container
       # is created — unlike named volumes, they are never stale after a

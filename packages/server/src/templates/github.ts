@@ -36,7 +36,9 @@ export interface CompleteTemplate {
 	};
 }
 
-interface TemplateMetadata {
+export const TEMPLATES_BASE_URL = "https://templates.notploy.com";
+
+export interface TemplateMetadata {
 	id: string;
 	name: string;
 	description: string;
@@ -54,7 +56,7 @@ interface TemplateMetadata {
  * Fetches the list of available templates from meta.json
  */
 export async function fetchTemplatesList(
-	baseUrl = "https://templates.notploy.com",
+	baseUrl = TEMPLATES_BASE_URL,
 ): Promise<TemplateMetadata[]> {
 	const response = await fetch(`${baseUrl}/meta.json`, {
 		signal: AbortSignal.timeout(10000),
@@ -85,7 +87,7 @@ const LOGO_MIME_TYPES: Record<string, string> = {
 
 export async function fetchTemplateLogo(
 	templateId: string,
-	baseUrl = "https://templates.notploy.com",
+	baseUrl = TEMPLATES_BASE_URL,
 ): Promise<string | null> {
 	try {
 		const templates = await fetchTemplatesList(baseUrl);
@@ -122,7 +124,7 @@ export async function fetchTemplateLogo(
  */
 export async function fetchTemplateFiles(
 	templateId: string,
-	baseUrl = "https://templates.notploy.com",
+	baseUrl = TEMPLATES_BASE_URL,
 ): Promise<{ config: CompleteTemplate; dockerCompose: string }> {
 	const timeout = AbortSignal.timeout(10000);
 	const [templateYmlResponse, dockerComposeResponse] = await Promise.all([

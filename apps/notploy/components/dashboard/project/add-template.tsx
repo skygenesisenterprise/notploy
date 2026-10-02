@@ -421,7 +421,10 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 										>
 											{/** biome-ignore lint/performance/noImgElement: this is a valid use for img tag */}
 											<img
-												src={`${customBaseUrl || "https://templates.notploy.com/"}/blueprints/${template?.id}/${template?.logo}`}
+												src={
+													template?.logoUrl ??
+													`${customBaseUrl || "https://templates.notploy.com/"}/blueprints/${template?.id}/${template?.logo}`
+												}
 												className={cn(
 													"object-contain",
 													viewMode === "detailed" ? "size-24" : "size-16",
