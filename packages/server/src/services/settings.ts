@@ -6,7 +6,6 @@ import {
 } from "@notploy/server/utils/process/execAsync";
 import { and, eq } from "drizzle-orm";
 
-import semver from "semver";
 import { db } from "../db";
 import { compose } from "../db/schema";
 import {
@@ -14,169 +13,30 @@ import {
 	initializeTraefikService,
 	type TraefikOptions,
 } from "../setup/traefik-setup";
-export interface IUpdateData {
-	/** Release tag of the newest self-hosted release, also the container image tag (`v1.2.3-app`). */
-	latestVersion: string | null;
-	updateAvailable: boolean;
-}
+import { getNotployImageTag, NOTPLOY_IMAGE, toReleaseTag } from "./update";
 
-export const DEFAULT_UPDATE_DATA: IUpdateData = {
-	latestVersion: null,
-	updateAvailable: false,
-};
-
-/** Repository publishing the Notploy releases. */
-const NOTPLOY_GITHUB_REPOSITORY = "skygenesisenterprise/notploy";
-
-/**
- * Self-hosted image published by .github/workflows/docker-publish.yml. Releases
- * are consumed from the GitHub Releases API, images from the GitHub Container
- * Registry, so no Docker Hub credential is involved anymore.
- */
-export const NOTPLOY_IMAGE = `ghcr.io/${NOTPLOY_GITHUB_REPOSITORY}`;
-
-/** Suffix docker-publish.yml appends to the self-hosted image: `v1.2.3-app` publishes `ghcr.io/skygenesisenterprise/notploy:v1.2.3-app`. */
-const APP_TAG_SUFFIX = "-app";
-
-/** Matches the self-hosted release tags only, so the other images of the publish matrix (`-cloud`, `-mcp`, ...) are ignored. */
-const SELF_HOSTED_RELEASE_REGEX = /^v?(\d+)\.(\d+)\.(\d+)-app$/;
-
-/** GitHub allows 60 anonymous requests per hour and IP, the dashboard polls this every few minutes. */
-const RELEASES_CACHE_TTL_MS = 15 * 60 * 1000;
-const RELEASES_REQUEST_TIMEOUT_MS = 10_000;
-const RELEASES_URL = `https://api.github.com/repos/${NOTPLOY_GITHUB_REPOSITORY}/releases?per_page=100`;
-
-interface SelfHostedRelease {
-	/** Release tag, usable as is as the container image tag. */
-	tag: string;
-	version: semver.SemVer;
-}
-
-let releasesCache: { fetchedAt: number; releases: SelfHostedRelease[] } | undefined;
-
-/** Returns current Notploy docker image tag or `latest` by default. */
-export const getNotployImageTag = () => {
-	return process.env.RELEASE_TAG || "latest";
-};
-
-/**
- * Turns a bare version into the published release tag (`1.2.3` becomes
- * `v1.2.3-app`). Channels such as `latest`, `canary`, `feature` or a branch name
- * are returned untouched, they are already valid image tags.
- */
-export const toReleaseTag = (version: string) => {
-	const tag = version.trim();
-	const release =
-		parseSelfHostedRelease(tag) ?? parseSelfHostedRelease(`${tag}-app`);
-	return release?.tag ?? tag;
-};
-
-const parseSelfHostedRelease = (tag: string): SelfHostedRelease | null => {
-	const match = SELF_HOSTED_RELEASE_REGEX.exec(tag.trim());
-	if (!match) return null;
-
-	const version = semver.parse(`${match[1]}.${match[2]}.${match[3]}`);
-	if (!version) return null;
-
-	return {
-		tag: `v${match[1]}.${match[2]}.${match[3]}${APP_TAG_SUFFIX}`,
-		version,
-	};
-};
-
-const getLatestOf = (releases: SelfHostedRelease[]) =>
-	releases.reduce<SelfHostedRelease | null>(
-		(latest, release) =>
-			!latest || semver.gt(release.version, latest.version) ? release : latest,
-		null,
-	);
-
-const fetchSelfHostedReleases = async (): Promise<SelfHostedRelease[]> => {
-	const now = Date.now();
-	if (releasesCache && now - releasesCache.fetchedAt < RELEASES_CACHE_TTL_MS) {
-		return releasesCache.releases;
-	}
-
-	const response = await fetch(RELEASES_URL, {
-		method: "GET",
-		headers: {
-			Accept: "application/vnd.github+json",
-			"X-GitHub-Api-Version": "2022-11-28",
-			"User-Agent": "notploy",
-			// A token is optional, it only raises the rate limit from 60 to 5000
-			// requests per hour.
-			...(process.env.GITHUB_TOKEN
-				? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
-				: {}),
-		},
-		signal: AbortSignal.timeout(RELEASES_REQUEST_TIMEOUT_MS),
-	});
-
-	// Rate limit, repository not reachable or GitHub outage: fall back to the
-	// previously known releases instead of reporting that no update exists.
-	if (!response.ok) {
-		throw new Error(`GitHub Releases answered with ${response.status}`);
-	}
-
-	const releases = (await response.json()) as {
-		draft?: boolean;
-		prerelease?: boolean;
-		tag_name?: string;
-	}[];
-
-	if (!Array.isArray(releases)) {
-		throw new Error("Unexpected GitHub Releases payload");
-	}
-
-	const parsed = releases
-		.filter((release) => !release?.draft && !release?.prerelease)
-		.map((release) => parseSelfHostedRelease(String(release?.tag_name)))
-		.filter((release): release is SelfHostedRelease => release !== null);
-
-	releasesCache = { fetchedAt: now, releases: parsed };
-	return parsed;
-};
-
-/** Returns the highest published self-hosted release, or `null` when none is reachable. */
-const getLatestSelfHostedRelease = async () => {
-	try {
-		return getLatestOf(await fetchSelfHostedReleases());
-	} catch (error) {
-		// The update check is best-effort: an unreachable or rate-limited GitHub
-		// must never surface as a server error in the logs on every call.
-		console.warn(
-			`Could not fetch releases from GitHub: ${
-				error instanceof Error ? error.message : String(error)
-			}`,
-		);
-		return getLatestOf(releasesCache?.releases ?? []);
-	}
-};
-
-/** Returns the latest release tag and whether it is newer than the running version. */
-export const getUpdateData = async (
-	currentVersion: string,
-	channel: string = getNotployImageTag(),
-): Promise<IUpdateData> => {
-	// `canary` and `feature` installations change too often to be updated from a
-	// dashboard, and docker-publish.yml does not publish those tags: they update
-	// themselves.
-	if (["canary", "feature"].includes(channel)) {
-		return DEFAULT_UPDATE_DATA;
-	}
-
-	const cleanedCurrent = semver.clean(currentVersion);
-	const current = cleanedCurrent ? semver.parse(cleanedCurrent) : null;
-	if (!current) return DEFAULT_UPDATE_DATA;
-
-	const latestRelease = await getLatestSelfHostedRelease();
-	if (!latestRelease) return DEFAULT_UPDATE_DATA;
-
-	return {
-		latestVersion: latestRelease.tag,
-		updateAvailable: semver.gt(latestRelease.version, current),
-	};
-};
+// The update detection/status model lives in `./update`; re-exported here so the
+// historical import path keeps working for the API, SDK and desktop clients.
+export {
+	checkReleaseAssets,
+	computeUpdateStatus,
+	DEFAULT_UPDATE_DATA,
+	getNotployImageTag,
+	getUpdateData,
+	getUpdateStatus,
+	type IUpdateData,
+	type IUpdateStatusData,
+	invalidateUpdateCache,
+	isUpdateInstallable,
+	NOTPLOY_GITHUB_REPOSITORY,
+	NOTPLOY_IMAGE,
+	normalizeVersion,
+	REQUIRED_RELEASE_ASSETS,
+	toReleaseTag,
+	type UpdateStatus,
+	UPDATE_INSTALLABLE_STATUS,
+	UPDATE_PENDING_STATUSES,
+} from "./update";
 
 interface TreeDataItem {
 	id: string;

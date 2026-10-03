@@ -17,11 +17,14 @@ import {
 	getNotployImageTag,
 	getLogCleanupStatus,
 	getUpdateData,
+	getUpdateStatus,
 	getWebServerSettings,
+	isUpdateInstallable,
 	getAccessibleServerIds,
 	getRemoteDocker,
 	IS_CLOUD,
 	NOTPLOY_IMAGE,
+	normalizeVersion,
 	parseRawConfig,
 	paths,
 	prepareEnvironmentVariables,
@@ -578,6 +581,10 @@ export const settingsRouter = createTRPCRouter({
 			});
 			return true;
 		}),
+	/**
+	 * Backward-compatible shape kept for the existing SDK, CLI and desktop
+	 * clients. Prefer `getUpdateStatus` in the UI.
+	 */
 	getUpdateData: protectedProcedure.mutation(async () => {
 		if (IS_CLOUD) {
 			return DEFAULT_UPDATE_DATA;
@@ -585,33 +592,52 @@ export const settingsRouter = createTRPCRouter({
 
 		return await getUpdateData(packageInfo.version);
 	}),
+	/**
+	 * Full update status: running/latest version, release metadata and whether
+	 * the release is actually installable (its assets are published).
+	 */
+	getUpdateStatus: protectedProcedure.query(async () => {
+		if (IS_CLOUD) {
+			return null;
+		}
+
+		return await getUpdateStatus(packageInfo.version);
+	}),
 	updateServer: adminProcedure.mutation(async ({ ctx }) => {
 		if (IS_CLOUD) {
 			return true;
 		}
 
-		const data = await getUpdateData(packageInfo.version);
-		if (data.updateAvailable) {
-			void spawnAsync("docker", [
-				"service",
-				"update",
-				"--force",
-				"--image",
-				`${NOTPLOY_IMAGE}:${data.latestVersion}`,
-				"notploy",
-			]);
-			await audit(ctx, {
-				action: "update",
-				resourceType: "settings",
-				resourceName: "notploy-version",
+		const data = await getUpdateStatus(packageInfo.version);
+		// A release whose assets are still being published is not an update: it
+		// must not be installed, and it is not an error either.
+		if (!isUpdateInstallable(data) || !data.latestVersion) {
+			throw new TRPCError({
+				code: "PRECONDITION_FAILED",
+				message: "No installable update is available right now.",
 			});
 		}
+
+		void spawnAsync("docker", [
+			"service",
+			"update",
+			"--force",
+			"--image",
+			`${NOTPLOY_IMAGE}:${data.latestVersion}`,
+			"notploy",
+		]);
+		await audit(ctx, {
+			action: "update",
+			resourceType: "settings",
+			resourceName: "notploy-version",
+		});
 
 		return true;
 	}),
 
 	getNotployVersion: protectedProcedure.query(() => {
-		return packageInfo.version;
+		// The UI shows a clean version (`1.0.1`), not the raw package/tag value.
+		return normalizeVersion(packageInfo.version) ?? packageInfo.version;
 	}),
 	getReleaseTag: protectedProcedure.query(() => {
 		return getNotployImageTag();

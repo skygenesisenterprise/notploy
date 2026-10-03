@@ -1,8 +1,10 @@
+import { createMetricUsage } from "@notploy/server/monitoring/status";
 import { formatMb } from "@notploy/server/monitoring/units";
+import { Cpu, HardDrive, MemoryStick } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { MetricUsage } from "@/components/dashboard/monitoring/metric-usage";
 import { api } from "@/utils/api";
 import { DockerBlockChart } from "./docker-block-chart";
 import { DockerCpuChart } from "./docker-cpu-chart";
@@ -94,8 +96,11 @@ export type DockerStatsJSON = {
 };
 
 export const convertMemoryToBytes = (
-	memoryString: string | undefined,
+	memoryString: string | number | undefined,
 ): number => {
+	if (typeof memoryString === "number") {
+		return Number.isFinite(memoryString) ? memoryString : 0;
+	}
 	if (!memoryString || typeof memoryString !== "string") {
 		return 0;
 	}
@@ -117,6 +122,20 @@ export const convertMemoryToBytes = (
 	}
 };
 
+const formatMemoryBytes = (bytes: number): string => {
+	if (!Number.isFinite(bytes) || bytes <= 0) {
+		return "0 B";
+	}
+	const units = ["B", "KiB", "MiB", "GiB", "TiB"];
+	let value = bytes;
+	let unitIndex = 0;
+	while (value >= 1024 && unitIndex < units.length - 1) {
+		value /= 1024;
+		unitIndex += 1;
+	}
+	return `${value.toFixed(value >= 10 ? 1 : 2)} ${units[unitIndex]}`;
+};
+
 export const ContainerFreeMonitoring = ({
 	appName,
 	appType = "application",
@@ -135,6 +154,28 @@ export const ContainerFreeMonitoring = ({
 		disk: [],
 	});
 	const [currentData, setCurrentData] = useState<DockerStats>(defaultData);
+
+	// Capacity metrics are normalized once here so the UI never computes its own
+	// percentage for CPU, memory or disk.
+	const cpuPercentage = Number.parseFloat(
+		String(currentData.cpu.value ?? "0%").replace("%", ""),
+	);
+	const cpuUsage = createMetricUsage({
+		used: cpuPercentage,
+		percentage: cpuPercentage,
+		kind: "cpu",
+	});
+	const memoryUsage = createMetricUsage({
+		used: convertMemoryToBytes(currentData.memory.value.used),
+		total: convertMemoryToBytes(currentData.memory.value.total),
+		kind: "memory",
+	});
+	const diskUsage = createMetricUsage({
+		used: currentData.disk.value.diskUsage,
+		total: currentData.disk.value.diskTotal,
+		percentage: currentData.disk.value.diskUsedPercentage,
+		kind: "disk",
+	});
 
 	useEffect(() => {
 		setCurrentData(defaultData);
@@ -211,75 +252,53 @@ export const ContainerFreeMonitoring = ({
 		<div className="rounded-xl bg-background flex flex-col gap-4">
 			<div className="grid gap-6 lg:grid-cols-2">
 				<Card className="bg-background">
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">CPU Usage</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="flex flex-col gap-2 w-full">
-							<span className="text-sm text-muted-foreground">
-								Used: {String(currentData.cpu.value ?? "0%")}
-							</span>
-							<Progress
-								value={Number.parseInt(
-									String(currentData.cpu.value ?? "0%").replace("%", ""),
-									10,
-								)}
-								className="w-full"
-							/>
+					<CardContent className="pt-6">
+						<MetricUsage
+							label="CPU Usage"
+							icon={Cpu}
+							used={cpuUsage.percentage}
+							percentage={cpuUsage.percentage}
+							status={cpuUsage.status}
+						>
 							<DockerCpuChart accumulativeData={accumulativeData.cpu} />
-						</div>
+						</MetricUsage>
 					</CardContent>
 				</Card>
 				<Card className="bg-background">
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Memory Usage</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="flex flex-col gap-2 w-full">
-							<span className="text-sm text-muted-foreground">
-								{`Used:  ${currentData.memory.value.used} / Limit: ${currentData.memory.value.total} `}
-							</span>
-							<Progress
-								value={
-									// @ts-ignore
-									(convertMemoryToBytes(currentData.memory.value.used) /
-										// @ts-ignore
-										convertMemoryToBytes(currentData.memory.value.total)) *
-									100
-								}
-								className="w-full"
-							/>
+					<CardContent className="pt-6">
+						<MetricUsage
+							label="Memory Usage"
+							icon={MemoryStick}
+							used={memoryUsage.used}
+							total={memoryUsage.total}
+							percentage={memoryUsage.percentage}
+							status={memoryUsage.status}
+							formatValue={formatMemoryBytes}
+						>
 							<DockerMemoryChart
 								accumulativeData={accumulativeData.memory}
-								memoryLimitGB={
-									// @ts-ignore
-									convertMemoryToBytes(currentData.memory.value.total) /
-									1024 ** 3
-								}
+								memoryLimitGB={memoryUsage.total / 1024 ** 3}
 							/>
-						</div>
+						</MetricUsage>
 					</CardContent>
 				</Card>
-				{appName === "notploy" && (
-					<Card className="bg-background">
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Disk Space</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="flex flex-col gap-2 w-full">
-								<span className="text-sm text-muted-foreground">
-									{`Used:  ${currentData.disk.value.diskUsage} GB / Limit: ${currentData.disk.value.diskTotal} GB`}
-								</span>
-								<Progress
-									value={currentData.disk.value.diskUsedPercentage}
-									className="w-full"
-								/>
-								<DockerDiskChart
-									accumulativeData={accumulativeData.disk}
-									diskTotal={currentData.disk.value.diskTotal}
-								/>
-							</div>
-						</CardContent>
+				{appName === "notploy" && (					<Card className="bg-background">
+						<CardContent className="pt-6">
+							<MetricUsage
+								label="Disk Space"
+							icon={HardDrive}
+							used={diskUsage.used}
+							total={diskUsage.total}
+							unit="GB"
+							percentage={diskUsage.percentage}
+							status={diskUsage.status}
+						>
+							<DockerDiskChart
+								accumulativeData={accumulativeData.disk}
+								diskTotal={currentData.disk.value.diskTotal}
+							/>
+						</MetricUsage>
+					</CardContent>
 					</Card>
 				)}
 				{appName === "notploy" && (

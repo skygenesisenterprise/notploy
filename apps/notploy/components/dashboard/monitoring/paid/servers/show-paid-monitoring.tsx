@@ -1,5 +1,7 @@
+import { createMetricUsage } from "@notploy/server/monitoring/status";
 import { Clock, Cpu, HardDrive, Loader2, MemoryStick } from "lucide-react";
 import { useEffect, useState } from "react";
+import { MetricUsage } from "@/components/dashboard/monitoring/metric-usage";
 import {
 	Select,
 	SelectContent,
@@ -111,6 +113,25 @@ export const ShowPaidMonitoring = ({ BASE_URL, token }: Props) => {
 		setMetrics(formattedData[formattedData.length - 1] || {});
 	}, [data]);
 
+	const cpuUsage = createMetricUsage({
+		used: metrics.cpu,
+		percentage: Number.parseFloat(String(metrics.cpu ?? "")),
+		kind: "cpu",
+	});
+	const memoryUsage = createMetricUsage({
+		used: metrics.memUsedGB,
+		total: metrics.memTotal,
+		percentage: Number.parseFloat(String(metrics.memUsed ?? "")),
+		kind: "memory",
+	});
+	const diskUsage = createMetricUsage({
+		used: (Number.parseFloat(String(metrics.totalDisk ?? "0")) *
+			Number.parseFloat(String(metrics.diskUsed ?? "0"))) / 100,
+		total: Number.parseFloat(String(metrics.totalDisk ?? "0")),
+		percentage: Number.parseFloat(String(metrics.diskUsed ?? "")),
+		kind: "disk",
+	});
+
 	const formatUptime = (seconds: number): string => {
 		const days = Math.floor(seconds / (24 * 60 * 60));
 		const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
@@ -209,29 +230,40 @@ export const ShowPaidMonitoring = ({ BASE_URL, token }: Props) => {
 				</div>
 
 				<div className="rounded-lg border text-card-foreground shadow-xs p-6">
-					<div className="flex items-center gap-2">
-						<Cpu className="h-4 w-4 text-muted-foreground" />
-						<h3 className="text-sm font-medium">CPU Usage</h3>
-					</div>
-					<p className="mt-2 text-2xl font-bold">{metrics.cpu}%</p>
+					<MetricUsage
+						label="CPU Usage"
+						icon={Cpu}
+						used={cpuUsage.used}
+						percentage={cpuUsage.percentage}
+						status={cpuUsage.status}
+						precision={2}
+					/>
 				</div>
 
 				<div className="rounded-lg border text-card-foreground bg-transparent shadow-xs p-6">
-					<div className="flex items-center gap-2">
-						<MemoryStick className="h-4 w-4 text-muted-foreground" />
-						<h3 className="text-sm font-medium">Memory Usage</h3>
-					</div>
-					<p className="mt-2 text-2xl font-bold">
-						{metrics.memUsedGB} GB / {metrics.memTotal} GB
-					</p>
+					<MetricUsage
+						label="Memory Usage"
+						icon={MemoryStick}
+						used={memoryUsage.used}
+						total={memoryUsage.total}
+						percentage={memoryUsage.percentage}
+						status={memoryUsage.status}
+						unit="GB"
+						precision={2}
+					/>
 				</div>
 
 				<div className="rounded-lg border text-card-foreground shadow-xs p-6">
-					<div className="flex items-center gap-2">
-						<HardDrive className="h-4 w-4 text-muted-foreground" />
-						<h3 className="text-sm font-medium">Disk Usage</h3>
-					</div>
-					<p className="mt-2 text-2xl font-bold">{metrics.diskUsed}%</p>
+					<MetricUsage
+						label="Disk Usage"
+						icon={HardDrive}
+						used={diskUsage.used}
+						total={diskUsage.total}
+						percentage={diskUsage.percentage}
+						status={diskUsage.status}
+						unit="GB"
+						precision={2}
+					/>
 				</div>
 			</div>
 

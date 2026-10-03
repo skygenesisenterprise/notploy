@@ -12,10 +12,11 @@ name: Docker Publish
 # whose tag is that release tag, so a release has to exist for every `-app`
 # tag. The other images are released by their own workflows.
 #
-# The seven entries of the publish matrix below are the whole catalog: adding
-# an image means adding it there and adding its suffix to the tag filters above.
-# The build context is always the repository root because the whole monorepo
-# is a single pnpm workspace.
+# The `select` job filters the catalog down to the images the pushed tag
+# actually publishes, so `v1.0.2-app` shows one job instead of seven (six of
+# them disabled). Adding an image means adding it to the catalog in `select`
+# and adding its suffix to the tag filters above. The build context is always
+# the repository root because the whole monorepo is a single pnpm workspace.
 #
 # Pull requests do not run this workflow at all: ci.yml's `docker` job already
 # builds the images (amd64, no push) so a pull request stays fast and this job
@@ -46,8 +47,103 @@ env:
   IMAGE_PREFIX: ${{ vars.IMAGE_PREFIX || format('ghcr.io/{0}', github.repository_owner) }}
 
 jobs:
+  # The pushed tag selects exactly one image (`v1.0.2-app` publishes only
+  # `notploy`). The matrix is filtered here rather than letting every job
+  # disable itself, so a tag push shows a single job in the run instead of
+  # seven, six of them no-ops.
+  select:
+    name: Select images for the tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+      any: ${{ steps.select.outputs.any }}
+      version: ${{ steps.select.outputs.version }}
+    steps:
+      - name: Select the images published by ${{ github.ref_name }}
+        id: select
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$TAG_NAME" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)-(app|cloud|mcp|github|website|docs|templates)$ ]]; then
+            echo "::error::Unsupported Docker image tag: $TAG_NAME"
+            exit 1
+          fi
+          echo "version=v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}" >> "$GITHUB_OUTPUT"
+          variant="${BASH_REMATCH[4]}"
+
+          # Catalog of publishable images. Adding an image means adding it here
+          # and adding its suffix to the tag filters above.
+          #
+          # `platforms` defaults to linux/amd64,linux/arm64 when omitted.
+          read -r -d '' CATALOG <<'JSON' || true
+          [
+            {
+              "image": "notploy",
+              "file": "./Dockerfile",
+              "target": "selfhosted",
+              "platforms": "linux/amd64",
+              "tag_suffix": "-app",
+              "description": "Notploy self-hosted (dashboard, server and build tooling)"
+            },
+            {
+              "image": "notploy-cloud",
+              "file": "./Dockerfile",
+              "target": "cloud",
+              "tag_suffix": "-cloud",
+              "description": "Notploy Cloud (dashboard + server)"
+            },
+            {
+              "image": "notploy-mcp",
+              "file": "./packages/mcp/Dockerfile",
+              "tag_suffix": "-mcp",
+              "description": "Notploy MCP server"
+            },
+            {
+              "image": "notploy-github",
+              "file": "./packages/github/Dockerfile",
+              "tag_suffix": "-github",
+              "description": "Notploy GitHub integration"
+            },
+            {
+              "image": "notploy-website",
+              "file": "./web/Dockerfile.website",
+              "platforms": "linux/amd64",
+              "tag_suffix": "-website",
+              "description": "Notploy official website"
+            },
+            {
+              "image": "notploy-docs",
+              "file": "./web/Dockerfile.docs",
+              "tag_suffix": "-docs",
+              "description": "Notploy documentation"
+            },
+            {
+              "image": "notploy-templates",
+              "file": "./templates/Dockerfile",
+              "tag_suffix": "-templates",
+              "description": "Notploy templates gallery"
+            }
+          ]
+          JSON
+
+          selected=$(jq -c --arg suffix "-$variant" '[ .[] | select(.tag_suffix == $suffix) ]' <<< "$CATALOG")
+
+          if [ "$(jq 'length' <<< "$selected")" -eq 0 ]; then
+            echo "::error::No image publishes the '$variant' variant"
+            exit 1
+          fi
+
+          echo "any=true" >> "$GITHUB_OUTPUT"
+          echo "matrix=$(jq -c . <<< "$selected")" >> "$GITHUB_OUTPUT"
+          jq -r '.[] | "::notice::publishing \(.image) from \(.file)"' <<< "$selected"
+
   publish:
     name: ${{ matrix.image }}
+    needs: select
+    if: needs.select.outputs.any == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
@@ -59,44 +155,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          # `notploy` is the self-hosted image: on top of the dashboard and the
-          # server it ships the build tooling a customer's deployments need
-          # (Docker daemon, nixpacks, railpack, pack). `notploy-cloud` is the
-          # managed one, the same application without that tooling.
-          - image: notploy
-            file: ./Dockerfile
-            target: selfhosted
-            tag_suffix: "-app"
-            description: Notploy self-hosted (dashboard, server and build tooling)
-          - image: notploy-cloud
-            file: ./Dockerfile
-            target: cloud
-            tag_suffix: "-cloud"
-            description: Notploy Cloud (dashboard + server)
-          - image: notploy-mcp
-            file: ./packages/mcp/Dockerfile
-            tag_suffix: "-mcp"
-            description: Notploy MCP server
-          - image: notploy-github
-            file: ./packages/github/Dockerfile
-            tag_suffix: "-github"
-            description: Notploy GitHub integration
-          - image: notploy-website
-            file: ./web/Dockerfile.website
-            # Next.js currently crashes with SIGILL when its build worker runs
-            # under QEMU for arm64; publish this site image as amd64 only.
-            platforms: linux/amd64
-            tag_suffix: "-website"
-            description: Notploy official website
-          - image: notploy-docs
-            file: ./web/Dockerfile.docs
-            tag_suffix: "-docs"
-            description: Notploy documentation
-          - image: notploy-templates
-            file: ./templates/Dockerfile
-            tag_suffix: "-templates"
-            description: Notploy templates gallery
+        include: ${{ fromJSON(needs.select.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -104,27 +163,13 @@ jobs:
           # commit that an image was built from.
           fetch-depth: 0
 
-      - name: Select image for tag
+      - name: Check the image can be built
         id: select
         env:
-          TAG_NAME: ${{ github.ref_name }}
           IMAGE: ${{ matrix.image }}
-          TAG_SUFFIX: ${{ matrix.tag_suffix }}
           DOCKERFILE: ${{ matrix.file }}
         run: |
           set -euo pipefail
-
-          if [[ ! "$TAG_NAME" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)-(app|cloud|mcp|github|website|docs|templates)$ ]]; then
-            echo "::error::Unsupported Docker image tag: $TAG_NAME"
-            exit 1
-          fi
-          version="v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
-          variant="${BASH_REMATCH[4]}"
-          if [ "$variant" != "${TAG_SUFFIX#-}" ]; then
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::skipping $IMAGE: tag $TAG_NAME publishes '$variant'"
-            exit 0
-          fi
 
           # An image can be listed before its Dockerfile lands; it is then
           # reported and left out instead of failing the whole matrix.
@@ -134,7 +179,6 @@ jobs:
             exit 0
           fi
           echo "enabled=true" >> "$GITHUB_OUTPUT"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Derive tags
         id: meta
@@ -143,8 +187,8 @@ jobs:
         with:
           images: ${{ env.IMAGE_PREFIX }}/${{ matrix.image }}
           tags: |
-            type=semver,pattern={{major}}.{{minor}}.{{patch}},prefix=v,suffix=${{ matrix.tag_suffix }},value=${{ steps.select.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},prefix=v,suffix=${{ matrix.tag_suffix }},value=${{ steps.select.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},prefix=v,suffix=${{ matrix.tag_suffix }},value=${{ needs.select.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},prefix=v,suffix=${{ matrix.tag_suffix }},value=${{ needs.select.outputs.version }}
             type=sha,format=short
             type=ref,event=branch
             type=raw,value=latest,enable={{is_default_branch}}

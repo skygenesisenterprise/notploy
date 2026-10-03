@@ -1,7 +1,8 @@
-import type { IUpdateData } from "@notploy/server/index";
+import type { IUpdateStatusData } from "@notploy/server/index";
 import {
 	Bug,
 	Download,
+	Hourglass,
 	Info,
 	RefreshCcw,
 	Server,
@@ -31,7 +32,8 @@ import { ToggleAutoCheckUpdates } from "./toggle-auto-check-updates";
 import { UpdateWebServer } from "./update-webserver";
 
 interface Props {
-	updateData?: IUpdateData;
+	/** Kept for backward compatibility; the status query is authoritative. */
+	updateData?: IUpdateStatusData;
 	children?: React.ReactNode;
 	isOpen?: boolean;
 	onOpenChange?: (open: boolean) => void;
@@ -39,51 +41,61 @@ interface Props {
 
 /**
  * Release tags are also container image tags and carry the self-hosted suffix
- * (`v1.2.3-app`), the version shown to the user is the tag without it.
+ * (`v1.2.3-app`); the version shown to the user is normalized without it.
  */
-const displayVersion = (tag: string) => tag.replace(/-app$/, "");
+const displayVersion = (version: string) => version.replace(/-app$/, "");
 
 export const UpdateServer = ({
-	updateData,
+	updateData: initialUpdateData,
 	children,
 	isOpen: isOpenProp,
 	onOpenChange: onOpenChangeProp,
 }: Props) => {
-	const [hasCheckedUpdate, setHasCheckedUpdate] = useState(!!updateData);
-	const [isUpdateAvailable, setIsUpdateAvailable] = useState(
-		!!updateData?.updateAvailable,
+	const [updateData, setUpdateData] = useState<IUpdateStatusData | null>(
+		initialUpdateData ?? null,
 	);
-	const { mutateAsync: getUpdateData, isPending } =
-		api.settings.getUpdateData.useMutation();
+	const [hasCheckedUpdate, setHasCheckedUpdate] = useState(
+		!!initialUpdateData,
+	);
+	const [isChecking, setIsChecking] = useState(false);
+	const { refetch: refetchUpdateStatus } =
+		api.settings.getUpdateStatus.useQuery(undefined, { enabled: false });
 	const { data: notployVersion } = api.settings.getNotployVersion.useQuery();
 	const { data: releaseTag } = api.settings.getReleaseTag.useQuery();
-	const [latestVersion, setLatestVersion] = useState(
-		updateData?.latestVersion ?? "",
-	);
 	const [isOpenInternal, setIsOpenInternal] = useState(false);
 
-	const handleCheckUpdates = async () => {
-		try {
-			const updateData = await getUpdateData();
-			const versionToUpdate = displayVersion(updateData.latestVersion || "");
-			setHasCheckedUpdate(true);
-			setIsUpdateAvailable(updateData.updateAvailable);
-			setLatestVersion(versionToUpdate);
+	const status = updateData?.status ?? "up_to_date";
+	const latestVersion = updateData?.latestNormalizedVersion ?? null;
+	const isReady = status === "ready" && !!updateData?.latestVersion;
+	const isWaitingForAssets = status === "waiting_for_assets";
 
-			if (updateData.updateAvailable) {
-				toast.success(versionToUpdate, {
-					description: "New version available!",
-				});
-			} else {
-				toast.info("No updates available");
+	const handleCheckUpdates = async () => {
+		setIsChecking(true);
+		try {
+			const { data } = await refetchUpdateStatus();
+			if (data) {
+				setUpdateData(data);
+				if (data.status === "ready") {
+					toast.success(displayVersion(data.latestNormalizedVersion ?? ""), {
+						description: "New version available!",
+					});
+				} else if (data.status === "waiting_for_assets") {
+					toast.info("Update is being prepared", {
+						description:
+							"A new version was released but its package is not ready yet.",
+					});
+				} else {
+					toast.info("No updates available");
+				}
 			}
 		} catch (error) {
 			console.error("Error checking for updates:", error);
-			setHasCheckedUpdate(true);
-			setIsUpdateAvailable(false);
 			toast.error(
 				"An error occurred while checking for updates, please try again.",
 			);
+		} finally {
+			setHasCheckedUpdate(true);
+			setIsChecking(false);
 		}
 	};
 
@@ -108,15 +120,9 @@ export const UpdateServer = ({
 									onClick={() => onOpenChange?.(true)}
 								>
 									<Download className="h-4 w-4 shrink-0" />
-									{updateData ? (
-										<span className="font-medium truncate group-data-[collapsible=icon]:hidden">
-											Update Available
-										</span>
-									) : (
-										<span className="font-medium truncate group-data-[collapsible=icon]:hidden">
-											Check for updates
-										</span>
-									)}
+									<span className="font-medium truncate group-data-[collapsible=icon]:hidden">
+										{updateData ? "Update Available" : "Check for updates"}
+									</span>
 									{updateData && (
 										<span className="absolute right-2 flex h-2 w-2 group-data-[collapsible=icon]:hidden">
 											<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -170,8 +176,8 @@ export const UpdateServer = ({
 					</div>
 				)}
 
-				{/* Update available state */}
-				{isUpdateAvailable && latestVersion && (
+				{/* Update ready to install */}
+				{isReady && latestVersion && (
 					<div className="mb-8">
 						<div className="inline-flex items-center gap-2 rounded-lg px-3 py-2 border border-emerald-900 bg-emerald-900 dark:bg-emerald-900/40 mb-4 w-full">
 							<div className="flex items-center gap-1.5">
@@ -209,51 +215,78 @@ export const UpdateServer = ({
 					</div>
 				)}
 
-				{/* Up to date state */}
-				{hasCheckedUpdate && !isUpdateAvailable && !isPending && (
+				{/* A newer release exists but its package is not published yet */}
+				{isWaitingForAssets && (
 					<div className="mb-8">
-						<div className="flex flex-col items-center gap-6 mb-6">
-							<div className="rounded-full p-4 bg-emerald-400/40">
-								<Sparkles className="h-8 w-8 text-emerald-400" />
-							</div>
-							<div className="text-center space-y-2">
-								<h3 className="text-lg font-medium">
-									You are using the latest version
-								</h3>
-								<p className="text text-muted-foreground">
-									Your server is up to date with all the latest features and
-									security improvements.
-								</p>
-							</div>
+						<div className="inline-flex items-center gap-2 rounded-lg px-3 py-2 border border-amber-500/40 bg-amber-500/10 mb-4 w-full">
+							<Hourglass className="h-4 w-4 text-amber-500" />
+							<span className="text font-medium text-amber-600 dark:text-amber-400">
+								Update detected
+							</span>
+							{latestVersion && (
+								<span className="text font-semibold text-amber-600 dark:text-amber-400">
+									{latestVersion}
+								</span>
+							)}
 						</div>
+						<p className="text text-muted-foreground">
+							Version {latestVersion} has been released, but the update package
+							is not ready yet. We&apos;ll check again automatically.
+						</p>
 					</div>
 				)}
 
-				{hasCheckedUpdate && isPending && (
+				{/* Up to date state */}
+				{hasCheckedUpdate &&
+					!isReady &&
+					!isWaitingForAssets &&
+					!isChecking && (
+						<div className="mb-8">
+							<div className="flex flex-col items-center gap-6 mb-6">
+								<div className="rounded-full p-4 bg-emerald-400/40">
+									<Sparkles className="h-8 w-8 text-emerald-400" />
+								</div>
+								<div className="text-center space-y-2">
+									<h3 className="text-lg font-medium">
+										You are using the latest version
+									</h3>
+									<p className="text text-muted-foreground">
+										Your server is up to date with all the latest features and
+										security improvements.
+									</p>
+								</div>
+							</div>
+						</div>
+					)}
+
+				{isChecking && (
 					<div className="mb-8">
 						<div className="flex flex-col items-center gap-6 mb-6">
 							<div className="rounded-full p-4 bg-[#5B9DFF]/40 text-foreground">
 								<RefreshCcw className="h-8 w-8 animate-spin" />
 							</div>
 							<div className="text-center space-y-2">
-							<h3 className="text-lg font-medium">Checking for updates...</h3>
-							<p className="text text-muted-foreground">
-								Please wait while we pull the latest version information from
-								GitHub.
-							</p>
+								<h3 className="text-lg font-medium">Checking for updates...</h3>
+								<p className="text text-muted-foreground">
+									Please wait while we pull the latest version information from
+									GitHub.
+								</p>
 							</div>
 						</div>
 					</div>
 				)}
 
-				{isUpdateAvailable && (
+				{isReady && (
 					<div className="rounded-lg bg-[#16254D] p-4 mb-8">
 						<div className="flex gap-2">
 							<Info className="h-5 w-5 shrink-0 text-[#5B9DFF]" />
 							<div className="text-[#5B9DFF]">
 								We recommend reviewing the{" "}
 								<Link
-									href="https://github.com/skygenesisenterprise/notploy/releases"
+									href={
+										updateData?.releaseUrl ??
+										"https://github.com/skygenesisenterprise/notploy/releases"
+									}
 									target="_blank"
 									className="text-white underline hover:text-zinc-200"
 								>
@@ -266,7 +299,7 @@ export const UpdateServer = ({
 				)}
 
 				<div className="flex items-center justify-between pt-2">
-					<ToggleAutoCheckUpdates disabled={isPending} />
+					<ToggleAutoCheckUpdates disabled={isChecking} />
 				</div>
 
 				<div className="flex items-center justify-end mt-4">
@@ -274,15 +307,16 @@ export const UpdateServer = ({
 						<Button variant="outline" onClick={() => onOpenChange?.(false)}>
 							Cancel
 						</Button>
-						{isUpdateAvailable ? (
+						{/* "Update now" only exists once the release is actually installable. */}
+						{isReady ? (
 							<UpdateWebServer buttonClassName="w-auto" />
 						) : (
 							<Button
 								variant="secondary"
 								onClick={handleCheckUpdates}
-								disabled={isPending}
+								disabled={isChecking}
 							>
-								{isPending ? (
+								{isChecking ? (
 									<>
 										<RefreshCcw className="h-4 w-4 animate-spin" />
 										Checking for updates

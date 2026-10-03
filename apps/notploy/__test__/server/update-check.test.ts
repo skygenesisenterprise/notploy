@@ -8,6 +8,18 @@ const release = (tagName: string, extra: Record<string, unknown> = {}) => ({
 	...extra,
 });
 
+/** A release whose install assets are fully published. */
+const completeRelease = (
+	tagName: string,
+	extra: Record<string, unknown> = {},
+) =>
+	release(tagName, {
+		html_url: `https://github.com/skygenesisenterprise/notploy/releases/tag/${tagName}`,
+		published_at: "2026-01-01T00:00:00Z",
+		assets: [{ name: "install.sh" }, { name: "install-notploy.sh" }],
+		...extra,
+	});
+
 const okResponse = (releases: unknown[]) =>
 	({
 		ok: true,
@@ -196,6 +208,284 @@ describe("update check", () => {
 			} as Response);
 
 			expect(await getUpdateData("0.30.6")).toEqual(DEFAULT_UPDATE_DATA);
+		});
+	});
+
+	describe("normalizeVersion", () => {
+		it("normalizes every version-ish spelling to a clean version", async () => {
+			const { normalizeVersion } = await importFresh();
+
+			expect(normalizeVersion("1.0.1")).toBe("1.0.1");
+			expect(normalizeVersion("v1.0.1")).toBe("1.0.1");
+			expect(normalizeVersion("v1.0.1-app")).toBe("1.0.1");
+			expect(normalizeVersion("release-v1.0.1")).toBe("1.0.1");
+			expect(normalizeVersion("  1.0.1 ")).toBe("1.0.1");
+		});
+
+		it("keeps prerelease identifiers", async () => {
+			const { normalizeVersion } = await importFresh();
+
+			expect(normalizeVersion("v1.0.0-beta.1-app")).toBe("1.0.0-beta.1");
+		});
+
+		it("returns null for unparseable input", async () => {
+			const { normalizeVersion } = await importFresh();
+
+			expect(normalizeVersion("latest")).toBeNull();
+			expect(normalizeVersion("")).toBeNull();
+			expect(normalizeVersion("not-a-version")).toBeNull();
+		});
+	});
+
+	describe("checkReleaseAssets", () => {
+		it("reports missing assets", async () => {
+			const { checkReleaseAssets } = await importFresh();
+
+			expect(checkReleaseAssets([])).toEqual({
+				available: false,
+				reason: "missing_assets",
+				assets: [],
+				missing: ["install.sh"],
+			});
+		});
+
+		it("accepts a release with every required asset", async () => {
+			const { checkReleaseAssets } = await importFresh();
+
+			const result = checkReleaseAssets([
+				{ name: "install.sh" },
+				{ name: "install-notploy.sh" },
+			]);
+			expect(result.available).toBe(true);
+			expect(result.reason).toBeNull();
+			expect(result.missing).toEqual([]);
+		});
+
+		it("ignores an unrelated asset that is not the expected artifact", async () => {
+			const { checkReleaseAssets } = await importFresh();
+
+			const result = checkReleaseAssets([{ name: "some-other-file.zip" }]);
+			expect(result.available).toBe(false);
+			expect(result.missing).toEqual(["install.sh"]);
+		});
+
+		it("handles undefined assets safely", async () => {
+			const { checkReleaseAssets } = await importFresh();
+
+			expect(checkReleaseAssets(undefined).available).toBe(false);
+		});
+	});
+
+	describe("computeUpdateStatus", () => {
+		it("is up_to_date when versions match", async () => {
+			const { computeUpdateStatus } = await importFresh();
+
+			expect(
+				computeUpdateStatus({
+					currentVersion: "1.0.1",
+					latestVersion: "1.0.1",
+					assetsReady: true,
+				}),
+			).toBe("up_to_date");
+		});
+
+		it("is ready when a newer release has its assets", async () => {
+			const { computeUpdateStatus } = await importFresh();
+
+			expect(
+				computeUpdateStatus({
+					currentVersion: "1.0.0",
+					latestVersion: "1.0.1",
+					assetsReady: true,
+				}),
+			).toBe("ready");
+		});
+
+		it("is waiting_for_assets when a newer release is incomplete", async () => {
+			const { computeUpdateStatus } = await importFresh();
+
+			expect(
+				computeUpdateStatus({
+					currentVersion: "1.0.0",
+					latestVersion: "1.0.1",
+					assetsReady: false,
+				}),
+			).toBe("waiting_for_assets");
+		});
+
+		it("is release_detected while availability is unknown", async () => {
+			const { computeUpdateStatus } = await importFresh();
+
+			expect(
+				computeUpdateStatus({
+					currentVersion: "1.0.0",
+					latestVersion: "1.0.1",
+				}),
+			).toBe("release_detected");
+		});
+
+		it("is up_to_date when the installed version is ahead", async () => {
+			const { computeUpdateStatus } = await importFresh();
+
+			expect(
+				computeUpdateStatus({
+					currentVersion: "1.0.2",
+					latestVersion: "1.0.1",
+					assetsReady: true,
+				}),
+			).toBe("up_to_date");
+		});
+
+		it("compares versions semantically, not lexically", async () => {
+			const { computeUpdateStatus } = await importFresh();
+			const ready = (currentVersion: string, latestVersion: string) =>
+				computeUpdateStatus({ currentVersion, latestVersion, assetsReady: true });
+
+			expect(ready("1.0.9", "1.0.10")).toBe("ready");
+			expect(ready("1.0.10", "1.1.0")).toBe("ready");
+			expect(ready("1.9.0", "2.0.0")).toBe("ready");
+			expect(ready("1.0.10", "1.0.9")).toBe("up_to_date");
+		});
+
+		it("handles prereleases explicitly", async () => {
+			const { computeUpdateStatus } = await importFresh();
+
+			expect(
+				computeUpdateStatus({
+					currentVersion: "1.0.0",
+					latestVersion: "1.0.0-rc.1",
+					assetsReady: true,
+				}),
+			).toBe("up_to_date");
+			expect(
+				computeUpdateStatus({
+					currentVersion: "1.0.0-beta.1",
+					latestVersion: "1.0.0",
+					assetsReady: true,
+				}),
+			).toBe("ready");
+		});
+
+		it("treats invalid input as up_to_date", async () => {
+			const { computeUpdateStatus } = await importFresh();
+
+			expect(
+				computeUpdateStatus({ currentVersion: "nope", latestVersion: "1.0.1" }),
+			).toBe("up_to_date");
+			expect(
+				computeUpdateStatus({ currentVersion: "1.0.0", latestVersion: null }),
+			).toBe("up_to_date");
+		});
+	});
+
+	describe("getUpdateStatus", () => {
+		it("is up_to_date when the newest release is the running one", async () => {
+			const { getUpdateStatus } = await importFresh();
+			fetchMock.mockResolvedValue(okResponse([completeRelease("v1.0.1-app")]));
+
+			const status = await getUpdateStatus("1.0.1");
+
+			expect(status.status).toBe("up_to_date");
+			expect(status.updateAvailable).toBe(false);
+			expect(status.currentVersion).toBe("1.0.1");
+			expect(status.latestNormalizedVersion).toBe("1.0.1");
+		});
+
+		it("is ready when a newer release has its assets", async () => {
+			const { getUpdateStatus } = await importFresh();
+			fetchMock.mockResolvedValue(
+				okResponse([completeRelease("v1.0.2-app")]),
+			);
+
+			const status = await getUpdateStatus("1.0.1");
+
+			expect(status.status).toBe("ready");
+			expect(status.assetsReady).toBe(true);
+			expect(status.updateAvailable).toBe(true);
+			expect(status.latestVersion).toBe("v1.0.2-app");
+			expect(status.latestNormalizedVersion).toBe("1.0.2");
+			expect(status.releaseUrl).toContain("v1.0.2-app");
+		});
+
+		it("is waiting_for_assets when the release has no assets yet", async () => {
+			const { getUpdateStatus } = await importFresh();
+			fetchMock.mockResolvedValue(okResponse([release("v1.0.2-app")]));
+
+			const status = await getUpdateStatus("1.0.1");
+
+			expect(status.status).toBe("waiting_for_assets");
+			expect(status.assetsReady).toBe(false);
+			expect(status.missingAssets).toEqual(["install.sh"]);
+			expect(status.updateAvailable).toBe(true);
+		});
+
+		it("is up_to_date when the installed version is ahead", async () => {
+			const { getUpdateStatus } = await importFresh();
+			fetchMock.mockResolvedValue(okResponse([completeRelease("v1.0.1-app")]));
+
+			const status = await getUpdateStatus("1.0.2");
+
+			expect(status.status).toBe("up_to_date");
+			expect(status.updateAvailable).toBe(false);
+		});
+
+		it("keeps the last known status when GitHub is unavailable", async () => {
+			const { getUpdateStatus } = await importFresh();
+			fetchMock.mockResolvedValue(
+				okResponse([completeRelease("v1.0.2-app")]),
+			);
+			const first = await getUpdateStatus("1.0.1");
+
+			fetchMock.mockRejectedValue(new Error("network down"));
+			const afterOutage = await getUpdateStatus("1.0.1");
+
+			expect(first.status).toBe("ready");
+			expect(afterOutage.status).toBe("ready");
+		});
+
+		it("is up_to_date for the canary and feature channels", async () => {
+			const { getUpdateStatus } = await importFresh();
+
+			const status = await getUpdateStatus("1.0.1", "canary");
+			expect(status.status).toBe("up_to_date");
+			expect(status.updateAvailable).toBe(false);
+			expect(fetchMock).not.toHaveBeenCalled();
+		});
+
+		it("coalesces concurrent lookups into a single GitHub request", async () => {
+			const { getUpdateStatus } = await importFresh();
+			fetchMock.mockResolvedValue(
+				okResponse([completeRelease("v1.0.2-app")]),
+			);
+
+			await Promise.all([
+				getUpdateStatus("1.0.1"),
+				getUpdateStatus("1.0.1"),
+				getUpdateStatus("1.0.1"),
+			]);
+
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	describe("isUpdateInstallable", () => {
+		it("only allows the ready status", async () => {
+			const { getUpdateStatus, isUpdateInstallable, invalidateUpdateCache } =
+				await importFresh();
+			fetchMock.mockResolvedValue(okResponse([release("v1.0.2-app")]));
+
+			const waiting = await getUpdateStatus("1.0.1");
+			expect(waiting.status).toBe("waiting_for_assets");
+			expect(isUpdateInstallable(waiting)).toBe(false);
+
+			// A later check finds the assets published: same version, now installable.
+			invalidateUpdateCache();
+			fetchMock.mockResolvedValue(
+				okResponse([completeRelease("v1.0.2-app")]),
+			);
+			const ready = await getUpdateStatus("1.0.1");
+			expect(ready.status).toBe("ready");
+			expect(isUpdateInstallable(ready)).toBe(true);
 		});
 	});
 

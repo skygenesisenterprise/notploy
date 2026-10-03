@@ -1,5 +1,7 @@
+import { createMetricUsage } from "@notploy/server/monitoring/status";
 import { Cpu, HardDrive, Loader2, MemoryStick, Network } from "lucide-react";
 import { useEffect, useState } from "react";
+import { MetricUsage } from "@/components/dashboard/monitoring/metric-usage";
 import { Card } from "@/components/ui/card";
 import {
 	Select,
@@ -102,6 +104,18 @@ export const ContainerPaidMonitoring = ({ appName, baseUrl, token }: Props) => {
 		setMetrics(data[data.length - 1]);
 	}, [data]);
 
+	const cpuUsage = createMetricUsage({
+		used: metrics?.CPU,
+		percentage: metrics?.CPU,
+		kind: "cpu",
+	});
+	const memoryUsage = createMetricUsage({
+		used: metrics?.Memory?.used,
+		total: metrics?.Memory?.total,
+		percentage: metrics?.Memory?.percentage,
+		kind: "memory",
+	});
+
 	if (isLoading) {
 		return (
 			<div className="flex h-[400px] w-full items-center justify-center">
@@ -185,25 +199,27 @@ export const ContainerPaidMonitoring = ({ appName, baseUrl, token }: Props) => {
 			{/* Stats Cards */}
 			<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
 				<Card className="p-6 bg-transparent">
-					<div className="flex items-center gap-2">
-						<Cpu className="h-4 w-4 text-muted-foreground" />
-						<h3 className="text-sm font-medium">CPU Usage</h3>
-					</div>
-					<p className="mt-2 text-2xl font-bold">{metrics.CPU}%</p>
+					<MetricUsage
+						label="CPU Usage"
+						icon={Cpu}
+						used={cpuUsage.used}
+						percentage={cpuUsage.percentage}
+						status={cpuUsage.status}
+						precision={2}
+					/>
 				</Card>
 
 				<Card className="p-6 bg-transparent">
-					<div className="flex items-center gap-2">
-						<MemoryStick className="h-4 w-4 text-muted-foreground" />
-						<h3 className="text-sm font-medium">Memory Usage</h3>
-					</div>
-					<p className="mt-2 text-2xl font-bold">
-						{metrics?.Memory?.percentage}%
-					</p>
-					<p className="mt-1 text-sm text-muted-foreground">
-						{metrics?.Memory?.used} {metrics?.Memory?.unit} /{" "}
-						{metrics?.Memory?.total} {metrics?.Memory?.unit}
-					</p>
+					<MetricUsage
+						label="Memory Usage"
+						icon={MemoryStick}
+						used={memoryUsage.used}
+						total={memoryUsage.total}
+						percentage={memoryUsage.percentage}
+						status={memoryUsage.status}
+						unit={metrics?.Memory?.unit}
+						precision={2}
+					/>
 				</Card>
 
 				<Card className="p-6 bg-transparent">

@@ -86,7 +86,11 @@ ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 # reproducible and lets `docker build .` work with an unprepared context.
 COPY apps/notploy/.env.production.example ./.env.production
 
+# Next.js otherwise phones home (telemetry) and tries to enable its own
+# anonymous usage reporting during the build; disabling it removes a network
+# round-trip from every CI build without changing the produced artifacts.
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter=@notploy/server build
 RUN pnpm --filter=./apps/notploy run build
 

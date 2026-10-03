@@ -1,4 +1,4 @@
-import type { IUpdateData } from "@notploy/server/index";
+import { UPDATE_PENDING_STATUSES } from "@notploy/server/services/update";
 import { Download } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/utils/api";
@@ -14,31 +14,39 @@ import {
 const AUTO_CHECK_UPDATES_INTERVAL_MINUTES = 7;
 
 export const UpdateServerButton = () => {
-	const [updateData, setUpdateData] = useState<IUpdateData>({
-		latestVersion: null,
-		updateAvailable: false,
-	});
 	const { data: isCloud } = api.settings.isCloud.useQuery();
-	const { mutateAsync: getUpdateData } =
-		api.settings.getUpdateData.useMutation();
 	const [isOpen, setIsOpen] = useState(false);
+	const [hasPendingUpdate, setHasPendingUpdate] = useState(false);
 
 	const checkUpdatesIntervalRef = useRef<null | NodeJS.Timeout>(null);
 
+	// The backend owns the GitHub lookup (and its cache): the layout only reads
+	// the computed status instead of calling GitHub from every render.
+	const { refetch: checkUpdateStatus } =
+		api.settings.getUpdateStatus.useQuery(undefined, {
+			enabled: !isCloud,
+			refetchOnWindowFocus: false,
+			// Keeps the badge populated when the user navigates back to the layout.
+			staleTime: 60_000,
+		});
+
 	useEffect(() => {
-		// Handling of automatic check for server updates
 		if (isCloud) {
 			return;
 		}
 
 		if (!localStorage.getItem("enableAutoCheckUpdates")) {
 			// Enable auto update checking by default if user didn't change it
-			localStorage.setItem("enableAutoCheckUpdates", "true");
+			const enableAutoCheck = localStorage.getItem("enableAutoCheckUpdates");
+			if (enableAutoCheck === null) {
+				localStorage.setItem("enableAutoCheckUpdates", "true");
+			}
 		}
 
 		const clearUpdatesInterval = () => {
 			if (checkUpdatesIntervalRef.current) {
 				clearInterval(checkUpdatesIntervalRef.current);
+				checkUpdatesIntervalRef.current = null;
 			}
 		};
 
@@ -48,12 +56,15 @@ export const UpdateServerButton = () => {
 					return;
 				}
 
-				const fetchedUpdateData = await getUpdateData();
+				const { data } = await checkUpdateStatus();
+				const pending = !!data?.status && UPDATE_PENDING_STATUSES.includes(data.status);
 
-				if (fetchedUpdateData?.updateAvailable) {
-					// Stop interval when update is available
+				setHasPendingUpdate(pending);
+
+				if (pending) {
+					// Stop polling once a newer release is known, the badge and the
+					// dialog handle the rest.
 					clearUpdatesInterval();
-					setUpdateData(fetchedUpdateData);
 				}
 			} catch (error) {
 				console.error("Error auto-checking for updates:", error);
@@ -71,46 +82,32 @@ export const UpdateServerButton = () => {
 		return () => {
 			clearUpdatesInterval();
 		};
-	}, []);
+	}, [isCloud, checkUpdateStatus]);
 
-	return !isCloud && updateData.updateAvailable ? (
+	return !isCloud && hasPendingUpdate ? (
 		<div className="border-t pt-4">
-			<UpdateServer
-				updateData={updateData}
-				isOpen={isOpen}
-				onOpenChange={setIsOpen}
-			>
+			<UpdateServer isOpen={isOpen} onOpenChange={setIsOpen}>
 				<TooltipProvider delayDuration={0}>
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button
-								variant={updateData ? "outline" : "secondary"}
+								variant="outline"
 								className="w-full"
 								onClick={() => setIsOpen(true)}
 							>
 								<Download className="h-4 w-4 shrink-0" />
-								{updateData ? (
-									<span className="font-medium truncate group-data-[collapsible=icon]:hidden">
-										Update Available
-									</span>
-								) : (
-									<span className="font-medium truncate group-data-[collapsible=icon]:hidden">
-										Check for updates
-									</span>
-								)}
-								{updateData && (
-									<span className="absolute right-2 flex h-2 w-2 group-data-[collapsible=icon]:hidden">
-										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-										<span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-									</span>
-								)}
+								<span className="font-medium truncate group-data-[collapsible=icon]:hidden">
+									Update Available
+								</span>
+								<span className="absolute right-2 flex h-2 w-2 group-data-[collapsible=icon]:hidden">
+									<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+									<span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+								</span>
 							</Button>
 						</TooltipTrigger>
-						{updateData && (
-							<TooltipContent side="right" sideOffset={10}>
-								<p>Update Available</p>
-							</TooltipContent>
-						)}
+						<TooltipContent side="right" sideOffset={10}>
+							<p>Update Available</p>
+						</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
 			</UpdateServer>

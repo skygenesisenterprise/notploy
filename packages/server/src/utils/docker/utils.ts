@@ -16,6 +16,7 @@ import type { RedisNested } from "../databases/redis";
 import { execAsync, execAsyncRemote } from "../process/execAsync";
 import { spawnAsync } from "../process/spawnAsync";
 import { getRemoteDocker } from "../servers/remote-docker";
+import { createTtlCache } from "./disk-usage-cache";
 
 interface RegistryAuth {
 	username: string;
@@ -198,6 +199,7 @@ export const cleanupContainers = async (serverId?: string) => {
 		} else {
 			await execAsync(dockerSafeExec(command));
 		}
+		invalidateDockerDiskUsageCache(serverId);
 	} catch (error) {
 		console.error(error);
 
@@ -212,6 +214,7 @@ export const cleanupImages = async (serverId?: string) => {
 		if (serverId) {
 			await execAsyncRemote(serverId, dockerSafeExec(command));
 		} else await execAsync(dockerSafeExec(command));
+		invalidateDockerDiskUsageCache(serverId);
 	} catch (error) {
 		console.error(error);
 
@@ -228,6 +231,7 @@ export const cleanupVolumes = async (serverId?: string) => {
 		} else {
 			await execAsync(dockerSafeExec(command));
 		}
+		invalidateDockerDiskUsageCache(serverId);
 	} catch (error) {
 		console.error(error);
 
@@ -244,6 +248,7 @@ export const cleanupBuilders = async (serverId?: string) => {
 		} else {
 			await execAsync(dockerSafeExec(command));
 		}
+		invalidateDockerDiskUsageCache(serverId);
 	} catch (error) {
 		console.error(error);
 
@@ -260,6 +265,7 @@ export const cleanupSystem = async (serverId?: string) => {
 		} else {
 			await execAsync(dockerSafeExec(command));
 		}
+		invalidateDockerDiskUsageCache(serverId);
 	} catch (error) {
 		console.error(error);
 
@@ -291,27 +297,47 @@ const parseSizeToBytes = (size: string): number => {
 	return value * (multipliers[unit] || 0);
 };
 
+// `docker system df` is expensive on busy hosts and the monitoring view only
+// needs a periodically refreshed snapshot. Cache it briefly and coalesce
+// concurrent callers so parallel widgets share a single command execution.
+const DOCKER_DISK_USAGE_TTL_MS = 60_000;
+const dockerDiskUsageCache = createTtlCache<DockerDiskUsageItem[]>({
+	ttlMs: DOCKER_DISK_USAGE_TTL_MS,
+});
+
+const dockerDiskUsageCacheKey = (serverId?: string) =>
+	serverId ? `remote:${serverId}` : "local";
+
+/**
+ * Drop cached Docker disk usage so the next read reflects a cleanup that just
+ * ran. Call this from every prune/cleanup path.
+ */
+export const invalidateDockerDiskUsageCache = (serverId?: string) => {
+	dockerDiskUsageCache.invalidate(dockerDiskUsageCacheKey(serverId));
+};
+
 export const getDockerDiskUsage = async (
 	serverId?: string,
-): Promise<DockerDiskUsageItem[]> => {
-	const command = "docker system df --format '{{json .}}'";
-	const { stdout } = serverId
-		? await execAsyncRemote(serverId, command)
-		: await execAsync(command);
+): Promise<DockerDiskUsageItem[]> =>
+	dockerDiskUsageCache.get(dockerDiskUsageCacheKey(serverId), async () => {
+		const command = "docker system df --format '{{json .}}'";
+		const { stdout } = serverId
+			? await execAsyncRemote(serverId, command)
+			: await execAsync(command);
 
-	const lines = stdout.trim().split("\n").filter(Boolean);
-	return lines.map((line) => {
-		const data = JSON.parse(line);
-		return {
-			type: data.Type,
-			totalCount: Number.parseInt(data.TotalCount, 10) || 0,
-			active: Number.parseInt(data.Active, 10) || 0,
-			size: data.Size,
-			reclaimable: data.Reclaimable,
-			sizeBytes: parseSizeToBytes(data.Size),
-		};
+		const lines = stdout.trim().split("\n").filter(Boolean);
+		return lines.map((line) => {
+			const data = JSON.parse(line);
+			return {
+				type: data.Type,
+				totalCount: Number.parseInt(data.TotalCount, 10) || 0,
+				active: Number.parseInt(data.Active, 10) || 0,
+				size: data.Size,
+				reclaimable: data.Reclaimable,
+				sizeBytes: parseSizeToBytes(data.Size),
+			};
+		});
 	});
-};
 
 export interface DockerBuildCacheItem {
 	id: string;
@@ -385,6 +411,7 @@ export const cleanupAll = async (serverId?: string) => {
 			);
 		}
 	}
+	invalidateDockerDiskUsageCache(serverId);
 };
 
 export const cleanupAllBackground = async (serverId?: string) => {
@@ -405,6 +432,7 @@ export const cleanupAllBackground = async (serverId?: string) => {
 			}),
 	)
 		.then((results) => {
+			invalidateDockerDiskUsageCache(serverId);
 			const failed = results.filter((r) => r.status === "rejected");
 			if (failed.length > 0) {
 				console.error(`Docker cleanup: ${failed.length} operations failed`);

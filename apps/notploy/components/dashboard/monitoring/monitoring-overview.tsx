@@ -1,3 +1,4 @@
+import { createMetricUsage } from "@notploy/server/monitoring/status";
 import {
 	Check,
 	ChevronDown,
@@ -24,6 +25,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { api } from "@/utils/api";
+import { MetricUsage } from "./metric-usage";
 import { CPUChart } from "./paid/servers/cpu-chart";
 import { DiskChart } from "./paid/servers/disk-chart";
 import { MemoryChart } from "./paid/servers/memory-chart";
@@ -231,6 +233,45 @@ function MetricCard({
 	);
 }
 
+function MetricUsageCard({
+	label,
+	used,
+	total,
+	percentage,
+	kind,
+	icon,
+	detail,
+	unit,
+}: {
+	label: string;
+	used: number;
+	total?: number;
+	percentage?: number;
+	kind: "cpu" | "memory" | "disk";
+	icon: typeof Cpu;
+	detail?: string;
+	unit?: string;
+}) {
+	const usage = createMetricUsage({ used, total, percentage, kind });
+	return (
+		<div className="rounded-lg border bg-background p-4">
+			<MetricUsage
+				label={label}
+				used={usage.used}
+				total={usage.total}
+				percentage={usage.percentage}
+				status={usage.status}
+				icon={icon}
+				unit={unit}
+				precision={2}
+			/>
+			{detail && (
+				<p className="mt-2 text-xs text-muted-foreground">{detail}</p>
+			)}
+		</div>
+	);
+}
+
 export function MonitoringOverview() {
 	const router = useRouter();
 	const serversQuery = api.server.getMonitoringWorkspaces.useQuery();
@@ -427,9 +468,11 @@ export function MonitoringOverview() {
 									aria-label="Current infrastructure metrics"
 									className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
 								>
-									<MetricCard
+									<MetricUsageCard
 										label="CPU"
-										value={`${current.cpu.toFixed(1)}%`}
+										kind="cpu"
+										used={current.cpu}
+										percentage={current.cpu}
 										detail={
 											workspace.type === "global"
 												? `${available.length} reporting server${available.length === 1 ? "" : "s"}`
@@ -437,16 +480,21 @@ export function MonitoringOverview() {
 										}
 										icon={Cpu}
 									/>
-									<MetricCard
+									<MetricUsageCard
 										label="Memory"
-										value={`${current.memUsedGB.toFixed(1)} / ${current.memTotal.toFixed(1)} GB`}
-										detail={`${current.memUsed.toFixed(1)}% used`}
+										kind="memory"
+										used={current.memUsedGB}
+										total={current.memTotal}
+										unit="GB"
 										icon={MemoryStick}
 									/>
-									<MetricCard
+									<MetricUsageCard
 										label="Storage"
-										value={`${current.diskUsed.toFixed(1)}%`}
-										detail={`${((current.totalDisk * current.diskUsed) / 100).toFixed(1)} / ${current.totalDisk.toFixed(1)} GB used`}
+										kind="disk"
+										used={(current.totalDisk * current.diskUsed) / 100}
+										total={current.totalDisk}
+										percentage={current.diskUsed}
+										unit="GB"
 										icon={HardDrive}
 									/>
 									<MetricCard
