@@ -1,0 +1,42 @@
+# Dependency and build artifacts
+node_modules
+**/node_modules
+**/.next
+**/dist
+**/*.tsbuildinfo
+.turbo
+coverage
+
+# Desktop (Electron) and website packaging artifacts: several GB of local build
+# output that the server image never needs. Without these the build context is
+# ~2.4GB instead of a few MB.
+apps/desktop/release
+apps/desktop/out
+web/apps/docs/out
+web/apps/website/.next
+
+# Version control and CI
+.git
+.gitignore
+.github
+
+# Local environment files (keep the committed *.example files)
+.env
+.env.production
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Editor / OS noise
+.DS_Store
+.vscode
+.idea
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docs and non-runtime assets are not needed to build the image.
+README.md
