@@ -212,16 +212,16 @@ export function OperationsCenter() {
 	}, [services]);
 
 	const healthSeries = [
-		{ name: "Healthy", value: running, fill: "hsl(var(--chart-2))" },
-		{ name: "Deploying", value: deploying, fill: "hsl(var(--chart-3))" },
-		{ name: "Failed", value: failedServices, fill: "hsl(var(--destructive))" },
+		{ name: "Healthy", value: running, fill: "var(--chart-2)" },
+		{ name: "Deploying", value: deploying, fill: "var(--chart-3)" },
+		{ name: "Failed", value: failedServices, fill: "var(--destructive)" },
 		{
 			name: "Idle",
 			value: Math.max(
 				services.length - running - deploying - failedServices,
 				0,
 			),
-			fill: "hsl(var(--chart-4))",
+			fill: "var(--chart-4)",
 		},
 	].filter((item) => item.value > 0);
 
@@ -349,15 +349,15 @@ export function OperationsCenter() {
 									config={{
 										completed: {
 											label: "Completed",
-											color: "hsl(var(--chart-2))",
+											color: "var(--chart-2)",
 										},
 										failed: {
 											label: "Failed",
-											color: "hsl(var(--destructive))",
+											color: "var(--destructive)",
 										},
 										deploying: {
 											label: "In progress",
-											color: "hsl(var(--chart-3))",
+											color: "var(--chart-3)",
 										},
 									}}
 								>
@@ -477,7 +477,7 @@ export function OperationsCenter() {
 									config={{
 										workloads: {
 											label: "Workloads",
-											color: "hsl(var(--chart-1))",
+											color: "var(--chart-1)",
 										},
 									}}
 								>

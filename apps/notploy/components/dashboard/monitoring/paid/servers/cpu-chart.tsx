@@ -22,7 +22,7 @@ interface CPUChartProps {
 const chartConfig = {
 	cpu: {
 		label: "CPU",
-		color: "hsl(var(--chart-1))",
+		color: "var(--chart-1)",
 	},
 } satisfies ChartConfig;
 
@@ -45,12 +45,12 @@ export function CPUChart({ data }: CPUChartProps) {
 							<linearGradient id="fillCPU" x1="0" y1="0" x2="0" y2="1">
 								<stop
 									offset="5%"
-									stopColor="hsl(var(--chart-1))"
+									stopColor="var(--chart-1)"
 									stopOpacity={0.8}
 								/>
 								<stop
 									offset="95%"
-									stopColor="hsl(var(--chart-1))"
+									stopColor="var(--chart-1)"
 									stopOpacity={0.1}
 								/>
 							</linearGradient>
@@ -100,7 +100,7 @@ export function CPUChart({ data }: CPUChartProps) {
 							type="monotone"
 							isAnimationActive={false}
 							fill="url(#fillCPU)"
-							stroke="hsl(var(--chart-1))"
+							stroke="var(--chart-1)"
 							strokeWidth={2}
 						/>
 						<ChartLegend

@@ -35,9 +35,9 @@ type HomeActivity = inferRouterOutputs<AppRouter>["deployment"]["homeActivity"];
 type HomeDeployment = HomeActivity["recent"][number];
 
 const CHART_SERIES_COLORS = {
-	projects: "hsl(var(--chart-1))",
-	environments: "hsl(var(--chart-2))",
-	workloads: "hsl(var(--chart-3))",
+	projects: "var(--chart-1)",
+	environments: "var(--chart-2)",
+	workloads: "var(--chart-3)",
 };
 const EMPTY_SERVICES: Service[] = [];
 
@@ -78,22 +78,22 @@ function buildHomeChartSources({
 				{
 					key: "running",
 					label: "Running",
-					color: "hsl(var(--chart-2))",
+					color: "var(--chart-2)",
 				},
 				{
 					key: "deploying",
 					label: "Deploying",
-					color: "hsl(var(--chart-3))",
+					color: "var(--chart-3)",
 				},
 				{
 					key: "failed",
 					label: "Failed",
-					color: "hsl(var(--destructive))",
+					color: "var(--destructive)",
 				},
 				{
 					key: "stopped",
 					label: "Stopped / idle",
-					color: "hsl(var(--chart-4))",
+					color: "var(--chart-4)",
 				},
 			],
 			views: ["bar", "pie"],
@@ -131,7 +131,7 @@ function buildHomeChartSources({
 				{
 					key: "workloads",
 					label: "Workloads",
-					color: "hsl(var(--chart-1))",
+					color: "var(--chart-1)",
 				},
 			],
 			views: ["bar", "pie"],
@@ -148,7 +148,7 @@ function buildHomeChartSources({
 				{
 					key: "workloads",
 					label: "Workloads",
-					color: "hsl(var(--chart-2))",
+					color: "var(--chart-2)",
 				},
 			],
 			views: ["bar", "pie"],
@@ -184,17 +184,17 @@ function buildHomeChartSources({
 				{
 					key: "completed",
 					label: "Completed",
-					color: "hsl(var(--chart-2))",
+					color: "var(--chart-2)",
 				},
 				{
 					key: "failed",
 					label: "Failed",
-					color: "hsl(var(--destructive))",
+					color: "var(--destructive)",
 				},
 				{
 					key: "inProgress",
 					label: "In progress",
-					color: "hsl(var(--chart-3))",
+					color: "var(--chart-3)",
 				},
 			],
 		});

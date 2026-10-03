@@ -16,7 +16,7 @@ interface Props {
 const chartConfig = {
 	usedGb: {
 		label: "Used (GB)",
-		color: "hsl(var(--chart-3))",
+		color: "var(--chart-3)",
 	},
 } satisfies ChartConfig;
 

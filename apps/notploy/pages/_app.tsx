@@ -46,7 +46,7 @@ const MyApp = ({
 					disableTransitionOnChange
 					forcedTheme={Component.theme}
 				>
-					<NextTopLoader color="hsl(var(--sidebar-ring))" />
+					<NextTopLoader color="var(--sidebar-ring)" />
 					<Analytics />
 					<Toaster richColors />
 					<SearchCommand />

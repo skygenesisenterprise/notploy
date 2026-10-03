@@ -263,7 +263,7 @@ function DatasetPanel({
 			? source.data.map((point, index) => ({
 					name: String(point.label ?? index + 1),
 					value: Number(point[source.series[0]?.key ?? ""] ?? 0),
-					fill: `hsl(var(--chart-${(index % 5) + 1}))`,
+					fill: `var(--chart-${(index % 5) + 1})`,
 				}))
 			: source.series.map((series) => ({
 					name: series.label,

@@ -40,11 +40,11 @@ interface FormattedMetric {
 const chartConfig = {
 	input: {
 		label: "Input",
-		color: "hsl(var(--chart-3))",
+		color: "var(--chart-3)",
 	},
 	output: {
 		label: "Output",
-		color: "hsl(var(--chart-4))",
+		color: "var(--chart-4)",
 	},
 } satisfies ChartConfig;
 
@@ -84,24 +84,24 @@ export const ContainerNetworkChart = ({ data }: Props) => {
 							<linearGradient id="fillInput" x1="0" y1="0" x2="0" y2="1">
 								<stop
 									offset="5%"
-									stopColor="hsl(var(--chart-3))"
+									stopColor="var(--chart-3)"
 									stopOpacity={0.8}
 								/>
 								<stop
 									offset="95%"
-									stopColor="hsl(var(--chart-3))"
+									stopColor="var(--chart-3)"
 									stopOpacity={0.1}
 								/>
 							</linearGradient>
 							<linearGradient id="fillOutput" x1="0" y1="0" x2="0" y2="1">
 								<stop
 									offset="5%"
-									stopColor="hsl(var(--chart-4))"
+									stopColor="var(--chart-4)"
 									stopOpacity={0.8}
 								/>
 								<stop
 									offset="95%"
-									stopColor="hsl(var(--chart-4))"
+									stopColor="var(--chart-4)"
 									stopOpacity={0.1}
 								/>
 							</linearGradient>
@@ -163,7 +163,7 @@ export const ContainerNetworkChart = ({ data }: Props) => {
 							type="monotone"
 							isAnimationActive={false}
 							fill="url(#fillInput)"
-							stroke="hsl(var(--chart-3))"
+							stroke="var(--chart-3)"
 							strokeWidth={2}
 						/>
 						<Area
@@ -172,7 +172,7 @@ export const ContainerNetworkChart = ({ data }: Props) => {
 							type="monotone"
 							isAnimationActive={false}
 							fill="url(#fillOutput)"
-							stroke="hsl(var(--chart-4))"
+							stroke="var(--chart-4)"
 							strokeWidth={2}
 						/>
 						<ChartLegend

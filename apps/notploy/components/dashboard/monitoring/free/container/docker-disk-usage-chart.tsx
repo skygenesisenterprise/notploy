@@ -25,19 +25,19 @@ const chartConfig = {
 	},
 	images: {
 		label: "Images",
-		color: "hsl(var(--chart-1))",
+		color: "var(--chart-1)",
 	},
 	containers: {
 		label: "Containers",
-		color: "hsl(var(--chart-2))",
+		color: "var(--chart-2)",
 	},
 	volumes: {
 		label: "Volumes",
-		color: "hsl(var(--chart-3))",
+		color: "var(--chart-3)",
 	},
 	buildCache: {
 		label: "Build Cache",
-		color: "hsl(var(--chart-4))",
+		color: "var(--chart-4)",
 	},
 } satisfies ChartConfig;
 
@@ -138,7 +138,7 @@ export const DockerDiskUsageChart = () => {
 						innerRadius={60}
 						outerRadius={85}
 						strokeWidth={3}
-						stroke="hsl(var(--background))"
+						stroke="var(--background)"
 						minAngle={15}
 					>
 						{chartData.map((entry) => (
