@@ -15,7 +15,19 @@ Notploy is an open-source, self-hostable platform for deploying and operating ap
 
 See the [feature guide](https://docs.notploy.com/docs/core/features) and [deployment options](https://docs.notploy.com/docs/core/deployment-options) for details.
 
-## Quick start: self-host with Docker Compose
+## Quick start
+
+The easiest way to install Notploy:
+
+```bash
+git clone https://github.com/skygenesisenterprise/notploy.git
+cd notploy
+make install
+```
+
+After installation, open [http://localhost:3000](http://localhost:3000) to complete setup.
+
+### Alternative: Docker Compose (manual)
 
 Requirements: Docker Engine with the Compose plugin. The self-hosted container needs access to the host Docker socket to build and manage workloads; treat this permission as highly privileged.
 

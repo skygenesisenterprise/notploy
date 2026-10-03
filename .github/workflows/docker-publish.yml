@@ -222,9 +222,22 @@ jobs:
     steps:
       # Idempotent: re-running the workflow updates the existing release instead
       # of failing on a tag that already has one.
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          
+      - name: Prepare release assets
+        run: |
+          cp install.sh install-notploy.sh
+          chmod +x install-notploy.sh
+          
       - name: Publish the release for ${{ github.ref_name }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: Notploy ${{ github.ref_name }}
           generate_release_notes: true
+          files: |
+            install.sh
+            install-notploy.sh

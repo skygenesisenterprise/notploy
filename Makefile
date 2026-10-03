@@ -56,7 +56,7 @@ help: ## Show this help
 # ---------------------------------------------------------------------------
 # Local development (host toolchain)
 # ---------------------------------------------------------------------------
-install: ## Install workspace dependencies (pnpm install --frozen-lockfile)
+deps: ## Install workspace dependencies (pnpm install --frozen-lockfile)
 	$(PNPM) install --frozen-lockfile
 
 dev: ## Run the app in development mode on the host (pnpm dev)
@@ -125,3 +125,67 @@ docker-dev: ## Run the containerized dev server with hot reload (http://localhos
 clean: ## Remove local build artifacts (.next, dist, tsbuildinfo)
 	rm -rf apps/*/.next apps/*/dist packages/*/dist web/*/.next web/*/dist
 	find . -name '*.tsbuildinfo' -not -path './node_modules/*' -delete
+
+# ---------------------------------------------------------------------------
+# Production/self-hosted installation targets
+# ---------------------------------------------------------------------------
+.PHONY: install-production install-server status logs restart start stop update doctor backup uninstall
+
+install-production: ## Install Notploy using Docker Swarm (production-ready, multi-node support)
+	@chmod +x scripts/install-production.sh
+	@./scripts/install-production.sh
+
+install: ## Install Notploy locally for development/self-hosted (docker compose)
+	@chmod +x scripts/make-install-helper.sh
+	@./scripts/make-install-helper.sh
+
+# Server management targets for the compose setup
+start: ## Start the stack
+	@$(COMPOSE_ENV) $(COMPOSE) up -d
+
+stop: ## Stop the stack
+	@$(COMPOSE_ENV) $(COMPOSE) down --remove-orphans
+
+restart: ## Restart the stack
+	@$(COMPOSE_ENV) $(COMPOSE) restart
+
+status: ## Show stack status
+	@$(COMPOSE_ENV) $(COMPOSE) ps
+
+logs: ## Follow logs (optionally: make logs SERVICE=notploy)
+	@if [ -n "$(SERVICE)" ]; then \
+		$(COMPOSE_ENV) $(COMPOSE) logs -f $(SERVICE); \
+	else \
+		$(COMPOSE_ENV) $(COMPOSE) logs -f; \
+	fi
+
+update: ## Update to latest version (pull and rebuild/restart)
+	@git pull
+	@$(COMPOSE_ENV) $(COMPOSE) pull
+	@$(COMPOSE_ENV) $(COMPOSE) up -d --build
+
+doctor: ## Check installation health
+	@echo "Notploy Doctor"
+	@echo "==============="
+	@echo ""
+	@echo "System:"
+	@command -v docker >/dev/null 2>&1 && echo "✓ Docker" || echo "✗ Docker missing"
+	@docker compose version >/dev/null 2>&1 && echo "✓ Docker Compose" || echo "✗ Docker Compose missing"
+	@echo ""
+	@echo "Configuration:"
+	@test -f .env && echo "✓ .env exists" || echo "✗ .env missing"
+	@echo ""
+	@echo "Runtime:"
+	@docker compose ps 2>&1 | tail -5
+	@echo ""
+	@echo "Storage:"
+	@docker volume ls | grep notploy && echo "✓ Notploy volumes present" || echo "✗ No volumes found"
+
+backup: ## Create backup of data volumes (not implemented yet)
+	@echo "Backup functionality - requires tar/rsync"
+	@echo "To backup manually:"
+	@echo "  docker run --rm -v notploy-postgres-data:/data -v \$PWD:/backup alpine tar czf /backup/postgres-$(shell date +%Y%m%d_%H%M%S).tar.gz -C /data ."
+
+uninstall: ## Remove Notploy (data preserved)
+	@chmod +x scripts/cleanup.sh
+	@./scripts/cleanup.sh
