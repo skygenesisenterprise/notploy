@@ -57,7 +57,7 @@ const samlProviderSchema = z.object({
 		.min(1, "IdP SSO URL is required")
 		.url("Invalid URL")
 		.trim(),
-	cert: z.string().min(1, "IdP signing certificate is required"),
+	cert: z.string(),
 	idpMetadataXml: z.string().optional(),
 });
 
@@ -143,7 +143,7 @@ export function RegisterSamlDialog({
 			issuer: data.issuer,
 			domains,
 			entryPoint: saml?.entryPoint ?? "",
-			cert: saml?.cert ?? "",
+			cert: "",
 			idpMetadataXml: saml?.idpMetadataXml ?? "",
 		});
 	}, [data, open, form]);
@@ -162,6 +162,12 @@ export function RegisterSamlDialog({
 	const isSubmitting = form.formState.isSubmitting;
 
 	const onSubmit = async (data: SamlProviderForm) => {
+		if (!isEdit && !data.cert.trim()) {
+			form.setError("cert", {
+				message: "IdP signing certificate is required",
+			});
+			return;
+		}
 		try {
 			// maybe add the /saml/metadata endpoint to the baseURL
 			const baseURLWithMetadata = `${baseURL}/saml/metadata`;
@@ -365,12 +371,22 @@ export function RegisterSamlDialog({
 									<FormLabel>IdP signing certificate (X.509)</FormLabel>
 									<FormControl>
 										<Textarea
-											placeholder="Paste IdP signing certificate (PEM, BEGIN CERTIFICATE / END CERTIFICATE)"
+											placeholder={
+												isEdit
+													? "Leave blank to keep the current certificate"
+													: "Paste IdP signing certificate (PEM, BEGIN CERTIFICATE / END CERTIFICATE)"
+											}
 											rows={4}
 											className="font-mono text-xs"
 											{...field}
 										/>
 									</FormControl>
+									{isEdit && (
+										<FormDescription>
+											The saved certificate is never returned to the browser.
+											Enter a value only to replace it.
+										</FormDescription>
+									)}
 									<FormMessage />
 								</FormItem>
 							)}

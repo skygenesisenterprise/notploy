@@ -9,7 +9,7 @@ import { appRouter } from "@/server/api/root";
 
 const Page = () => {
 	return (
-		<div className="flex flex-col gap-4 w-full">
+		<div className="space-y-4 pb-10">
 			<ShowSessions />
 		</div>
 	);
@@ -50,6 +50,7 @@ export async function getServerSideProps(
 
 	try {
 		await helpers.user.get.prefetch();
+		await helpers.user.listSessions.prefetch();
 
 		return {
 			props: {

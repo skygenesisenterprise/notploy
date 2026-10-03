@@ -330,7 +330,7 @@ export function OperationsCenter() {
 							description="Outcomes from your most recent deployments"
 							action={
 								<Link
-									href="/dashboard/overview?tab=deployments"
+									href="/dashboard/deployments"
 									className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
 								>
 									All deployments{" "}
@@ -579,7 +579,7 @@ export function OperationsCenter() {
 							description="Latest changes across accessible services"
 							action={
 								<Link
-									href="/dashboard/overview?tab=deployments"
+									href="/dashboard/deployments"
 									className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
 								>
 									View history <ArrowRight className="size-3.5" aria-hidden />

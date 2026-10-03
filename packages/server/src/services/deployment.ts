@@ -23,7 +23,17 @@ import {
 } from "@notploy/server/utils/process/execAsync";
 import { TRPCError } from "@trpc/server";
 import { format } from "date-fns";
-import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
+import {
+	and,
+	asc,
+	desc,
+	eq,
+	ilike,
+	inArray,
+	isNotNull,
+	or,
+	sql,
+} from "drizzle-orm";
 import type { z } from "zod";
 import {
 	type Application,
@@ -940,6 +950,164 @@ export const findAllDeploymentsCentralized = async (
 		orderBy: desc(deployments.createdAt),
 		with: centralizedDeploymentsWith,
 	});
+};
+
+export const findDeploymentsCentralizedPage = async (
+	orgId: string,
+	accessedServices: string[] | null,
+	input: {
+		offset: number;
+		limit: number;
+		status?: "running" | "done" | "error" | "cancelled";
+		type?: "application" | "compose";
+		search?: string;
+		sortOrder: "newest" | "oldest";
+	},
+) => {
+	if (accessedServices !== null && accessedServices.length === 0) {
+		return {
+			items: [],
+			total: 0,
+			counts: { total: 0, running: 0, done: 0, error: 0, cancelled: 0 },
+		};
+	}
+
+	const [appIds, compIds] = await Promise.all([
+		getApplicationIdsInOrg(orgId, accessedServices),
+		getComposeIdsInOrg(orgId, accessedServices),
+	]);
+	const conditions = [
+		...(appIds.length > 0 ? [inArray(deployments.applicationId, appIds)] : []),
+		...(compIds.length > 0 ? [inArray(deployments.composeId, compIds)] : []),
+	];
+	if (conditions.length === 0) {
+		return {
+			items: [],
+			total: 0,
+			counts: { total: 0, running: 0, done: 0, error: 0, cancelled: 0 },
+		};
+	}
+	const scopeWhere =
+		conditions.length === 1 ? conditions[0] : or(...conditions);
+
+	const [statusCounts, matchingAppIds, matchingComposeIds] = await Promise.all([
+		db
+			.select({
+				status: deployments.status,
+				count: sql<number>`count(*)::int`,
+			})
+			.from(deployments)
+			.where(scopeWhere)
+			.groupBy(deployments.status),
+		input.search && appIds.length > 0
+			? db
+					.select({ id: applications.applicationId })
+					.from(applications)
+					.innerJoin(
+						environments,
+						eq(applications.environmentId, environments.environmentId),
+					)
+					.innerJoin(
+						projects,
+						eq(environments.projectId, projects.projectId),
+					)
+					.where(
+						and(
+							inArray(applications.applicationId, appIds),
+							or(
+								ilike(applications.name, `%${input.search}%`),
+								ilike(applications.appName, `%${input.search}%`),
+								ilike(environments.name, `%${input.search}%`),
+								ilike(projects.name, `%${input.search}%`),
+							),
+						),
+					)
+			: Promise.resolve([]),
+		input.search && compIds.length > 0
+			? db
+					.select({ id: compose.composeId })
+					.from(compose)
+					.innerJoin(
+						environments,
+						eq(compose.environmentId, environments.environmentId),
+					)
+					.innerJoin(
+						projects,
+						eq(environments.projectId, projects.projectId),
+					)
+					.where(
+						and(
+							inArray(compose.composeId, compIds),
+							or(
+								ilike(compose.name, `%${input.search}%`),
+								ilike(compose.appName, `%${input.search}%`),
+								ilike(environments.name, `%${input.search}%`),
+								ilike(projects.name, `%${input.search}%`),
+							),
+						),
+					)
+			: Promise.resolve([]),
+	]);
+
+	const counts = {
+		total: statusCounts.reduce((total, row) => total + row.count, 0),
+		running: statusCounts.find((row) => row.status === "running")?.count ?? 0,
+		done: statusCounts.find((row) => row.status === "done")?.count ?? 0,
+		error: statusCounts.find((row) => row.status === "error")?.count ?? 0,
+		cancelled:
+			statusCounts.find((row) => row.status === "cancelled")?.count ?? 0,
+	};
+
+	const filters = [scopeWhere];
+	if (input.status) filters.push(eq(deployments.status, input.status));
+	if (input.type === "application") {
+		filters.push(isNotNull(deployments.applicationId));
+	} else if (input.type === "compose") {
+		filters.push(isNotNull(deployments.composeId));
+	}
+	if (input.search) {
+		filters.push(
+			or(
+				ilike(deployments.title, `%${input.search}%`),
+				ilike(deployments.description, `%${input.search}%`),
+				...(matchingAppIds.length > 0
+					? [
+							inArray(
+								deployments.applicationId,
+								matchingAppIds.map((row) => row.id),
+							),
+						]
+					: []),
+				...(matchingComposeIds.length > 0
+					? [
+							inArray(
+								deployments.composeId,
+								matchingComposeIds.map((row) => row.id),
+							),
+						]
+					: []),
+			),
+		);
+	}
+	const whereClause = and(...filters);
+	const [items, countResult] = await Promise.all([
+		db.query.deployments.findMany({
+			where: whereClause,
+			orderBy:
+				input.sortOrder === "oldest"
+					? asc(deployments.createdAt)
+					: desc(deployments.createdAt),
+			limit: input.limit,
+			offset: input.offset,
+			with: centralizedDeploymentsWith,
+		}),
+		db
+			.select({ count: sql<number>`count(*)::int` })
+			.from(deployments)
+			.where(whereClause),
+	]);
+
+	return { items, total: countResult[0]?.count ?? 0, counts };
 };
 
 export const findHomeDeploymentsCentralized = async (

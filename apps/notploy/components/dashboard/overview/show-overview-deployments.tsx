@@ -1,13 +1,7 @@
-import { Rocket } from "lucide-react";
 import { useRouter } from "next/router";
 import { ShowDeploymentsTable } from "@/components/dashboard/deployments/show-deployments-table";
 import { ShowQueueTable } from "@/components/dashboard/deployments/show-queue-table";
-import {
-	Card,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const SUBTAB_VALUES = ["deployments", "queue"] as const;
@@ -40,37 +34,31 @@ export const ShowOverviewDeployments = () => {
 	};
 
 	return (
-		<Card className="h-full bg-sidebar p-2.5 rounded-xl min-h-[45vh]">
-			<div className="rounded-xl bg-background shadow-md h-full">
-				<CardHeader>
-					<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-						<div>
-							<CardTitle className="text-xl font-bold flex items-center gap-2">
-								<Rocket className="size-5" />
-								Deployments
-							</CardTitle>
-							<CardDescription>
-								All application and compose deployments in one place.
-							</CardDescription>
-						</div>
-					</div>
-					<Tabs
-						value={subtab}
-						onValueChange={setSubtab}
-						className="w-full min-w-0"
-					>
-						<TabsList className="mt-2">
-							<TabsTrigger value="deployments">Deployments</TabsTrigger>
-							<TabsTrigger value="queue">Queue</TabsTrigger>
-						</TabsList>
-						<TabsContent value="deployments" className="mt-0 min-w-0 pt-4">
-							<ShowDeploymentsTable />
-						</TabsContent>
-						<TabsContent value="queue" className="mt-0 pt-4">
-							<ShowQueueTable />
-						</TabsContent>
-					</Tabs>
-				</CardHeader>
+		<Card className="min-h-[85vh] w-full rounded-xl bg-sidebar p-2.5">
+			<div className="flex h-full min-h-[calc(85vh-1.25rem)] flex-col gap-6 rounded-xl bg-background p-4 shadow-md sm:p-6">
+				<header className="space-y-1">
+					<h1 className="text-3xl font-semibold tracking-tight">Deployments</h1>
+					<p className="text-sm text-muted-foreground">
+						Track, inspect and manage workload deployments across your Notploy
+						infrastructure.
+					</p>
+				</header>
+				<Tabs
+					value={subtab}
+					onValueChange={setSubtab}
+					className="w-full min-w-0"
+				>
+					<TabsList>
+						<TabsTrigger value="deployments">Deployments</TabsTrigger>
+						<TabsTrigger value="queue">Queue</TabsTrigger>
+					</TabsList>
+					<TabsContent value="deployments" className="mt-4 min-w-0">
+						<ShowDeploymentsTable />
+					</TabsContent>
+					<TabsContent value="queue" className="mt-4">
+						<ShowQueueTable />
+					</TabsContent>
+				</Tabs>
 			</div>
 		</Card>
 	);

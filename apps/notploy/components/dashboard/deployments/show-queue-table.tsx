@@ -3,8 +3,10 @@
 import type { inferRouterOutputs } from "@trpc/server";
 import { ArrowRight, ListTodo, Loader2, XCircle } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DialogAction } from "@/components/shared/dialog-action";
 import {
 	Table,
 	TableBody,
@@ -161,34 +163,52 @@ export function ShowQueueTable(props: { embedded?: boolean }) {
 														row.state === "active" &&
 														(d?.applicationId != null ||
 															d?.composeId != null) && (
-															<Button
-																variant="ghost"
-																size="sm"
-																className="text-destructive hover:text-destructive"
-																disabled={isCancelling}
+															<DialogAction
+																title="Cancel deployment job?"
+																description="This requests cancellation of the active deployment job. The service may remain in its current state."
 																onClick={() => {
-																	const appId =
-																		typeof d.applicationId === "string"
-																			? d.applicationId
-																			: undefined;
-																	const compId =
-																		typeof d.composeId === "string"
-																			? d.composeId
-																			: undefined;
-																	if (appId) {
-																		void cancelApplicationDeployment({
-																			applicationId: appId,
-																		});
-																	} else if (compId) {
-																		void cancelComposeDeployment({
-																			composeId: compId,
-																		});
-																	}
+																	void (async () => {
+																		try {
+																			const appId =
+																				typeof d.applicationId === "string"
+																					? d.applicationId
+																					: undefined;
+																			const compId =
+																				typeof d.composeId === "string"
+																					? d.composeId
+																					: undefined;
+																			if (appId) {
+																				await cancelApplicationDeployment({
+																					applicationId: appId,
+																				});
+																			} else if (compId) {
+																				await cancelComposeDeployment({
+																					composeId: compId,
+																				});
+																			}
+																			toast.success(
+																				"Deployment cancellation requested",
+																			);
+																		} catch (error) {
+																			toast.error(
+																				error instanceof Error
+																					? error.message
+																					: "Unable to cancel deployment",
+																			);
+																		}
+																	})();
 																}}
 															>
-																<XCircle className="size-4 mr-1" />
-																Cancel
-															</Button>
+																<Button
+																	variant="ghost"
+																	size="sm"
+																	className="text-destructive hover:text-destructive"
+																	disabled={isCancelling}
+																>
+																	<XCircle className="mr-1 size-4" />
+																	Cancel
+																</Button>
+															</DialogAction>
 														)}
 												</div>
 											</TableCell>

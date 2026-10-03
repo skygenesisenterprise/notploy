@@ -3,20 +3,14 @@ import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
 import superjson from "superjson";
-import { WebDomain } from "@/components/dashboard/settings/web-domain";
 import { WebServer } from "@/components/dashboard/settings/web-server";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { appRouter } from "@/server/api/root";
-import { api } from "@/utils/api";
 
 const Page = () => {
-	const { data: user } = api.user.get.useQuery();
 	return (
-		<div className="w-full">
-			<div className="h-full rounded-xl w-full flex flex-col gap-4">
-				<WebDomain />
-				<WebServer />
-			</div>
+		<div className="pb-10">
+			<WebServer />
 		</div>
 	);
 };
@@ -68,6 +62,7 @@ export async function getServerSideProps(
 		transformer: superjson,
 	});
 	await helpers.user.get.prefetch();
+	await helpers.settings.getControlPlaneRuntime.prefetch();
 
 	return {
 		props: {

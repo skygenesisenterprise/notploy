@@ -1,6 +1,5 @@
 import type { inferRouterOutputs } from "@trpc/server";
 import {
-	Activity,
 	BarChartHorizontalBigIcon,
 	Bell,
 	BlocksIcon,
@@ -12,16 +11,11 @@ import {
 	Clock,
 	CreditCard,
 	Database,
-	Earth,
 	Folder,
-	Forward,
 	GalleryVerticalEnd,
 	GitBranch,
 	Globe,
-	HardDrive,
-	HeartPulse,
 	House,
-	Layers,
 	LayoutGrid,
 	LogIn,
 	type LucideIcon,
@@ -55,6 +49,7 @@ export type NavigationItem = {
 	href: string;
 	icon: LucideIcon;
 	activeTab?: string | null;
+	activeRoutes?: Array<{ href: string; activeTab?: string | null }>;
 	isEnabled?: (opts: NavigationContext) => boolean;
 };
 
@@ -118,7 +113,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				label: "Deployments",
 				href: "/dashboard/deployments",
 				icon: Rocket,
-				activeTab: "deployments",
+				activeTab: null,
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
 			},
 			{
@@ -161,7 +156,6 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 						label: "Containers",
 						href: "/dashboard/containers",
 						icon: Boxes,
-						activeTab: "containers",
 						isEnabled: ({ permissions, isCloud }) =>
 							!!(permissions?.docker.read && !isCloud),
 					},
@@ -169,44 +163,8 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 						label: "Swarm",
 						href: "/dashboard/swarm",
 						icon: Waypoints,
-						activeTab: "swarm",
 						isEnabled: ({ permissions, isCloud }) =>
 							!!(permissions?.docker.read && !isCloud),
-					},
-					{
-						label: "Images",
-						href: "/dashboard/images",
-						icon: Layers,
-						activeTab: "images",
-						isEnabled: ({ permissions, isCloud }) =>
-							!!(permissions?.docker.read && !isCloud),
-					},
-					{
-						label: "Events",
-						href: "/dashboard/events",
-						icon: Activity,
-						activeTab: "events",
-						isEnabled: ({ permissions, isCloud }) =>
-							!!(permissions?.docker.read && !isCloud),
-					},
-					{
-						label: "Requests",
-						href: "/dashboard/requests",
-						icon: Forward,
-						isEnabled: ({ permissions, isCloud }) =>
-							!!(permissions?.docker.read && !isCloud),
-					},
-					{
-						label: "Health",
-						href: "/dashboard/health",
-						icon: HeartPulse,
-						activeTab: "health",
-						isEnabled: ({ permissions, isCloud }) =>
-							!!(
-								permissions?.docker.read &&
-								permissions?.server.read &&
-								!isCloud
-							),
 					},
 				],
 			},
@@ -218,29 +176,14 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 						label: "Networks",
 						href: "/dashboard/networks",
 						icon: Network,
-						activeTab: "networks",
 						isEnabled: ({ permissions, isCloud }) =>
 							!!(permissions?.docker.read && !isCloud),
 					},
 					{
-						label: "Traefik",
+						label: "Traefik Manager",
 						href: "/dashboard/traefik",
 						icon: GalleryVerticalEnd,
 						isEnabled: ({ permissions }) => !!permissions?.traefikFiles.read,
-					},
-				],
-			},
-			{
-				id: "storage",
-				label: "Storage",
-				items: [
-					{
-						label: "Volumes",
-						href: "/dashboard/volumes",
-						icon: HardDrive,
-						activeTab: "volumes",
-						isEnabled: ({ permissions, isCloud }) =>
-							!!(permissions?.docker.read && !isCloud),
 					},
 				],
 			},
@@ -299,7 +242,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.notification.read,
 			},
 			{
-				label: "AI",
+				label: "AI Providers",
 				href: "/dashboard/settings/ai",
 				icon: BotIcon,
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,
@@ -377,7 +320,7 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 				label: "Deployments",
 				href: "/dashboard/deployments",
 				icon: Rocket,
-				activeTab: "deployments",
+				activeTab: null,
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
 			},
 			{
@@ -392,13 +335,6 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 		id: "resources",
 		label: "Resources",
 		items: [
-			{
-				label: "Domains",
-				href: "/dashboard/domains",
-				icon: Earth,
-				activeTab: "domains",
-				isEnabled: ({ permissions }) => !!permissions?.domain.read,
-			},
 			{
 				label: "Certificates",
 				href: "/dashboard/settings/certificates",
@@ -460,7 +396,7 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.notification.read,
 			},
 			{
-				label: "AI",
+				label: "AI Providers",
 				href: "/dashboard/settings/ai",
 				icon: BotIcon,
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,
@@ -525,10 +461,49 @@ const NAVIGATIONS: Record<NavigationVariant, Navigation> = {
 
 export type NavigationVariant = "selfHosted" | "cloud";
 
-/** Removes the query string, `/dashboard/docker?tab=volumes` -> `/dashboard/docker`. */
-function toPathname(href: string): string {
-	const queryIndex = href.indexOf("?");
-	return queryIndex === -1 ? href : href.slice(0, queryIndex);
+function getRoute(href: string): { pathname: string; tab?: string } {
+	const [pathname = "", query = ""] = href.split("?", 2);
+	return {
+		pathname,
+		tab: new URLSearchParams(query).get("tab") ?? undefined,
+	};
+}
+
+function normalizePathname(pathname: string): string {
+	const normalized = pathname.replace(/\/+$/, "") || "/";
+	if (
+		normalized === "/dashboard/projects" ||
+		normalized.startsWith("/dashboard/projects/")
+	) {
+		return normalized.replace(
+			/^\/dashboard\/projects(?=\/|$)/,
+			"/dashboard/project",
+		);
+	}
+	return normalized;
+}
+
+function routeMatches(opts: {
+	itemUrl: string;
+	pathname: string;
+	activeTab?: string | null;
+	currentTab?: string;
+}): boolean {
+	const itemRoute = getRoute(opts.itemUrl);
+	const currentPathname = normalizePathname(opts.pathname);
+	const targetPathname = normalizePathname(itemRoute.pathname);
+	if (
+		currentPathname !== targetPathname &&
+		!currentPathname.startsWith(`${targetPathname}/`)
+	) {
+		return false;
+	}
+
+	const expectedTab =
+		opts.activeTab !== undefined ? opts.activeTab : itemRoute.tab;
+	if (expectedTab === null) return opts.currentTab === undefined;
+	if (expectedTab !== undefined) return opts.currentTab === expectedTab;
+	return true;
 }
 
 export function isActiveRoute(opts: {
@@ -537,30 +512,7 @@ export function isActiveRoute(opts: {
 	activeTab?: string | null;
 	currentTab?: string;
 }): boolean {
-	const { activeTab, currentTab } = opts;
-
-	if (activeTab !== undefined) {
-		if (activeTab === null) {
-			if (currentTab !== undefined) return false;
-		} else if (currentTab !== activeTab) {
-			return false;
-		}
-	}
-
-	const normalizedItemUrl = toPathname(opts.itemUrl).replace(
-		"/projects",
-		"/project",
-	);
-	const normalizedPathname = opts.pathname?.replace("/projects", "/project");
-
-	if (!normalizedPathname) return false;
-	if (normalizedPathname === normalizedItemUrl) return true;
-
-	if (normalizedPathname.startsWith(normalizedItemUrl)) {
-		return normalizedPathname.charAt(normalizedItemUrl.length) === "/";
-	}
-
-	return false;
+	return routeMatches(opts);
 }
 
 function filterEnabled<
@@ -630,12 +582,17 @@ export function findActiveNavigation(
 			...(section.groups?.flatMap((group) => group.items) ?? []),
 		];
 		const item = items.find((item) =>
-			isActiveRoute({
-				itemUrl: item.href,
-				pathname: location.pathname,
-				activeTab: item.activeTab,
-				currentTab: location.tab,
-			}),
+			[
+				{ href: item.href, activeTab: item.activeTab },
+				...(item.activeRoutes ?? []),
+			].some((route) =>
+				isActiveRoute({
+					itemUrl: route.href,
+					pathname: location.pathname,
+					activeTab: route.activeTab,
+					currentTab: location.tab,
+				}),
+			),
 		);
 		if (item) return { section, item };
 	}

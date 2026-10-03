@@ -1,21 +1,60 @@
+import { validateRequest } from "@notploy/server/lib/auth";
+import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
+import type { ReactElement } from "react";
+import superjson from "superjson";
+import { NetworkConsole } from "@/components/dashboard/networks/network-console";
+import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+import { ServerFilter } from "@/components/shared/server-filter";
+import { appRouter } from "@/server/api/root";
 
-const Networks = () => {
-	return null;
-};
+const Networks = () => (
+	<ServerFilter>
+		{(serverId) => <NetworkConsole serverId={serverId} />}
+	</ServerFilter>
+);
 
 export default Networks;
 
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-	const serverId =
-		typeof ctx.query.serverId === "string" ? ctx.query.serverId : undefined;
+Networks.getLayout = (page: ReactElement) => (
+	<DashboardLayout metaName="Networks">{page}</DashboardLayout>
+);
 
-	return {
-		redirect: {
-			permanent: false,
-			destination: `/dashboard/docker?tab=networks${
-				serverId ? `&serverId=${encodeURIComponent(serverId)}` : ""
-			}`,
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+	const { user, session } = await validateRequest(ctx.req);
+	if (!user) {
+		return {
+			redirect: {
+				permanent: false,
+				destination: "/",
+			},
+		};
+	}
+
+	const helpers = createServerSideHelpers({
+		router: appRouter,
+		ctx: {
+			req: ctx.req as any,
+			res: ctx.res as any,
+			db: null as any,
+			session: session as any,
+			user: user as any,
 		},
-	};
+		transformer: superjson,
+	});
+
+	try {
+		const permissions = await helpers.user.getPermissions.fetch();
+		if (!permissions?.docker.read) {
+			return {
+				redirect: {
+					permanent: false,
+					destination: "/",
+				},
+			};
+		}
+		return { props: { trpcState: helpers.dehydrate() } };
+	} catch {
+		return { props: {} };
+	}
 }

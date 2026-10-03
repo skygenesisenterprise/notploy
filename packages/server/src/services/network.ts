@@ -409,6 +409,43 @@ export const removeNetwork = async (networkId: string) => {
 	const row = await findNetworkById(networkId);
 
 	const docker = await getRemoteDocker(row.serverId ?? null);
+	let dockerNetwork: Dockerode.NetworkInspectInfo | undefined;
+	try {
+		dockerNetwork = await docker.getNetwork(row.name).inspect();
+	} catch (error) {
+		const statusCode = (error as { statusCode?: number })?.statusCode;
+		if (statusCode !== 404) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message:
+					error instanceof Error
+						? error.message
+						: "Failed to inspect Docker network",
+				cause: error,
+			});
+		}
+	}
+
+	if (dockerNetwork) {
+		if (
+			RESERVED_NETWORKS.includes(dockerNetwork.Name) ||
+			dockerNetwork.Ingress ||
+			dockerNetwork.ConfigOnly
+		) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: "System and configuration networks cannot be removed.",
+			});
+		}
+		const connectedContainers = Object.keys(dockerNetwork.Containers ?? {});
+		if (connectedContainers.length > 0) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: `This network is connected to ${connectedContainers.length} container(s). Disconnect them before removing the network.`,
+			});
+		}
+	}
+
 	try {
 		await docker.getNetwork(row.name).remove();
 	} catch (error) {

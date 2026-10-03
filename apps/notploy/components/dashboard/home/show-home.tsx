@@ -664,7 +664,7 @@ function RecentActivityBlock({
 		<section aria-label="Recent deployments" className="space-y-3">
 			<SectionHeading
 				title="Recent deployments"
-				href="/dashboard/overview?tab=deployments"
+				href="/dashboard/deployments"
 				hrefLabel="All deployments"
 			/>
 			{isLoading ? (

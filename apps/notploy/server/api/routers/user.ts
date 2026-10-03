@@ -287,6 +287,7 @@ export const userRouter = createTRPCRouter({
 				ipAddress: session.ipAddress,
 				userAgent: session.userAgent,
 				createdAt: session.createdAt,
+				updatedAt: session.updatedAt,
 				expiresAt: session.expiresAt,
 			})
 			.from(session)

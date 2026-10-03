@@ -117,7 +117,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 			},
 			{
 				label: "Deployments",
-				href: "/dashboard/overview?tab=deployments",
+				href: "/dashboard/deployments",
 				icon: Rocket,
 				activeTab: "deployments",
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,

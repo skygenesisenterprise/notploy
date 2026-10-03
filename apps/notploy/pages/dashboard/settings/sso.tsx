@@ -1,59 +1,21 @@
-import { IS_CLOUD, validateRequest } from "@notploy/server";
+import { validateRequest } from "@notploy/server";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
 import superjson from "superjson";
-import { ToggleEnforceSSO } from "@/components/dashboard/settings/servers/actions/toggle-enforce-sso";
-import { ToggleRemoteServersOnly } from "@/components/dashboard/settings/servers/actions/toggle-remote-servers-only";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
-import { ForwardAuthServers } from "@/components/proprietary/sso/forward-auth-servers";
 import { SSOSettings } from "@/components/proprietary/sso/sso-settings";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { appRouter } from "@/server/api/root";
 
-interface Props {
-	isCloud: boolean;
-}
-
-const Page = ({ isCloud }: Props) => {
+const Page = () => {
 	return (
-		<div className="w-full">
-			<div className="h-full rounded-xl w-full flex flex-col gap-4">
-				<Card className="h-full bg-sidebar p-2.5 rounded-xl mx-auto w-full">
-					<div className="rounded-xl bg-background shadow-md">
-						<SSOSettings />
-					</div>
-				</Card>
-				<Card className="h-full bg-sidebar p-2.5 rounded-xl mx-auto w-full">
-					<div className="rounded-xl bg-background shadow-md">
-						<ForwardAuthServers />
-					</div>
-				</Card>
-				{!isCloud && (
-					<Card className="h-full bg-sidebar p-2.5 rounded-xl mx-auto w-full">
-						<div className="rounded-xl bg-background shadow-md">
-							<CardHeader>
-								<CardTitle className="text-xl">
-									Self-hosted Restrictions
-								</CardTitle>
-								<CardDescription>
-									Control deployment targets and authentication behavior.
-								</CardDescription>
-							</CardHeader>
-							<CardContent className="flex flex-col gap-4">
-								<ToggleRemoteServersOnly />
-								<ToggleEnforceSSO />
-							</CardContent>
-						</div>
-					</Card>
-				)}
-			</div>
+		<div className="pb-10">
+			<Card className="min-h-[85vh] w-full rounded-xl bg-sidebar p-2.5">
+				<div className="flex h-full min-h-[calc(85vh-1.25rem)] flex-col gap-6 rounded-xl bg-background p-4 shadow-md sm:p-6">
+					<SSOSettings />
+				</div>
+			</Card>
 		</div>
 	);
 };
@@ -96,11 +58,11 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 		transformer: superjson,
 	});
 	await helpers.user.get.prefetch();
+	await helpers.sso.listProviders.prefetch();
 
 	return {
 		props: {
 			trpcState: helpers.dehydrate(),
-			isCloud: IS_CLOUD,
 		},
 	};
 }

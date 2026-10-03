@@ -20,6 +20,7 @@ export interface OverviewService {
 	serverId: string | null;
 	serverName: string | null;
 	icon: string | null;
+	configuredReplicas?: number | null;
 	projectId: string;
 	projectName: string;
 	environmentId: string;

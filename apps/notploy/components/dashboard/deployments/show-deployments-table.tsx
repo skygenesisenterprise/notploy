@@ -1,30 +1,14 @@
 "use client";
 
-import {
-	type ColumnFiltersState,
-	flexRender,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	type PaginationState,
-	type SortingState,
-	useReactTable,
-} from "@tanstack/react-table";
 import type { inferRouterOutputs } from "@trpc/server";
 import {
-	ArrowUpDown,
-	ChevronLeft,
-	ChevronRight,
-	CircuitBoard,
-	ExternalLink,
-	GlobeIcon,
+	ArrowDown,
+	ArrowUp,
 	Loader2,
+	RefreshCw,
 	Rocket,
-	Server,
 } from "lucide-react";
-import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,19 +29,16 @@ import {
 } from "@/components/ui/table";
 import type { AppRouter } from "@/server/api/root";
 import { api } from "@/utils/api";
+import { DeploymentDetailDialog } from "./deployment-detail-dialog";
 
 type DeploymentRow =
-	inferRouterOutputs<AppRouter>["deployment"]["allCentralized"][number];
+	inferRouterOutputs<AppRouter>["deployment"]["centralizedPage"]["items"][number];
+type DeploymentStatus = NonNullable<DeploymentRow["status"]>;
 
+const statuses: DeploymentStatus[] = ["running", "done", "error", "cancelled"];
 const statusVariants: Record<
-	string,
-	| "default"
-	| "secondary"
-	| "destructive"
-	| "outline"
-	| "yellow"
-	| "green"
-	| "red"
+	DeploymentStatus,
+	"yellow" | "green" | "red" | "outline"
 > = {
 	running: "yellow",
 	done: "green",
@@ -65,558 +46,380 @@ const statusVariants: Record<
 	cancelled: "outline",
 };
 
-function getServiceInfo(d: DeploymentRow) {
-	const app = d.application;
-	const comp = d.compose;
+function getServiceInfo(deployment: DeploymentRow) {
+	const app = deployment.application;
 	if (app?.environment?.project && app.environment) {
 		return {
-			type: "Application" as const,
+			type: "Application",
 			name: app.name,
 			icon: app.icon,
 			projectId: app.environment.project.projectId,
-			environmentId: app.environment.environmentId,
 			projectName: app.environment.project.name,
+			environmentId: app.environment.environmentId,
 			environmentName: app.environment.name,
 			serviceId: app.applicationId,
-			href: `/dashboard/project/${app.environment.project.projectId}/environment/${app.environment.environmentId}/services/application/${app.applicationId}?tab=deployments`,
 		};
 	}
-	if (comp?.environment?.project && comp.environment) {
+	const compose = deployment.compose;
+	if (compose?.environment?.project && compose.environment) {
 		return {
-			type: "Compose" as const,
-			name: comp.name,
-			icon: comp.icon,
-			projectId: comp.environment.project.projectId,
-			environmentId: comp.environment.environmentId,
-			projectName: comp.environment.project.name,
-			environmentName: comp.environment.name,
-			serviceId: comp.composeId,
-			href: `/dashboard/project/${comp.environment.project.projectId}/environment/${comp.environment.environmentId}/services/compose/${comp.composeId}?tab=deployments`,
+			type: "Compose",
+			name: compose.name,
+			icon: compose.icon,
+			projectId: compose.environment.project.projectId,
+			projectName: compose.environment.project.name,
+			environmentId: compose.environment.environmentId,
+			environmentName: compose.environment.name,
+			serviceId: compose.composeId,
 		};
 	}
 	return null;
 }
 
+function formatDate(value: string | null | undefined) {
+	if (!value) return "Not available";
+	const date = new Date(value);
+	return Number.isNaN(date.getTime()) ? "Not available" : date.toLocaleString();
+}
+
+function getDuration(deployment: DeploymentRow, now: number) {
+	if (!deployment.startedAt) return "Not available";
+	const start = new Date(deployment.startedAt).getTime();
+	const finish = deployment.finishedAt
+		? new Date(deployment.finishedAt).getTime()
+		: deployment.status === "running"
+			? now
+			: Number.NaN;
+	if (!Number.isFinite(start) || !Number.isFinite(finish) || finish < start) {
+		return "Not available";
+	}
+	const seconds = Math.floor((finish - start) / 1000);
+	if (seconds < 60) return `${seconds}s`;
+	return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+}
+
 export function ShowDeploymentsTable() {
-	const [sorting, setSorting] = useState<SortingState>([
-		{ id: "createdAt", desc: true },
-	]);
-	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-	const [globalFilter, setGlobalFilter] = useState("");
-	const [statusFilter, setStatusFilter] = useState<string>("all");
-	const [typeFilter, setTypeFilter] = useState<string>("all");
-	const [pagination, setPagination] = useState<PaginationState>({
-		pageIndex: 0,
-		pageSize: 50,
-	});
-
-	const { data: deploymentsList, isLoading } =
-		api.deployment.allCentralized.useQuery(undefined, {
-			refetchInterval: 5000,
-		});
-
-	const filteredData = useMemo(() => {
-		if (!deploymentsList) return [];
-		let list = deploymentsList;
-		if (statusFilter !== "all") {
-			list = list.filter((d) => d.status === statusFilter);
-		}
-		if (typeFilter === "application") {
-			list = list.filter((d) => d.applicationId != null);
-		} else if (typeFilter === "compose") {
-			list = list.filter((d) => d.composeId != null);
-		}
-		if (globalFilter.trim()) {
-			const q = globalFilter.toLowerCase();
-			list = list.filter((d) => {
-				const info = getServiceInfo(d);
-				const serverName =
-					d.server?.name ??
-					d.application?.server?.name ??
-					d.compose?.server?.name ??
-					"";
-				const buildServerName =
-					d.buildServer?.name ?? d.application?.buildServer?.name ?? "";
-				if (!info) return false;
-				return (
-					info.name.toLowerCase().includes(q) ||
-					info.projectName.toLowerCase().includes(q) ||
-					info.environmentName.toLowerCase().includes(q) ||
-					(d.title?.toLowerCase().includes(q) ?? false) ||
-					serverName.toLowerCase().includes(q) ||
-					buildServerName.toLowerCase().includes(q)
-				);
-			});
-		}
-		return list;
-	}, [deploymentsList, statusFilter, typeFilter, globalFilter]);
-
-	const columns = useMemo(
-		() => [
-			{
-				id: "serviceName",
-				accessorFn: (row: DeploymentRow) => getServiceInfo(row)?.name ?? "",
-				header: ({
-					column,
-				}: {
-					column: {
-						getIsSorted: () => false | "asc" | "desc";
-						toggleSorting: (asc: boolean) => void;
-					};
-				}) => (
-					<Button
-						variant="ghost"
-						className="-ml-3 h-8"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-					>
-						Service
-						<ArrowUpDown className="ml-2 size-4" />
-					</Button>
-				),
-				cell: ({ row }: { row: { original: DeploymentRow } }) => {
-					const info = getServiceInfo(row.original);
-					if (!info) return <span className="text-muted-foreground">—</span>;
-					return (
-						<div className="flex items-center gap-2">
-							{info.icon ? (
-								<img
-									src={info.icon}
-									alt={info.name}
-									className="size-4 object-contain shrink-0"
-								/>
-							) : info.type === "Application" ? (
-								<GlobeIcon className="size-4 text-muted-foreground shrink-0" />
-							) : (
-								<CircuitBoard className="size-4 text-muted-foreground shrink-0" />
-							)}
-							<div className="flex flex-col min-w-0">
-								<span className="font-medium truncate">{info.name}</span>
-								<Badge variant="outline" className="w-fit text-[10px]">
-									{info.type}
-								</Badge>
-							</div>
-						</div>
-					);
-				},
-			},
-			{
-				id: "projectName",
-				accessorFn: (row: DeploymentRow) =>
-					getServiceInfo(row)?.projectName ?? "",
-				header: ({
-					column,
-				}: {
-					column: {
-						getIsSorted: () => false | "asc" | "desc";
-						toggleSorting: (asc: boolean) => void;
-					};
-				}) => (
-					<Button
-						variant="ghost"
-						className="-ml-3 h-8"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-					>
-						Project
-						<ArrowUpDown className="ml-2 size-4" />
-					</Button>
-				),
-				cell: ({ row }: { row: { original: DeploymentRow } }) => {
-					const info = getServiceInfo(row.original);
-					return (
-						<span className="text-muted-foreground">
-							{info?.projectName ?? "—"}
-						</span>
-					);
-				},
-			},
-			{
-				id: "environmentName",
-				accessorFn: (row: DeploymentRow) =>
-					getServiceInfo(row)?.environmentName ?? "",
-				header: ({
-					column,
-				}: {
-					column: {
-						getIsSorted: () => false | "asc" | "desc";
-						toggleSorting: (asc: boolean) => void;
-					};
-				}) => (
-					<Button
-						variant="ghost"
-						className="-ml-3 h-8"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-					>
-						Environment
-						<ArrowUpDown className="ml-2 size-4" />
-					</Button>
-				),
-				cell: ({ row }: { row: { original: DeploymentRow } }) => {
-					const info = getServiceInfo(row.original);
-					return (
-						<span className="text-muted-foreground">
-							{info?.environmentName ?? "—"}
-						</span>
-					);
-				},
-			},
-			{
-				id: "serverName",
-				accessorFn: (row: DeploymentRow) =>
-					row.server?.name ??
-					row.application?.server?.name ??
-					row.compose?.server?.name ??
-					"",
-				header: ({
-					column,
-				}: {
-					column: {
-						getIsSorted: () => false | "asc" | "desc";
-						toggleSorting: (asc: boolean) => void;
-					};
-				}) => (
-					<Button
-						variant="ghost"
-						className="-ml-3 h-8"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-					>
-						Server
-						<ArrowUpDown className="ml-2 size-4" />
-					</Button>
-				),
-				cell: ({ row }: { row: { original: DeploymentRow } }) => {
-					const d = row.original;
-					const serverName =
-						d.server?.name ??
-						d.application?.server?.name ??
-						d.compose?.server?.name ??
-						null;
-					const serverType =
-						d.server?.serverType ??
-						d.application?.server?.serverType ??
-						d.compose?.server?.serverType ??
-						null;
-					const buildServerName =
-						d.buildServer?.name ?? d.application?.buildServer?.name ?? null;
-					const buildServerType =
-						d.buildServer?.serverType ??
-						d.application?.buildServer?.serverType ??
-						null;
-					const showBuild =
-						buildServerName != null && buildServerName !== serverName;
-					if (!serverName && !showBuild) {
-						return <span className="text-muted-foreground">—</span>;
-					}
-					return (
-						<div className="flex flex-col gap-0.5 text-sm">
-							{serverName && (
-								<div className="flex items-center gap-1.5 flex-wrap">
-									<Server className="size-3.5 text-muted-foreground shrink-0" />
-									<span className="truncate">{serverName}</span>
-									{serverType && (
-										<Badge
-											variant="outline"
-											className="text-[10px] font-normal"
-										>
-											{serverType}
-										</Badge>
-									)}
-								</div>
-							)}
-							{showBuild && buildServerName && (
-								<div className="flex items-center gap-1.5 text-muted-foreground flex-wrap">
-									<span className="text-[10px]">Build:</span>
-									<span className="truncate text-xs">{buildServerName}</span>
-									{buildServerType && (
-										<Badge
-											variant="outline"
-											className="text-[10px] font-normal"
-										>
-											{buildServerType}
-										</Badge>
-									)}
-								</div>
-							)}
-						</div>
-					);
-				},
-			},
-			{
-				accessorKey: "title",
-				header: ({
-					column,
-				}: {
-					column: {
-						getIsSorted: () => false | "asc" | "desc";
-						toggleSorting: (asc: boolean) => void;
-					};
-				}) => (
-					<Button
-						variant="ghost"
-						className="-ml-3 h-8"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-					>
-						Title
-						<ArrowUpDown className="ml-2 size-4" />
-					</Button>
-				),
-				cell: ({ row }: { row: { original: DeploymentRow } }) => (
-					<span className="text-sm truncate max-w-[200px] block">
-						{row.original.title || "—"}
-					</span>
-				),
-			},
-			{
-				accessorKey: "status",
-				header: ({
-					column,
-				}: {
-					column: {
-						getIsSorted: () => false | "asc" | "desc";
-						toggleSorting: (asc: boolean) => void;
-					};
-				}) => (
-					<Button
-						variant="ghost"
-						className="-ml-3 h-8"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-					>
-						Status
-						<ArrowUpDown className="ml-2 size-4" />
-					</Button>
-				),
-				cell: ({ row }: { row: { original: DeploymentRow } }) => {
-					const status = row.original.status ?? "running";
-					return (
-						<Badge variant={statusVariants[status] ?? "secondary"}>
-							{status}
-						</Badge>
-					);
-				},
-			},
-			{
-				accessorKey: "createdAt",
-				header: ({
-					column,
-				}: {
-					column: {
-						getIsSorted: () => false | "asc" | "desc";
-						toggleSorting: (asc: boolean) => void;
-					};
-				}) => (
-					<Button
-						variant="ghost"
-						className="-ml-3 h-8"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-					>
-						Created
-						<ArrowUpDown className="ml-2 size-4" />
-					</Button>
-				),
-				cell: ({ row }: { row: { original: DeploymentRow } }) => (
-					<span className="text-muted-foreground text-sm whitespace-nowrap">
-						{row.original.createdAt
-							? new Date(row.original.createdAt).toLocaleString()
-							: "—"}
-					</span>
-				),
-			},
-			{
-				header: "",
-				id: "actions",
-				enableSorting: false,
-				cell: ({ row }: { row: { original: DeploymentRow } }) => {
-					const info = getServiceInfo(row.original);
-					if (!info) return null;
-					return (
-						<Button variant="ghost" size="sm" asChild>
-							<Link href={info.href} className="gap-1">
-								<ExternalLink className="size-4" />
-								Open
-							</Link>
-						</Button>
-					);
-				},
-			},
-		],
-		[],
+	const [search, setSearch] = useState("");
+	const [debouncedSearch, setDebouncedSearch] = useState("");
+	const [statusFilter, setStatusFilter] = useState<"all" | DeploymentStatus>(
+		"all",
 	);
+	const [typeFilter, setTypeFilter] = useState<
+		"all" | "application" | "compose"
+	>("all");
+	const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+	const [page, setPage] = useState(0);
+	const [pageSize, setPageSize] = useState(25);
+	const [selectedDeployment, setSelectedDeployment] =
+		useState<DeploymentRow | null>(null);
+	const { data, isLoading, isError, error, refetch, isFetching } =
+		api.deployment.centralizedPage.useQuery(
+			{
+				offset: page * pageSize,
+				limit: pageSize,
+				status: statusFilter === "all" ? undefined : statusFilter,
+				type: typeFilter === "all" ? undefined : typeFilter,
+				search: debouncedSearch.trim() || undefined,
+				sortOrder,
+			},
+			{ refetchInterval: 5000 },
+		);
+	const now = Date.now();
+	const pageItems = data?.items ?? [];
+	const counts = data?.counts ?? {
+		total: 0,
+		running: 0,
+		done: 0,
+		error: 0,
+		cancelled: 0,
+	};
+	const pageCount = Math.ceil((data?.total ?? 0) / pageSize);
 
-	const table = useReactTable({
-		data: filteredData,
-		columns,
-		state: {
-			sorting,
-			columnFilters,
-			globalFilter,
-			pagination,
-		},
-		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
-		onGlobalFilterChange: setGlobalFilter,
-		onPaginationChange: setPagination,
-		getCoreRowModel: getCoreRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-	});
+	useEffect(() => {
+		const timeout = window.setTimeout(() => {
+			setDebouncedSearch(search);
+			setPage(0);
+		}, 250);
+		return () => window.clearTimeout(timeout);
+	}, [search]);
+
+	const updateSearch = (value: string) => {
+		setSearch(value);
+	};
 
 	return (
-		<div className="space-y-2">
-			<div className="flex flex-wrap items-center gap-2">
-				<Input
-					placeholder="Search by name, project, environment, server..."
-					value={globalFilter}
-					onChange={(e) => setGlobalFilter(e.target.value)}
-					className="max-w-xs"
-				/>
-				<Select value={statusFilter} onValueChange={setStatusFilter}>
-					<SelectTrigger className="w-[140px]">
-						<SelectValue placeholder="Status" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="all">All statuses</SelectItem>
-						<SelectItem value="running">Running</SelectItem>
-						<SelectItem value="done">Done</SelectItem>
-						<SelectItem value="error">Error</SelectItem>
-						<SelectItem value="cancelled">Cancelled</SelectItem>
-					</SelectContent>
-				</Select>
-				<Select value={typeFilter} onValueChange={setTypeFilter}>
-					<SelectTrigger className="w-[140px]">
-						<SelectValue placeholder="Type" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="all">All types</SelectItem>
-						<SelectItem value="application">Application</SelectItem>
-						<SelectItem value="compose">Compose</SelectItem>
-					</SelectContent>
-				</Select>
-			</div>
-			<div className="px-0">
-				{isLoading ? (
-					<div className="flex gap-4 w-full items-center justify-center min-h-[45vh] text-muted-foreground">
-						<Loader2 className="size-4 animate-spin" />
-						<span>Loading deployments...</span>
+		<div className="space-y-5">
+			<section
+				aria-label="Deployment status summary"
+				className="grid grid-cols-2 gap-3 lg:grid-cols-5"
+			>
+				{[
+					{ label: "Deployments", value: counts.total },
+					{ label: "Running", value: counts.running },
+					{ label: "Done", value: counts.done },
+					{ label: "Error", value: counts.error },
+					{ label: "Cancelled", value: counts.cancelled },
+				].map((item) => (
+					<div key={item.label} className="rounded-lg border bg-background p-4">
+						<p className="text-sm text-muted-foreground">{item.label}</p>
+						<p className="mt-1 text-2xl font-semibold tabular-nums">
+							{item.value}
+						</p>
 					</div>
-				) : (
-					<>
-						<div className="rounded-md border overflow-x-auto">
-							<Table>
-								<TableHeader>
-									{table.getHeaderGroups().map((headerGroup) => (
-										<TableRow key={headerGroup.id}>
-											{headerGroup.headers.map((header) => (
-												<TableHead key={header.id}>
-													{header.isPlaceholder
-														? null
-														: flexRender(
-																header.column.columnDef.header,
-																header.getContext(),
-															)}
-												</TableHead>
-											))}
-										</TableRow>
-									))}
-								</TableHeader>
-								<TableBody>
-									{table.getRowModel().rows?.length ? (
-										table.getRowModel().rows.map((row) => (
-											<TableRow key={row.id}>
-												{row.getVisibleCells().map((cell) => (
-													<TableCell key={cell.id}>
-														{flexRender(
-															cell.column.columnDef.cell,
-															cell.getContext(),
-														)}
-													</TableCell>
-												))}
-											</TableRow>
-										))
-									) : (
-										<TableRow>
-											<TableCell
-												colSpan={columns.length}
-												className=" text-center"
-											>
-												<div className="flex flex-col min-h-[45vh] items-center justify-center gap-2 text-muted-foreground">
-													<Rocket className="size-8" />
-													<p className="font-medium">No deployments found</p>
-													<p className="text-sm">
-														Deployments from applications and compose will
-														appear here.
-													</p>
-												</div>
-											</TableCell>
-										</TableRow>
-									)}
-								</TableBody>
-							</Table>
-						</div>
-						<div className="flex flex-col gap-4 px-4 py-4 border-t sm:flex-row sm:items-center sm:justify-between">
-							<div className="flex items-center gap-2 flex-wrap">
-								<span className="text-sm text-muted-foreground whitespace-nowrap">
-									Rows per page
-								</span>
-								<Select
-									value={String(pagination.pageSize)}
-									onValueChange={(value) => {
-										setPagination((p) => ({
-											...p,
-											pageSize: Number(value),
-											pageIndex: 0,
-										}));
-									}}
-								>
-									<SelectTrigger className="h-8 w-[70px]">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent side="top">
-										{[10, 25, 50, 100].map((size) => (
-											<SelectItem key={size} value={String(size)}>
-												{size}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<span className="text-sm text-muted-foreground whitespace-nowrap">
-									Showing{" "}
-									{filteredData.length === 0
-										? 0
-										: pagination.pageIndex * pagination.pageSize + 1}{" "}
-									to{" "}
-									{Math.min(
-										(pagination.pageIndex + 1) * pagination.pageSize,
-										filteredData.length,
-									)}{" "}
-									of {filteredData.length} entries
-								</span>
-							</div>
-							<div className="flex items-center gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									className="h-8"
-									onClick={() => table.previousPage()}
-									disabled={!table.getCanPreviousPage()}
-								>
-									<ChevronLeft className="size-4" />
-									Previous
-								</Button>
-								<Button
-									variant="outline"
-									size="sm"
-									className="h-8"
-									onClick={() => table.nextPage()}
-									disabled={!table.getCanNextPage()}
-								>
-									Next
-									<ChevronRight className="size-4" />
-								</Button>
-							</div>
-						</div>
-					</>
-				)}
+				))}
+			</section>
+
+			<div className="flex flex-wrap items-center justify-between gap-3">
+				<div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-x-auto">
+					<Input
+						aria-label="Search deployments"
+						placeholder="Search deployments, services, projects..."
+						value={search}
+						onChange={(event) => updateSearch(event.target.value)}
+						className="min-w-[220px] flex-1 sm:w-[320px]"
+					/>
+					<Select
+						value={statusFilter}
+						onValueChange={(value) => {
+							setStatusFilter(value);
+							setPage(0);
+						}}
+					>
+						<SelectTrigger className="w-[145px]" aria-label="Filter by status">
+							<SelectValue placeholder="Status" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">All statuses</SelectItem>
+							{statuses.map((status) => (
+								<SelectItem key={status} value={status}>
+									{status}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+					<Select
+						value={typeFilter}
+						onValueChange={(value) => {
+							setTypeFilter(value as "all" | "application" | "compose");
+							setPage(0);
+						}}
+					>
+						<SelectTrigger className="w-[145px]" aria-label="Filter by service type">
+							<SelectValue placeholder="Service type" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">All service types</SelectItem>
+							<SelectItem value="application">Application</SelectItem>
+							<SelectItem value="compose">Compose</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => void refetch()}
+					disabled={isFetching}
+				>
+					<RefreshCw className={`mr-2 size-4 ${isFetching ? "animate-spin" : ""}`} />
+					Refresh
+				</Button>
 			</div>
+
+			{isLoading ? (
+				<div className="flex min-h-[30vh] items-center justify-center gap-3 text-muted-foreground">
+					<Loader2 className="size-5 animate-spin" />
+					<span>Loading deployments...</span>
+				</div>
+			) : isError ? (
+				<div className="rounded-lg border border-destructive/40 p-6 text-sm">
+					<p className="font-medium text-destructive">
+						Unable to load deployments
+					</p>
+					<p className="mt-1 text-muted-foreground">{error.message}</p>
+					<Button className="mt-4" variant="outline" onClick={() => void refetch()}>
+						Retry
+					</Button>
+				</div>
+			) : counts.total === 0 ? (
+				<div className="flex min-h-[30vh] flex-col items-center justify-center gap-2 rounded-lg border text-center text-muted-foreground">
+					<Rocket className="size-8" />
+					<p className="font-medium text-foreground">No deployments yet</p>
+					<p className="text-sm">
+						Deployments will appear here when workloads are deployed.
+					</p>
+				</div>
+			) : (
+				<>
+					<div className="overflow-x-auto rounded-lg border">
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Deployment</TableHead>
+									<TableHead>Service</TableHead>
+									<TableHead>Project / environment</TableHead>
+									<TableHead>Status</TableHead>
+									<TableHead>Duration</TableHead>
+									<TableHead>
+										<Button
+											variant="ghost"
+											size="sm"
+											className="-ml-3"
+											onClick={() =>
+												setSortOrder((current) =>
+													current === "newest" ? "oldest" : "newest",
+												)
+											}
+										>
+											Created
+											{sortOrder === "newest" ? (
+												<ArrowDown className="ml-2 size-4" />
+											) : (
+												<ArrowUp className="ml-2 size-4" />
+											)}
+										</Button>
+									</TableHead>
+									<TableHead />
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{pageItems.length > 0 ? (
+									pageItems.map((deployment) => {
+										const service = getServiceInfo(deployment);
+										const status = deployment.status ?? "running";
+										return (
+											<TableRow key={deployment.deploymentId}>
+												<TableCell className="min-w-[190px]">
+													<p className="max-w-[280px] truncate font-medium">
+														{deployment.title || "Deployment"}
+													</p>
+													<p
+														className="font-mono text-xs text-muted-foreground"
+														title={deployment.deploymentId}
+													>
+														#{deployment.deploymentId.slice(0, 8)}
+													</p>
+												</TableCell>
+												<TableCell>
+													{service ? (
+														<div className="flex items-center gap-2">
+															{service.icon ? (
+																<img
+																	src={service.icon}
+																	alt=""
+																	className="size-4 shrink-0 object-contain"
+																/>
+															) : null}
+															<span>{service.name}</span>
+															<Badge variant="outline" className="text-[10px]">
+																{service.type}
+															</Badge>
+														</div>
+													) : (
+														<span className="text-muted-foreground">
+															Not available
+														</span>
+													)}
+												</TableCell>
+												<TableCell>
+													<p>{service?.projectName ?? "Not available"}</p>
+													<p className="text-xs text-muted-foreground">
+														{service?.environmentName ?? "Not available"}
+													</p>
+												</TableCell>
+												<TableCell>
+													<Badge variant={statusVariants[status]}>
+														{status}
+													</Badge>
+												</TableCell>
+												<TableCell className="tabular-nums">
+													{getDuration(deployment, now)}
+												</TableCell>
+												<TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+													{formatDate(deployment.startedAt ?? deployment.createdAt)}
+												</TableCell>
+												<TableCell>
+													<Button
+														variant="outline"
+														size="sm"
+														onClick={() => setSelectedDeployment(deployment)}
+													>
+														Details
+													</Button>
+												</TableCell>
+											</TableRow>
+										);
+									})
+								) : (
+									<TableRow>
+										<TableCell colSpan={7} className="py-12 text-center">
+											<p className="font-medium">No matching deployments</p>
+											<p className="mt-1 text-sm text-muted-foreground">
+												Adjust the search or filters to see more results.
+											</p>
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</div>
+
+					<div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
+						<div className="flex items-center gap-2">
+							<span>Rows per page</span>
+							<Select
+								value={String(pageSize)}
+								onValueChange={(value) => {
+									setPageSize(Number(value));
+									setPage(0);
+								}}
+							>
+								<SelectTrigger className="h-8 w-[75px]">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{[10, 25, 50, 100].map((size) => (
+										<SelectItem key={size} value={String(size)}>
+											{size}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<span>
+								{(data?.total ?? 0) === 0
+									? 0
+									: page * pageSize + 1}
+								–{Math.min((page + 1) * pageSize, data?.total ?? 0)} of{" "}
+								{data?.total ?? 0}
+							</span>
+						</div>
+						<div className="flex gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={page === 0}
+								onClick={() => setPage((current) => current - 1)}
+							>
+								Previous
+							</Button>
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={page + 1 >= pageCount}
+								onClick={() => setPage((current) => current + 1)}
+							>
+								Next
+							</Button>
+						</div>
+					</div>
+				</>
+			)}
+
+			<DeploymentDetailDialog
+				deployment={selectedDeployment}
+				onOpenChange={(open) => {
+					if (!open) setSelectedDeployment(null);
+				}}
+			/>
 		</div>
 	);
 }

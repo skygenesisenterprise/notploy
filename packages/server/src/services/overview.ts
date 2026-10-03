@@ -45,6 +45,7 @@ type TypeQueryConfig = {
 	idColumn: { name: string };
 	statusColumn: { name: string };
 	hasIcon: boolean;
+	hasReplicas: boolean;
 };
 
 async function getServicesOfType(
@@ -62,6 +63,10 @@ async function getServicesOfType(
 	const iconCol = config.hasIcon
 		? ((table as unknown as Record<string, unknown>)
 				.icon as typeof applications.icon)
+		: null;
+	const replicasCol = config.hasReplicas
+		? ((table as unknown as Record<string, unknown>)
+				.replicas as typeof applications.replicas)
 		: null;
 
 	const conditions = [
@@ -85,7 +90,11 @@ async function getServicesOfType(
 
 	// Only select icon when the table has that column — other service tables don't.
 	const rows = await db
-		.select(iconCol ? { ...baseSelect, icon: iconCol } : baseSelect)
+		.select({
+			...baseSelect,
+			...(iconCol ? { icon: iconCol } : {}),
+			...(replicasCol ? { configuredReplicas: replicasCol } : {}),
+		})
 		.from(table)
 		.innerJoin(
 			environments,
@@ -98,6 +107,10 @@ async function getServicesOfType(
 	return rows.map((row) => ({
 		...row,
 		icon: "icon" in row ? (row.icon as string | null) : null,
+		configuredReplicas:
+			"configuredReplicas" in row
+				? (row.configuredReplicas as number | null)
+				: null,
 		type: config.type,
 		lastDeployAt: null,
 	}));
@@ -110,6 +123,7 @@ const SERVICE_TYPE_CONFIGS: TypeQueryConfig[] = [
 		idColumn: { name: "applicationId" },
 		statusColumn: { name: "applicationStatus" },
 		hasIcon: true,
+		hasReplicas: true,
 	},
 	{
 		type: "postgres",
@@ -117,6 +131,7 @@ const SERVICE_TYPE_CONFIGS: TypeQueryConfig[] = [
 		idColumn: { name: "postgresId" },
 		statusColumn: { name: "applicationStatus" },
 		hasIcon: false,
+		hasReplicas: true,
 	},
 	{
 		type: "mysql",
@@ -124,6 +139,7 @@ const SERVICE_TYPE_CONFIGS: TypeQueryConfig[] = [
 		idColumn: { name: "mysqlId" },
 		statusColumn: { name: "applicationStatus" },
 		hasIcon: false,
+		hasReplicas: true,
 	},
 	{
 		type: "mariadb",
@@ -131,6 +147,7 @@ const SERVICE_TYPE_CONFIGS: TypeQueryConfig[] = [
 		idColumn: { name: "mariadbId" },
 		statusColumn: { name: "applicationStatus" },
 		hasIcon: false,
+		hasReplicas: true,
 	},
 	{
 		type: "mongo",
@@ -138,6 +155,7 @@ const SERVICE_TYPE_CONFIGS: TypeQueryConfig[] = [
 		idColumn: { name: "mongoId" },
 		statusColumn: { name: "applicationStatus" },
 		hasIcon: false,
+		hasReplicas: true,
 	},
 	{
 		type: "redis",
@@ -145,6 +163,7 @@ const SERVICE_TYPE_CONFIGS: TypeQueryConfig[] = [
 		idColumn: { name: "redisId" },
 		statusColumn: { name: "applicationStatus" },
 		hasIcon: false,
+		hasReplicas: true,
 	},
 	{
 		type: "compose",
@@ -152,6 +171,7 @@ const SERVICE_TYPE_CONFIGS: TypeQueryConfig[] = [
 		idColumn: { name: "composeId" },
 		statusColumn: { name: "composeStatus" },
 		hasIcon: true,
+		hasReplicas: false,
 	},
 	{
 		type: "libsql",
@@ -159,6 +179,7 @@ const SERVICE_TYPE_CONFIGS: TypeQueryConfig[] = [
 		idColumn: { name: "libsqlId" },
 		statusColumn: { name: "applicationStatus" },
 		hasIcon: false,
+		hasReplicas: true,
 	},
 ];
 

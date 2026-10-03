@@ -18,6 +18,8 @@ import {
 	getLogCleanupStatus,
 	getUpdateData,
 	getWebServerSettings,
+	getAccessibleServerIds,
+	getRemoteDocker,
 	IS_CLOUD,
 	NOTPLOY_IMAGE,
 	parseRawConfig,
@@ -88,6 +90,35 @@ export const settingsRouter = createTRPCRouter({
 		}
 		const settings = await getWebServerSettings();
 		return settings;
+	}),
+	getControlPlaneRuntime: adminProcedure.query(async () => {
+		if (IS_CLOUD) {
+			return null;
+		}
+		const settings = await db.query.webServerSettings.findFirst({
+			orderBy: (webServerSettings, { asc }) => [
+				asc(webServerSettings.createdAt),
+			],
+			columns: {
+				serverIp: true,
+				host: true,
+				https: true,
+				certificateType: true,
+				letsEncryptEmail: true,
+			},
+		});
+
+		return {
+			bindAddress: process.env.HOST || "0.0.0.0",
+			httpPort: Number.parseInt(process.env.PORT || "3000", 10),
+			uptimeSeconds: Math.floor(process.uptime()),
+			version: packageInfo.version,
+			serverIp: settings?.serverIp ?? null,
+			host: settings?.host ?? null,
+			https: settings?.https ?? false,
+			certificateType: settings?.certificateType ?? "none",
+			letsEncryptEmail: settings?.letsEncryptEmail ?? null,
+		};
 	}),
 	reloadServer: adminProcedure.mutation(async ({ ctx }) => {
 		if (IS_CLOUD) {
@@ -309,7 +340,11 @@ export const settingsRouter = createTRPCRouter({
 				resourceType: "settings",
 				resourceName: "assign-domain-server",
 			});
-			return settings;
+			return {
+				host: settings.host,
+				https: settings.https,
+				certificateType: settings.certificateType,
+			};
 		}),
 	cleanSSHPrivateKey: adminProcedure.mutation(async ({ ctx }) => {
 		if (IS_CLOUD) {
@@ -592,6 +627,226 @@ export const settingsRouter = createTRPCRouter({
 			} catch (error) {
 				throw error;
 			}
+		}),
+	getTraefikOverview: protectedProcedure
+		.input(apiServerSchema)
+		.query(async ({ ctx, input }) => {
+			await checkPermission(ctx, { traefikFiles: ["read"] });
+			const serverId = input?.serverId;
+
+			if (serverId) {
+				const accessibleServerIds = await getAccessibleServerIds({
+					userId: ctx.session.userId,
+					activeOrganizationId: ctx.session.activeOrganizationId,
+				});
+				if (!accessibleServerIds.has(serverId)) {
+					throw new TRPCError({ code: "UNAUTHORIZED" });
+				}
+			}
+
+			const { MAIN_TRAEFIK_PATH, DYNAMIC_TRAEFIK_PATH } = paths(!!serverId);
+			const mainConfig = await readConfigInPath(
+				`${MAIN_TRAEFIK_PATH}/traefik.yml`,
+				serverId,
+			);
+			let staticConfig: Record<string, unknown> = {};
+			let configParseErrors = 0;
+			if (mainConfig) {
+				try {
+					staticConfig = (parse(mainConfig) as Record<string, unknown>) ?? {};
+				} catch {
+					configParseErrors++;
+				}
+			}
+			const rawEntryPoints = staticConfig.entryPoints;
+			const entryPoints =
+				rawEntryPoints && typeof rawEntryPoints === "object"
+					? Object.entries(rawEntryPoints).map(([name, value]) => {
+							const address =
+								value && typeof value === "object"
+									? (value as Record<string, unknown>).address
+									: undefined;
+							return {
+								name,
+								address: typeof address === "string" ? address : null,
+							};
+						})
+					: [];
+
+			const flattenFiles = (
+				nodes: Awaited<ReturnType<typeof readDirectory>>,
+			): string[] =>
+				nodes.flatMap((node) => {
+					if (node.type === "directory") {
+						return flattenFiles(node.children ?? []);
+					}
+					return /\.(yaml|yml)$/i.test(node.name) ? [node.id] : [];
+				});
+			const dynamicRoot = await readDirectory(DYNAMIC_TRAEFIK_PATH, serverId);
+			const allConfigFiles = flattenFiles(dynamicRoot);
+			const configFiles = allConfigFiles.slice(0, 200);
+			const configs = await Promise.all(
+				configFiles.map(async (file) => {
+					const content = await readConfigInPath(file, serverId);
+					if (!content) return null;
+					try {
+						const parsed = parse(content);
+						return parsed && typeof parsed === "object"
+							? (parsed as Record<string, unknown>)
+							: null;
+					} catch {
+						configParseErrors++;
+						return null;
+					}
+				}),
+			);
+
+			const routers: Array<{
+				name: string;
+				rule: string | null;
+				entryPoints: string[];
+				service: string | null;
+				middlewares: string[];
+				tls: boolean;
+				provider: string;
+			}> = [];
+			const services: Array<{
+				name: string;
+				provider: string;
+				type: string;
+				serverCount: number | null;
+			}> = [];
+			const middlewares: Array<{ name: string; type: string }> = [];
+			const objectEntries = (value: unknown) =>
+				value && typeof value === "object" && !Array.isArray(value)
+					? Object.entries(value as Record<string, unknown>)
+					: [];
+
+			for (const config of configs) {
+				if (!config) continue;
+				const http =
+					config.http && typeof config.http === "object"
+						? (config.http as Record<string, unknown>)
+						: {};
+				for (const [name, rawRouter] of objectEntries(http.routers)) {
+					if (!rawRouter || typeof rawRouter !== "object") continue;
+					const router = rawRouter as Record<string, unknown>;
+					routers.push({
+						name,
+						rule: typeof router.rule === "string" ? router.rule : null,
+						entryPoints: Array.isArray(router.entryPoints)
+							? router.entryPoints.filter(
+									(value): value is string => typeof value === "string",
+								)
+							: [],
+						service: typeof router.service === "string" ? router.service : null,
+						middlewares: Array.isArray(router.middlewares)
+							? router.middlewares.filter(
+									(value): value is string => typeof value === "string",
+								)
+							: [],
+						tls: Boolean(router.tls),
+						provider: "file",
+					});
+				}
+				for (const [name, rawService] of objectEntries(http.services)) {
+					if (!rawService || typeof rawService !== "object") continue;
+					const service = rawService as Record<string, unknown>;
+					const type = Object.keys(service)[0] ?? "unknown";
+					const loadBalancer = service.loadBalancer;
+					const servers =
+						loadBalancer && typeof loadBalancer === "object"
+							? (loadBalancer as Record<string, unknown>).servers
+							: undefined;
+					services.push({
+						name,
+						provider: "file",
+						type,
+						serverCount: Array.isArray(servers) ? servers.length : null,
+					});
+				}
+				for (const [name, rawMiddleware] of objectEntries(http.middlewares)) {
+					if (!rawMiddleware || typeof rawMiddleware !== "object") continue;
+					middlewares.push({
+						name,
+						type: Object.keys(rawMiddleware as Record<string, unknown>)[0] ?? "unknown",
+					});
+				}
+			}
+
+			let status: "running" | "unavailable" = "unavailable";
+			let version: string | null = null;
+			try {
+				const docker = await getRemoteDocker(serverId);
+				const containers = await docker.listContainers({ all: true });
+				for (const container of containers) {
+					const labels = container.Labels ?? {};
+					const routerNames = new Set<string>();
+					for (const key of Object.keys(labels)) {
+						const match = key.match(
+							/^traefik\.http\.routers\.([^.]+)\.(?:rule|entrypoints|service|middlewares|tls(?:\..*)?)$/i,
+						);
+						if (match) routerNames.add(match[1]);
+					}
+					for (const name of routerNames) {
+						const prefix = `traefik.http.routers.${name}.`;
+						const label = (key: string) => labels[`${prefix}${key}`];
+						routers.push({
+							name,
+							rule: label("rule") ?? null,
+							entryPoints: (label("entrypoints") ?? "")
+								.split(",")
+								.map((value) => value.trim())
+								.filter(Boolean),
+							service: label("service") ?? null,
+							middlewares: (label("middlewares") ?? "")
+								.split(",")
+								.map((value) => value.trim())
+								.filter(Boolean),
+							tls: label("tls") === "true" || Object.keys(labels).some(
+								(key) => key.startsWith(`${prefix}tls.`),
+							),
+							provider: "docker",
+						});
+					}
+				}
+				try {
+					const container = await docker
+						.getContainer("notploy-traefik")
+						.inspect();
+					if (container.State?.Running) {
+						status = "running";
+						version = container.Config?.Image ?? null;
+					}
+				} catch {
+					const service = await docker
+						.getService("notploy-traefik")
+						.inspect();
+					const replicas = service.Spec?.Mode?.Replicated?.Replicas;
+					const tasks = await docker.listTasks({
+						filters: { service: [service.ID], desiredState: ["running"] },
+					});
+					if (tasks.length > 0) {
+						status = "running";
+						version = service.Spec?.TaskTemplate?.ContainerSpec?.Image ?? null;
+					}
+					if (replicas === 0) status = "unavailable";
+				}
+			} catch {
+				status = "unavailable";
+			}
+
+			return {
+				status,
+				version,
+				entryPoints,
+				routers,
+				services,
+				middlewares,
+				configFileCount: configFiles.length,
+				configFileLimitReached: allConfigFiles.length > 200,
+				configParseErrors,
+			};
 		}),
 
 	updateTraefikFile: protectedProcedure

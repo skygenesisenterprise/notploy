@@ -15,13 +15,7 @@ import { toast } from "sonner";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { CardDescription } from "@/components/ui/card";
 import {
 	Dialog,
 	DialogContent,
@@ -85,7 +79,13 @@ export const SSOSettings = () => {
 	const [editingValue, setEditingValue] = useState("");
 	const [newOriginInput, setNewOriginInput] = useState("");
 
-	const { data: providers, isPending } = api.sso.listProviders.useQuery();
+	const {
+		data: providers,
+		isPending,
+		isError,
+		error,
+		refetch,
+	} = api.sso.listProviders.useQuery();
 	const { data: trustedOrigins = [] } = api.sso.getTrustedOrigins.useQuery(
 		undefined,
 		{ enabled: manageOriginsOpen },
@@ -159,16 +159,12 @@ export const SSOSettings = () => {
 	};
 
 	return (
-		<div className="flex flex-col gap-4 rounded-lg border p-4">
+		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-				<div className="flex flex-col gap-2">
-					<div className="flex items-center gap-2">
-						<LogIn className="size-6 text-muted-foreground" />
-						<CardTitle className="text-xl">Single Sign-On (SSO)</CardTitle>
-					</div>
+				<div className="space-y-1">
+					<h1 className="text-3xl font-semibold tracking-tight">SSO</h1>
 					<CardDescription>
-						Configure OIDC or SAML identity providers for enterprise sign-in.
-						Users can sign in with their organization&apos;s IdP.
+						Connect Notploy to external identity providers.
 					</CardDescription>
 				</div>
 				<div className="flex flex-wrap gap-2 shrink-0">
@@ -189,175 +185,185 @@ export const SSOSettings = () => {
 				</div>
 			</div>
 
-			{isPending ? (
-				<div className="flex items-center gap-2 justify-center min-h-[25vh]">
-					<Loader2 className="size-6 text-muted-foreground animate-spin" />
-					<span className="text-sm text-muted-foreground">
-						Loading providers...
-					</span>
+			<section className="space-y-3">
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<div className="space-y-1">
+						<h2 className="text-lg font-semibold">Identity providers</h2>
+						<p className="text-sm text-muted-foreground">
+							Configure OIDC or SAML sign-in for this organization.
+						</p>
+					</div>
+					<div className="flex flex-wrap gap-2">
+						<RegisterOidcDialog>
+							<Button size="sm">
+								<Plus className="mr-2 size-4" />
+								Add OIDC provider
+							</Button>
+						</RegisterOidcDialog>
+						<RegisterSamlDialog>
+							<Button variant="outline" size="sm">
+								Add SAML provider
+							</Button>
+						</RegisterSamlDialog>
+					</div>
 				</div>
-			) : (
-				<>
-					{providers && providers.length > 0 && (
-						<div className="flex flex-wrap items-center gap-2">
-							<RegisterOidcDialog>
-								<Button variant="secondary" size="sm">
-									<LogIn className="mr-2 size-4" />
-									Add OIDC provider
-								</Button>
-							</RegisterOidcDialog>
-							<RegisterSamlDialog>
-								<Button variant="secondary" size="sm">
-									<LogIn className="mr-2 size-4" />
-									Add SAML provider
-								</Button>
-							</RegisterSamlDialog>
-						</div>
-					)}
 
-					{providers && providers.length > 0 ? (
-						<div className="space-y-3">
-							<span className="text-sm font-medium">Registered providers</span>
-							<div className="grid gap-3 sm:grid-cols-2">
-								{providers.map((provider) => {
-									const isOidc = !!provider.oidcConfig;
-									const isSaml = !!provider.samlConfig;
+				{isPending ? (
+					<div className="flex min-h-40 items-center justify-center gap-2 rounded-md border text-sm text-muted-foreground">
+						<Loader2 className="size-4 animate-spin" />
+						Loading identity providers...
+					</div>
+				) : isError ? (
+					<div
+						role="alert"
+						className="flex min-h-40 flex-col items-center justify-center gap-3 rounded-md border p-6 text-center"
+					>
+						<p className="text-sm text-destructive">
+							Unable to load identity providers: {error.message}
+						</p>
+						<Button variant="outline" size="sm" onClick={() => void refetch()}>
+							Try again
+						</Button>
+					</div>
+				) : providers?.length ? (
+					<div className="divide-y rounded-md border">
+						{providers.map((provider) => {
+							const isOidc = !!provider.oidcConfig;
+							const isSaml = !!provider.samlConfig;
+							const protocols = [
+								isOidc ? "OIDC" : null,
+								isSaml ? "SAML" : null,
+							].filter(Boolean);
 
-									return (
-										<Card
-											key={provider.id}
-											className="overflow-hidden bg-background"
-										>
-											<CardHeader className="pb-2">
-												<div className="flex items-start justify-between gap-2">
-													<div className="flex flex-col gap-1">
-														<CardTitle className="text-base font-medium">
-															{provider.providerId}
-														</CardTitle>
-														<CardDescription className="text-xs">
-															{provider.issuer}
-														</CardDescription>
-														<div className="flex flex-wrap gap-1 mt-1">
-															<Badge variant="secondary" className="text-xs">
-																{provider.domain}
-															</Badge>
-															{isOidc && (
-																<Badge variant="outline" className="text-xs">
-																	OIDC
-																</Badge>
-															)}
-															{isSaml && (
-																<Badge variant="outline" className="text-xs">
-																	SAML
-																</Badge>
-															)}
-														</div>
-													</div>
-												</div>
-											</CardHeader>
-											<CardContent className="flex flex-wrap gap-2 pt-0">
-												<Button
-													variant="ghost"
-													size="sm"
-													onClick={() =>
-														setDetailsProvider({
-															id: provider.id,
-															providerId: provider.providerId,
-															issuer: provider.issuer,
-															domain: provider.domain,
-															oidcConfig: provider.oidcConfig,
-															samlConfig: provider.samlConfig,
-															organizationId: provider.organizationId,
-														})
-													}
+							return (
+								<div
+									key={provider.id}
+									className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+								>
+									<div className="min-w-0 space-y-1">
+										<div className="flex flex-wrap items-center gap-2">
+											<h3 className="font-medium">{provider.providerId}</h3>
+											{protocols.map((protocol) => (
+												<Badge
+													key={protocol}
+													variant="outline"
+													className="text-xs"
 												>
-													<Eye className="mr-1 size-3" />
-													View details
-												</Button>
-												{isOidc && (
-													<RegisterOidcDialog providerId={provider.providerId}>
-														<Button variant="ghost" size="sm">
-															<Pencil className="mr-1 size-3" />
-															Edit
-														</Button>
-													</RegisterOidcDialog>
-												)}
-												{isSaml && (
-													<RegisterSamlDialog providerId={provider.providerId}>
-														<Button variant="ghost" size="sm">
-															<Pencil className="mr-1 size-3" />
-															Edit
-														</Button>
-													</RegisterSamlDialog>
-												)}
-												<DialogAction
-													title="Remove SSO provider"
-													description={`Remove provider "${provider.providerId}"? Users will no longer be able to sign in with this IdP.`}
-													type="destructive"
-													onClick={async () => {
-														try {
-															await deleteProvider({
-																providerId: provider.providerId,
-															});
-															toast.success("Provider removed");
-															await utils.sso.listProviders.invalidate();
-														} catch (err) {
-															toast.error(
-																err instanceof Error
-																	? err.message
-																	: "Failed to remove provider",
-															);
-														}
-													}}
-												>
-													<Button
-														variant="ghost"
-														size="sm"
-														className="text-destructive hover:text-destructive"
-														disabled={isDeleting}
+													{protocol}
+												</Badge>
+											))}
+											<Badge variant="secondary" className="text-xs">
+												Configured
+											</Badge>
+										</div>
+										<p className="break-all text-sm text-muted-foreground">
+											{provider.issuer}
+										</p>
+										<div className="flex flex-wrap gap-1">
+											{provider.domain
+												.split(",")
+												.map((domain) => domain.trim())
+												.filter(Boolean)
+												.map((domain) => (
+													<Badge
+														key={domain}
+														variant="secondary"
+														className="text-xs"
 													>
-														<Trash2 className="mr-1 size-3" />
-														Remove
-													</Button>
-												</DialogAction>
-											</CardContent>
-										</Card>
-									);
-								})}
-							</div>
-						</div>
-					) : (
-						<div className="flex flex-col items-center gap-4 justify-center min-h-[30vh] text-center">
-							<div className="flex flex-col items-center gap-2 max-w-[400px]">
-								<div className="rounded-full bg-muted p-4">
-									<LogIn className="size-8 text-muted-foreground" />
+														{domain}
+													</Badge>
+												))}
+										</div>
+									</div>
+									<div className="flex shrink-0 flex-wrap items-center gap-1">
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() =>
+												setDetailsProvider({
+													id: provider.id,
+													providerId: provider.providerId,
+													issuer: provider.issuer,
+													domain: provider.domain,
+													oidcConfig: provider.oidcConfig,
+													samlConfig: provider.samlConfig,
+													organizationId: provider.organizationId,
+												})
+											}
+										>
+											<Eye className="mr-1 size-4" />
+											Manage
+										</Button>
+										{isOidc && (
+											<RegisterOidcDialog providerId={provider.providerId}>
+												<Button variant="ghost" size="sm">
+													<Pencil className="mr-1 size-4" />
+													Edit
+												</Button>
+											</RegisterOidcDialog>
+										)}
+										{isSaml && (
+											<RegisterSamlDialog providerId={provider.providerId}>
+												<Button variant="ghost" size="sm">
+													<Pencil className="mr-1 size-4" />
+													Edit
+												</Button>
+											</RegisterSamlDialog>
+										)}
+										<DialogAction
+											title="Remove identity provider"
+											description={`Remove "${provider.providerId}"? Users will no longer be able to use this provider to sign in.`}
+											type="destructive"
+											onClick={async () => {
+												try {
+													await deleteProvider({
+														providerId: provider.providerId,
+													});
+													toast.success("Identity provider removed");
+													await utils.sso.listProviders.invalidate();
+												} catch (err) {
+													toast.error(
+														err instanceof Error
+															? err.message
+															: "Unable to remove identity provider",
+													);
+												}
+											}}
+										>
+											<Button
+												variant="ghost"
+												size="icon"
+												aria-label={`Remove ${provider.providerId}`}
+												className="text-destructive hover:text-destructive"
+												disabled={isDeleting}
+											>
+												<Trash2 className="size-4" />
+											</Button>
+										</DialogAction>
+									</div>
 								</div>
-								<div className="space-y-1">
-									<h3 className="text-lg font-semibold">No SSO providers</h3>
-									<p className="text-sm text-muted-foreground">
-										Add an OIDC or SAML provider so users can sign in with their
-										organization&apos;s IdP (e.g. Okta, Azure AD).
-									</p>
-								</div>
-							</div>
-							<div className="flex flex-wrap gap-2 justify-center">
-								<RegisterOidcDialog>
-									<Button variant="secondary">
-										<LogIn className="mr-2 size-4" />
-										Add OIDC provider
-									</Button>
-								</RegisterOidcDialog>
-								<RegisterSamlDialog>
-									<Button variant="outline">
-										<LogIn className="mr-2 size-4" />
-										Add SAML provider
-									</Button>
-								</RegisterSamlDialog>
-							</div>
-						</div>
-					)}
-				</>
-			)}
+							);
+						})}
+					</div>
+				) : (
+					<div className="flex min-h-40 flex-col items-center justify-center gap-2 rounded-md border border-dashed p-6 text-center">
+						<LogIn className="size-7 text-muted-foreground" aria-hidden />
+						<p className="text-sm font-medium">
+							No identity providers configured.
+						</p>
+						<p className="max-w-lg text-sm text-muted-foreground">
+							Add an OIDC or SAML provider to let users authenticate with an
+							external identity. Providers are available to the sign-in flow
+							once registered.
+						</p>
+					</div>
+				)}
+				<p className="text-xs text-muted-foreground">
+					The backend supports OIDC and SAML. Provider configuration is used by
+					the sign-in flow; separate connection testing and enable/disable
+					controls are not available.
+				</p>
+			</section>
 
 			<Dialog
 				open={!!detailsProvider}

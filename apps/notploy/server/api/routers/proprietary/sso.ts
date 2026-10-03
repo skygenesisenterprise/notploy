@@ -1,7 +1,7 @@
 import { normalizeTrustedOrigin } from "@notploy/server";
 import { IS_CLOUD } from "@notploy/server/constants";
 import { db } from "@notploy/server/db";
-import { member, ssoProvider, user } from "@notploy/server/db/schema";
+import { ssoProvider, user } from "@notploy/server/db/schema";
 import { ssoProviderBodySchema } from "@notploy/server/db/schema/sso";
 import {
 	getOrganizationOwnerId,
@@ -14,10 +14,94 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import {
-	createTRPCRouter,
 	adminProcedure,
+	createTRPCRouter,
 	publicProcedure,
 } from "@/server/api/trpc";
+import { audit } from "@/server/api/utils/audit";
+
+function stripSensitiveSsoConfigValue(value: unknown): unknown {
+	if (Array.isArray(value)) {
+		return value.map(stripSensitiveSsoConfigValue);
+	}
+	if (!value || typeof value !== "object") return value;
+
+	return Object.fromEntries(
+		Object.entries(value).flatMap(([key, entry]) => {
+			if (
+				/secret|token|password|private.?key|credential|certificate|^cert$|metadata/i.test(
+					key,
+				)
+			) {
+				return [];
+			}
+			return [[key, stripSensitiveSsoConfigValue(entry)]];
+		}),
+	);
+}
+
+function sanitizeSsoConfig(config: string | null) {
+	if (!config) return config;
+	try {
+		return JSON.stringify(stripSensitiveSsoConfigValue(JSON.parse(config)));
+	} catch {
+		return null;
+	}
+}
+
+function preserveStoredSsoConfig<T>(stored: string | null, updated: T): T {
+	if (!stored || !updated || typeof updated !== "object") return updated;
+	let previous: unknown;
+	try {
+		previous = JSON.parse(stored);
+	} catch {
+		return updated;
+	}
+
+	const merge = (
+		oldValue: unknown,
+		newValue: unknown,
+		key?: string,
+	): unknown => {
+		if (
+			newValue === undefined ||
+			(newValue === "" &&
+				!!key &&
+				/secret|token|password|private.?key|credential|certificate|^cert$/i.test(
+					key,
+				) &&
+				typeof oldValue === "string" &&
+				oldValue.length > 0)
+		) {
+			return oldValue;
+		}
+		if (
+			newValue &&
+			oldValue &&
+			typeof newValue === "object" &&
+			typeof oldValue === "object" &&
+			!Array.isArray(newValue) &&
+			!Array.isArray(oldValue)
+		) {
+			const merged = { ...oldValue, ...newValue };
+			for (const key of Object.keys(oldValue)) {
+				if (!(key in newValue)) {
+					merged[key] = (oldValue as Record<string, unknown>)[key];
+				} else {
+					merged[key] = merge(
+						(oldValue as Record<string, unknown>)[key],
+						(newValue as Record<string, unknown>)[key],
+						key,
+					);
+				}
+			}
+			return merged;
+		}
+		return newValue;
+	};
+
+	return merge(previous, updated) as T;
+}
 
 export const ssoRouter = createTRPCRouter({
 	/**
@@ -47,7 +131,11 @@ export const ssoRouter = createTRPCRouter({
 			},
 			orderBy: [asc(ssoProvider.createdAt)],
 		});
-		return providers;
+		return providers.map((provider) => ({
+			...provider,
+			oidcConfig: sanitizeSsoConfig(provider.oidcConfig),
+			samlConfig: sanitizeSsoConfig(provider.samlConfig),
+		}));
 	}),
 	getTrustedOrigins: adminProcedure.query(async ({ ctx }) => {
 		const ownerId = await getOrganizationOwnerId(
@@ -85,7 +173,11 @@ export const ssoRouter = createTRPCRouter({
 						"SSO provider not found or you do not have permission to access it",
 				});
 			}
-			return provider;
+			return {
+				...provider,
+				oidcConfig: sanitizeSsoConfig(provider.oidcConfig),
+				samlConfig: sanitizeSsoConfig(provider.samlConfig),
+			};
 		}),
 	update: adminProcedure
 		.input(ssoProviderBodySchema)
@@ -100,6 +192,8 @@ export const ssoRouter = createTRPCRouter({
 					issuer: true,
 					domain: true,
 					userId: true,
+					oidcConfig: true,
+					samlConfig: true,
 				},
 			});
 
@@ -182,16 +276,45 @@ export const ssoRouter = createTRPCRouter({
 				providerId: input.providerId,
 			};
 			if (input.oidcConfig != null) {
-				updateBody.oidcConfig = input.oidcConfig;
+				const oidcConfig = preserveStoredSsoConfig(
+					existing.oidcConfig,
+					input.oidcConfig,
+				);
+				if (!oidcConfig.clientSecret.trim()) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "OIDC client secret is required",
+					});
+				}
+				updateBody.oidcConfig = oidcConfig;
 			}
 			if (input.samlConfig != null) {
-				updateBody.samlConfig = input.samlConfig;
+				const samlConfig = preserveStoredSsoConfig(
+					existing.samlConfig,
+					input.samlConfig,
+				);
+				if (!samlConfig.cert.trim()) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "SAML signing certificate is required",
+					});
+				}
+				updateBody.samlConfig = samlConfig;
 			}
 
 			await auth.updateSSOProvider({
 				params: { providerId: input.providerId },
 				body: updateBody,
 				headers: requestToHeaders(ctx.req),
+			});
+			await audit(ctx, {
+				action: "update",
+				resourceType: "settings",
+				resourceId: existing.id,
+				resourceName: `Identity provider ${input.providerId}`,
+				metadata: {
+					protocol: input.oidcConfig ? "OIDC" : "SAML",
+				},
 			});
 			return { success: true };
 		}),
@@ -237,11 +360,29 @@ export const ssoRouter = createTRPCRouter({
 				});
 			}
 
+			await audit(ctx, {
+				action: "delete",
+				resourceType: "settings",
+				resourceId: providerToDelete.id,
+				resourceName: `Identity provider ${input.providerId}`,
+			});
 			return { success: true };
 		}),
 	register: adminProcedure
 		.input(ssoProviderBodySchema)
 		.mutation(async ({ ctx, input }) => {
+			if (input.oidcConfig && !input.oidcConfig.clientSecret.trim()) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "OIDC client secret is required",
+				});
+			}
+			if (input.samlConfig && !input.samlConfig.cert.trim()) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "SAML signing certificate is required",
+				});
+			}
 			const organizationId = ctx.session.activeOrganizationId;
 
 			const providers = await db.query.ssoProvider.findMany({
@@ -272,6 +413,14 @@ export const ssoRouter = createTRPCRouter({
 					domain,
 				},
 				headers: requestToHeaders(ctx.req),
+			});
+			await audit(ctx, {
+				action: "create",
+				resourceType: "settings",
+				resourceName: `Identity provider ${input.providerId}`,
+				metadata: {
+					protocol: input.oidcConfig ? "OIDC" : "SAML",
+				},
 			});
 			return { success: true };
 		}),

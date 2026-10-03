@@ -60,7 +60,7 @@ const oidcProviderSchema = z.object({
 	issuer: z.string().min(1, "Issuer URL is required").url("Invalid URL").trim(),
 	domains: domainsArraySchema,
 	clientId: z.string().min(1, "Client ID is required").trim(),
-	clientSecret: z.string().min(1, "Client secret is required"),
+	clientSecret: z.string(),
 	scopes: scopesArraySchema,
 	mapping: mappingSchema,
 });
@@ -134,7 +134,6 @@ const formDefaultValues = {
 
 function parseOidcConfig(oidcConfig: string | null): {
 	clientId?: string;
-	clientSecret?: string;
 	scopes?: string[];
 	mapping?: Partial<ClaimMapping>;
 } | null {
@@ -142,13 +141,11 @@ function parseOidcConfig(oidcConfig: string | null): {
 	try {
 		const parsed = JSON.parse(oidcConfig) as {
 			clientId?: string;
-			clientSecret?: string;
 			scopes?: string[];
 			mapping?: Partial<ClaimMapping>;
 		};
 		return {
 			clientId: parsed.clientId,
-			clientSecret: parsed.clientSecret,
 			scopes: Array.isArray(parsed.scopes) ? parsed.scopes : undefined,
 			mapping:
 				parsed.mapping && typeof parsed.mapping === "object"
@@ -225,7 +222,7 @@ export function RegisterOidcDialog({
 			issuer: data.issuer,
 			domains,
 			clientId: oidc?.clientId ?? "",
-			clientSecret: oidc?.clientSecret ?? "",
+			clientSecret: "",
 			scopes:
 				oidc?.scopes && oidc.scopes.length > 0
 					? oidc.scopes
@@ -257,6 +254,12 @@ export function RegisterOidcDialog({
 	const isSubmitting = form.formState.isSubmitting;
 
 	const onSubmit = async (data: OidcProviderForm) => {
+		if (!isEdit && !data.clientSecret.trim()) {
+			form.setError("clientSecret", {
+				message: "Client secret is required",
+			});
+			return;
+		}
 		try {
 			const scopes = data.scopes.filter(Boolean).length
 				? data.scopes.filter(Boolean)
@@ -452,10 +455,20 @@ export function RegisterOidcDialog({
 									<FormControl>
 										<Input
 											type="password"
-											placeholder="Client secret from IdP"
+											placeholder={
+												isEdit
+													? "Leave blank to keep the current secret"
+													: "Client secret from IdP"
+											}
 											{...field}
 										/>
 									</FormControl>
+									{isEdit && (
+										<FormDescription>
+											The saved secret is never displayed. Enter a value only to
+											replace it.
+										</FormDescription>
+									)}
 									<FormMessage />
 								</FormItem>
 							)}

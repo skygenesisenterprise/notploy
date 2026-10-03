@@ -5,6 +5,7 @@ import {
 	findAllDeploymentsByComposeId,
 	findAllDeploymentsByServerId,
 	findAllDeploymentsCentralized,
+	findDeploymentsCentralizedPage,
 	findHomeDeploymentsCentralized,
 	findDeploymentById,
 	findScheduleById,
@@ -110,6 +111,29 @@ export const deploymentRouter = createTRPCRouter({
 			return findAllDeploymentsCentralized(orgId, accessedServices);
 		},
 	),
+	centralizedPage: withPermission("deployment", "read")
+		.input(
+			z.object({
+				offset: z.number().int().min(0).default(0),
+				limit: z.number().int().min(1).max(100).default(25),
+				status: z.enum(["running", "done", "error", "cancelled"]).optional(),
+				type: z.enum(["application", "compose"]).optional(),
+				search: z.string().trim().max(200).optional(),
+				sortOrder: z.enum(["newest", "oldest"]).default("newest"),
+			}),
+		)
+		.query(async ({ input, ctx }) => {
+			const orgId = ctx.session.activeOrganizationId;
+			const accessedServices =
+				ctx.user.role !== "owner" && ctx.user.role !== "admin"
+					? (await findMemberByUserId(ctx.user.id, orgId)).accessedServices
+					: null;
+			return findDeploymentsCentralizedPage(
+				orgId,
+				accessedServices,
+				input,
+			);
+		}),
 	homeActivity: withPermission("deployment", "read").query(async ({ ctx }) => {
 		const orgId = ctx.session.activeOrganizationId;
 		const accessedServices =
