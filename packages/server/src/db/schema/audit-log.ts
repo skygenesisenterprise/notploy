@@ -48,6 +48,7 @@ export type AuditAction =
 	| "create"
 	| "update"
 	| "delete"
+	| "read"
 	| "deploy"
 	| "cancel"
 	| "redeploy"

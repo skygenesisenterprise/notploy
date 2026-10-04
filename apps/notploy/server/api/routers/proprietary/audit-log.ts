@@ -15,6 +15,7 @@ export const auditLogRouter = createTRPCRouter({
 						"create",
 						"update",
 						"delete",
+						"read",
 						"deploy",
 						"cancel",
 						"redeploy",

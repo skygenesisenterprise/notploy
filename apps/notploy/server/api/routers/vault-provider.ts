@@ -2,8 +2,11 @@ import {
 	createVaultProvider,
 	findVaultProviderInOrganization,
 	findVaultProvidersByOrganizationId,
+	getVaultProviderHealth,
 	isVaultProviderAssigned,
+	listVaultProviderDescriptors,
 	listVaultProviderSecretNames,
+	listVaultProviderSecrets,
 	maskVaultProviderConfig,
 	mergeVaultProviderConfig,
 	removeVaultProvider,
@@ -157,8 +160,45 @@ export const vaultProviderRouter = createTRPCRouter({
 					message:
 						"This vault provider is not enabled for the given project/environment",
 				});
-			}
+			}	return await listVaultProviderSecretNames(provider.config);
+	}),
 
-			return await listVaultProviderSecretNames(provider.config);
+	/**
+	 * Capability matrix for every provider type, so the Console can show what a
+	 * provider supports before it is connected.
+	 */
+	descriptors: withPermission("vaultProvider", "read").query(() =>
+		listVaultProviderDescriptors(),
+	),
+
+	health: withPermission("vaultProvider", "read")
+		.input(apiFindOneVaultProvider)
+		.query(async ({ ctx, input }) => {
+			const provider = await findVaultProviderInOrganization(
+				input.vaultProviderId,
+				ctx.session.activeOrganizationId,
+			);
+			return await getVaultProviderHealth(provider.config);
+		}),
+
+	/**
+	 * Secret metadata (names only) for a connected provider. Values are never
+	 * returned, and the read is auditable.
+	 */
+	listSecrets: withPermission("vaultProvider", "read")
+		.input(apiFindOneVaultProvider)
+		.query(async ({ ctx, input }) => {
+			const provider = await findVaultProviderInOrganization(
+				input.vaultProviderId,
+				ctx.session.activeOrganizationId,
+			);
+			const secretNames = await listVaultProviderSecrets(provider.config);
+			await audit(ctx, {
+				action: "read",
+				resourceType: "vaultProvider",
+				resourceId: provider.vaultProviderId,
+				resourceName: provider.name,
+			});
+			return { secretNames, count: secretNames.length };
 		}),
 });

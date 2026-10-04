@@ -56,7 +56,6 @@ import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
@@ -1038,7 +1037,7 @@ const EnvironmentPage = (
 							<CardHeader className="p-0">
 								<CardTitle className="text-xl flex flex-row gap-2 items-center">
 									<FolderInput className="size-6 text-muted-foreground self-center" />
-									<p className="text-base font-medium max-w-[250px] truncate">
+									<p className="text-base font-medium max-w-62.5 truncate">
 										{currentEnvironment.project.name}
 									</p>
 									<AdvancedEnvironmentSelector
@@ -1067,7 +1066,7 @@ const EnvironmentPage = (
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent
-												className="w-[200px] space-y-2"
+												className="w-50 space-y-2"
 												align="end"
 											>
 												<DropdownMenuLabel className="text-sm font-normal">
@@ -1481,7 +1480,7 @@ const EnvironmentPage = (
 											<Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 										</div>
 										<Select value={sortBy} onValueChange={setSortBy}>
-											<SelectTrigger className="lg:w-[280px]">
+											<SelectTrigger className="lg:w-70">
 												<SelectValue placeholder="Sort by..." />
 											</SelectTrigger>
 											<SelectContent>
@@ -1505,7 +1504,7 @@ const EnvironmentPage = (
 												<Button
 													variant="outline"
 													aria-expanded={openCombobox}
-													className="min-w-[200px] justify-between"
+													className="min-w-50 justify-between"
 												>
 													{selectedTypes.length === 0
 														? "Select types..."
@@ -1513,7 +1512,7 @@ const EnvironmentPage = (
 													<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 												</Button>
 											</PopoverTrigger>
-											<PopoverContent className="w-[200px] p-0">
+											<PopoverContent className="w-50 p-0">
 												<Command>
 													<CommandInput placeholder="Search type..." />
 													<CommandEmpty>No type found.</CommandEmpty>
@@ -1568,7 +1567,7 @@ const EnvironmentPage = (
 												value={selectedServerId || "all"}
 												onValueChange={setSelectedServerId}
 											>
-												<SelectTrigger className="lg:w-[200px]">
+												<SelectTrigger className="lg:w-50">
 													<SelectValue placeholder="Filter by server..." />
 												</SelectTrigger>
 												<SelectContent>

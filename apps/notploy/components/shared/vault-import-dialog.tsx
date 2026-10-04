@@ -1,5 +1,7 @@
-import { DownloadIcon, Loader2 } from "lucide-react";
+import { KeyRound, Loader2, RefreshCw } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import { vaultProviderLabel } from "@/components/dashboard/settings/vault/vault-provider-meta";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -79,8 +81,11 @@ export const VaultImportDialog = ({
 	const [vaultProviderId, setVaultProviderId] = useState<string | undefined>();
 	const [selected, setSelected] = useState<Set<string>>(new Set());
 	const [keyOverrides, setKeyOverrides] = useState<Record<string, string>>({});
+	const [manualKey, setManualKey] = useState("");
+	const [manualSecret, setManualSecret] = useState("");
 
-	const { data: allProviders } = api.vaultProvider.all.useQuery();
+	const providersQuery = api.vaultProvider.all.useQuery();
+	const allProviders = providersQuery.data;
 	const providers = useMemo(
 		() =>
 			(allProviders ?? []).filter((provider) =>
@@ -100,15 +105,20 @@ export const VaultImportDialog = ({
 		(p) => p.vaultProviderId === activeProviderId,
 	);
 
-	const { data: secretNames, isLoading } =
-		api.vaultProvider.listSecretNames.useQuery(
-			{
-				vaultProviderId: activeProviderId!,
-				projectId: projectId!,
-				environmentId,
-			},
-			{ enabled: isOpen && !!activeProviderId && !!projectId },
-		);
+	const {
+		data: secretNames,
+		isLoading,
+		isError: isListError,
+		error: listError,
+		refetch: refetchSecrets,
+	} = api.vaultProvider.listSecretNames.useQuery(
+		{
+			vaultProviderId: activeProviderId!,
+			projectId: projectId!,
+			environmentId,
+		},
+		{ enabled: isOpen && !!activeProviderId && !!projectId },
+	);
 
 	const existingKeys = useMemo(() => parseEnvKeys(currentEnv), [currentEnv]);
 
@@ -135,6 +145,8 @@ export const VaultImportDialog = ({
 		setIsOpen(open);
 		if (!open) {
 			setVaultProviderId(undefined);
+			setManualKey("");
+			setManualSecret("");
 			resetState();
 		}
 	};
@@ -174,29 +186,63 @@ export const VaultImportDialog = ({
 		resetState();
 	};
 
-	if (!projectId || providers.length === 0) {
+	const handleManualAdd = () => {
+		if (!activeProvider || !manualKey.trim() || !manualSecret.trim()) return;
+		const ref = `\${{vault.${activeProvider.name}.${manualSecret.trim()}}}`;
+		onImport(setEnvValue(currentEnv, manualKey.trim().toUpperCase(), ref));
+		setManualKey("");
+		setManualSecret("");
+	};
+
+	// While the provider list is loading we stay hidden; once loaded, a
+	// connected-but-unassigned provider still gets a guidance dialog so the
+	// settings -> environment flow is discoverable.
+	if (!projectId || (!providersQuery.isPending && (allProviders ?? []).length === 0)) {
 		return null;
 	}
+
+	const hasAssignedProvider = providers.length > 0;
 
 	return (
 		<Dialog open={isOpen} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>
 				<Button type="button" variant="outline" size="sm">
-					<DownloadIcon className="mr-2 size-4" />
-					Import from Vault
+					<KeyRound className="mr-2 size-4" />
+					Import secrets
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
-					<DialogTitle>Import secrets from vault</DialogTitle>
+					<DialogTitle>Import secrets from a provider</DialogTitle>
 					<DialogDescription>
 						Select the secrets to import as{" "}
-						<code>{"${{vault.<provider>.<secret>}}"}</code> references. Secrets
+						<code>{"${{vault.<provider>.<secret>}}"}</code> references. They are
+						resolved at deploy time and the values never reach Notploy. Secrets
 						already defined below are skipped unless you check them explicitly.
 					</DialogDescription>
 				</DialogHeader>
 
-				<div className="flex flex-col gap-4">
+				{!hasAssignedProvider ? (
+					<div className="flex flex-col gap-3 rounded-lg border p-4 text-sm">
+						<p className="font-medium">
+							No secrets provider is available in this environment
+						</p>
+						<p className="text-muted-foreground">
+							Connect a provider under{" "}
+							<Link
+								href="/dashboard/settings/secrets"
+								className="underline underline-offset-4"
+							>
+								Settings → Secrets
+							</Link>{" "}
+							and assign it to this project (and this environment) to reference
+							its secrets here.
+						</p>
+					</div>
+				) : null}
+
+				{hasAssignedProvider ? (
+					<div className="flex flex-col gap-4">
 					<div className="flex flex-col gap-2">
 						<Label>Vault provider</Label>
 						<Select
@@ -209,27 +255,44 @@ export const VaultImportDialog = ({
 							<SelectTrigger>
 								<SelectValue placeholder="Select a provider" />
 							</SelectTrigger>
-							<SelectContent>
-								{providers.map((provider) => (
-									<SelectItem
-										key={provider.vaultProviderId}
-										value={provider.vaultProviderId}
-									>
-										{provider.name} ({provider.providerType})
-									</SelectItem>
-								))}
+							<SelectContent>										{providers.map((provider) => (
+											<SelectItem
+												key={provider.vaultProviderId}
+												value={provider.vaultProviderId}
+											>
+												{provider.name} (
+												{vaultProviderLabel(provider.providerType)})
+											</SelectItem>
+										))}
 							</SelectContent>
 						</Select>
 					</div>
 
-					{isLoading ? (
+					{isListError ? (
+						<div className="flex flex-col items-center gap-3 py-8 text-center text-sm">
+							<span className="text-red-500">
+								{listError?.message ??
+									"Could not list the secrets of this provider"}
+							</span>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={() => void refetchSecrets()}
+							>
+								<RefreshCw className="mr-2 size-4" />
+								Retry
+							</Button>
+						</div>
+					) : isLoading ? (
 						<div className="flex items-center justify-center gap-2 py-8 text-muted-foreground text-sm">
 							<Loader2 className="size-4 animate-spin" />
 							Loading secrets...
 						</div>
 					) : rows.length === 0 ? (
 						<div className="py-8 text-center text-muted-foreground text-sm">
-							No secrets found for this provider.
+							No secrets discovered for this provider — add a reference
+							manually below.
 						</div>
 					) : (
 						<>
@@ -289,18 +352,51 @@ export const VaultImportDialog = ({
 							</ScrollArea>
 						</>
 					)}
-				</div>
 
-				<DialogFooter>
-					<Button
-						type="button"
-						onClick={handleImport}
-						disabled={selected.size === 0}
-					>
-						Import {selected.size > 0 ? selected.size : ""} secret
-						{selected.size === 1 ? "" : "s"}
-					</Button>
-				</DialogFooter>
+					<div className="flex flex-col gap-2 rounded-lg border p-3">
+						<Label>Manual reference</Label>
+						<p className="text-xs text-muted-foreground">
+							Reference a secret by path or key directly — useful when the
+							provider cannot browse its secrets.
+						</p>
+						<div className="flex flex-wrap gap-2">
+							<Input
+								placeholder="DATABASE_URL"
+								value={manualKey}
+								onChange={(e) => setManualKey(e.target.value)}
+								className="h-9 w-44 font-mono"
+							/>
+							<Input
+								placeholder="path/to/secret"
+								value={manualSecret}
+								onChange={(e) => setManualSecret(e.target.value)}
+								className="h-9 min-w-40 flex-1 font-mono"
+							/>
+							<Button
+								type="button"
+								size="sm"
+								onClick={handleManualAdd}
+								disabled={!manualKey.trim() || !manualSecret.trim()}
+							>
+								Add
+							</Button>
+						</div>
+					</div>
+				</div>
+				) : null}
+
+				{hasAssignedProvider ? (
+					<DialogFooter>
+						<Button
+							type="button"
+							onClick={handleImport}
+							disabled={selected.size === 0}
+						>
+							Import {selected.size > 0 ? selected.size : ""} secret
+							{selected.size === 1 ? "" : "s"}
+						</Button>
+					</DialogFooter>
+				) : null}
 			</DialogContent>
 		</Dialog>
 	);

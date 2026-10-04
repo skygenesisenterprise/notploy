@@ -6,7 +6,15 @@ import {
 	type VaultProviderConfig,
 	vaultProvider,
 } from "@notploy/server/db/schema";
-import { getVaultClient } from "@notploy/server/utils/vault";
+import {
+	type VaultCapabilityMatrix,
+	getVaultCapabilities,
+	getVaultClient,
+	getVaultProviderCategory,
+	type VaultProviderCategory,
+	type VaultProviderType,
+	vaultProviderTypes,
+} from "@notploy/server/utils/vault";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import type { z } from "zod";
@@ -25,6 +33,13 @@ const SENSITIVE_FIELDS: Record<VaultProviderConfig["providerType"], string[]> =
 		azure: ["clientSecret"],
 		scaleway: ["secretKey"],
 		phase: ["token"],
+		gcp: ["privateKey"],
+		oci: ["privateKey"],
+		onepassword: ["token"],
+		vaultwarden: ["clientSecret"],
+		kubernetes: ["token"],
+		docker: [],
+		generic: ["token"],
 	};
 
 export const maskVaultProviderConfig = (
@@ -253,5 +268,101 @@ export const listVaultProviderSecretNames = async (
 		return await client.listSecretNames(config);
 	} catch {
 		return [];
+	}
+};
+
+export interface VaultProviderDescriptor {
+	providerType: VaultProviderType;
+	category: VaultProviderCategory;
+	capabilities: VaultCapabilityMatrix;
+}
+
+/**
+ * Capability matrix for every provider type, so the Console can show what a
+ * provider supports before it is connected.
+ */
+export const listVaultProviderDescriptors = (): VaultProviderDescriptor[] =>
+	vaultProviderTypes.map((providerType) => ({
+		providerType,
+		category: getVaultProviderCategory(providerType),
+		capabilities: getVaultCapabilities(providerType),
+	}));
+
+export interface VaultProviderHealth {
+	status: "connected" | "degraded" | "unreachable" | "misconfigured";
+	checkedAt: string;
+	latencyMs: number | null;
+	message?: string;
+	secretCount?: number;
+}
+
+/**
+ * Probes a provider and reports its health. The probe reuses the adapter's
+ * `testConnection`, so a provider reporting `connected` is also reachable for
+ * the routine deploy-time resolution, and a follow-up listing tells the Console
+ * how many secrets it can browse. No secret value ever leaves the adapter.
+ */
+export const getVaultProviderHealth = async (
+	config: VaultProviderConfig,
+): Promise<VaultProviderHealth> => {
+	const checkedAt = new Date().toISOString();
+	const client = getVaultClient(config.providerType);
+	const startedAt = Date.now();
+	try {
+		await client.testConnection(config);
+	} catch (error) {
+		const message =
+			error instanceof Error ? error.message : "The provider is unreachable";
+		return {
+			status: /unauthor|forbidden|401|403/i.test(message)
+				? "misconfigured"
+				: "unreachable",
+			checkedAt,
+			latencyMs: null,
+			message,
+		};
+	}
+
+	const latencyMs = Date.now() - startedAt;
+	if (!client.listSecretNames) {
+		return { status: "connected", checkedAt, latencyMs };
+	}
+	try {
+		const secretNames = await client.listSecretNames(config);
+		return { status: "connected", checkedAt, latencyMs, secretCount: secretNames.length };
+	} catch (error) {
+		return {
+			status: "degraded",
+			checkedAt,
+			latencyMs,
+			message:
+				error instanceof Error
+					? error.message
+					: "The provider is reachable but its secrets could not be listed",
+		};
+	}
+};
+
+/**
+ * Lists the secret *names* a provider exposes so the Console can browse them.
+ * Values are never returned: the adapter only reports metadata.
+ */
+export const listVaultProviderSecrets = async (
+	config: VaultProviderConfig,
+): Promise<string[]> => {
+	const client = getVaultClient(config.providerType);
+	if (!client.listSecretNames) {
+		return [];
+	}
+	try {
+		return await client.listSecretNames(config);
+	} catch (error) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message:
+				error instanceof Error
+					? error.message
+					: "Error listing the secrets of this provider",
+		});
 	}
 };

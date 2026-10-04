@@ -604,6 +604,128 @@ export const PhaseIcon = ({ className }: Props) => (
 	</svg>
 );
 
+export const GcpIcon = ({ className }: Props) => (
+	<svg
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		className={className}
+	>
+		<path
+			d="M7 18.5a4.5 4.5 0 0 1-.7-8.95 6.25 6.25 0 0 1 12.1-1.2A4.15 4.15 0 0 1 17.9 18.5z"
+			stroke="currentColor"
+			strokeWidth="1.75"
+			strokeLinejoin="round"
+		/>
+		<circle cx="12" cy="13.75" r="2.1" fill="currentColor" />
+	</svg>
+);
+
+export const OracleIcon = ({ className }: Props) => (
+	<svg
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		className={className}
+	>
+		<rect
+			x="3"
+			y="6.5"
+			width="18"
+			height="11"
+			rx="5.5"
+			stroke="currentColor"
+			strokeWidth="2"
+		/>
+	</svg>
+);
+
+export const OnePasswordIcon = ({ className }: Props) => (
+	<svg
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		className={className}
+	>
+		<circle cx="12" cy="12" r="8.75" stroke="currentColor" strokeWidth="1.75" />
+		<circle cx="12" cy="10.25" r="2.1" fill="currentColor" />
+		<path d="M11.1 12.4l.55 4.35h.7l.55-4.35z" fill="currentColor" />
+	</svg>
+);
+
+export const VaultwardenIcon = ({ className }: Props) => (
+	<svg
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		className={className}
+	>
+		<path
+			d="M12 2.75l7 2.9v5.6c0 4.35-2.95 8.2-7 9.9-4.05-1.7-7-5.55-7-9.9V5.65z"
+			stroke="currentColor"
+			strokeWidth="1.75"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M12 7.4l1.55 3.15 3.45.5-2.5 2.44.59 3.44L12 15.34l-3.09 1.62.6-3.44-2.5-2.44 3.44-.5z"
+			fill="currentColor"
+		/>
+	</svg>
+);
+
+export const KubernetesIcon = ({ className }: Props) => (
+	<svg
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		className={className}
+	>
+		<polygon
+			points="12,3 19,6.4 20.8,14 15.9,20.1 8.1,20.1 3.2,14 5,6.4"
+			stroke="currentColor"
+			strokeWidth="1.6"
+			strokeLinejoin="round"
+		/>
+		<circle cx="12" cy="12" r="2.6" stroke="currentColor" strokeWidth="1.5" />
+		<path
+			d="M12 9.4v-2M12 14.6v2M9.75 10.7l-1.75-1M14.25 13.3l1.75 1M14.25 10.7l1.75-1M9.75 13.3l-1.75 1"
+			stroke="currentColor"
+			strokeWidth="1.4"
+			strokeLinecap="round"
+		/>
+	</svg>
+);
+
+export const DockerIcon = ({ className }: Props) => (
+	<svg
+		viewBox="0 0 24 24"
+		fill="currentColor"
+		xmlns="http://www.w3.org/2000/svg"
+		className={className}
+	>
+		<rect x="8.4" y="5.4" width="3" height="2.8" rx="0.35" />
+		<rect x="12" y="5.4" width="3" height="2.8" rx="0.35" />
+		<rect x="15.6" y="5.4" width="3" height="2.8" rx="0.35" />
+		<rect x="8.4" y="8.8" width="10.2" height="2.8" rx="0.35" />
+		<path d="M2.4 13h13.9c2.6 0 4.7-.55 6.2-1.6-.35 2.3-2.3 5.6-6.7 5.6H8.1C4.6 17 2.4 15.3 2.4 13z" />
+		<path d="M5.6 11.4H3.1c-.5 1.7.45 3.2 2.15 3.45v-1.6c-.9-.15-1.35-.7-1.55-1.85z" />
+	</svg>
+);
+
+export const GenericProviderIcon = ({ className }: Props) => (
+	<svg
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		className={className}
+	>
+		<circle cx="12" cy="12" r="8.75" stroke="currentColor" strokeWidth="1.75" />
+		<circle cx="8.4" cy="12" r="1.35" fill="currentColor" />
+		<circle cx="12" cy="12" r="1.35" fill="currentColor" />
+		<circle cx="15.6" cy="12" r="1.35" fill="currentColor" />
+	</svg>
+);
+
 export const vaultProviderIcons = {
 	hashicorp: HashicorpVaultIcon,
 	infisical: InfisicalIcon,
@@ -613,4 +735,13 @@ export const vaultProviderIcons = {
 	azure: AzureIcon,
 	scaleway: ScalewayIcon,
 	phase: PhaseIcon,
+	gcp: GcpIcon,
+	oci: OracleIcon,
+	onepassword: OnePasswordIcon,
+	vaultwarden: VaultwardenIcon,
+	kubernetes: KubernetesIcon,
+	docker: DockerIcon,
+	generic: GenericProviderIcon,
 } as const;
+
+export type VaultProviderIconKey = keyof typeof vaultProviderIcons;

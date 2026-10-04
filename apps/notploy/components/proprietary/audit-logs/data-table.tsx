@@ -48,6 +48,7 @@ const ACTION_OPTIONS = [
 	"create",
 	"update",
 	"delete",
+	"read",
 	"deploy",
 	"cancel",
 	"redeploy",

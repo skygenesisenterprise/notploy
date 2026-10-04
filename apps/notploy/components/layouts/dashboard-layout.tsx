@@ -31,7 +31,7 @@ const DASHBOARD_PAGE_TITLES: Record<string, string> = {
 	"/dashboard/settings/notifications": "Notifications",
 	"/dashboard/settings/profile": "Profile",
 	"/dashboard/settings/registry": "Container Registries",
-	"/dashboard/settings/secrets": "Secrets",
+	"/dashboard/settings/secrets": "Secrets Manager",
 	"/dashboard/settings/server": "Web Server",
 	"/dashboard/settings/servers": "Servers",
 	"/dashboard/settings/sessions": "Sessions",

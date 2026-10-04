@@ -5,7 +5,6 @@ import {
 	BlocksIcon,
 	BookIcon,
 	BotIcon,
-	Boxes,
 	CircleHelp,
 	ClipboardList,
 	Clock,

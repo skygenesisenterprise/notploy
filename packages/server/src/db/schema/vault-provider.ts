@@ -13,6 +13,13 @@ export const vaultProviderType = pgEnum("VaultProviderType", [
 	"azure",
 	"scaleway",
 	"phase",
+	"gcp",
+	"oci",
+	"onepassword",
+	"vaultwarden",
+	"kubernetes",
+	"docker",
+	"generic",
 ]);
 
 export const hashicorpVaultConfigSchema = z.object({
@@ -88,6 +95,56 @@ export const phaseVaultConfigSchema = z.object({
 	apiUrl: z.string().url().default("https://api.phase.dev"),
 });
 
+export const gcpVaultConfigSchema = z.object({
+	providerType: z.literal("gcp"),
+	projectId: z.string().min(1),
+	clientEmail: z.string().min(1),
+	privateKey: z.string().min(1),
+});
+
+export const ociVaultConfigSchema = z.object({
+	providerType: z.literal("oci"),
+	region: z.string().min(1),
+	tenancyId: z.string().min(1),
+	userId: z.string().min(1),
+	fingerprint: z.string().min(1),
+	privateKey: z.string().min(1),
+	compartmentId: z.string().min(1),
+});
+
+export const onepasswordVaultConfigSchema = z.object({
+	providerType: z.literal("onepassword"),
+	connectUrl: z.string().url(),
+	token: z.string().min(1),
+});
+
+export const vaultwardenVaultConfigSchema = z.object({
+	providerType: z.literal("vaultwarden"),
+	identityUrl: z.string().url().default("https://identity.bitwarden.com"),
+	apiUrl: z.string().url().default("https://api.bitwarden.com"),
+	clientId: z.string().min(1),
+	clientSecret: z.string().min(1),
+	organizationId: z.string().min(1),
+});
+
+export const kubernetesVaultConfigSchema = z.object({
+	providerType: z.literal("kubernetes"),
+	apiUrl: z.string().url(),
+	token: z.string().min(1),
+	namespace: z.string().min(1).default("default"),
+});
+
+export const dockerVaultConfigSchema = z.object({
+	providerType: z.literal("docker"),
+	mountPath: z.string().min(1).default("/run/secrets"),
+});
+
+export const genericVaultConfigSchema = z.object({
+	providerType: z.literal("generic"),
+	baseUrl: z.string().url(),
+	token: z.string().optional(),
+});
+
 export const vaultProviderConfigSchema = z.discriminatedUnion("providerType", [
 	hashicorpVaultConfigSchema,
 	infisicalVaultConfigSchema,
@@ -97,6 +154,13 @@ export const vaultProviderConfigSchema = z.discriminatedUnion("providerType", [
 	azureVaultConfigSchema,
 	scalewayVaultConfigSchema,
 	phaseVaultConfigSchema,
+	gcpVaultConfigSchema,
+	ociVaultConfigSchema,
+	onepasswordVaultConfigSchema,
+	vaultwardenVaultConfigSchema,
+	kubernetesVaultConfigSchema,
+	dockerVaultConfigSchema,
+	genericVaultConfigSchema,
 ]);
 
 export type VaultProviderConfig = z.infer<typeof vaultProviderConfigSchema>;
