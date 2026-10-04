@@ -2,16 +2,24 @@
 import {
 	ArrowUpRight,
 	Bell,
+	Check,
 	ChevronsUpDown,
+	CircleAlert,
+	CircleCheck,
+	Clock3,
+	ExternalLink,
+	Info,
 	Loader2,
 	Star,
 	Trash2,
+	TriangleAlert,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { GithubIcon } from "../icons/data-tools-icons";
 import { TruncateTooltip } from "@/components/shared/truncate-tooltip";
 import {
 	Breadcrumb,
@@ -29,17 +37,11 @@ import {
 	CommandList,
 } from "@/components/ui/command";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
 	SIDEBAR_COOKIE_NAME,
@@ -60,12 +62,14 @@ import {
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { api } from "@/utils/api";
+import { api, type RouterOutputs } from "@/utils/api";
 import { TrialBanner } from "../dashboard/billing/trial-banner";
 import { AddOrganization } from "../dashboard/organization/handle-organization";
 import { DialogAction } from "../shared/dialog-action";
 import { Logo } from "../shared/logo";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { TimeBadge } from "../ui/time-badge";
 import {
 	createNavigation,
@@ -170,9 +174,6 @@ function SidebarLogo() {
 	const { isMobile } = useSidebar();
 	const isCollapsed = state === "collapsed" && !isMobile;
 	const { data: activeOrganization } = api.organization.active.useQuery();
-
-	const { data: invitations, refetch: refetchInvitations } =
-		api.user.getInvitations.useQuery();
 
 	const [_activeTeam, setActiveTeam] = useState<
 		typeof activeOrganization | null
@@ -404,91 +405,244 @@ function SidebarLogo() {
 							</PopoverContent>
 						</Popover>
 					</SidebarMenuItem>
-
-					{/* Notification Bell */}
-					<SidebarMenuItem className={cn(isCollapsed && "mt-2")}>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									variant="ghost"
-									size="icon"
-									className={cn(
-										"relative",
-										isCollapsed && "h-8 w-8 p-1.5 mx-auto",
-									)}
-								>
-									<Bell className="size-4" />
-									{invitations && invitations.length > 0 && (
-										<span className="absolute top-0 right-0 flex size-4 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
-											{invitations.length}
-										</span>
-									)}
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								align="start"
-								side={"right"}
-								className="w-80"
-							>
-								<DropdownMenuLabel>Pending Invitations</DropdownMenuLabel>
-								<div className="flex flex-col gap-2">
-									{invitations && invitations.length > 0 ? (
-										invitations.map((invitation) => (
-											<div key={invitation.id} className="flex flex-col gap-2">
-												<DropdownMenuItem
-													className="flex flex-col items-start gap-1 p-3"
-													onSelect={(e) => e.preventDefault()}
-												>
-													<div className="font-medium">
-														{invitation?.organization?.name}
-													</div>
-													<div className="text-xs text-muted-foreground">
-														Expires:{" "}
-														{new Date(invitation.expiresAt).toLocaleString()}
-													</div>
-													<div className="text-xs text-muted-foreground">
-														Role: {invitation.role}
-													</div>
-												</DropdownMenuItem>
-												<DialogAction
-													title="Accept Invitation"
-													description="Are you sure you want to accept this invitation?"
-													type="default"
-													onClick={async () => {
-														const { error } =
-															await authClient.organization.acceptInvitation({
-																invitationId: invitation.id,
-															});
-
-														if (error) {
-															toast.error(
-																error.message || "Error accepting invitation",
-															);
-														} else {
-															toast.success("Invitation accepted successfully");
-															await refetchInvitations();
-															await refetch();
-														}
-													}}
-												>
-													<Button size="sm" variant="secondary">
-														Accept Invitation
-													</Button>
-												</DialogAction>
-											</div>
-										))
-									) : (
-										<DropdownMenuItem disabled>
-											No pending invitations
-										</DropdownMenuItem>
-									)}
-								</div>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</SidebarMenuItem>
 				</SidebarMenu>
 			)}
 		</>
+	);
+}
+
+function NotificationsButton() {
+	const { data: eventData } = api.operationalEvent.list.useQuery(undefined, {
+		refetchInterval: 30_000,
+	});
+	const { data: invitations, refetch: refetchInvitations } =
+		api.user.getInvitations.useQuery();
+	const { refetch } = api.organization.all.useQuery();
+	const utils = api.useUtils();
+	const acknowledgeEvent = api.operationalEvent.acknowledge.useMutation();
+	const attentionCount =
+		(eventData?.actionCount ?? 0) + (invitations?.length ?? 0);
+	type OperationalEvent =
+		RouterOutputs["operationalEvent"]["list"]["recent"][number];
+
+	const eventIcon = (severity: OperationalEvent["severity"]) => {
+		switch (severity) {
+			case "critical":
+				return <CircleAlert className="size-4 text-destructive" />;
+			case "warning":
+				return <TriangleAlert className="size-4 text-yellow-500" />;
+			case "success":
+				return <CircleCheck className="size-4 text-emerald-500" />;
+			default:
+				return <Info className="size-4 text-muted-foreground" />;
+		}
+	};
+
+	const renderEvent = (event: OperationalEvent, actionable: boolean) => (
+		<div
+			key={event.eventId}
+			className="flex items-start gap-3 rounded-lg border bg-background p-3"
+		>
+			<div className="mt-0.5 shrink-0">{eventIcon(event.severity)}</div>
+			<div className="min-w-0 flex-1 space-y-1">
+				<div className="flex flex-wrap items-center gap-1.5">
+					<span className="font-medium">{event.title}</span>
+					<Badge
+						variant={
+							event.severity === "critical"
+								? "destructive"
+								: event.severity === "warning"
+									? "yellow"
+									: event.severity === "success"
+										? "green"
+										: "secondary"
+						}
+					>
+						{event.severity}
+					</Badge>
+				</div>
+				<p className="text-xs text-muted-foreground">{event.message}</p>
+				<div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+					<span className="capitalize">{event.category.replace("-", " ")}</span>
+					<span aria-hidden="true">·</span>
+					<time dateTime={event.lastSeenAt}>
+						{new Date(event.lastSeenAt).toLocaleString()}
+					</time>
+					{event.occurrenceCount > 1 && (
+						<span>· {event.occurrenceCount} occurrences</span>
+					)}
+				</div>
+				<div className="flex items-center gap-2 pt-1">
+					{event.resourceHref && (
+						<Button variant="link" size="xs" className="h-auto px-0" asChild>
+							<Link href={event.resourceHref}>
+								{event.resourceName ?? "Open resource"}
+								<ExternalLink />
+							</Link>
+						</Button>
+					)}
+					{actionable && (
+						<Button
+							variant="ghost"
+							size="xs"
+							className="h-auto px-1.5 text-muted-foreground"
+							disabled={acknowledgeEvent.isPending}
+							onClick={async () => {
+								try {
+									await acknowledgeEvent.mutateAsync({
+										eventId: event.eventId,
+									});
+									await utils.operationalEvent.list.invalidate();
+								} catch {
+									toast.error("Unable to acknowledge this event");
+								}
+							}}
+						>
+							<Check />
+							Acknowledge
+						</Button>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+
+	return (
+		<Popover>
+			<PopoverTrigger asChild>
+				<Button
+					variant="ghost"
+					size="icon"
+					className="relative"
+					aria-label={
+						attentionCount > 0
+							? `Notifications, ${attentionCount} require attention`
+							: "Notifications"
+					}
+				>
+					<Bell className="size-4" />
+					{attentionCount > 0 && (
+						<span className="absolute -top-0.5 -right-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-medium text-destructive-foreground">
+							{attentionCount > 99 ? "99+" : attentionCount}
+						</span>
+					)}
+				</Button>
+			</PopoverTrigger>
+			<PopoverContent
+				align="end"
+				side="bottom"
+				className="w-[min(26rem,calc(100vw-2rem))] p-0"
+			>
+				<div className="flex items-center justify-between border-b px-4 py-3">
+					<div>
+						<div className="font-semibold">Event center</div>
+						<div className="text-xs text-muted-foreground">
+							Operational events and actions
+						</div>
+					</div>
+					<Clock3 className="size-4 text-muted-foreground" />
+				</div>
+				<Tabs defaultValue="action-required" className="gap-0">
+					<TabsList className="mx-3 mt-3 grid w-auto grid-cols-2">
+						<TabsTrigger value="action-required">
+							Action required
+							{attentionCount > 0 && (
+								<span className="rounded-full bg-destructive/10 px-1.5 text-[10px] text-destructive">
+									{attentionCount}
+								</span>
+							)}
+						</TabsTrigger>
+						<TabsTrigger value="recent">Recent</TabsTrigger>
+					</TabsList>
+					<TabsContent value="action-required" className="mt-0">
+						<ScrollArea className="h-[min(26rem,60vh)]">
+							<div className="space-y-2 p-3">
+								{invitations?.map((invitation) => (
+									<div
+										key={invitation.id}
+										className="flex items-start gap-3 rounded-lg border bg-background p-3"
+									>
+										<CircleAlert className="mt-0.5 size-4 shrink-0 text-blue-500" />
+										<div className="min-w-0 flex-1 space-y-1">
+											<div className="font-medium">
+												Invitation to {invitation.organization?.name}
+											</div>
+											<p className="text-xs text-muted-foreground">
+												Role: {invitation.role} · Expires{" "}
+												{new Date(invitation.expiresAt).toLocaleString()}
+											</p>
+											<DialogAction
+												title="Accept Invitation"
+												description="Are you sure you want to accept this invitation?"
+												type="default"
+												onClick={async () => {
+													const { error } =
+														await authClient.organization.acceptInvitation({
+															invitationId: invitation.id,
+														});
+
+													if (error) {
+														toast.error(
+															error.message || "Error accepting invitation",
+														);
+													} else {
+														toast.success("Invitation accepted successfully");
+														await refetchInvitations();
+														await refetch();
+													}
+												}}
+											>
+												<Button size="xs" variant="secondary" className="mt-1">
+													Accept invitation
+												</Button>
+											</DialogAction>
+										</div>
+									</div>
+								))}
+								{eventData?.actionRequired.map((event) =>
+									renderEvent(event, true),
+								)}
+								{attentionCount === 0 && (
+									<div className="flex flex-col items-center gap-2 py-10 text-center">
+										<CircleCheck className="size-6 text-emerald-500" />
+										<p className="font-medium">All clear</p>
+										<p className="text-xs text-muted-foreground">
+											No actions need your attention.
+										</p>
+									</div>
+								)}
+							</div>
+						</ScrollArea>
+					</TabsContent>
+					<TabsContent value="recent" className="mt-0">
+						<ScrollArea className="h-[min(26rem,60vh)]">
+							<div className="space-y-2 p-3">
+								{eventData?.recent.map((event) => renderEvent(event, false))}
+								{eventData?.recent.length === 0 && (
+									<div className="py-10 text-center text-sm text-muted-foreground">
+										No recent events in the last 14 days.
+									</div>
+								)}
+							</div>
+						</ScrollArea>
+					</TabsContent>
+				</Tabs>
+				{eventData?.actionCount !== undefined && (
+					<div className="border-t px-4 py-2 text-xs text-muted-foreground">
+						{eventData.actionCount} operational{" "}
+						{eventData.actionCount === 1 ? "issue" : "issues"} requiring
+						attention
+						{eventData.actionRequired.some(
+							(event) => event.severity === "critical",
+						) && (
+							<span className="ml-1 font-medium text-destructive">
+								· Critical issue
+							</span>
+						)}
+					</div>
+				)}
+			</PopoverContent>
+		</Popover>
 	);
 }
 
@@ -693,11 +847,22 @@ export default function Page({ children }: Props) {
 									</BreadcrumbList>
 								</Breadcrumb>{" "}
 							</div>
-							{!isCloud && (
-								<div className="shrink-0">
-									<TimeBadge />
-								</div>
-							)}
+							<div className="flex shrink-0 items-center gap-1">
+								{!isCloud && <TimeBadge />}
+								<NotificationsButton />
+								{!isCloud && (
+									<Button variant="ghost" size="icon" asChild>
+										<Link
+											href="https://github.com/skygenesisenterprise/notploy"
+											target="_blank"
+											rel="noopener noreferrer"
+											aria-label="Notploy on GitHub"
+										>
+											<GithubIcon className="size-4" />
+										</Link>
+									</Button>
+								)}
+							</div>
 						</div>
 					</header>
 				</div>

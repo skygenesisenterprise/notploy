@@ -2,6 +2,10 @@ import { render } from "@react-email/components";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { notifications } from "../../db/schema";
+import {
+	publishOperationalEvent,
+	resolveOperationalEvent,
+} from "../../services/operational-event";
 import ServerThresholdEmail from "../../emails/emails/server-threshold";
 import {
 	sendCustomNotification,
@@ -26,6 +30,7 @@ interface ServerThresholdPayload {
 	Timestamp: string;
 	Token: string;
 	ServerName: string;
+	ServerId?: string;
 }
 
 export const sendServerThresholdNotifications = async (
@@ -34,6 +39,25 @@ export const sendServerThresholdNotifications = async (
 ) => {
 	const date = new Date(payload.Timestamp);
 	const unixDate = ~~(Number(date) / 1000);
+	const fingerprint = `monitoring-threshold:${payload.ServerId ?? payload.ServerName}:${payload.Type}`;
+
+	if (payload.ServerId && payload.Value > payload.Threshold) {
+		await publishOperationalEvent({
+			organizationId,
+			category: "monitoring",
+			severity: "warning",
+			title: `${payload.Type} threshold exceeded on ${payload.ServerName}`,
+			message: payload.Message,
+			fingerprint,
+			requiresAction: true,
+			resourceType: "server",
+			resourceId: payload.ServerId,
+			resourceName: payload.ServerName,
+			resourceHref: "/dashboard/monitoring",
+		});
+	} else if (payload.ServerId) {
+		await resolveOperationalEvent(organizationId, fingerprint);
+	}
 
 	const notificationList = await db.query.notifications.findMany({
 		where: and(

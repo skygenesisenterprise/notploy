@@ -505,6 +505,7 @@ export const notificationRouter = createTRPCRouter({
 			try {
 				let organizationId = "";
 				let ServerName = "";
+				let ServerId: string | undefined;
 				if (input.ServerType === "Notploy") {
 					const settings = await getWebServerSettings();
 					if (
@@ -536,11 +537,13 @@ export const notificationRouter = createTRPCRouter({
 
 					organizationId = result?.[0]?.organizationId;
 					ServerName = result?.[0]?.name ?? "Remote";
+					ServerId = result?.[0]?.serverId;
 				}
 
 				await sendServerThresholdNotifications(organizationId, {
 					...input,
 					ServerName,
+					...(ServerId && { ServerId }),
 				});
 			} catch (error) {
 				throw new TRPCError({

@@ -51,6 +51,10 @@ import { removeRollbackById } from "./rollbacks";
 import { findScheduleById } from "./schedule";
 import { findServerById, type Server } from "./server";
 import { findVolumeBackupById } from "./volume-backups";
+import {
+	publishOperationalEvent,
+	resolveOperationalEvent,
+} from "./operational-event";
 
 export type ServicePath = { href: string | null; label: string };
 
@@ -1215,6 +1219,92 @@ export const updateDeploymentStatus = async (
 		})
 		.where(eq(deployments.deploymentId, deploymentId))
 		.returning();
+
+	const deployment = await db.query.deployments.findFirst({
+		where: eq(deployments.deploymentId, deploymentId),
+		with: {
+			application: {
+				with: {
+					environment: {
+						with: { project: true },
+					},
+				},
+			},
+			compose: {
+				with: {
+					environment: {
+						with: { project: true },
+					},
+				},
+			},
+			server: true,
+		},
+	});
+
+	if (deployment) {
+		const project =
+			deployment.application?.environment.project ??
+			deployment.compose?.environment.project;
+		const organizationId =
+			project?.organizationId ?? deployment.server?.organizationId;
+		const resourceType = deployment.serverId
+			? "server"
+			: deployment.applicationId
+				? "application"
+				: deployment.composeId
+					? "compose"
+					: "deployment";
+		const resourceId =
+			deployment.serverId ??
+			deployment.applicationId ??
+			deployment.composeId ??
+			deployment.deploymentId;
+		const resourceName =
+			deployment.server?.name ??
+			deployment.application?.name ??
+			deployment.compose?.name ??
+			deployment.title;
+		const resourceHref = deployment.serverId
+			? "/dashboard/settings/servers"
+			: project && deployment.application
+				? `/dashboard/project/${project.projectId}/environment/${deployment.application.environmentId}/services/application/${deployment.application.applicationId}`
+				: project && deployment.compose
+					? `/dashboard/project/${project.projectId}/environment/${deployment.compose.environmentId}/services/compose/${deployment.compose.composeId}`
+					: "/dashboard/deployments";
+		const fingerprint = `deployment-failure:${resourceType}:${resourceId}`;
+
+		if (organizationId && deploymentStatus === "error") {
+			await publishOperationalEvent({
+				organizationId,
+				category: deployment.serverId ? "server" : "deployment",
+				severity: "warning",
+				title: `${resourceName} deployment failed`,
+				message:
+					deployment.errorMessage ||
+					"A deployment failed. Review its details and logs.",
+				fingerprint,
+				requiresAction: true,
+				resourceType,
+				resourceId,
+				resourceName,
+				resourceHref,
+			});
+		} else if (organizationId && deploymentStatus === "done") {
+			await resolveOperationalEvent(organizationId, fingerprint);
+			await publishOperationalEvent({
+				organizationId,
+				category: deployment.serverId ? "server" : "deployment",
+				severity: "success",
+				title: `${resourceName} deployment succeeded`,
+				message: "The deployment completed successfully.",
+				fingerprint: `deployment-success:${deployment.deploymentId}`,
+				resourceType,
+				resourceId,
+				resourceName,
+				resourceHref,
+			});
+		}
+	}
 
 	return application;
 };

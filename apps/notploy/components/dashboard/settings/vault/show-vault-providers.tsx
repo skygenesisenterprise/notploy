@@ -258,9 +258,7 @@ export const ShowVaultProviders = () => {
 							</CardTitle>
 							<CardDescription>
 								Connect a secrets manager and reference its secrets in
-								environment variables with{" "}
-								<code>{"${{vault.<name>.<secret>}}"}</code>. Values are resolved
-								at deploy time and never stored in Notploy.
+								environment variables in Notploy
 							</CardDescription>
 						</CardHeader>
 						<div className="flex items-center gap-2">

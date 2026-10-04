@@ -333,7 +333,7 @@ const DetailValue = ({
 }) => (
 	<div className="space-y-1">
 		<dt className="text-xs text-muted-foreground">{label}</dt>
-		<dd className="break-words font-medium">{children}</dd>
+		<dd className="wrap-break-words font-medium">{children}</dd>
 	</div>
 );
 
@@ -593,7 +593,6 @@ export const NetworkConsole = ({ serverId }: Props) => {
 							/>
 							Refresh
 						</Button>
-						<SyncNetworks serverId={serverId} />
 						<HandleNetwork serverId={serverId} />
 					</div>
 				</header>
@@ -709,16 +708,6 @@ export const NetworkConsole = ({ serverId }: Props) => {
 						</div>
 					) : (
 						<>
-							<div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
-								<p>
-									Showing {filteredNetworks.length} of {networks?.length ?? 0}{" "}
-									networks returned by Docker or tracked by Notploy.
-								</p>
-								<p className="flex items-center gap-2">
-									<ServerIcon className="size-4" aria-hidden />
-									Scope is reported by Docker (local or swarm).
-								</p>
-							</div>
 							<div className="overflow-x-auto rounded-md border">
 								<Table>
 									<TableHeader>
