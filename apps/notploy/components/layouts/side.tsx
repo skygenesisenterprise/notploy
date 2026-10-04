@@ -531,7 +531,6 @@ export default function Page({ children }: Props) {
 		refetchOnWindowFocus: false,
 	});
 
-	const includesProjects = pathname?.includes("/dashboard/project");
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 
 	const navigation = createNavigation({
@@ -656,51 +655,51 @@ export default function Page({ children }: Props) {
 			<SidebarInset>
 				<div className="z-30 shrink-0 bg-background">
 					{isCloud === true && <TrialBanner />}
-					{!includesProjects && (
-						<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-							<div className="flex w-full min-w-0 items-center gap-3 px-4">
-								<div className="flex min-w-0 flex-1 items-center gap-2">
-									<SidebarTrigger className="-ml-1 shrink-0" />
-									<Separator
-										orientation="vertical"
-										className="mx-1 h-4 self-center"
-									/>
-									<Breadcrumb className="min-w-0">
-										<BreadcrumbList className="flex-nowrap">
-											{activeNavigation && (
-												<>
-													<BreadcrumbItem>
-														<BreadcrumbLink asChild>
-															<Link
-																href={
-																	activeSectionHref ??
-																	activeNavigation.item.href
-																}
-																className="flex items-center gap-1.5 whitespace-nowrap"
-															>
-																{activeNavigation.section.label}
-															</Link>
-														</BreadcrumbLink>
-													</BreadcrumbItem>
-													<BreadcrumbSeparator />
-													<BreadcrumbItem className="min-w-0">
-														<span aria-current="page" className="truncate">
-															{activeNavigation.item.label}
-														</span>
-													</BreadcrumbItem>
-												</>
-											)}
-										</BreadcrumbList>
-									</Breadcrumb>{" "}
-								</div>
-								{!isCloud && (
-									<div className="shrink-0">
-										<TimeBadge />
-									</div>
-								)}
+					{/* The header is the constant part of the shell: the sidebar toggle
+					    and the {section} > {page} breadcrumb. The project, environment
+					    and service context lives inside the pages themselves. */}
+					<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+						<div className="flex w-full min-w-0 items-center gap-3 px-4">
+							<div className="flex min-w-0 flex-1 items-center gap-2">
+								<SidebarTrigger className="-ml-1 shrink-0" />
+								<Separator
+									orientation="vertical"
+									className="mx-1 h-4 self-center"
+								/>
+								<Breadcrumb className="min-w-0">
+									<BreadcrumbList className="flex-nowrap">
+										{activeNavigation && (
+											<>
+												<BreadcrumbItem>
+													<BreadcrumbLink asChild>
+														<Link
+															href={
+																activeSectionHref ?? activeNavigation.item.href
+															}
+															className="flex items-center gap-1.5 whitespace-nowrap"
+														>
+															{activeNavigation.section.label}
+														</Link>
+													</BreadcrumbLink>
+												</BreadcrumbItem>
+												<BreadcrumbSeparator />
+												<BreadcrumbItem className="min-w-0">
+													<span aria-current="page" className="truncate">
+														{activeNavigation.item.label}
+													</span>
+												</BreadcrumbItem>
+											</>
+										)}
+									</BreadcrumbList>
+								</Breadcrumb>{" "}
 							</div>
-						</header>
-					)}
+							{!isCloud && (
+								<div className="shrink-0">
+									<TimeBadge />
+								</div>
+							)}
+						</div>
+					</header>
 				</div>
 
 				<div className="min-h-0 flex-1 overflow-y-auto">

@@ -22,13 +22,15 @@ export const UpdateServerButton = () => {
 
 	// The backend owns the GitHub lookup (and its cache): the layout only reads
 	// the computed status instead of calling GitHub from every render.
-	const { refetch: checkUpdateStatus } =
-		api.settings.getUpdateStatus.useQuery(undefined, {
+	const { refetch: checkUpdateStatus } = api.settings.getUpdateStatus.useQuery(
+		undefined,
+		{
 			enabled: !isCloud,
 			refetchOnWindowFocus: false,
 			// Keeps the badge populated when the user navigates back to the layout.
 			staleTime: 60_000,
-		});
+		},
+	);
 
 	useEffect(() => {
 		if (isCloud) {
@@ -57,7 +59,8 @@ export const UpdateServerButton = () => {
 				}
 
 				const { data } = await checkUpdateStatus();
-				const pending = !!data?.status && UPDATE_PENDING_STATUSES.includes(data.status);
+				const pending =
+					!!data?.status && UPDATE_PENDING_STATUSES.includes(data.status);
 
 				setHasPendingUpdate(pending);
 

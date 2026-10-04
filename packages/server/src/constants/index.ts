@@ -116,10 +116,14 @@ if (!globalForDocker.docker) {
 export const docker = globalForDocker.docker;
 
 export const paths = (isServer = false) => {
+	// `NOTPLOY_CONFIG_PATH` lets a containerized install share its config (Traefik
+	// dynamic files, certificates, applications…) through a volume with the
+	// Compose-managed Traefik service instead of the in-container `.docker` dir.
 	const BASE_PATH =
-		isServer || process.env.NODE_ENV === "production"
+		process.env.NOTPLOY_CONFIG_PATH ||
+		(isServer || process.env.NODE_ENV === "production"
 			? "/etc/notploy"
-			: path.join(process.cwd(), ".docker");
+			: path.join(process.cwd(), ".docker"));
 	const MAIN_TRAEFIK_PATH = `${BASE_PATH}/traefik`;
 	const DYNAMIC_TRAEFIK_PATH = `${MAIN_TRAEFIK_PATH}/dynamic`;
 

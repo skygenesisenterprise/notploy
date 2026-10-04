@@ -16,6 +16,7 @@ export default Page;
 Page.getLayout = (page: ReactElement) => {
 	return <DashboardLayout metaName="DNS Providers">{page}</DashboardLayout>;
 };
+
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 	const { req, res } = ctx;
 	const { user, session } = await validateRequest(req);

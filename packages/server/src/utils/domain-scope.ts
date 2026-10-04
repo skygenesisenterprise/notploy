@@ -11,6 +11,20 @@ const INTERNAL_SUFFIXES = ["home.arpa", "internal"];
 const hasSuffix = (hostname: string, suffix: string) =>
 	hostname === suffix || hostname.endsWith(`.${suffix}`);
 
+/**
+ * Number of trailing labels kept as the internal DNS zone, mirroring how
+ * registrable domains work: `gitlab.notploy.lan` belongs to `notploy.lan`.
+ */
+const INTERNAL_ZONE_LABEL_COUNT = 2;
+
+export const deriveInternalDnsZone = (host: string) => {
+	const labels = host.trim().toLowerCase().replace(/\.$/, "").split(".");
+	if (labels.length <= INTERNAL_ZONE_LABEL_COUNT) {
+		return labels.join(".");
+	}
+	return labels.slice(-INTERNAL_ZONE_LABEL_COUNT).join(".");
+};
+
 export const getDomainRequirements = (host: string): DomainRequirements => {
 	const hostname = host.trim().toLowerCase().replace(/\.$/, "");
 

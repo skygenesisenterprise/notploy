@@ -3,9 +3,16 @@ import {
 	type apiCreateDnsProvider,
 	type DnsProviderConfig,
 	dnsProvider,
+	dnsProviderTypes,
 } from "@notploy/server/db/schema";
 import type { DnsRecordInput } from "@notploy/server/utils/dns";
-import { getDnsClient } from "@notploy/server/utils/dns";
+import {
+	getDnsCapabilities,
+	getDnsClient,
+	getDnsProviderCategory,
+	parseZoneFile,
+	serializeZoneFile,
+} from "@notploy/server/utils/dns";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import type { z } from "zod";
@@ -20,6 +27,24 @@ const SENSITIVE_FIELDS: Record<DnsProviderConfig["providerType"], string[]> = {
 	porkbun: ["secretApiKey"],
 	infomaniak: ["apiToken"],
 	ovh: ["applicationSecret", "consumerKey"],
+	hetzner: ["apiToken"],
+	digitalocean: ["apiToken"],
+	gandi: ["apiKey"],
+	vultr: ["apiKey"],
+	linode: ["apiToken"],
+	desec: ["apiToken"],
+	bunny: ["apiKey"],
+	ns1: ["apiKey"],
+	godaddy: ["apiSecret"],
+	namecheap: ["apiKey"],
+	cloudns: ["authPassword"],
+	powerdns: ["apiKey"],
+	bind: ["tsigSecret"],
+	technitium: ["apiToken"],
+	coredns: ["password"],
+	unbound: [],
+	custom: ["apiToken"],
+	"notploy-internal": [],
 };
 
 export const maskDnsProviderConfig = (
@@ -181,10 +206,30 @@ export const removeDnsProvider = async (dnsProviderId: string) => {
 	return removed;
 };
 
-export const testDnsProviderConnection = async (config: DnsProviderConfig) => {
+/**
+ * The first-party internal adapter needs the provider and organization ids to
+ * scope its own tables. They are injected here so callers keep passing a plain
+ * config around.
+ */
+const withAdapterScope = (
+	config: DnsProviderConfig,
+	provider?: Pick<DnsProvider, "dnsProviderId" | "organizationId">,
+) =>
+	config.providerType === "notploy-internal"
+		? {
+				...config,
+				dnsProviderId: provider?.dnsProviderId ?? "",
+				organizationId: provider?.organizationId ?? "",
+			}
+		: config;
+
+export const testDnsProviderConnection = async (
+	config: DnsProviderConfig,
+	provider?: Pick<DnsProvider, "dnsProviderId" | "organizationId">,
+) => {
 	const client = getDnsClient(config.providerType);
 	try {
-		await client.testConnection(config);
+		await client.testConnection(withAdapterScope(config, provider) as never);
 	} catch (error) {
 		throw new TRPCError({
 			code: "BAD_REQUEST",
@@ -196,10 +241,13 @@ export const testDnsProviderConnection = async (config: DnsProviderConfig) => {
 	}
 };
 
-export const listDnsProviderZones = async (config: DnsProviderConfig) => {
+export const listDnsProviderZones = async (
+	config: DnsProviderConfig,
+	provider?: Pick<DnsProvider, "dnsProviderId" | "organizationId">,
+) => {
 	const client = getDnsClient(config.providerType);
 	try {
-		return await client.listZones(config);
+		return await client.listZones(withAdapterScope(config, provider) as never);
 	} catch (error) {
 		throw new TRPCError({
 			code: "BAD_REQUEST",
@@ -214,10 +262,14 @@ export const listDnsProviderZones = async (config: DnsProviderConfig) => {
 export const listDnsProviderRecords = async (
 	config: DnsProviderConfig,
 	zoneId: string,
+	provider?: Pick<DnsProvider, "dnsProviderId" | "organizationId">,
 ) => {
 	const client = getDnsClient(config.providerType);
 	try {
-		return await client.listRecords(config, zoneId);
+		return await client.listRecords(
+			withAdapterScope(config, provider) as never,
+			zoneId,
+		);
 	} catch (error) {
 		throw new TRPCError({
 			code: "BAD_REQUEST",
@@ -232,10 +284,14 @@ export const listDnsProviderRecords = async (
 export const createDnsProviderRecord = async (
 	config: DnsProviderConfig,
 	record: DnsRecordInput,
+	provider?: Pick<DnsProvider, "dnsProviderId" | "organizationId">,
 ) => {
 	const client = getDnsClient(config.providerType);
 	try {
-		return await client.upsertRecord(config, record);
+		return await client.upsertRecord(
+			withAdapterScope(config, provider) as never,
+			record,
+		);
 	} catch (error) {
 		throw new TRPCError({
 			code: "BAD_REQUEST",
@@ -250,10 +306,16 @@ export const updateDnsProviderRecord = async (
 	zoneId: string,
 	recordId: string,
 	record: Omit<DnsRecordInput, "zoneId">,
+	provider?: Pick<DnsProvider, "dnsProviderId" | "organizationId">,
 ) => {
 	const client = getDnsClient(config.providerType);
 	try {
-		return await client.updateRecord(config, zoneId, recordId, record);
+		return await client.updateRecord(
+			withAdapterScope(config, provider) as never,
+			zoneId,
+			recordId,
+			record,
+		);
 	} catch (error) {
 		throw new TRPCError({
 			code: "BAD_REQUEST",
@@ -267,15 +329,145 @@ export const deleteDnsProviderRecord = async (
 	config: DnsProviderConfig,
 	zoneId: string,
 	recordId: string,
+	provider?: Pick<DnsProvider, "dnsProviderId" | "organizationId">,
 ) => {
 	const client = getDnsClient(config.providerType);
 	try {
-		await client.deleteRecord(config, zoneId, recordId);
+		await client.deleteRecord(
+			withAdapterScope(config, provider) as never,
+			zoneId,
+			recordId,
+		);
 	} catch (error) {
 		throw new TRPCError({
 			code: "BAD_REQUEST",
 			message:
 				error instanceof Error ? error.message : "Error deleting the record",
 		});
+	}
+};
+
+export const exportDnsProviderZone = async (
+	config: DnsProviderConfig,
+	zoneName: string,
+	zoneId: string,
+	provider?: Pick<DnsProvider, "dnsProviderId" | "organizationId">,
+) => {
+	const records = await listDnsProviderRecords(config, zoneId, provider);
+	return serializeZoneFile(zoneName, records);
+};
+
+export interface DnsZoneImportResult {
+	created: number;
+	failed: number;
+	errors: string[];
+}
+
+/**
+ * Parses a BIND-style zone file and writes every supported record through the
+ * provider adapter, so an import works the same for managed, self-hosted and
+ * internal providers.
+ */
+export const importDnsProviderZone = async (
+	config: DnsProviderConfig,
+	zoneId: string,
+	zoneName: string,
+	content: string,
+	provider?: Pick<DnsProvider, "dnsProviderId" | "organizationId">,
+): Promise<DnsZoneImportResult> => {
+	const { records, errors } = parseZoneFile(content, zoneName);
+	let created = 0;
+
+	for (const record of records) {
+		try {
+			await createDnsProviderRecord(
+				config,
+				{ ...record, zoneId },
+				provider,
+			);
+			created += 1;
+		} catch (error) {
+			errors.push(
+				error instanceof Error
+					? `${record.name} ${record.type}: ${error.message}`
+					: `${record.name} ${record.type}: import failed`,
+			);
+		}
+	}
+
+	return { created, failed: records.length - created, errors };
+};
+
+export interface DnsProviderDescriptor {
+	providerType: DnsProviderConfig["providerType"];
+	category: ReturnType<typeof getDnsProviderCategory>;
+	capabilities: ReturnType<typeof getDnsCapabilities>;
+}
+
+/**
+ * Capability matrix for every provider type, so the UI can show what a provider
+ * supports even before one is connected.
+ */
+export const listDnsProviderDescriptors = (): DnsProviderDescriptor[] => {
+	return dnsProviderTypes.map((providerType) => ({
+		providerType,
+		category: getDnsProviderCategory(providerType),
+		capabilities: getDnsCapabilities(providerType),
+	}));
+};
+
+/**
+ * Probes a provider and reports its health. The probe reuses the adapter's
+ * `testConnection`, so a provider that reports `connected` is also reachable
+ * for the routine zone/record operations.
+ */
+export const getDnsProviderHealth = async (
+	config: DnsProviderConfig,
+	provider?: Pick<DnsProvider, "dnsProviderId" | "organizationId">,
+): Promise<{
+	status: "connected" | "degraded" | "unreachable" | "misconfigured";
+	checkedAt: string;
+	latencyMs: number | null;
+	message?: string;
+	zoneCount?: number;
+}> => {
+	const checkedAt = new Date().toISOString();
+	const client = getDnsClient(config.providerType);
+	const scoped = withAdapterScope(config, provider) as never;
+	const startedAt = Date.now();
+	try {
+		await client.testConnection(scoped);
+	} catch (error) {
+		const message =
+			error instanceof Error ? error.message : "The provider is unreachable";
+		return {
+			status: /unauthor|forbidden|401|403/i.test(message)
+				? "misconfigured"
+				: "unreachable",
+			checkedAt,
+			latencyMs: null,
+			message,
+		};
+	}
+
+	const latencyMs = Date.now() - startedAt;
+	try {
+		const zones = await client.listZones(scoped);
+		return {
+			status: "connected",
+			checkedAt,
+			latencyMs,
+			zoneCount: zones.length,
+		};
+	} catch (error) {
+		return {
+			status: "degraded",
+			checkedAt,
+			latencyMs,
+			message:
+				error instanceof Error
+					? error.message
+					: "The provider is reachable but zones could not be listed",
+		};
 	}
 };

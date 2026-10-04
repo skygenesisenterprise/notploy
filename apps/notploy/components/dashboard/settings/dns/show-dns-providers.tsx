@@ -1,9 +1,17 @@
-import { EyeIcon, Globe, Loader2, Trash2 } from "lucide-react";
+import {
+	Activity,
+	EyeIcon,
+	Globe,
+	HeartPulse,
+	Loader2,
+	Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { dnsProviderIcons } from "@/components/icons/dns-provider-icons";
 import { DialogAction } from "@/components/shared/dialog-action";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -17,15 +25,85 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
+import {
+	dnsHealthLabels,
+	dnsProviderIconKey,
+	dnsProviderLabel,
+} from "./dns-provider-meta";
 import { HandleDnsProvider } from "./handle-dns-provider";
 
-const providerLabels: Record<string, string> = {
-	cloudflare: "Cloudflare",
-	route53: "AWS Route53",
-	porkbun: "Porkbun",
-	infomaniak: "Infomaniak",
-	ovh: "OVHcloud",
+interface HealthBadgeProps {
+	dnsProviderId: string;
+}
+
+const HealthBadge = ({ dnsProviderId }: HealthBadgeProps) => {
+	const { data, isPending, isError, refetch, isFetching } =
+		api.dnsProvider.health.useQuery(
+			{ dnsProviderId },
+			{ retry: false, refetchOnWindowFocus: false },
+		);
+
+	const status = isPending
+		? "checking"
+		: isError
+			? "unreachable"
+			: (data?.status ?? "unreachable");
+
+	const styles: Record<string, string> = {
+		connected:
+			"border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+		degraded:
+			"border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+		unreachable:
+			"border-red-500/25 bg-red-500/10 text-red-600 dark:text-red-400",
+		misconfigured:
+			"border-orange-500/25 bg-orange-500/10 text-orange-600 dark:text-orange-400",
+		checking: "border-border bg-muted/40 text-muted-foreground",
+	};
+
+	const label = status === "checking" ? "Checking" : dnsHealthLabels[status];
+
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<button
+					type="button"
+					onClick={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						void refetch();
+					}}
+					className={cn(
+						"relative z-10 inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/50",
+						styles[status],
+					)}
+				>
+					{isPending || isFetching ? (
+						<Loader2 className="size-3 animate-spin" aria-hidden="true" />
+					) : (
+						<HeartPulse className="size-3" aria-hidden="true" />
+					)}
+					{label}
+				</button>
+			</TooltipTrigger>
+			<TooltipContent>
+				<div className="flex flex-col gap-1">
+					<span>{data?.message ?? label}</span>
+					{data?.latencyMs != null && (
+						<span className="text-xs opacity-80">
+							{data.latencyMs} ms
+							{data.zoneCount != null
+								? ` · ${data.zoneCount} zone${data.zoneCount === 1 ? "" : "s"}`
+								: ""}
+						</span>
+					)}
+					<span className="text-xs opacity-70">Click to re-check</span>
+				</div>
+			</TooltipContent>
+		</Tooltip>
+	);
 };
 
 export const ShowDnsProviders = () => {
@@ -33,6 +111,8 @@ export const ShowDnsProviders = () => {
 	const { mutateAsync } = api.dnsProvider.remove.useMutation();
 	const { data, isPending, refetch } = api.dnsProvider.all.useQuery();
 	const { data: permissions } = api.user.getPermissions.useQuery();
+
+	const connectedCount = data?.length ?? 0;
 
 	return (
 		<div className="w-full">
@@ -45,11 +125,16 @@ export const ShowDnsProviders = () => {
 								DNS Providers
 							</CardTitle>
 							<CardDescription>
-								Connect a DNS provider so Notploy can create the A/CNAME record
-								for a domain instead of you setting it up by hand.
+								Connect managed, self-hosted or internal DNS so Notploy can
+								create the records a domain needs without leaving the Console.
 							</CardDescription>
 						</CardHeader>
-						{permissions?.dnsProvider.create && <HandleDnsProvider />}
+						<div className="flex items-center gap-2">
+							<Badge variant="secondary" className="tabular-nums">
+								{connectedCount} connected
+							</Badge>
+							{permissions?.dnsProvider.create && <HandleDnsProvider />}
+						</div>
 					</div>
 
 					<CardContent className="flex min-h-[60vh] flex-col gap-4 border-t py-8">
@@ -58,21 +143,23 @@ export const ShowDnsProviders = () => {
 								<span>Loading...</span>
 								<Loader2 className="animate-spin size-4" />
 							</div>
-						) : data?.length === 0 ? (
+						) : connectedCount === 0 ? (
 							<div className="flex min-h-[50vh] flex-col items-center justify-center gap-3">
-								<Globe className="size-8 text-muted-foreground" />
+								<Activity className="size-8 text-muted-foreground" />
 								<span className="font-medium text-muted-foreground">
 									No DNS providers connected
 								</span>
 								<span className="max-w-sm text-center text-sm text-muted-foreground">
-									Add Cloudflare or Route53 credentials to manage domain records
-									without leaving Notploy.
+									Use <span className="font-medium">Add Provider</span> to pick
+									a managed, self-hosted or internal provider and connect its
+									credentials.
 								</span>
 							</div>
 						) : (
 							<ul className="flex flex-col gap-2">
 								{data?.map((provider) => {
-									const ProviderIcon = dnsProviderIcons[provider.providerType];
+									const ProviderIcon =
+										dnsProviderIcons[dnsProviderIconKey(provider.providerType)];
 									const href = `/dashboard/settings/dns/${provider.dnsProviderId}`;
 									return (
 										<li
@@ -90,12 +177,12 @@ export const ShowDnsProviders = () => {
 													{provider.name}
 												</span>
 												<span className="text-xs text-muted-foreground">
-													{providerLabels[provider.providerType] ??
-														provider.providerType}
+													{dnsProviderLabel(provider.providerType)}
 												</span>
 											</div>
 
 											<div className="relative z-10 ml-auto flex flex-row items-center gap-1">
+												<HealthBadge dnsProviderId={provider.dnsProviderId} />
 												<Tooltip>
 													<TooltipTrigger asChild>
 														<Button

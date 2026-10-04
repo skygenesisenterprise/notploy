@@ -2,8 +2,12 @@ import {
 	createDnsProvider,
 	createDnsProviderRecord,
 	deleteDnsProviderRecord,
+	exportDnsProviderZone,
 	findDnsProviderInOrganization,
 	findDnsProvidersByOrganizationId,
+	getDnsProviderHealth,
+	importDnsProviderZone,
+	listDnsProviderDescriptors,
 	listDnsProviderRecords,
 	listDnsProviderZones,
 	maskDnsProviderConfig,
@@ -19,7 +23,9 @@ import {
 	apiCreateDnsProvider,
 	apiCreateDnsRecord,
 	apiDeleteDnsRecord,
+	apiExportDnsZone,
 	apiFindOneDnsProvider,
+	apiImportDnsZone,
 	apiListDnsRecords,
 	apiListDnsZones,
 	apiRemoveDnsProvider,
@@ -115,8 +121,11 @@ export const dnsProviderRouter = createTRPCRouter({
 			}
 
 			let config = input.config;
+			let provider: Awaited<
+				ReturnType<typeof findDnsProviderInOrganization>
+			> | undefined;
 			if (input.dnsProviderId) {
-				const provider = await findDnsProviderInOrganization(
+				provider = await findDnsProviderInOrganization(
 					input.dnsProviderId,
 					ctx.session.activeOrganizationId,
 				);
@@ -125,8 +134,26 @@ export const dnsProviderRouter = createTRPCRouter({
 					: provider.config;
 			}
 
-			await testDnsProviderConnection(config!);
+			await testDnsProviderConnection(config!, provider);
 			return true;
+		}),
+
+	/**
+	 * Capability matrix for every provider type, so the Console can show what a
+	 * provider supports before it is connected.
+	 */
+	descriptors: withPermission("dnsProvider", "read").query(() =>
+		listDnsProviderDescriptors(),
+	),
+
+	health: withPermission("dnsProvider", "read")
+		.input(apiFindOneDnsProvider)
+		.query(async ({ ctx, input }) => {
+			const provider = await findDnsProviderInOrganization(
+				input.dnsProviderId,
+				ctx.session.activeOrganizationId,
+			);
+			return await getDnsProviderHealth(provider.config, provider);
 		}),
 
 	listZones: withPermission("dnsProvider", "read")
@@ -136,7 +163,7 @@ export const dnsProviderRouter = createTRPCRouter({
 				input.dnsProviderId,
 				ctx.session.activeOrganizationId,
 			);
-			return await listDnsProviderZones(provider.config);
+			return await listDnsProviderZones(provider.config, provider);
 		}),
 
 	listRecords: withPermission("dnsProvider", "read")
@@ -146,7 +173,11 @@ export const dnsProviderRouter = createTRPCRouter({
 				input.dnsProviderId,
 				ctx.session.activeOrganizationId,
 			);
-			return await listDnsProviderRecords(provider.config, input.zoneId);
+			return await listDnsProviderRecords(
+				provider.config,
+				input.zoneId,
+				provider,
+			);
 		}),
 
 	createRecord: withPermission("dnsProvider", "update")
@@ -156,14 +187,18 @@ export const dnsProviderRouter = createTRPCRouter({
 				input.dnsProviderId,
 				ctx.session.activeOrganizationId,
 			);
-			const record = await createDnsProviderRecord(provider.config, {
-				zoneId: input.zoneId,
-				type: input.type,
-				name: input.name,
+			const record = await createDnsProviderRecord(
+				provider.config,
+				{
+					zoneId: input.zoneId,
+					type: input.type,
+					name: input.name,
 				content: input.content,
-				ttl: input.ttl,
-				proxied: input.proxied,
-			});
+					ttl: input.ttl,
+					proxied: input.proxied,
+				},
+				provider,
+			);
 			await audit(ctx, {
 				action: "create",
 				resourceType: "dnsProvider",
@@ -191,6 +226,7 @@ export const dnsProviderRouter = createTRPCRouter({
 					ttl: input.ttl,
 					proxied: input.proxied,
 				},
+				provider,
 			);
 			await audit(ctx, {
 				action: "update",
@@ -199,6 +235,51 @@ export const dnsProviderRouter = createTRPCRouter({
 				resourceName: input.name,
 			});
 			return record;
+		}),
+
+	exportZone: withPermission("dnsProvider", "read")
+		.input(apiExportDnsZone)
+		.query(async ({ ctx, input }) => {
+			const provider = await findDnsProviderInOrganization(
+				input.dnsProviderId,
+				ctx.session.activeOrganizationId,
+			);
+			const zones = await listDnsProviderZones(provider.config, provider);
+			const zoneName =
+				zones.find((zone) => zone.id === input.zoneId)?.name ?? input.zoneId;
+			const content = await exportDnsProviderZone(
+				provider.config,
+				zoneName,
+				input.zoneId,
+				provider,
+			);
+			return { zoneName, content };
+		}),
+
+	importZone: withPermission("dnsProvider", "update")
+		.input(apiImportDnsZone)
+		.mutation(async ({ ctx, input }) => {
+			const provider = await findDnsProviderInOrganization(
+				input.dnsProviderId,
+				ctx.session.activeOrganizationId,
+			);
+			const zones = await listDnsProviderZones(provider.config, provider);
+			const zoneName =
+				zones.find((zone) => zone.id === input.zoneId)?.name ?? input.zoneId;
+			const result = await importDnsProviderZone(
+				provider.config,
+				input.zoneId,
+				zoneName,
+				input.content,
+				provider,
+			);
+			await audit(ctx, {
+				action: "update",
+				resourceType: "dnsProvider",
+				resourceId: input.zoneId,
+				resourceName: zoneName,
+			});
+			return result;
 		}),
 
 	deleteRecord: withPermission("dnsProvider", "delete")
@@ -212,6 +293,7 @@ export const dnsProviderRouter = createTRPCRouter({
 				provider.config,
 				input.zoneId,
 				input.recordId,
+				provider,
 			);
 			await audit(ctx, {
 				action: "delete",

@@ -19,6 +19,11 @@
 # server always runs the sources on disk (and hot-reloads them) while keeping
 # the dependencies resolved from pnpm-lock.yaml.
 #
+# Both `notploy` and `notploy-dev` declare `depends_on: [postgres, traefik]`,
+# so a single command (even a service-scoped one such as
+# `docker compose --profile dev up --watch notploy-dev`) always brings up the
+# whole support stack: PostgreSQL, Traefik and Notploy itself.
+#
 # `notploy` (production) and `notploy-dev` (development) both publish the
 # dashboard on ${NOTPLOY_PORT:-3000}, so the app is always reachable at
 # http://localhost:3000 whatever the mode. They are mutually exclusive: only
@@ -28,9 +33,10 @@
 # `make docker-dev`.
 #
 # Architecture: Notploy talks to the *host* Docker Engine through the mounted
-# socket — it is not Docker-in-Docker. Notploy creates and manages its own
-# `notploy-traefik` container on demand, so Traefik is intentionally NOT
-# declared here (declaring it would collide with the managed container).
+# socket — it is not Docker-in-Docker. Traefik is declared natively below and
+# shares the `notploy-config` volume with the app, so Notploy writes its
+# Traefik/dynamic config where the Compose-managed Traefik can read it even when
+# Notploy itself runs in a container (NOTPLOY_CONFIG_PATH points there).
 
 name: notploy
 
@@ -61,6 +67,31 @@ services:
       - notploy
 
   # -------------------------------------------------------------------------
+  # Traefik — the edge router for every deployed application. Declared here so
+  # Compose creates it alongside Notploy (like `postgres`), instead of the app
+  # creating its own container on demand: bind sources created from inside a
+  # container resolve on the host and would not exist there. It reads its static
+  # config and dynamic files from the shared `notploy-config` volume.
+  # -------------------------------------------------------------------------
+  traefik:
+    image: traefik:v${TRAEFIK_VERSION:-3.6.25}
+    container_name: notploy-traefik
+    restart: unless-stopped
+    command:
+      - --configFile=/etc/notploy/traefik/traefik.yml
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+      # Traefik dashboard/API (api.insecure is enabled in the generated config).
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - notploy-config:/etc/notploy
+    networks:
+      - notploy
+
+  # -------------------------------------------------------------------------
   # Notploy — the application. Flavor is selected by NOTPLOY_FLAVOR
   # (selfhosted | cloud), which maps to a Dockerfile target.
   # -------------------------------------------------------------------------
@@ -74,6 +105,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      # Same support stack in production and in development: the Compose-managed
+      # Traefik is always started, never left to be created on demand by the app.
+      traefik:
+        condition: service_started
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -86,9 +121,23 @@ services:
       # Cloud flavor (FLAVOR=cloud / NOTPLOY_FLAVOR=cloud) sets this to true.
       IS_CLOUD: ${IS_CLOUD:-false}
       TZ: ${TZ:-UTC}
+      # Internal DNS: serves the Notploy Internal DNS zones (e.g.
+      # gitlab.notploy.lan) to the LAN and forwards the rest upstream.
+      NOTPLOY_DNS_SERVER: ${NOTPLOY_DNS_SERVER:-true}
+      NOTPLOY_DNS_PORT: 53
+      NOTPLOY_DNS_UPSTREAM: ${NOTPLOY_DNS_UPSTREAM:-1.1.1.1,8.8.8.8}
+      # Share the Traefik config with the Compose-managed `traefik` service.
+      NOTPLOY_CONFIG_PATH: /etc/notploy
     ports:
       # Host port is configurable; the container always listens on 3000.
       - "${NOTPLOY_PORT:-3000}:3000"
+      # DNS for LAN clients. Point your router/DHCP DNS at this host. The host
+      # side defaults to 53, so it must be free: systemd-resolved, dnsmasq or
+      # Pi-hole hold it on most distros and the container then fails with
+      # "listen tcp4 0.0.0.0:53: bind: address already in use". Shift the host
+      # port with NOTPLOY_DNS_HOST_PORT in .env (the container always stays 53).
+      - "${NOTPLOY_DNS_HOST_PORT:-53}:53/udp"
+      - "${NOTPLOY_DNS_HOST_PORT:-53}:53/tcp"
     volumes:
       # Host Docker Engine access (required: Notploy deploys and manages
       # containers). Socket access, not Docker-in-Docker.
@@ -140,13 +189,24 @@ services:
       # (macOS/Windows) set DEV_POLLING=true to use polling instead.
       CHOKIDAR_USEPOLLING: ${DEV_POLLING:-false}
       WATCHPACK_POLLING: ${DEV_POLLING:-false}
+      # Internal DNS server (see the production service above).
+      NOTPLOY_DNS_SERVER: ${NOTPLOY_DNS_SERVER:-true}
+      NOTPLOY_DNS_PORT: 53
+      NOTPLOY_DNS_UPSTREAM: ${NOTPLOY_DNS_UPSTREAM:-1.1.1.1,8.8.8.8}
+      # Share the Traefik config with the Compose-managed `traefik` service.
+      NOTPLOY_CONFIG_PATH: /etc/notploy
     ports:
       # Same host port as production: the app is always on
       # http://localhost:${NOTPLOY_PORT:-3000}.
       - "${NOTPLOY_PORT:-3000}:3000"
+      # DNS for LAN clients (see the production service above).
+      - "${NOTPLOY_DNS_HOST_PORT:-53}:53/udp"
+      - "${NOTPLOY_DNS_HOST_PORT:-53}:53/tcp"
     depends_on:
       postgres:
         condition: service_healthy
+      traefik:
+        condition: service_started
     volumes:
       # The sources are bind-mounted from the host so that editing a file
       # hot-reloads the dev server. `develop.watch` is deliberately not used for

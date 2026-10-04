@@ -1,9 +1,11 @@
 import {
 	createDomain,
 	findApplicationById,
+	findComposeById,
 	findDomainById,
 	findDomainsByApplicationId,
 	findDomainsByComposeId,
+	findInternalDnsProvider,
 	findPreviewDeploymentById,
 	findServerById,
 	generateTraefikMeDomain,
@@ -12,13 +14,14 @@ import {
 	manageDomain,
 	removeDomain,
 	removeDomainById,
+	syncDomainToInternalDns,
 	updateDomainById,
 	validateDomain,
 } from "@notploy/server";
 import { checkServicePermissionAndAccess } from "@notploy/server/services/permission";
+import { getDomainRequirements } from "@notploy/server/utils/domain-scope";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { getDomainRequirements } from "@notploy/server/utils/domain-scope";
 import {
 	createTRPCRouter,
 	protectedProcedure,
@@ -33,7 +36,45 @@ import {
 	apiUpdateDomain,
 } from "@/server/db/schema";
 
+/** Resolves the server a domain is hosted on, if any. */
+const resolveDomainServerId = async (domain: {
+	applicationId?: string | null;
+	composeId?: string | null;
+	previewDeploymentId?: string | null;
+}): Promise<string | null> => {
+	try {
+		if (domain.applicationId) {
+			return (await findApplicationById(domain.applicationId)).serverId ?? null;
+		}
+		if (domain.composeId) {
+			return (await findComposeById(domain.composeId)).serverId ?? null;
+		}
+		if (domain.previewDeploymentId) {
+			const preview = await findPreviewDeploymentById(
+				domain.previewDeploymentId,
+			);
+			return (
+				(await findApplicationById(preview.applicationId)).serverId ?? null
+			);
+		}
+	} catch {
+		// The service may have been removed; fall back to the panel IP.
+	}
+	return null;
+};
+
 export const domainRouter = createTRPCRouter({
+	/**
+	 * Whether the organization has a Notploy Internal DNS provider, so the domain
+	 * dialog can tell the user their LAN host will resolve automatically (or
+	 * point them at the DNS settings page when it will not).
+	 */
+	internalDns: protectedProcedure.query(async ({ ctx }) => {
+		const provider = await findInternalDnsProvider(
+			ctx.session.activeOrganizationId,
+		);
+		return { available: !!provider };
+	}),
 	create: protectedProcedure
 		.input(apiCreateDomain)
 		.mutation(async ({ input, ctx }) => {
@@ -54,7 +95,12 @@ export const domainRouter = createTRPCRouter({
 					resourceId: domain.domainId,
 					resourceName: domain.host,
 				});
-				return domain;
+				const internalDns = await syncDomainToInternalDns({
+					host: domain.host,
+					serverId: await resolveDomainServerId(domain),
+					organizationId: ctx.session.activeOrganizationId,
+				}).catch(() => ({ status: "no-provider" as const }));
+				return { ...domain, internalDns };
 			} catch (error) {
 				throw new TRPCError({
 					code: "BAD_REQUEST",
@@ -156,7 +202,12 @@ export const domainRouter = createTRPCRouter({
 				application.appName = previewDeployment.appName;
 				await manageDomain(application, domain);
 			}
-			return result;
+			const internalDns = await syncDomainToInternalDns({
+				host: domain.host,
+				serverId: await resolveDomainServerId(domain),
+				organizationId: ctx.session.activeOrganizationId,
+			}).catch(() => ({ status: "no-provider" as const }));
+			return { ...result, internalDns };
 		}),
 	toggleEnable: protectedProcedure
 		.input(apiFindDomain)

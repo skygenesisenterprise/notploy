@@ -7,18 +7,23 @@ import {
 	type PaginationState,
 	type SortingState,
 	useReactTable,
+	type VisibilityState,
 } from "@tanstack/react-table";
 import {
 	ArrowLeft,
 	ArrowUpDown,
 	Cloud,
 	CloudOff,
+	Columns3,
+	Download,
 	ListTree,
 	Loader2,
 	PenBoxIcon,
 	PlusIcon,
 	Search,
+	SlidersHorizontal,
 	Trash2,
+	Upload,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -26,6 +31,7 @@ import { toast } from "sonner";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { FocusShortcutInput } from "@/components/shared/focus-shortcut-input";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -34,6 +40,24 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import {
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuLabel,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
 	Select,
 	SelectContent,
@@ -49,6 +73,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	Tooltip,
 	TooltipContent,
@@ -57,6 +82,7 @@ import {
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
 import {
+	AddDnsRecordDialog,
 	DNS_RECORD_TYPES,
 	DnsRecordPanel,
 	type DnsRecordValue,
@@ -70,6 +96,16 @@ interface Props {
 }
 
 const PAGE_SIZES = [10, 20, 50, 100];
+
+const DISPLAY_COLUMNS = [
+	{ id: "name", label: "Name" },
+	{ id: "type", label: "Type" },
+	{ id: "content", label: "Content" },
+	{ id: "proxied", label: "Proxy status" },
+	{ id: "ttl", label: "TTL" },
+	{ id: "tags", label: "Tags" },
+	{ id: "comment", label: "Comment" },
+] as const;
 
 const SortableHeader = ({
 	column,
@@ -94,6 +130,20 @@ const SortableHeader = ({
 	</Button>
 );
 
+const StaticHeader = ({ title }: { title: string }) => (
+	<span className="text-xs font-medium text-muted-foreground">{title}</span>
+);
+
+/** Cloudflare-style relative owner name (`@` for the apex). */
+const relativeName = (name: string, zoneName: string) => {
+	if (!zoneName) return name;
+	if (name === zoneName || name === "@") return "@";
+	if (name.endsWith(`.${zoneName}`)) {
+		return name.slice(0, -(zoneName.length + 1));
+	}
+	return name;
+};
+
 export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 	const utils = api.useUtils();
 	const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -101,6 +151,10 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const [search, setSearch] = useState("");
 	const [typeFilter, setTypeFilter] = useState("all");
+	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+	const [importOpen, setImportOpen] = useState(false);
+	const [importContent, setImportContent] = useState("");
+	const [isExporting, setIsExporting] = useState(false);
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: "name", desc: false },
 	]);
@@ -116,6 +170,11 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 	const { data: permissions } = api.user.getPermissions.useQuery();
 	const { mutateAsync: deleteRecord } =
 		api.dnsProvider.deleteRecord.useMutation();
+	const importZone = api.dnsProvider.importZone.useMutation();
+	const exportQuery = api.dnsProvider.exportZone.useQuery(
+		{ dnsProviderId, zoneId },
+		{ enabled: false, retry: false },
+	);
 
 	const zoneName = zones?.find((zone) => zone.id === zoneId)?.name ?? "";
 	const isCloudflare = provider?.providerType === "cloudflare";
@@ -140,10 +199,59 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 			return (
 				record.name.toLowerCase().includes(query) ||
 				record.content.toLowerCase().includes(query) ||
-				record.type.toLowerCase().includes(query)
+				record.type.toLowerCase().includes(query) ||
+				(record.comment ?? "").toLowerCase().includes(query) ||
+				(record.tags ?? []).some((tag) => tag.toLowerCase().includes(query))
 			);
 		});
 	}, [data, search, typeFilter]);
+
+	const handleExport = async () => {
+		setIsExporting(true);
+		try {
+			const result = await exportQuery.refetch();
+			if (result.error || !result.data) {
+				throw result.error ?? new Error("Export failed");
+			}
+			const blob = new Blob([result.data.content], { type: "text/plain" });
+			const url = URL.createObjectURL(blob);
+			const anchor = document.createElement("a");
+			anchor.href = url;
+			anchor.download = `${result.data.zoneName || "zone"}.zone`;
+			document.body.appendChild(anchor);
+			anchor.click();
+			anchor.remove();
+			URL.revokeObjectURL(url);
+			toast.success("Zone exported");
+		} catch {
+			toast.error("Error exporting the zone");
+		} finally {
+			setIsExporting(false);
+		}
+	};
+
+	const handleImport = async () => {
+		if (!importContent.trim()) return;
+		await importZone
+			.mutateAsync({ dnsProviderId, zoneId, content: importContent })
+			.then((result) => {
+				utils.dnsProvider.listRecords.invalidate({ dnsProviderId, zoneId });
+				if (result.failed > 0) {
+					toast.warning(
+						`Imported ${result.created} record${result.created === 1 ? "" : "s"}, ${result.failed} failed`,
+					);
+				} else {
+					toast.success(
+						`Imported ${result.created} record${result.created === 1 ? "" : "s"}`,
+					);
+				}
+				setImportOpen(false);
+				setImportContent("");
+			})
+			.catch(() => {
+				toast.error("Error importing the zone");
+			});
+	};
 
 	const handleDelete = async (record: DnsRecordValue) => {
 		setDeletingId(record.id);
@@ -162,36 +270,62 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 	const columns = useMemo<ColumnDef<DnsRecordValue>[]>(
 		() => [
 			{
+				accessorKey: "name",
+				header: ({ column }) => <SortableHeader column={column} title="Name" />,
+				cell: ({ row }) => (
+					<span
+						className="block max-w-[26ch] truncate font-medium"
+						title={row.original.name}
+					>
+						{relativeName(row.original.name, zoneName)}
+					</span>
+				),
+			},
+			{
 				accessorKey: "type",
 				header: ({ column }) => <SortableHeader column={column} title="Type" />,
 				cell: ({ row }) => <DnsRecordTypeBadge type={row.original.type} />,
 			},
 			{
-				accessorKey: "name",
-				header: ({ column }) => <SortableHeader column={column} title="Name" />,
-				cell: ({ row }) => (
-					<span
-						className="block max-w-[22ch] truncate font-medium"
-						title={row.original.name}
-					>
-						{row.original.name}
-					</span>
-				),
-			},
-			{
 				accessorKey: "content",
 				header: ({ column }) => (
-					<SortableHeader column={column} title="Value" />
+					<SortableHeader column={column} title="Content" />
 				),
 				cell: ({ row }) => (
 					<span
-						className="block max-w-[32ch] truncate font-mono text-xs text-muted-foreground"
+						className="block max-w-[38ch] truncate font-mono text-xs text-primary underline-offset-2 hover:underline"
 						title={row.original.content}
 					>
 						{row.original.content}
 					</span>
 				),
 			},
+			...(isCloudflare
+				? [
+						{
+							accessorKey: "proxied",
+							header: ({ column }) => (
+								<SortableHeader column={column} title="Proxy status" />
+							),
+							cell: ({ row }) => {
+								if (!PROXIABLE_TYPES.includes(row.original.type)) {
+									return <span className="text-muted-foreground">—</span>;
+								}
+								const proxied = !!row.original.proxied;
+								return (
+									<span className="inline-flex items-center gap-1.5 text-xs">
+										{proxied ? (
+											<Cloud className="size-3.5 text-[#f6821f]" />
+										) : (
+											<CloudOff className="size-3.5 text-muted-foreground" />
+										)}
+										{proxied ? "Proxied" : "DNS only"}
+									</span>
+								);
+							},
+						} satisfies ColumnDef<DnsRecordValue>,
+					]
+				: []),
 			{
 				accessorKey: "ttl",
 				header: ({ column }) => <SortableHeader column={column} title="TTL" />,
@@ -201,44 +335,47 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 					</span>
 				),
 			},
-			...(isCloudflare
-				? [
-						{
-							accessorKey: "proxied",
-							header: ({ column }) => (
-								<SortableHeader column={column} title="Proxy" />
-							),
-							cell: ({ row }) => {
-								if (!PROXIABLE_TYPES.includes(row.original.type)) {
-									return null;
-								}
-								const proxied = !!row.original.proxied;
-								return (
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<span className="inline-flex">
-												{proxied ? (
-													<Cloud className="size-4 text-[#f6821f]" />
-												) : (
-													<CloudOff className="size-4 text-muted-foreground" />
-												)}
-												<span className="sr-only">
-													{proxied ? "Proxied" : "DNS only"}
-												</span>
-											</span>
-										</TooltipTrigger>
-										<TooltipContent>
-											{proxied ? "Proxied" : "DNS only"}
-										</TooltipContent>
-									</Tooltip>
-								);
-							},
-						} satisfies ColumnDef<DnsRecordValue>,
-					]
-				: []),
+			{
+				accessorKey: "tags",
+				enableSorting: false,
+				header: () => <StaticHeader title="Tags" />,
+				cell: ({ row }) => {
+					const tags = row.original.tags ?? [];
+					if (!tags.length) {
+						return <span className="text-muted-foreground">—</span>;
+					}
+					return (
+						<div className="flex flex-wrap gap-1">
+							{tags.map((tag) => (
+								<Badge
+									key={tag}
+									variant="secondary"
+									className="text-[10px] font-normal"
+								>
+									{tag}
+								</Badge>
+							))}
+						</div>
+					);
+				},
+			},
+			{
+				accessorKey: "comment",
+				enableSorting: false,
+				header: () => <StaticHeader title="Comment" />,
+				cell: ({ row }) => (
+					<span
+						className="block max-w-[28ch] truncate text-xs text-muted-foreground"
+						title={row.original.comment}
+					>
+						{row.original.comment || "—"}
+					</span>
+				),
+			},
 			{
 				id: "actions",
 				enableSorting: false,
+				enableHiding: false,
 				header: () => <span className="sr-only">Actions</span>,
 				cell: ({ row }) => {
 					const record = row.original;
@@ -291,7 +428,11 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 				},
 			},
 		],
-		[canWrite, canDelete, deletingId, editing?.id, isCloudflare],
+		[canWrite, canDelete, deletingId, editing?.id, isCloudflare, zoneName],
+	);
+
+	const visibleDisplayColumns = DISPLAY_COLUMNS.filter(
+		(column) => column.id !== "proxied" || isCloudflare,
 	);
 
 	const pageCount = Math.max(
@@ -310,9 +451,11 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 		state: {
 			sorting,
 			pagination: { pageIndex, pageSize: pagination.pageSize },
+			columnVisibility,
 		},
 		onSortingChange: setSorting,
 		onPaginationChange: setPagination,
+		onColumnVisibilityChange: setColumnVisibility,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
@@ -332,25 +475,15 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 							</Button>
 							<CardHeader className="flex-1 p-0">
 								<CardTitle className="text-xl">
-									{zoneName || "DNS records"}
+									DNS records for {zoneName || "this zone"}
 								</CardTitle>
 								<CardDescription>
-									Records managed through {provider?.name ?? "this provider"}.
-									Changes are written straight to the provider.
+									Manage how the internet finds your content, verifies services
+									and routes traffic. Changes are written straight to{" "}
+									{provider?.name ?? "the provider"}.
 								</CardDescription>
 							</CardHeader>
 						</div>
-						{canWrite && (
-							<Button
-								onClick={() => {
-									setEditing(null);
-									setIsPanelOpen(true);
-								}}
-							>
-								<PlusIcon className="size-4" />
-								Add Record
-							</Button>
-						)}
 					</div>
 
 					<CardContent className="min-h-[60vh] border-t py-8">
@@ -373,16 +506,38 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 											</p>
 											<p className="max-w-sm text-sm text-muted-foreground">
 												Add an A or CNAME record to point this domain at one of
-												your servers.
+												your servers, or import an existing zone file.
 											</p>
 										</div>
+										{canWrite && (
+											<div className="flex items-center gap-2">
+												<AddDnsRecordDialog
+													dnsProviderId={dnsProviderId}
+													zoneId={zoneId}
+													zoneName={zoneName}
+													trigger={
+														<Button>
+															<PlusIcon className="size-4" />
+															Add record
+														</Button>
+													}
+												/>
+												<Button
+													variant="outline"
+													onClick={() => setImportOpen(true)}
+												>
+													<Upload className="size-4" />
+													Import
+												</Button>
+											</div>
+										)}
 									</div>
 								) : (
 									<>
 										<div className="flex flex-wrap items-center gap-2">
 											<div className="relative min-w-52 flex-1">
 												<FocusShortcutInput
-													placeholder="Filter records..."
+													placeholder="Search DNS records"
 													value={search}
 													onChange={(e) => {
 														setSearch(e.target.value);
@@ -392,27 +547,111 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 												/>
 												<Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 											</div>
-											<Select
-												value={typeFilter}
-												onValueChange={(value) => {
-													setTypeFilter(value);
-													resetToFirstPage();
-												}}
-											>
-												<SelectTrigger className="w-36">
-													<SelectValue />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="all">All types</SelectItem>
-													{availableTypes.map((type) => (
-														<SelectItem key={type} value={type}>
-															{type}
-														</SelectItem>
+
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant="outline" size="sm">
+														<SlidersHorizontal className="size-4" />
+														Filters
+														{typeFilter !== "all" && (
+															<Badge
+																variant="secondary"
+																className="ml-1 text-[10px]"
+															>
+																{typeFilter}
+															</Badge>
+														)}
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="start" className="w-44">
+													<DropdownMenuLabel>Type</DropdownMenuLabel>
+													<DropdownMenuSeparator />
+													<DropdownMenuRadioGroup
+														value={typeFilter}
+														onValueChange={(value) => {
+															setTypeFilter(value);
+															resetToFirstPage();
+														}}
+													>
+														<DropdownMenuRadioItem value="all">
+															All types
+														</DropdownMenuRadioItem>
+														{availableTypes.map((type) => (
+															<DropdownMenuRadioItem key={type} value={type}>
+																{type}
+															</DropdownMenuRadioItem>
+														))}
+													</DropdownMenuRadioGroup>
+												</DropdownMenuContent>
+											</DropdownMenu>
+
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant="outline" size="sm">
+														<Columns3 className="size-4" />
+														Display options
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="start" className="w-48">
+													<DropdownMenuLabel>Columns</DropdownMenuLabel>
+													<DropdownMenuSeparator />
+													{visibleDisplayColumns.map((column) => (
+														<DropdownMenuCheckboxItem
+															key={column.id}
+															checked={columnVisibility[column.id] !== false}
+															onCheckedChange={(checked) =>
+																setColumnVisibility((previous) => ({
+																	...previous,
+																	[column.id]: checked,
+																}))
+															}
+														>
+															{column.label}
+														</DropdownMenuCheckboxItem>
 													))}
-												</SelectContent>
-											</Select>
-											<span className="ml-auto text-xs text-muted-foreground tabular-nums">
-												{filteredRecords.length} of {data?.length ?? 0}
+												</DropdownMenuContent>
+											</DropdownMenu>
+
+											{canWrite && (
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={() => setImportOpen(true)}
+												>
+													<Upload className="size-4" />
+													Import
+												</Button>
+											)}
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={handleExport}
+												isLoading={isExporting}
+											>
+												<Download className="size-4" />
+												Export
+											</Button>
+											{canWrite && (
+												<AddDnsRecordDialog
+													dnsProviderId={dnsProviderId}
+													zoneId={zoneId}
+													zoneName={zoneName}
+													trigger={
+														<Button size="sm">
+															<PlusIcon className="size-4" />
+															Add record
+														</Button>
+													}
+												/>
+											)}
+										</div>
+
+										<div className="flex items-center justify-between">
+											<span className="text-xs text-muted-foreground tabular-nums">
+												{filteredRecords.length} record
+												{filteredRecords.length === 1 ? "" : "s"}
+												{filteredRecords.length !== (data?.length ?? 0) &&
+													` of ${data?.length ?? 0}`}
 											</span>
 										</div>
 
@@ -489,7 +728,7 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 													) : (
 														<TableRow className="hover:bg-transparent">
 															<TableCell
-																colSpan={columns.length}
+																colSpan={table.getVisibleLeafColumns().length}
 																className="h-24 text-center text-muted-foreground"
 															>
 																No records match your filters.
@@ -565,7 +804,7 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 								<div className="overflow-hidden">
 									<div
 										data-open={isPanelOpen}
-										className="t-panel-slide-x w-full lg:w-[380px]"
+										className="t-panel-slide-x w-full lg:w-95"
 									>
 										{canWrite && (
 											<DnsRecordPanel
@@ -584,6 +823,43 @@ export const ShowDnsRecords = ({ dnsProviderId, zoneId }: Props) => {
 					</CardContent>
 				</div>
 			</Card>
+
+			<Dialog open={importOpen} onOpenChange={setImportOpen}>
+				<DialogContent className="sm:max-w-lg">
+					<DialogHeader>
+						<DialogTitle>Import DNS records</DialogTitle>
+						<DialogDescription>
+							Paste a BIND-style zone file. Supported records are added to{" "}
+							{zoneName || "this zone"}; unsupported entries (SOA, DNSSEC) are
+							skipped.
+						</DialogDescription>
+					</DialogHeader>
+					{importZone.isError && (
+						<AlertBlock type="error">{importZone.error?.message}</AlertBlock>
+					)}
+					<Textarea
+						value={importContent}
+						onChange={(event) => setImportContent(event.target.value)}
+						placeholder={
+							"@\t3600\tIN\tA\t203.0.113.10\nwww\t3600\tIN\tCNAME\texample.com."
+						}
+						className="min-h-[220px] font-mono text-xs"
+					/>
+					<DialogFooter>
+						<Button variant="ghost" onClick={() => setImportOpen(false)}>
+							Cancel
+						</Button>
+						<Button
+							onClick={handleImport}
+							isLoading={importZone.isPending}
+							disabled={!importContent.trim()}
+						>
+							<Upload className="size-4" />
+							Import records
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 };

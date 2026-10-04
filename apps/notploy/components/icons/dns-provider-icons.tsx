@@ -1,23 +1,99 @@
+import Image from "next/image";
+import type { SVGProps } from "react";
+import { brandIcons } from "@/lib/dns-provider-brand-icons";
+import { cn } from "@/lib/utils";
+
 interface Props {
 	className?: string;
 }
 
-export const CloudflareIcon = ({ className }: Props) => (
+const BrandIcon = ({
+	data,
+	className,
+}: {
+	data: { hex: string; path: string };
+	className?: string;
+}) => (
+	<svg
+		viewBox="0 0 24 24"
+		xmlns="http://www.w3.org/2000/svg"
+		className={className}
+		fill={`#${data.hex}`}
+		aria-hidden="true"
+	>
+		<path d={data.path} />
+	</svg>
+);
+
+const MonochromeIcon = ({
+	children,
+	className,
+	...props
+}: Props & SVGProps<SVGSVGElement>) => (
 	<svg
 		viewBox="0 0 24 24"
 		fill="currentColor"
 		xmlns="http://www.w3.org/2000/svg"
 		className={className}
+		aria-hidden="true"
+		{...props}
 	>
-		<path d="M16.5088 16.8447c.1475-.5068.0908-.9707-.1553-1.3154-.2246-.3164-.6045-.499-1.0615-.5205l-8.6592-.1123a.1559.1559 0 0 1-.1333-.0713c-.0283-.042-.0351-.0986-.021-.1553.0278-.084.1123-.1484.2036-.1562l8.7359-.1123c1.0351-.0489 2.1601-.8868 2.5537-1.9136l.499-1.3013c.0215-.0561.0293-.1128.0147-.168-.5625-2.5463-2.835-4.4453-5.5499-4.4453-2.5039 0-4.6284 1.6177-5.3876 3.8614-.4927-.3658-1.1187-.5625-1.794-.499-1.2026.119-2.1665 1.083-2.2861 2.2856-.0283.31-.0069.6128.0635.894C1.5683 13.171 0 14.7754 0 16.752c0 .1748.0142.3515.0352.5273.0141.083.0844.1475.1689.1475h15.9814c.0909 0 .1758-.0645.2032-.1553l.12-.4268zm2.7568-5.5634c-.0771 0-.1611 0-.2383.0112-.0566 0-.1054.0415-.127.0976l-.3378 1.1744c-.1475.5068-.0918.9707.1543 1.3164.2256.3164.6055.498 1.0625.5195l1.8437.1133c.0557 0 .1055.0263.1329.0703.0283.043.0351.1074.0214.1562-.0283.084-.1132.1485-.204.1553l-1.921.1123c-1.041.0488-2.1582.8867-2.5527 1.914l-.1406.3585c-.0283.0713.0215.1416.0986.1416h6.5977c.0771 0 .1474-.0489.169-.126.1122-.4082.1757-.837.1757-1.2803 0-2.6025-2.125-4.727-4.7344-4.727" />
+		{children}
 	</svg>
 );
 
+export const CloudflareIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.cloudflare} className={className} />
+);
+
+export const PorkbunIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.porkbun} className={className} />
+);
+
+export const InfomaniakIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.infomaniak} className={className} />
+);
+
+export const OvhIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.ovh} className={className} />
+);
+
+export const HetznerIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.hetzner} className={className} />
+);
+
+export const DigitalOceanIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.digitalocean} className={className} />
+);
+
+export const GandiIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.gandi} className={className} />
+);
+
+export const VultrIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.vultr} className={className} />
+);
+
+export const GodaddyIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.godaddy} className={className} />
+);
+
+export const NamecheapIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.namecheap} className={className} />
+);
+
+export const BunnyIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.bunny} className={className} />
+);
+
+/** AWS Route53 — simple-icons only ships the AWS glyph, so the Route53 mark is
+ * kept inline to preserve the existing look. */
 export const Route53Icon = ({ className }: Props) => (
 	<svg
 		viewBox="0 0 304 182"
 		xmlns="http://www.w3.org/2000/svg"
 		className={className}
+		aria-hidden="true"
 	>
 		<path
 			fill="currentColor"
@@ -34,83 +110,104 @@ export const Route53Icon = ({ className }: Props) => (
 	</svg>
 );
 
-export const PorkbunIcon = ({ className }: Props) => (
-	<svg
-		viewBox="0 0 129.3 114.3"
-		xmlns="http://www.w3.org/2000/svg"
-		className={className}
-	>
-		<path
-			fill="#ED7778"
-			d="M76,23.6c-18.7,0-33.8,15.1-33.8,33.8S57.3,91.3,76,91.3s33.8-15.1,33.8-33.8S94.7,23.6,76,23.6z"
-		/>
-		<path
-			fill="#FFFFFF"
-			d="M67.1,43.4c-2.6-1.4-5.5-2.5-8.5-3.2c-0.6,1.3-0.9,2.6-0.9,4.1c0,2.2,0.7,4.2,1.9,5.8     C61.5,47.3,64,44.9,67.1,43.4z"
-		/>
-		<path
-			fill="#FFFFFF"
-			d="M92.4,50.1c1.2-1.6,1.9-3.6,1.9-5.8c0-1.5-0.3-2.9-0.9-4.1c-3,0.6-5.9,1.7-8.5,3.2     C87.9,44.9,90.5,47.3,92.4,50.1z"
-		/>
-		<path
-			fill="#FFFFFF"
-			d="M80.5,54.7c-0.6,0-1.1,0.5-1.1,1.1c0,0.2,0.1,0.4,0.2,0.6l0,0c0.4,0.6,1,1,1.7,1.2     c0.2-0.4,0.3-0.9,0.3-1.4c0-0.2,0-0.3,0-0.5C81.5,55.1,81.1,54.7,80.5,54.7z"
-		/>
-		<path
-			fill="#FFFFFF"
-			d="M75.3,42.5c-9.9,0.4-17.6,8.8-17.6,18.7v10.3c0,1.8,1.5,3.3,3.3,3.3c1.8,0,3.3-1.5,3.3-3.3v-2.7h23.2v2.7     c0,1.8,1.5,3.3,3.3,3.3c1.8,0,3.3-1.5,3.3-3.3V60.7C94.2,50.4,85.7,42.1,75.3,42.5z M85.7,56.9c-0.6,1-1.5,1.7-2.6,2.1     c-0.7,1.4-2.2,2.4-3.9,2.4c-0.2,0-0.4,0-0.5,0c-0.6,0-1.1-0.5-1.1-1.1c0-0.6,0.5-1.1,1.1-1.1v0c0.5,0,1-0.2,1.4-0.4     c-0.6-0.3-1.2-0.7-1.6-1.3c-0.4-0.5-0.6-1-0.6-1.7c0-1.4,1.2-2.6,2.6-2.6c0.9,0,1.6,0.4,2.1,1.1c0.6,0.8,1,1.7,1,2.8     c0,0.1,0,0.2,0,0.4c0.5-0.2,0.9-0.6,1.2-1c0.2-0.3,0.5-0.3,0.8-0.2C85.8,56.2,85.9,56.6,85.7,56.9z"
-		/>
-		<path
-			fill="#212222"
-			d="M128,44.6h4.5v2.2c0,1-0.1,1.9-0.1,1.9h0.1c0,0,2.2-4.6,8.5-4.6c6.8,0,11.1,5.4,11.1,13.3     c0,8.1-4.9,13.3-11.5,13.3c-5.6,0-7.8-4.2-7.8-4.2h-0.1c0,0,0.1,0.9,0.1,2.2v11.4H128V44.6z M139.9,66.4c4,0,7.3-3.3,7.3-9.1     c0-5.5-3-9.1-7.2-9.1c-3.8,0-7.3,2.7-7.3,9.1C132.7,61.9,135.2,66.4,139.9,66.4z"
-		/>
-		<path
-			fill="#212222"
-			d="M170.9,44c7.6,0,13.7,5.6,13.7,13.2c0,7.7-6.1,13.3-13.7,13.3s-13.7-5.6-13.7-13.3     C157.2,49.6,163.3,44,170.9,44z M170.9,66.3c4.8,0,8.7-3.8,8.7-9.1c0-5.3-3.9-9-8.7-9c-4.8,0-8.7,3.8-8.7,9     C162.2,62.5,166.1,66.3,170.9,66.3z"
-		/>
-		<path
-			fill="#212222"
-			d="M191.3,44.6h4.7V49c0,1.1-0.1,1.9-0.1,1.9h0.1c1.2-3.7,4.1-6.6,8-6.6c0.7,0,1.3,0.1,1.3,0.1v4.8     c0,0-0.7-0.1-1.4-0.1c-3.1,0-6,2.2-7.1,6c-0.5,1.5-0.6,3-0.6,4.6v10.4h-4.9V44.6z"
-		/>
-		<path
-			fill="#212222"
-			d="M211,34.6h4.9v19.3h3.6l6.9-9.3h5.5l-8.4,11.2v0.1l9.4,14.1h-5.7L219.5,58h-3.7v11.9H211V34.6z"
-		/>
-		<path
-			fill="#212222"
-			d="M238.3,34.6h4.9v11.6c0,1.3-0.1,2.2-0.1,2.2h0.1c0,0,2.2-4.3,8.1-4.3c6.8,0,11.1,5.4,11.1,13.3     c0,8.1-4.9,13.3-11.5,13.3c-5.7,0-8-4.4-8-4.4h-0.1c0,0,0.1,0.8,0.1,1.9v1.9h-4.6V34.6z M250.2,66.4c4,0,7.3-3.3,7.3-9.1     c0-5.5-3-9.1-7.2-9.1c-3.8,0-7.3,2.7-7.3,9.1C243,61.9,245.4,66.4,250.2,66.4z"
-		/>
-		<path
-			fill="#212222"
-			d="M269,44.6h4.9v15.1c0,3.5,0.7,6.3,4.8,6.3c5.2,0,8.2-4.6,8.2-9.6V44.6h4.9v25.3H287v-3.4     c0-1.1,0.1-1.9,0.1-1.9H287c-1.1,2.5-4.4,5.8-9.3,5.8c-5.7,0-8.7-3-8.7-9.7V44.6z"
-		/>
-		<path
-			fill="#212222"
-			d="M300.3,44.6h4.7V48c0,1-0.1,1.9-0.1,1.9h0.1c1-2.2,4-5.8,9.5-5.8c6,0,8.7,3.3,8.7,9.7v16.2h-4.9V54.8     c0-3.6-0.8-6.4-4.8-6.4c-3.9,0-7,2.6-8,6.2c-0.3,1-0.4,2.2-0.4,3.4v11.9h-4.9V44.6z"
-		/>
-	</svg>
+/** NS1 ships no brand mark in simple-icons, so a neutral globe is used. */
+export const Ns1Icon = ({ className }: Props) => (
+	<MonochromeIcon className={className}>
+		<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2c1.2 0 2.3 1.9 2.8 4.6A22 22 0 0 0 12 8.5c-1 0-1.9.03-2.8.1C9.7 5.9 10.8 4 12 4Zm-4.6 2.3c-.4 1-.7 2.1-.9 3.2-1-.3-1.9-.7-2.5-1.2a8 8 0 0 1 3.4-2Zm9.2 0a8 8 0 0 1 3.4 2c-.6.5-1.5.9-2.5 1.2-.2-1.1-.5-2.2-.9-3.2ZM12 10.5c1.1 0 2.1.04 3.1.11.04.45.06.92.06 1.39 0 .47-.02.94-.06 1.39-1 .07-2 .11-3.1.11s-2.1-.04-3.1-.11A21 21 0 0 1 8.84 12c0-.47.02-.94.06-1.39 1-.07 2-.11 3.1-.11Zm-4.8-.4c-.1.6-.15 1.2-.15 1.9s.05 1.3.15 1.9c-1.2-.2-2.2-.5-3-.9a8 8 0 0 1 0-2c.8-.4 1.8-.7 3-.9Zm9.6 0c1.2.2 2.2.5 3 .9a8 8 0 0 1 0 2c-.8.4-1.8.7-3 .9.1-.6.15-1.2.15-1.9s-.05-1.3-.15-1.9Zm-8.5 4.9c.9.07 1.8.1 2.8.1s1.9-.03 2.8-.1c-.5 2.7-1.6 4.6-2.8 4.6s-2.3-1.9-2.8-4.6Zm-1.9-.3c-.4 1-.7 2.1-.9 3.2-1-.3-1.9-.7-2.5-1.2a8 8 0 0 0 3.4 2Zm9.2 0a8 8 0 0 0 3.4 2c-.6.5-1.5.9-2.5 1.2-.2-1.1-.5-2.2-.9-3.2Z" />
+	</MonochromeIcon>
 );
 
-export const InfomaniakIcon = ({ className }: Props) => (
-	<svg
-		viewBox="0 0 24 24"
-		fill="currentColor"
-		xmlns="http://www.w3.org/2000/svg"
-		className={className}
-	>
-		<path d="M2.4 0A2.395 2.395 0 0 0 0 2.4v19.2C0 22.9296 1.0704 24 2.4 24h19.2c1.3296 0 2.4-1.0704 2.4-2.4V2.4C24 1.0704 22.9296 0 21.6 0H10.112v11.7119l3.648-4.128h6l-4.58 4.3506 4.868 8.1296h-5.52l-2.5938-5.0211L10.112 16.8v3.264H5.12V0Z" />
-	</svg>
+/** GoDaddy's brand path is wide; keep a simple "G" mark for compact rows. */
+export const AkamaiIcon = ({ className }: Props) => (
+	<BrandIcon data={brandIcons.akamai} className={className} />
 );
 
-export const OvhIcon = ({ className }: Props) => (
-	<svg
-		viewBox="0 0 24 24"
-		fill="currentColor"
-		xmlns="http://www.w3.org/2000/svg"
-		className={className}
-	>
-		<path d="M19.881 10.095l2.563-4.45C23.434 7.389 24 9.404 24 11.555c0 2.88-1.017 5.523-2.71 7.594h-6.62l2.04-3.541h-2.696l3.176-5.513h2.691zm-2.32-5.243L9.333 19.14l.003.009H2.709C1.014 17.077 0 14.435 0 11.555c0-2.152.57-4.17 1.561-5.918L5.855 13.1 10.6 4.852h6.961z" />
-	</svg>
+/** Linode is now Akamai; the Linode mark is kept as a distinct glyph. */
+export const LinodeIcon = ({ className }: Props) => (
+	<MonochromeIcon className={className}>
+		<path d="M12 2c-2 0-3.6.4-4.9 1.2-.7.4-1 1-.9 1.7.1.6.5 1 1.1 1.1.5.1 1 0 1.5-.3.9-.5 1.9-.7 3.2-.7 2.6 0 4 1.1 4 3.3 0 .9-.2 1.7-.7 2.3-.3.4-.4.9-.2 1.4.2.5.6.8 1.1.9.7.1 1.3-.2 1.7-.8.7-1 1.1-2.2 1.1-3.7C19.9 4.6 16.9 2 12 2Z" />
+		<path d="M10.6 11.1c-.4-.3-.9-.4-1.4-.2-.5.2-.8.6-.9 1.1-.5 2.2-2.1 4-4.2 4.7-.5.2-.9.6-1 1.2-.1.5.1 1 .5 1.4.4.3 1 .4 1.5.2a8.9 8.9 0 0 0 5.6-6.3c.2-.6 0-1.2-.4-1.6l.3-.5Z" />
+	</MonochromeIcon>
+);
+
+/** deSEC has no brand mark; use a shield to convey a secured resolver. */
+export const DesecIcon = ({ className }: Props) => (
+	<MonochromeIcon className={className}>
+		<path d="M12 2 4 5v6.5c0 4.7 3.2 9.1 8 10.5 4.8-1.4 8-5.8 8-10.5V5l-8-3Zm0 2.2 6 2.2v5.1c0 3.7-2.4 7.2-6 8.4-3.6-1.2-6-4.7-6-8.4V6.4l6-2.2Z" />
+		<path d="M11 9h2v6h-2zM11 16h2v2h-2z" />
+	</MonochromeIcon>
+);
+
+/** ClouDNS has no brand mark. */
+export const CloudnsIcon = ({ className }: Props) => (
+	<MonochromeIcon className={className}>
+		<path d="M6.5 18a4.5 4.5 0 0 1-.4-8.98A6 6 0 0 1 17.8 8.2 4 4 0 0 1 17 16h-1.2a2.8 2.8 0 0 0-5.6 0H6.5Z" />
+		<path d="M12 14.4a2.8 2.8 0 0 0-2.8 2.8V21h5.6v-3.8A2.8 2.8 0 0 0 12 14.4Z" />
+	</MonochromeIcon>
+);
+
+/** PowerDNS has no brand mark; the authoritative-server glyph is used. */
+export const PowerdnsIcon = ({ className }: Props) => (
+	<MonochromeIcon className={className}>
+		<path d="M4 4h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm0 10h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1Z" />
+		<circle cx="6.5" cy="7" r="1.3" fill="#fff" />
+		<circle cx="6.5" cy="17" r="1.3" fill="#fff" />
+	</MonochromeIcon>
+);
+
+/** BIND has no brand mark; use the classic nameserver zone glyph. */
+export const BindIcon = ({ className }: Props) => (
+	<MonochromeIcon className={className}>
+		<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2c.9 0 1.9 1.4 2.5 3.6-.8-.05-1.6-.1-2.5-.1s-1.7.05-2.5.1C10.1 5.4 11.1 4 12 4Zm-4.3 1.6c-.5.8-.9 1.8-1.2 2.9-.9-.3-1.6-.6-2.1-1a8 8 0 0 1 3.3-1.9Zm8.6 0a8 8 0 0 1 3.3 1.9c-.5.4-1.2.7-2.1 1-.3-1.1-.7-2.1-1.2-2.9ZM12 10.6c1 0 1.9.05 2.8.13.1.6.15 1.2.15 1.9s-.05 1.3-.15 1.9c-.9.08-1.8.13-2.8.13s-1.9-.05-2.8-.13c-.1-.6-.15-1.2-.15-1.9s.05-1.3.15-1.9c.9-.08 1.8-.13 2.8-.13Zm-4.9.4c-.1.5-.15 1-.15 1.6s.05 1.1.15 1.6c-1.1-.2-2-.5-2.7-.8a8 8 0 0 1 0-1.6c.7-.3 1.6-.6 2.7-.8Zm9.8 0c1.1.2 2 .5 2.7.8a8 8 0 0 1 0 1.6c-.7.3-1.6.6-2.7.8.1-.5.15-1 .15-1.6s-.05-1.1-.15-1.6Zm-7.6 5.1c.8.05 1.6.1 2.7.1s1.9-.05 2.7-.1c-.6 2.2-1.6 3.6-2.7 3.6s-2.1-1.4-2.7-3.6Zm-1.7-.2c-.5.8-.9 1.1-1.2 2.2-.9-.3-1.6-.6-2.1-1a8 8 0 0 0 3.3-1.2Zm8.6 0a8 8 0 0 0 3.3 1.2c-.5.4-1.2.7-2.1 1-.3-1.1-.7-1.4-1.2-2.2Z" />
+	</MonochromeIcon>
+);
+
+/** Technitium has no brand mark; use a server/network glyph. */
+export const TechnitiumIcon = ({ className }: Props) => (
+	<MonochromeIcon className={className}>
+		<path d="M4 3h16a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm0 11h16a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1Z" />
+		<circle cx="6.5" cy="6.5" r="1.2" fill="#fff" />
+		<circle cx="6.5" cy="17.5" r="1.2" fill="#fff" />
+		<path d="M13 5.5h5v2h-5zM13 16.5h5v2h-5z" fill="#fff" />
+	</MonochromeIcon>
+);
+
+/** CoreDNS has no brand mark. */
+export const CorednsIcon = ({ className }: Props) => (
+	<MonochromeIcon className={className}>
+		<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 3.5a6.5 6.5 0 0 1 6.3 4.9h-3.1a3.6 3.6 0 0 0-6.4 0H5.7A6.5 6.5 0 0 1 12 5.5Zm-6.5 6.5h3.2a3.6 3.6 0 0 0 6.6 0h3.2a6.5 6.5 0 0 1-13 0Z" />
+	</MonochromeIcon>
+);
+
+/** Unbound has no brand mark. */
+export const UnboundIcon = ({ className }: Props) => (
+	<MonochromeIcon className={className}>
+		<path d="M12 2 3 6v6c0 5 3.8 9.4 9 10 5.2-.6 9-5 9-10V6l-9-4Zm0 2.2 7 3.1V12c0 4-3 7.6-7 8.1-4-.5-7-4.1-7-8.1V7.3l7-3.1Z" />
+		<path d="M10.8 8.5h2v4.4l3.4-3.4 1.4 1.4-3.4 3.4h4.4v2h-4.4l3.4 3.4-1.4 1.4-3.4-3.4v4.4h-2v-4.4l-3.4 3.4-1.4-1.4 3.4-3.4H6.5v-2h4.4l-3.4-3.4 1.4-1.4 3.4 3.4V8.5Z" />
+	</MonochromeIcon>
+);
+
+/** Generic adapter for custom/self-built DNS platforms. */
+export const CustomDnsIcon = ({ className }: Props) => (
+	<MonochromeIcon className={className}>
+		<path d="M9.4 6.6a3.4 3.4 0 0 1 3.4 3.4v6.8a1 1 0 1 1-2 0V10a1.4 1.4 0 0 0-2.8 0v6.8a1 1 0 1 1-2 0V10a3.4 3.4 0 0 1 3.4-3.4Zm5.2 0a3.4 3.4 0 0 1 3.4 3.4v6.8a1 1 0 1 1-2 0V10a1.4 1.4 0 0 0-2.8 0v6.8a1 1 0 1 1-2 0V10a3.4 3.4 0 0 1 3.4-3.4Z" />
+		<path d="M12 21.5c-.7 0-1.3-.6-1.3-1.3s.6-1.3 1.3-1.3 1.3.6 1.3 1.3-.6 1.3-1.3 1.3Z" />
+	</MonochromeIcon>
+);
+
+/**
+ * First-party Notploy Internal DNS. Uses the Notploy brand mark published in
+ * `public/notploy.png`.
+ */
+export const NotployInternalIcon = ({ className }: Props) => (
+	<Image
+		src="/notploy.png"
+		alt=""
+		aria-hidden="true"
+		width={1254}
+		height={1254}
+		className={cn("object-contain", className)}
+	/>
 );
 
 export const dnsProviderIcons = {
@@ -119,4 +216,24 @@ export const dnsProviderIcons = {
 	porkbun: PorkbunIcon,
 	infomaniak: InfomaniakIcon,
 	ovh: OvhIcon,
+	hetzner: HetznerIcon,
+	digitalocean: DigitalOceanIcon,
+	gandi: GandiIcon,
+	vultr: VultrIcon,
+	linode: LinodeIcon,
+	desec: DesecIcon,
+	bunny: BunnyIcon,
+	ns1: Ns1Icon,
+	godaddy: GodaddyIcon,
+	namecheap: NamecheapIcon,
+	cloudns: CloudnsIcon,
+	powerdns: PowerdnsIcon,
+	bind: BindIcon,
+	technitium: TechnitiumIcon,
+	coredns: CorednsIcon,
+	unbound: UnboundIcon,
+	custom: CustomDnsIcon,
+	"notploy-internal": NotployInternalIcon,
 } as const;
+
+export type DnsProviderIconKey = keyof typeof dnsProviderIcons;

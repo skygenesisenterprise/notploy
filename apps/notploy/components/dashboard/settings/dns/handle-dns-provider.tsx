@@ -1,6 +1,6 @@
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
 import { PenBoxIcon, PlusIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -29,24 +29,80 @@ import { Input } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
+	SelectGroup,
 	SelectItem,
+	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { api } from "@/utils/api";
+import {
+	dnsProviderCategoryLabels,
+	dnsProviderCategoryOrder,
+	dnsProviderIconKey,
+	dnsProviderLabel,
+} from "./dns-provider-meta";
 
-const providerLabels = {
-	cloudflare: "Cloudflare",
-	route53: "AWS Route53",
-	porkbun: "Porkbun",
-	infomaniak: "Infomaniak",
-	ovh: "OVHcloud",
-} as const;
+const PROVIDER_TYPES = [
+	"cloudflare",
+	"route53",
+	"porkbun",
+	"infomaniak",
+	"ovh",
+	"hetzner",
+	"digitalocean",
+	"gandi",
+	"vultr",
+	"linode",
+	"desec",
+	"bunny",
+	"ns1",
+	"godaddy",
+	"namecheap",
+	"cloudns",
+	"powerdns",
+	"bind",
+	"technitium",
+	"coredns",
+	"unbound",
+	"custom",
+	"notploy-internal",
+] as const;
+
+type ProviderType = (typeof PROVIDER_TYPES)[number];
+
+const CATEGORY_BY_TYPE: Record<ProviderType, string> = {
+	cloudflare: "managed",
+	route53: "managed",
+	porkbun: "managed",
+	infomaniak: "managed",
+	ovh: "managed",
+	hetzner: "managed",
+	digitalocean: "managed",
+	gandi: "managed",
+	vultr: "managed",
+	linode: "managed",
+	desec: "managed",
+	bunny: "managed",
+	ns1: "managed",
+	godaddy: "managed",
+	namecheap: "managed",
+	cloudns: "managed",
+	powerdns: "self-hosted",
+	bind: "self-hosted",
+	technitium: "self-hosted",
+	coredns: "self-hosted",
+	unbound: "self-hosted",
+	custom: "managed",
+	"notploy-internal": "internal",
+};
 
 const ovhEndpointLabels = {
 	"ovh-eu": "OVHcloud Europe",
@@ -58,7 +114,14 @@ const ovhEndpointLabels = {
 	"soyoustart-ca": "So you Start Canada",
 } as const;
 
-type ProviderType = keyof typeof providerLabels;
+const tsigAlgorithmLabels = {
+	"hmac-md5": "HMAC-MD5",
+	"hmac-sha1": "HMAC-SHA1",
+	"hmac-sha224": "HMAC-SHA224",
+	"hmac-sha256": "HMAC-SHA256 (recommended)",
+	"hmac-sha384": "HMAC-SHA384",
+	"hmac-sha512": "HMAC-SHA512",
+} as const;
 
 const DnsProviderSchema = z.object({
 	name: z
@@ -67,13 +130,8 @@ const DnsProviderSchema = z.object({
 		.regex(/^[a-zA-Z0-9_-]+$/, {
 			message: "Only letters, numbers, dashes and underscores",
 		}),
-	providerType: z.enum([
-		"cloudflare",
-		"route53",
-		"porkbun",
-		"infomaniak",
-		"ovh",
-	]),
+	providerType: z.enum(PROVIDER_TYPES),
+	// Shared credential fields. Only the ones a provider needs are sent.
 	apiToken: z.string(),
 	accessKeyId: z.string(),
 	secretAccessKey: z.string(),
@@ -88,6 +146,36 @@ const DnsProviderSchema = z.object({
 	applicationKey: z.string(),
 	applicationSecret: z.string(),
 	consumerKey: z.string(),
+	sharingId: z.string(),
+	shopperId: z.string(),
+	apiUser: z.string(),
+	userName: z.string(),
+	clientIp: z.string(),
+	authId: z.string(),
+	authPassword: z.string(),
+	subAuthId: z.string(),
+	// Self-hosted / internal
+	apiUrl: z.string(),
+	serverId: z.string(),
+	serverAddress: z.string(),
+	port: z.string(),
+	tsigKeyName: z.string(),
+	tsigAlgorithm: z.enum(
+		Object.keys(tsigAlgorithmLabels) as [
+			keyof typeof tsigAlgorithmLabels,
+			...(keyof typeof tsigAlgorithmLabels)[],
+		],
+	),
+	tsigSecret: z.string(),
+	etcdEndpoints: z.string(),
+	username: z.string(),
+	password: z.string(),
+	configPath: z.string(),
+	baseUrl: z.string(),
+	defaultTtl: z.string(),
+	zones: z.string(),
+	allowInsecureTls: z.boolean(),
+	tlsSkipVerify: z.boolean(),
 });
 
 type DnsProviderForm = z.infer<typeof DnsProviderSchema>;
@@ -104,15 +192,45 @@ const defaultValues: DnsProviderForm = {
 	applicationKey: "",
 	applicationSecret: "",
 	consumerKey: "",
+	sharingId: "",
+	shopperId: "",
+	apiUser: "",
+	userName: "",
+	clientIp: "",
+	authId: "",
+	authPassword: "",
+	subAuthId: "",
+	apiUrl: "",
+	serverId: "",
+	serverAddress: "",
+	port: "53",
+	tsigKeyName: "",
+	tsigAlgorithm: "hmac-sha256",
+	tsigSecret: "",
+	etcdEndpoints: "http://127.0.0.1:2379",
+	username: "",
+	password: "",
+	configPath: "/etc/unbound/unbound.conf",
+	baseUrl: "",
+	defaultTtl: "300",
+	zones: "",
+	allowInsecureTls: false,
+	tlsSkipVerify: false,
 };
 
+const parseZones = (value: string) =>
+	value
+		.split(/[\n,]/)
+		.map((zone) => zone.trim())
+		.filter(Boolean);
+
+const optional = (value: string) => (value.trim() ? value.trim() : undefined);
+
 const buildConfig = (data: DnsProviderForm) => {
+	const zones = parseZones(data.zones);
 	switch (data.providerType) {
 		case "cloudflare":
-			return {
-				providerType: "cloudflare" as const,
-				apiToken: data.apiToken,
-			};
+			return { providerType: "cloudflare" as const, apiToken: data.apiToken };
 		case "route53":
 			return {
 				providerType: "route53" as const,
@@ -126,10 +244,7 @@ const buildConfig = (data: DnsProviderForm) => {
 				secretApiKey: data.secretApiKey,
 			};
 		case "infomaniak":
-			return {
-				providerType: "infomaniak" as const,
-				apiToken: data.apiToken,
-			};
+			return { providerType: "infomaniak" as const, apiToken: data.apiToken };
 		case "ovh":
 			return {
 				providerType: "ovh" as const,
@@ -137,6 +252,103 @@ const buildConfig = (data: DnsProviderForm) => {
 				applicationKey: data.applicationKey,
 				applicationSecret: data.applicationSecret,
 				consumerKey: data.consumerKey,
+			};
+		case "hetzner":
+			return { providerType: "hetzner" as const, apiToken: data.apiToken };
+		case "digitalocean":
+			return { providerType: "digitalocean" as const, apiToken: data.apiToken };
+		case "gandi":
+			return {
+				providerType: "gandi" as const,
+				apiKey: data.apiKey,
+				sharingId: optional(data.sharingId),
+			};
+		case "vultr":
+			return { providerType: "vultr" as const, apiKey: data.apiKey };
+		case "linode":
+			return { providerType: "linode" as const, apiToken: data.apiToken };
+		case "desec":
+			return { providerType: "desec" as const, apiToken: data.apiToken };
+		case "bunny":
+			return { providerType: "bunny" as const, apiKey: data.apiKey };
+		case "ns1":
+			return { providerType: "ns1" as const, apiKey: data.apiKey };
+		case "godaddy":
+			return {
+				providerType: "godaddy" as const,
+				apiKey: data.apiKey,
+				apiSecret: data.secretApiKey,
+				shopperId: optional(data.shopperId),
+			};
+		case "namecheap":
+			return {
+				providerType: "namecheap" as const,
+				apiUser: data.apiUser,
+				apiKey: data.apiKey,
+				userName: data.userName,
+				clientIp: data.clientIp,
+			};
+		case "cloudns":
+			return {
+				providerType: "cloudns" as const,
+				authId: data.authId,
+				authPassword: data.authPassword,
+				subAuthId: optional(data.subAuthId),
+			};
+		case "powerdns":
+			return {
+				providerType: "powerdns" as const,
+				apiUrl: data.apiUrl,
+				apiKey: data.apiKey,
+				serverId: data.serverId || "localhost",
+				allowInsecureTls: data.allowInsecureTls,
+			};
+		case "bind":
+			return {
+				providerType: "bind" as const,
+				serverId: data.serverId,
+				serverAddress: data.serverAddress,
+				port: Number(data.port || 53),
+				tsigKeyName: data.tsigKeyName,
+				tsigAlgorithm: data.tsigAlgorithm,
+				tsigSecret: data.tsigSecret,
+				zones,
+			};
+		case "technitium":
+			return {
+				providerType: "technitium" as const,
+				apiUrl: data.apiUrl,
+				apiToken: data.apiToken,
+				allowInsecureTls: data.allowInsecureTls,
+			};
+		case "coredns":
+			return {
+				providerType: "coredns" as const,
+				etcdEndpoints: data.etcdEndpoints,
+				username: optional(data.username),
+				password: optional(data.password),
+				zones,
+				tlsSkipVerify: data.tlsSkipVerify,
+			};
+		case "unbound":
+			return {
+				providerType: "unbound" as const,
+				serverId: data.serverId,
+				configPath: data.configPath || "/etc/unbound/unbound.conf",
+				zones,
+			};
+		case "custom":
+			return {
+				providerType: "custom" as const,
+				baseUrl: data.baseUrl,
+				apiToken: data.apiToken,
+				zones,
+				allowInsecureTls: data.allowInsecureTls,
+			};
+		case "notploy-internal":
+			return {
+				providerType: "notploy-internal" as const,
+				defaultTtl: Number(data.defaultTtl || 300),
 			};
 	}
 };
@@ -157,9 +369,15 @@ const extractErrorMessage = (err: unknown) => {
 
 interface Props {
 	dnsProviderId?: string;
+	defaultProviderType?: ProviderType;
+	trigger?: ReactNode;
 }
 
-export const HandleDnsProvider = ({ dnsProviderId }: Props) => {
+export const HandleDnsProvider = ({
+	dnsProviderId,
+	defaultProviderType,
+	trigger,
+}: Props) => {
 	const utils = api.useUtils();
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -176,43 +394,86 @@ export const HandleDnsProvider = ({ dnsProviderId }: Props) => {
 		api.dnsProvider.testConnection.useMutation();
 
 	const form = useForm<DnsProviderForm>({
-		defaultValues,
+		defaultValues: {
+			...defaultValues,
+			...(defaultProviderType
+				? { providerType: defaultProviderType }
+				: {}),
+		},
 		resolver: zodResolver(DnsProviderSchema),
 	});
 
 	const providerType = form.watch("providerType");
+	const allowInsecureTls = form.watch("allowInsecureTls");
+	const tlsSkipVerify = form.watch("tlsSkipVerify");
+
+	const providerGroups = useMemo(
+		() =>
+			dnsProviderCategoryOrder
+				.map((category) => ({
+					category,
+					types: PROVIDER_TYPES.filter(
+						(type) => CATEGORY_BY_TYPE[type] === category,
+					),
+				}))
+				.filter((group) => group.types.length > 0),
+		[],
+	);
 
 	useEffect(() => {
 		if (provider) {
+			const config = provider.config as Record<string, unknown>;
 			form.reset({
 				...defaultValues,
 				name: provider.name,
-				providerType: provider.config.providerType,
-				...(provider.config.providerType === "cloudflare" && {
-					apiToken: provider.config.apiToken,
-				}),
-				...(provider.config.providerType === "route53" && {
-					accessKeyId: provider.config.accessKeyId,
-					secretAccessKey: provider.config.secretAccessKey,
-				}),
-				...(provider.config.providerType === "porkbun" && {
-					apiKey: provider.config.apiKey,
-					secretApiKey: provider.config.secretApiKey,
-				}),
-				...(provider.config.providerType === "infomaniak" && {
-					apiToken: provider.config.apiToken,
-				}),
-				...(provider.config.providerType === "ovh" && {
-					endpoint: provider.config.endpoint,
-					applicationKey: provider.config.applicationKey,
-					applicationSecret: provider.config.applicationSecret,
-					consumerKey: provider.config.consumerKey,
-				}),
+				providerType: provider.providerType as ProviderType,
+				apiToken: String(config.apiToken ?? ""),
+				accessKeyId: String(config.accessKeyId ?? ""),
+				secretAccessKey: String(config.secretAccessKey ?? ""),
+				apiKey: String(config.apiKey ?? ""),
+				secretApiKey: String(config.secretApiKey ?? ""),
+				endpoint: (config.endpoint as DnsProviderForm["endpoint"]) ?? "ovh-eu",
+				applicationKey: String(config.applicationKey ?? ""),
+				applicationSecret: String(config.applicationSecret ?? ""),
+				consumerKey: String(config.consumerKey ?? ""),
+				sharingId: String(config.sharingId ?? ""),
+				shopperId: String(config.shopperId ?? ""),
+				apiUser: String(config.apiUser ?? ""),
+				userName: String(config.userName ?? ""),
+				clientIp: String(config.clientIp ?? ""),
+				authId: String(config.authId ?? ""),
+				authPassword: String(config.authPassword ?? ""),
+				subAuthId: String(config.subAuthId ?? ""),
+				apiUrl: String(config.apiUrl ?? ""),
+				serverId: String(config.serverId ?? ""),
+				serverAddress: String(config.serverAddress ?? ""),
+				port: String(config.port ?? "53"),
+				tsigKeyName: String(config.tsigKeyName ?? ""),
+				tsigAlgorithm:
+					(config.tsigAlgorithm as DnsProviderForm["tsigAlgorithm"]) ??
+					"hmac-sha256",
+				tsigSecret: String(config.tsigSecret ?? ""),
+				etcdEndpoints: String(config.etcdEndpoints ?? "http://127.0.0.1:2379"),
+				username: String(config.username ?? ""),
+				password: String(config.password ?? ""),
+				configPath: String(config.configPath ?? "/etc/unbound/unbound.conf"),
+				baseUrl: String(config.baseUrl ?? ""),
+				defaultTtl: String(config.defaultTtl ?? "300"),
+				zones: Array.isArray(config.zones)
+					? (config.zones as string[]).join("\n")
+					: "",
+				allowInsecureTls: Boolean(config.allowInsecureTls),
+				tlsSkipVerify: Boolean(config.tlsSkipVerify),
 			});
 		} else if (!dnsProviderId) {
-			form.reset(defaultValues);
+			form.reset({
+				...defaultValues,
+				...(defaultProviderType
+					? { providerType: defaultProviderType }
+					: {}),
+			});
 		}
-	}, [provider, dnsProviderId, form, isOpen]);
+	}, [provider, dnsProviderId, form, defaultProviderType]);
 
 	const onSubmit = async (data: DnsProviderForm) => {
 		const payload: any = {
@@ -226,6 +487,7 @@ export const HandleDnsProvider = ({ dnsProviderId }: Props) => {
 					dnsProviderId ? "DNS provider updated" : "DNS provider created",
 				);
 				utils.dnsProvider.all.invalidate();
+				utils.dnsProvider.descriptors.invalidate();
 				setIsOpen(false);
 			})
 			.catch(() => {});
@@ -251,9 +513,372 @@ export const HandleDnsProvider = ({ dnsProviderId }: Props) => {
 			});
 	};
 
+	type TextFieldName =
+		| "apiToken"
+		| "accessKeyId"
+		| "secretAccessKey"
+		| "apiKey"
+		| "secretApiKey"
+		| "sharingId"
+		| "shopperId"
+		| "apiUser"
+		| "userName"
+		| "clientIp"
+		| "authId"
+		| "authPassword"
+		| "subAuthId"
+		| "apiUrl"
+		| "serverId"
+		| "serverAddress"
+		| "port"
+		| "tsigKeyName"
+		| "tsigSecret"
+		| "etcdEndpoints"
+		| "username"
+		| "password"
+		| "configPath"
+		| "baseUrl"
+		| "defaultTtl"
+		| "applicationKey"
+		| "applicationSecret"
+		| "consumerKey";
+
+	const textField = (
+		name: TextFieldName,
+		label: string,
+		options?: { type?: string; description?: ReactNode; placeholder?: string },
+	) => (
+		<FormField
+			key={name}
+			control={form.control}
+			name={name}
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{label}</FormLabel>
+					<FormControl>
+						<Input
+							type={options?.type}
+							placeholder={options?.placeholder}
+							{...field}
+							value={String(field.value ?? "")}
+						/>
+					</FormControl>
+					{options?.description && (
+						<FormDescription>{options.description}</FormDescription>
+					)}
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	);
+
+	const switchField = (
+		name: "allowInsecureTls" | "tlsSkipVerify",
+		label: string,
+		description: string,
+	) => (
+		<FormField
+			key={name}
+			control={form.control}
+			name={name}
+			render={({ field }) => (
+				<FormItem className="flex flex-row items-center justify-between gap-3 rounded-lg border p-3">
+					<div className="flex flex-col gap-0.5">
+						<FormLabel className="text-sm">{label}</FormLabel>
+						<FormDescription>{description}</FormDescription>
+					</div>
+					<FormControl>
+						<Switch checked={field.value} onCheckedChange={field.onChange} />
+					</FormControl>
+				</FormItem>
+			)}
+		/>
+	);
+
+	const zonesField = (description: string, placeholder = "example.com\nsge.lan") => (
+		<FormField
+			control={form.control}
+			name="zones"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>Zones (optional)</FormLabel>
+					<FormControl>
+						<Textarea
+							className="min-h-[70px] font-mono text-xs"
+							placeholder={placeholder}
+							{...field}
+						/>
+					</FormControl>
+					<FormDescription>{description}</FormDescription>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	);
+
+	const credentialFields = () => {
+		switch (providerType) {
+			case "cloudflare":
+			case "infomaniak":
+			case "hetzner":
+			case "digitalocean":
+			case "linode":
+			case "desec":
+				return textField("apiToken", "API Token", {
+					type: "password",
+					description:
+						"Create a scoped token for the zones Notploy should manage.",
+				});
+			case "route53":
+				return (
+					<>
+						{textField("accessKeyId", "Access Key ID")}
+						{textField("secretAccessKey", "Secret Access Key", {
+							type: "password",
+							description: (
+								<>
+									Use an IAM user/role scoped to{" "}
+									<code>route53:ListHostedZones</code>,{" "}
+									<code>route53:ListResourceRecordSets</code> and{" "}
+									<code>route53:ChangeResourceRecordSets</code>.
+								</>
+							),
+						})}
+					</>
+				);
+			case "porkbun":
+				return (
+					<>
+						{textField("apiKey", "API Key")}
+						{textField("secretApiKey", "Secret API Key", { type: "password" })}
+					</>
+				);
+			case "ovh":
+				return (
+					<>
+						<FormField
+							control={form.control}
+							name="endpoint"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>API Endpoint</FormLabel>
+									<Select onValueChange={field.onChange} value={field.value}>
+										<FormControl>
+											<SelectTrigger>
+												<SelectValue placeholder="Select an endpoint" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											{Object.entries(ovhEndpointLabels).map(
+												([value, label]) => (
+													<SelectItem key={value} value={value}>
+														{label}
+													</SelectItem>
+												),
+											)}
+										</SelectContent>
+									</Select>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						{textField("applicationKey", "Application Key")}
+						{textField("applicationSecret", "Application Secret", {
+							type: "password",
+						})}
+						{textField("consumerKey", "Consumer Key", { type: "password" })}
+					</>
+				);
+			case "gandi":
+				return (
+					<>
+						{textField("apiKey", "API Key", { type: "password" })}
+						{textField("sharingId", "Sharing ID (optional)")}
+					</>
+				);
+			case "vultr":
+			case "bunny":
+			case "ns1":
+				return textField("apiKey", "API Key", { type: "password" });
+			case "godaddy":
+				return (
+					<>
+						{textField("apiKey", "API Key")}
+						{textField("secretApiKey", "API Secret", { type: "password" })}
+						{textField("shopperId", "Shopper ID (optional)")}
+					</>
+				);
+			case "namecheap":
+				return (
+					<>
+						{textField("apiUser", "API User")}
+						{textField("apiKey", "API Key", { type: "password" })}
+						{textField("userName", "Username")}
+						{textField("clientIp", "Client IP", {
+							description:
+								"Whitelisted IP for the Namecheap API. It must match the address requests originate from.",
+						})}
+					</>
+				);
+			case "cloudns":
+				return (
+					<>
+						{textField("authId", "Auth ID")}
+						{textField("authPassword", "Auth Password", { type: "password" })}
+						{textField("subAuthId", "Sub Auth ID (optional)")}
+					</>
+				);
+			case "powerdns":
+				return (
+					<>
+						{textField("apiUrl", "API URL", {
+							placeholder: "https://dns01.sge.internal:8081",
+						})}
+						{textField("apiKey", "API Key", { type: "password" })}
+						{textField("serverId", "Server ID", {
+							placeholder: "localhost",
+							description: "PowerDNS server id, usually localhost.",
+						})}
+						{switchField(
+							"allowInsecureTls",
+							"Allow self-signed TLS",
+							"Skip certificate verification for an internal PowerDNS API.",
+						)}
+					</>
+				);
+			case "technitium":
+				return (
+					<>
+						{textField("apiUrl", "API URL", {
+							placeholder: "http://dns01.sge.internal:5380",
+						})}
+						{textField("apiToken", "API Token", { type: "password" })}
+						{switchField(
+							"allowInsecureTls",
+							"Allow self-signed TLS",
+							"Skip certificate verification for an internal Technitium API.",
+						)}
+					</>
+				);
+			case "bind":
+				return (
+					<>
+						{textField("serverId", "Notploy server", {
+							description:
+								"Registered server Notploy connects to over SSH to run nsupdate.",
+						})}
+						{textField("serverAddress", "Nameserver address", {
+							placeholder: "dns01.sge.internal",
+						})}
+						{textField("port", "Port", { type: "number", placeholder: "53" })}
+						{textField("tsigKeyName", "TSIG key name")}
+						<FormField
+							control={form.control}
+							name="tsigAlgorithm"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>TSIG algorithm</FormLabel>
+									<Select onValueChange={field.onChange} value={field.value}>
+										<FormControl>
+											<SelectTrigger>
+												<SelectValue />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											{Object.entries(tsigAlgorithmLabels).map(
+												([value, label]) => (
+													<SelectItem key={value} value={value}>
+														{label}
+													</SelectItem>
+												),
+											)}
+										</SelectContent>
+									</Select>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						{textField("tsigSecret", "TSIG secret", { type: "password" })}
+						{zonesField(
+							"BIND exposes no zone discovery, so list the zones Notploy may update.",
+						)}
+					</>
+				);
+			case "coredns":
+				return (
+					<>
+						{textField("etcdEndpoints", "etcd endpoints", {
+							description:
+								"Comma-separated etcd v3 endpoints backing the CoreDNS etcd plugin.",
+						})}
+						{textField("username", "etcd username (optional)")}
+						{textField("password", "etcd password (optional)", {
+							type: "password",
+						})}
+						{zonesField("Zones CoreDNS serves from this etcd cluster.")}
+						{switchField(
+							"tlsSkipVerify",
+							"Skip TLS verification",
+							"Allow a self-signed certificate on the etcd endpoint.",
+						)}
+					</>
+				);
+			case "unbound":
+				return (
+					<>
+						{textField("serverId", "Notploy server", {
+							description:
+								"Registered server Notploy connects to over SSH to run unbound-control.",
+						})}
+						{textField("configPath", "unbound.conf path", {
+							placeholder: "/etc/unbound/unbound.conf",
+						})}
+						{zonesField(
+							"Local zones served by this resolver (e.g. sge.lan).",
+						)}
+					</>
+				);
+			case "custom":
+				return (
+					<>
+						{textField("baseUrl", "Base URL", {
+							placeholder: "https://dns.example.com/api",
+							description:
+								"Endpoint implementing Notploy's documented DNS adapter contract.",
+						})}
+						{textField("apiToken", "API Token", { type: "password" })}
+						{zonesField("Optional zones to expose before discovery.")}
+						{switchField(
+							"allowInsecureTls",
+							"Allow self-signed TLS",
+							"Skip certificate verification for this endpoint.",
+						)}
+					</>
+				);
+			case "notploy-internal":
+				return (
+					<>
+						<AlertBlock type="info">
+							Notploy stores these zones and records itself, so no external
+							DNS dependency is required. Ideal for private networks and
+							internal domains such as <code>sge.lan</code>.
+						</AlertBlock>
+						{textField("defaultTtl", "Default TTL", {
+							type: "number",
+							placeholder: "300",
+						})}
+					</>
+				);
+			default:
+				return null;
+		}
+	};
+
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
-			{dnsProviderId ? (
+			{trigger ? (
+				<DialogTrigger asChild>{trigger}</DialogTrigger>
+			) : dnsProviderId ? (
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<DialogTrigger asChild>
@@ -283,8 +908,8 @@ export const HandleDnsProvider = ({ dnsProviderId }: Props) => {
 						{dnsProviderId ? "Update DNS Provider" : "Add DNS Provider"}
 					</DialogTitle>
 					<DialogDescription>
-						Connect a DNS provider to create records for your domains
-						automatically instead of setting them up by hand.
+						Connect a DNS provider so Notploy can create records for your
+						domains automatically instead of setting them up by hand.
 					</DialogDescription>
 				</DialogHeader>
 				{isError && <AlertBlock type="error">{error?.message}</AlertBlock>}
@@ -323,230 +948,43 @@ export const HandleDnsProvider = ({ dnsProviderId }: Props) => {
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
-											{Object.entries(providerLabels).map(([value, label]) => {
-												const ProviderIcon =
-													dnsProviderIcons[value as ProviderType];
-												return (
-													<SelectItem key={value} value={value}>
-														<div className="flex flex-row items-center gap-2">
-															<ProviderIcon className="size-4 shrink-0" />
-															{label}
-														</div>
-													</SelectItem>
-												);
-											})}
+											{providerGroups.map((group) => (
+												<SelectGroup key={group.category}>
+													<SelectLabel>
+														{dnsProviderCategoryLabels[group.category] ??
+															group.category}
+													</SelectLabel>
+													{group.types.map((value) => {
+														const ProviderIcon =
+															dnsProviderIcons[dnsProviderIconKey(value)];
+														return (
+															<SelectItem key={value} value={value}>
+																<div className="flex flex-row items-center gap-2">
+																	<ProviderIcon className="size-4 shrink-0" />
+																	{dnsProviderLabel(value)}
+																</div>
+															</SelectItem>
+														);
+													})}
+												</SelectGroup>
+											))}
 										</SelectContent>
 									</Select>
+									<FormDescription>
+										{dnsProviderCategoryLabels[CATEGORY_BY_TYPE[providerType]]}
+										{" · "}
+										{providerType === "notploy-internal"
+											? "No external dependency."
+											: providerType === "custom"
+												? "Your own DNS platform."
+												: "Notploy manages records through its API."}
+									</FormDescription>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
 
-						{providerType === "cloudflare" && (
-							<FormField
-								control={form.control}
-								name="apiToken"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>API Token</FormLabel>
-										<FormControl>
-											<Input type="password" {...field} />
-										</FormControl>
-										<FormDescription>
-											Create a token scoped to Zone → DNS → Edit for the zones
-											you want Notploy to manage. Avoid the Global API Key.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						)}
-
-						{providerType === "route53" && (
-							<>
-								<FormField
-									control={form.control}
-									name="accessKeyId"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Access Key ID</FormLabel>
-											<FormControl>
-												<Input {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="secretAccessKey"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Secret Access Key</FormLabel>
-											<FormControl>
-												<Input type="password" {...field} />
-											</FormControl>
-											<FormDescription>
-												Use an IAM user/role scoped to{" "}
-												<code>route53:ListHostedZones</code>,{" "}
-												<code>route53:ListResourceRecordSets</code> and{" "}
-												<code>route53:ChangeResourceRecordSets</code> — avoid
-												root account credentials.
-											</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</>
-						)}
-
-						{providerType === "porkbun" && (
-							<>
-								<FormField
-									control={form.control}
-									name="apiKey"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>API Key</FormLabel>
-											<FormControl>
-												<Input {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="secretApiKey"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Secret API Key</FormLabel>
-											<FormControl>
-												<Input type="password" {...field} />
-											</FormControl>
-											<FormDescription>
-												Create API keys at porkbun.com/account/api and make sure
-												API access is enabled for the domains you want Notploy
-												to manage.
-											</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</>
-						)}
-
-						{providerType === "infomaniak" && (
-							<FormField
-								control={form.control}
-								name="apiToken"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>API Token</FormLabel>
-										<FormControl>
-											<Input type="password" {...field} />
-										</FormControl>
-										<FormDescription>
-											Create a token at manager.infomaniak.com with the{" "}
-											<code>domain:read</code>, <code>dns:read</code> and{" "}
-											<code>dns:write</code> scopes.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						)}
-
-						{providerType === "ovh" && (
-							<>
-								<FormField
-									control={form.control}
-									name="endpoint"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>API Endpoint</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												value={field.value}
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="Select an endpoint" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{Object.entries(ovhEndpointLabels).map(
-														([value, label]) => (
-															<SelectItem key={value} value={value}>
-																{label}
-															</SelectItem>
-														),
-													)}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="applicationKey"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Application Key</FormLabel>
-											<FormControl>
-												<Input {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="applicationSecret"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Application Secret</FormLabel>
-											<FormControl>
-												<Input type="password" {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="consumerKey"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Consumer Key</FormLabel>
-											<FormControl>
-												<Input type="password" {...field} />
-											</FormControl>
-											<FormDescription>
-												Create the three keys at once on
-												api.ovh.com/createToken, with exactly these five rights:
-												<br />
-												<code>GET /domain/zone</code>
-												<br />
-												<code>GET /domain/zone/*</code>
-												<br />
-												<code>POST /domain/zone/*</code>
-												<br />
-												<code>PUT /domain/zone/*</code>
-												<br />
-												<code>DELETE /domain/zone/*</code>
-												<br />
-												The first one lists your zones and has to be granted on
-												its own: OVH matches rights per exact path, so{" "}
-												<code>/domain/zone/*</code> does not cover it.
-											</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</>
-						)}
+						{credentialFields()}
 
 						<DialogFooter className="flex w-full flex-row justify-between gap-2 sm:justify-between">
 							<Button

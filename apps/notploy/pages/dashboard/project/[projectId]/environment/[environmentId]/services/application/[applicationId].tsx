@@ -1,7 +1,6 @@
 import { validateRequest } from "@notploy/server/lib/auth";
 import { createServerSideHelpers } from "@trpc/react-query/server";
-import copy from "copy-to-clipboard";
-import { HelpCircle, ServerOff } from "lucide-react";
+import { ServerOff } from "lucide-react";
 import type {
 	GetServerSidePropsContext,
 	InferGetServerSidePropsType,
@@ -10,7 +9,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { type ReactElement, useEffect, useState } from "react";
-import { toast } from "sonner";
+
 import superjson from "superjson";
 import { ShowClusterSettings } from "@/components/dashboard/application/advanced/cluster/show-cluster-settings";
 import { AddCommand } from "@/components/dashboard/application/advanced/general/add-command";
@@ -25,7 +24,6 @@ import { ShowDeployments } from "@/components/dashboard/application/deployments/
 import { ShowDomains } from "@/components/dashboard/application/domains/show-domains";
 import { ShowEnvironment } from "@/components/dashboard/application/environment/show";
 import { ShowGeneralApplication } from "@/components/dashboard/application/general/show";
-import { ShowIconSettings } from "@/components/dashboard/application/icon/show-icon-settings";
 import { ShowDockerLogs } from "@/components/dashboard/application/logs/show";
 import { ShowPatches } from "@/components/dashboard/application/patches/show-patches";
 import { ShowPreviewDeployments } from "@/components/dashboard/application/preview-deployments/show-preview-deployments";
@@ -40,7 +38,7 @@ import { TransferService } from "@/components/dashboard/shared/transfer-service"
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { AdvanceBreadcrumb } from "@/components/shared/advance-breadcrumb";
 import { StatusTooltip } from "@/components/shared/status-tooltip";
-import { Badge } from "@/components/ui/badge";
+
 import {
 	Card,
 	CardContent,
@@ -48,14 +46,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { UseKeyboardNav } from "@/hooks/use-keyboard-nav";
 import { appRouter } from "@/server/api/root";
 import { api } from "@/utils/api";
@@ -113,7 +105,6 @@ const Service = (
 	return (
 		<div className="pb-10">
 			<UseKeyboardNav forPage="application" />
-			<AdvanceBreadcrumb />
 			<Head>
 				<title>
 					Application: {data?.name} - {data?.environment.project.name} |{" "}
@@ -124,73 +115,16 @@ const Service = (
 				<Card className="h-full bg-sidebar p-2.5 rounded-xl w-full">
 					<div className="rounded-xl bg-background shadow-md ">
 						<CardHeader className="flex flex-row justify-between items-center">
-							<div className="flex flex-col">
+							<div className="flex min-w-0 flex-col gap-1">
 								<CardTitle className="text-xl flex flex-row gap-2 items-center">
-									<div className="relative flex flex-row gap-4 items-center">
-										<ShowIconSettings
-											serviceId={applicationId}
-											serviceType="application"
-											icon={data?.icon}
-										/>
-										<div className="absolute -right-1 -top-2 z-10">
-											<StatusTooltip status={data?.applicationStatus} />
-										</div>
-									</div>
-									{data?.name}
+									<StatusTooltip status={data?.applicationStatus} />
+									<AdvanceBreadcrumb />
 								</CardTitle>
 								{data?.description && (
 									<CardDescription>{data?.description}</CardDescription>
 								)}
-
-								<span className="text-sm text-muted-foreground">
-									{data?.appName}
-								</span>
 							</div>
 							<div className="flex flex-col h-fit w-fit gap-2">
-								<div className="flex flex-row h-fit w-fit gap-2">
-									<Badge
-										className="cursor-pointer"
-										onClick={() => {
-											const ip = data?.server?.ipAddress || serverIp;
-											if (ip) {
-												copy(ip);
-												toast.success("IP Address Copied!");
-											}
-										}}
-										variant={
-											!data?.serverId
-												? "default"
-												: data?.server?.serverStatus === "active"
-													? "default"
-													: "destructive"
-										}
-									>
-										{data?.server?.name || "Notploy Server"}
-									</Badge>
-									{data?.server?.serverStatus === "inactive" && (
-										<TooltipProvider delayDuration={0}>
-											<Tooltip>
-												<TooltipTrigger asChild>
-													<Label className="break-all w-fit flex flex-row gap-1 items-center">
-														<HelpCircle className="size-4 text-muted-foreground" />
-													</Label>
-												</TooltipTrigger>
-												<TooltipContent
-													className="z-999 w-[300px]"
-													align="start"
-													side="top"
-												>
-													<span>
-														You cannot, deploy this application because the
-														server is inactive, please upgrade your plan to add
-														more servers.
-													</span>
-												</TooltipContent>
-											</Tooltip>
-										</TooltipProvider>
-									)}
-								</div>
-
 								<div className="flex flex-row gap-2 justify-end">
 									{permissions?.service.create && (
 										<UpdateApplication applicationId={applicationId} />

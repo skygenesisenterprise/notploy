@@ -1,3 +1,4 @@
+import { getDomainRequirements } from "@notploy/server/utils/domain-scope";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
 	ArrowUpDown,
@@ -22,7 +23,6 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { RouterOutputs } from "@/utils/api";
-import { getDomainRequirements } from "@notploy/server/utils/domain-scope";
 import { DnsHelperModal } from "./dns-helper-modal";
 import { AddDomain } from "./handle-domain";
 import type { ValidationStates } from "./show-domains";
@@ -170,8 +170,9 @@ export const createColumns = ({
 		cell: ({ row }) => {
 			const domain = row.original;
 			const validationState = validationStates[domain.host];
-			const requiresPublicDns =
-				getDomainRequirements(domain.host).requiresPublicDns;
+			const requiresPublicDns = getDomainRequirements(
+				domain.host,
+			).requiresPublicDns;
 
 			return (
 				<div className="flex items-center gap-2">
@@ -303,6 +304,7 @@ export const createColumns = ({
 		enableHiding: false,
 		cell: ({ row }) => {
 			const domain = row.original;
+			const { requiresPublicDns } = getDomainRequirements(domain.host);
 
 			return (
 				<div className="flex items-center gap-2">

@@ -47,7 +47,6 @@ import {
 	RedisIcon,
 } from "@/components/icons/data-tools-icons";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
-import { AdvanceBreadcrumb } from "@/components/shared/advance-breadcrumb";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { DateTooltip } from "@/components/shared/date-tooltip";
 import { DialogAction } from "@/components/shared/dialog-action";
@@ -1026,7 +1025,6 @@ const EnvironmentPage = (
 
 	return (
 		<div>
-			<AdvanceBreadcrumb />
 			<Head>
 				<title>
 					Environment: {currentEnvironment.name} | {projectData?.name} |{" "}
@@ -1053,9 +1051,7 @@ const EnvironmentPage = (
 										</Button>
 									</EnvironmentVariables>
 								</CardTitle>
-								<CardDescription>
-									{currentEnvironment.description || "No description provided"}
-								</CardDescription>
+
 							</CardHeader>
 							<div className="flex flex-row gap-4 flex-wrap justify-between items-center">
 								<div className="flex flex-row gap-4 flex-wrap">

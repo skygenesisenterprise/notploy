@@ -31,6 +31,14 @@ const proxySettings = (record: { type: string; proxied?: boolean }) =>
 		? { proxied: record.proxied }
 		: {};
 
+const metadata = (record: {
+	tags?: string[];
+	comment?: string;
+}): { tags?: string[]; comment?: string } => ({
+	...(record.tags !== undefined ? { tags: record.tags } : {}),
+	...(record.comment !== undefined ? { comment: record.comment } : {}),
+});
+
 const buildValue = (record: { type: string; content: string }) => {
 	const value = record.content.trim();
 
@@ -139,6 +147,8 @@ export const cloudflareClient: DnsClient<CloudflareConfig> = {
 					ttl: number;
 					priority?: number;
 					proxied?: boolean;
+					comment?: string;
+					tags?: string[];
 				}[]
 			>(config, `/zones/${zoneId}/dns_records?per_page=50&page=${page}`);
 			records.push(
@@ -149,6 +159,8 @@ export const cloudflareClient: DnsClient<CloudflareConfig> = {
 					content: inlinePriority(record),
 					ttl: record.ttl,
 					proxied: record.proxied,
+					comment: record.comment,
+					tags: record.tags,
 				})),
 			);
 			if (result.length < 50) {
@@ -165,6 +177,7 @@ export const cloudflareClient: DnsClient<CloudflareConfig> = {
 			name: record.name,
 			...buildValue(record),
 			...proxySettings(record),
+			...metadata(record),
 			ttl: record.ttl ?? 1,
 		};
 
@@ -224,6 +237,7 @@ export const cloudflareClient: DnsClient<CloudflareConfig> = {
 					name: record.name,
 					...buildValue(record),
 					...proxySettings(record),
+					...metadata(record),
 					ttl: record.ttl ?? 1,
 				}),
 			},

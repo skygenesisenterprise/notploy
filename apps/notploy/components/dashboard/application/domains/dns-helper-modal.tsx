@@ -28,9 +28,12 @@ export const DnsHelperModal = ({ domain, serverIp }: Props) => {
 
 	return (
 		<Dialog>
-			<DialogTrigger>
+			{/* `asChild` keeps a single button: the trigger must not wrap another
+			    <button>, which is invalid HTML and breaks hydration. */}
+			<DialogTrigger asChild>
 				<Button variant="ghost" size="icon" className="group">
 					<HelpCircle className="size-4" />
+					<span className="sr-only">DNS configuration guide</span>
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-2xl">

@@ -11,6 +11,7 @@ import {
 	initVolumeBackupsCronJobs,
 	sendNotployRestartNotifications,
 	setupDirectories,
+	startInternalDnsServer,
 } from "@notploy/server";
 import { config } from "dotenv";
 import next from "next";
@@ -27,12 +28,15 @@ const PORT = Number.parseInt(process.env.PORT || "3000", 10);
 const HOST = process.env.HOST || "0.0.0.0";
 const dev = process.env.NODE_ENV !== "production";
 
-// Initialize critical directories and Traefik config BEFORE Next.js starts
-// This prevents race conditions with the install script
-if (process.env.NODE_ENV === "production" && !IS_CLOUD) {
+// Initialize critical directories and Traefik config BEFORE Next.js starts.
+// This prevents race conditions with the install script and, in development,
+// makes sure the Compose-managed Traefik service has a config file to read from
+// the shared config path (NOTPLOY_CONFIG_PATH).
+if (!IS_CLOUD) {
 	setupDirectories();
 	createDefaultTraefikConfig();
 	createDefaultServerTraefikConfig();
+	createDefaultMiddlewares();
 	console.log("✅ initialization complete");
 }
 
@@ -57,6 +61,10 @@ void app.prepare().then(async () => {
 
 		server.listen(PORT, HOST);
 		console.log(`Server Started on: http://${HOST}:${PORT}`);
+
+		// Serves the Notploy Internal DNS zones to the local network and forwards
+		// everything else upstream. Disabled with NOTPLOY_DNS_SERVER=false.
+		startInternalDnsServer();
 		if (process.env.NODE_ENV === "production" && !IS_CLOUD) {
 			createDefaultMiddlewares();
 			await initializeNetwork();

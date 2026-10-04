@@ -1,10 +1,19 @@
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
-import { Cloud, CloudOff, XIcon } from "lucide-react";
+import { Cloud, CloudOff, PlusIcon, XIcon } from "lucide-react";
+import { type ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import {
 	Form,
 	FormControl,
@@ -81,6 +90,8 @@ const DnsRecordSchema = z
 		content: z.string().min(1, { message: "Content is required" }),
 		ttl: z.string(),
 		proxied: z.boolean(),
+		comment: z.string().max(500).optional(),
+		tags: z.string().optional(),
 	})
 	.superRefine((data, ctx) => {
 		const values = data.content
@@ -105,7 +116,7 @@ const DnsRecordSchema = z
 		}
 	});
 
-type DnsRecordForm = z.infer<typeof DnsRecordSchema>;
+type DnsRecordFormValues = z.infer<typeof DnsRecordSchema>;
 
 export interface DnsRecordValue {
 	id: string;
@@ -114,9 +125,11 @@ export interface DnsRecordValue {
 	content: string;
 	ttl: number;
 	proxied?: boolean;
+	comment?: string;
+	tags?: string[];
 }
 
-interface Props {
+interface DnsRecordFormProps {
 	dnsProviderId: string;
 	zoneId: string;
 	zoneName: string;
@@ -124,13 +137,17 @@ interface Props {
 	onClose: () => void;
 }
 
-export const DnsRecordPanel = ({
+/**
+ * The record form shared by the side panel (editing) and the create dialog, so
+ * both stay in sync.
+ */
+export const DnsRecordForm = ({
 	dnsProviderId,
 	zoneId,
 	zoneName,
 	record,
 	onClose,
-}: Props) => {
+}: DnsRecordFormProps) => {
 	const utils = api.useUtils();
 	const createRecord = api.dnsProvider.createRecord.useMutation();
 	const updateRecord = api.dnsProvider.updateRecord.useMutation();
@@ -155,7 +172,7 @@ export const DnsRecordPanel = ({
 			!!suggestion.ip && all.findIndex((s) => s.ip === suggestion.ip) === index,
 	);
 
-	const form = useForm<DnsRecordForm>({
+	const form = useForm<DnsRecordFormValues>({
 		defaultValues: record
 			? {
 					type: (DNS_RECORD_TYPES.includes(record.type as RecordType)
@@ -165,8 +182,18 @@ export const DnsRecordPanel = ({
 					content: record.content,
 					ttl: record.ttl && record.ttl !== 1 ? String(record.ttl) : "",
 					proxied: record.proxied ?? false,
+					comment: record.comment ?? "",
+					tags: (record.tags ?? []).join(", "),
 				}
-			: { type: "A", name: "", content: "", ttl: "", proxied: false },
+			: {
+					type: "A",
+					name: "",
+					content: "",
+					ttl: "",
+					proxied: false,
+					comment: "",
+					tags: "",
+				},
 		resolver: zodResolver(DnsRecordSchema),
 	});
 
@@ -177,9 +204,13 @@ export const DnsRecordPanel = ({
 	const supportsMultipleValues = provider?.providerType === "route53";
 	const usesAutomaticTtl = canProxy && proxied;
 
-	const onSubmit = async (data: DnsRecordForm) => {
+	const onSubmit = async (data: DnsRecordFormValues) => {
 		const name = data.name.trim() === "@" ? zoneName : data.name;
 		const isProxied = canProxy && data.proxied;
+		const tags = (data.tags ?? "")
+			.split(",")
+			.map((tag) => tag.trim())
+			.filter(Boolean);
 		const payload = {
 			dnsProviderId,
 			zoneId,
@@ -187,6 +218,8 @@ export const DnsRecordPanel = ({
 			name,
 			content: data.content,
 			ttl: !isProxied && data.ttl ? Number(data.ttl) : undefined,
+			comment: data.comment?.trim() || undefined,
+			tags: tags.length ? tags : undefined,
 			...(canProxy && { proxied: data.proxied }),
 			...(record && { recordId: record.id }),
 		};
@@ -200,24 +233,7 @@ export const DnsRecordPanel = ({
 	};
 
 	return (
-		<div className="flex flex-col gap-4 rounded-lg border bg-muted/30 p-4">
-			<div className="flex items-start justify-between gap-2">
-				<div className="flex flex-col gap-0.5">
-					<span className="text-sm font-medium">
-						{record ? "Edit record" : "New record"}
-					</span>
-					<span className="text-xs text-muted-foreground">{zoneName}</span>
-				</div>
-				<Button
-					variant="ghost"
-					size="icon-sm"
-					onClick={onClose}
-					aria-label="Close panel"
-				>
-					<XIcon className="size-4" />
-				</Button>
-			</div>
-
+		<>
 			{isError && <AlertBlock type="error">{error?.message}</AlertBlock>}
 
 			<Form {...form}>
@@ -384,6 +400,41 @@ export const DnsRecordPanel = ({
 					)}
 					<FormField
 						control={form.control}
+						name="comment"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Comment (optional)</FormLabel>
+								<FormControl>
+									<Input
+										placeholder="Anything worth remembering about this record"
+										{...field}
+										value={field.value ?? ""}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="tags"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Tags (optional)</FormLabel>
+								<FormControl>
+									<Input
+										placeholder="production, mail"
+										{...field}
+										value={field.value ?? ""}
+									/>
+								</FormControl>
+								<FormDescription>Comma-separated labels.</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
 						name="ttl"
 						render={({ field }) => (
 							<FormItem>
@@ -416,6 +467,100 @@ export const DnsRecordPanel = ({
 					</div>
 				</form>
 			</Form>
+		</>
+	);
+};
+
+interface Props {
+	dnsProviderId: string;
+	zoneId: string;
+	zoneName: string;
+	record: DnsRecordValue | null;
+	onClose: () => void;
+}
+
+export const DnsRecordPanel = ({
+	dnsProviderId,
+	zoneId,
+	zoneName,
+	record,
+	onClose,
+}: Props) => {
+	return (
+		<div className="flex flex-col gap-4 rounded-lg border bg-muted/30 p-4">
+			<div className="flex items-start justify-between gap-2">
+				<div className="flex flex-col gap-0.5">
+					<span className="text-sm font-medium">
+						{record ? "Edit record" : "New record"}
+					</span>
+					<span className="text-xs text-muted-foreground">{zoneName}</span>
+				</div>
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					onClick={onClose}
+					aria-label="Close panel"
+				>
+					<XIcon className="size-4" />
+				</Button>
+			</div>
+
+			<DnsRecordForm
+				dnsProviderId={dnsProviderId}
+				zoneId={zoneId}
+				zoneName={zoneName}
+				record={record}
+				onClose={onClose}
+			/>
 		</div>
+	);
+};
+
+interface AddDnsRecordDialogProps {
+	dnsProviderId: string;
+	zoneId: string;
+	zoneName: string;
+	trigger?: ReactNode;
+}
+
+/**
+ * Create dialog: the "Add record" entry point opens a centered modal instead of
+ * the side panel, which stays reserved for editing an existing record.
+ */
+export const AddDnsRecordDialog = ({
+	dnsProviderId,
+	zoneId,
+	zoneName,
+	trigger,
+}: AddDnsRecordDialogProps) => {
+	const [open, setOpen] = useState(false);
+
+	return (
+		<Dialog open={open} onOpenChange={setOpen}>
+			<DialogTrigger asChild>
+				{trigger ?? (
+					<Button>
+						<PlusIcon className="size-4" />
+						Add record
+					</Button>
+				)}
+			</DialogTrigger>
+			<DialogContent className="max-h-screen overflow-y-auto sm:max-w-lg">
+				<DialogHeader>
+					<DialogTitle>Add DNS record</DialogTitle>
+					<DialogDescription>
+						Create a record in {zoneName || "this zone"}. It is written straight
+						to the provider.
+					</DialogDescription>
+				</DialogHeader>
+				<DnsRecordForm
+					dnsProviderId={dnsProviderId}
+					zoneId={zoneId}
+					zoneName={zoneName}
+					record={null}
+					onClose={() => setOpen(false)}
+				/>
+			</DialogContent>
+		</Dialog>
 	);
 };
