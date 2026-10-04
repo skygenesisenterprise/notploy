@@ -69,13 +69,17 @@ export const ToggleDockerCleanup = ({ serverId }: Props) => {
 					</TooltipTrigger>
 					<TooltipContent side="top" className="max-w-sm">
 						<p>
-							Runs a full Docker cleanup daily, pruning stopped containers,
-							unused images, build cache, and system resources. This may remove
-							images built for Compose services that run on-demand (backup
-							runners, cron jobs, one-off tasks).
+							When enabled, Notploy automatically runs Docker cleanup once a day
+							on this server. It removes stopped containers, unused images, and
+							build cache to reclaim disk space. Images used only by on-demand
+							Compose services—such as backup runners, scheduled jobs, or
+							one-off tasks—may be removed too. Docker will need to pull or
+							rebuild those images the next time the services run, which can
+							delay their startup.
 						</p>
 						<p className="mt-1">
-							For custom cleanup strategies, use{" "}
+							Leave this off if you need to retain those images or want to
+							control when cleanup runs. For a custom cleanup schedule, create a{" "}
 							<a
 								href="https://docs.notploy.com/docs/core/schedule-jobs#example-1-automatic-docker-cleanup"
 								target="_blank"
@@ -84,7 +88,7 @@ export const ToggleDockerCleanup = ({ serverId }: Props) => {
 							>
 								Schedule Jobs
 							</a>{" "}
-							on your web server or remote servers.
+							on the web server or a remote server.
 						</p>
 					</TooltipContent>
 				</Tooltip>
