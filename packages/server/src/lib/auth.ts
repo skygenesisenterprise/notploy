@@ -503,8 +503,48 @@ const _auth = {
 export type AuthType = typeof _auth;
 export const auth: AuthType = _auth;
 
+/**
+ * The API key a request authenticated with, when it authenticated with one.
+ *
+ * Only metadata is exposed (never `key`), and only because procedures such as
+ * the CI/CD API need to know *which* credential was used and what it is scoped
+ * to. A request authenticated with a session cookie has no `apiKey`.
+ */
+export interface RequestApiKey {
+	id: string;
+	name: string | null;
+	prefix: string | null;
+	metadata: string | null;
+}
+
+/**
+ * Reads the API key from a request.
+ *
+ * `x-api-key` is Notploy's own header and stays the documented one, but CI
+ * clients (GitHub Actions included) speak `Authorization: Bearer <token>`, so
+ * both are accepted rather than forcing every action to build a custom header.
+ */
+const extractApiKeyHeader = (
+	request: IncomingMessage,
+): string | undefined => {
+	const apiKeyHeader = request.headers["x-api-key"];
+	if (typeof apiKeyHeader === "string" && apiKeyHeader.trim()) {
+		return apiKeyHeader.trim();
+	}
+
+	const authorization = request.headers.authorization;
+	if (typeof authorization === "string") {
+		const bearer = authorization.match(/^Bearer\s+(\S+)$/i);
+		if (bearer?.[1]) {
+			return bearer[1];
+		}
+	}
+
+	return undefined;
+};
+
 export const validateRequest = async (request: IncomingMessage) => {
-	const apiKey = request.headers["x-api-key"] as string;
+	const apiKey = extractApiKeyHeader(request);
 	if (apiKey) {
 		try {
 			const { valid, key, error } = await api.verifyApiKey({
@@ -520,6 +560,7 @@ export const validateRequest = async (request: IncomingMessage) => {
 				return {
 					session: null,
 					user: null,
+					apiKey: undefined as RequestApiKey | undefined,
 				};
 			}
 
@@ -534,6 +575,7 @@ export const validateRequest = async (request: IncomingMessage) => {
 				return {
 					session: null,
 					user: null,
+					apiKey: undefined as RequestApiKey | undefined,
 				};
 			}
 
@@ -547,6 +589,7 @@ export const validateRequest = async (request: IncomingMessage) => {
 				return {
 					session: null,
 					user: null,
+					apiKey: undefined as RequestApiKey | undefined,
 				};
 			}
 
@@ -585,12 +628,21 @@ export const validateRequest = async (request: IncomingMessage) => {
 				},
 			};
 
-			return mockSession;
+			return {
+				...mockSession,
+				apiKey: {
+					id: apiKeyRecord.id,
+					name: apiKeyRecord.name,
+					prefix: apiKeyRecord.prefix,
+					metadata: apiKeyRecord.metadata,
+				} satisfies RequestApiKey,
+			};
 		} catch (error) {
 			console.error("Error verifying API key", error);
 			return {
 				session: null,
 				user: null,
+				apiKey: undefined as RequestApiKey | undefined,
 			};
 		}
 	}
@@ -606,6 +658,7 @@ export const validateRequest = async (request: IncomingMessage) => {
 		return {
 			session: null,
 			user: null,
+			apiKey: undefined as RequestApiKey | undefined,
 		};
 	}
 
@@ -638,5 +691,5 @@ session.user.role = member?.role || "member";
 		}
 	}
 
-	return session;
+	return { ...session, apiKey: undefined as RequestApiKey | undefined };
 };

@@ -35,6 +35,7 @@ import { getNotployUrl } from "./admin";
 import {
 	createDeployment,
 	createDeploymentPreview,
+	findDeploymentById,
 	updateDeployment,
 	updateDeploymentStatus,
 } from "./deployment";
@@ -179,10 +180,24 @@ export const deployApplication = async ({
 	applicationId,
 	titleLog = "Manual deployment",
 	descriptionLog = "",
+	deploymentId,
+	commitSha,
 }: {
 	applicationId: string;
 	titleLog: string;
 	descriptionLog: string;
+	/**
+	 * Reuse an already-created deployment row instead of creating a new one.
+	 *
+	 * The CI/CD API creates the row itself so the caller gets a deployment id to
+	 * poll immediately, before any worker has picked the job up.
+	 */
+	deploymentId?: string;
+	/**
+	 * Build this exact revision instead of the tip of the configured branch.
+	 * Set by the CI/CD API when the client reports a commit sha.
+	 */
+	commitSha?: string;
 }) => {
 	const application = await findApplicationById(applicationId);
 	const serverId = application.buildServerId || application.serverId;
@@ -192,16 +207,21 @@ export const deployApplication = async ({
 	};
 
 	const buildLink = `${await getNotployUrl()}/dashboard/project/${application.environment.projectId}/environment/${application.environmentId}/services/application/${application.applicationId}?tab=deployments`;
-	const deployment = await createDeployment({
-		applicationId: applicationId,
-		title: titleLog,
-		description: descriptionLog,
-	});
+	const deployment = deploymentId
+		? await findDeploymentById(deploymentId)
+		: await createDeployment({
+				applicationId: applicationId,
+				title: titleLog,
+				description: descriptionLog,
+			});
 
 	try {
 		let command = "set -e;";
 		if (application.sourceType === "github") {
-			command += await cloneGithubRepository(applicationEntity);
+			command += await cloneGithubRepository({
+				...applicationEntity,
+				commitSha,
+			});
 		} else if (application.sourceType === "gitlab") {
 			command += await cloneGitlabRepository(applicationEntity);
 		} else if (application.sourceType === "gitea") {

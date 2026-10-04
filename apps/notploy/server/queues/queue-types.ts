@@ -7,6 +7,14 @@ type DeployJob =
 			type: "deploy" | "redeploy";
 			applicationType: "application";
 			serverId?: string;
+			/**
+			 * Reuse a deployment row created by the caller instead of creating a
+			 * new one. Set by the CI/CD API so a workflow gets a deployment id to
+			 * poll before any worker has started.
+			 */
+			deploymentId?: string;
+			/** Build this exact commit instead of the tip of the configured branch. */
+			commitSha?: string;
 	  }
 	| {
 			composeId: string;

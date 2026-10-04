@@ -31,6 +31,8 @@ export const processDeploymentJob = async (job: InMemoryJob) => {
 					applicationId: job.data.applicationId,
 					titleLog: job.data.titleLog,
 					descriptionLog: job.data.descriptionLog,
+					deploymentId: job.data.deploymentId,
+					commitSha: job.data.commitSha,
 				});
 			}
 		} else if (job.data.applicationType === "compose") {

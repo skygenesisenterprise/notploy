@@ -8,6 +8,11 @@ import { TRPCError } from "@trpc/server";
 import { Octokit } from "octokit";
 import { quote } from "shell-quote";
 import type { z } from "zod";
+import {
+	type GitProviderAdapter,
+	type GitProviderRepositoryRef,
+	fullGitCapabilities,
+} from "./types";
 
 export const DEFAULT_GITHUB_URL = "https://github.com";
 export const DEFAULT_GITHUB_API_URL = "https://api.github.com";
@@ -187,6 +192,14 @@ interface CloneGithubRepository {
 	enableSubmodules: boolean;
 	serverId: string | null;
 	outputPathOverride?: string;
+	/**
+	 * Build this exact revision instead of the tip of `branch`.
+	 *
+	 * A shallow clone cannot contain an arbitrary commit, so the revision is
+	 * fetched on its own afterwards. Used by the CI/CD API so a workflow deploys
+	 * the commit it was triggered for instead of whatever the branch points at.
+	 */
+	commitSha?: string;
 }
 export const cloneGithubRepository = async ({
 	type = "application",
@@ -203,6 +216,7 @@ export const cloneGithubRepository = async ({
 		enableSubmodules,
 		serverId,
 		outputPathOverride,
+		commitSha,
 	} = entity;
 	const { APPLICATIONS_PATH, COMPOSE_PATH } = paths(!!serverId);
 
@@ -233,6 +247,15 @@ export const cloneGithubRepository = async ({
 
 	command += `echo ${quote([`Cloning Repo ${repoclone} to ${outputPath}: ✅`])};`;
 	command += `git clone --branch ${quote([String(branch ?? "")])} --depth 1 ${enableSubmodules ? "--recurse-submodules" : ""} ${quote([String(cloneUrl ?? "")])} ${quote([String(outputPath ?? "")])} --progress;`;
+
+	if (commitSha) {
+		command += `echo ${quote([`Checking out commit ${commitSha}: ✅`])};`;
+		command += `cd ${quote([String(outputPath)])};`;
+		command += `git fetch --depth 1 origin ${quote([commitSha])};`;
+		command += `git checkout FETCH_HEAD;`;
+		command += `git reset --hard FETCH_HEAD;`;
+		command += `git submodule update --init --recursive 2>/dev/null || true;`;
+	}
 
 	return command;
 };
@@ -289,4 +312,230 @@ export const getGithubBranches = async (
 	>["data"];
 
 	return branches;
+};
+
+/**
+ * GitHub implementation of the normalized provider contract.
+ *
+ * Auth is a GitHub App installation, so the identity is the account the app is
+ * installed on (fetched with a JWT, since installation tokens cannot read
+ * `/app/installations`). Repositories come from the installation, which is
+ * exactly the set Notploy is allowed to deploy from.
+ */
+export const githubGitProviderAdapter: GitProviderAdapter<Github> = {
+	providerType: "github",
+
+	hasRequirements: haveGithubRequirements,
+
+	getCapabilities: () => ({
+		...fullGitCapabilities,
+	}),
+
+	getUrl: (githubProvider) => normalizeGithubUrl(githubProvider.githubUrl),
+
+	getIdentity: async (githubProvider) => {
+		if (!haveGithubRequirements(githubProvider)) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: "The GitHub App is not installed yet",
+			});
+		}
+
+		const baseUrl = deriveGithubApiUrl(githubProvider.githubUrl);
+		const octokit = new Octokit({
+			authStrategy: createAppAuth,
+			auth: {
+				appId: githubProvider.githubAppId,
+				privateKey: githubProvider.githubPrivateKey,
+			},
+			baseUrl,
+		});
+
+		const { data } = await octokit.rest.apps.getInstallation({
+			installation_id: Number(githubProvider.githubInstallationId),
+		});
+
+		const account = data.account as {
+			login?: string;
+			avatar_url?: string;
+			html_url?: string;
+		};
+
+		return {
+			login: account.login ?? `installation-${githubProvider.githubInstallationId}`,
+			name: data.app_slug ?? null,
+			email: null,
+			avatarUrl: account.avatar_url ?? null,
+			url: account.html_url ?? null,
+		};
+	},
+
+	getRepositories: async (githubProvider, options) => {
+		const octokit = authGithub(githubProvider);
+		const repositories = (await octokit.paginate(
+			octokit.rest.apps.listReposAccessibleToInstallation,
+			options?.limit ? { per_page: Math.min(options.limit, 100) } : undefined,
+			// @ts-expect-error octokit's paginate signature is wider than the
+			// installed version types
+		)) as unknown as Awaited<
+			ReturnType<typeof octokit.rest.apps.listReposAccessibleToInstallation>
+		>["data"]["repositories"];
+
+		return repositories.map((repository) => ({
+			id: String(repository.id),
+			fullName: repository.full_name,
+			owner: repository.owner?.login ?? null,
+			name: repository.name,
+			private: !!repository.private,
+			defaultBranch: repository.default_branch ?? null,
+			numericId: null,
+			webUrl: repository.html_url ?? null,
+			cloneUrl: repository.clone_url ?? null,
+			updatedAt: repository.updated_at ?? null,
+			canPush: repository.permissions?.push ?? null,
+		}));
+	},
+
+	searchRepositories: async (githubProvider, query, options) => {
+		const octokit = authGithub(githubProvider);
+		const { data } = await octokit.rest.search.repos({
+			q: query,
+			per_page: Math.min(options?.limit ?? 30, 100),
+		});
+
+		return data.items.map((repository) => ({
+			id: String(repository.id),
+			fullName: repository.full_name,
+			owner: repository.owner?.login ?? null,
+			name: repository.name,
+			private: !!repository.private,
+			defaultBranch: repository.default_branch ?? null,
+			numericId: null,
+			webUrl: repository.html_url ?? null,
+			cloneUrl: repository.clone_url ?? null,
+			updatedAt: repository.updated_at ?? null,
+			canPush: repository.permissions?.push ?? null,
+		}));
+	},
+
+	getOrganizations: async (githubProvider) => {
+		const octokit = authGithub(githubProvider);
+		const { data } = await octokit.rest.orgs.listForAuthenticatedUser();
+
+		return data.map((organization) => ({
+			id: String(organization.id),
+			name: organization.name ?? organization.login,
+			slug: organization.login,
+			avatarUrl: organization.avatar_url ?? null,
+		}));
+	},
+
+	getBranches: async (githubProvider, repository) => {
+		const { owner, repo } = resolveRepositoryCoordinates(repository);
+		const octokit = authGithub(githubProvider);
+		const branches = (await octokit.paginate(
+			octokit.rest.repos.listBranches,
+			{ owner, repo },
+		)) as unknown as Awaited<
+			ReturnType<typeof octokit.rest.repos.listBranches>
+		>["data"];
+
+		return branches.map((branch) => ({
+			name: branch.name,
+			commitSha: branch.commit?.sha ?? null,
+			protected: !!branch.protected,
+		}));
+	},
+
+	getCommit: async (githubProvider, repository, ref) => {
+		const { owner, repo } = resolveRepositoryCoordinates(repository);
+		const octokit = authGithub(githubProvider);
+
+		try {
+			const { data } = await octokit.rest.repos.getBranch({
+				owner,
+				repo,
+				branch: ref,
+			});
+			return {
+				sha: data.commit.sha,
+				shortSha: data.commit.sha.slice(0, 7),
+				message: data.commit.commit?.message ?? null,
+				author:
+					data.commit.commit?.author?.name ??
+					data.commit.author?.login ??
+					null,
+				committedAt: data.commit.commit?.author?.date ?? null,
+				webUrl: data.commit.html_url ?? null,
+			};
+		} catch (error) {
+			if (isNotFound(error)) return null;
+			throw error;
+		}
+	},
+
+	getRepositoryPermissions: async (githubProvider, repository) => {
+		const { owner, repo } = resolveRepositoryCoordinates(repository);
+		const octokit = authGithub(githubProvider);
+
+		try {
+			const { data } = await octokit.rest.repos.get({ owner, repo });
+			return {
+				pull: !!data.permissions?.pull,
+				push: !!data.permissions?.push,
+			};
+		} catch (error) {
+			if (isNotFound(error)) return null;
+			throw error;
+		}
+	},
+
+	testConnection: async (githubProvider) => {
+		if (!haveGithubRequirements(githubProvider)) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: "The GitHub App is not installed yet",
+			});
+		}
+
+		const octokit = authGithub(githubProvider);
+		// `listReposAccessibleToInstallation` is the check that matters: HTTP 200
+		// on an empty installation would still be useless for a deployment.
+		const repositories = (await octokit.paginate(
+			octokit.rest.apps.listReposAccessibleToInstallation,
+		)) as unknown as Awaited<
+			ReturnType<typeof octokit.rest.apps.listReposAccessibleToInstallation>
+		>["data"]["repositories"];
+
+		return { repositoryCount: repositories.length };
+	},
+};
+
+/**
+ * Splits a repository reference into the `owner`/`repo` pair every GitHub call
+ * needs, accepting both the id returned by the repository list and the
+ * `owner/name` shown in the UI.
+ */
+const resolveRepositoryCoordinates = (
+	repository: GitProviderRepositoryRef,
+): { owner: string; repo: string } => {
+	const fullName = repository.fullName;
+	if (fullName && fullName.includes("/")) {
+		const [owner, repo] = fullName.split("/");
+		return { owner: owner as string, repo: repo as string };
+	}
+
+	if (repository.owner && repository.name) {
+		return { owner: repository.owner, repo: repository.name };
+	}
+
+	throw new TRPCError({
+		code: "BAD_REQUEST",
+		message: "A repository must be identified by `owner/name` or by its id",
+	});
+};
+
+const isNotFound = (error: unknown) => {
+	const status = (error as { status?: number })?.status;
+	return status === 404;
 };

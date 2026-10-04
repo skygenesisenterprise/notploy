@@ -12,6 +12,13 @@ import type { InferResultType } from "@notploy/server/types/with";
 import { TRPCError } from "@trpc/server";
 import { quote } from "shell-quote";
 import type { z } from "zod";
+import {
+	type GitProviderAdapter,
+	type GitProviderRepository,
+	type GitProviderRepositoryRef,
+	GIT_PROVIDER_REQUEST_TIMEOUT_MS,
+	noGitCapabilities,
+} from "./types";
 
 export type ApplicationWithBitbucket = InferResultType<
 	"applications",
@@ -279,3 +286,279 @@ export const testBitbucketConnection = async (
 		throw error;
 	}
 };
+
+/**
+ * Bitbucket Cloud implementation of the normalized provider contract.
+ *
+ * Bitbucket has no application-install model, so the connection is a static
+ * Atlassian API token (or an app password) plus the workspace to act in. That
+ * has two consequences the rest of Notploy has to know about: the identity is
+ * the Atlassian account, and repositories are always scoped to a workspace —
+ * which is why `organizations` and `webhooks` are reported as unsupported.
+ */
+export const bitbucketGitProviderAdapter: GitProviderAdapter<Bitbucket> = {
+	providerType: "bitbucket",
+
+	hasRequirements: (bitbucketProvider) =>
+		!!(
+			bitbucketProvider?.apiToken ||
+			(bitbucketProvider?.bitbucketUsername && bitbucketProvider?.appPassword)
+		),
+
+	getCapabilities: () => ({
+		...noGitCapabilities,
+		repositories: true,
+		repositorySearch: true,
+		branches: true,
+		commits: true,
+		repositoryPermissions: true,
+		privateRepositories: true,
+	}),
+
+	getUrl: () => "https://bitbucket.org",
+
+	getIdentity: async (bitbucketProvider) => {
+		const user = await bitbucketFetch<{
+			username: string;
+			uuid?: string;
+			display_name?: string;
+			nickname?: string;
+		}>(bitbucketProvider, "/2.0/user");
+
+		return {
+			login: user.username,
+			name: user.display_name ?? user.nickname ?? null,
+			email: bitbucketProvider.bitbucketEmail ?? null,
+			avatarUrl: null,
+			url: "https://bitbucket.org",
+		};
+	},
+
+	getRepositories: async (bitbucketProvider, options) => {
+		if (!bitbucketGitProviderAdapter.hasRequirements(bitbucketProvider)) {
+			return [];
+		}
+
+		const workspace = bitbucketWorkspace(bitbucketProvider);
+		const perPage = Math.min(options?.limit ?? 100, 100);
+		const repositories = await bitbucketPaginate<BitbucketRepository>(
+			bitbucketProvider,
+			`/2.0/repositories/${workspace}?pagelen=${perPage}`,
+			options?.limit,
+		);
+
+		return repositories.map(normalizeBitbucketRepository);
+	},
+
+	searchRepositories: async (bitbucketProvider, query, options) => {
+		const workspace = bitbucketWorkspace(bitbucketProvider);
+		const perPage = Math.min(options?.limit ?? 30, 100);
+		const repositories = await bitbucketPaginate<BitbucketRepository>(
+			bitbucketProvider,
+			`/2.0/repositories/${workspace}?q=${encodeURIComponent(
+				`name~"${query}"`,
+			)}&pagelen=${perPage}`,
+			options?.limit,
+		);
+
+		return repositories.map(normalizeBitbucketRepository);
+	},
+
+	getBranches: async (bitbucketProvider, repository) => {
+		const { workspace, repoSlug } = resolveBitbucketRepository(repository);
+		const branches = await bitbucketPaginate<{
+			name: string;
+			target?: { hash?: string };
+		}>(
+			bitbucketProvider,
+			`/2.0/repositories/${workspace}/${repoSlug}/refs/branches?pagelen=100`,
+		);
+
+		return branches.map((branch) => ({
+			name: branch.name,
+			commitSha: branch.target?.hash ?? null,
+			// Bitbucket exposes protection through its own rules API, which needs
+			// per-repository calls; reporting `false` is honest about not knowing.
+			protected: false,
+		}));
+	},
+
+	getCommit: async (bitbucketProvider, repository, ref) => {
+		const { workspace, repoSlug } = resolveBitbucketRepository(repository);
+
+		try {
+			const commit = await bitbucketFetch<{
+				hash: string;
+				message?: string;
+				author?: { raw?: string; user?: { display_name?: string } };
+				date?: string;
+				links?: { html?: { href?: string } };
+			}>(bitbucketProvider, `/2.0/repositories/${workspace}/${repoSlug}/commit/${ref}`);
+
+			return {
+				sha: commit.hash,
+				shortSha: commit.hash.slice(0, 7),
+				message: commit.message ?? null,
+				author: commit.author?.user?.display_name ?? commit.author?.raw ?? null,
+				committedAt: commit.date ?? null,
+				webUrl: commit.links?.html?.href ?? null,
+			};
+		} catch (error) {
+			if (bitbucketIsNotFound(error)) return null;
+			throw error;
+		}
+	},
+
+	getRepositoryPermissions: async (bitbucketProvider, repository) => {
+		const { workspace, repoSlug } = resolveBitbucketRepository(repository);
+
+		try {
+			await bitbucketFetch(
+				bitbucketProvider,
+				`/2.0/repositories/${workspace}/${repoSlug}`,
+			);
+			// Bitbucket Cloud does not expose the permission level of the token;
+			// reaching the repository at all is what can be asserted.
+			return { pull: true, push: false };
+		} catch (error) {
+			if (bitbucketIsNotFound(error)) return null;
+			throw error;
+		}
+	},
+
+	testConnection: async (bitbucketProvider) => {
+		if (!bitbucketGitProviderAdapter.hasRequirements(bitbucketProvider)) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: "Bitbucket credentials are missing",
+			});
+		}
+
+		const workspace = bitbucketWorkspace(bitbucketProvider);
+		const repositories = await bitbucketPaginate<BitbucketRepository>(
+			bitbucketProvider,
+			`/2.0/repositories/${workspace}?pagelen=100`,
+		);
+
+		return { repositoryCount: repositories.length };
+	},
+};
+
+type BitbucketRepository = {
+	uuid?: string;
+	name: string;
+	slug: string;
+	full_name: string;
+	workspace?: { slug?: string; name?: string };
+	is_private?: boolean;
+	mainbranch?: { name?: string } | null;
+	updated_on?: string;
+	links?: { html?: { href?: string }; clone?: { name?: string; href?: string }[] };
+};
+
+const normalizeBitbucketRepository = (
+	repository: BitbucketRepository,
+): GitProviderRepository => {
+	const workspace = repository.workspace?.slug ?? null;
+	const cloneLink = repository.links?.clone?.find(
+		(link) => link.name === "https",
+	);
+
+	return {
+		id: repository.uuid ?? `${workspace}/${repository.slug}`,
+		fullName: repository.full_name,
+		owner: workspace,
+		name: repository.name,
+		private: !!repository.is_private,
+		defaultBranch: repository.mainbranch?.name ?? null,
+		numericId: null,
+		webUrl: repository.links?.html?.href ?? null,
+		cloneUrl: cloneLink?.href ?? null,
+		updatedAt: repository.updated_on ?? null,
+		canPush: null,
+	};
+};
+
+const bitbucketWorkspace = (bitbucketProvider: Bitbucket) => {
+	const workspace =
+		bitbucketProvider.bitbucketWorkspaceName || bitbucketProvider.bitbucketUsername;
+
+	if (!workspace) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "A Bitbucket workspace or username is required",
+		});
+	}
+
+	return workspace;
+};
+
+const resolveBitbucketRepository = (
+	repository: GitProviderRepositoryRef,
+): { workspace: string; repoSlug: string } => {
+	const parts = (repository.fullName ?? "").split("/");
+	if (parts.length === 2 && parts[0] && parts[1]) {
+		return { workspace: parts[0], repoSlug: parts[1] };
+	}
+
+	if (repository.owner && repository.name) {
+		return { workspace: repository.owner, repoSlug: repository.name };
+	}
+
+	throw new TRPCError({
+		code: "BAD_REQUEST",
+		message: "A Bitbucket repository must be identified by `workspace/repo`",
+	});
+};
+
+const bitbucketFetch = async <T>(
+	bitbucketProvider: Bitbucket,
+	path: string,
+): Promise<T> => {
+	const response = await fetch(`https://api.bitbucket.org${path}`, {
+		method: "GET",
+		headers: getBitbucketHeaders(bitbucketProvider),
+		signal: AbortSignal.timeout(GIT_PROVIDER_REQUEST_TIMEOUT_MS),
+	});
+
+	if (!response.ok) {
+		throw new TRPCError({
+			code:
+				response.status === 401 || response.status === 403
+					? "UNAUTHORIZED"
+					: "BAD_REQUEST",
+			message: `Bitbucket API ${response.status}: ${response.statusText}`,
+		});
+	}
+
+	return (await response.json()) as T;
+};
+
+/** Follows `next` until `limit` items were collected or the API stops paging. */
+const bitbucketPaginate = async <T>(
+	bitbucketProvider: Bitbucket,
+	firstUrl: string,
+	limit?: number,
+): Promise<T[]> => {
+	const results: T[] = [];
+	let url: string | null = firstUrl;
+
+	while (url) {
+		const page = await bitbucketFetch<{ values?: T[]; next?: string }>(
+			bitbucketProvider,
+			url,
+		);
+		results.push(...(page.values ?? []));
+
+		if (limit && results.length >= limit) {
+			return results.slice(0, limit);
+		}
+		url = page.next ?? null;
+	}
+
+	return results;
+};
+
+const bitbucketIsNotFound = (error: unknown) =>
+	(error as { code?: string })?.code === "BAD_REQUEST" &&
+	/not found/i.test((error as Error)?.message ?? "");

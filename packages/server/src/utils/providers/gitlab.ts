@@ -10,6 +10,12 @@ import type { InferResultType } from "@notploy/server/types/with";
 import { TRPCError } from "@trpc/server";
 import { quote } from "shell-quote";
 import type { z } from "zod";
+import {
+	type GitProviderAdapter,
+	type GitProviderRepositoryRef,
+	GIT_PROVIDER_REQUEST_TIMEOUT_MS,
+	fullGitCapabilities,
+} from "./types";
 
 export const refreshGitlabToken = async (gitlabProviderId: string) => {
 	const gitlabProvider = await findGitlabById(gitlabProviderId);
@@ -340,4 +346,296 @@ export const validateGitlabProvider = async (gitlabProvider: Gitlab) => {
 	} catch (error) {
 		throw error;
 	}
+};
+
+/**
+ * Shared request helper for the GitLab adapter.
+ *
+ * The internal URL is preferred when present: for a self-hosted GitLab running
+ * next to Notploy it avoids a round trip through the public hostname, and it is
+ * what token refresh already uses.
+ */
+const gitlabApiBase = (gitlabProvider: Gitlab) =>
+	(gitlabProvider.gitlabInternalUrl || gitlabProvider.gitlabUrl).replace(
+		/\/+$/,
+		"",
+	);
+
+const gitlabFetch = async <T>(
+	gitlabProvider: Gitlab,
+	path: string,
+	init?: RequestInit,
+): Promise<T> => {
+	const response = await fetch(`${gitlabApiBase(gitlabProvider)}${path}`, {
+		...init,
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${gitlabProvider.accessToken}`,
+			...(init?.headers ?? {}),
+		},
+		signal: AbortSignal.timeout(GIT_PROVIDER_REQUEST_TIMEOUT_MS),
+	});
+
+	if (!response.ok) {
+		throw new TRPCError({
+			code: response.status === 401 || response.status === 403 ? "UNAUTHORIZED" : "BAD_REQUEST",
+			message: `GitLab API ${response.status}: ${response.statusText}`,
+		});
+	}
+
+	return (await response.json()) as T;
+};
+
+type GitlabProject = {
+	id: number;
+	name: string;
+	path_with_namespace: string;
+	name_with_namespace?: string;
+	default_branch?: string | null;
+	visibility?: string;
+	web_url?: string;
+	http_url_to_repo?: string;
+	ssh_url_to_repo?: string;
+	last_activity_at?: string;
+	namespace?: { path: string; full_path?: string };
+	permissions?: { project_access?: { access_level?: number } | null } | null;
+};
+
+const normalizeGitlabProject = (project: GitlabProject) => ({
+	id: String(project.id),
+	fullName: project.path_with_namespace,
+	owner: project.namespace?.full_path?.split("/")[0] ?? null,
+	name: project.name,
+	private: project.visibility && project.visibility !== "public",
+	defaultBranch: project.default_branch ?? null,
+	// GitLab branches are addressed by project id, so it has to survive.
+	numericId: project.id,
+	webUrl: project.web_url ?? null,
+	cloneUrl: project.http_url_to_repo ?? null,
+	updatedAt: project.last_activity_at ?? null,
+	// 30 = Developer, 40 = Maintainer; below that the project is read-only.
+	canPush:
+		project.permissions?.project_access?.access_level !== undefined
+			? (project.permissions?.project_access?.access_level ?? 0) >= 30
+			: null,
+});
+
+/**
+ * Resolves the project id a repository reference refers to.
+ *
+ * GitLab addresses branches and commits by numeric project id, so a reference
+ * carrying only `owner/name` is resolved through the search endpoint.
+ */
+const resolveGitlabProjectId = async (
+	gitlabProvider: Gitlab,
+	repository: GitProviderRepositoryRef,
+): Promise<number> => {
+	if (repository.id) {
+		const numeric = Number(repository.id);
+		if (!Number.isNaN(numeric)) return numeric;
+	}
+	if (repository.numericId) return repository.numericId;
+
+	const fullName =
+		repository.fullName ??
+		(repository.owner && repository.name
+			? `${repository.owner}/${repository.name}`
+			: null);
+
+	if (!fullName) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "A GitLab project must be identified by its id or its path",
+		});
+	}
+
+	const project = await gitlabFetch<GitlabProject>(
+		gitlabProvider,
+		`/api/v4/projects/${encodeURIComponent(fullName)}`,
+	);
+
+	return project.id;
+};
+
+/**
+ * GitLab implementation of the normalized provider contract.
+ *
+ * The token is refreshed before every call, so an expired OAuth token is not
+ * reported as a broken connection: the refresh either succeeds and the health
+ * check passes, or fails with an `invalid_grant` the user has to fix by
+ * re-authorizing.
+ */
+export const gitlabGitProviderAdapter: GitProviderAdapter<Gitlab> = {
+	providerType: "gitlab",
+
+	hasRequirements: haveGitlabRequirements,
+
+	getCapabilities: () => ({
+		...fullGitCapabilities,
+	}),
+
+	getUrl: (gitlabProvider) => gitlabProvider.gitlabUrl ?? null,
+
+	getIdentity: async (gitlabProvider) => {
+		if (!haveGitlabRequirements(gitlabProvider)) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: "GitLab is not authorized yet",
+			});
+		}
+
+		const user = await gitlabFetch<{
+			username: string;
+			name?: string;
+			email?: string;
+			avatar_url?: string;
+			web_url?: string;
+		}>(gitlabProvider, "/api/v4/user");
+
+		return {
+			login: user.username,
+			name: user.name ?? null,
+			email: user.email ?? null,
+			avatarUrl: user.avatar_url ?? null,
+			url: user.web_url ?? gitlabApiBase(gitlabProvider),
+		};
+	},
+
+	getRepositories: async (gitlabProvider, options) => {
+		if (!haveGitlabRequirements(gitlabProvider)) return [];
+
+		const allProjects = await validateGitlabProvider(gitlabProvider);
+		const filtered = filterGitlabProjects(allProjects, gitlabProvider);
+		const limited = options?.limit
+			? filtered.slice(0, options.limit)
+			: filtered;
+
+		return limited.map((project) => normalizeGitlabProject(project));
+	},
+
+	searchRepositories: async (gitlabProvider, query, options) => {
+		const projects = await gitlabFetch<GitlabProject[]>(
+			gitlabProvider,
+			`/api/v4/projects?membership=true&search=${encodeURIComponent(
+				query,
+			)}&per_page=${Math.min(options?.limit ?? 30, 100)}`,
+		);
+
+		return projects.map((project) => normalizeGitlabProject(project));
+	},
+
+	getOrganizations: async (gitlabProvider) => {
+		const groups = await gitlabFetch<
+			{ id: number; name: string; full_path: string; avatar_url?: string }[]
+		>(gitlabProvider, "/api/v4/groups?per_page=100");
+
+		return groups.map((group) => ({
+			id: String(group.id),
+			name: group.name,
+			slug: group.full_path,
+			avatarUrl: group.avatar_url ?? null,
+		}));
+	},
+
+	getBranches: async (gitlabProvider, repository) => {
+		const projectId = await resolveGitlabProjectId(gitlabProvider, repository);
+
+		return gitlabFetch<
+			{ name: string; commit: { id: string }; protected: boolean }[]
+		>(
+			gitlabProvider,
+			`/api/v4/projects/${projectId}/repository/branches?per_page=100`,
+		).then((branches) =>
+			branches.map((branch) => ({
+				name: branch.name,
+				commitSha: branch.commit?.id ?? null,
+				protected: !!branch.protected,
+			})),
+		);
+	},
+
+	getCommit: async (gitlabProvider, repository, ref) => {
+		const projectId = await resolveGitlabProjectId(gitlabProvider, repository);
+
+		try {
+			const commit = await gitlabFetch<{
+				id: string;
+				short_id: string;
+				title?: string;
+				message?: string;
+				author_name?: string;
+				authored_date?: string;
+				web_url?: string;
+			}>(gitlabProvider, `/api/v4/projects/${projectId}/repository/commits/${ref}`);
+
+			return {
+				sha: commit.id,
+				shortSha: commit.short_id,
+				message: commit.message ?? commit.title ?? null,
+				author: commit.author_name ?? null,
+				committedAt: commit.authored_date ?? null,
+				webUrl: commit.web_url ?? null,
+			};
+		} catch (error) {
+			if ((error as { code?: string })?.code === "BAD_REQUEST") return null;
+			throw error;
+		}
+	},
+
+	getRepositoryPermissions: async (gitlabProvider, repository) => {
+		const projectId = await resolveGitlabProjectId(gitlabProvider, repository);
+
+		try {
+			const project = await gitlabFetch<GitlabProject>(
+				gitlabProvider,
+				`/api/v4/projects/${projectId}`,
+			);
+			const accessLevel = project.permissions?.project_access?.access_level;
+			return {
+				pull: accessLevel !== undefined,
+				push: (accessLevel ?? 0) >= 30,
+			};
+		} catch (error) {
+			if ((error as { code?: string })?.code === "BAD_REQUEST") return null;
+			throw error;
+		}
+	},
+
+	testConnection: async (gitlabProvider) => {
+		if (!haveGitlabRequirements(gitlabProvider)) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: "GitLab is not authorized yet",
+			});
+		}
+
+		const allProjects = await validateGitlabProvider(gitlabProvider);
+
+		return {
+			repositoryCount: filterGitlabProjects(allProjects, gitlabProvider).length,
+		};
+	},
+};
+
+/**
+ * Applies the provider's group filter, the same rule the dashboard has always
+ * used: without a group only the user's own projects are in scope.
+ */
+const filterGitlabProjects = (projects: unknown[], gitlabProvider: Gitlab) => {
+	const groupName = gitlabProvider.groupName?.toLowerCase();
+
+	return (projects as GitlabProject[]).filter((project) => {
+		const fullPath = project.path_with_namespace;
+		if (!fullPath) return false;
+
+		if (groupName) {
+			return groupName
+				.split(",")
+				.some((name: string) =>
+					fullPath.toLowerCase().startsWith(name.trim().toLowerCase()),
+				);
+		}
+
+		return fullPath.split("/").length === 2;
+	});
 };

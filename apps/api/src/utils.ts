@@ -27,6 +27,8 @@ export const deploy = async (job: DeployJob) => {
 						applicationId: job.applicationId,
 						titleLog: job.titleLog || "Manual deployment",
 						descriptionLog: job.descriptionLog || "",
+						deploymentId: job.deploymentId,
+						commitSha: job.commitSha,
 					});
 				}
 			}

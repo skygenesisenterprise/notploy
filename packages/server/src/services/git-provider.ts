@@ -1,5 +1,18 @@
 import { db } from "@notploy/server/db";
 import { gitProvider, member } from "@notploy/server/db/schema";
+import {
+	type GitProviderAdapter,
+	type GitProviderCapabilityMatrix,
+	type GitProviderHealth,
+	type GitProviderIdentity,
+	type GitProviderListOptions,
+	type GitProviderRepositoryRef,
+	type GitProviderType,
+	classifyGitProviderFailure,
+	getGitProviderAdapter,
+	gitProviderAuthorizationMessages,
+	gitProviderLabels,
+} from "@notploy/server/utils/providers";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 
@@ -166,4 +179,257 @@ export const canViewGitProviderSecrets = async (
 	});
 
 	return memberRecord?.role === "owner" || memberRecord?.role === "admin";
+};
+
+/**
+ * Normalized access to a connected Git provider.
+ *
+ * Everything above this layer (the settings page, the application repository
+ * selector, the deployment pipeline) uses these functions instead of talking to
+ * GitHub/GitLab/Bitbucket/Gitea directly, which is what keeps provider specifics
+ * out of the Project / Application / Deployment model.
+ */
+
+/**
+ * A provider row together with its own credential table.
+ *
+ * The credential tables are one-to-one children of `git_provider`, so exactly
+ * one of them is set; `config` is that child's row, and `type` carries the
+ * `providerType` so a single loader can hand the right adapter the right shape.
+ */
+export type ConnectedGitProvider = {
+	gitProvider: GitProvider;
+	type: GitProviderType;
+	config: Record<string, unknown>;
+};
+
+/**
+ * Loads a provider with its credentials.
+ *
+ * Throws when the provider type has no credential row, which can only happen if
+ * a provider was created without going through its own setup flow.
+ */
+export const loadConnectedGitProvider = async (
+	gitProviderId: string,
+): Promise<ConnectedGitProvider> => {
+	const provider = await db.query.gitProvider.findFirst({
+		where: eq(gitProvider.gitProviderId, gitProviderId),
+		with: {
+			github: true,
+			gitlab: true,
+			bitbucket: true,
+			gitea: true,
+		},
+	});
+
+	if (!provider) {
+		throw new TRPCError({
+			code: "NOT_FOUND",
+			message: "Git Provider not found",
+		});
+	}
+
+	const config =
+		provider.github ??
+		provider.gitlab ??
+		provider.bitbucket ??
+		provider.gitea ??
+		null;
+
+	if (!config) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: `This ${provider.providerType} connection has no credentials stored`,
+		});
+	}
+
+	return {
+		gitProvider: provider,
+		type: provider.providerType as GitProviderType,
+		config: config as unknown as Record<string, unknown>,
+	};
+};
+
+/** Adapter bound to a stored connection. */
+export const getGitProviderAdapterFor = <C = unknown>(
+	connected: ConnectedGitProvider,
+): GitProviderAdapter<C> => getGitProviderAdapter<C>(connected.type);
+
+/**
+ * Reports whether a connection is usable for repository based deployments.
+ *
+ * `connected` is deliberately stricter than "the API answered 200": the probe
+ * lists repositories through the adapter, so a connection that authenticates but
+ * cannot see any repository (a GitHub App installed on the wrong account, a
+ * revoked token) is reported with the status that matches the fix.
+ */
+export const getGitProviderHealth = async (
+	gitProviderId: string,
+): Promise<GitProviderHealth> => {
+	const checkedAt = new Date().toISOString();
+	const connected = await loadConnectedGitProvider(gitProviderId);
+	const adapter = getGitProviderAdapterFor(connected);
+	const capabilities = adapter.getCapabilities();
+
+	if (!adapter.hasRequirements(connected.config)) {
+		return {
+			status: "needsAuthorization",
+			checkedAt,
+			latencyMs: null,
+			message: `This ${connected.type} connection has no credentials yet`,
+			remediation: gitProviderAuthorizationMessages[connected.type],
+			capabilities,
+		};
+	}
+
+	const startedAt = Date.now();
+	try {
+		const { repositoryCount } = await adapter.testConnection(connected.config);
+		const latencyMs = Date.now() - startedAt;
+
+		let identity: GitProviderIdentity | null = null;
+		try {
+			// The identity is a nice-to-have: a provider that lists repositories
+			// but not `/user` is still usable, so a failure here must not flip the
+			// status to broken.
+			identity = await adapter.getIdentity(connected.config);
+		} catch {
+			identity = null;
+		}
+
+		return {
+			status: "connected",
+			checkedAt,
+			latencyMs,
+			message: null,
+			remediation: null,
+			repositoryCount,
+			identity,
+			capabilities,
+		};
+	} catch (error) {
+		const message =
+			error instanceof Error ? error.message : "The provider is unreachable";
+
+		return {
+			status: classifyGitProviderFailure(message),
+			checkedAt,
+			latencyMs: null,
+			message,
+			// Both remaining failures are fixed by reconnecting; the provider host
+			// itself is either refusing the credentials or not answering.
+			remediation: gitProviderAuthorizationMessages[connected.type],
+			capabilities,
+		};
+	}
+};
+
+/** Repositories the connection can deploy from. */
+export const listGitProviderRepositories = async (
+	gitProviderId: string,
+	options?: GitProviderListOptions,
+) => {
+	const connected = await loadConnectedGitProvider(gitProviderId);
+	const adapter = getGitProviderAdapterFor(connected);
+
+	assertGitProviderAuthorized(connected, adapter);
+
+	return adapter.getRepositories(connected.config, options);
+};
+
+/** Server-side repository search, when the provider supports it. */
+export const searchGitProviderRepositories = async (
+	gitProviderId: string,
+	query: string,
+	options?: GitProviderListOptions,
+) => {
+	const connected = await loadConnectedGitProvider(gitProviderId);
+	const adapter = getGitProviderAdapterFor(connected);
+
+	assertGitProviderAuthorized(connected, adapter);
+
+	if (!adapter.searchRepositories) {
+		// Falling back to filtering the full list keeps the selector usable on
+		// providers without a search endpoint.
+		const repositories = await adapter.getRepositories(connected.config, options);
+		const needle = query.toLowerCase();
+		return repositories.filter(
+			(repository) =>
+				repository.fullName.toLowerCase().includes(needle) ||
+				repository.name.toLowerCase().includes(needle),
+		);
+	}
+
+	return adapter.searchRepositories(connected.config, query, options);
+};
+
+/** Branches of a repository, in the normalized shape. */
+export const listGitProviderBranches = async (
+	gitProviderId: string,
+	repository: GitProviderRepositoryRef,
+) => {
+	const connected = await loadConnectedGitProvider(gitProviderId);
+	const adapter = getGitProviderAdapterFor(connected);
+
+	assertGitProviderAuthorized(connected, adapter);
+
+	return adapter.getBranches(connected.config, repository);
+};
+
+/** Identity the connection acts as. */
+export const getGitProviderIdentity = async (gitProviderId: string) => {
+	const connected = await loadConnectedGitProvider(gitProviderId);
+	const adapter = getGitProviderAdapterFor(connected);
+
+	assertGitProviderAuthorized(connected, adapter);
+
+	return adapter.getIdentity(connected.config);
+};
+
+/**
+ * Resolves a ref (branch, tag or short sha) to a commit.
+ *
+ * Returns `null` when the provider cannot answer or does not know the ref, so a
+ * caller can decide between "not found" and "not supported".
+ */
+export const getGitProviderCommit = async (
+	gitProviderId: string,
+	repository: GitProviderRepositoryRef,
+	ref: string,
+) => {
+	const connected = await loadConnectedGitProvider(gitProviderId);
+	const adapter = getGitProviderAdapterFor(connected);
+
+	assertGitProviderAuthorized(connected, adapter);
+
+	if (!adapter.getCommit) return null;
+
+	return adapter.getCommit(connected.config, repository, ref);
+};
+
+/** Whether the connection may read / write a repository. */
+export const getGitProviderRepositoryPermissions = async (
+	gitProviderId: string,
+	repository: GitProviderRepositoryRef,
+) => {
+	const connected = await loadConnectedGitProvider(gitProviderId);
+	const adapter = getGitProviderAdapterFor(connected);
+
+	assertGitProviderAuthorized(connected, adapter);
+
+	if (!adapter.getRepositoryPermissions) return null;
+
+	return adapter.getRepositoryPermissions(connected.config, repository);
+};
+
+const assertGitProviderAuthorized = (
+	connected: ConnectedGitProvider,
+	adapter: GitProviderAdapter<never>,
+) => {
+	if (!adapter.hasRequirements(connected.config)) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: `${gitProviderLabels[connected.type]} is not authorized yet. ${gitProviderAuthorizationMessages[connected.type]}`,
+		});
+	}
 };

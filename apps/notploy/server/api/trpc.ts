@@ -10,7 +10,13 @@
 // import { getServerAuthSession } from "@/server/auth";
 import { db } from "@notploy/server/db";
 import type { statements } from "@notploy/server/lib/access-control";
-import { validateRequest } from "@notploy/server/lib/auth";
+import {
+	type CicdAction,
+	type CicdTokenScope,
+	cicdScopeAllows,
+	parseCicdTokenScope,
+} from "@notploy/server/lib/cicd-scope";
+import { validateRequest, type RequestApiKey } from "@notploy/server/lib/auth";
 import { checkPermission } from "@notploy/server/services/permission";
 import type { OpenApiMeta } from "@notploy/trpc-openapi";
 import { initTRPC, TRPCError } from "@trpc/server";
@@ -49,8 +55,8 @@ interface CreateContextOptions {
  * it from here.
  *
  * Examples of things you may need it for:
- * - testing, so we don't have to mock Next.js' req/res
- * - tRPC's `createSSGHelpers`, where we don't have req/res
+ * - testing, so you don't have to mock Next.js' req/res
+ * - tRPC's `createSSGHelpers`, where you don't have req/res
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
@@ -65,6 +71,22 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 };
 
 /**
+ * Context every procedure receives.
+ *
+ * `apiKey` is set only when the request authenticated with an API key. It is
+ * optional rather than nullable so the server-side helpers of the pages, which
+ * build a context by hand, don't have to know about credentials at all.
+ */
+type TRPCContext = ReturnType<typeof createInnerTRPCContext> & {
+	/**
+	 * The API key that authenticated the request, when one did. The CI/CD API
+	 * needs it to know which credential was used and what it may do; dashboard
+	 * requests authenticated with a cookie leave it undefined.
+	 */
+	apiKey?: RequestApiKey | undefined;
+};
+
+/**
  * This is the actual context you will use in your router. It will be used to process every request
  * that goes through your tRPC endpoint.
  *
@@ -74,29 +96,32 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 	const { req, res } = opts;
 
 	// Get from the request
-	const { session, user } = await validateRequest(req);
+	const { session, user, apiKey } = await validateRequest(req);
 
-	return createInnerTRPCContext({
-		req,
-		res,
-		// @ts-ignore
-		session: session
-			? {
-					...session,
-					activeOrganizationId: session.activeOrganizationId || "",
-				}
-			: null,
-		// @ts-ignore
-		user: user
-			? {
-					...user,
-					email: user.email,
-					role: user.role as "owner" | "member" | "admin",
-					id: user.id,
-					ownerId: user.ownerId,
-				}
-			: null,
-	});
+	return {
+		...createInnerTRPCContext({
+			req,
+			res,
+			// @ts-ignore
+			session: session
+				? {
+						...session,
+						activeOrganizationId: session.activeOrganizationId || "",
+					}
+				: null,
+			// @ts-ignore
+			user: user
+				? {
+						...user,
+						email: user.email,
+						role: user.role as "owner" | "member" | "admin",
+						id: user.id,
+						ownerId: user.ownerId,
+					}
+				: null,
+		}),
+		apiKey,
+	};
 };
 
 /**
@@ -109,7 +134,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
 const t = initTRPC
 	.meta<OpenApiMeta>()
-	.context<typeof createTRPCContext>()
+	.context<TRPCContext>()
 	.create({
 		transformer: superjson,
 		errorFormatter({ shape, error }) {
@@ -225,5 +250,73 @@ export const withPermission = <R extends Resource>(
 ) =>
 	protectedProcedure.use(async ({ ctx, next }) => {
 		await checkPermission(ctx, { [resource]: [action] } as any);
+		return next();
+	});
+
+/**
+ * CI/CD API procedure.
+ *
+ * The CI/CD API is a machine-to-machine surface, so it deliberately does not
+ * accept a dashboard session: a workflow must present an API key that carries a
+ * CI/CD scope (see `parseCicdTokenScope`). That keeps every automated
+ * deployment attributable to a revocable, rotatable credential instead of a
+ * long-lived session, and it means a leaked session cookie cannot be used to
+ * drive deployments.
+ *
+ * The scope itself is only *parsed* here; `withCicdAction` checks the action and
+ * `assertCicdTarget` checks the project/environment/application, so a handler
+ * always runs after its access rules have been evaluated.
+ */
+export const cicdProcedure = t.procedure.use(({ ctx, next }) => {
+	if (!ctx.apiKey) {
+		throw new TRPCError({
+			code: "UNAUTHORIZED",
+			message:
+				"This endpoint requires a Notploy CI/CD API token. Send it as `x-api-key` or `Authorization: Bearer <token>`.",
+		});
+	}
+
+	const scope = parseCicdTokenScope(ctx.apiKey.metadata);
+	if (!scope) {
+		throw new TRPCError({
+			code: "FORBIDDEN",
+			message:
+				"This API key is not a CI/CD token. Create one from the project's CI/CD page.",
+		});
+	}
+
+	if (!ctx.session || !ctx.user) {
+		throw new TRPCError({
+			code: "UNAUTHORIZED",
+			message: "The CI/CD token is not valid for any organization",
+		});
+	}
+
+	return next({
+		ctx: {
+			session: ctx.session,
+			user: ctx.user,
+			cicd: {
+				apiKeyId: ctx.apiKey.id,
+				scope,
+			} satisfies { apiKeyId: string; scope: CicdTokenScope },
+		},
+	});
+});
+
+/**
+ * Restricts a `cicdProcedure` to a single action of the token scope.
+ *
+ * Usage:
+ *   deploy: withCicdAction("deploy").input(...).mutation(...)
+ */
+export const withCicdAction = (action: CicdAction) =>
+	cicdProcedure.use(({ ctx, next }) => {
+		if (!cicdScopeAllows(ctx.cicd.scope, action)) {
+			throw new TRPCError({
+				code: "FORBIDDEN",
+				message: `This CI/CD token is not allowed to ${action}`,
+			});
+		}
 		return next();
 	});

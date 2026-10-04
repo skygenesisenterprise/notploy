@@ -11,6 +11,7 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 import { applications } from "./application";
 import { backups } from "./backups";
+import { cicdDeployments } from "./cicd";
 import { compose } from "./compose";
 import { previewDeployments } from "./preview-deployments";
 import { rollbacks } from "./rollbacks";
@@ -113,6 +114,10 @@ export const deploymentsRelations = relations(deployments, ({ one }) => ({
 	volumeBackup: one(volumeBackups, {
 		fields: [deployments.volumeBackupId],
 		references: [volumeBackups.volumeBackupId],
+	}),
+	cicdDeployment: one(cicdDeployments, {
+		fields: [deployments.deploymentId],
+		references: [cicdDeployments.deploymentId],
 	}),
 }));
 

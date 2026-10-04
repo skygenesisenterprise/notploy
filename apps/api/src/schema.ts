@@ -9,6 +9,10 @@ export const deployJobSchema = z.discriminatedUnion("applicationType", [
 		type: z.enum(["deploy", "redeploy"]),
 		applicationType: z.literal("application"),
 		serverId: z.string().min(1),
+		// Set by the CI/CD API: reuse an already-created deployment row and
+		// build this exact commit.
+		deploymentId: z.string().optional(),
+		commitSha: z.string().optional(),
 	}),
 	z.object({
 		composeId: z.string(),

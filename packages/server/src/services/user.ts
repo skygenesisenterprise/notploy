@@ -10,6 +10,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import * as bcrypt from "bcrypt";
 import { and, desc, eq } from "drizzle-orm";
+import type { CicdTokenScope } from "../lib/cicd-scope";
 import { auth } from "../lib/auth";
 
 export type User = typeof user.$inferSelect;
@@ -533,6 +534,12 @@ export const createApiKey = async (
 		expiresIn?: number;
 		metadata: {
 			organizationId: string;
+			/**
+			 * Present when the key is a CI/CD token. Keeps the actions and
+			 * project/environment/application filters on the credential itself so
+			 * every automated deployment is attributable and revocable.
+			 */
+			cicd?: CicdTokenScope;
 		};
 		rateLimitEnabled?: boolean;
 		rateLimitTimeWindow?: number;

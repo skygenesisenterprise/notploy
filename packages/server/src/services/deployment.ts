@@ -1,6 +1,6 @@
 import { existsSync, promises as fsPromises } from "node:fs";
 import path from "node:path";
-import { paths } from "@notploy/server/constants";
+import { IS_CLOUD, paths } from "@notploy/server/constants";
 import { db } from "@notploy/server/db";
 import {
 	type apiCreateDeployment,
@@ -128,6 +128,40 @@ export const findDeploymentByApplicationId = async (applicationId: string) => {
 		});
 	}
 	return deployment;
+};
+
+/**
+ * Last `tail` lines of a deployment's build log.
+ *
+ * Shared by the dashboard (`deployment.readLogs`) and the CI/CD API so both show
+ * the same output for the same deployment, including for remote build servers
+ * where the log only exists on that machine.
+ */
+export const readDeploymentLogs = async (
+	deployment: Awaited<ReturnType<typeof findDeploymentById>>,
+	tail: number,
+) => {
+	if (!deployment.logPath) {
+		return "";
+	}
+
+	const command = `tail -n ${tail} "${deployment.logPath}" 2>/dev/null || echo ""`;
+	const serverId =
+		deployment.serverId ||
+		deployment.schedule?.serverId ||
+		deployment.application?.serverId ||
+		deployment.compose?.serverId;
+	if (serverId) {
+		const { stdout } = await execAsyncRemote(serverId, command);
+		return stdout;
+	}
+
+	if (IS_CLOUD) {
+		return "";
+	}
+
+	const { stdout } = await execAsync(command);
+	return stdout;
 };
 
 export const createDeployment = async (

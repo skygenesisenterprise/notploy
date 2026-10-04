@@ -10,6 +10,7 @@ import {
 	findDeploymentById,
 	findScheduleById,
 	IS_CLOUD,
+	readDeploymentLogs,
 	removeDeployment,
 	resolveServicePath,
 	updateDeploymentStatus,
@@ -328,22 +329,6 @@ export const deploymentRouter = createTRPCRouter({
 				return "";
 			}
 
-			const command = `tail -n ${input.tail} "${deployment.logPath}" 2>/dev/null || echo ""`;
-			const serverId =
-				deployment.serverId ||
-				deployment.schedule?.serverId ||
-				deployment.application?.serverId ||
-				deployment.compose?.serverId;
-			if (serverId) {
-				const { stdout } = await execAsyncRemote(serverId, command);
-				return stdout;
-			}
-
-			if (IS_CLOUD) {
-				return "";
-			}
-
-			const { stdout } = await execAsync(command);
-			return stdout;
+			return readDeploymentLogs(deployment, input.tail);
 		}),
 });

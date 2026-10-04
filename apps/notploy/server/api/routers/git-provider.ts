@@ -1,7 +1,16 @@
 import {
+	assertGitProviderAccess,
 	findGitProviderById,
 	getAccessibleGitProviderIds,
+	getGitProviderCommit,
+	getGitProviderHealth,
+	getGitProviderIdentity,
+	getGitProviderRepositoryPermissions,
+	listGitProviderBranches,
+	listGitProviderDescriptors,
+	listGitProviderRepositories,
 	removeGitProvider,
+	searchGitProviderRepositories,
 	updateGitProvider,
 } from "@notploy/server";
 import { db } from "@notploy/server/db";
@@ -15,10 +24,31 @@ import {
 } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
 import {
+	apiFindOneGitProvider,
+	apiGetGitProviderCommit,
+	apiListGitProviderBranches,
+	apiListGitProviderRepositories,
 	apiRemoveGitProvider,
+	apiSearchGitProviderRepositories,
 	apiToggleShareGitProvider,
 	gitProvider,
 } from "@/server/db/schema";
+
+/**
+ * Loads a provider the caller is allowed to use, from the active organization.
+ *
+ * Using a shared provider is not the same privilege as reading its credentials,
+ * but using it does mean the server will clone with them, so it is checked on
+ * every generic procedure below.
+ */
+const requireUsableGitProvider = async (
+	ctx: { session: { userId: string; activeOrganizationId: string } },
+	gitProviderId: string,
+) => {
+	const provider = await findGitProviderById(gitProviderId);
+	await assertGitProviderAccess(ctx.session, provider);
+	return provider;
+};
 
 export const gitProviderRouter = createTRPCRouter({
 	getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -68,7 +98,12 @@ export const gitProviderRouter = createTRPCRouter({
 				? {
 						bitbucketId: r.bitbucket.bitbucketId,
 						bitbucketUsername: r.bitbucket.bitbucketUsername,
-						isConfigured: false,
+						// An API token is the supported credential; an app password
+						// still authenticates but is reported as deprecated.
+						isConfigured: !!(
+							r.bitbucket.apiToken ||
+							(r.bitbucket.bitbucketUsername && r.bitbucket.appPassword)
+						),
 						isDeprecated: !!(r.bitbucket.appPassword && !r.bitbucket.apiToken),
 					}
 				: null,
@@ -82,6 +117,98 @@ export const gitProviderRouter = createTRPCRouter({
 				: null,
 		}));
 	}),
+
+	/**
+	 * Health of a connection.
+	 *
+	 * `connected` means the provider could list repositories, which is the real
+	 * precondition for deploying from a source repository — not merely that the
+	 * API answered. Each other status carries the message and the remediation to
+	 * show next to it.
+	 */
+	health: withPermission("gitProviders", "read")
+		.input(apiFindOneGitProvider)
+		.meta({ openapi: { enabled: false } })
+		.query(async ({ ctx, input }) => {
+			await requireUsableGitProvider(ctx, input.gitProviderId);
+			return await getGitProviderHealth(input.gitProviderId);
+		}),
+
+	/**
+	 * Provider types that can be connected and what each supports, so the page
+	 * can explain a provider's limits before one is configured.
+	 */
+	descriptors: withPermission("gitProviders", "read")
+		.meta({ openapi: { enabled: false } })
+		.query(() => listGitProviderDescriptors()),
+
+	/** Repositories a connection can deploy from, normalized. */
+	repositories: withPermission("gitProviders", "read")
+		.input(apiListGitProviderRepositories)
+		.meta({ openapi: { enabled: false } })
+		.query(async ({ ctx, input }) => {
+			await requireUsableGitProvider(ctx, input.gitProviderId);
+			return await listGitProviderRepositories(input.gitProviderId, {
+				limit: input.limit,
+			});
+		}),
+
+	/** Repository search, with a client-side fallback for providers without one. */
+	searchRepositories: withPermission("gitProviders", "read")
+		.input(apiSearchGitProviderRepositories)
+		.meta({ openapi: { enabled: false } })
+		.query(async ({ ctx, input }) => {
+			await requireUsableGitProvider(ctx, input.gitProviderId);
+			return await searchGitProviderRepositories(input.gitProviderId, input.q, {
+				limit: input.limit,
+			});
+		}),
+
+	/** Branches of a repository, normalized. */
+	branches: withPermission("gitProviders", "read")
+		.input(apiListGitProviderBranches)
+		.meta({ openapi: { enabled: false } })
+		.query(async ({ ctx, input }) => {
+			await requireUsableGitProvider(ctx, input.gitProviderId);
+			return await listGitProviderBranches(
+				input.gitProviderId,
+				input.repository,
+			);
+		}),
+
+	/** Resolves a branch, tag or short sha to the commit that would be built. */
+	commit: withPermission("gitProviders", "read")
+		.input(apiGetGitProviderCommit)
+		.meta({ openapi: { enabled: false } })
+		.query(async ({ ctx, input }) => {
+			await requireUsableGitProvider(ctx, input.gitProviderId);
+			return await getGitProviderCommit(
+				input.gitProviderId,
+				input.repository,
+				input.ref,
+			);
+		}),
+
+	/** Account the connection acts as. */
+	identity: withPermission("gitProviders", "read")
+		.input(apiFindOneGitProvider)
+		.meta({ openapi: { enabled: false } })
+		.query(async ({ ctx, input }) => {
+			await requireUsableGitProvider(ctx, input.gitProviderId);
+			return await getGitProviderIdentity(input.gitProviderId);
+		}),
+
+	/** Whether the connection may read / write a repository. */
+	repositoryPermissions: withPermission("gitProviders", "read")
+		.input(apiListGitProviderBranches)
+		.meta({ openapi: { enabled: false } })
+		.query(async ({ ctx, input }) => {
+			await requireUsableGitProvider(ctx, input.gitProviderId);
+			return await getGitProviderRepositoryPermissions(
+				input.gitProviderId,
+				input.repository,
+			);
+		}),
 
 	toggleShare: protectedProcedure
 		.input(apiToggleShareGitProvider)

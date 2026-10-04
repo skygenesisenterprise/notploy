@@ -8,11 +8,7 @@ import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { appRouter } from "@/server/api/root";
 
 const Page = () => {
-	return (
-		<div className="flex flex-col gap-4 w-full">
-			<ShowGitProviders />
-		</div>
-	);
+	return <ShowGitProviders />;
 };
 
 export default Page;
@@ -20,11 +16,11 @@ export default Page;
 Page.getLayout = (page: ReactElement) => {
 	return <DashboardLayout metaName="Git Providers">{page}</DashboardLayout>;
 };
-export async function getServerSideProps(
-	ctx: GetServerSidePropsContext<{ serviceId: string }>,
-) {
-	const { user, session } = await validateRequest(ctx.req);
-	if (!user) {
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+	const { req, res } = ctx;
+	const { user, session } = await validateRequest(req);
+	if (!user || user.role === "member") {
 		return {
 			redirect: {
 				permanent: false,
@@ -32,7 +28,6 @@ export async function getServerSideProps(
 			},
 		};
 	}
-	const { req, res } = ctx;
 	const helpers = createServerSideHelpers({
 		router: appRouter,
 		ctx: {
@@ -45,27 +40,21 @@ export async function getServerSideProps(
 		transformer: superjson,
 	});
 	await helpers.user.get.prefetch();
-	try {
-		await helpers.project.all.prefetch();
-		await helpers.settings.isCloud.prefetch();
-		const userPermissions = await helpers.user.getPermissions.fetch();
+	await helpers.settings.isCloud.prefetch();
+	const userPermissions = await helpers.user.getPermissions.fetch();
 
-		if (!userPermissions?.gitProviders.read) {
-			return {
-				redirect: {
-					permanent: false,
-					destination: "/",
-				},
-			};
-		}
+	if (!userPermissions?.gitProviders.read) {
 		return {
-			props: {
-				trpcState: helpers.dehydrate(),
+			redirect: {
+				permanent: false,
+				destination: "/",
 			},
 		};
-	} catch {
-		return {
-			props: {},
-		};
 	}
+
+	return {
+		props: {
+			trpcState: helpers.dehydrate(),
+		},
+	};
 }
