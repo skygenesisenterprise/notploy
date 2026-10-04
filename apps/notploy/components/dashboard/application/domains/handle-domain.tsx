@@ -924,7 +924,7 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 																?
 															</div>
 														</TooltipTrigger>
-														<TooltipContent className="max-w-[300px]">
+														<TooltipContent className="max-w-75">
 															<p>
 																Add Traefik middleware references. Middlewares
 																must be defined in your Traefik configuration.

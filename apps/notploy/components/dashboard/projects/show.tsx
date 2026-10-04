@@ -208,9 +208,6 @@ export const ShowProjects = () => {
 									<FolderInput className="size-6 text-muted-foreground self-center" />
 									Projects
 								</CardTitle>
-								<CardDescription>
-									Create and manage your projects
-								</CardDescription>
 							</CardHeader>
 							{permissions?.project.create && (
 								<div className="">

@@ -264,7 +264,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 					!!(permissions?.docker.read && !isCloud),
 			},
 			{
-				label: "Secrets",
+				label: "Secrets Manager",
 				href: "/dashboard/settings/secrets",
 				icon: Vault,
 				isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,
@@ -288,7 +288,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.gitProviders.read,
 			},
 			{
-				label: "Registries",
+				label: "Container Registries",
 				href: "/dashboard/settings/registry",
 				icon: Package,
 				isEnabled: ({ permissions }) => !!permissions?.registry.read,
@@ -312,7 +312,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.notification.read,
 			},
 			{
-				label: "AI",
+				label: "AI Providers",
 				href: "/dashboard/settings/ai",
 				icon: BotIcon,
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,
@@ -425,7 +425,7 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 		label: "Security",
 		items: [
 			{
-				label: "Secrets",
+				label: "Secrets Manager",
 				href: "/dashboard/settings/secrets",
 				icon: Vault,
 				isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,
@@ -473,7 +473,7 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.notification.read,
 			},
 			{
-				label: "AI",
+				label: "AI Providers",
 				href: "/dashboard/settings/ai",
 				icon: BotIcon,
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,

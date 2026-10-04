@@ -7,10 +7,18 @@ name: Docker Publish
 # Publishing is tag-only. Each package has its own `v<major>.<minor>.<patch>`
 # tag suffix (for example, `v1.2.3-cloud` publishes only `notploy-cloud`).
 #
-# The self-hosted suffix additionally publishes a GitHub Release: a running
-# server discovers its updates through the Releases API and pulls the image
-# whose tag is that release tag, so a release has to exist for every `-app`
-# tag. The other images are released by their own workflows.
+# Every suffix also publishes a GitHub Release, titled `Notploy {Suffix}
+# v{major}.{minor}.{patch}` (`Notploy App v1.2.3`, `Notploy Cloud v1.2.3`,
+# `Notploy MCP v1.2.3`, ...), so a release always reads the same way whatever
+# image it advertises. The suffix label and the assets a release carries come
+# from the catalog in `select`, which is the single place to add an image.
+#
+# Only the self-hosted `-app` release is published as GitHub's `latest`: a
+# running server discovers its updates through the Releases API and pulls the
+# image whose tag is that release tag, and install.sh resolves
+# `/releases/latest` to pick a version. The other releases therefore carry
+# `make_latest: false` so they never take that place. `-app` and `-cloud`
+# additionally ship the install scripts, which install those two images.
 #
 # The `select` job filters the catalog down to the images the pushed tag
 # actually publishes, so `v1.0.2-app` shows one job instead of seven (six of
@@ -59,6 +67,9 @@ jobs:
       matrix: ${{ steps.select.outputs.matrix }}
       any: ${{ steps.select.outputs.any }}
       version: ${{ steps.select.outputs.version }}
+      release_title: ${{ steps.select.outputs.release_title }}
+      release_assets: ${{ steps.select.outputs.release_assets }}
+      release_latest: ${{ steps.select.outputs.release_latest }}
     steps:
       - name: Select the images published by ${{ github.ref_name }}
         id: select
@@ -71,11 +82,16 @@ jobs:
             echo "::error::Unsupported Docker image tag: $TAG_NAME"
             exit 1
           fi
-          echo "version=v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}" >> "$GITHUB_OUTPUT"
+          version="v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
           variant="${BASH_REMATCH[4]}"
 
           # Catalog of publishable images. Adding an image means adding it here
           # and adding its suffix to the tag filters above.
+          #
+          # `release_name` is the label the GitHub Release is titled with
+          # (`Notploy {release_name} {version}`) and `release_assets` says
+          # whether that release carries the install scripts.
           #
           # `platforms` defaults to linux/amd64,linux/arm64 when omitted.
           read -r -d '' CATALOG <<'JSON' || true
@@ -86,45 +102,59 @@ jobs:
               "target": "selfhosted",
               "platforms": "linux/amd64",
               "tag_suffix": "-app",
-              "description": "Notploy self-hosted (dashboard, server and build tooling)"
+              "description": "Notploy self-hosted (dashboard, server and build tooling)",
+              "release_name": "App",
+              "release_assets": true
             },
             {
               "image": "notploy-cloud",
               "file": "./Dockerfile",
               "target": "cloud",
               "tag_suffix": "-cloud",
-              "description": "Notploy Cloud (dashboard + server)"
+              "description": "Notploy Cloud (dashboard + server)",
+              "release_name": "Cloud",
+              "release_assets": true
             },
             {
               "image": "notploy-mcp",
               "file": "./packages/mcp/Dockerfile",
               "tag_suffix": "-mcp",
-              "description": "Notploy MCP server"
+              "description": "Notploy MCP server",
+              "release_name": "MCP",
+              "release_assets": false
             },
             {
               "image": "notploy-github",
               "file": "./packages/github/Dockerfile",
               "tag_suffix": "-github",
-              "description": "Notploy GitHub integration"
+              "description": "Notploy GitHub integration",
+              "release_name": "GitHub",
+              "release_assets": false
             },
             {
               "image": "notploy-website",
               "file": "./web/Dockerfile.website",
               "platforms": "linux/amd64",
               "tag_suffix": "-website",
-              "description": "Notploy official website"
+              "description": "Notploy official website",
+              "release_name": "Website",
+              "release_assets": false
             },
             {
               "image": "notploy-docs",
               "file": "./web/Dockerfile.docs",
               "tag_suffix": "-docs",
-              "description": "Notploy documentation"
+              "description": "Notploy documentation",
+              "release_name": "Docs",
+              "release_assets": false
             },
             {
               "image": "notploy-templates",
               "file": "./templates/Dockerfile",
               "tag_suffix": "-templates",
-              "description": "Notploy templates gallery"
+              "description": "Notploy templates gallery",
+              "release_name": "Templates",
+              "release_assets": false
             }
           ]
           JSON
@@ -136,8 +166,27 @@ jobs:
             exit 1
           fi
 
+          release_name="$(jq -r '.[0].release_name' <<< "$selected")"
+          if [ -z "$release_name" ] || [ "$release_name" = "null" ]; then
+            echo "::error::The '$variant' image has no release_name in the catalog"
+            exit 1
+          fi
+
           echo "any=true" >> "$GITHUB_OUTPUT"
-          echo "matrix=$(jq -c . <<< "$selected")" >> "$GITHUB_OUTPUT"
+          # The release fields are for the `release` job only: the build matrix
+          # does not need them.
+          echo "matrix=$(jq -c 'map(del(.release_name, .release_assets))' <<< "$selected")" >> "$GITHUB_OUTPUT"
+          echo "release_title=Notploy $release_name $version" >> "$GITHUB_OUTPUT"
+          echo "release_assets=$(jq -r '.[0].release_assets' <<< "$selected")" >> "$GITHUB_OUTPUT"
+
+          # The self-hosted release is the one a running server and install.sh
+          # resolve through `/releases/latest`; no other suffix may take it.
+          if [ "$variant" = "app" ]; then
+            echo "release_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release_latest=false" >> "$GITHUB_OUTPUT"
+          fi
+
           jq -r '.[] | "::notice::publishing \(.image) from \(.file)"' <<< "$selected"
 
   publish:
@@ -254,34 +303,56 @@ jobs:
           retention-days: 30
 
   release:
-    name: Publish the GitHub Release
+    name: Publish the ${{ needs.select.outputs.release_title }} release
     runs-on: ubuntu-latest
     timeout-minutes: 10
     # The image must be pullable before the release advertises it, otherwise a
     # server that already sees the release could be offered a missing tag.
-    needs: publish
-    if: endsWith(github.ref_name, '-app')
+    needs: [select, publish]
     permissions:
       contents: write
     steps:
-      # Idempotent: re-running the workflow updates the existing release instead
-      # of failing on a tag that already has one.
+      # Only the releases that ship the install scripts need the sources; the
+      # action resolves the tag through the API.
       - name: Checkout
+        if: needs.select.outputs.release_assets == 'true'
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          
+
       - name: Prepare release assets
+        id: assets
+        env:
+          RELEASE_ASSETS: ${{ needs.select.outputs.release_assets }}
         run: |
+          set -euo pipefail
+
+          # install.sh installs the self-hosted image and its cloud flavor, so it
+          # only rides along with those two releases.
+          if [ "$RELEASE_ASSETS" != "true" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           cp install.sh install-notploy.sh
-          chmod +x install-notploy.sh
-          
-      - name: Publish the release for ${{ github.ref_name }}
+          chmod +x install.sh install-notploy.sh
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+      # Idempotent: re-running the workflow updates the existing release instead
+      # of failing on a tag that already has one.
+      - name: Publish the ${{ needs.select.outputs.release_title }} release
+        id: create
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Notploy ${{ github.ref_name }}
+          name: ${{ needs.select.outputs.release_title }}
           generate_release_notes: true
+          # Keeps `/releases/latest` (what install.sh and the running servers
+          # resolve) on the self-hosted release.
+          make_latest: ${{ needs.select.outputs.release_latest }}
+          fail_on_unmatched_files: ${{ steps.assets.outputs.enabled == 'true' }}
+          # The blank lines collapse to nothing, so a release without assets
+          # publishes no file instead of failing on an unmatched glob.
           files: |
-            install.sh
-            install-notploy.sh
+            ${{ steps.assets.outputs.enabled == 'true' && 'install.sh' || '' }}
+            ${{ steps.assets.outputs.enabled == 'true' && 'install-notploy.sh' || '' }}

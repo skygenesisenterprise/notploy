@@ -38,7 +38,7 @@ export const ShowVaultProviders = () => {
 					<CardHeader>
 						<CardTitle className="text-xl flex flex-row gap-2">
 							<Vault className="size-6 text-muted-foreground self-center" />
-							Secrets Providers
+							Secrets Manager
 						</CardTitle>
 						<CardDescription>
 							Connect external secret managers and reference their secrets in

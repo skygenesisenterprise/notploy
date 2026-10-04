@@ -153,13 +153,6 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 						isEnabled: ({ permissions }) => !!permissions?.docker.read,
 					},
 					{
-						label: "Containers",
-						href: "/dashboard/containers",
-						icon: Boxes,
-						isEnabled: ({ permissions, isCloud }) =>
-							!!(permissions?.docker.read && !isCloud),
-					},
-					{
 						label: "Swarm",
 						href: "/dashboard/swarm",
 						icon: Waypoints,
@@ -212,7 +205,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.gitProviders.read,
 			},
 			{
-				label: "Registries",
+				label: "Container Registries",
 				href: "/dashboard/settings/registry",
 				icon: Package,
 				isEnabled: ({ permissions }) => !!permissions?.registry.read,
@@ -265,7 +258,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				icon: Smartphone,
 			},
 			{
-				label: "Secrets",
+				label: "Secrets Manager",
 				href: "/dashboard/settings/secrets",
 				icon: Vault,
 				isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,
@@ -348,7 +341,7 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 		label: "Security",
 		items: [
 			{
-				label: "Secrets",
+				label: "Secrets Manager",
 				href: "/dashboard/settings/secrets",
 				icon: Vault,
 				isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,

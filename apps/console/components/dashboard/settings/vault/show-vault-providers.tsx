@@ -38,7 +38,7 @@ export const ShowVaultProviders = () => {
 					<CardHeader>
 						<CardTitle className="text-xl flex flex-row gap-2">
 							<Vault className="size-6 text-muted-foreground self-center" />
-							Secrets Providers
+							Secrets Manager
 						</CardTitle>
 						<CardDescription>
 							Connect external secret managers and reference their secrets in
@@ -58,7 +58,7 @@ export const ShowVaultProviders = () => {
 									<div className="flex flex-col items-center gap-3 min-h-[25vh] justify-center">
 										<Vault className="size-8 self-center text-muted-foreground" />
 										<span className="text-base text-muted-foreground text-center">
-											You don't have any secrets providers configured
+											You don't have any secrets Manager configured
 										</span>
 										{permissions?.vaultProvider.create && (
 											<HandleVaultProvider />
