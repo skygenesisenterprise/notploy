@@ -9,6 +9,7 @@ import {
 } from "../validations/destination";
 import { organization } from "./account";
 import { backups } from "./backups";
+import { objectStorageBucket } from "./object-storage";
 
 export const destinations = pgTable("destination", {
 	destinationId: text("destinationId")
@@ -22,6 +23,13 @@ export const destinations = pgTable("destination", {
 	bucket: text("bucket").notNull(),
 	region: text("region").notNull(),
 	endpoint: text("endpoint").notNull(),
+	// Backups reference an Object Storage bucket instead of owning the S3
+	// connection. Kept nullable so pre-existing destinations created before the
+	// Object Storage layer keep working untouched.
+	objectStorageBucketId: text("objectStorageBucketId").references(
+		() => objectStorageBucket.objectStorageBucketId,
+		{ onDelete: "set null" },
+	),
 	additionalFlags: text("additionalFlags").array(),
 	organizationId: text("organizationId")
 		.notNull()
@@ -33,6 +41,10 @@ export const destinationsRelations = relations(
 	destinations,
 	({ many, one }) => ({
 		backups: many(backups),
+		objectStorageBucket: one(objectStorageBucket, {
+			fields: [destinations.objectStorageBucketId],
+			references: [objectStorageBucket.objectStorageBucketId],
+		}),
 		organization: one(organization, {
 			fields: [destinations.organizationId],
 			references: [organization.id],
@@ -68,6 +80,7 @@ export const apiCreateDestination = createSchema
 	.required()
 	.extend({
 		serverId: z.string().optional(),
+		objectStorageBucketId: z.string().optional(),
 	});
 
 export const apiFindOneDestination = z.object({
@@ -95,4 +108,5 @@ export const apiUpdateDestination = createSchema
 	.required()
 	.extend({
 		serverId: z.string().optional(),
+		objectStorageBucketId: z.string().optional(),
 	});

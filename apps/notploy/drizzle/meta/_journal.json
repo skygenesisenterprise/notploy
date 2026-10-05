@@ -1422,6 +1422,20 @@
       "when": 1791201043571,
       "tag": "0203_certain_vindicator",
       "breakpoints": true
+    },
+    {
+      "idx": 204,
+      "version": "7",
+      "when": 1791209288369,
+      "tag": "0204_cool_arclight",
+      "breakpoints": true
+    },
+    {
+      "idx": 205,
+      "version": "7",
+      "when": 1791211074993,
+      "tag": "0205_bumpy_nico_minoru",
+      "breakpoints": true
     }
   ]
 }

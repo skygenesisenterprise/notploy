@@ -24,7 +24,7 @@ const DASHBOARD_PAGE_TITLES: Record<string, string> = {
 	"/dashboard/settings/billing": "Billing",
 	"/dashboard/settings/certificates": "Certificates",
 	"/dashboard/settings/deployments": "Build Settings",
-	"/dashboard/settings/destinations": "S3 Destinations",
+	"/dashboard/settings/destinations": "Object Storage",
 	"/dashboard/settings/dns": "DNS Providers",
 	"/dashboard/settings/git-providers": "Git Providers",
 	"/dashboard/settings/invoices": "Invoices",
@@ -76,6 +76,11 @@ function getDashboardPageTitle(
 
 	if (pathname === "/dashboard/settings/dns/[dnsProviderId]") {
 		return "DNS Provider";
+	}
+	if (
+		pathname === "/dashboard/settings/destinations/[objectStorageProviderId]"
+	) {
+		return "Object Storage";
 	}
 	if (pathname === "/dashboard/settings/dns/[dnsProviderId]/[zoneId]") {
 		return "DNS Zone";

@@ -39,6 +39,7 @@ export * from "./services/mount";
 export * from "./services/mysql";
 export * from "./services/network";
 export * from "./services/notification";
+export * from "./services/object-storage";
 export * from "./services/operational-event";
 export * from "./services/overview";
 export * from "./services/patch";

@@ -75,7 +75,8 @@ type DatabaseType =
 
 const Schema = z
 	.object({
-		destinationId: z.string().min(1, "Destination required"),
+		destinationId: z.string().optional(),
+		objectStorageBucketId: z.string().optional(),
 		schedule: z.string().min(1, "Schedule (Cron) required"),
 		prefix: z.string().min(1, "Prefix required"),
 		enabled: z.boolean(),
@@ -115,6 +116,14 @@ const Schema = z
 			.optional(),
 	})
 	.superRefine((data, ctx) => {
+		if (!data.destinationId && !data.objectStorageBucketId) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "Select an object storage bucket",
+				path: ["objectStorageBucketId"],
+			});
+		}
+
 		if (data.backupType === "compose" && !data.databaseType) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
@@ -199,7 +208,11 @@ export const HandleBackup = ({
 }: Props) => {
 	const [isOpen, setIsOpen] = useState(false);
 
-	const { data, isPending } = api.destination.all.useQuery();
+	const { data: destinations } = api.destination.all.useQuery();
+	const { data: buckets, isPending: isPendingBuckets } =
+		api.objectStorage.buckets.useQuery();
+	const { mutateAsync: ensureDestination } =
+		api.destination.fromObjectStorageBucket.useMutation();
 	const { data: backup } = api.backup.one.useQuery(
 		{
 			backupId: backupId ?? "",
@@ -223,6 +236,7 @@ export const HandleBackup = ({
 						? "iku.db"
 						: "",
 			destinationId: "",
+			objectStorageBucketId: "",
 			enabled: true,
 			includeEncryptionKey: true,
 			prefix: "/",
@@ -263,6 +277,10 @@ export const HandleBackup = ({
 						? "iku.db"
 						: "",
 			destinationId: backup?.destinationId ?? "",
+			objectStorageBucketId:
+				destinations?.find(
+					(destination) => destination.destinationId === backup?.destinationId,
+				)?.objectStorageBucketId ?? "",
 			enabled: backup?.enabled ?? true,
 			includeEncryptionKey: backup?.includeEncryptionKey ?? true,
 			prefix: backup?.prefix ?? "/",
@@ -273,7 +291,7 @@ export const HandleBackup = ({
 			backupType: backup?.backupType ?? backupType,
 			metadata: backup?.metadata ?? {},
 		});
-	}, [form, form.reset, backupId, backup]);
+	}, [form, form.reset, backupId, backup, destinations]);
 
 	const onSubmit = async (data: z.infer<typeof Schema>) => {
 		const getDatabaseId =
@@ -307,8 +325,21 @@ export const HandleBackup = ({
 											}
 										: undefined;
 
+		let resolvedDestinationId = data.destinationId ?? "";
+		if (data.objectStorageBucketId) {
+			try {
+				const destination = await ensureDestination({
+					objectStorageBucketId: data.objectStorageBucketId,
+				});
+				resolvedDestinationId = destination.destinationId;
+			} catch {
+				toast.error("Error preparing the object storage destination");
+				return;
+			}
+		}
+
 		await createBackup({
-			destinationId: data.destinationId,
+			destinationId: resolvedDestinationId,
 			prefix: data.prefix,
 			schedule: data.schedule,
 			enabled: data.enabled,
@@ -403,10 +434,10 @@ export const HandleBackup = ({
 							)}
 							<FormField
 								control={form.control}
-								name="destinationId"
+								name="objectStorageBucketId"
 								render={({ field }) => (
 									<FormItem className="">
-										<FormLabel>Destination</FormLabel>
+										<FormLabel>Object Storage Bucket</FormLabel>
 										<Popover>
 											<PopoverTrigger asChild>
 												<FormControl>
@@ -417,14 +448,15 @@ export const HandleBackup = ({
 															!field.value && "text-muted-foreground",
 														)}
 													>
-														{isPending
+														{isPendingBuckets
 															? "Loading...."
 															: field.value
-																? data?.find(
-																		(destination) =>
-																			destination.destinationId === field.value,
+																? buckets?.find(
+																		(bucket) =>
+																			bucket.objectStorageBucketId ===
+																			field.value,
 																	)?.name
-																: "Select Destination"}
+																: "Select bucket"}
 
 														<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 													</Button>
@@ -433,33 +465,40 @@ export const HandleBackup = ({
 											<PopoverContent className="p-0" align="start">
 												<Command>
 													<CommandInput
-														placeholder="Search Destination..."
+														placeholder="Search bucket..."
 														className="h-9"
 													/>
-													{isPending && (
+													{isPendingBuckets && (
 														<span className="py-6 text-center text-sm">
-															Loading Destinations....
+															Loading buckets....
 														</span>
 													)}
-													<CommandEmpty>No destinations found.</CommandEmpty>
+													<CommandEmpty>
+														No object storage buckets found. Configure one in
+														Settings → Object Storage.
+													</CommandEmpty>
 													<ScrollArea className="h-64">
 														<CommandGroup>
-															{data?.map((destination) => (
+															{buckets?.map((bucket) => (
 																<CommandItem
-																	value={destination.destinationId}
-																	key={destination.destinationId}
+																	value={bucket.name}
+																	key={bucket.objectStorageBucketId}
 																	onSelect={() => {
 																		form.setValue(
-																			"destinationId",
-																			destination.destinationId,
+																			"objectStorageBucketId",
+																			bucket.objectStorageBucketId,
 																		);
 																	}}
 																>
-																	{destination.name}
+																	{bucket.name}
+																	<span className="ml-2 truncate text-xs text-muted-foreground">
+																		{bucket.bucket}
+																	</span>
 																	<CheckIcon
 																		className={cn(
 																			"ml-auto h-4 w-4",
-																			destination.destinationId === field.value
+																			bucket.objectStorageBucketId ===
+																				field.value
 																				? "opacity-100"
 																				: "opacity-0",
 																		)}
@@ -472,6 +511,9 @@ export const HandleBackup = ({
 											</PopoverContent>
 										</Popover>
 
+										<FormDescription>
+											Buckets listed here come from the Object Storage console.
+										</FormDescription>
 										<FormMessage />
 									</FormItem>
 								)}

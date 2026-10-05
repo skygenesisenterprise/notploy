@@ -69,7 +69,10 @@ export const ShowBackups = ({
 					compose: () =>
 						api.compose.one.useQuery({ composeId: id }, { enabled: !!id }),
 				};
-	const { data } = api.destination.all.useQuery();
+	const { data: destinations } = api.destination.all.useQuery();
+	const { data: buckets } = api.objectStorage.buckets.useQuery();
+	const hasStorage =
+		(destinations?.length ?? 0) > 0 || (buckets?.length ?? 0) > 0;
 	const key = backupType === "database" ? databaseType : "compose";
 	const query = queryMap[key as keyof typeof queryMap];
 	const { data: postgres, refetch } = query
@@ -133,17 +136,17 @@ export const ShowBackups = ({
 				)}
 			</CardHeader>
 			<CardContent className="flex flex-col gap-4">
-				{data?.length === 0 ? (
+				{!hasStorage ? (
 					<div className="flex flex-col items-center gap-3 min-h-[35vh] justify-center">
 						<DatabaseBackup className="size-8 text-muted-foreground" />
 						<span className="text-base text-muted-foreground text-center">
-							To create a backup it is required to set at least 1 provider.
-							Please, go to{" "}
+							To create a backup it is required to configure at least 1 object
+							storage bucket. Please, go to{" "}
 							<Link
 								href="/dashboard/settings/destinations"
 								className="text-foreground"
 							>
-								S3 Destinations
+								Object Storage
 							</Link>{" "}
 							to do so.
 						</span>

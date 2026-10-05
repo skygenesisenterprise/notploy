@@ -1,5 +1,6 @@
 import {
 	createDestination,
+	createDestinationFromObjectStorageBucket,
 	execAsync,
 	execAsyncRemote,
 	findDestinationById,
@@ -15,6 +16,7 @@ import { createTRPCRouter, withPermission } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
 import {
 	apiCreateDestination,
+	apiCreateDestinationFromObjectStorageBucket,
 	apiFindOneDestination,
 	apiRemoveDestination,
 	apiUpdateDestination,
@@ -101,6 +103,18 @@ export const destinationRouter = createTRPCRouter({
 					cause: error,
 				});
 			}
+		}),
+	/**
+	 * Ensures a backup destination exists for an Object Storage bucket, so the
+	 * backups UI can offer buckets configured in the Storage console.
+	 */
+	fromObjectStorageBucket: withPermission("destination", "create")
+		.input(apiCreateDestinationFromObjectStorageBucket)
+		.mutation(async ({ ctx, input }) => {
+			return await createDestinationFromObjectStorageBucket(
+				input.objectStorageBucketId,
+				ctx.session.activeOrganizationId,
+			);
 		}),
 	one: withPermission("destination", "read")
 		.input(apiFindOneDestination)

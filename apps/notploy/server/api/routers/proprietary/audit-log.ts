@@ -63,9 +63,10 @@ export const auditLogRouter = createTRPCRouter({
 						"application",
 						"compose",
 						"network",
-						"vaultProvider",
-						"dnsProvider",
-					])
+					"vaultProvider",
+					"dnsProvider",
+					"objectStorage",
+				])
 					.optional(),
 				from: z.date().optional(),
 				to: z.date().optional(),

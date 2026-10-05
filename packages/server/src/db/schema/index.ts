@@ -24,6 +24,7 @@ export * from "./mount";
 export * from "./mysql";
 export * from "./network";
 export * from "./notification";
+export * from "./object-storage";
 export * from "./operational-event";
 export * from "./patch";
 export * from "./port";
