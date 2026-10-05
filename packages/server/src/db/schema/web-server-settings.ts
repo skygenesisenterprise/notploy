@@ -22,6 +22,9 @@ export const webServerSettings = pgTable("webServerSettings", {
 	certificateType: certificateType("certificateType").notNull().default("none"),
 	https: boolean("https").notNull().default(false),
 	host: text("host"),
+	// Traefik certificatesResolvers name backing a `custom` control plane
+	// certificate. Mirrors domain.customCertResolver.
+	customCertResolver: text("customCertResolver"),
 	letsEncryptEmail: text("letsEncryptEmail"),
 	sshPrivateKey: text("sshPrivateKey"),
 	enableDockerCleanup: boolean("enableDockerCleanup").notNull().default(true),
@@ -137,6 +140,7 @@ export const apiUpdateWebServerSettings = createSchema.partial().extend({
 	certificateType: z.enum(["letsencrypt", "none", "custom"]).optional(),
 	https: z.boolean().optional(),
 	host: z.string().optional(),
+	customCertResolver: z.string().min(1).optional().nullable(),
 	letsEncryptEmail: z.string().email().optional().nullable(),
 	sshPrivateKey: z.string().optional(),
 	enableDockerCleanup: z.boolean().optional(),
@@ -181,6 +185,8 @@ export const apiAssignDomain = z
 	.object({
 		host: z.string(),
 		certificateType: z.enum(["letsencrypt", "none", "custom"]),
+		// Required when certificateType is custom, mirroring domain validation.
+		customCertResolver: z.string().min(1).optional().nullable(),
 		letsEncryptEmail: z
 			.union([z.string().email(), z.literal("")])
 			.optional()
@@ -191,6 +197,15 @@ export const apiAssignDomain = z
 	.partial({
 		letsEncryptEmail: true,
 		https: true,
+	})
+	.superRefine((input, ctx) => {
+		if (input.certificateType === "custom" && !input.customCertResolver) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["customCertResolver"],
+				message: "Required when certificate type is custom",
+			});
+		}
 	});
 
 export const apiSaveSSHKey = z

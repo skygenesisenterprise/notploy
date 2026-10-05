@@ -4,7 +4,6 @@ import {
 	Clock3,
 	Cpu,
 	HardDrive,
-	Loader2,
 	MemoryStick,
 	RefreshCw,
 	Server as ServerIcon,
@@ -14,17 +13,23 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
-import { AlertBlock } from "@/components/shared/alert-block";
+import {
+	ConsoleBody,
+	ConsoleEmpty,
+	ConsoleError,
+	ConsoleHeader,
+	ConsoleLoading,
+	ConsoleNoMatch,
+	ConsoleRefresh,
+	ConsoleSearch,
+	ConsoleShell,
+	ConsoleSummary,
+	ConsoleToolbar,
+	SummaryMetric,
+} from "@/components/shared/console-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import {
 	Select,
 	SelectContent,
@@ -111,45 +116,47 @@ export const ShowServers = () => {
 		permissionsQuery.error?.message;
 
 	return (
-		<div className="w-full">
+		<div className="w-full space-y-4">
 			{router.query?.success && cloudQuery.data && <WelcomeSubscription />}
-			<Card className="w-full rounded-xl bg-sidebar p-2.5">
-				<div className="rounded-xl bg-background shadow-md">
-					<CardHeader className="gap-5">
-						<div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-							<div className="space-y-1">
-								<CardTitle className="flex items-center gap-2 text-2xl">
-									<ServerIcon
-										className="size-6 text-muted-foreground"
-										aria-hidden
-									/>
-									Servers
-								</CardTitle>
-								<CardDescription>
-									Manage the execution servers Notploy can use to run workloads.
-								</CardDescription>
-							</div>
-							<div className="flex flex-wrap items-center gap-2">
-								{cloudQuery.data && (
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() =>
-											window.location.assign(
-												"/dashboard/settings/servers?success=true",
-											)
-										}
-									>
-										Reset onboarding
-									</Button>
-								)}
-								{permissions?.server.create && <HandleServers />}
-							</div>
-						</div>
+			<ConsoleShell>
+				<ConsoleHeader
+					icon={ServerIcon}
+					title="Servers"
+					description="Manage the execution servers Notploy can use to run workloads."
+					actions={
+						<>
+							<ConsoleRefresh
+								onClick={() => {
+									void serversQuery.refetch();
+									void cloudQuery.refetch();
+								}}
+								isRefetching={serversQuery.isRefetching}
+								disabled={isLoading}
+							/>
+							{cloudQuery.data && (
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() =>
+										window.location.assign(
+											"/dashboard/settings/servers?success=true",
+										)
+									}
+								>
+									Reset onboarding
+								</Button>
+							)}
+							{permissions?.server.create && <HandleServers />}
+						</>
+					}
+				/>
 
-						{!isLoading && !isError && (servers.length > 0 || showLocalInstance) && (
+				<ConsoleBody>
+					{!isLoading &&
+						!isError &&
+						(servers.length > 0 || showLocalInstance) && (
 							<>
-								<div className="grid gap-3 sm:grid-cols-3">
+								<ConsoleSummary>
 									<SummaryMetric
 										label="Execution targets"
 										value={servers.length + Number(showLocalInstance)}
@@ -158,17 +165,14 @@ export const ShowServers = () => {
 										label="Enabled"
 										value={enabledCount + Number(showLocalInstance)}
 									/>
-									<SummaryMetric
-										label="Disabled"
-										value={disabledCount}
-									/>
-								</div>
-								<div className="grid gap-2 md:grid-cols-[minmax(12rem,1fr)_10rem_10rem]">
-									<Input
+									<SummaryMetric label="Disabled" value={disabledCount} />
+								</ConsoleSummary>
+								<ConsoleToolbar className="md:grid-cols-[minmax(12rem,1fr)_10rem_10rem]">
+									<ConsoleSearch
 										value={search}
-										onChange={(event) => setSearch(event.target.value)}
+										onChange={setSearch}
 										placeholder="Search by name or address"
-										aria-label="Search servers by name or address"
+										ariaLabel="Search servers by name or address"
 									/>
 									<Select
 										value={statusFilter}
@@ -187,9 +191,7 @@ export const ShowServers = () => {
 									</Select>
 									<Select
 										value={roleFilter}
-										onValueChange={(value: RoleFilter) =>
-											setRoleFilter(value)
-										}
+										onValueChange={(value: RoleFilter) => setRoleFilter(value)}
 									>
 										<SelectTrigger aria-label="Filter by server role">
 											<SelectValue placeholder="All roles" />
@@ -200,84 +202,65 @@ export const ShowServers = () => {
 											<SelectItem value="build">Build</SelectItem>
 										</SelectContent>
 									</Select>
-								</div>
+								</ConsoleToolbar>
 							</>
 						)}
-					</CardHeader>
 
-					<CardContent className="space-y-4 border-t py-6">
-						{isLoading ? (
-							<div
-								className="flex min-h-[25vh] items-center justify-center gap-2 text-sm text-muted-foreground"
-								role="status"
-							>
-								Loading execution servers…
-								<Loader2 className="size-4 animate-spin" aria-hidden />
-							</div>
-						) : isError ? (
-							<AlertBlock type="error">
-								{errorMessage ?? "Could not load execution servers."}
-							</AlertBlock>
-						) : servers.length === 0 && !showLocalInstance ? (
-							<div className="flex min-h-[35vh] flex-col items-center justify-center gap-3 rounded-lg border border-dashed p-8 text-center">
-								<ServerIcon
-									className="size-8 text-muted-foreground"
-									aria-hidden
+					{isLoading ? (
+						<ConsoleLoading label="Loading execution servers\u2026" />
+					) : isError ? (
+						<ConsoleError
+							message={errorMessage ?? "Could not load execution servers."}
+							onRetry={() => {
+								void serversQuery.refetch();
+								void cloudQuery.refetch();
+								void permissionsQuery.refetch();
+							}}
+						/>
+					) : servers.length === 0 && !showLocalInstance ? (
+						<ConsoleEmpty
+							icon={ServerIcon}
+							title="No execution servers configured"
+							description="Servers are the machines Notploy connects to run and manage your workloads. Add a server to start managing your infrastructure."
+						>
+							{permissions?.server.create && <HandleServers />}
+						</ConsoleEmpty>
+					) : filteredServers.length === 0 && !showFilteredLocal ? (
+						<ConsoleNoMatch
+							message="No servers match these search and filter settings."
+							onClear={() => {
+								setSearch("");
+								setStatusFilter("all");
+								setRoleFilter("all");
+							}}
+						/>
+					) : (
+						<div className="space-y-3">
+							{showFilteredLocal && (
+								<LocalExecutionTarget
+									canReadDocker={!!permissions?.docker.read}
+									canReadServices={canReadServices}
+									services={localServices}
 								/>
-								<div className="space-y-1">
-									<p className="font-medium">No execution servers configured</p>
-									<p className="max-w-lg text-sm text-muted-foreground">
-										Servers are the machines Notploy connects to run and manage
-										your workloads. Add a server to start managing your
-										infrastructure.
-									</p>
-								</div>
-								{permissions?.server.create && <HandleServers />}
-							</div>
-						) : filteredServers.length === 0 && !showFilteredLocal ? (
-							<div className="flex min-h-40 flex-col items-center justify-center gap-3 text-center">
-								<p className="text-sm text-muted-foreground">
-									No servers match these search and filter settings.
-								</p>
-								<Button
-									variant="outline"
-									onClick={() => {
-										setSearch("");
-										setStatusFilter("all");
-										setRoleFilter("all");
-									}}
-								>
-									Clear filters
-								</Button>
-							</div>
-						) : (
-							<div className="space-y-3">
-								{showFilteredLocal && (
-									<LocalExecutionTarget
-										canReadDocker={!!permissions?.docker.read}
-										canReadServices={canReadServices}
-										services={localServices}
-									/>
-								)}
-								{filteredServers.map((server) => (
-									<ServerFleetCard
-										key={server.serverId}
-										server={server}
-										canReadDocker={!!permissions?.docker.read}
-										canReadServer={!!permissions?.server.read}
-										canReadMonitoring={!!permissions?.monitoring.read}
-										canReadServices={canReadServices}
-										canCreateServer={!!permissions?.server.create}
-										canDeleteServer={!!permissions?.server.delete}
-										canUseTerminal={!!permissions?.server.terminal}
-										isCloud={!!cloudQuery.data}
-									/>
-								))}
-							</div>
-						)}
-					</CardContent>
-				</div>
-			</Card>
+							)}
+							{filteredServers.map((server) => (
+								<ServerFleetCard
+									key={server.serverId}
+									server={server}
+									canReadDocker={!!permissions?.docker.read}
+									canReadServer={!!permissions?.server.read}
+									canReadMonitoring={!!permissions?.monitoring.read}
+									canReadServices={canReadServices}
+									canCreateServer={!!permissions?.server.create}
+									canDeleteServer={!!permissions?.server.delete}
+									canUseTerminal={!!permissions?.server.terminal}
+									isCloud={!!cloudQuery.data}
+								/>
+							))}
+						</div>
+					)}
+				</ConsoleBody>
+			</ConsoleShell>
 		</div>
 	);
 };
@@ -343,7 +326,9 @@ function ServerFleetCard({
 						</Badge>
 					</div>
 					<div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-						<span>{server.ipAddress}:{server.port}</span>
+						<span>
+							{server.ipAddress}:{server.port}
+						</span>
 						<span>
 							{server.serverType === "build" ? "Build server" : "Deployment"}
 						</span>
@@ -364,7 +349,9 @@ function ServerFleetCard({
 					<ResourceValue
 						icon={Cpu}
 						label="CPU"
-						value={health.data?.error ? undefined : health.data?.resources.cpuCount}
+						value={
+							health.data?.error ? undefined : health.data?.resources.cpuCount
+						}
 						format={(value) => `${value} cores`}
 						loading={health.isPending}
 					/>
@@ -402,7 +389,9 @@ function ServerFleetCard({
 						icon={Activity}
 						label="Docker"
 						value={
-							health.data?.error ? undefined : health.data?.containers.containerCount
+							health.data?.error
+								? undefined
+								: health.data?.containers.containerCount
 						}
 						format={(count) => `${count} containers`}
 						loading={health.isPending}
@@ -564,10 +553,7 @@ function LocalExecutionTarget({
 			<CardContent className="grid gap-4 p-4 lg:grid-cols-[minmax(15rem,1.2fr)_minmax(17rem,1fr)_auto] lg:items-center">
 				<div className="min-w-0 space-y-2">
 					<div className="flex flex-wrap items-center gap-2">
-						<ServerIcon
-							className="size-4 text-muted-foreground"
-							aria-hidden
-						/>
+						<ServerIcon className="size-4 text-muted-foreground" aria-hidden />
 						<h2 className="font-semibold">Notploy instance</h2>
 						<Badge variant="outline">Local</Badge>
 						<ConnectionBadge status={status} />
@@ -629,7 +615,9 @@ function LocalExecutionTarget({
 						icon={Activity}
 						label="Docker"
 						value={
-							health.data?.error ? undefined : health.data?.containers.containerCount
+							health.data?.error
+								? undefined
+								: health.data?.containers.containerCount
 						}
 						format={(count) => `${count} containers`}
 						loading={health.isPending}
@@ -716,7 +704,12 @@ function ResourceValue<T extends number>({
 	);
 }
 
-type ConnectionStatus = "online" | "offline" | "inactive" | "checking" | "unknown";
+type ConnectionStatus =
+	| "online"
+	| "offline"
+	| "inactive"
+	| "checking"
+	| "unknown";
 
 function getConnectionStatus({
 	isActive,
@@ -741,7 +734,10 @@ function getConnectionStatus({
 function ConnectionBadge({ status }: { status: ConnectionStatus }) {
 	const details: Record<
 		ConnectionStatus,
-		{ label: string; variant: "default" | "destructive" | "secondary" | "outline" }
+		{
+			label: string;
+			variant: "default" | "destructive" | "secondary" | "outline";
+		}
 	> = {
 		online: { label: "Online", variant: "default" },
 		offline: { label: "Unreachable", variant: "destructive" },
@@ -765,15 +761,6 @@ function ConnectionBadge({ status }: { status: ConnectionStatus }) {
 			/>
 			{label}
 		</Badge>
-	);
-}
-
-function SummaryMetric({ label, value }: { label: string; value: number }) {
-	return (
-		<div className="rounded-lg border bg-background p-3">
-			<p className="text-xs text-muted-foreground">{label}</p>
-			<p className="mt-1 text-xl font-semibold tabular-nums">{value}</p>
-		</div>
 	);
 }
 

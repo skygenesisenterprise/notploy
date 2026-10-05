@@ -2,7 +2,6 @@
 
 import {
 	type ColumnDef,
-	flexRender,
 	getCoreRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
@@ -10,26 +9,32 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import {
-	ArrowUpDown,
-	Loader2,
-	Network,
-	RefreshCw,
-	Search,
-	Server as ServerIcon,
-	Trash2,
-} from "lucide-react";
+import { Network, Trash2 } from "lucide-react";
 import Link from "next/link";
-import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { HandleNetwork } from "@/components/dashboard/networks/handle-network";
 import { SyncNetworks } from "@/components/dashboard/networks/sync-networks";
-import { AlertBlock } from "@/components/shared/alert-block";
+import {
+	ConsoleBody,
+	ConsoleDetailValue,
+	ConsoleEmpty,
+	ConsoleError,
+	ConsoleHeader,
+	ConsoleLoading,
+	ConsoleNoMatch,
+	ConsoleRefresh,
+	ConsoleSearch,
+	ConsoleShell,
+	ConsoleSummary,
+	ConsoleTable,
+	ConsoleToolbar,
+	SortableHeader,
+	SummaryMetric,
+} from "@/components/shared/console-shell";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
 	Dialog,
 	DialogContent,
@@ -37,7 +42,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
@@ -60,26 +64,6 @@ type NetworkInfo = RouterOutputs["network"]["inventory"][number];
 interface Props {
 	serverId?: string;
 }
-
-const SortableHeader = ({
-	column,
-	title,
-}: {
-	column: {
-		getIsSorted: () => false | "asc" | "desc";
-		toggleSorting: (asc: boolean) => void;
-	};
-	title: string;
-}) => (
-	<Button
-		variant="ghost"
-		className="-ml-3 h-8"
-		onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-	>
-		{title}
-		<ArrowUpDown className="ml-2 size-4" aria-hidden />
-	</Button>
-);
 
 const displayValue = (value: string | null | undefined) =>
 	value || "Not available";
@@ -131,22 +115,24 @@ const NetworkDetails = ({
 				<section className="space-y-3">
 					<h3 className="font-medium">Overview</h3>
 					<dl className="grid gap-x-6 gap-y-3 rounded-md border p-4 text-sm sm:grid-cols-2">
-						<DetailValue label="Status">
+						<ConsoleDetailValue label="Status">
 							<NetworkStatus status={network.status} />
-						</DetailValue>
-						<DetailValue label="Driver">{network.driver}</DetailValue>
-						<DetailValue label="Scope">
+						</ConsoleDetailValue>
+						<ConsoleDetailValue label="Driver">
+							{network.driver}
+						</ConsoleDetailValue>
+						<ConsoleDetailValue label="Scope">
 							{displayValue(network.scope)}
-						</DetailValue>
-						<DetailValue label="Created">
+						</ConsoleDetailValue>
+						<ConsoleDetailValue label="Created">
 							{isAvailable
 								? new Date(network.createdAt).toLocaleString()
 								: "Not available — record is missing from Docker"}
-						</DetailValue>
-						<DetailValue label="Network ID">
+						</ConsoleDetailValue>
+						<ConsoleDetailValue label="Network ID">
 							<code className="break-all text-xs">{network.id}</code>
-						</DetailValue>
-						<DetailValue label="Configuration">
+						</ConsoleDetailValue>
+						<ConsoleDetailValue label="Configuration">
 							{network.ingress
 								? "Swarm ingress"
 								: network.configOnly
@@ -154,28 +140,28 @@ const NetworkDetails = ({
 									: network.networkRecordId
 										? "Managed by Notploy"
 										: "Docker network"}
-						</DetailValue>
-						<DetailValue label="Internal">
+						</ConsoleDetailValue>
+						<ConsoleDetailValue label="Internal">
 							{isAvailable
 								? network.internal
 									? "Yes"
 									: "No"
 								: "Not available"}
-						</DetailValue>
-						<DetailValue label="Attachable">
+						</ConsoleDetailValue>
+						<ConsoleDetailValue label="Attachable">
 							{isAvailable
 								? network.attachable
 									? "Yes"
 									: "No"
 								: "Not available"}
-						</DetailValue>
-						<DetailValue label="IPv6">
+						</ConsoleDetailValue>
+						<ConsoleDetailValue label="IPv6">
 							{isAvailable
 								? network.enableIPv6
 									? "Enabled"
 									: "Disabled"
 								: "Not available"}
-						</DetailValue>
+						</ConsoleDetailValue>
 					</dl>
 				</section>
 
@@ -323,19 +309,6 @@ const NetworkDetails = ({
 		</DialogContent>
 	);
 };
-
-const DetailValue = ({
-	label,
-	children,
-}: {
-	label: string;
-	children: ReactNode;
-}) => (
-	<div className="space-y-1">
-		<dt className="text-xs text-muted-foreground">{label}</dt>
-		<dd className="wrap-break-words font-medium">{children}</dd>
-	</div>
-);
 
 const NetworkStatus = ({ status }: { status: NetworkInfo["status"] }) => (
 	<Badge variant={status === "available" ? "green" : "red"}>
@@ -568,210 +541,110 @@ export const NetworkConsole = ({ serverId }: Props) => {
 	});
 
 	return (
-		<Card className="min-h-[85vh] w-full rounded-xl bg-sidebar p-2.5">
-			<div className="flex min-h-[calc(85vh-1.25rem)] w-full flex-col gap-6 rounded-xl bg-background p-4 shadow-md sm:p-6">
-				<header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-					<div className="space-y-1">
-						<h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-							<Network className="size-6 text-muted-foreground" aria-hidden />
-							Networks
-						</h1>
-						<p className="text-sm text-muted-foreground">
-							Manage Docker networks and connectivity across your Notploy
-							infrastructure.
-						</p>
-					</div>
-					<div className="flex flex-wrap items-center gap-2">
-						<Button
-							variant="outline"
+		<ConsoleShell>
+			<ConsoleHeader
+				icon={Network}
+				title="Networks"
+				description="Manage Docker networks and connectivity across your Notploy infrastructure."
+				actions={
+					<>
+						<ConsoleRefresh
 							onClick={() => void refetch()}
-							disabled={isRefetching || isPending}
-						>
-							<RefreshCw
-								className={`size-4 ${isRefetching ? "animate-spin" : ""}`}
-								aria-hidden
-							/>
-							Refresh
-						</Button>
+							isRefetching={isRefetching}
+							disabled={isPending}
+						/>
 						<HandleNetwork serverId={serverId} />
-					</div>
-				</header>
+					</>
+				}
+			/>
 
-				<div className="space-y-5 border-t pt-5">
-					{!isPending && !isError && (
-						<>
-							<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-								<SummaryMetric
-									label="Docker networks"
-									value={networks?.length ?? 0}
-								/>
-								<SummaryMetric
-									label="Connected containers"
-									value={connectedContainers}
-								/>
-								<SummaryMetric label="Drivers" value={drivers.length} />
-								<SummaryMetric label="Missing in Docker" value={missingCount} />
-							</div>
-							<div className="grid gap-2 sm:grid-cols-[minmax(14rem,1fr)_10rem_10rem_12rem]">
-								<div className="relative">
-									<Search
-										className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-										aria-hidden
-									/>
-									<Input
-										className="pl-9"
-										placeholder="Search networks, subnets, containers…"
-										value={search}
-										onChange={(event) => setSearch(event.target.value)}
-										aria-label="Search networks"
-									/>
-								</div>
-								<Select value={driverFilter} onValueChange={setDriverFilter}>
-									<SelectTrigger aria-label="Filter by driver">
-										<SelectValue placeholder="All drivers" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">All drivers</SelectItem>
-										{drivers.map((driver) => (
-											<SelectItem key={driver} value={driver}>
-												{driver}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<Select value={scopeFilter} onValueChange={setScopeFilter}>
-									<SelectTrigger aria-label="Filter by scope">
-										<SelectValue placeholder="All scopes" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">All scopes</SelectItem>
-										{scopes.map((scope) => (
-											<SelectItem key={scope} value={scope}>
-												{scope}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<Select value={statusFilter} onValueChange={setStatusFilter}>
-									<SelectTrigger aria-label="Filter by status">
-										<SelectValue placeholder="All statuses" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">All statuses</SelectItem>
-										<SelectItem value="available">
-											Available in Docker
+			<ConsoleBody>
+				{!isPending && !isError && (
+					<>
+						<ConsoleSummary>
+							<SummaryMetric
+								label="Docker networks"
+								value={networks?.length ?? 0}
+							/>
+							<SummaryMetric
+								label="Connected containers"
+								value={connectedContainers}
+							/>
+							<SummaryMetric label="Drivers" value={drivers.length} />
+							<SummaryMetric label="Missing in Docker" value={missingCount} />
+						</ConsoleSummary>
+						<ConsoleToolbar className="sm:grid-cols-[minmax(14rem,1fr)_10rem_10rem_12rem]">
+							<ConsoleSearch
+								value={search}
+								onChange={setSearch}
+								placeholder="Search networks, subnets, containers\u2026"
+								ariaLabel="Search networks"
+							/>
+							<Select value={driverFilter} onValueChange={setDriverFilter}>
+								<SelectTrigger aria-label="Filter by driver">
+									<SelectValue placeholder="All drivers" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All drivers</SelectItem>
+									{drivers.map((driver) => (
+										<SelectItem key={driver} value={driver}>
+											{driver}
 										</SelectItem>
-										<SelectItem value="missing">Missing in Docker</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-						</>
-					)}
+									))}
+								</SelectContent>
+							</Select>
+							<Select value={scopeFilter} onValueChange={setScopeFilter}>
+								<SelectTrigger aria-label="Filter by scope">
+									<SelectValue placeholder="All scopes" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All scopes</SelectItem>
+									{scopes.map((scope) => (
+										<SelectItem key={scope} value={scope}>
+											{scope}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<Select value={statusFilter} onValueChange={setStatusFilter}>
+								<SelectTrigger aria-label="Filter by status">
+									<SelectValue placeholder="All statuses" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All statuses</SelectItem>
+									<SelectItem value="available">Available in Docker</SelectItem>
+									<SelectItem value="missing">Missing in Docker</SelectItem>
+								</SelectContent>
+							</Select>
+						</ConsoleToolbar>
+					</>
+				)}
 
-					{isPending ? (
-						<div
-							className="flex min-h-56 items-center justify-center gap-2 text-sm text-muted-foreground"
-							role="status"
-						>
-							Loading Docker network inventory…
-							<Loader2 className="size-4 animate-spin" aria-hidden />
-						</div>
-					) : isError ? (
-						<div className="space-y-3">
-							<AlertBlock type="error">
-								Could not load live Docker network data: {error.message}
-							</AlertBlock>
-							<Button variant="outline" onClick={() => void refetch()}>
-								<RefreshCw className="size-4" aria-hidden />
-								Retry
-							</Button>
-						</div>
-					) : networks?.length === 0 ? (
-						<div className="flex min-h-56 flex-col items-center justify-center gap-3 rounded-lg border border-dashed p-8 text-center">
-							<Network className="size-8 text-muted-foreground" aria-hidden />
-							<div className="space-y-1">
-								<p className="font-medium">No Docker networks found</p>
-								<p className="max-w-lg text-sm text-muted-foreground">
-									Docker returned no networks for this server. Create a network
-									or synchronize existing Docker networks to register them with
-									Notploy.
-								</p>
-							</div>
-							<div className="flex flex-wrap justify-center gap-2">
-								<HandleNetwork serverId={serverId} />
-								<SyncNetworks serverId={serverId} />
-							</div>
-						</div>
-					) : filteredNetworks.length === 0 ? (
-						<div className="py-12 text-center text-sm text-muted-foreground">
-							No networks match these search and filter settings.
-						</div>
-					) : (
-						<>
-							<div className="overflow-x-auto rounded-md border">
-								<Table>
-									<TableHeader>
-										{table.getHeaderGroups().map((group) => (
-											<TableRow key={group.id}>
-												{group.headers.map((header) => (
-													<TableHead key={header.id}>
-														{header.isPlaceholder
-															? null
-															: flexRender(
-																	header.column.columnDef.header,
-																	header.getContext(),
-																)}
-													</TableHead>
-												))}
-											</TableRow>
-										))}
-									</TableHeader>
-									<TableBody>
-										{table.getRowModel().rows.map((row) => (
-											<TableRow key={row.id}>
-												{row.getVisibleCells().map((cell) => (
-													<TableCell key={cell.id}>
-														{flexRender(
-															cell.column.columnDef.cell,
-															cell.getContext(),
-														)}
-													</TableCell>
-												))}
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-							</div>
-							{table.getPageCount() > 1 && (
-								<div className="flex items-center justify-end gap-4">
-									<span className="text-sm text-muted-foreground">
-										Page {table.getState().pagination.pageIndex + 1} of{" "}
-										{table.getPageCount()}
-									</span>
-									<div className="flex gap-2">
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => table.previousPage()}
-											disabled={!table.getCanPreviousPage()}
-										>
-											Previous
-										</Button>
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => table.nextPage()}
-											disabled={!table.getCanNextPage()}
-										>
-											Next
-										</Button>
-									</div>
-								</div>
-							)}
-						</>
-					)}
-				</div>
-			</div>
+				{isPending ? (
+					<ConsoleLoading label="Loading Docker network inventory\u2026" />
+				) : isError ? (
+					<ConsoleError
+						message={`Could not load live Docker network data: ${error.message}`}
+						onRetry={() => void refetch()}
+					/>
+				) : networks?.length === 0 ? (
+					<ConsoleEmpty
+						icon={Network}
+						title="No Docker networks found"
+						description="Docker returned no networks for this server. Create a network or synchronize existing Docker networks to register them with Notploy."
+					>
+						<HandleNetwork serverId={serverId} />
+						<SyncNetworks serverId={serverId} />
+					</ConsoleEmpty>
+				) : filteredNetworks.length === 0 ? (
+					<ConsoleNoMatch message="No networks match these search and filter settings." />
+				) : (
+					<ConsoleTable
+						table={table}
+						empty="No networks match these search and filter settings."
+					/>
+				)}
+			</ConsoleBody>
 			<Dialog
 				open={Boolean(selectedNetwork)}
 				onOpenChange={(open) => {
@@ -785,13 +658,6 @@ export const NetworkConsole = ({ serverId }: Props) => {
 					isRemoving={removeMutation.isPending}
 				/>
 			</Dialog>
-		</Card>
+		</ConsoleShell>
 	);
 };
-
-const SummaryMetric = ({ label, value }: { label: string; value: number }) => (
-	<div className="rounded-md border px-4 py-3">
-		<p className="text-sm text-muted-foreground">{label}</p>
-		<p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-	</div>
-);

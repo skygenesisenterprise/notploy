@@ -8,14 +8,14 @@ import {
 	removeTraefikConfig,
 	writeTraefikConfig,
 } from "./application";
-import type { FileConfig } from "./file-types";
+import type { FileConfig, HttpRouter } from "./file-types";
 import type { MainTraefikConfig } from "./types";
 
 export const updateServerTraefik = (
 	settings: typeof webServerSettings.$inferSelect | null,
 	newHost: string | null,
 ) => {
-	const { https, certificateType } = settings || {};
+	const { https, certificateType, customCertResolver } = settings || {};
 	const appName = "notploy";
 	const config: FileConfig = loadOrCreateConfig(appName);
 
@@ -54,20 +54,27 @@ export const updateServerTraefik = (
 	if (https) {
 		currentRouterConfig.middlewares = ["redirect-to-https"];
 
-		if (certificateType === "letsencrypt") {
-			config.http.routers[`${appName}-router-app-secure`] = {
-				rule: `Host(\`${newHost}\`)`,
-				service: `${appName}-service-app`,
-				entryPoints: ["websecure"],
-				tls: { certResolver: "letsencrypt" },
-			};
+		const secureRouter: HttpRouter = {
+			rule: `Host(\`${newHost}\`)`,
+			service: `${appName}-service-app`,
+			entryPoints: ["websecure"],
+		};
+
+		// `custom` needs a resolver name; without one Traefik silently falls back
+		// to its default certificate, so surface it instead of pretending HTTPS.
+		if (certificateType === "custom") {
+			if (customCertResolver) {
+				secureRouter.tls = { certResolver: customCertResolver };
+			} else {
+				secureRouter.tls = {};
+			}
+		} else if (certificateType === "letsencrypt") {
+			secureRouter.tls = { certResolver: "letsencrypt" };
 		} else {
-			config.http.routers[`${appName}-router-app-secure`] = {
-				rule: `Host(\`${newHost}\`)`,
-				service: `${appName}-service-app`,
-				entryPoints: ["websecure"],
-			};
+			secureRouter.tls = {};
 		}
+
+		config.http.routers[`${appName}-router-app-secure`] = secureRouter;
 	} else {
 		delete config.http.routers[`${appName}-router-app-secure`];
 		currentRouterConfig.middlewares = [];

@@ -879,11 +879,29 @@ export const settingsRouter = createTRPCRouter({
 		.input(apiModifyTraefikConfig)
 		.mutation(async ({ input, ctx }) => {
 			await checkPermission(ctx, { traefikFiles: ["write"] });
-			await writeTraefikConfigInPath(
-				input.path,
-				input.traefikConfig,
-				input?.serverId,
-			);
+
+			if (input.serverId) {
+				const server = await findServerById(input.serverId);
+
+				if (server.organizationId !== ctx.session?.activeOrganizationId) {
+					throw new TRPCError({ code: "UNAUTHORIZED" });
+				}
+			}
+
+			// writeTraefikConfigInPath rejects any path outside the Traefik
+			// dynamic directory; surface that as a validation error.
+			try {
+				await writeTraefikConfigInPath(
+					input.path,
+					input.traefikConfig,
+					input?.serverId,
+				);
+			} catch (error) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: (error as Error).message,
+				});
+			}
 			await audit(ctx, {
 				action: "update",
 				resourceType: "settings",
@@ -905,7 +923,14 @@ export const settingsRouter = createTRPCRouter({
 				}
 			}
 
-			return readConfigInPath(input.path, input.serverId);
+			try {
+				return await readConfigInPath(input.path, input.serverId);
+			} catch (error) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: (error as Error).message,
+				});
+			}
 		}),
 	getIp: protectedProcedure.query(async () => {
 		if (IS_CLOUD) {

@@ -1,11 +1,11 @@
 import { relations } from "drizzle-orm";
-import { boolean, pgTable, text } from "drizzle-orm/pg-core";
+import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { organization } from "./account";
 import { server } from "./server";
-import { generateAppName } from "./utils";
+import { encryptedText, generateAppName } from "./utils";
 
 export const certificates = pgTable("certificate", {
 	certificateId: text("certificateId")
@@ -13,8 +13,11 @@ export const certificates = pgTable("certificate", {
 		.primaryKey()
 		.$defaultFn(() => nanoid()),
 	name: text("name").notNull(),
+	// Public certificate material, safe to serve to clients.
 	certificateData: text("certificateData").notNull(),
-	privateKey: text("privateKey").notNull(),
+	// Secret material: encrypted at rest with AES-256-GCM and never returned
+	// by the API.
+	privateKey: encryptedText("privateKey").notNull(),
 	certificatePath: text("certificatePath")
 		.notNull()
 		.$defaultFn(() => generateAppName("certificate"))
@@ -26,6 +29,17 @@ export const certificates = pgTable("certificate", {
 	serverId: text("serverId").references(() => server.serverId, {
 		onDelete: "cascade",
 	}),
+	notBefore: timestamp("notBefore", { withTimezone: true }),
+	notAfter: timestamp("notAfter", { withTimezone: true }),
+	issuer: text("issuer"),
+	commonName: text("commonName"),
+	subjectAltNames: text("subjectAltNames").array().default([]),
+	createdAt: timestamp("createdAt", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updatedAt", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
 });
 
 export const certificatesRelations = relations(certificates, ({ one }) => ({
@@ -45,6 +59,15 @@ export const apiCreateCertificate = createInsertSchema(certificates, {
 	privateKey: z.string().min(1),
 	autoRenew: z.boolean().optional(),
 	serverId: z.string().optional(),
+}).omit({
+	notBefore: true,
+	notAfter: true,
+	issuer: true,
+	commonName: true,
+	subjectAltNames: true,
+	createdAt: true,
+	updatedAt: true,
+	organizationId: true,
 });
 
 export const apiFindCertificate = z.object({

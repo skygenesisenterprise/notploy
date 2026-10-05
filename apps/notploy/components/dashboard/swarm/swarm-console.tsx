@@ -2,7 +2,6 @@
 
 import {
 	type ColumnDef,
-	flexRender,
 	getCoreRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
@@ -11,23 +10,32 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import {
-	ArrowUpDown,
 	Boxes,
 	CircleAlert,
 	Container,
-	Loader2,
 	Network,
-	RefreshCw,
-	Search,
 	Server,
 	Waypoints,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AlertBlock } from "@/components/shared/alert-block";
+import {
+	ConsoleBody,
+	ConsoleDetailValue,
+	ConsoleError,
+	ConsoleHeader,
+	ConsoleLoading,
+	ConsoleRefresh,
+	ConsoleSearch,
+	ConsoleShell,
+	ConsoleSummary,
+	ConsoleTable,
+	ConsoleToolbar,
+	SortableHeader,
+	SummaryMetric,
+} from "@/components/shared/console-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
 	Dialog,
 	DialogContent,
@@ -35,7 +43,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
 	Table,
 	TableBody,
@@ -55,26 +62,6 @@ type SwarmTask = SwarmData["tasks"][number];
 interface Props {
 	serverId?: string;
 }
-
-const SortableHeader = ({
-	column,
-	title,
-}: {
-	column: {
-		getIsSorted: () => false | "asc" | "desc";
-		toggleSorting: (asc: boolean) => void;
-	};
-	title: string;
-}) => (
-	<Button
-		variant="ghost"
-		className="-ml-3 h-8"
-		onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-	>
-		{title}
-		<ArrowUpDown className="ml-2 size-4" aria-hidden />
-	</Button>
-);
 
 const valueOrUnavailable = (value: string | number | null | undefined) =>
 	value === null || value === undefined || value === ""
@@ -103,22 +90,6 @@ const StatusBadge = ({ state }: { state: string }) => {
 	return <Badge variant={variant}>{state}</Badge>;
 };
 
-const SummaryMetric = ({
-	label,
-	value,
-	detail,
-}: {
-	label: string;
-	value: string | number;
-	detail?: string;
-}) => (
-	<div className="rounded-md border px-4 py-3">
-		<p className="text-sm text-muted-foreground">{label}</p>
-		<p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-		{detail && <p className="mt-1 text-xs text-muted-foreground">{detail}</p>}
-	</div>
-);
-
 const DetailValue = ({
 	label,
 	value,
@@ -126,10 +97,9 @@ const DetailValue = ({
 	label: string;
 	value: string | number | null | undefined;
 }) => (
-	<div className="min-w-0 space-y-1">
-		<dt className="text-xs text-muted-foreground">{label}</dt>
-		<dd className="break-words font-medium">{valueOrUnavailable(value)}</dd>
-	</div>
+	<ConsoleDetailValue label={label}>
+		{valueOrUnavailable(value)}
+	</ConsoleDetailValue>
 );
 
 const NodeDetails = ({ node }: { node: SwarmNode | null }) => {
@@ -414,7 +384,15 @@ export const SwarmConsole = ({ serverId }: Props) => {
 	const [taskSorting, setTaskSorting] = useState<SortingState>([
 		{ id: "updatedAt", desc: true },
 	]);
-	const [pagination, setPagination] = useState<PaginationState>({
+	const [nodePagination, setNodePagination] = useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 10,
+	});
+	const [servicePagination, setServicePagination] = useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 10,
+	});
+	const [taskPagination, setTaskPagination] = useState<PaginationState>({
 		pageIndex: 0,
 		pageSize: 10,
 	});
@@ -647,9 +625,9 @@ export const SwarmConsole = ({ serverId }: Props) => {
 	const nodeTable = useReactTable({
 		data: nodes,
 		columns: nodeColumns,
-		state: { sorting: nodeSorting, pagination },
+		state: { sorting: nodeSorting, pagination: nodePagination },
 		onSortingChange: setNodeSorting,
-		onPaginationChange: setPagination,
+		onPaginationChange: setNodePagination,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
@@ -657,9 +635,9 @@ export const SwarmConsole = ({ serverId }: Props) => {
 	const serviceTable = useReactTable({
 		data: services,
 		columns: serviceColumns,
-		state: { sorting: serviceSorting, pagination },
+		state: { sorting: serviceSorting, pagination: servicePagination },
 		onSortingChange: setServiceSorting,
-		onPaginationChange: setPagination,
+		onPaginationChange: setServicePagination,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
@@ -667,9 +645,9 @@ export const SwarmConsole = ({ serverId }: Props) => {
 	const taskTable = useReactTable({
 		data: tasks,
 		columns: taskColumns,
-		state: { sorting: taskSorting, pagination },
+		state: { sorting: taskSorting, pagination: taskPagination },
 		onSortingChange: setTaskSorting,
-		onPaginationChange: setPagination,
+		onPaginationChange: setTaskPagination,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
@@ -694,51 +672,30 @@ export const SwarmConsole = ({ serverId }: Props) => {
 		: "";
 
 	return (
-		<Card className="min-h-[85vh] w-full rounded-xl bg-sidebar p-2.5">
-			<div className="flex min-h-[calc(85vh-1.25rem)] w-full flex-col gap-6 rounded-xl bg-background p-4 shadow-md sm:p-6">
-				<header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-					<div className="space-y-1">
-						<h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-							<Waypoints className="size-6 text-muted-foreground" aria-hidden />
-							Swarm
-						</h1>
-						<p className="text-sm text-muted-foreground">
-							Manage Docker Swarm clusters, nodes and workload orchestration.
-						</p>
-					</div>
-					<Button
-						variant="outline"
+		<ConsoleShell>
+			<ConsoleHeader
+				icon={Waypoints}
+				title="Swarm"
+				description="Manage Docker Swarm clusters, nodes and workload orchestration."
+				actions={
+					<ConsoleRefresh
 						onClick={() => void refetch()}
-						disabled={isPending || isRefetching}
-					>
-						<RefreshCw
-							className={`size-4 ${isRefetching ? "animate-spin" : ""}`}
-							aria-hidden
-						/>
-						Refresh
-					</Button>
-				</header>
+						isRefetching={isRefetching}
+						disabled={isPending}
+					/>
+				}
+			/>
 
+			<ConsoleBody>
 				{isPending ? (
-					<div
-						className="flex min-h-56 items-center justify-center gap-2 text-sm text-muted-foreground"
-						role="status"
-					>
-						Loading Swarm cluster…
-						<Loader2 className="size-4 animate-spin" aria-hidden />
-					</div>
+					<ConsoleLoading label="Loading Swarm cluster\u2026" />
 				) : isError ? (
-					<div className="space-y-3 border-t pt-5">
-						<AlertBlock type="error">
-							Could not retrieve Docker Swarm state: {error.message}
-						</AlertBlock>
-						<Button variant="outline" onClick={() => void refetch()}>
-							<RefreshCw className="size-4" aria-hidden />
-							Retry
-						</Button>
-					</div>
+					<ConsoleError
+						message={`Could not retrieve Docker Swarm state: ${error.message}`}
+						onRetry={() => void refetch()}
+					/>
 				) : (
-					<div className="space-y-5 border-t pt-5">
+					<>
 						<div className="flex flex-wrap items-center justify-between gap-3">
 							<div className="flex items-center gap-2">
 								<span
@@ -764,8 +721,8 @@ export const SwarmConsole = ({ serverId }: Props) => {
 							</div>
 							<p className="text-xs text-muted-foreground">
 								Checked {new Date(data.checkedAt).toLocaleTimeString()}
-								{data.engineVersion && ` · Docker ${data.engineVersion}`}
-								{data.clusterId && ` · Cluster ${data.clusterId}`}
+								{data.engineVersion && ` \u00b7 Docker ${data.engineVersion}`}
+								{data.clusterId && ` \u00b7 Cluster ${data.clusterId}`}
 							</p>
 						</div>
 
@@ -779,9 +736,9 @@ export const SwarmConsole = ({ serverId }: Props) => {
 									Swarm is not initialized on this Docker Engine
 								</div>
 								<p className="text-sm text-muted-foreground">
-									Docker reports the local Swarm state as “{data.state}”.
-									Initialize or join a cluster using your existing Docker
-									administration process; Notploy does not expose a Swarm
+									Docker reports the local Swarm state as \u201c{data.state}
+									\u201d. Initialize or join a cluster using your existing
+									Docker administration process; Notploy does not expose a Swarm
 									initialization action.
 								</p>
 							</div>
@@ -801,7 +758,7 @@ export const SwarmConsole = ({ serverId }: Props) => {
 							</div>
 						) : (
 							<>
-								<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+								<ConsoleSummary>
 									<SummaryMetric
 										label="Cluster state"
 										value="Active"
@@ -814,7 +771,7 @@ export const SwarmConsole = ({ serverId }: Props) => {
 									<SummaryMetric
 										label="Nodes"
 										value={data.nodes.length}
-										detail={`${readyNodes} ready · ${data.nodes.length - readyNodes} not ready`}
+										detail={`${readyNodes} ready \u00b7 ${data.nodes.length - readyNodes} not ready`}
 									/>
 									<SummaryMetric
 										label="Managers"
@@ -831,34 +788,22 @@ export const SwarmConsole = ({ serverId }: Props) => {
 										value={runningTasks}
 										detail={`${data.tasks.length} total tasks`}
 									/>
-								</div>
-								<div className="grid gap-2 sm:grid-cols-[minmax(14rem,1fr)_auto]">
-									<div className="relative">
-										<Search
-											className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-											aria-hidden
-										/>
-										<Input
-											className="pl-9"
-											placeholder="Search nodes, services, tasks…"
-											value={search}
-											onChange={(event) => setSearch(event.target.value)}
-											aria-label="Search Swarm inventory"
-										/>
-									</div>
+								</ConsoleSummary>
+
+								<ConsoleToolbar className="sm:grid-cols-[minmax(14rem,1fr)_auto]">
+									<ConsoleSearch
+										value={search}
+										onChange={setSearch}
+										placeholder="Search nodes, services, tasks\u2026"
+										ariaLabel="Search Swarm inventory"
+									/>
 									<div className="flex items-center gap-2 text-sm text-muted-foreground">
 										<Server className="size-4" aria-hidden />
 										Inventory returned by Docker Swarm manager
 									</div>
-								</div>
+								</ConsoleToolbar>
 
-								<Tabs
-									value={tab}
-									onValueChange={(value) => {
-										setTab(value);
-										setPagination((current) => ({ ...current, pageIndex: 0 }));
-									}}
-								>
+								<Tabs value={tab} onValueChange={setTab}>
 									<TabsList className="w-full justify-start overflow-x-auto sm:w-fit">
 										<TabsTrigger value="nodes">
 											<Server className="size-4" aria-hidden />
@@ -874,19 +819,19 @@ export const SwarmConsole = ({ serverId }: Props) => {
 										</TabsTrigger>
 									</TabsList>
 									<TabsContent value="nodes" className="space-y-3">
-										<InventoryTable
+										<ConsoleTable
 											table={nodeTable}
 											empty="No nodes were returned by the Swarm manager."
 										/>
 									</TabsContent>
 									<TabsContent value="services" className="space-y-3">
-										<InventoryTable
+										<ConsoleTable
 											table={serviceTable}
 											empty="No Swarm Services were returned by the manager."
 										/>
 									</TabsContent>
 									<TabsContent value="tasks" className="space-y-3">
-										<InventoryTable
+										<ConsoleTable
 											table={taskTable}
 											empty="No Swarm Tasks were returned by the manager."
 										/>
@@ -941,9 +886,10 @@ export const SwarmConsole = ({ serverId }: Props) => {
 								</div>
 							</>
 						)}
-					</div>
+					</>
 				)}
-			</div>
+			</ConsoleBody>
+
 			<Dialog
 				open={Boolean(selectedNode)}
 				onOpenChange={(open) => {
@@ -960,7 +906,7 @@ export const SwarmConsole = ({ serverId }: Props) => {
 			>
 				<ServiceDetails service={selectedService} serverId={serverId} />
 			</Dialog>
-		</Card>
+		</ConsoleShell>
 	);
 };
 
@@ -971,83 +917,3 @@ const searchable = (query: string, values: Array<string | null | undefined>) =>
 		.join(" ")
 		.toLocaleLowerCase()
 		.includes(query.trim().toLocaleLowerCase());
-
-type TableInstance<T> = ReturnType<typeof useReactTable<T>>;
-
-const InventoryTable = <TData,>({
-	table,
-	empty,
-}: {
-	table: TableInstance<TData>;
-	empty: string;
-}) => {
-	const rows = table.getRowModel().rows;
-	if (!rows.length) {
-		return (
-			<div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-				{empty}
-			</div>
-		);
-	}
-	return (
-		<>
-			<div className="overflow-x-auto rounded-md border">
-				<Table>
-					<TableHeader>
-						{table.getHeaderGroups().map((group) => (
-							<TableRow key={group.id}>
-								{group.headers.map((header) => (
-									<TableHead key={header.id}>
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef.header,
-													header.getContext(),
-												)}
-									</TableHead>
-								))}
-							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{rows.map((row) => (
-							<TableRow key={row.id}>
-								{row.getVisibleCells().map((cell) => (
-									<TableCell key={cell.id}>
-										{flexRender(cell.column.columnDef.cell, cell.getContext())}
-									</TableCell>
-								))}
-							</TableRow>
-						))}
-					</TableBody>
-				</Table>
-			</div>
-			{table.getPageCount() > 1 && (
-				<div className="flex items-center justify-end gap-4">
-					<span className="text-sm text-muted-foreground">
-						Page {table.getState().pagination.pageIndex + 1} of{" "}
-						{table.getPageCount()}
-					</span>
-					<div className="flex gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => table.previousPage()}
-							disabled={!table.getCanPreviousPage()}
-						>
-							Previous
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => table.nextPage()}
-							disabled={!table.getCanNextPage()}
-						>
-							Next
-						</Button>
-					</div>
-				</div>
-			)}
-		</>
-	);
-};

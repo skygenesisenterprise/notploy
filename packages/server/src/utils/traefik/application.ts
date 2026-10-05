@@ -196,7 +196,7 @@ export const readMonitoringConfig = async (readAll = false) => {
 };
 
 export const readConfigInPath = async (pathFile: string, serverId?: string) => {
-	const configPath = path.join(pathFile);
+	const configPath = resolveTraefikConfigPath(pathFile, !!serverId);
 
 	if (serverId) {
 		const { stdout } = await execAsyncRemote(
@@ -237,20 +237,63 @@ export const writeConfigRemote = async (
 	}
 };
 
+/**
+ * Resolves a user supplied Traefik file path and rejects anything that escapes
+ * the Traefik configuration directory. Without this check a `traefikFiles: write`
+ * permission would allow overwriting any file the Notploy process can write
+ * (compose files, .env, authorized_keys) via `../../..` or an absolute path.
+ *
+ * Reads may also target the static `traefik.yml`, which the diagnostics view
+ * needs to report entrypoints and resolvers. Writes are confined to the dynamic
+ * directory and can never touch the static config that defines the ACME
+ * resolvers.
+ *
+ * Remote servers get the same check against their own path under /etc/notploy.
+ */
+export const resolveTraefikConfigPath = (
+	pathFile: string,
+	isServer = false,
+	mode: "read" | "write" = "read",
+): string => {
+	const { MAIN_TRAEFIK_PATH, DYNAMIC_TRAEFIK_PATH } = paths(isServer);
+	const staticConfigPath = path.join(path.resolve(MAIN_TRAEFIK_PATH), "traefik.yml");
+
+	const root = path.resolve(
+		mode === "write" ? DYNAMIC_TRAEFIK_PATH : MAIN_TRAEFIK_PATH,
+	);
+	const resolved = path.resolve(root, pathFile);
+
+	const isStaticConfig =
+		resolved === staticConfigPath || resolved === `${staticConfigPath.replace(/\.yml$/, ".yaml")}`;
+
+	if (mode === "write" && isStaticConfig) {
+		throw new Error(
+			"The static Traefik configuration can only be edited from the Traefik settings page",
+		);
+	}
+
+	if (resolved !== root && !resolved.startsWith(`${root}${path.sep}`)) {
+		throw new Error(
+			`Path must stay inside the Traefik configuration directory (${root})`,
+		);
+	}
+	if (!/\.ya?ml$/i.test(resolved)) {
+		throw new Error("Path must point to a YAML configuration file");
+	}
+
+	return resolved;
+};
+
 export const writeTraefikConfigInPath = async (
 	pathFile: string,
 	traefikConfig: string,
 	serverId?: string,
 ) => {
-	try {
-		const configPath = path.join(pathFile);
-		if (serverId) {
-			await writeFileRemote(serverId, configPath, traefikConfig);
-		} else {
-			fs.writeFileSync(configPath, traefikConfig, "utf8");
-		}
-	} catch (e) {
-		console.error("Error saving the YAML config file:", e);
+	const configPath = resolveTraefikConfigPath(pathFile, !!serverId, "write");
+	if (serverId) {
+		await writeFileRemote(serverId, configPath, traefikConfig);
+	} else {
+		fs.writeFileSync(configPath, traefikConfig, "utf8");
 	}
 };
 

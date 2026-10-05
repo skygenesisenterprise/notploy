@@ -1,3 +1,4 @@
+import copy from "copy-to-clipboard";
 import { formatDistanceToNow } from "date-fns";
 import {
 	Boxes,
@@ -13,7 +14,6 @@ import {
 	Server as ServerIcon,
 	Square,
 } from "lucide-react";
-import copy from "copy-to-clipboard";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -45,7 +45,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	Table,
 	TableBody,
@@ -54,6 +53,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api, type RouterOutputs } from "@/utils/api";
 import { RemoveContainerDialog } from "../remove/remove-container";
 
@@ -304,10 +304,7 @@ export const ShowContainers = ({ serverId }: Props) => {
 							{failedHosts.length > 0 && (
 								<div className="space-y-2">
 									{failedHosts.map((host) => (
-										<AlertBlock
-											key={host.serverId ?? "local"}
-											type="warning"
-										>
+										<AlertBlock key={host.serverId ?? "local"} type="warning">
 											{host.name}: Docker is unavailable. {host.error}
 										</AlertBlock>
 									))}
@@ -315,10 +312,7 @@ export const ShowContainers = ({ serverId }: Props) => {
 							)}
 							{containers.length === 0 ? (
 								<div className="flex min-h-56 flex-col items-center justify-center gap-3 rounded-lg border border-dashed p-8 text-center">
-									<Boxes
-										className="size-8 text-muted-foreground"
-										aria-hidden
-									/>
+									<Boxes className="size-8 text-muted-foreground" aria-hidden />
 									<div className="space-y-1">
 										<p className="font-medium">No containers</p>
 										<p className="max-w-md text-sm text-muted-foreground">
@@ -372,9 +366,16 @@ export const ShowContainers = ({ serverId }: Props) => {
 	);
 };
 
-function ContainerRow({ container }: { container: Container & { serverName: string; local: boolean } }) {
+function ContainerRow({
+	container,
+}: {
+	container: Container & { serverName: string; local: boolean };
+}) {
 	const utils = api.useUtils();
-	const queryInput = { containerId: container.containerId, serverId: container.serverId ?? undefined };
+	const queryInput = {
+		containerId: container.containerId,
+		serverId: container.serverId ?? undefined,
+	};
 	const start = api.docker.startContainer.useMutation();
 	const stop = api.docker.stopContainer.useMutation();
 	const restart = api.docker.restartContainer.useMutation();
@@ -397,7 +398,9 @@ function ContainerRow({ container }: { container: Container & { serverName: stri
 			await utils.docker.getFleetContainers.invalidate();
 		} catch (error) {
 			toast.error(
-				error instanceof Error ? error.message : `Could not ${action} container`,
+				error instanceof Error
+					? error.message
+					: `Could not ${action} container`,
 			);
 		} finally {
 			setIsMutating(false);
@@ -436,10 +439,7 @@ function ContainerRow({ container }: { container: Container & { serverName: stri
 			</TableCell>
 			<TableCell>
 				<span className="flex items-center gap-1.5 whitespace-nowrap text-sm">
-					<ServerIcon
-						className="size-3.5 text-muted-foreground"
-						aria-hidden
-					/>
+					<ServerIcon className="size-3.5 text-muted-foreground" aria-hidden />
 					{container.serverName}
 					{container.local && <Badge variant="outline">Local</Badge>}
 				</span>
@@ -447,7 +447,10 @@ function ContainerRow({ container }: { container: Container & { serverName: stri
 			<TableCell>
 				<HealthBadge health={container.health} />
 			</TableCell>
-			<TableCell className="max-w-48 truncate font-mono text-xs" title={formatPorts(container.ports)}>
+			<TableCell
+				className="max-w-48 truncate font-mono text-xs"
+				title={formatPorts(container.ports)}
+			>
 				{formatPorts(container.ports) || "—"}
 			</TableCell>
 			<TableCell className="whitespace-nowrap text-xs text-muted-foreground">
@@ -489,9 +492,7 @@ function ContainerRow({ container }: { container: Container & { serverName: stri
 						<DropdownMenuSeparator />
 						{container.state === "running" ? (
 							<>
-								<DropdownMenuItem
-									onSelect={() => void runAction("stop", stop)}
-								>
+								<DropdownMenuItem onSelect={() => void runAction("stop", stop)}>
 									<Square className="size-4" />
 									Stop
 								</DropdownMenuItem>
@@ -503,9 +504,7 @@ function ContainerRow({ container }: { container: Container & { serverName: stri
 								</DropdownMenuItem>
 							</>
 						) : (
-							<DropdownMenuItem
-								onSelect={() => void runAction("start", start)}
-							>
+							<DropdownMenuItem onSelect={() => void runAction("start", start)}>
 								<Play className="size-4" />
 								Start
 							</DropdownMenuItem>
@@ -541,7 +540,11 @@ function ContainerDetails({
 				Id?: string;
 				Name?: string;
 				Created?: string;
-				State?: { Status?: string; Health?: { Status?: string }; StartedAt?: string };
+				State?: {
+					Status?: string;
+					Health?: { Status?: string };
+					StartedAt?: string;
+				};
 				Config?: {
 					Image?: string;
 					Cmd?: string[] | null;
@@ -553,7 +556,10 @@ function ContainerDetails({
 				};
 				HostConfig?: { RestartPolicy?: { Name?: string } };
 				NetworkSettings?: {
-					Ports?: Record<string, Array<{ HostIp?: string; HostPort?: string }> | null>;
+					Ports?: Record<
+						string,
+						Array<{ HostIp?: string; HostPort?: string }> | null
+					>;
 					Networks?: Record<
 						string,
 						{ IPAddress?: string; Gateway?: string; NetworkID?: string }
@@ -621,29 +627,62 @@ function ContainerDetails({
 						</TabsList>
 						<TabsContent value="overview" className="space-y-4">
 							<DetailSection title="Container">
-								<DetailValue label="Name" value={data?.Name?.replace(/^\//, "")} />
+								<DetailValue
+									label="Name"
+									value={data?.Name?.replace(/^\//, "")}
+								/>
 								<DetailValue label="ID" value={data?.Id} mono />
 								<DetailValue
 									label="State"
 									value={data?.State?.Status ?? container.state}
 								/>
-								<DetailValue label="Health" value={health ?? "No healthcheck"} />
-								<DetailValue label="Created" value={created?.toLocaleString()} />
-								<DetailValue label="Started" value={started?.toLocaleString()} />
+								<DetailValue
+									label="Health"
+									value={health ?? "No healthcheck"}
+								/>
+								<DetailValue
+									label="Created"
+									value={created?.toLocaleString()}
+								/>
+								<DetailValue
+									label="Started"
+									value={started?.toLocaleString()}
+								/>
 								<DetailValue
 									label="Server"
 									value={`${container.serverName}${container.local ? " (Local)" : ""}`}
 								/>
-								<DetailValue label="Image" value={data?.Config?.Image ?? container.image} />
+								<DetailValue
+									label="Image"
+									value={data?.Config?.Image ?? container.image}
+								/>
 								<DetailValue label="Image ID" value={container.imageId} mono />
 							</DetailSection>
 							<DetailSection title="Runtime">
-								<DetailValue label="Command" value={data?.Config?.Cmd?.join(" ")} mono />
-								<DetailValue label="Entrypoint" value={data?.Config?.Entrypoint?.join(" ")} mono />
-								<DetailValue label="Restart policy" value={data?.HostConfig?.RestartPolicy?.Name} />
+								<DetailValue
+									label="Command"
+									value={data?.Config?.Cmd?.join(" ")}
+									mono
+								/>
+								<DetailValue
+									label="Entrypoint"
+									value={data?.Config?.Entrypoint?.join(" ")}
+									mono
+								/>
+								<DetailValue
+									label="Restart policy"
+									value={data?.HostConfig?.RestartPolicy?.Name}
+								/>
 								<DetailValue label="User" value={data?.Config?.User} />
-								<DetailValue label="Working directory" value={data?.Config?.WorkingDir} mono />
-								<DetailValue label="Environment variables" value={`${environmentNames.length} (values redacted)`} />
+								<DetailValue
+									label="Working directory"
+									value={data?.Config?.WorkingDir}
+									mono
+								/>
+								<DetailValue
+									label="Environment variables"
+									value={`${environmentNames.length} (values redacted)`}
+								/>
 							</DetailSection>
 							{environmentNames.length > 0 && (
 								<DetailSection title="Environment names (values redacted)">
@@ -739,7 +778,9 @@ function ContainerDetails({
 													<TableCell className="max-w-48 truncate font-mono text-xs">
 														{mount.Destination ?? "—"}
 													</TableCell>
-													<TableCell>{mount.RW ? "Read/write" : "Read-only"}</TableCell>
+													<TableCell>
+														{mount.RW ? "Read/write" : "Read-only"}
+													</TableCell>
 												</TableRow>
 											))}
 										</TableBody>
@@ -756,7 +797,8 @@ function ContainerDetails({
 							</Button>
 						</TabsContent>
 						<TabsContent value="ports" className="space-y-3">
-							{Object.entries(data?.NetworkSettings?.Ports ?? {}).length === 0 ? (
+							{Object.entries(data?.NetworkSettings?.Ports ?? {}).length ===
+							0 ? (
 								<p className="text-sm text-muted-foreground">
 									No published ports.
 								</p>
@@ -770,7 +812,9 @@ function ContainerDetails({
 											>
 												{bindings?.length ? (
 													bindings.map((binding) => (
-														<p key={`${binding.HostIp}-${binding.HostPort}-${target}`}>
+														<p
+															key={`${binding.HostIp}-${binding.HostPort}-${target}`}
+														>
 															{binding.HostIp}:{binding.HostPort} → {target}
 														</p>
 													))
@@ -855,7 +899,10 @@ function StateBadge({ state }: { state: string }) {
 	return (
 		<Badge variant={variant} className="capitalize">
 			{normalized === "running" && (
-				<span className="mr-1.5 size-1.5 rounded-full bg-green-500" aria-hidden />
+				<span
+					className="mr-1.5 size-1.5 rounded-full bg-green-500"
+					aria-hidden
+				/>
 			)}
 			{normalized || "unknown"}
 		</Badge>
@@ -864,7 +911,9 @@ function StateBadge({ state }: { state: string }) {
 
 function HealthBadge({ health }: { health: string | null | undefined }) {
 	if (!health) {
-		return <span className="text-xs text-muted-foreground">No healthcheck</span>;
+		return (
+			<span className="text-xs text-muted-foreground">No healthcheck</span>
+		);
 	}
 	return (
 		<Badge variant={health === "healthy" ? "outline" : "destructive"}>

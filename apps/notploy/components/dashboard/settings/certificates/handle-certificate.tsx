@@ -50,7 +50,7 @@ const privateKeyDataHolder =
 const handleCertificateSchema = z.object({
 	name: z.string().min(1, "Name is required"),
 	certificateData: z.string().min(1, "Certificate data is required"),
-	privateKey: z.string().min(1, "Private key is required"),
+	privateKey: z.string().optional(),
 	serverId: z.string().optional(),
 });
 
@@ -59,6 +59,11 @@ type HandleCertificateForm = z.infer<typeof handleCertificateSchema>;
 interface Props {
 	certificateId?: string;
 }
+
+const looksPem = (value: string, label: string) =>
+	value.includes("-----BEGIN") || value.includes("-----END")
+		? null
+		: `Expected a PEM block (-----BEGIN ${label}-----)`;
 
 export const HandleCertificate = ({ certificateId }: Props) => {
 	const [open, setOpen] = useState(false);
@@ -77,7 +82,7 @@ export const HandleCertificate = ({ certificateId }: Props) => {
 	const createMutation = api.certificates.create.useMutation();
 	const updateMutation = api.certificates.update.useMutation();
 	const mutation = certificateId ? updateMutation : createMutation;
-	const { mutateAsync, isError, error, isPending } = mutation;
+	const { isError, error, isPending } = mutation;
 
 	const form = useForm<HandleCertificateForm>({
 		defaultValues: {
@@ -85,7 +90,39 @@ export const HandleCertificate = ({ certificateId }: Props) => {
 			certificateData: "",
 			privateKey: "",
 		},
-		resolver: zodResolver(handleCertificateSchema),
+		resolver: zodResolver(
+			handleCertificateSchema.superRefine((input, ctx) => {
+				// On create a key is mandatory; on edit an empty key means
+				// "keep the stored one", which is never sent back to the browser.
+				if (!certificateId && !input.privateKey?.trim()) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						path: ["privateKey"],
+						message: "Private key is required",
+					});
+				}
+				if (input.certificateData) {
+					const issue = looksPem(input.certificateData, "CERTIFICATE");
+					if (issue) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							path: ["certificateData"],
+							message: issue,
+						});
+					}
+				}
+				if (input.privateKey?.trim()) {
+					const issue = looksPem(input.privateKey, "PRIVATE KEY");
+					if (issue) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							path: ["privateKey"],
+							message: issue,
+						});
+					}
+				}
+			}),
+		),
 	});
 
 	useEffect(() => {
@@ -93,7 +130,8 @@ export const HandleCertificate = ({ certificateId }: Props) => {
 			form.reset({
 				name: existingCert.name,
 				certificateData: existingCert.certificateData,
-				privateKey: existingCert.privateKey,
+				// Never prefill the stored key: it is not readable through the API.
+				privateKey: "",
 			});
 		} else {
 			form.reset({
@@ -105,21 +143,20 @@ export const HandleCertificate = ({ certificateId }: Props) => {
 	}, [existingCert, form, open]);
 
 	const onSubmit = async (data: HandleCertificateForm) => {
-		const basePayload = {
-			name: data.name,
-			certificateData: data.certificateData,
-			privateKey: data.privateKey,
-		};
+		const privateKey = data.privateKey?.trim() || undefined;
 
 		const promise = certificateId
 			? updateMutation.mutateAsync({
 					certificateId,
-					...basePayload,
+					name: data.name,
+					certificateData: data.certificateData,
+					...(privateKey ? { privateKey } : {}),
 				})
 			: createMutation.mutateAsync({
-					...basePayload,
+					name: data.name,
+					certificateData: data.certificateData,
+					privateKey: privateKey ?? "",
 					serverId: data.serverId === "notploy" ? undefined : data.serverId,
-					organizationId: "",
 				});
 
 		await promise
@@ -133,11 +170,12 @@ export const HandleCertificate = ({ certificateId }: Props) => {
 				}
 				setOpen(false);
 			})
-			.catch(() => {
+			.catch((mutationError) => {
 				toast.error(
-					certificateId
-						? "Error updating the Certificate"
-						: "Error creating the Certificate",
+					mutationError.message ??
+						(certificateId
+							? "Error updating the Certificate"
+							: "Error creating the Certificate"),
 				);
 			});
 	};
@@ -214,11 +252,22 @@ export const HandleCertificate = ({ certificateId }: Props) => {
 							name="privateKey"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Private Key</FormLabel>
+									<FormLabel>
+										Private Key
+										{certificateId && (
+											<span className="text-xs text-muted-foreground font-normal ml-1">
+												(optional — leave empty to keep the stored key)
+											</span>
+										)}
+									</FormLabel>
 									<FormControl>
 										<Textarea
 											className="h-32 max-h-32 resize-none overflow-y-auto field-sizing-fixed"
-											placeholder={privateKeyDataHolder}
+											placeholder={
+												certificateId
+													? "Leave empty to keep the current private key"
+													: privateKeyDataHolder
+											}
 											{...field}
 										/>
 									</FormControl>
