@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@notploy/sdk": "workspace:*",
-    "dotenv": "^17.4.2"
+    "dotenv": "^18.0.5"
   },
   "devDependencies": {
     "tsx": "^4.21.0"
