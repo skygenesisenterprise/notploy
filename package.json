@@ -59,6 +59,7 @@
 		"@types/react-dom": "18.3.0"
 	},
 	"dependencies": {
-		"@skygenesisenterprise/react-sds": "^1.0.0"
+		"@skygenesisenterprise/react-sds": "^1.0.0",
+		"node-forge": "^1.4.0"
 	}
 }

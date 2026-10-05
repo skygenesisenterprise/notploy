@@ -15,6 +15,9 @@ importers:
       '@skygenesisenterprise/react-sds':
         specifier: ^1.0.0
         version: 1.0.0
+      node-forge:
+        specifier: ^1.4.0
+        version: 1.4.0
     devDependencies:
       '@biomejs/biome':
         specifier: 2.5.7
