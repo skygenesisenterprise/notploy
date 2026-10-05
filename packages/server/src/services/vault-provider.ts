@@ -1,10 +1,13 @@
 import { db } from "@notploy/server/db";
 import {
 	type apiCreateVaultProvider,
+	type apiCreateVaultSecret,
+	type apiUpdateVaultSecret,
 	projects,
 	type VaultProviderAssignment,
 	type VaultProviderConfig,
 	vaultProvider,
+	vaultSecret,
 } from "@notploy/server/db/schema";
 import {
 	type VaultCapabilityMatrix,
@@ -13,10 +16,11 @@ import {
 	getVaultProviderCategory,
 	type VaultProviderCategory,
 	type VaultProviderType,
+	type VaultSecretRecord,
 	vaultProviderTypes,
 } from "@notploy/server/utils/vault";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import type { z } from "zod";
 
 export type VaultProvider = typeof vaultProvider.$inferSelect;
@@ -356,6 +360,157 @@ export const listVaultProviderSecrets = async (
 	}
 	try {
 		return await client.listSecretNames(config);
+	} catch (error) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message:
+				error instanceof Error
+					? error.message
+					: "Error listing the secrets of this provider",
+		});
+	}
+};
+
+export const findVaultSecretById = async (vaultSecretId: string) => {
+	const [secret] = await db
+		.select()
+		.from(vaultSecret)
+		.where(eq(vaultSecret.vaultSecretId, vaultSecretId))
+		.limit(1);
+	if (!secret) {
+		throw new TRPCError({
+			code: "NOT_FOUND",
+			message: "Secret not found",
+		});
+	}
+	return secret;
+};
+
+/**
+ * Secrets Notploy manages itself, encrypted at rest. They resolve through the
+ * same `${{vault.<provider>.<name>}}` syntax as the provider's own secrets.
+ */
+export const listVaultSecretsForProvider = async (vaultProviderId: string) =>
+	await db
+		.select()
+		.from(vaultSecret)
+		.where(eq(vaultSecret.vaultProviderId, vaultProviderId))
+		.orderBy(asc(vaultSecret.name));
+
+export const createVaultSecret = async (
+	input: z.infer<typeof apiCreateVaultSecret>,
+	organizationId: string,
+) => {
+	await findVaultProviderInOrganization(input.vaultProviderId, organizationId);
+	const [existing] = await db
+		.select({ vaultSecretId: vaultSecret.vaultSecretId })
+		.from(vaultSecret)
+		.where(
+			and(
+				eq(vaultSecret.vaultProviderId, input.vaultProviderId),
+				eq(vaultSecret.name, input.name),
+			),
+		)
+		.limit(1);
+	if (existing) {
+		throw new TRPCError({
+			code: "CONFLICT",
+			message: `A secret named "${input.name}" already exists for this provider`,
+		});
+	}
+	const created = await db
+		.insert(vaultSecret)
+		.values({
+			vaultProviderId: input.vaultProviderId,
+			name: input.name,
+			value: input.value,
+			description: input.description,
+		})
+		.returning()
+		.then((rows) => rows[0]);
+	if (!created) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "Error creating the secret",
+		});
+	}
+	return created;
+};
+
+export const updateVaultSecret = async (
+	input: z.infer<typeof apiUpdateVaultSecret>,
+	organizationId: string,
+) => {
+	const secret = await findVaultSecretById(input.vaultSecretId);
+	await findVaultProviderInOrganization(secret.vaultProviderId, organizationId);
+	if (input.name !== secret.name) {
+		const [clash] = await db
+			.select({ vaultSecretId: vaultSecret.vaultSecretId })
+			.from(vaultSecret)
+			.where(
+				and(
+					eq(vaultSecret.vaultProviderId, secret.vaultProviderId),
+					eq(vaultSecret.name, input.name),
+				),
+			)
+			.limit(1);
+		if (clash) {
+			throw new TRPCError({
+				code: "CONFLICT",
+				message: `A secret named "${input.name}" already exists for this provider`,
+			});
+		}
+	}
+	const updated = await db
+		.update(vaultSecret)
+		.set({
+			name: input.name,
+			description: input.description,
+			updatedAt: new Date().toISOString(),
+			...(input.value ? { value: input.value } : {}),
+		})
+		.where(eq(vaultSecret.vaultSecretId, input.vaultSecretId))
+		.returning()
+		.then((rows) => rows[0]);
+	if (!updated) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "Error updating the secret",
+		});
+	}
+	return updated;
+};
+
+export const removeVaultSecret = async (
+	vaultSecretId: string,
+	organizationId: string,
+) => {
+	const secret = await findVaultSecretById(vaultSecretId);
+	await findVaultProviderInOrganization(secret.vaultProviderId, organizationId);
+	await db
+		.delete(vaultSecret)
+		.where(eq(vaultSecret.vaultSecretId, vaultSecretId));
+	return true;
+};
+
+/**
+ * Richer sibling of `listVaultProviderSecrets`: the same secret names plus the
+ * source and whether each value can be resolved. Providers that only implement
+ * `listSecretNames` fall back to names marked as resolvable.
+ */
+export const listVaultProviderSecretRecords = async (
+	config: VaultProviderConfig,
+): Promise<VaultSecretRecord[]> => {
+	const client = getVaultClient(config.providerType);
+	try {
+		if (client.listSecretRecords) {
+			return await client.listSecretRecords(config);
+		}
+		if (!client.listSecretNames) {
+			return [];
+		}
+		const secretNames = await client.listSecretNames(config);
+		return secretNames.map((name) => ({ name, resolvable: true }));
 	} catch (error) {
 		throw new TRPCError({
 			code: "BAD_REQUEST",

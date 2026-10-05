@@ -195,7 +195,13 @@ const getTargetEnvironmentId = (
 	);
 };
 
-export const AdvanceBreadcrumb = () => {
+interface AdvanceBreadcrumbProps {
+	hideEnvironment?: boolean;
+}
+
+export const AdvanceBreadcrumb = ({
+	hideEnvironment = false,
+}: AdvanceBreadcrumbProps) => {
 	const router = useRouter();
 	const { query } = router;
 
@@ -467,7 +473,9 @@ export const AdvanceBreadcrumb = () => {
 				</Popover>
 
 				{/* Environment Selector */}
-				{projectEnvironments && projectEnvironments.length > 1 && (
+				{!hideEnvironment &&
+					projectEnvironments &&
+					projectEnvironments.length > 1 && (
 					<Popover open={environmentOpen} onOpenChange={setEnvironmentOpen}>
 						<PopoverTrigger asChild>
 							<Button
@@ -528,11 +536,13 @@ export const AdvanceBreadcrumb = () => {
 					</Popover>
 				)}
 
-				{projectEnvironments && projectEnvironments.length === 1 && (
-					<p className="text-sm font-normal ml-1 max-w-[50px] md:max-w-[150px] truncate">
-						{currentEnvironment?.name || "production"}
-					</p>
-				)}
+				{!hideEnvironment &&
+					projectEnvironments &&
+					projectEnvironments.length === 1 && (
+						<p className="text-sm font-normal ml-1 max-w-[50px] md:max-w-[150px] truncate">
+							{currentEnvironment?.name || "production"}
+						</p>
+					)}
 
 				{/* Service Selector - only show when viewing a service */}
 				{serviceId && currentService && (

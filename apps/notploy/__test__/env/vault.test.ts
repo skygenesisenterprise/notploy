@@ -2,15 +2,35 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const findMany = vi.fn();
 
-vi.mock("@notploy/server/db", () => ({
-	db: {
-		query: {
-			vaultProvider: {
-				findMany: (...args: unknown[]) => findMany(...args),
+vi.mock("@notploy/server/db", () => {
+	// Notploy-managed secrets are read with the core `db.select()` builder; the
+	// chain resolves to an empty list, matching an install with no managed secret.
+	type MockChain = {
+		from: () => MockChain;
+		where: () => MockChain;
+		orderBy: () => MockChain;
+		limit: () => MockChain;
+		then: (resolve: (value: unknown[]) => void) => void;
+	};
+	const chain: MockChain = {
+		from: () => chain,
+		where: () => chain,
+		orderBy: () => chain,
+		limit: () => chain,
+		then: (resolve) => resolve([]),
+	};
+
+	return {
+		db: {
+			select: () => chain,
+			query: {
+				vaultProvider: {
+					findMany: (...args: unknown[]) => findMany(...args),
+				},
 			},
 		},
-	},
-}));
+	};
+});
 
 import { prepareEnvironmentVariables } from "@notploy/server/utils/docker/utils";
 import {

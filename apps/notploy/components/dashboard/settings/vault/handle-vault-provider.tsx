@@ -1,6 +1,6 @@
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
 import { PenBoxIcon, PlusIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -30,15 +30,20 @@ import { Input } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
+	SelectGroup,
 	SelectItem,
+	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/utils/api";
 import {
+	vaultProviderCategoryDescriptions,
+	vaultProviderCategoryLabels,
+	vaultProviderCategoryOrder,
 	vaultProviderIconKey,
-	vaultProviderLabels,
+	vaultProviderLabel,
 } from "./vault-provider-meta";
 
 const PROVIDER_TYPES = [
@@ -60,6 +65,24 @@ const PROVIDER_TYPES = [
 ] as const;
 
 type ProviderType = (typeof PROVIDER_TYPES)[number];
+
+const CATEGORY_BY_TYPE: Record<ProviderType, string> = {
+	hashicorp: "self-hosted",
+	infisical: "self-hosted",
+	phase: "self-hosted",
+	onepassword: "self-hosted",
+	vaultwarden: "self-hosted",
+	generic: "self-hosted",
+	aws: "managed",
+	"aws-parameter-store": "managed",
+	azure: "managed",
+	doppler: "managed",
+	scaleway: "managed",
+	gcp: "managed",
+	oci: "managed",
+	kubernetes: "internal",
+	docker: "internal",
+};
 
 const VaultProviderSchema = z
 	.object({
@@ -602,6 +625,19 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 
 	const providerType = form.watch("providerType");
 	const assignments = form.watch("assignments");
+
+	const providerGroups = useMemo(
+		() =>
+			vaultProviderCategoryOrder
+				.map((category) => ({
+					category,
+					types: PROVIDER_TYPES.filter(
+						(type) => CATEGORY_BY_TYPE[type] === category,
+					),
+				}))
+				.filter((group) => group.types.length > 0),
+		[],
+	);
 	const { data: orgProjects } = api.project.all.useQuery();
 
 	const setAssignments = (
@@ -839,19 +875,41 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
-										{Object.entries(vaultProviderLabels).map(([value, label]) => {
-											const ProviderIcon = vaultProviderIcons[vaultProviderIconKey(value)];
-												return (
-													<SelectItem key={value} value={value}>
-														<div className="flex flex-row items-center gap-2">
-															<ProviderIcon className="size-4 shrink-0" />
-															{label}
-														</div>
-													</SelectItem>
-												);
-											})}
+											{providerGroups.map((group) => (
+												<SelectGroup key={group.category}>
+													<SelectLabel>
+														{vaultProviderCategoryLabels[group.category] ??
+															group.category}
+													</SelectLabel>
+													{group.types.map((value) => {
+														const ProviderIcon =
+															vaultProviderIcons[vaultProviderIconKey(value)];
+														return (
+															<SelectItem key={value} value={value}>
+																<div className="flex flex-row items-center gap-2">
+																	<ProviderIcon className="size-4 shrink-0" />
+																	{vaultProviderLabel(value)}
+																</div>
+															</SelectItem>
+														);
+													})}
+												</SelectGroup>
+											))}
 										</SelectContent>
 									</Select>
+									<FormDescription>
+										{
+											vaultProviderCategoryLabels[
+												CATEGORY_BY_TYPE[providerType]
+											]
+										}
+										{" · "}
+										{
+											vaultProviderCategoryDescriptions[
+												CATEGORY_BY_TYPE[providerType]
+											]
+										}
+									</FormDescription>
 									<FormMessage />
 								</FormItem>
 							)}
@@ -1775,7 +1833,10 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 										</FormControl>
 										<FormDescription>
 											Directory holding Docker/Swarm secrets (or any folder of
-											secret files) reachable by the Notploy agent.
+											secret files) mounted into the Notploy service. Values are
+											read from these files — Docker never exposes Swarm secret
+											values through its API. The connection test uses the Docker
+											socket, so mount /var/run/docker.sock into Notploy too.
 										</FormDescription>
 										<FormMessage />
 									</FormItem>
@@ -1783,6 +1844,8 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 							/>
 							<FormDescription>
 								Reference format: <code>{"${{vault.<name>.file-name}}"}</code>.
+								Discovery lists the files in the mount path plus the Swarm
+								secrets and configs reachable through the Docker socket.
 							</FormDescription>
 						</>
 					)}

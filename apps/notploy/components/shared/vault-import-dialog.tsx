@@ -81,8 +81,6 @@ export const VaultImportDialog = ({
 	const [vaultProviderId, setVaultProviderId] = useState<string | undefined>();
 	const [selected, setSelected] = useState<Set<string>>(new Set());
 	const [keyOverrides, setKeyOverrides] = useState<Record<string, string>>({});
-	const [manualKey, setManualKey] = useState("");
-	const [manualSecret, setManualSecret] = useState("");
 
 	const providersQuery = api.vaultProvider.all.useQuery();
 	const allProviders = providersQuery.data;
@@ -145,8 +143,6 @@ export const VaultImportDialog = ({
 		setIsOpen(open);
 		if (!open) {
 			setVaultProviderId(undefined);
-			setManualKey("");
-			setManualSecret("");
 			resetState();
 		}
 	};
@@ -184,14 +180,6 @@ export const VaultImportDialog = ({
 		setIsOpen(false);
 		setVaultProviderId(undefined);
 		resetState();
-	};
-
-	const handleManualAdd = () => {
-		if (!activeProvider || !manualKey.trim() || !manualSecret.trim()) return;
-		const ref = `\${{vault.${activeProvider.name}.${manualSecret.trim()}}}`;
-		onImport(setEnvValue(currentEnv, manualKey.trim().toUpperCase(), ref));
-		setManualKey("");
-		setManualSecret("");
 	};
 
 	// While the provider list is loading we stay hidden; once loaded, a
@@ -291,8 +279,7 @@ export const VaultImportDialog = ({
 						</div>
 					) : rows.length === 0 ? (
 						<div className="py-8 text-center text-muted-foreground text-sm">
-							No secrets discovered for this provider — add a reference
-							manually below.
+							No secrets discovered for this provider.
 						</div>
 					) : (
 						<>
@@ -353,35 +340,6 @@ export const VaultImportDialog = ({
 						</>
 					)}
 
-					<div className="flex flex-col gap-2 rounded-lg border p-3">
-						<Label>Manual reference</Label>
-						<p className="text-xs text-muted-foreground">
-							Reference a secret by path or key directly — useful when the
-							provider cannot browse its secrets.
-						</p>
-						<div className="flex flex-wrap gap-2">
-							<Input
-								placeholder="DATABASE_URL"
-								value={manualKey}
-								onChange={(e) => setManualKey(e.target.value)}
-								className="h-9 w-44 font-mono"
-							/>
-							<Input
-								placeholder="path/to/secret"
-								value={manualSecret}
-								onChange={(e) => setManualSecret(e.target.value)}
-								className="h-9 min-w-40 flex-1 font-mono"
-							/>
-							<Button
-								type="button"
-								size="sm"
-								onClick={handleManualAdd}
-								disabled={!manualKey.trim() || !manualSecret.trim()}
-							>
-								Add
-							</Button>
-						</div>
-					</div>
 				</div>
 				) : null}
 

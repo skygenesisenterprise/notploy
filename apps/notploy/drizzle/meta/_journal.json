@@ -1408,6 +1408,13 @@
       "when": 1791147672686,
       "tag": "0201_operational_event_center",
       "breakpoints": true
+    },
+    {
+      "idx": 202,
+      "version": "7",
+      "when": 1791194227238,
+      "tag": "0202_vault_managed_secrets",
+      "breakpoints": true
     }
   ]
 }

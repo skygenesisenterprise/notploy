@@ -174,17 +174,29 @@ export const ShowEnvironment = ({ id, type }: Props) => {
 						</CardDescription>
 					</div>
 
-					<Toggle
-						aria-label="Toggle bold"
-						pressed={isEnvVisible}
-						onPressedChange={setIsEnvVisible}
-					>
-						{isEnvVisible ? (
-							<EyeOffIcon className="h-4 w-4 text-muted-foreground" />
-						) : (
-							<EyeIcon className="h-4 w-4 text-muted-foreground" />
-						)}
-					</Toggle>
+					<div className="flex items-center gap-2">
+						<VaultImportDialog
+							projectId={data?.environment?.projectId}
+							environmentId={data?.environment?.environmentId}
+							currentEnv={currentEnvironment ?? ""}
+							onImport={(next) =>
+								form.setValue("environment", next, {
+									shouldDirty: true,
+								})
+							}
+						/>
+						<Toggle
+							aria-label="Toggle bold"
+							pressed={isEnvVisible}
+							onPressedChange={setIsEnvVisible}
+						>
+							{isEnvVisible ? (
+								<EyeOffIcon className="h-4 w-4 text-muted-foreground" />
+							) : (
+								<EyeIcon className="h-4 w-4 text-muted-foreground" />
+							)}
+						</Toggle>
+					</div>
 				</CardHeader>
 				<CardContent>
 					<Form {...form}>
@@ -197,20 +209,8 @@ export const ShowEnvironment = ({ id, type }: Props) => {
 								control={form.control}
 								name="environment"
 								render={({ field }) => (
-									<FormItem>
-										<div className="flex justify-end">
-											<VaultImportDialog
-												projectId={data?.environment?.projectId}
-												environmentId={data?.environment?.environmentId}
-												currentEnv={field.value ?? ""}
-												onImport={(next) =>
-													form.setValue("environment", next, {
-														shouldDirty: true,
-													})
-												}
-											/>
-										</div>
-										<FormControl className="">
+								<FormItem>
+									<FormControl className="">
 											<CodeEditor
 												style={
 													{

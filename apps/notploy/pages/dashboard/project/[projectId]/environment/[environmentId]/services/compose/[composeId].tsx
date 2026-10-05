@@ -107,7 +107,7 @@ const Service = (
 								<div className="flex min-w-0 flex-col gap-1">
 									<CardTitle className="text-xl flex flex-row gap-2 items-center">
 										<StatusTooltip status={data?.composeStatus} />
-										<AdvanceBreadcrumb />
+										<AdvanceBreadcrumb hideEnvironment />
 									</CardTitle>
 									{data?.description && (
 										<CardDescription>{data?.description}</CardDescription>

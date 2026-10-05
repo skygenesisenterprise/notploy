@@ -1,28 +1,36 @@
 import {
 	createVaultProvider,
+	createVaultSecret,
 	findVaultProviderInOrganization,
 	findVaultProvidersByOrganizationId,
 	getVaultProviderHealth,
 	isVaultProviderAssigned,
 	listVaultProviderDescriptors,
 	listVaultProviderSecretNames,
-	listVaultProviderSecrets,
+	listVaultProviderSecretRecords,
+	listVaultSecretsForProvider,
 	maskVaultProviderConfig,
 	mergeVaultProviderConfig,
 	removeVaultProvider,
+	removeVaultSecret,
 	testVaultProviderConnection,
 	updateVaultProvider,
+	updateVaultSecret,
+	type VaultSecretRecord,
 } from "@notploy/server";
 import { findMemberByUserId } from "@notploy/server/services/permission";
 import { TRPCError } from "@trpc/server";
 import { audit } from "@/server/api/utils/audit";
 import {
 	apiCreateVaultProvider,
+	apiCreateVaultSecret,
 	apiFindOneVaultProvider,
 	apiListVaultSecretNames,
 	apiRemoveVaultProvider,
+	apiRemoveVaultSecret,
 	apiTestVaultProvider,
 	apiUpdateVaultProvider,
+	apiUpdateVaultSecret,
 } from "@/server/db/schema";
 import { createTRPCRouter, withPermission } from "../trpc";
 
@@ -182,8 +190,9 @@ export const vaultProviderRouter = createTRPCRouter({
 		}),
 
 	/**
-	 * Secret metadata (names only) for a connected provider. Values are never
-	 * returned, and the read is auditable.
+	 * Secret records (name, source and resolvability) for a connected provider,
+	 * combining the provider adapter's secrets with the ones Notploy manages.
+	 * Values are never returned, and the read is auditable.
 	 */
 	listSecrets: withPermission("vaultProvider", "read")
 		.input(apiFindOneVaultProvider)
@@ -192,13 +201,97 @@ export const vaultProviderRouter = createTRPCRouter({
 				input.vaultProviderId,
 				ctx.session.activeOrganizationId,
 			);
-			const secretNames = await listVaultProviderSecrets(provider.config);
+			const managed = await listVaultSecretsForProvider(
+				provider.vaultProviderId,
+			);
+			const managedRecords: VaultSecretRecord[] = managed.map((secret) => ({
+				id: secret.vaultSecretId,
+				name: secret.name,
+				source: "Notploy",
+				resolvable: true,
+				managed: true,
+				...(secret.description ? { detail: secret.description } : {}),
+			}));
+
+			// A broken adapter must not hide the secrets Notploy stores itself.
+			let external: VaultSecretRecord[] = [];
+			try {
+				external = await listVaultProviderSecretRecords(provider.config);
+			} catch {
+				external = [];
+			}
+
+			const byName = new Map(external.map((record) => [record.name, record]));
+			for (const record of managedRecords) {
+				byName.set(record.name, record);
+			}
+			const secrets = [...byName.values()].sort((a, b) =>
+				a.name.localeCompare(b.name),
+			);
+
 			await audit(ctx, {
 				action: "read",
 				resourceType: "vaultProvider",
 				resourceId: provider.vaultProviderId,
 				resourceName: provider.name,
 			});
-			return { secretNames, count: secretNames.length };
+			return {
+				secrets,
+				secretNames: secrets.map((secret) => secret.name),
+				count: secrets.length,
+			};
+		}),
+
+	/** Stores a secret in Notploy, encrypted at rest. */
+	createSecret: withPermission("vaultProvider", "create")
+		.input(apiCreateVaultSecret)
+		.mutation(async ({ ctx, input }) => {
+			const secret = await createVaultSecret(
+				input,
+				ctx.session.activeOrganizationId,
+			);
+			await audit(ctx, {
+				action: "create",
+				resourceType: "vaultProvider",
+				resourceId: secret.vaultProviderId,
+				resourceName: secret.name,
+			});
+			return {
+				vaultSecretId: secret.vaultSecretId,
+				name: secret.name,
+				description: secret.description ?? null,
+			};
+		}),
+
+	updateSecret: withPermission("vaultProvider", "update")
+		.input(apiUpdateVaultSecret)
+		.mutation(async ({ ctx, input }) => {
+			const secret = await updateVaultSecret(
+				input,
+				ctx.session.activeOrganizationId,
+			);
+			await audit(ctx, {
+				action: "update",
+				resourceType: "vaultProvider",
+				resourceId: secret.vaultProviderId,
+				resourceName: secret.name,
+			});
+			return {
+				vaultSecretId: secret.vaultSecretId,
+				name: secret.name,
+				description: secret.description ?? null,
+			};
+		}),
+
+	removeSecret: withPermission("vaultProvider", "delete")
+		.input(apiRemoveVaultSecret)
+		.mutation(async ({ ctx, input }) => {
+			await removeVaultSecret(input.vaultSecretId, ctx.session.activeOrganizationId);
+			await audit(ctx, {
+				action: "delete",
+				resourceType: "vaultProvider",
+				resourceId: input.vaultSecretId,
+			});
+			return true;
 		}),
 });

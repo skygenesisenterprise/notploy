@@ -19,22 +19,23 @@ export const vaultProviderLabels: Record<string, string> = {
 };
 
 export const vaultProviderCategoryLabels: Record<string, string> = {
-	"self-hosted": "Self-hosted capable",
-	cloud: "Cloud only",
-	any: "Any endpoint",
+	managed: "Managed providers",
+	"self-hosted": "Self-hosted / user-operated",
+	internal: "Internal",
 };
 
 export const vaultProviderCategoryDescriptions: Record<string, string> = {
+	managed: "Hosted secrets services reached through their own API.",
 	"self-hosted":
-		"Runs against a secrets engine you operate yourself, or a hosted one.",
-	cloud: "External service reached through its own API.",
-	any: "Plain HTTP endpoint: any JSON or text API can back it.",
+		"Secrets engines you operate yourself, reached through their API.",
+	internal:
+		"Secrets read from the deployment runtime, with no external dependency.",
 };
 
 export const vaultProviderCategoryOrder = [
+	"managed",
 	"self-hosted",
-	"cloud",
-	"any",
+	"internal",
 ] as const;
 
 export type VaultProviderCategoryKey =

@@ -3,6 +3,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { organization } from "./account";
+import { encryptedText } from "./utils";
 
 export const vaultProviderType = pgEnum("VaultProviderType", [
 	"hashicorp",
@@ -229,6 +230,69 @@ export const apiUpdateVaultProvider = createSchema.pick({}).extend({
 
 export const apiFindOneVaultProvider = z.object({
 	vaultProviderId: z.string().min(1),
+});
+
+/**
+ * Secrets stored and managed directly by Notploy. Values are encrypted at rest
+ * (AES-256-GCM) and resolve like any other vault reference, so a provider can
+ * hold both externally-managed and Notploy-managed secrets.
+ */
+export const vaultSecret = pgTable(
+	"vault_secret",
+	{
+		vaultSecretId: text("vaultSecretId")
+			.notNull()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		vaultProviderId: text("vaultProviderId")
+			.notNull()
+			.references(() => vaultProvider.vaultProviderId, {
+				onDelete: "cascade",
+			}),
+		name: text("name").notNull(),
+		value: encryptedText("value").notNull(),
+		description: text("description"),
+		createdAt: text("createdAt")
+			.notNull()
+			.$defaultFn(() => new Date().toISOString()),
+		updatedAt: text("updatedAt")
+			.notNull()
+			.$defaultFn(() => new Date().toISOString()),
+	},
+	(table) => [
+		uniqueIndex("vault_secret_provider_name_idx").on(
+			table.vaultProviderId,
+			table.name,
+		),
+	],
+);
+
+const vaultSecretNameSchema = z
+	.string()
+	.min(1)
+	.max(255)
+	.regex(
+		/^[a-zA-Z0-9._-]+$/,
+		"Name can only contain letters, numbers, dots, dashes and underscores",
+	);
+
+export const apiCreateVaultSecret = z.object({
+	vaultProviderId: z.string().min(1),
+	name: vaultSecretNameSchema,
+	value: z.string().min(1),
+	description: z.string().max(500).optional(),
+});
+
+export const apiUpdateVaultSecret = z.object({
+	vaultSecretId: z.string().min(1),
+	name: vaultSecretNameSchema,
+	// Omitted or empty keeps the stored value, so edits never have to reveal it.
+	value: z.string().optional(),
+	description: z.string().max(500).optional(),
+});
+
+export const apiRemoveVaultSecret = z.object({
+	vaultSecretId: z.string().min(1),
 });
 
 export const apiRemoveVaultProvider = z.object({

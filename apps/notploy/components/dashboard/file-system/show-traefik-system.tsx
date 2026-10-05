@@ -97,7 +97,7 @@ export const ShowTraefikSystem = ({ serverId }: Props) => {
 									<>
 										<Tree
 											data={directories}
-											className="lg:max-w-76 w-full lg:h-[660px] border rounded-lg"
+											className="lg:max-w-76 w-full lg:h-165 border rounded-lg"
 											onSelectChange={(item) => setFile(item?.id || null)}
 											folderIcon={Folder}
 											itemIcon={Workflow}
@@ -106,7 +106,7 @@ export const ShowTraefikSystem = ({ serverId }: Props) => {
 											{file ? (
 												<ShowTraefikFile path={file} serverId={serverId} />
 											) : (
-												<div className="h-full min-h-[300px] w-full flex-col gap-4 flex items-center justify-center border border-dashed rounded-lg">
+												<div className="h-full min-h-75 w-full flex-col gap-4 flex items-center justify-center border border-dashed rounded-lg">
 													<div className="flex items-center justify-center size-14 rounded-full bg-muted">
 														<MousePointerClick className="size-7 text-muted-foreground" />
 													</div>
