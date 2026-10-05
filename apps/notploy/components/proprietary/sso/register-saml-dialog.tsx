@@ -65,7 +65,10 @@ type SamlProviderForm = z.infer<typeof samlProviderSchema>;
 
 interface RegisterSamlDialogProps {
 	providerId?: string;
-	children: React.ReactNode;
+	children?: React.ReactNode;
+	/** Controlled mode, used by the Add provider protocol chooser. */
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
 const formDefaultValues: SamlProviderForm = {
@@ -102,9 +105,17 @@ function parseSamlConfig(samlConfig: string | null): {
 export function RegisterSamlDialog({
 	providerId,
 	children,
+	open: controlledOpen,
+	onOpenChange,
 }: RegisterSamlDialogProps) {
 	const utils = api.useUtils();
-	const [open, setOpen] = useState(false);
+	const [internalOpen, setInternalOpen] = useState(false);
+	const isControlled = controlledOpen !== undefined;
+	const open = isControlled ? controlledOpen : internalOpen;
+	const setOpen = (value: boolean) => {
+		if (!isControlled) setInternalOpen(value);
+		onOpenChange?.(value);
+	};
 
 	const { data } = api.sso.one.useQuery(
 		{ providerId: providerId ?? "" },
@@ -222,7 +233,7 @@ export function RegisterSamlDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>{children}</DialogTrigger>
+			{children ? <DialogTrigger asChild>{children}</DialogTrigger> : null}
 			<DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>

@@ -1,4 +1,8 @@
-import { normalizeTrustedOrigin } from "@notploy/server";
+import {
+	getIdentityProviderHealth,
+	listIdentityProviderDescriptors,
+	normalizeTrustedOrigin,
+} from "@notploy/server";
 import { IS_CLOUD } from "@notploy/server/constants";
 import { db } from "@notploy/server/db";
 import { ssoProvider, user } from "@notploy/server/db/schema";
@@ -137,6 +141,41 @@ export const ssoRouter = createTRPCRouter({
 			samlConfig: sanitizeSsoConfig(provider.samlConfig),
 		}));
 	}),
+	/**
+	 * Capability catalog for every identity provider protocol, so the Console can
+	 * present what each protocol supports before one is configured.
+	 */
+	descriptors: adminProcedure.query(() => listIdentityProviderDescriptors()),
+	/**
+	 * Structured diagnostics for a single provider. OIDC is probed through its
+	 * discovery document; SAML is validated structurally. Secrets are never
+	 * returned.
+	 */
+	health: adminProcedure
+		.input(z.object({ providerId: z.string().min(1) }))
+		.query(async ({ ctx, input }) => {
+			const provider = await db.query.ssoProvider.findFirst({
+				where: and(
+					eq(ssoProvider.providerId, input.providerId),
+					eq(ssoProvider.organizationId, ctx.session.activeOrganizationId),
+				),
+				columns: {
+					providerId: true,
+					issuer: true,
+					domain: true,
+					oidcConfig: true,
+					samlConfig: true,
+				},
+			});
+			if (!provider) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message:
+						"Identity provider not found or you do not have permission to access it",
+				});
+			}
+			return await getIdentityProviderHealth(provider);
+		}),
 	getTrustedOrigins: adminProcedure.query(async ({ ctx }) => {
 		const ownerId = await getOrganizationOwnerId(
 			ctx.session.activeOrganizationId,
