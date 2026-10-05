@@ -74,10 +74,7 @@ const Mongo = (
 		<div className="pb-10">
 			<UseKeyboardNav forPage="mongodb" />
 			<Head>
-				<title>
-					Database: {data?.name} - {data?.environment?.project?.name} |{" "}
-					{appName}
-				</title>
+				<title>{`Database: ${data?.name} - ${data?.environment?.project?.name} | ${appName}`}</title>
 			</Head>
 			<div className="w-full">
 				<Card className="h-full bg-sidebar  p-2.5 rounded-xl w-full">

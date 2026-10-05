@@ -424,7 +424,7 @@ export const getGitProviderRepositoryPermissions = async (
 
 const assertGitProviderAuthorized = (
 	connected: ConnectedGitProvider,
-	adapter: GitProviderAdapter<never>,
+	adapter: GitProviderAdapter<unknown>,
 ) => {
 	if (!adapter.hasRequirements(connected.config)) {
 		throw new TRPCError({

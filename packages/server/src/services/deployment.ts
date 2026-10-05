@@ -1223,7 +1223,15 @@ export const updateDeploymentStatus = async (
 	const deployment = await db.query.deployments.findFirst({
 		where: eq(deployments.deploymentId, deploymentId),
 		with: {
+			// Restricted columns: `application` has >100 columns, and drizzle
+			// serializes relations through `json_build_array`, which Postgres
+			// caps at 100 arguments.
 			application: {
+				columns: {
+					applicationId: true,
+					name: true,
+					environmentId: true,
+				},
 				with: {
 					environment: {
 						with: { project: true },
@@ -1231,6 +1239,11 @@ export const updateDeploymentStatus = async (
 				},
 			},
 			compose: {
+				columns: {
+					composeId: true,
+					name: true,
+					environmentId: true,
+				},
 				with: {
 					environment: {
 						with: { project: true },

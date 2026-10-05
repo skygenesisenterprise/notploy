@@ -105,15 +105,26 @@ const createBetterAuth = () =>
 			},
 		},
 		appName: "Notploy",
+		// Only register a social provider when its credentials are configured:
+		// an entry with missing env vars makes better-auth warn on every boot
+		// and offers a sign-in path that can never succeed.
 		socialProviders: {
-			github: {
-				clientId: process.env.GITHUB_CLIENT_ID as string,
-				clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-			},
-			google: {
-				clientId: process.env.GOOGLE_CLIENT_ID as string,
-				clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-			},
+			...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+				? {
+						github: {
+							clientId: process.env.GITHUB_CLIENT_ID,
+							clientSecret: process.env.GITHUB_CLIENT_SECRET,
+						},
+					}
+				: {}),
+			...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+				? {
+						google: {
+							clientId: process.env.GOOGLE_CLIENT_ID,
+							clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+						},
+					}
+				: {}),
 		},
 		logger: {
 			disabled: process.env.NODE_ENV === "production",

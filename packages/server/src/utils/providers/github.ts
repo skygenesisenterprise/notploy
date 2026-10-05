@@ -375,8 +375,6 @@ export const githubGitProviderAdapter: GitProviderAdapter<Github> = {
 		const repositories = (await octokit.paginate(
 			octokit.rest.apps.listReposAccessibleToInstallation,
 			options?.limit ? { per_page: Math.min(options.limit, 100) } : undefined,
-			// @ts-expect-error octokit's paginate signature is wider than the
-			// installed version types
 		)) as unknown as Awaited<
 			ReturnType<typeof octokit.rest.apps.listReposAccessibleToInstallation>
 		>["data"]["repositories"];
@@ -424,7 +422,8 @@ export const githubGitProviderAdapter: GitProviderAdapter<Github> = {
 
 		return data.map((organization) => ({
 			id: String(organization.id),
-			name: organization.name ?? organization.login,
+			// `GET /user/orgs` only returns the slug, not a display name.
+			name: organization.login,
 			slug: organization.login,
 			avatarUrl: organization.avatar_url ?? null,
 		}));

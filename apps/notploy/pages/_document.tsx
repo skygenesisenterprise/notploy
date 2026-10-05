@@ -40,7 +40,11 @@ export default function Document({
 				{/* Rendered on the server so the correct branding is present on first
 				    paint (and for social scrapers), avoiding a flash of / fallback to
 				    the default Notploy branding. */}
-				<title>{title}</title>
+				{/* `data-react-helmet` is Next's opt-out for titles rendered by a
+				    head manager: the fallback title lives here (it renders after
+				    next/head's titles, so pages that set their own title win) and
+				    Next's dev warning only checks this attribute. */}
+				<title data-react-helmet="true">{title}</title>
 				<meta property="og:title" content={title} />
 				<meta property="og:description" content={description} />
 				<meta property="og:image" content={ogImage} />

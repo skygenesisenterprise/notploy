@@ -147,9 +147,7 @@ export const DashboardLayout = ({ children, metaName }: Props) => {
 	return (
 		<>
 			<Head>
-				<title>
-					{pageTitle} | {appName}
-				</title>
+				<title>{`${pageTitle} | ${appName}`}</title>
 			</Head>
 			<Page>{children}</Page>
 			{isChatEnabled && (

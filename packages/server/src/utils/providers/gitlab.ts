@@ -406,7 +406,7 @@ const normalizeGitlabProject = (project: GitlabProject) => ({
 	fullName: project.path_with_namespace,
 	owner: project.namespace?.full_path?.split("/")[0] ?? null,
 	name: project.name,
-	private: project.visibility && project.visibility !== "public",
+	private: !!project.visibility && project.visibility !== "public",
 	defaultBranch: project.default_branch ?? null,
 	// GitLab branches are addressed by project id, so it has to survive.
 	numericId: project.id,

@@ -1025,10 +1025,7 @@ const EnvironmentPage = (
 	return (
 		<div>
 			<Head>
-				<title>
-					Environment: {currentEnvironment.name} | {projectData?.name} |{" "}
-					{appName}
-				</title>
+				<title>{`Environment: ${currentEnvironment.name} | ${projectData?.name} | ${appName}`}</title>
 			</Head>
 			<div className="w-full">
 				<Card className="h-full bg-sidebar p-2.5 rounded-xl">

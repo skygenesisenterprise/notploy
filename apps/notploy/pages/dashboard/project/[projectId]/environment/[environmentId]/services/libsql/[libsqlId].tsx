@@ -64,10 +64,7 @@ const Libsql = (
 
 			<div className="flex flex-col gap-4">
 				<Head>
-					<title>
-						Database: {data?.name} - {data?.environment?.project?.name} |
-						Notploy
-					</title>
+					<title>{`Database: ${data?.name} - ${data?.environment?.project?.name} | Notploy`}</title>
 				</Head>
 				<Card className="h-full bg-sidebar  p-2.5 rounded-xl w-full">
 					<div className="rounded-xl bg-background shadow-md ">

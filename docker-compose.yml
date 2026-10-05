@@ -178,6 +178,11 @@ services:
       POSTGRES_PORT: 5432
       DATABASE_URL: postgres://${POSTGRES_USER:-notploy}:${POSTGRES_PASSWORD:-notploy}@postgres:5432/${POSTGRES_DB:-notploy}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-notploy-insecure-default-change-me}
+      # Explicit base URL so better-auth does not warn (and derive origins
+      # from the request) in the dev stack, which always runs on localhost.
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      # Keep the dev logs free of Next.js' telemetry opt-out reminder.
+      NEXT_TELEMETRY_DISABLED: "1"
       # Same flavor switch as production, so `NOTPLOY_FLAVOR=cloud make docker-dev`
       # exercises the cloud code paths.
       IS_CLOUD: ${IS_CLOUD:-false}

@@ -544,10 +544,12 @@ const bitbucketPaginate = async <T>(
 	let url: string | null = firstUrl;
 
 	while (url) {
-		const page = await bitbucketFetch<{ values?: T[]; next?: string }>(
-			bitbucketProvider,
-			url,
-		);
+		// Annotated explicitly: inferring `page` from `url` would be circular,
+		// since `url` is re-assigned from `page.next` on the next iteration.
+		const page: { values?: T[]; next?: string } = await bitbucketFetch<{
+			values?: T[];
+			next?: string;
+		}>(bitbucketProvider, url);
 		results.push(...(page.values ?? []));
 
 		if (limit && results.length >= limit) {

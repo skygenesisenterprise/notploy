@@ -97,9 +97,7 @@ const Service = (
 		<div className="pb-10">
 			<UseKeyboardNav forPage="compose" />
 			<Head>
-				<title>
-					Compose: {data?.name} - {data?.environment?.project?.name} | {appName}
-				</title>
+				<title>{`Compose: ${data?.name} - ${data?.environment?.project?.name} | ${appName}`}</title>
 			</Head>
 			<div className="w-full">
 				<Card className="h-full bg-sidebar p-2.5 rounded-xl w-full">
