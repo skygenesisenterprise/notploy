@@ -18,13 +18,15 @@ import {
 	Waypoints,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	ConsoleBody,
 	ConsoleDetailValue,
+	ConsoleEmpty,
 	ConsoleError,
 	ConsoleHeader,
 	ConsoleLoading,
+	ConsoleNoMatch,
 	ConsoleRefresh,
 	ConsoleSearch,
 	ConsoleShell,
@@ -51,13 +53,20 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { api, type RouterOutputs } from "@/utils/api";
 
 type SwarmData = RouterOutputs["swarm"]["getConsole"];
 type SwarmNode = SwarmData["nodes"][number];
 type SwarmService = SwarmData["services"][number];
 type SwarmTask = SwarmData["tasks"][number];
+type SwarmEntityType = "nodes" | "services" | "tasks";
 
 interface Props {
 	serverId?: string;
@@ -369,7 +378,8 @@ const ServiceDetails = ({
 };
 
 export const SwarmConsole = ({ serverId }: Props) => {
-	const [tab, setTab] = useState("nodes");
+	const [typeFilter, setTypeFilter] = useState<SwarmEntityType>("nodes");
+	const [stateFilter, setStateFilter] = useState("all");
 	const [search, setSearch] = useState("");
 	const [selectedNode, setSelectedNode] = useState<SwarmNode | null>(null);
 	const [selectedService, setSelectedService] = useState<SwarmService | null>(
@@ -402,6 +412,13 @@ export const SwarmConsole = ({ serverId }: Props) => {
 			{ refetchInterval: 30_000, refetchOnWindowFocus: false, retry: false },
 		);
 
+	// Filtering can leave the pagination on a now-empty page.
+	useEffect(() => {
+		setNodePagination((pagination) => ({ ...pagination, pageIndex: 0 }));
+		setServicePagination((pagination) => ({ ...pagination, pageIndex: 0 }));
+		setTaskPagination((pagination) => ({ ...pagination, pageIndex: 0 }));
+	}, [search, typeFilter, stateFilter]);
+
 	const nodes = useMemo(
 		() =>
 			(data?.nodes ?? []).filter((node) =>
@@ -411,21 +428,29 @@ export const SwarmConsole = ({ serverId }: Props) => {
 					node.role,
 					node.state,
 					node.availability,
-				]),
+				]) && (stateFilter === "all" || node.state === stateFilter),
 			),
-		[data?.nodes, search],
+		[data?.nodes, search, stateFilter],
 	);
 	const services = useMemo(
 		() =>
-			(data?.services ?? []).filter((service) =>
-				searchable(search, [
-					service.name,
-					service.image,
-					service.mode,
-					service.updateStatus,
-				]),
-			),
-		[data?.services, search],
+			(data?.services ?? []).filter((service) => {
+				const state =
+					service.desiredReplicas !== null &&
+					service.runningReplicas < service.desiredReplicas
+						? "degraded"
+						: "running";
+				return (
+					searchable(search, [
+						service.name,
+						service.image,
+						service.mode,
+						service.updateStatus,
+					]) &&
+					(stateFilter === "all" || state === stateFilter)
+				);
+			}),
+		[data?.services, search, stateFilter],
 	);
 	const tasks = useMemo(
 		() =>
@@ -438,10 +463,19 @@ export const SwarmConsole = ({ serverId }: Props) => {
 					task.error,
 					task.message,
 					task.containerId,
-				]),
+				]) && (stateFilter === "all" || task.state === stateFilter),
 			),
-		[data?.tasks, search],
+		[data?.tasks, search, stateFilter],
 	);
+
+	const stateOptions = useMemo(() => {
+		if (typeFilter === "services") return ["running", "degraded"];
+		const states =
+			typeFilter === "nodes"
+				? (data?.nodes ?? []).map((node) => node.state)
+				: (data?.tasks ?? []).map((task) => task.state);
+		return [...new Set(states)].sort();
+	}, [data?.nodes, data?.tasks, typeFilter]);
 
 	const nodeColumns = useMemo<ColumnDef<SwarmNode>[]>(
 		() => [
@@ -667,9 +701,19 @@ export const SwarmConsole = ({ serverId }: Props) => {
 				service.desiredReplicas !== null &&
 				service.runningReplicas < service.desiredReplicas,
 		).length ?? 0;
+	const hasInventory =
+		(data?.nodes.length ?? 0) +
+			(data?.services.length ?? 0) +
+			(data?.tasks.length ?? 0) >
+		0;
 	const serverQuery = serverId
 		? `?serverId=${encodeURIComponent(serverId)}`
 		: "";
+
+	const clearFilters = () => {
+		setSearch("");
+		setStateFilter("all");
+	};
 
 	return (
 		<ConsoleShell>
@@ -677,6 +721,39 @@ export const SwarmConsole = ({ serverId }: Props) => {
 				icon={Waypoints}
 				title="Swarm"
 				description="Manage Docker Swarm clusters, nodes and workload orchestration."
+				status={
+					data && !isPending && !isError ? (
+						<div className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1 text-sm">
+							<span
+								className={`size-2.5 rounded-full ${
+									data.state === "active"
+										? "bg-green-500"
+										: "bg-muted-foreground"
+								}`}
+								aria-hidden
+							/>
+							<span className="font-medium">
+								{data.state === "active"
+									? "Swarm active"
+									: data.state === "inactive"
+										? "Swarm not initialized"
+										: `Swarm ${data.state}`}
+							</span>
+							<Badge variant={data.state === "active" ? "green" : "secondary"}>
+								{data.isManager
+									? "Manager"
+									: data.state === "active"
+										? "Worker"
+										: "No active node"}
+							</Badge>
+							<span className="text-xs text-muted-foreground">
+								Checked {new Date(data.checkedAt).toLocaleTimeString()}
+								{data.engineVersion && ` · Docker ${data.engineVersion}`}
+								{data.clusterId && ` · Cluster ${data.clusterId}`}
+							</span>
+						</div>
+					) : undefined
+				}
 				actions={
 					<ConsoleRefresh
 						onClick={() => void refetch()}
@@ -688,204 +765,192 @@ export const SwarmConsole = ({ serverId }: Props) => {
 
 			<ConsoleBody>
 				{isPending ? (
-					<ConsoleLoading label="Loading Swarm cluster\u2026" />
+					<ConsoleLoading label="Loading Swarm cluster…" />
 				) : isError ? (
 					<ConsoleError
 						message={`Could not retrieve Docker Swarm state: ${error.message}`}
 						onRetry={() => void refetch()}
 					/>
+				) : data.state !== "active" ? (
+					<ConsoleEmpty
+						icon={CircleAlert}
+						title="Swarm is not initialized on this Docker Engine"
+						description={`Docker reports the local Swarm state as "${data.state}". Initialize or join a cluster using your existing Docker administration process; Notploy does not expose a Swarm initialization action.`}
+					/>
+				) : !data.controlPlaneAvailable ? (
+					<ConsoleEmpty
+						icon={Server}
+						title="Manager control plane unavailable"
+						description="This Docker Engine is a Swarm worker. Docker reports the node as active, but node, service and task inventories must be queried from a manager."
+					>
+						<p className="text-xs text-muted-foreground">
+							Node ID: {valueOrUnavailable(data.nodeId)}
+						</p>
+					</ConsoleEmpty>
+				) : !hasInventory ? (
+					<ConsoleEmpty
+						icon={Waypoints}
+						title="No Swarm inventory"
+						description="Docker Swarm reported no nodes, services or tasks for this engine."
+					/>
 				) : (
 					<>
-						<div className="flex flex-wrap items-center justify-between gap-3">
-							<div className="flex items-center gap-2">
-								<span
-									className={`size-2.5 rounded-full ${data.state === "active" ? "bg-green-500" : "bg-muted-foreground"}`}
-									aria-hidden
+						<ConsoleSummary>
+							<SummaryMetric
+								label="Cluster state"
+								value="Active"
+								detail={
+									data.isManager
+										? "Manager control plane available"
+										: "Worker node"
+								}
+							/>
+							<SummaryMetric
+								label="Nodes"
+								value={data.nodes.length}
+								detail={`${readyNodes} ready · ${data.nodes.length - readyNodes} not ready`}
+							/>
+							<SummaryMetric
+								label="Managers"
+								value={managers}
+								detail={`${Math.max(data.nodes.length - managers, 0)} workers`}
+							/>
+							<SummaryMetric
+								label="Swarm Services"
+								value={data.services.length}
+								detail={`${degradedServices} below desired replicas`}
+							/>
+							<SummaryMetric
+								label="Running Tasks"
+								value={runningTasks}
+								detail={`${data.tasks.length} total tasks`}
+							/>
+						</ConsoleSummary>
+
+						<ConsoleToolbar className="md:grid-cols-[minmax(14rem,1fr)_10rem_10rem]">
+							<ConsoleSearch
+								value={search}
+								onChange={setSearch}
+								placeholder="Search nodes, services, tasks…"
+								ariaLabel="Search Swarm inventory"
+							/>
+							<Select
+								value={typeFilter}
+								onValueChange={(value: SwarmEntityType) => {
+									setTypeFilter(value);
+									setStateFilter("all");
+								}}
+							>
+								<SelectTrigger aria-label="Filter by entity type">
+									<SelectValue placeholder="Type" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="nodes">
+										Nodes ({data.nodes.length})
+									</SelectItem>
+									<SelectItem value="services">
+										Swarm Services ({data.services.length})
+									</SelectItem>
+									<SelectItem value="tasks">
+										Tasks ({data.tasks.length})
+									</SelectItem>
+								</SelectContent>
+							</Select>
+							<Select value={stateFilter} onValueChange={setStateFilter}>
+								<SelectTrigger aria-label="Filter by state">
+									<SelectValue placeholder="All states" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All states</SelectItem>
+									{stateOptions.map((state) => (
+										<SelectItem key={state} value={state}>
+											{state}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</ConsoleToolbar>
+
+						{typeFilter === "nodes" ? (
+							nodes.length === 0 ? (
+								<ConsoleNoMatch
+									message="No nodes match these search and filter settings."
+									onClear={clearFilters}
 								/>
-								<span className="font-medium">
-									{data.state === "active"
-										? "Swarm active"
-										: data.state === "inactive"
-											? "Swarm not initialized"
-											: `Swarm ${data.state}`}
-								</span>
-								<Badge
-									variant={data.state === "active" ? "green" : "secondary"}
-								>
-									{data.isManager
-										? "Manager"
-										: data.state === "active"
-											? "Worker"
-											: "No active node"}
-								</Badge>
-							</div>
-							<p className="text-xs text-muted-foreground">
-								Checked {new Date(data.checkedAt).toLocaleTimeString()}
-								{data.engineVersion && ` \u00b7 Docker ${data.engineVersion}`}
-								{data.clusterId && ` \u00b7 Cluster ${data.clusterId}`}
-							</p>
-						</div>
-
-						{data.state !== "active" ? (
-							<div className="space-y-3 rounded-md border border-dashed p-6">
-								<div className="flex items-center gap-2 font-medium">
-									<CircleAlert
-										className="size-4 text-muted-foreground"
-										aria-hidden
-									/>
-									Swarm is not initialized on this Docker Engine
-								</div>
-								<p className="text-sm text-muted-foreground">
-									Docker reports the local Swarm state as \u201c{data.state}
-									\u201d. Initialize or join a cluster using your existing
-									Docker administration process; Notploy does not expose a Swarm
-									initialization action.
-								</p>
-							</div>
-						) : !data.controlPlaneAvailable ? (
-							<div className="space-y-2 rounded-md border border-dashed p-6">
-								<h2 className="font-medium">
-									Manager control plane unavailable
-								</h2>
-								<p className="text-sm text-muted-foreground">
-									This Docker Engine is a Swarm worker. Docker reports the node
-									as active, but node, service and task inventories must be
-									queried from a manager.
-								</p>
-								<p className="text-xs text-muted-foreground">
-									Node ID: {valueOrUnavailable(data.nodeId)}
-								</p>
-							</div>
+							) : (
+								<ConsoleTable
+									table={nodeTable}
+									empty="No nodes were returned by the Swarm manager."
+								/>
+							)
+						) : typeFilter === "services" ? (
+							services.length === 0 ? (
+								<ConsoleNoMatch
+									message="No Swarm Services match these search and filter settings."
+									onClear={clearFilters}
+								/>
+							) : (
+								<ConsoleTable
+									table={serviceTable}
+									empty="No Swarm Services were returned by the manager."
+								/>
+							)
+						) : tasks.length === 0 ? (
+							<ConsoleNoMatch
+								message="No Swarm Tasks match these search and filter settings."
+								onClear={clearFilters}
+							/>
 						) : (
-							<>
-								<ConsoleSummary>
-									<SummaryMetric
-										label="Cluster state"
-										value="Active"
-										detail={
-											data.isManager
-												? "Manager control plane available"
-												: "Worker node"
-										}
-									/>
-									<SummaryMetric
-										label="Nodes"
-										value={data.nodes.length}
-										detail={`${readyNodes} ready \u00b7 ${data.nodes.length - readyNodes} not ready`}
-									/>
-									<SummaryMetric
-										label="Managers"
-										value={managers}
-										detail={`${Math.max(data.nodes.length - managers, 0)} workers`}
-									/>
-									<SummaryMetric
-										label="Swarm Services"
-										value={data.services.length}
-										detail={`${degradedServices} below desired replicas`}
-									/>
-									<SummaryMetric
-										label="Running Tasks"
-										value={runningTasks}
-										detail={`${data.tasks.length} total tasks`}
-									/>
-								</ConsoleSummary>
-
-								<ConsoleToolbar className="sm:grid-cols-[minmax(14rem,1fr)_auto]">
-									<ConsoleSearch
-										value={search}
-										onChange={setSearch}
-										placeholder="Search nodes, services, tasks\u2026"
-										ariaLabel="Search Swarm inventory"
-									/>
-									<div className="flex items-center gap-2 text-sm text-muted-foreground">
-										<Server className="size-4" aria-hidden />
-										Inventory returned by Docker Swarm manager
-									</div>
-								</ConsoleToolbar>
-
-								<Tabs value={tab} onValueChange={setTab}>
-									<TabsList className="w-full justify-start overflow-x-auto sm:w-fit">
-										<TabsTrigger value="nodes">
-											<Server className="size-4" aria-hidden />
-											Nodes ({data.nodes.length})
-										</TabsTrigger>
-										<TabsTrigger value="services">
-											<Boxes className="size-4" aria-hidden />
-											Swarm Services ({data.services.length})
-										</TabsTrigger>
-										<TabsTrigger value="tasks">
-											<Container className="size-4" aria-hidden />
-											Tasks ({data.tasks.length})
-										</TabsTrigger>
-									</TabsList>
-									<TabsContent value="nodes" className="space-y-3">
-										<ConsoleTable
-											table={nodeTable}
-											empty="No nodes were returned by the Swarm manager."
-										/>
-									</TabsContent>
-									<TabsContent value="services" className="space-y-3">
-										<ConsoleTable
-											table={serviceTable}
-											empty="No Swarm Services were returned by the manager."
-										/>
-									</TabsContent>
-									<TabsContent value="tasks" className="space-y-3">
-										<ConsoleTable
-											table={taskTable}
-											empty="No Swarm Tasks were returned by the manager."
-										/>
-									</TabsContent>
-								</Tabs>
-
-								{degradedServices > 0 && (
-									<div className="space-y-2">
-										<h2 className="font-medium">
-											Services below desired replicas
-										</h2>
-										{data.services
-											.filter(
-												(service) =>
-													service.desiredReplicas !== null &&
-													service.runningReplicas < service.desiredReplicas,
-											)
-											.map((service) => (
-												<div
-													key={service.id}
-													className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-500/30 p-3 text-sm"
-												>
-													<button
-														type="button"
-														className="font-medium hover:underline"
-														onClick={() => setSelectedService(service)}
-													>
-														{service.name}
-													</button>
-													<span className="text-muted-foreground">
-														{service.runningReplicas} running /{" "}
-														{service.desiredReplicas} desired
-													</span>
-												</div>
-											))}
-									</div>
-								)}
-
-								<div className="flex flex-wrap items-center gap-2 border-t pt-4">
-									<Button asChild size="sm" variant="outline">
-										<Link href={`/dashboard/containers${serverQuery}`}>
-											<Container className="size-4" aria-hidden />
-											Containers
-										</Link>
-									</Button>
-									<Button asChild size="sm" variant="outline">
-										<Link href={`/dashboard/networks${serverQuery}`}>
-											<Network className="size-4" aria-hidden />
-											Networks
-										</Link>
-									</Button>
-								</div>
-							</>
+							<ConsoleTable
+								table={taskTable}
+								empty="No Swarm Tasks were returned by the manager."
+							/>
 						)}
+
+						{degradedServices > 0 && (
+							<div className="space-y-2">
+								<h2 className="font-medium">Services below desired replicas</h2>
+								{data.services
+									.filter(
+										(service) =>
+											service.desiredReplicas !== null &&
+											service.runningReplicas < service.desiredReplicas,
+									)
+									.map((service) => (
+										<div
+											key={service.id}
+											className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-500/30 p-3 text-sm"
+										>
+											<button
+												type="button"
+												className="font-medium hover:underline"
+												onClick={() => setSelectedService(service)}
+											>
+												{service.name}
+											</button>
+											<span className="text-muted-foreground">
+												{service.runningReplicas} running /{" "}
+												{service.desiredReplicas} desired
+											</span>
+										</div>
+									))}
+							</div>
+						)}
+
+						<div className="flex flex-wrap items-center gap-2 border-t pt-4">
+							<Button asChild size="sm" variant="outline">
+								<Link href={`/dashboard/containers${serverQuery}`}>
+									<Container className="size-4" aria-hidden />
+									Containers
+								</Link>
+							</Button>
+							<Button asChild size="sm" variant="outline">
+								<Link href={`/dashboard/networks${serverQuery}`}>
+									<Network className="size-4" aria-hidden />
+									Networks
+								</Link>
+							</Button>
+						</div>
 					</>
 				)}
 			</ConsoleBody>

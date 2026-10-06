@@ -126,6 +126,7 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 	}, [isOpen]);
 
 	const onSubmit = async (data: Schema) => {
+		let hostKeyFingerprint: string | undefined;
 		try {
 			if (serverId) {
 				await updateServer({
@@ -146,7 +147,7 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 					});
 					return;
 				}
-				await createWithPassword({
+				const created = await createWithPassword({
 					name: data.name,
 					description: data.description || "",
 					ipAddress: data.ipAddress.trim(),
@@ -156,11 +157,17 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 					serverType: data.serverType,
 					enableDockerCleanup: data.enableDockerCleanup,
 				});
+				hostKeyFingerprint = created?.hostKeyFingerprint;
 			}
 
 			await utils.server.all.invalidate();
 			await refetchServer();
 			toast.success(serverId ? "Server updated" : "Server connected");
+			if (hostKeyFingerprint) {
+				toast.info(`Trusted host key ${hostKeyFingerprint}`, {
+					duration: 8000,
+				});
+			}
 			form.reset({ ...form.getValues(), sshPassword: "" });
 			setIsOpen(false);
 		} catch (submitError) {
@@ -385,7 +392,8 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 										</FormControl>
 										<FormDescription>
 											Used once to add Notploy&apos;s SSH key to this account.
-											The password is not stored.
+											The password is not stored. The account must be root or have
+											passwordless sudo access.
 										</FormDescription>
 										<FormMessage />
 									</FormItem>

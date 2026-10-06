@@ -6,6 +6,10 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import {
+	type OtpProviderIconKey,
+	otpProviderIcons,
+} from "@/components/icons/otp-provider-icons";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -32,6 +36,13 @@ import {
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
@@ -40,11 +51,34 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { api } from "@/utils/api";
 
+const AUTHENTICATOR_APPS = [
+	{ id: "googleauthenticator", label: "Google Authenticator" },
+	{ id: "authy", label: "Authy" },
+	{ id: "microsoftauthenticator", label: "Microsoft Authenticator" },
+	{ id: "onepassword", label: "1Password" },
+	{ id: "bitwarden", label: "Bitwarden" },
+	{ id: "freeotp", label: "FreeOTP" },
+] as const satisfies ReadonlyArray<{
+	id: OtpProviderIconKey;
+	label: string;
+}>;
+
+type AuthenticatorAppId = (typeof AUTHENTICATOR_APPS)[number]["id"];
+
+const AUTHENTICATOR_APP_IDS = AUTHENTICATOR_APPS.map((app) => app.id) as [
+	AuthenticatorAppId,
+	...AuthenticatorAppId[],
+];
+
+const OTP_ISSUER = "Notploy";
+
+const DEFAULT_AUTHENTICATOR_APP = AUTHENTICATOR_APPS[0].id;
+
 const PasswordSchema = z.object({
 	password: z.string().min(8, {
 		message: "Password is required",
 	}),
-	issuer: z.string().optional(),
+	authenticatorApp: z.enum(AUTHENTICATOR_APP_IDS),
 });
 
 const PinSchema = z.object({
@@ -135,6 +169,7 @@ export const Enable2FA = () => {
 		resolver: zodResolver(PasswordSchema),
 		defaultValues: {
 			password: "",
+			authenticatorApp: DEFAULT_AUTHENTICATOR_APP,
 		},
 	});
 
@@ -153,7 +188,7 @@ export const Enable2FA = () => {
 			setOtpValue("");
 			passwordForm.reset({
 				password: "",
-				issuer: "",
+				authenticatorApp: DEFAULT_AUTHENTICATOR_APP,
 			});
 		}
 	}, [isDialogOpen, passwordForm]);
@@ -164,12 +199,17 @@ export const Enable2FA = () => {
 		}
 	}, [step]);
 
+	const selectedAuthenticatorApp =
+		AUTHENTICATOR_APPS.find(
+			(app) => app.id === passwordForm.watch("authenticatorApp"),
+		)?.label ?? "your authenticator app";
+
 	const handlePasswordSubmit = async (formData: PasswordForm) => {
 		setIsPasswordLoading(true);
 		try {
 			const { data: enableData, error } = await authClient.twoFactor.enable({
 				password: formData.password,
-				issuer: formData.issuer,
+				issuer: OTP_ISSUER,
 			});
 
 			if (!enableData) {
@@ -269,7 +309,7 @@ export const Enable2FA = () => {
 					<DialogDescription>
 						{step === "password"
 							? "Enter your password to begin 2FA setup"
-							: "Scan the QR code and verify with your authenticator app"}
+							: `Scan the QR code with ${selectedAuthenticatorApp} and verify the code`}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -302,20 +342,33 @@ export const Enable2FA = () => {
 							/>
 							<FormField
 								control={passwordForm.control}
-								name="issuer"
+								name="authenticatorApp"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Issuer</FormLabel>
-										<FormControl>
-											<Input
-												type="text"
-												placeholder="Enter your issuer"
-												{...field}
-											/>
-										</FormControl>
+										<FormLabel>Authenticator app</FormLabel>
+										<Select onValueChange={field.onChange} value={field.value}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="Select an authenticator app" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{AUTHENTICATOR_APPS.map((app) => {
+													const Icon = otpProviderIcons[app.id];
+													return (
+														<SelectItem key={app.id} value={app.id}>
+															<div className="flex flex-row items-center gap-2">
+																<Icon className="size-4 shrink-0" />
+																{app.label}
+															</div>
+														</SelectItem>
+													);
+												})}
+											</SelectContent>
+										</Select>
 										<FormDescription>
-											Use a custom issuer to identify the service you're
-											authenticating with.
+											Choose the authenticator app you use. Notploy is shown as
+											the issuer for this account.
 										</FormDescription>
 										<FormMessage />
 									</FormItem>

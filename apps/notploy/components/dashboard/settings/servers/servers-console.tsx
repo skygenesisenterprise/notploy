@@ -1,3 +1,14 @@
+"use client";
+
+import {
+	type ColumnDef,
+	getCoreRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	type PaginationState,
+	type SortingState,
+	useReactTable,
+} from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
 import {
 	Activity,
@@ -24,7 +35,9 @@ import {
 	ConsoleSearch,
 	ConsoleShell,
 	ConsoleSummary,
+	ConsoleTable,
 	ConsoleToolbar,
+	SortableHeader,
 	SummaryMetric,
 } from "@/components/shared/console-shell";
 import { Badge } from "@/components/ui/badge";
@@ -56,16 +69,44 @@ type StatusFilter = "all" | "active" | "inactive";
 type RoleFilter = "all" | "deploy" | "build";
 type Server = RouterOutputs["server"]["all"][number];
 
-export const ShowServers = () => {
+interface Props {
+	/** Server selected through the shared server filter, highlighted in the table. */
+	serverId?: string;
+}
+
+/**
+ * Servers management console. Follows the shared Infrastructure console design
+ * (same shell, summary, toolbar, table and state rendering as Networks) while
+ * keeping every server operation available: connection health, setup,
+ * terminal, edit, delete, monitoring and the resource detail dialog.
+ */
+export const ServersConsole = ({ serverId }: Props) => {
 	const router = useRouter();
+	const utils = api.useUtils();
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 	const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+	const [sorting, setSorting] = useState<SortingState>([
+		{ id: "name", desc: false },
+	]);
+	const [pagination, setPagination] = useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 10,
+	});
+
 	const serversQuery = api.server.all.useQuery();
 	const cloudQuery = api.settings.isCloud.useQuery();
 	const permissionsQuery = api.user.getPermissions.useQuery();
 	const permissions = permissionsQuery.data;
 	const canReadServices = !!permissions?.service.read;
+	const canReadDocker = !!permissions?.docker.read;
+	const canReadServer = !!permissions?.server.read;
+	const canReadMonitoring = !!permissions?.monitoring.read;
+	const canCreateServer = !!permissions?.server.create;
+	const canDeleteServer = !!permissions?.server.delete;
+	const canUseTerminal = !!permissions?.server.terminal;
+	const isCloud = !!cloudQuery.data;
+
 	const servicesQuery = api.overview.services.useQuery(undefined, {
 		enabled: canReadServices && cloudQuery.data === false,
 		refetchInterval: 30_000,
@@ -79,6 +120,7 @@ export const ShowServers = () => {
 		(server) => server.serverStatus === "active",
 	).length;
 	const disabledCount = servers.length - enabledCount;
+
 	const normalizedSearch = search.trim().toLocaleLowerCase();
 	const localMatches =
 		!normalizedSearch ||
@@ -88,6 +130,7 @@ export const ShowServers = () => {
 		localMatches &&
 		(statusFilter === "all" || statusFilter === "active") &&
 		(roleFilter === "all" || roleFilter === "deploy");
+
 	const filteredServers = useMemo(
 		() =>
 			servers.filter((server) => {
@@ -104,6 +147,7 @@ export const ShowServers = () => {
 			}),
 		[normalizedSearch, roleFilter, servers, statusFilter],
 	);
+
 	const isLoading =
 		serversQuery.isPending ||
 		cloudQuery.isPending ||
@@ -114,6 +158,140 @@ export const ShowServers = () => {
 		serversQuery.error?.message ??
 		cloudQuery.error?.message ??
 		permissionsQuery.error?.message;
+
+	const columns = useMemo<ColumnDef<Server>[]>(
+		() => [
+			{
+				accessorKey: "name",
+				header: ({ column }) => <SortableHeader column={column} title="Name" />,
+				cell: ({ row }) => (
+					<div className="space-y-1">
+						<div className="flex flex-wrap items-center gap-2">
+							<ServerIcon
+								className="size-4 shrink-0 text-muted-foreground"
+								aria-hidden
+							/>
+							<span className="font-medium">{row.original.name}</span>
+							{row.original.serverId === serverId && (
+								<Badge variant="outline">Selected</Badge>
+							)}
+							<Badge
+								variant={
+									row.original.serverStatus === "active"
+										? "secondary"
+										: "outline"
+								}
+							>
+								{row.original.serverStatus === "active"
+									? "Enabled"
+									: "Disabled"}
+							</Badge>
+						</div>
+						{row.original.description && (
+							<p className="max-w-xs truncate text-xs text-muted-foreground">
+								{row.original.description}
+							</p>
+						)}
+					</div>
+				),
+			},
+			{
+				id: "address",
+				accessorFn: (row) => `${row.ipAddress}:${row.port}`,
+				header: "Address",
+				enableSorting: false,
+				cell: ({ row }) => (
+					<span className="font-mono text-xs">
+						{row.original.ipAddress}:{row.original.port}
+					</span>
+				),
+			},
+			{
+				accessorKey: "serverType",
+				header: ({ column }) => <SortableHeader column={column} title="Role" />,
+				cell: ({ row }) => (
+					<Badge variant="outline">
+						{row.original.serverType === "build" ? "Build" : "Deployment"}
+					</Badge>
+				),
+			},
+			{
+				id: "status",
+				header: "Connection",
+				enableSorting: false,
+				cell: ({ row }) => (
+					<ServerConnectionBadge
+						server={row.original}
+						canCheck={canReadDocker && canReadServer}
+					/>
+				),
+			},
+			{
+				id: "workloads",
+				accessorFn: (row) => row.totalSum,
+				header: ({ column }) => (
+					<SortableHeader column={column} title="Workloads" />
+				),
+				cell: ({ row }) =>
+					canReadServices ? (
+						<span className="tabular-nums">{row.original.totalSum}</span>
+					) : (
+						<span className="text-muted-foreground">—</span>
+					),
+			},
+			{
+				id: "actions",
+				enableSorting: false,
+				header: () => <span className="sr-only">Actions</span>,
+				cell: ({ row }) => (
+					<ServerRowActions
+						server={row.original}
+						canReadDocker={canReadDocker}
+						canReadServer={canReadServer}
+						canReadMonitoring={canReadMonitoring}
+						canCreateServer={canCreateServer}
+						canDeleteServer={canDeleteServer}
+						canUseTerminal={canUseTerminal}
+						isCloud={isCloud}
+						onRefresh={() =>
+							void utils.docker.getServerHealth.invalidate({
+								serverId: row.original.serverId,
+							})
+						}
+					/>
+				),
+			},
+		],
+		[
+			canCreateServer,
+			canDeleteServer,
+			canReadDocker,
+			canReadMonitoring,
+			canReadServer,
+			canReadServices,
+			canUseTerminal,
+			isCloud,
+			serverId,
+			utils,
+		],
+	);
+
+	const table = useReactTable({
+		data: filteredServers,
+		columns,
+		state: { sorting, pagination },
+		onSortingChange: setSorting,
+		onPaginationChange: setPagination,
+		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+	});
+
+	const clearFilters = () => {
+		setSearch("");
+		setStatusFilter("all");
+		setRoleFilter("all");
+	};
 
 	return (
 		<div className="w-full space-y-4">
@@ -136,7 +314,6 @@ export const ShowServers = () => {
 							{cloudQuery.data && (
 								<Button
 									variant="ghost"
-									size="sm"
 									onClick={() =>
 										window.location.assign(
 											"/dashboard/settings/servers?success=true",
@@ -146,7 +323,7 @@ export const ShowServers = () => {
 									Reset onboarding
 								</Button>
 							)}
-							{permissions?.server.create && <HandleServers />}
+							{canCreateServer && <HandleServers />}
 						</>
 					}
 				/>
@@ -207,7 +384,7 @@ export const ShowServers = () => {
 						)}
 
 					{isLoading ? (
-						<ConsoleLoading label="Loading execution servers\u2026" />
+						<ConsoleLoading label="Loading execution servers…" />
 					) : isError ? (
 						<ConsoleError
 							message={errorMessage ?? "Could not load execution servers."}
@@ -223,40 +400,26 @@ export const ShowServers = () => {
 							title="No execution servers configured"
 							description="Servers are the machines Notploy connects to run and manage your workloads. Add a server to start managing your infrastructure."
 						>
-							{permissions?.server.create && <HandleServers />}
+							{canCreateServer && <HandleServers />}
 						</ConsoleEmpty>
 					) : filteredServers.length === 0 && !showFilteredLocal ? (
 						<ConsoleNoMatch
 							message="No servers match these search and filter settings."
-							onClear={() => {
-								setSearch("");
-								setStatusFilter("all");
-								setRoleFilter("all");
-							}}
+							onClear={clearFilters}
 						/>
 					) : (
-						<div className="space-y-3">
+						<div className="space-y-4">
 							{showFilteredLocal && (
 								<LocalExecutionTarget
-									canReadDocker={!!permissions?.docker.read}
+									canReadDocker={canReadDocker}
 									canReadServices={canReadServices}
 									services={localServices}
 								/>
 							)}
-							{filteredServers.map((server) => (
-								<ServerFleetCard
-									key={server.serverId}
-									server={server}
-									canReadDocker={!!permissions?.docker.read}
-									canReadServer={!!permissions?.server.read}
-									canReadMonitoring={!!permissions?.monitoring.read}
-									canReadServices={canReadServices}
-									canCreateServer={!!permissions?.server.create}
-									canDeleteServer={!!permissions?.server.delete}
-									canUseTerminal={!!permissions?.server.terminal}
-									isCloud={!!cloudQuery.data}
-								/>
-							))}
+							<ConsoleTable
+								table={table}
+								empty="No servers match these search and filter settings."
+							/>
 						</div>
 					)}
 				</ConsoleBody>
@@ -265,43 +428,127 @@ export const ShowServers = () => {
 	);
 };
 
-function ServerFleetCard({
+function ServerRowActions({
 	server,
 	canReadDocker,
 	canReadServer,
 	canReadMonitoring,
-	canReadServices,
 	canCreateServer,
 	canDeleteServer,
 	canUseTerminal,
 	isCloud,
+	onRefresh,
 }: {
 	server: Server;
 	canReadDocker: boolean;
 	canReadServer: boolean;
 	canReadMonitoring: boolean;
-	canReadServices: boolean;
 	canCreateServer: boolean;
 	canDeleteServer: boolean;
 	canUseTerminal: boolean;
 	isCloud: boolean;
+	onRefresh: () => void;
+}) {
+	const isActive = server.serverStatus === "active";
+	return (
+		<div className="flex flex-wrap items-center justify-end gap-1">
+			<ServerResourceDetails server={server} />
+			{canReadDocker && canReadServer && (
+				<Button
+					variant="outline"
+					size="icon"
+					onClick={onRefresh}
+					disabled={!isActive}
+					aria-label={`Refresh connection status for ${server.name}`}
+					title="Test connection / refresh"
+				>
+					<RefreshCw className="size-4" aria-hidden />
+				</Button>
+			)}
+			{isActive && canCreateServer && (
+				<>
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<div>
+									<SetupServer serverId={server.serverId} asButton />
+								</div>
+							</TooltipTrigger>
+							<TooltipContent>Setup and validate server</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+					{server.sshKeyId && server.serverType !== "build" && (
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<div>
+										<ShowServerActions serverId={server.serverId} asButton />
+									</div>
+								</TooltipTrigger>
+								<TooltipContent>Server operations</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+					)}
+				</>
+			)}
+			{isActive && canUseTerminal && server.sshKeyId && (
+				<TerminalModal serverId={server.serverId} asButton>
+					<Button
+						variant="outline"
+						size="icon"
+						aria-label={`Open terminal for ${server.name}`}
+					>
+						<Terminal className="size-4" aria-hidden />
+					</Button>
+				</TerminalModal>
+			)}
+			{isActive && canCreateServer && (
+				<HandleServers serverId={server.serverId} asButton />
+			)}
+			{canReadMonitoring && isCloud && isActive && (
+				<Button asChild variant="outline" size="sm">
+					<Link
+						href={`/dashboard/monitoring?workspace=server:${server.serverId}`}
+					>
+						Monitoring
+					</Link>
+				</Button>
+			)}
+			{canDeleteServer && (
+				<DeleteServerModal serverId={server.serverId} serverName={server.name}>
+					<Button
+						variant="ghost"
+						size="icon"
+						className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+						aria-label={`Remove ${server.name}`}
+					>
+						<Trash2 className="size-4" aria-hidden />
+					</Button>
+				</DeleteServerModal>
+			)}
+		</div>
+	);
+}
+
+function ServerConnectionBadge({
+	server,
+	canCheck,
+}: {
+	server: Server;
+	canCheck: boolean;
 }) {
 	const isActive = server.serverStatus === "active";
 	const health = api.docker.getServerHealth.useQuery(
 		{ serverId: server.serverId },
 		{
-			enabled: canReadDocker && canReadServer && isActive,
+			enabled: canCheck && isActive,
 			refetchInterval: 60_000,
 			refetchOnWindowFocus: false,
 		},
 	);
-	const images = api.dockerImage.getImages.useQuery(
-		{ serverId: server.serverId },
-		{ enabled: canReadDocker && isActive, refetchOnWindowFocus: false },
-	);
 	const status = getConnectionStatus({
 		isActive,
-		canCheck: canReadDocker && canReadServer,
+		canCheck,
 		isPending: health.isPending,
 		isError: health.isError,
 		error: health.data?.error,
@@ -309,213 +556,16 @@ function ServerFleetCard({
 	const checkedAt = health.data?.error ? undefined : health.data?.checkedAt;
 
 	return (
-		<Card className="overflow-hidden">
-			<CardContent className="grid gap-4 p-4 lg:grid-cols-[minmax(15rem,1.2fr)_minmax(17rem,1fr)_auto] lg:items-center">
-				<div className="min-w-0 space-y-2">
-					<div className="flex flex-wrap items-center gap-2">
-						<ServerIcon
-							className="size-4 shrink-0 text-muted-foreground"
-							aria-hidden
-						/>
-						<h2 className="truncate font-semibold" title={server.name}>
-							{server.name}
-						</h2>
-						<ConnectionBadge status={status} />
-						<Badge variant={isActive ? "secondary" : "outline"}>
-							{isActive ? "Enabled" : "Disabled"}
-						</Badge>
-					</div>
-					<div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-						<span>
-							{server.ipAddress}:{server.port}
-						</span>
-						<span>
-							{server.serverType === "build" ? "Build server" : "Deployment"}
-						</span>
-						{server.description && (
-							<span className="basis-full truncate">{server.description}</span>
-						)}
-					</div>
-					{checkedAt && (
-						<p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-							<Clock3 className="size-3.5" aria-hidden />
-							Checked{" "}
-							{formatDistanceToNow(new Date(checkedAt), { addSuffix: true })}
-						</p>
-					)}
-				</div>
-
-				<div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-					<ResourceValue
-						icon={Cpu}
-						label="CPU"
-						value={
-							health.data?.error ? undefined : health.data?.resources.cpuCount
-						}
-						format={(value) => `${value} cores`}
-						loading={health.isPending}
-					/>
-					<ResourceValue
-						icon={MemoryStick}
-						label="Memory"
-						value={
-							health.data?.error
-								? undefined
-								: health.data?.resources.memTotalBytes
-						}
-						format={(total) => {
-							const used = health.data?.resources.memUsedBytes;
-							return used === undefined
-								? formatBytes(total)
-								: `${formatBytes(used)} / ${formatBytes(total)}`;
-						}}
-						loading={health.isPending}
-					/>
-					<ResourceValue
-						icon={HardDrive}
-						label="Disk"
-						value={
-							health.data?.error ? undefined : health.data?.disk.totalBytes
-						}
-						format={(total) => {
-							const used = health.data?.disk.usedBytes;
-							return used === undefined
-								? formatBytes(total)
-								: `${formatBytes(used)} / ${formatBytes(total)}`;
-						}}
-						loading={health.isPending}
-					/>
-					<ResourceValue
-						icon={Activity}
-						label="Docker"
-						value={
-							health.data?.error
-								? undefined
-								: health.data?.containers.containerCount
-						}
-						format={(count) => `${count} containers`}
-						loading={health.isPending}
-					/>
-				</div>
-
-				<div className="flex flex-wrap items-center gap-2 border-t pt-3 lg:border-t-0 lg:pt-0">
-					{canReadDocker && (
-						<span className="mr-1 text-xs text-muted-foreground">
-							{images.isPending
-								? "Images loading…"
-								: images.isError
-									? "Images unavailable"
-									: `${images.data?.length ?? "—"} images`}
-							{" · "}
-							{health.data?.error
-								? "Networks unavailable"
-								: health.data
-									? `${health.data.dockerNetworks.count} networks`
-									: "Networks loading…"}
-							{" · "}
-							{canReadServices ? `${server.totalSum} workloads` : ""}
-						</span>
-					)}
-					<ServerResourceDetails server={server} />
-					{canReadDocker && canReadServer && (
-						<Button
-							variant="outline"
-							size="icon"
-							onClick={() => void health.refetch()}
-							disabled={health.isFetching || !isActive}
-							aria-label={`Refresh connection status for ${server.name}`}
-							title="Test connection / refresh"
-						>
-							<RefreshCw
-								className={`size-4 ${health.isFetching ? "animate-spin" : ""}`}
-								aria-hidden
-							/>
-						</Button>
-					)}
-					{isActive && canCreateServer && (
-						<>
-							<TooltipProvider>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<div>
-											<SetupServer serverId={server.serverId} asButton />
-										</div>
-									</TooltipTrigger>
-									<TooltipContent>Setup and validate server</TooltipContent>
-								</Tooltip>
-							</TooltipProvider>
-							{server.sshKeyId && server.serverType !== "build" && (
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<div>
-												<ShowServerActions
-													serverId={server.serverId}
-													asButton
-												/>
-											</div>
-										</TooltipTrigger>
-										<TooltipContent>Server operations</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
-							)}
-						</>
-					)}
-					{isActive && canUseTerminal && server.sshKeyId && (
-						<TerminalModal serverId={server.serverId} asButton>
-							<Button
-								variant="outline"
-								size="icon"
-								aria-label={`Open terminal for ${server.name}`}
-							>
-								<Terminal className="size-4" aria-hidden />
-							</Button>
-						</TerminalModal>
-					)}
-					{isActive && canCreateServer && (
-						<HandleServers serverId={server.serverId} asButton />
-					)}
-					{canDeleteServer && (
-						<DeleteServerModal
-							serverId={server.serverId}
-							serverName={server.name}
-						>
-							<Button
-								variant="ghost"
-								size="icon"
-								className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-								aria-label={`Remove ${server.name}`}
-							>
-								<Trash2 className="size-4" aria-hidden />
-							</Button>
-						</DeleteServerModal>
-					)}
-					{canReadMonitoring && isCloud && isActive && (
-						<Button asChild variant="outline" size="sm">
-							<Link
-								href={`/dashboard/monitoring?workspace=server:${server.serverId}`}
-							>
-								Monitoring
-							</Link>
-						</Button>
-					)}
-				</div>
-			</CardContent>
-			{health.data?.error && (
-				<div className="border-t px-4 py-3">
-					<p className="text-sm text-destructive">
-						Server health check failed: {health.data.error}
-					</p>
-				</div>
+		<div className="space-y-1">
+			<ConnectionBadge status={status} />
+			{checkedAt && (
+				<p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+					<Clock3 className="size-3.5" aria-hidden />
+					Checked{" "}
+					{formatDistanceToNow(new Date(checkedAt), { addSuffix: true })}
+				</p>
 			)}
-			{health.isError && (
-				<div className="border-t px-4 py-3">
-					<p className="text-sm text-destructive">
-						Unable to check server connection: {health.error.message}
-					</p>
-				</div>
-			)}
-		</Card>
+		</div>
 	);
 }
 

@@ -7,62 +7,49 @@ import { DockerConsole } from "@/components/dashboard/docker/docker-console";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { appRouter } from "@/server/api/root";
 
-const Dashboard = () => {
-	return <DockerConsole />;
-};
+const DockerPage = () => <DockerConsole />;
 
-export default Dashboard;
+export default DockerPage;
 
-Dashboard.getLayout = (page: ReactElement) => {
-	return <DashboardLayout metaName="Docker">{page}</DashboardLayout>;
-};
+DockerPage.getLayout = (page: ReactElement) => (
+	<DashboardLayout metaName="Docker">{page}</DashboardLayout>
+);
 
-export async function getServerSideProps(
-	ctx: GetServerSidePropsContext<{ serviceId: string }>,
-) {
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 	const { user, session } = await validateRequest(ctx.req);
 	if (!user) {
 		return {
 			redirect: {
-				permanent: true,
+				permanent: false,
 				destination: "/",
 			},
 		};
 	}
-	const { req, res } = ctx;
 
 	const helpers = createServerSideHelpers({
 		router: appRouter,
 		ctx: {
-			req: req as any,
-			res: res as any,
+			req: ctx.req as any,
+			res: ctx.res as any,
 			db: null as any,
 			session: session as any,
 			user: user as any,
 		},
 		transformer: superjson,
 	});
+
 	try {
-		await helpers.project.all.prefetch();
-
-		const userPermissions = await helpers.user.getPermissions.fetch();
-
-		if (!userPermissions?.docker.read) {
+		const permissions = await helpers.user.getPermissions.fetch();
+		if (!permissions?.docker.read) {
 			return {
 				redirect: {
-					permanent: true,
+					permanent: false,
 					destination: "/",
 				},
 			};
 		}
-		return {
-			props: {
-				trpcState: helpers.dehydrate(),
-			},
-		};
+		return { props: { trpcState: helpers.dehydrate() } };
 	} catch {
-		return {
-			props: {},
-		};
+		return { props: {} };
 	}
 }

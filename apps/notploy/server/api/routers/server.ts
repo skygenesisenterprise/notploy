@@ -11,7 +11,7 @@ import {
 	getServicesByServerId,
 	haveActiveServices,
 	IS_CLOUD,
-	installSshKeyWithPassword,
+	provisionSshKey,
 	redactServerSshKey,
 	removeDeploymentsByServerId,
 	removeSshKeyWithPassword,
@@ -19,7 +19,9 @@ import {
 	serverSetup,
 	serverValidate,
 	setupMonitoring,
+	SshError,
 	updateServerById,
+	verifySshKeyConnection,
 } from "@notploy/server";
 import { db } from "@notploy/server/db";
 import { findMemberByUserId } from "@notploy/server/services/permission";
@@ -108,6 +110,32 @@ async function fetchServerMetrics(input: {
 	return data as ServerMetrics[];
 }
 
+/**
+ * Maps an SSH-layer failure into an actionable, secrets-free tRPC error. The
+ * `SshError` message is already categorized and safe to display; anything else
+ * is reported generically so raw host/credential details never leak.
+ */
+const toServerOnboardingError = (
+	error: unknown,
+	phase: "provision" | "verify",
+): TRPCError => {
+	if (error instanceof SshError) {
+		return new TRPCError({
+			code: "BAD_REQUEST",
+			message: error.message,
+			cause: error,
+		});
+	}
+	return new TRPCError({
+		code: "BAD_REQUEST",
+		message:
+			phase === "provision"
+				? "Could not connect to the server or install Notploy's SSH key. Check the address, port, credentials, and that this account has root or passwordless sudo access."
+				: "Notploy's SSH key was installed but could not be verified. Ensure public key authentication is enabled for this account.",
+		cause: error,
+	});
+};
+
 export const serverRouter = createTRPCRouter({
 	create: withPermission("server", "create")
 		.input(apiCreateServer)
@@ -170,23 +198,60 @@ export const serverRouter = createTRPCRouter({
 			}
 
 			const keyPair = await generateSSHKey("ed25519");
+			let publicKeyInstalled = false;
+			let hostKeyFingerprint: string | undefined;
+
+			const cleanupInstalledKey = async () => {
+				if (!publicKeyInstalled) return;
+				try {
+					await removeSshKeyWithPassword({
+						host: serverInput.ipAddress,
+						port: serverInput.port,
+						username: serverInput.username,
+						password: sshPassword,
+						publicKey: keyPair.publicKey,
+					});
+				} catch (cleanupError) {
+					console.error(
+						"Failed to remove automatically provisioned SSH key after server creation failed",
+						cleanupError,
+					);
+				}
+			};
+
+			// 1. Reach the server, authenticate, and install Notploy's public key.
+			// Connectivity, authentication, authorization and host-key failures are
+			// distinguished so the error shown to the user is actionable.
 			try {
-				await installSshKeyWithPassword({
+				const { hostKey } = await provisionSshKey({
 					host: serverInput.ipAddress,
 					port: serverInput.port,
 					username: serverInput.username,
 					password: sshPassword,
 					publicKey: keyPair.publicKey,
 				});
+				publicKeyInstalled = true;
+				hostKeyFingerprint = hostKey?.sha256;
 			} catch (error) {
-				throw new TRPCError({
-					code: "BAD_REQUEST",
-					message:
-						"Could not connect to the server or install its SSH key. Check the address, credentials, and that this account can write to its SSH authorized keys.",
-					cause: error,
-				});
+				throw toServerOnboardingError(error, "provision");
 			}
 
+			// 2. Prove the generated key grants access through a second SSH
+			// connection. A successful password session is not enough.
+			try {
+				await verifySshKeyConnection({
+					host: serverInput.ipAddress,
+					port: serverInput.port,
+					username: serverInput.username,
+					privateKey: keyPair.privateKey,
+				});
+			} catch (error) {
+				await cleanupInstalledKey();
+				throw toServerOnboardingError(error, "verify");
+			}
+
+			// 3. Persist the server and its key atomically. If persistence fails,
+			// remove the installed key so onboarding leaves no orphaned state.
 			let createdServer: typeof server.$inferSelect;
 			try {
 				const result = await db.transaction(async (tx) => {
@@ -221,20 +286,7 @@ export const serverRouter = createTRPCRouter({
 				});
 				createdServer = result;
 			} catch (error) {
-				try {
-					await removeSshKeyWithPassword({
-						host: serverInput.ipAddress,
-						port: serverInput.port,
-						username: serverInput.username,
-						password: sshPassword,
-						publicKey: keyPair.publicKey,
-					});
-				} catch (cleanupError) {
-					console.error(
-						"Failed to remove automatically provisioned SSH key after server creation failed",
-						cleanupError,
-					);
-				}
+				await cleanupInstalledKey();
 				throw new TRPCError({
 					code: "INTERNAL_SERVER_ERROR",
 					message: "Server was connected but could not be saved.",
@@ -257,7 +309,7 @@ export const serverRouter = createTRPCRouter({
 				resourceId: createdServer.serverId,
 				resourceName: createdServer.name,
 			});
-			return createdServer;
+			return { ...createdServer, hostKeyFingerprint };
 		}),
 
 	one: withPermission("server", "read")

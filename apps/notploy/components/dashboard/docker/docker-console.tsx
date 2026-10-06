@@ -3,8 +3,8 @@
 import { Blocks, Server as ServerIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
-import { DockerEngineOverview } from "@/components/dashboard/docker/docker-engine-overview";
+import { useMemo, useState } from "react";
+import { DockerEngineRow } from "@/components/dashboard/docker/docker-engine-overview";
 import {
 	ConsoleBody,
 	ConsoleEmpty,
@@ -24,7 +24,21 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import {
+	Table,
+	TableBody,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 import { api } from "@/utils/api";
+
+interface EngineTarget {
+	id: string;
+	serverId?: string;
+	serverName: string;
+	local: boolean;
+}
 
 export const DockerConsole = () => {
 	const router = useRouter();
@@ -53,6 +67,32 @@ export const DockerConsole = () => {
 						? "local"
 						: (servers?.[0]?.serverId ?? "all")
 					: "all"));
+
+	const targets = useMemo<EngineTarget[]>(() => {
+		const list: EngineTarget[] = [];
+		if (isCloud === false) {
+			list.push({
+				id: "local",
+				serverId: undefined,
+				serverName: "Notploy instance",
+				local: true,
+			});
+		}
+		for (const server of servers ?? []) {
+			list.push({
+				id: server.serverId,
+				serverId: server.serverId,
+				serverName: server.name,
+				local: false,
+			});
+		}
+		return list;
+	}, [isCloud, servers]);
+
+	const visibleTargets =
+		selectedTarget === "all"
+			? targets
+			: targets.filter((target) => target.id === selectedTarget);
 
 	const setServer = (value: string) => {
 		const { serverId: _serverId, ...query } = router.query;
@@ -202,39 +242,34 @@ export const DockerConsole = () => {
 									</p>
 								</div>
 								<p className="text-sm text-muted-foreground">
-									{targetCount} engine{targetCount === 1 ? "" : "s"} configured
+									{visibleTargets.length} engine
+									{visibleTargets.length === 1 ? "" : "s"} shown
 								</p>
 							</div>
-							<div className="space-y-3">
-								{selectedTarget === "all" ? (
-									<>
-										{isCloud === false && (
-											<DockerEngineOverview
-												serverName="Notploy instance"
-												local
-											/>
-										)}
-										{servers?.map((server) => (
-											<DockerEngineOverview
-												key={server.serverId}
-												serverId={server.serverId}
-												serverName={server.name}
+							<div className="overflow-x-auto rounded-md border">
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>Engine</TableHead>
+											<TableHead>Endpoint</TableHead>
+											<TableHead>Docker</TableHead>
+											<TableHead>Containers</TableHead>
+											<TableHead>Images</TableHead>
+											<TableHead>Swarm</TableHead>
+											<TableHead className="text-right">Actions</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{visibleTargets.map((target) => (
+											<DockerEngineRow
+												key={target.id}
+												serverId={target.serverId}
+												serverName={target.serverName}
+												local={target.local}
 											/>
 										))}
-									</>
-								) : (
-									<DockerEngineOverview
-										serverId={
-											selectedTarget === "local" ? undefined : selectedTarget
-										}
-										serverName={
-											selectedTarget === "local"
-												? "Notploy instance"
-												: (selectedServer?.name ?? "Docker Engine")
-										}
-										local={selectedTarget === "local"}
-									/>
-								)}
+									</TableBody>
+								</Table>
 							</div>
 						</section>
 					</>

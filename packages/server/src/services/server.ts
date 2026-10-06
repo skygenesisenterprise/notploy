@@ -7,8 +7,13 @@ import {
 } from "@notploy/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
-import { Client } from "ssh2";
 import type { z } from "zod";
+import {
+	provisionSshKey,
+	removeSshKey,
+	testSshConnection,
+	verifyKeyBasedConnection,
+} from "../utils/ssh";
 
 export type Server = typeof server.$inferSelect;
 
@@ -97,98 +102,42 @@ export const deleteServer = async (serverId: string) => {
 	return currentServer;
 };
 
-const runSshCommandWithPassword = async ({
-	host,
-	port,
-	username,
-	password,
-	command,
-}: {
+export interface SshPasswordConnection {
 	host: string;
 	port: number;
 	username: string;
 	password: string;
-	command: string;
-}) => {
-	return new Promise<void>((resolve, reject) => {
-		const client = new Client();
-		let settled = false;
-		const finish = (error?: Error) => {
-			if (settled) return;
-			settled = true;
-			clearTimeout(timeout);
-			client.end();
-			if (error) reject(error);
-			else resolve();
-		};
-		const timeout = setTimeout(
-			() => finish(new Error("SSH connection timed out")),
-			20_000,
-		);
+}
 
-		client
-			.once("ready", () => {
-				client.exec(command, (error, stream) => {
-					if (error) {
-						finish(new Error(`Could not run SSH key setup: ${error.message}`));
-						return;
-					}
-
-					let stderr = "";
-					stream.stderr.on("data", (data: Buffer | string) => {
-						stderr += data.toString();
-					});
-					stream.once("close", (code: number | null) => {
-						if (code === 0) {
-							finish();
-						} else {
-							finish(
-								new Error(
-									stderr.trim() || `SSH key setup exited with code ${code}`,
-								),
-							);
-						}
-					});
-				});
-			})
-			.once("error", (error) => finish(error))
-			.connect({
-				host,
-				port,
-				username,
-				password,
-				readyTimeout: 20_000,
-				timeout: 20_000,
-			});
-	});
+/**
+ * Verifies password-based SSH connectivity and resolves the account
+ * privileges without changing anything on the server.
+ */
+export const testSshConnectionWithPassword = async ({
+	host,
+	port,
+	username,
+	password,
+}: SshPasswordConnection) => {
+	return testSshConnection({ host, port, username, password });
 };
 
+/**
+ * Installs Notploy's public key on the server. Delegates to the dedicated SSH
+ * provisioning layer, which validates the account can manage its own SSH
+ * configuration (root or passwordless sudo) and makes the installation
+ * idempotent.
+ */
 export const installSshKeyWithPassword = async ({
 	host,
 	port,
 	username,
 	password,
 	publicKey,
-}: {
-	host: string;
-	port: number;
-	username: string;
-	password: string;
+}: SshPasswordConnection & {
 	publicKey: string;
 }) => {
-	const encodedPublicKey = Buffer.from(publicKey).toString("base64");
-	const keyExpression = `key=$(printf '%s' '${encodedPublicKey}' | base64 -d)`;
-	const authorizedKeys = '"$HOME/.ssh/authorized_keys"';
-	const prepareSshDirectory =
-		'umask 077; mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"; touch "$HOME/.ssh/authorized_keys"; chmod 600 "$HOME/.ssh/authorized_keys"';
-
-	await runSshCommandWithPassword({
-		host,
-		port,
-		username,
-		password,
-		command: `${prepareSshDirectory}; ${keyExpression}; if ! grep -qxF "$key" ${authorizedKeys}; then printf '%s\\n' "$key" >> ${authorizedKeys}; fi`,
-	});
+	await provisionSshKey({ host, port, username, password, publicKey });
 };
 
 export const removeSshKeyWithPassword = async ({
@@ -197,24 +146,28 @@ export const removeSshKeyWithPassword = async ({
 	username,
 	password,
 	publicKey,
+}: SshPasswordConnection & {
+	publicKey: string;
+}) => {
+	await removeSshKey({ host, port, username, password, publicKey });
+};
+
+/**
+ * Opens a second, key-based SSH connection to confirm the installed key grants
+ * access before the server is persisted as manageable.
+ */
+export const verifySshKeyConnection = async ({
+	host,
+	port,
+	username,
+	privateKey,
 }: {
 	host: string;
 	port: number;
 	username: string;
-	password: string;
-	publicKey: string;
+	privateKey: string;
 }) => {
-	const encodedPublicKey = Buffer.from(publicKey).toString("base64");
-	const keyExpression = `key=$(printf '%s' '${encodedPublicKey}' | base64 -d)`;
-	const authorizedKeys = '"$HOME/.ssh/authorized_keys"';
-
-	await runSshCommandWithPassword({
-		host,
-		port,
-		username,
-		password,
-		command: `${keyExpression}; if [ -f ${authorizedKeys} ]; then temp_file=$(mktemp); grep -vxF "$key" ${authorizedKeys} > "$temp_file"; status=$?; if [ "$status" -gt 1 ]; then rm -f "$temp_file"; exit "$status"; fi; cat "$temp_file" > ${authorizedKeys}; rm -f "$temp_file"; chmod 600 ${authorizedKeys}; fi`,
-	});
+	return verifyKeyBasedConnection({ host, port, username, privateKey });
 };
 
 export const haveActiveServices = async (serverId: string) => {

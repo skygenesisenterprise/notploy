@@ -19,7 +19,6 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { GithubIcon } from "../icons/data-tools-icons";
 import { TruncateTooltip } from "@/components/shared/truncate-tooltip";
 import {
 	Breadcrumb,
@@ -65,6 +64,7 @@ import { cn } from "@/lib/utils";
 import { api, type RouterOutputs } from "@/utils/api";
 import { TrialBanner } from "../dashboard/billing/trial-banner";
 import { AddOrganization } from "../dashboard/organization/handle-organization";
+import { GithubIcon } from "../icons/data-tools-icons";
 import { DialogAction } from "../shared/dialog-action";
 import { Logo } from "../shared/logo";
 import { Badge } from "../ui/badge";
@@ -689,11 +689,11 @@ export default function Page({ children }: Props) {
 
 	const navigation = createNavigation({
 		// Self-hosted Notploy exposes the infrastructure control plane layout,
-		// the hosted product keeps its deployment centric menu untouched.
-		variant: isCloud ? "cloud" : "selfHosted",
+		// the hosted product keeps its deployment centric menu untouched. The
+		// `console` environment can be wired later without touching the engine.
+		environment: isCloud ? "cloud" : "self",
 		auth,
 		permissions,
-		isCloud: !!isCloud,
 		whitelabeling,
 	});
 

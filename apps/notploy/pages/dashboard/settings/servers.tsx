@@ -1,26 +1,28 @@
-import { validateRequest } from "@notploy/server";
+import { validateRequest } from "@notploy/server/lib/auth";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
 import superjson from "superjson";
-import { ShowServers } from "@/components/dashboard/settings/servers/show-servers";
+import { HandleServers } from "@/components/dashboard/settings/servers/handle-servers";
+import { ServersConsole } from "@/components/dashboard/settings/servers/servers-console";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+import { ServerFilter } from "@/components/shared/server-filter";
 import { appRouter } from "@/server/api/root";
 
-const Page = () => {
-	return <ShowServers />;
-};
+const Servers = () => (
+	<ServerFilter emptyAction={<HandleServers />}>
+		{(serverId) => <ServersConsole serverId={serverId} />}
+	</ServerFilter>
+);
 
-export default Page;
+export default Servers;
 
-Page.getLayout = (page: ReactElement) => {
-	return <DashboardLayout metaName="Servers">{page}</DashboardLayout>;
-};
-export async function getServerSideProps(
-	ctx: GetServerSidePropsContext<{ serviceId: string }>,
-) {
-	const { req, res } = ctx;
-	const { user, session } = await validateRequest(req);
+Servers.getLayout = (page: ReactElement) => (
+	<DashboardLayout metaName="Servers">{page}</DashboardLayout>
+);
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+	const { user, session } = await validateRequest(ctx.req);
 	if (!user) {
 		return {
 			redirect: {
@@ -29,32 +31,31 @@ export async function getServerSideProps(
 			},
 		};
 	}
-	if (user.role === "member") {
-		return {
-			redirect: {
-				permanent: false,
-				destination: "/dashboard/settings/profile",
-			},
-		};
-	}
 
 	const helpers = createServerSideHelpers({
 		router: appRouter,
 		ctx: {
-			req: req as any,
-			res: res as any,
+			req: ctx.req as any,
+			res: ctx.res as any,
 			db: null as any,
 			session: session as any,
 			user: user as any,
 		},
 		transformer: superjson,
 	});
-	await helpers.user.get.prefetch();
-	await helpers.settings.isCloud.prefetch();
 
-	return {
-		props: {
-			trpcState: helpers.dehydrate(),
-		},
-	};
+	try {
+		const permissions = await helpers.user.getPermissions.fetch();
+		if (!permissions?.server.read) {
+			return {
+				redirect: {
+					permanent: false,
+					destination: "/",
+				},
+			};
+		}
+		return { props: { trpcState: helpers.dehydrate() } };
+	} catch {
+		return { props: {} };
+	}
 }

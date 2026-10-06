@@ -21,9 +21,14 @@ const NOTPLOY_SERVER = "notploy-server";
 
 interface Props {
 	children: (serverId?: string) => ReactNode;
+	/**
+	 * Overrides the default empty-state action (a link back to the Servers
+	 * settings page). Useful on pages that host their own "add server" flow.
+	 */
+	emptyAction?: ReactNode;
 }
 
-export const ServerFilter = ({ children }: Props) => {
+export const ServerFilter = ({ children, emptyAction }: Props) => {
 	const router = useRouter();
 	const { data: servers, isLoading: isLoadingServers } =
 		api.server.withSSHKey.useQuery();
@@ -86,14 +91,15 @@ export const ServerFilter = ({ children }: Props) => {
 								: "This section works on your remote servers. Ask an administrator to add a server to your organization."}
 						</span>
 					</div>
-					{permissions?.server.create && (
-						<Button asChild>
-							<Link href="/dashboard/settings/servers">
-								<PlusIcon className="size-4" />
-								Add Server
-							</Link>
-						</Button>
-					)}
+					{emptyAction ??
+						(permissions?.server.create && (
+							<Button asChild>
+								<Link href="/dashboard/settings/servers">
+									<PlusIcon className="size-4" />
+									Add Server
+								</Link>
+							</Button>
+						))}
 				</div>
 			</Card>
 		);

@@ -37,10 +37,27 @@ type AuthQueryOutput = inferRouterOutputs<AppRouter>["user"]["get"];
 type PermissionsOutput =
 	inferRouterOutputs<AppRouter>["user"]["getPermissions"];
 
+/**
+ * Deployment environments a navigation node can target.
+ *
+ * - `self`    self-hosted Notploy, exposing the infrastructure control plane.
+ * - `cloud`   managed Notploy Cloud, presenting managed services.
+ * - `console` platform operator console (reserved). Enabling it only requires
+ *             passing `environment: "console"` to `createNavigation`.
+ */
+export type NavigationEnvironment = "self" | "cloud" | "console";
+
+/**
+ * Dynamic data consumed by `isEnabled` predicates (permissions, roles, ...).
+ *
+ * Environment visibility is deliberately absent here: it is declared on each
+ * node through `environments`, so *where a destination exists* (functional
+ * visibility) stays separate from *whether the current user may see it*
+ * (access control).
+ */
 export type NavigationContext = {
 	auth?: AuthQueryOutput;
 	permissions?: PermissionsOutput;
-	isCloud: boolean;
 };
 
 export type NavigationItem = {
@@ -49,6 +66,8 @@ export type NavigationItem = {
 	icon: LucideIcon;
 	activeTab?: string | null;
 	activeRoutes?: Array<{ href: string; activeTab?: string | null }>;
+	/** Environments where the item is rendered. Omitted means every environment. */
+	environments?: NavigationEnvironment[];
 	isEnabled?: (opts: NavigationContext) => boolean;
 };
 
@@ -56,6 +75,7 @@ export type NavigationGroup = {
 	id: string;
 	label: string;
 	items: NavigationItem[];
+	environments?: NavigationEnvironment[];
 	isEnabled?: (opts: NavigationContext) => boolean;
 };
 
@@ -64,6 +84,7 @@ export type NavigationSection = {
 	label: string;
 	items: NavigationItem[];
 	groups?: NavigationGroup[];
+	environments?: NavigationEnvironment[];
 	isEnabled?: (opts: NavigationContext) => boolean;
 };
 
@@ -71,6 +92,7 @@ export type ExternalNavigationItem = {
 	label: string;
 	href: string;
 	icon: LucideIcon;
+	environments?: NavigationEnvironment[];
 	isEnabled?: (opts: NavigationContext) => boolean;
 };
 
@@ -80,9 +102,59 @@ export type Navigation = {
 };
 
 /**
- * Self-hosted navigation exposes the infrastructure control plane directly.
+ * Destinations that appear under different headings depending on the
+ * environment are declared once here and reused, so their href, icon and
+ * permission gate are never duplicated across sections.
  */
-const SELF_HOSTED_SECTIONS: NavigationSection[] = [
+const SHARED_ITEMS = {
+	certificates: {
+		label: "Certificates",
+		href: "/dashboard/settings/certificates",
+		icon: ShieldCheck,
+		isEnabled: ({ permissions }) => !!permissions?.certificate.read,
+	},
+	secretsManager: {
+		label: "Secrets Manager",
+		href: "/dashboard/settings/secrets",
+		icon: Vault,
+		isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,
+	},
+	sso: {
+		label: "SSO",
+		href: "/dashboard/settings/sso",
+		icon: LogIn,
+		isEnabled: ({ permissions }) => !!permissions?.organization.update,
+	},
+	sessions: {
+		label: "Sessions",
+		href: "/dashboard/settings/sessions",
+		icon: Smartphone,
+	},
+	auditLogs: {
+		label: "Audit Logs",
+		href: "/dashboard/settings/audit-logs",
+		icon: ClipboardList,
+		isEnabled: ({ permissions }) => !!permissions?.auditLog.read,
+	},
+	tags: {
+		label: "Tags",
+		href: "/dashboard/settings/tags",
+		icon: Tags,
+		isEnabled: ({ permissions }) => !!permissions?.tag.read,
+	},
+} satisfies Record<string, NavigationItem>;
+
+/**
+ * Single source of truth for every environment. The tree is authored once and
+ * the same definition is filtered twice, in two independent passes:
+ *
+ *   1. environment visibility (`environments` on sections, groups and items);
+ *   2. access control (`isEnabled` reading permissions/roles).
+ *
+ * A node without `environments` is visible everywhere; a node with an empty
+ * `items` array can still contribute `groups`.
+ */
+const NAVIGATION_SECTIONS: NavigationSection[] = [
 	{
 		id: "home",
 		label: "Overview",
@@ -97,8 +169,8 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				label: "Monitoring",
 				href: "/dashboard/monitoring",
 				icon: BarChartHorizontalBigIcon,
-				isEnabled: ({ permissions, isCloud }) =>
-					!!(permissions?.monitoring.read && !isCloud),
+				environments: ["self"],
+				isEnabled: ({ permissions }) => !!permissions?.monitoring.read,
 			},
 			{
 				// Applications, Compose stacks and managed databases share this view.
@@ -126,6 +198,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 	{
 		id: "infrastructure",
 		label: "Infrastructure",
+		environments: ["self"],
 		items: [],
 		groups: [
 			{
@@ -155,8 +228,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 						label: "Swarm",
 						href: "/dashboard/swarm",
 						icon: Waypoints,
-						isEnabled: ({ permissions, isCloud }) =>
-							!!(permissions?.docker.read && !isCloud),
+						isEnabled: ({ permissions }) => !!permissions?.docker.read,
 					},
 				],
 			},
@@ -168,8 +240,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 						label: "Networks",
 						href: "/dashboard/networks",
 						icon: Network,
-						isEnabled: ({ permissions, isCloud }) =>
-							!!(permissions?.docker.read && !isCloud),
+						isEnabled: ({ permissions }) => !!permissions?.docker.read,
 					},
 					{
 						label: "Traefik Manager",
@@ -182,16 +253,21 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 			{
 				id: "platform-security",
 				label: "Platform security",
-				items: [
-					{
-						label: "Certificates",
-						href: "/dashboard/settings/certificates",
-						icon: ShieldCheck,
-						isEnabled: ({ permissions }) => !!permissions?.certificate.read,
-					},
-				],
+				items: [SHARED_ITEMS.certificates],
 			},
 		],
+	},
+	{
+		id: "resources",
+		label: "Resources",
+		environments: ["cloud"],
+		items: [SHARED_ITEMS.certificates],
+	},
+	{
+		id: "security",
+		label: "Security",
+		environments: ["cloud"],
+		items: [SHARED_ITEMS.secretsManager, SHARED_ITEMS.sso],
 	},
 	{
 		id: "integrations",
@@ -215,12 +291,9 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				icon: Globe,
 				isEnabled: ({ permissions }) => !!permissions?.dnsProvider.read,
 			},
-			{
-				label: "SSO",
-				href: "/dashboard/settings/sso",
-				icon: LogIn,
-				isEnabled: ({ permissions }) => !!permissions?.organization.update,
-			},
+			// Self-hosted keeps SSO under Integrations, cloud surfaces it under
+			// Security, so the shared item is scoped to `self` here.
+			{ ...SHARED_ITEMS.sso, environments: ["self"] },
 			{
 				label: "Object Storage",
 				href: "/dashboard/settings/destinations",
@@ -244,6 +317,7 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 	{
 		id: "administration",
 		label: "Administration",
+		environments: ["self"],
 		items: [
 			{
 				label: "Users",
@@ -251,146 +325,14 @@ const SELF_HOSTED_SECTIONS: NavigationSection[] = [
 				icon: Users,
 				isEnabled: ({ permissions }) => !!permissions?.member.read,
 			},
-			{
-				label: "Sessions",
-				href: "/dashboard/settings/sessions",
-				icon: Smartphone,
-			},
-			{
-				label: "Secrets Manager",
-				href: "/dashboard/settings/secrets",
-				icon: Vault,
-				isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,
-			},
-			{
-				label: "Audit Logs",
-				href: "/dashboard/settings/audit-logs",
-				icon: ClipboardList,
-				isEnabled: ({ permissions }) => !!permissions?.auditLog.read,
-			},
-			{
-				label: "Tags",
-				href: "/dashboard/settings/tags",
-				icon: Tags,
-				isEnabled: ({ permissions }) => !!permissions?.tag.read,
-			},
+			SHARED_ITEMS.sessions,
+			SHARED_ITEMS.secretsManager,
+			SHARED_ITEMS.auditLogs,
+			SHARED_ITEMS.tags,
 			{
 				label: "Web Server",
 				href: "/dashboard/settings/server",
 				icon: PanelsTopLeft,
-				isEnabled: ({ permissions, isCloud }) =>
-					!!(permissions?.organization.update && !isCloud),
-			},
-		],
-	},
-];
-
-/**
- * Cloud navigation presents managed services and account-level capabilities,
- * without exposing self-hosted host/runtime controls as cloud features.
- */
-const CLOUD_SECTIONS: NavigationSection[] = [
-	{
-		id: "home",
-		label: "Overview",
-		items: [
-			{ label: "Home", href: "/dashboard/home", icon: House },
-			{
-				label: "Projects",
-				href: "/dashboard/projects",
-				icon: Folder,
-			},
-			{
-				// The existing overview combines application and other service types.
-				label: "Services",
-				href: "/dashboard/overview",
-				icon: LayoutGrid,
-				activeTab: null,
-				isEnabled: ({ permissions }) => !!permissions?.service.read,
-			},
-			{
-				label: "Deployments",
-				href: "/dashboard/deployments",
-				icon: Rocket,
-				activeTab: null,
-				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
-			},
-			{
-				label: "Schedules",
-				href: "/dashboard/schedules",
-				icon: Clock,
-				isEnabled: ({ permissions }) => !!permissions?.organization.update,
-			},
-		],
-	},
-	{
-		id: "resources",
-		label: "Resources",
-		items: [
-			{
-				label: "Certificates",
-				href: "/dashboard/settings/certificates",
-				icon: ShieldCheck,
-				isEnabled: ({ permissions }) => !!permissions?.certificate.read,
-			},
-		],
-	},
-	{
-		id: "security",
-		label: "Security",
-		items: [
-			{
-				label: "Secrets Manager",
-				href: "/dashboard/settings/secrets",
-				icon: Vault,
-				isEnabled: ({ permissions }) => !!permissions?.vaultProvider.create,
-			},
-			{
-				label: "SSO",
-				href: "/dashboard/settings/sso",
-				icon: LogIn,
-				isEnabled: ({ permissions }) => !!permissions?.organization.update,
-			},
-		],
-	},
-	{
-		id: "integrations",
-		label: "Integrations",
-		items: [
-			{
-				label: "Git Providers",
-				href: "/dashboard/settings/git-providers",
-				icon: GitBranch,
-				isEnabled: ({ permissions }) => !!permissions?.gitProviders.read,
-			},
-			{
-				label: "Container Registries",
-				href: "/dashboard/settings/registry",
-				icon: Package,
-				isEnabled: ({ permissions }) => !!permissions?.registry.read,
-			},
-			{
-				label: "DNS Providers",
-				href: "/dashboard/settings/dns",
-				icon: Globe,
-				isEnabled: ({ permissions }) => !!permissions?.dnsProvider.read,
-			},
-			{
-				label: "Object Storage",
-				href: "/dashboard/settings/destinations",
-				icon: HardDrive,
-				isEnabled: ({ permissions }) => !!permissions?.objectStorage.read,
-			},
-			{
-				label: "Notifications",
-				href: "/dashboard/settings/notifications",
-				icon: Bell,
-				isEnabled: ({ permissions }) => !!permissions?.notification.read,
-			},
-			{
-				label: "AI Providers",
-				href: "/dashboard/settings/ai",
-				icon: BotIcon,
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,
 			},
 		],
@@ -398,6 +340,7 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 	{
 		id: "account",
 		label: "Account",
+		environments: ["cloud"],
 		items: [
 			{
 				label: "Team",
@@ -405,23 +348,9 @@ const CLOUD_SECTIONS: NavigationSection[] = [
 				icon: Users,
 				isEnabled: ({ permissions }) => !!permissions?.member.read,
 			},
-			{
-				label: "Sessions",
-				href: "/dashboard/settings/sessions",
-				icon: Smartphone,
-			},
-			{
-				label: "Audit Logs",
-				href: "/dashboard/settings/audit-logs",
-				icon: ClipboardList,
-				isEnabled: ({ permissions }) => !!permissions?.auditLog.read,
-			},
-			{
-				label: "Tags",
-				href: "/dashboard/settings/tags",
-				icon: Tags,
-				isEnabled: ({ permissions }) => !!permissions?.tag.read,
-			},
+			SHARED_ITEMS.sessions,
+			SHARED_ITEMS.auditLogs,
+			SHARED_ITEMS.tags,
 			{ label: "Profile", href: "/dashboard/settings/profile", icon: User },
 			{
 				label: "Billing",
@@ -445,13 +374,6 @@ const EXTERNAL_LINKS: ExternalNavigationItem[] = [
 		icon: CircleHelp,
 	},
 ];
-
-const NAVIGATIONS: Record<NavigationVariant, Navigation> = {
-	selfHosted: { sections: SELF_HOSTED_SECTIONS, external: EXTERNAL_LINKS },
-	cloud: { sections: CLOUD_SECTIONS, external: EXTERNAL_LINKS },
-};
-
-export type NavigationVariant = "selfHosted" | "cloud";
 
 function getRoute(href: string): { pathname: string; tab?: string } {
 	const [pathname = "", query = ""] = href.split("?", 2);
@@ -507,6 +429,16 @@ export function isActiveRoute(opts: {
 	return routeMatches(opts);
 }
 
+/**
+ * Environment visibility pass. Distinct from `filterEnabled` (access control).
+ */
+function isInEnvironment(
+	environments: NavigationEnvironment[] | undefined,
+	environment: NavigationEnvironment,
+): boolean {
+	return !environments || environments.includes(environment);
+}
+
 function filterEnabled<
 	T extends { isEnabled?: (o: NavigationContext) => boolean },
 >(items: readonly T[], context: NavigationContext): T[] {
@@ -515,11 +447,19 @@ function filterEnabled<
 	);
 }
 
+function filterItemsByEnvironment(
+	items: readonly NavigationItem[],
+	environment: NavigationEnvironment,
+): NavigationItem[] {
+	return items.filter((item) =>
+		isInEnvironment(item.environments, environment),
+	);
+}
+
 export function createNavigation(opts: {
-	variant: NavigationVariant;
+	environment: NavigationEnvironment;
 	auth?: AuthQueryOutput;
 	permissions?: PermissionsOutput;
-	isCloud: boolean;
 	whitelabeling?: {
 		docsUrl?: string | null;
 		supportUrl?: string | null;
@@ -528,11 +468,12 @@ export function createNavigation(opts: {
 	const context: NavigationContext = {
 		auth: opts.auth,
 		permissions: opts.permissions,
-		isCloud: opts.isCloud,
 	};
 
 	const external = filterEnabled(
-		NAVIGATIONS[opts.variant].external,
+		EXTERNAL_LINKS.filter((item) =>
+			isInEnvironment(item.environments, opts.environment),
+		),
 		context,
 	).map((item) => {
 		if (opts.whitelabeling?.docsUrl && item.label === "Documentation") {
@@ -544,18 +485,29 @@ export function createNavigation(opts: {
 		return item;
 	});
 
-	const sections = NAVIGATIONS[opts.variant].sections
+	const sections = NAVIGATION_SECTIONS.filter((section) =>
+		isInEnvironment(section.environments, opts.environment),
+	)
 		.filter((section) =>
 			section.isEnabled ? section.isEnabled(context) : true,
 		)
 		.map((section) => ({
 			...section,
-			items: filterEnabled(section.items, context),
+			items: filterEnabled(
+				filterItemsByEnvironment(section.items, opts.environment),
+				context,
+			),
 			groups: section.groups
-				?.filter((group) => (group.isEnabled ? group.isEnabled(context) : true))
+				?.filter((group) =>
+					isInEnvironment(group.environments, opts.environment),
+				)
+				.filter((group) => (group.isEnabled ? group.isEnabled(context) : true))
 				.map((group) => ({
 					...group,
-					items: filterEnabled(group.items, context),
+					items: filterEnabled(
+						filterItemsByEnvironment(group.items, opts.environment),
+						context,
+					),
 				}))
 				.filter((group) => group.items.length > 0),
 		}))
