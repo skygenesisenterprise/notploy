@@ -1,1 +1,0 @@
-ALTER TABLE "domain" ADD COLUMN "enabled" boolean DEFAULT true NOT NULL;

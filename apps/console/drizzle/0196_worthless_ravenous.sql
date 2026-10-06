@@ -1,1 +1,0 @@
-ALTER TABLE "compose" ADD COLUMN "pullImages" boolean DEFAULT false NOT NULL;

@@ -1,1 +1,0 @@
-ALTER TABLE "github" ADD COLUMN "githubUrl" text DEFAULT 'https://github.com' NOT NULL;

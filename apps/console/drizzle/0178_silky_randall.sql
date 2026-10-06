@@ -1,1 +1,0 @@
-ALTER TABLE "network" ADD COLUMN "mtu" integer;
