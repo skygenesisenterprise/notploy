@@ -2,11 +2,21 @@ import type { Compose, ComposeSpecification } from "@notploy/server";
 import {
 	applyServiceNetworks,
 	declareUsedNetworksInRoot,
+	isolatedNetworkName,
 	resolveServiceNetworks,
 } from "@notploy/server";
 import { db } from "@notploy/server/db";
-import { beforeEach, expect, test, type vi } from "vitest";
+import { getRemoteDocker } from "@notploy/server/utils/servers/remote-docker";
+import { beforeEach, expect, test, vi } from "vitest";
 import { parse } from "yaml";
+
+// `resolveServiceNetworks` reaches the daemon to make sure a service's dedicated
+// network exists, so the Docker client is stubbed for the isolation cases.
+vi.mock("@notploy/server/utils/servers/remote-docker", () => ({
+	getRemoteDocker: vi.fn(),
+}));
+
+const getRemoteDockerMock = getRemoteDocker as ReturnType<typeof vi.fn>;
 
 const findManyMock = db.query.network.findMany as ReturnType<typeof vi.fn>;
 
@@ -196,4 +206,67 @@ test("resolveServiceNetworks: networkSwarm override takes precedence", async () 
 
 	expect(resolved).toBe(override);
 	expect(findManyMock).not.toHaveBeenCalled();
+});
+
+test("isolatedNetworkName: prefixes the app name to avoid reserved networks", () => {
+	expect(isolatedNetworkName("gitea")).toBe("notploy-iso-gitea");
+});
+
+test("resolveServiceNetworks: attaches a dedicated isolated network", async () => {
+	const inspect = vi.fn().mockResolvedValue({});
+	const createNetwork = vi.fn();
+	getRemoteDockerMock.mockResolvedValue({
+		getNetwork: () => ({ inspect }),
+		createNetwork,
+	});
+
+	const resolved = await resolveServiceNetworks({
+		isolatedNetwork: true,
+		appName: "myapp",
+	});
+
+	// It stays on notploy-network so Traefik keeps serving the domain.
+	expect(resolved).toEqual([
+		{ Target: "notploy-network" },
+		{ Target: "notploy-iso-myapp" },
+	]);
+	expect(createNetwork).not.toHaveBeenCalled();
+});
+
+test("resolveServiceNetworks: creates the isolated network when missing", async () => {
+	const inspect = vi
+		.fn()
+		.mockRejectedValue(
+			Object.assign(new Error("not found"), { statusCode: 404 }),
+		);
+	const createNetwork = vi.fn().mockResolvedValue({ id: "net" });
+	getRemoteDockerMock.mockResolvedValue({
+		getNetwork: () => ({ inspect }),
+		createNetwork,
+	});
+
+	const resolved = await resolveServiceNetworks({
+		isolatedNetwork: true,
+		appName: "myapp",
+	});
+
+	expect(resolved).toEqual([
+		{ Target: "notploy-network" },
+		{ Target: "notploy-iso-myapp" },
+	]);
+	expect(createNetwork).toHaveBeenCalledWith(
+		expect.objectContaining({
+			Name: "notploy-iso-myapp",
+			Driver: "overlay",
+			Attachable: true,
+		}),
+	);
+});
+
+test("resolveServiceNetworks: no dedicated network when isolation is off", async () => {
+	getRemoteDockerMock.mockReset();
+	const resolved = await resolveServiceNetworks({ appName: "myapp" });
+
+	expect(resolved).toEqual([{ Target: "notploy-network" }]);
+	expect(getRemoteDockerMock).not.toHaveBeenCalled();
 });

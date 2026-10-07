@@ -17,6 +17,66 @@ const RESERVED_NETWORKS = [
 	"notploy-network",
 ];
 
+/**
+ * Dedicated per-service network used when `isolatedNetwork` is on. The prefix
+ * keeps it out of the way of user networks and the reserved ones.
+ */
+export const ISOLATED_NETWORK_PREFIX = "notploy-iso";
+
+export const isolatedNetworkName = (appName: string) =>
+	`${ISOLATED_NETWORK_PREFIX}-${appName}`;
+
+/**
+ * Makes sure a service's dedicated overlay network exists, creating it if
+ * needed. Idempotent, so it is safe to call on every deploy. The service stays
+ * attached to notploy-network as well, which is how Traefik keeps serving its
+ * domains while it is otherwise isolated.
+ */
+export const ensureIsolatedNetwork = async (
+	appName: string,
+	serverId?: string | null,
+) => {
+	const name = isolatedNetworkName(appName);
+	const docker = await getRemoteDocker(serverId ?? null);
+	try {
+		await docker.getNetwork(name).inspect();
+		return name;
+	} catch (error) {
+		const statusCode = (error as { statusCode?: number })?.statusCode;
+		if (statusCode !== 404) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message:
+					error instanceof Error
+						? error.message
+						: "Failed to inspect the isolated network",
+				cause: error,
+			});
+		}
+	}
+
+	try {
+		await docker.createNetwork({
+			Name: name,
+			Driver: "overlay",
+			Attachable: true,
+			CheckDuplicate: true,
+		});
+	} catch (error) {
+		// A concurrent deploy may have created it first; that is fine.
+		const message = error instanceof Error ? error.message : "";
+		if (!/already exists/i.test(message)) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: message || "Failed to create the isolated network",
+				cause: error,
+			});
+		}
+	}
+
+	return name;
+};
+
 type DockerNetworkInfo = {
 	Id?: string;
 	Name: string;
@@ -382,6 +442,19 @@ export const resolveServiceNetworks = async (
 	const networks = detachNotployNetwork ? [] : ["notploy-network"];
 	for (const row of rows) {
 		networks.push(row.name);
+	}
+
+	// A service with an isolated network keeps its own dedicated overlay so it
+	// is separated from the rest, while notploy-network keeps Traefik routing
+	// its domains. Databases have no such flag, so this is a no-op for them.
+	if (application.isolatedNetwork && application.appName) {
+		const name = await ensureIsolatedNetwork(
+			application.appName,
+			application.serverId ?? null,
+		);
+		if (!networks.includes(name)) {
+			networks.push(name);
+		}
 	}
 
 	return networks.map((name) => ({ Target: name }));

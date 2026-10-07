@@ -94,6 +94,7 @@ export type AuditResourceType =
 	| "application"
 	| "compose"
 	| "network"
+	| "networkProvider"
 	| "vaultProvider"
 	| "dnsProvider"
 	| "objectStorage";

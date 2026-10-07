@@ -13,16 +13,17 @@ import {
 	cleanupVolumes,
 	DEFAULT_UPDATE_DATA,
 	findServerById,
+	getAccessibleServerIds,
 	getDockerDiskUsage,
-	getNotployImageTag,
 	getLogCleanupStatus,
+	getNotployImageTag,
+	getRemoteDocker,
+	getServerIpCandidates,
 	getUpdateData,
 	getUpdateStatus,
 	getWebServerSettings,
-	isUpdateInstallable,
-	getAccessibleServerIds,
-	getRemoteDocker,
 	IS_CLOUD,
+	isUpdateInstallable,
 	NOTPLOY_IMAGE,
 	normalizeVersion,
 	parseRawConfig,
@@ -54,6 +55,10 @@ import {
 } from "@notploy/server";
 import { db } from "@notploy/server/db";
 import { checkPermission } from "@notploy/server/services/permission";
+import {
+	isValidIpAddress,
+	sortIpCandidates,
+} from "@notploy/server/utils/ip-address";
 import { generateOpenApiDocument } from "@notploy/trpc-openapi";
 import { TRPCError } from "@trpc/server";
 import { eq, sql } from "drizzle-orm";
@@ -93,6 +98,24 @@ export const settingsRouter = createTRPCRouter({
 		}
 		const settings = await getWebServerSettings();
 		return settings;
+	}),
+	/**
+	 * Addresses this machine can be reached at, so the user can declare its LAN
+	 * address (e.g. 192.168.1.122) instead of the public IP when the instance runs
+	 * on a private network. Private addresses are offered first.
+	 */
+	getWebServerIpCandidates: adminProcedure.query(async () => {
+		if (IS_CLOUD) {
+			return { current: null, addresses: [] };
+		}
+		const [settings, candidates] = await Promise.all([
+			getWebServerSettings(),
+			getServerIpCandidates(),
+		]);
+		return {
+			current: settings?.serverIp ?? null,
+			addresses: sortIpCandidates(candidates),
+		};
 	}),
 	getControlPlaneRuntime: adminProcedure.query(async () => {
 		if (IS_CLOUD) {
@@ -941,8 +964,10 @@ export const settingsRouter = createTRPCRouter({
 	}),
 	updateServerIp: adminProcedure
 		.input(
-			z.object({
-				serverIp: z.string(),
+			z.object({					serverIp: z.string().trim().refine(isValidIpAddress, {
+						message:
+							"Enter a valid IPv4 or IPv6 address, e.g. 192.168.1.122 or 2001:db8::10",
+					}),
 			}),
 		)
 		.mutation(async ({ input, ctx }) => {

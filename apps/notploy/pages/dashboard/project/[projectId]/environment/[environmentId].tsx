@@ -10,6 +10,7 @@ import {
 	FolderInput,
 	GlobeIcon,
 	Loader2,
+	Network,
 	Play,
 	PlusIcon,
 	RefreshCw,
@@ -52,6 +53,7 @@ import { DateTooltip } from "@/components/shared/date-tooltip";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { FocusShortcutInput } from "@/components/shared/focus-shortcut-input";
 import { StatusTooltip } from "@/components/shared/status-tooltip";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -128,6 +130,8 @@ export type Services = {
 	status?: "idle" | "running" | "done" | "error";
 	lastDeployDate?: Date | null;
 	icon?: string | null;
+	/** Applications only: service runs on its own dedicated overlay network. */
+	isolatedNetwork?: boolean;
 };
 
 type Environment = Awaited<ReturnType<typeof findEnvironmentById>>;
@@ -167,6 +171,7 @@ export const extractServicesFromEnvironment = (
 				serverName: item?.server?.name || null,
 				lastDeployDate,
 				icon: item.icon || null,
+				isolatedNetwork: item.isolatedNetwork,
 			};
 		}) || [];
 
@@ -467,6 +472,32 @@ const EnvironmentPage = (
 		move: api.application.move.useMutation(),
 		delete: api.application.delete.useMutation(),
 		deploy: api.application.deploy.useMutation(),
+	};
+
+	// The environment list is the quick way to isolate an application without
+	// opening its settings; the same flag lives in the service's Networks card.
+	const toggleIsolation = api.application.update.useMutation();
+
+	const handleToggleIsolation = async (service: Services) => {
+		if (service.type !== "application") return;
+		const next = !service.isolatedNetwork;
+		toast.promise(
+			(async () => {
+				await toggleIsolation.mutateAsync({
+					applicationId: service.id,
+					isolatedNetwork: next,
+				});
+			})(),
+			{
+				loading: `${next ? "Enabling" : "Disabling"} isolated network for ${service.name}...`,
+				success: () => {
+					utils.environment.one.invalidate({ environmentId });
+					return `Isolated network ${next ? "enabled" : "disabled"}. Redeploy ${service.name} to apply it.`;
+				},
+				error: (error) =>
+					`Error updating ${service.name}: ${error instanceof Error ? error.message : "Unknown error"}`,
+			},
+		);
 	};
 
 	const postgresActions = {
@@ -1047,7 +1078,6 @@ const EnvironmentPage = (
 										</Button>
 									</EnvironmentVariables>
 								</CardTitle>
-
 							</CardHeader>
 							<div className="flex flex-row gap-4 flex-wrap justify-between items-center">
 								<div className="flex flex-row gap-4 flex-wrap">
@@ -1659,6 +1689,16 @@ const EnvironmentPage = (
 																				<div className="flex flex-col gap-2">
 																					<span className="text-base flex items-center gap-2 font-medium leading-none flex-wrap">
 																						{service.name}
+																						{service.type === "application" &&
+																							service.isolatedNetwork && (
+																								<Badge
+																									variant="secondary"
+																									className="gap-1"
+																								>
+																									<Network className="size-3" />
+																									Isolated
+																								</Badge>
+																							)}
 																					</span>
 																					{service.description && (
 																						<span className="text-sm font-medium text-muted-foreground">
@@ -1736,6 +1776,19 @@ const EnvironmentPage = (
 																	{service.name}
 																</ContextMenuLabel>
 																<ContextMenuSeparator />
+																{service.type === "application" && (
+																	<ContextMenuItem
+																		className="flex items-center gap-2"
+																		onClick={() =>
+																			handleToggleIsolation(service)
+																		}
+																	>
+																		<Network className="size-4" />
+																		{service.isolatedNetwork
+																			? "Disable isolated network"
+																			: "Enable isolated network"}
+																	</ContextMenuItem>
+																)}
 																<ContextMenuItem
 																	className="flex items-center gap-2"
 																	onClick={() =>

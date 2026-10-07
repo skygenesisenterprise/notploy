@@ -9,6 +9,7 @@ const baseApp: ApplicationNested = {
 	previewLabels: [],
 	networkIds: [],
 	detachNotployNetwork: false,
+	isolatedNetwork: false,
 	createEnvFile: true,
 	bitbucketRepositorySlug: "",
 	herokuVersion: "",

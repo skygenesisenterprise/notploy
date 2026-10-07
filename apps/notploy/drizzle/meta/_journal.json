@@ -1436,6 +1436,13 @@
       "when": 1791211074993,
       "tag": "0205_bumpy_nico_minoru",
       "breakpoints": true
+    },
+    {
+      "idx": 206,
+      "version": "7",
+      "when": 1791374387648,
+      "tag": "0206_hesitant_anthem",
+      "breakpoints": true
     }
   ]
 }

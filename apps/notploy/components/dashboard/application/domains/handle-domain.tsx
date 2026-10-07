@@ -536,9 +536,11 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 																<FormDescription>
 																	{domainRequirements.scope === "localhost"
 																		? "Localhost domain. Public DNS is not required; HTTPS must use a certificate already available in Traefik."
-																		: domainRequirements.scope === "lan"
-																			? "LAN domain. This hostname must resolve to your Notploy server through your local DNS or hosts configuration."
-																			: "Internal domain. Public DNS and Let's Encrypt are not required."}
+																		: domainRequirements.scope === "local"
+																			? ".local domain. This hostname resolves over mDNS/Bonjour or your local DNS configuration."
+																			: domainRequirements.scope === "lan"
+																				? "LAN domain. This hostname must resolve to your Notploy server through your local DNS or hosts configuration."
+																				: "Internal domain. Public DNS and Let's Encrypt are not required."}
 																</FormDescription>
 															)}
 														<FormMessage />
@@ -578,7 +580,10 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 											<FormLabel>Host</FormLabel>
 											<div className="flex gap-2">
 												<FormControl>
-													<Input placeholder="api.notploy.com" {...field} />
+													<Input
+														placeholder="api.notploy.com or gitlab.notploy.lan"
+														{...field}
+													/>
 												</FormControl>
 												<TooltipProvider delayDuration={0}>
 													<Tooltip>

@@ -6,8 +6,12 @@ describe("getDomainRequirements", () => {
 		["api.example.com", "public", true, true],
 		["app.localhost", "localhost", false, false],
 		["api.lan", "lan", false, false],
+		["gitlab.notploy.local", "local", false, false],
+		["notploy.local", "local", false, false],
 		["app.home.arpa", "custom", false, false],
 		["service.internal.example", "custom", false, false],
+		["notlocalhost.com", "public", true, true],
+		["local.example.com", "public", true, true],
 	] as const)(
 		"classifies %s",
 		(host, scope, requiresPublicDns, allowsPublicAcme) => {

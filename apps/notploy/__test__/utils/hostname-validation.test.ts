@@ -14,6 +14,9 @@ describe("VALID_HOSTNAME_REGEX", () => {
 		"localhost",
 		"app.localhost",
 		"api.lan",
+		"app.local",
+		"gitlab.notploy.local",
+		"server-01.lan",
 		"service.internal.example",
 		"app.home.arpa",
 	])("accepts valid hostname %s", (host) => {

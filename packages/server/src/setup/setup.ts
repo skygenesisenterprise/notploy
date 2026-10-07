@@ -28,7 +28,7 @@ export const initializeNetwork = async () => {
 	if (networkInitialized) {
 		console.log("Network is already initialized");
 	} else {
-		docker.createNetwork({
+		await docker.createNetwork({
 			Attachable: true,
 			Name: "notploy-network",
 			Driver: "overlay",

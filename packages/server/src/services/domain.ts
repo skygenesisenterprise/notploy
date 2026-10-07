@@ -15,7 +15,10 @@ import { type apiCreateDomain, domains } from "../db/schema";
 import { findApplicationById } from "./application";
 import { detectCDNProvider } from "./cdn";
 import { findServerById } from "./server";
-import { getDomainRequirements } from "../utils/domain-scope";
+import {
+	type DomainScope,
+	getDomainRequirements,
+} from "../utils/domain-scope";
 
 export type Domain = typeof domains.$inferSelect;
 
@@ -177,6 +180,23 @@ const resolveDns = async (domain: string): Promise<string[]> => {
 		: new Error("Failed to resolve domain");
 };
 
+/**
+ * Explains why public DNS validation is skipped, so the domain table can show a
+ * reason that matches how the hostname is meant to resolve.
+ */
+const internalSkipReason = (scope: DomainScope) => {
+	switch (scope) {
+		case "lan":
+			return "LAN hostname resolution depends on your local DNS or hosts configuration.";
+		case "local":
+			return ".local hostnames resolve over mDNS/Bonjour or your local DNS configuration.";
+		case "localhost":
+			return "Localhost is resolved by the machine itself, so public DNS does not apply.";
+		default:
+			return "Public DNS validation is not required for this internal hostname.";
+	}
+};
+
 export const validateDomain = async (
 	domain: string,
 	expectedIps?: string[],
@@ -190,14 +210,12 @@ export const validateDomain = async (
 	cdnProvider?: string;
 }> => {
 	const cleanDomain = domain.replace(/^https?:\/\//, "").split("/")[0] || "";
-	if (!getDomainRequirements(cleanDomain).requiresPublicDns) {
+	const requirements = getDomainRequirements(cleanDomain);
+	if (!requirements.requiresPublicDns) {
 		return {
 			isValid: true,
 			skipped: true,
-			reason:
-				getDomainRequirements(cleanDomain).scope === "lan"
-					? "LAN hostname resolution depends on your local DNS or hosts configuration."
-					: "Public DNS validation is not required for this internal hostname.",
+			reason: internalSkipReason(requirements.scope),
 		};
 	}
 

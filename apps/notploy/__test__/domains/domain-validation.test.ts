@@ -145,19 +145,26 @@ describe("validateDomain", () => {
 			isValid: true,
 			resolvedIp: "2001:db8::10",
 		});
+	});
 
-		it("skips public DNS resolution for localhost and LAN domains", async () => {
-			await expect(validateDomain("api.localhost")).resolves.toMatchObject({
-				isValid: true,
-				skipped: true,
-			});
-			await expect(validateDomain("api.lan")).resolves.toMatchObject({
-				isValid: true,
-				skipped: true,
-				reason: expect.stringContaining("local DNS"),
-			});
-			expect(mocks.resolve4).not.toHaveBeenCalled();
-			expect(mocks.resolve6).not.toHaveBeenCalled();
+	it("skips public DNS resolution for localhost, LAN and mDNS domains", async () => {
+		await expect(validateDomain("api.localhost")).resolves.toMatchObject({
+			isValid: true,
+			skipped: true,
 		});
+		await expect(validateDomain("api.lan")).resolves.toMatchObject({
+			isValid: true,
+			skipped: true,
+			reason: expect.stringContaining("local DNS"),
+		});
+		await expect(
+			validateDomain("gitlab.notploy.local"),
+		).resolves.toMatchObject({
+			isValid: true,
+			skipped: true,
+			reason: expect.stringContaining("mDNS"),
+		});
+		expect(mocks.resolve4).not.toHaveBeenCalled();
+		expect(mocks.resolve6).not.toHaveBeenCalled();
 	});
 });

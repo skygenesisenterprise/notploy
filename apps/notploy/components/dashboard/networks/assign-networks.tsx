@@ -47,12 +47,14 @@ export const AssignNetworks = ({ id, type }: Props) => {
 	const [open, setOpen] = useState(false);
 	const [selected, setSelected] = useState<string[]>([]);
 	const [detached, setDetached] = useState(false);
+	const [isolated, setIsolated] = useState(false);
 
 	const {
 		service,
 		serverId,
 		networkIds,
 		detachNotployNetwork,
+		isolatedNetwork,
 		updateAsync,
 		isUpdating,
 		refetch,
@@ -72,7 +74,8 @@ export const AssignNetworks = ({ id, type }: Props) => {
 	useEffect(() => {
 		setSelected(networkIds ?? []);
 		setDetached(detachNotployNetwork ?? false);
-	}, [networkIds, detachNotployNetwork]);
+		setIsolated(isolatedNetwork ?? false);
+	}, [networkIds, detachNotployNetwork, isolatedNetwork]);
 
 	const availableNetworks = (networks ?? []).filter(
 		(n) => n.driver === "overlay",
@@ -83,7 +86,8 @@ export const AssignNetworks = ({ id, type }: Props) => {
 	const isDirty =
 		selected.length !== (networkIds?.length ?? 0) ||
 		selected.some((networkId) => !networkIds?.includes(networkId)) ||
-		detached !== detachNotployNetwork;
+		detached !== detachNotployNetwork ||
+		(type === "application" && isolated !== isolatedNetwork);
 
 	const toggle = (networkId: string) => {
 		setSelected((prev) =>
@@ -98,6 +102,8 @@ export const AssignNetworks = ({ id, type }: Props) => {
 			await updateAsync({
 				networkIds: selected,
 				detachNotployNetwork: detached,
+				// Only applications can own a dedicated network today.
+				...(type === "application" && { isolatedNetwork: isolated }),
 			});
 			toast.success("Networks updated. Redeploy the service to apply them.");
 			await refetch();
@@ -115,11 +121,37 @@ export const AssignNetworks = ({ id, type }: Props) => {
 					<CardTitle className="text-xl">Networks</CardTitle>
 					<CardDescription>
 						Attach additional Docker networks to this service so it can reach
-						services on those networks. Takes effect on the next deploy.
+						services on those networks. Applications can also run on a dedicated
+						isolated network. Takes effect on the next deploy.
 					</CardDescription>
 				</div>
 			</CardHeader>
 			<CardContent className="flex flex-col gap-4">
+				{type === "application" && (
+					<div className="flex flex-row items-start justify-between gap-3 rounded-lg border p-4">
+						<div className="space-y-1 pr-1">
+							<div className="flex items-center gap-2">
+								<span className="text-sm font-medium">Isolated network</span>
+								<Badge variant="secondary">{"notploy-iso-<app>"}</Badge>
+							</div>
+							<p className="text-sm text-muted-foreground">
+								Give this application its own dedicated overlay network so it is
+								isolated from other services. It still joins notploy-network, so
+								its domains keep working through Traefik.
+							</p>
+						</div>
+						<Switch checked={isolated} onCheckedChange={setIsolated} />
+					</div>
+				)}
+
+				{isolated && detached && (
+					<AlertBlock type="warning">
+						A detached service keeps only its dedicated network, which Traefik
+						cannot reach. Leave notploy-network attached so the domain stays
+						accessible.
+					</AlertBlock>
+				)}
+
 				<div className="flex flex-row items-start justify-between gap-3 rounded-lg border p-4">
 					<div className="space-y-1 pr-1">
 						<div className="flex items-center gap-2">
@@ -343,6 +375,9 @@ const useServiceNetworks = (id: string, type: ServiceType) => {
 		serverId: service?.serverId ?? null,
 		networkIds: service?.networkIds ?? [],
 		detachNotployNetwork: service?.detachNotployNetwork ?? false,
+		isolatedNetwork:
+			(service as { isolatedNetwork?: boolean } | undefined)?.isolatedNetwork ??
+			false,
 		updateAsync: map.save,
 		isUpdating: map.mutation.isPending,
 		refetch: map.query.refetch,
@@ -352,4 +387,5 @@ const useServiceNetworks = (id: string, type: ServiceType) => {
 type SavePayload = {
 	networkIds: string[];
 	detachNotployNetwork: boolean;
+	isolatedNetwork?: boolean;
 };

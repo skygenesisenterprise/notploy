@@ -51,6 +51,7 @@ export const statements = {
 	auditLog: ["read"],
 	vaultProvider: ["read", "create", "update", "delete"],
 	dnsProvider: ["read", "create", "update", "delete"],
+	networkProvider: ["read", "create", "update", "delete"],
 } as const;
 
 export const ac = createAccessControl(statements);
@@ -72,6 +73,7 @@ export const ownerRole = ac.newRole({
 	gitProviders: ["read", "create", "delete"],
 	traefikFiles: ["read", "write"],
 	api: ["read"],
+	networkProvider: ["read", "create", "update", "delete"],
 	volume: ["read", "create", "delete"],
 	deployment: ["read", "create", "cancel"],
 	envVars: ["read", "write"],
@@ -112,6 +114,7 @@ export const adminRole = ac.newRole({
 	gitProviders: ["read", "create", "delete"],
 	traefikFiles: ["read", "write"],
 	api: ["read"],
+	networkProvider: ["read", "create", "update", "delete"],
 	volume: ["read", "create", "delete"],
 	deployment: ["read", "create", "cancel"],
 	envVars: ["read", "write"],
@@ -178,4 +181,5 @@ export const memberRole = ac.newRole({
 	// Members need provider/secret names for env editor autocomplete; values are never exposed
 	vaultProvider: ["read"],
 	dnsProvider: [],
+	networkProvider: [],
 });

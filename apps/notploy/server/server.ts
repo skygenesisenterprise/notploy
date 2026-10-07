@@ -8,6 +8,7 @@ import {
 	initCronJobs,
 	initializeNetwork,
 	initSchedules,
+	initializeSwarm,
 	initVolumeBackupsCronJobs,
 	sendNotployRestartNotifications,
 	setupDirectories,
@@ -40,6 +41,21 @@ if (!IS_CLOUD) {
 	console.log("✅ initialization complete");
 }
 
+/**
+ * Deployments attach their services (and Traefik) to the shared
+ * `notploy-network`, so it must exist before the first deploy. Production calls
+ * this from the bootstrap block below; development needs it too because the
+ * Compose dev stack starts the app without running `pnpm setup`.
+ */
+const ensureNotployNetwork = async () => {
+	try {
+		await initializeSwarm();
+		await initializeNetwork();
+	} catch (error) {
+		console.error("Failed to initialize notploy-network", error);
+	}
+};
+
 const app = next({ dev, turbopack: process.env.TURBOPACK === "1" });
 const handle = app.getRequestHandler();
 void app.prepare().then(async () => {
@@ -65,9 +81,11 @@ void app.prepare().then(async () => {
 		// Serves the Notploy Internal DNS zones to the local network and forwards
 		// everything else upstream. Disabled with NOTPLOY_DNS_SERVER=false.
 		startInternalDnsServer();
+		if (!IS_CLOUD) {
+			await ensureNotployNetwork();
+		}
 		if (process.env.NODE_ENV === "production" && !IS_CLOUD) {
 			createDefaultMiddlewares();
-			await initializeNetwork();
 			await initCronJobs();
 			await initSchedules();
 			await initCancelDeployments();

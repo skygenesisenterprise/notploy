@@ -75,10 +75,10 @@ export const ensureInternalDnsZone = async (
 
 /**
  * Registers a LAN/internal domain in the organization's Notploy Internal DNS
- * provider so `gitlab.notploy.lan` resolves without any external DNS. Public and
- * localhost domains are ignored. The provider is never created implicitly: when
- * none exists the caller receives `no-provider` and can point the user at the
- * DNS settings page.
+ * provider so `gitlab.notploy.lan` or `gitlab.notploy.local` resolves without
+ * any external DNS. Public and localhost domains are ignored. The provider is
+ * never created implicitly: when none exists the caller receives `no-provider`
+ * and can point the user at the DNS settings page.
  */
 export const syncDomainToInternalDns = async ({
 	host,

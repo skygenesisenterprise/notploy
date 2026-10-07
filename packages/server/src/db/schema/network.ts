@@ -11,6 +11,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { organization } from "./account";
+import { networkProvider } from "./network-provider";
 import { server } from "./server";
 
 export const networkDriver = pgEnum("networkDriver", ["bridge", "overlay"]);
@@ -43,6 +44,12 @@ export const network = pgTable("network", {
 	serverId: text("serverId").references(() => server.serverId, {
 		onDelete: "cascade",
 	}),
+	// The provider that owns this network. Null keeps legacy networks working
+	// exactly as before the provider abstraction was introduced.
+	networkProviderId: text("networkProviderId").references(
+		() => networkProvider.networkProviderId,
+		{ onDelete: "set null" },
+	),
 });
 
 export const networkRelations = relations(network, ({ one }) => ({
@@ -53,6 +60,10 @@ export const networkRelations = relations(network, ({ one }) => ({
 	server: one(server, {
 		fields: [network.serverId],
 		references: [server.serverId],
+	}),
+	provider: one(networkProvider, {
+		fields: [network.networkProviderId],
+		references: [networkProvider.networkProviderId],
 	}),
 }));
 
@@ -81,6 +92,7 @@ const createSchema = createInsertSchema(network, {
 		.optional(),
 	organizationId: z.string().min(1),
 	serverId: z.string().optional().nullable(),
+	networkProviderId: z.string().optional().nullable(),
 });
 
 const validateNetworkInput = (
@@ -122,6 +134,7 @@ export const apiCreateNetwork = createSchema
 		mtu: true,
 		ipam: true,
 		serverId: true,
+		networkProviderId: true,
 	})
 	.partial()
 	.required({ name: true })

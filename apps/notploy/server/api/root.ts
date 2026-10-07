@@ -27,6 +27,7 @@ import { mongoRouter } from "./routers/mongo";
 import { mountRouter } from "./routers/mount";
 import { mysqlRouter } from "./routers/mysql";
 import { networkRouter } from "./routers/network";
+import { networkProviderRouter } from "./routers/network-provider";
 import { notificationRouter } from "./routers/notification";
 import { objectStorageRouter } from "./routers/object-storage";
 import { operationalEventRouter } from "./routers/operational-event";
@@ -71,6 +72,7 @@ export const appRouter = createTRPCRouter({
 	backup: backupRouter,
 	bitbucket: bitbucketRouter,
 	network: networkRouter,
+	networkProvider: networkProviderRouter,
 	certificates: certificateRouter,
 	cicd: cicdRouter,
 	cluster: clusterRouter,

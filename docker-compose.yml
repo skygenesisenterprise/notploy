@@ -29,6 +29,11 @@
 # http://localhost:3000 whatever the mode. They are mutually exclusive: only
 # one of them can own the port at a time.
 #
+# Both also bind-mount `templates/blueprints` read-only and point
+# NOTPLOY_TEMPLATES_DIR at it, so the template gallery keeps working when
+# https://templates.notploy.com is unreachable (the production image ships
+# without the blueprints, only the dev image carries the repo sources).
+#
 # Or use the Makefile wrappers: `make docker-up`, `make docker-up NOTPLOY_FLAVOR=cloud`,
 # `make docker-dev`.
 #
@@ -128,6 +133,10 @@ services:
       NOTPLOY_DNS_UPSTREAM: ${NOTPLOY_DNS_UPSTREAM:-1.1.1.1,8.8.8.8}
       # Share the Traefik config with the Compose-managed `traefik` service.
       NOTPLOY_CONFIG_PATH: /etc/notploy
+      # Blueprints bind-mounted read-only below: they are served locally
+      # instead of https://templates.notploy.com, so templates still resolve
+      # when that domain is down (same setup as `notploy-dev`).
+      NOTPLOY_TEMPLATES_DIR: /app/templates/blueprints
     ports:
       # Host port is configurable; the container always listens on 3000.
       - "${NOTPLOY_PORT:-3000}:3000"
@@ -147,6 +156,11 @@ services:
       - notploy-config:/etc/notploy
       # Docker registry/credential state used by the deployment pipeline.
       - notploy-docker:/root/.docker
+      # Templates gallery blueprints from the checkout, read-only: the app
+      # reads them through NOTPLOY_TEMPLATES_DIR (above) so template browsing
+      # and deployment fall back to local files when
+      # https://templates.notploy.com is unavailable.
+      - ./templates:/app/templates:ro
     networks:
       - notploy
 
@@ -248,10 +262,14 @@ services:
     networks:
       - notploy
 
+# Shared deployment network. Its real name must stay `notploy-network`:
+# the installer, the Traefik config and the domain labels Notploy generates all
+# hardcode it, and deployments attach their `external: notploy-network` to it.
 networks:
   notploy:
-    name: notploy
-    driver: bridge
+    name: notploy-network
+    driver: overlay
+    attachable: true
 
 volumes:
   notploy-postgres-data:
