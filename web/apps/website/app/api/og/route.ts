@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
 			}
 
 			const ogImage = await generateOGImage({
-				title: `Deploy ${template.name} on Dokploy`,
-				label: "Dokploy - Open Source Templates",
+				title: `Deploy ${template.name} on Notploy`,
+				label: "Notploy - Open Source Templates",
 			});
 
 			return new Response(ogImage, {

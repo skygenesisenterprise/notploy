@@ -29,9 +29,9 @@ export function CodeBlock({ code, lang, initial }: CodeBlockProps) {
 	if (!nodes) {
 		return (
 			<div className="group relative">
-				<div className="animate-pulse overflow-auto rounded-lg bg-[#18191F] p-4 text-sm">
-					<div className="mb-2 h-4 w-3/4 rounded bg-gray-700" />
-					<div className="h-4 w-1/2 rounded bg-gray-700" />
+				<div className="animate-pulse overflow-auto rounded-lg bg-card p-4 text-sm">
+					<div className="mb-2 h-4 w-3/4 rounded bg-muted" />
+					<div className="h-4 w-1/2 rounded bg-muted" />
 				</div>
 			</div>
 		);
@@ -40,7 +40,7 @@ export function CodeBlock({ code, lang, initial }: CodeBlockProps) {
 	return (
 		<div className="group relative">
 			<CopyButton text={code} />
-			<div className="overflow-auto rounded-lg bg-[#18191F] p-4 text-sm">
+			<div className="overflow-auto rounded-lg bg-card p-4 text-sm">
 				{nodes}
 			</div>
 		</div>

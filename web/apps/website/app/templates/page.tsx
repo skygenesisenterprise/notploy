@@ -6,16 +6,16 @@ import { TemplateCard } from "./components/TemplateCard";
 export const metadata: Metadata = {
 	title: "Open Source Templates - One-Click Self-Hosted Deployments",
 	description:
-		"Browse 500+ open source templates ready to deploy on Dokploy with one click. Self-host databases, CMS, analytics, AI tools, and more with Docker Compose.",
+		"Browse 500+ open source templates ready to deploy on Notploy with one click. Self-host databases, CMS, analytics, AI tools, and more with Docker Compose.",
 	alternates: {
-		canonical: "https://dokploy.com/templates",
+		canonical: "https://notploy.com/templates",
 	},
 	openGraph: {
-		title: "Dokploy Open Source Templates",
+		title: "Notploy Open Source Templates",
 		description:
-			"Browse 500+ open source templates ready to deploy on Dokploy with one click.",
+			"Browse 500+ open source templates ready to deploy on Notploy with one click.",
 		type: "website",
-		url: "https://dokploy.com/templates",
+		url: "https://notploy.com/templates",
 	},
 };
 
@@ -54,7 +54,7 @@ export default async function TemplatesPage({
 				<h1 className="text-4xl font-bold">Open Source Templates</h1>
 				<p className="mt-3 max-w-2xl text-lg text-muted-foreground">
 					{templates.length}+ pre-configured open source templates you can
-					deploy on Dokploy with a single click.
+					deploy on Notploy with a single click.
 				</p>
 			</div>
 

@@ -6,37 +6,24 @@ import NumberTicker from "@/components/ui/number-ticker";
 import { Grid } from "@/components/stats";
 
 const statsValues = {
-	githubStars: 26000,
-	dockerDownloads: 6500000,
-	contributors: 200,
-	sponsors: 50,
+	githubStars: 0,
+	contributors: 0,
 };
 
 export function ComparisonStats() {
 	const [githubStars, setGithubStars] = useState(statsValues.githubStars);
-	const [dockerDownloads, setDockerDownloads] = useState(
-		statsValues.dockerDownloads,
-	);
-	const [contributors, setContributors] = useState(
-		statsValues.contributors,
-	);
+	const [contributors, setContributors] = useState(statsValues.contributors);
 
 	useEffect(() => {
 		const fetchStats = async () => {
-			const [starsRes, dockerRes, contribRes] = await Promise.allSettled([
-				fetch("/api/github-stars?owner=dokploy&repo=dokploy"),
-				fetch("/api/docker-stats"),
+			const [starsRes, contribRes] = await Promise.allSettled([
+				fetch("/api/github-stars?owner=skygenesisenterprise&repo=notploy"),
 				fetch("/api/github-contributors"),
 			]);
 
 			if (starsRes.status === "fulfilled" && starsRes.value.ok) {
 				const data = await starsRes.value.json();
 				setGithubStars(data.stargazers_count);
-			}
-
-			if (dockerRes.status === "fulfilled" && dockerRes.value.ok) {
-				const data = await dockerRes.value.json();
-				setDockerDownloads(data.pull_count);
 			}
 
 			if (contribRes.status === "fulfilled" && contribRes.value.ok) {
@@ -53,16 +40,16 @@ export function ComparisonStats() {
 			<Container>
 				<div className="mx-auto max-w-2xl text-center">
 					<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-						Thousands have chosen Dokploy
+						Built in the open
 					</h2>
 					<p className="mt-4 text-lg text-muted-foreground">
-						Just a few numbers to show we're not completely making this up.
-						Turns out, Dokploy has actually helped a few people – who knew?
+						Notploy is developed publicly. Here is where you can see the
+						project for yourself.
 					</p>
 				</div>
 
 				<div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-					<div className="relative overflow-hidden rounded-xl border border-border/50 bg-gradient-to-b from-neutral-900 to-neutral-950 p-6 text-center">
+					<div className="relative overflow-hidden rounded-xl border border-border/50 bg-gradient-to-b from-card to-background p-6 text-center">
 						<Grid size={20} />
 						<p className="relative z-20 text-sm font-medium text-muted-foreground">
 							GitHub Stars
@@ -71,22 +58,10 @@ export function ComparisonStats() {
 							<NumberTicker value={githubStars} />+
 						</p>
 						<p className="relative z-20 mt-2 text-sm text-muted-foreground">
-							Trusted by developers worldwide
+							Follow the repository
 						</p>
 					</div>
-					<div className="relative overflow-hidden rounded-xl border border-border/50 bg-gradient-to-b from-neutral-900 to-neutral-950 p-6 text-center">
-						<Grid size={20} />
-						<p className="relative z-20 text-sm font-medium text-muted-foreground">
-							DockerHub Downloads
-						</p>
-						<p className="relative z-20 mt-2 text-3xl font-bold">
-							<NumberTicker value={dockerDownloads} />+
-						</p>
-						<p className="relative z-20 mt-2 text-sm text-muted-foreground">
-							Go-to solution for deployments
-						</p>
-					</div>
-					<div className="relative overflow-hidden rounded-xl border border-border/50 bg-gradient-to-b from-neutral-900 to-neutral-950 p-6 text-center">
+					<div className="relative overflow-hidden rounded-xl border border-border/50 bg-gradient-to-b from-card to-background p-6 text-center">
 						<Grid size={20} />
 						<p className="relative z-20 text-sm font-medium text-muted-foreground">
 							Community Contributors
@@ -95,19 +70,31 @@ export function ComparisonStats() {
 							<NumberTicker value={contributors} />+
 						</p>
 						<p className="relative z-20 mt-2 text-sm text-muted-foreground">
-							Thriving open source community
+							Code, docs and integrations
 						</p>
 					</div>
-					<div className="relative overflow-hidden rounded-xl border border-border/50 bg-gradient-to-b from-neutral-900 to-neutral-950 p-6 text-center">
+					<div className="relative overflow-hidden rounded-xl border border-border/50 bg-gradient-to-b from-card to-background p-6 text-center">
 						<Grid size={20} />
 						<p className="relative z-20 text-sm font-medium text-muted-foreground">
-							Sponsors
+							License
 						</p>
 						<p className="relative z-20 mt-2 text-3xl font-bold">
-							<NumberTicker value={statsValues.sponsors} />+
+							Apache-2.0
 						</p>
 						<p className="relative z-20 mt-2 text-sm text-muted-foreground">
-							Supporting the project
+							Open source and auditable
+						</p>
+					</div>
+					<div className="relative overflow-hidden rounded-xl border border-border/50 bg-gradient-to-b from-card to-background p-6 text-center">
+						<Grid size={20} />
+						<p className="relative z-20 text-sm font-medium text-muted-foreground">
+							Self-hosted
+						</p>
+						<p className="relative z-20 mt-2 text-3xl font-bold">
+							Your servers
+						</p>
+						<p className="relative z-20 mt-2 text-sm text-muted-foreground">
+							Or managed with Notploy Cloud
 						</p>
 					</div>
 				</div>

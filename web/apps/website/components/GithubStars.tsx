@@ -37,7 +37,7 @@ function extractRepoInfo(url: string): { owner: string; repo: string } | null {
 
 export function GithubStars({
 	className,
-	repoUrl = "https://github.com/dokploy/dokploy",
+	repoUrl = "https://github.com/skygenesisenterprise/notploy",
 	label = "GitHub Stars",
 	count: defaultCount = "26.4k",
 }: GithubStarsProps) {
@@ -80,9 +80,9 @@ export function GithubStars({
 			aria-label={`${label}: ${starCount}`}
 			className={cn(
 				"group relative inline-flex items-center gap-2 rounded-full px-3 py-1",
-				"shadow-[0_0_0_2px_#000_inset,0_2px_8px_rgba(0,0,0,0.35)]",
-				"bg-gradient-to-b from-yellow-300 via-yellow-400 to-yellow-500",
-				"text-black",
+				"shadow-[0_0_0_2px_oklch(var(--background))_inset,0_2px_8px_oklch(var(--background)/0.35)]",
+				"bg-gradient-to-b from-secondary to-accent",
+				"text-background",
 				"transition-transform hover:scale-[1.02] active:scale-[0.99]",
 				className,
 			)}
@@ -96,7 +96,7 @@ export function GithubStars({
 				<svg
 					viewBox="0 0 24 24"
 					className={cn(
-						"absolute -left-1 -top-1 h-3 w-3 text-yellow-100",
+						"absolute -left-1 -top-1 h-3 w-3 text-primary",
 						"drop-shadow-[0_0_6px_rgba(255,255,200,0.9)]",
 						"animate-pulse [animation-delay:.2s] [animation-duration:1.6s]",
 					)}
@@ -108,7 +108,7 @@ export function GithubStars({
 				<svg
 					viewBox="0 0 24 24"
 					className={cn(
-						"absolute -top-2 right-1 h-2.5 w-2.5 text-yellow-50",
+						"absolute -top-2 right-1 h-2.5 w-2.5 text-primary/80",
 						"drop-shadow-[0_0_6px_rgba(255,255,220,0.95)]",
 						"animate-pulse [animation-delay:.7s] [animation-duration:1.9s]",
 					)}
@@ -120,7 +120,7 @@ export function GithubStars({
 				<svg
 					viewBox="0 0 24 24"
 					className={cn(
-						"absolute -bottom-1 -right-1 h-3.5 w-3.5 text-yellow-200",
+						"absolute -bottom-1 -right-1 h-3.5 w-3.5 text-primary/60",
 						"drop-shadow-[0_0_8px_rgba(255,255,180,0.85)]",
 						"animate-pulse [animation-delay:1.1s] [animation-duration:2.2s]",
 					)}
@@ -138,7 +138,7 @@ export function GithubStars({
 				<span
 					className={cn(
 						"absolute -inset-x-10 -top-6 h-10 rotate-12",
-						"bg-white/40 blur-md",
+						"bg-card/40 blur-md",
 						"opacity-0 transition-opacity duration-500",
 						"group-hover:opacity-40",
 					)}
@@ -149,7 +149,7 @@ export function GithubStars({
 			<span
 				className={cn(
 					"flex h-6 w-6 items-center justify-center rounded-full",
-					"bg-black text-white",
+					"bg-background text-foreground",
 					"shadow-[inset_0_0_0_1px_rgba(255,255,255,0.15)]",
 				)}
 			>

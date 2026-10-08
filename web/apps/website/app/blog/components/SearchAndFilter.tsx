@@ -73,7 +73,7 @@ export function SearchAndFilter({
 		<div className="mb-8 flex flex-col gap-4 md:flex-row">
 			<div className="relative flex-1">
 				<div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-					<Search className="h-5 w-5 text-gray-400" />
+					<Search className="h-5 w-5 text-muted-foreground" />
 				</div>
 				<input
 					type="text"

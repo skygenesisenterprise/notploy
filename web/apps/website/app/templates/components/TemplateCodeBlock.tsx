@@ -44,7 +44,7 @@ export function EditorCopyButton({ text }: { text: string }) {
 		<button
 			type="button"
 			onClick={copy}
-			className="inline-flex h-7 w-7 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-white/10 hover:text-zinc-200"
+			className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-muted-foreground"
 			aria-label="Copy code"
 		>
 			{isCopied ? (
@@ -74,10 +74,10 @@ function CodeArea({ code, lang }: { code: string; lang: string }) {
 	if (!nodes) {
 		return (
 			<div className="animate-pulse space-y-2.5 p-4">
-				<div className="h-3.5 w-3/4 rounded bg-white/10" />
-				<div className="h-3.5 w-1/2 rounded bg-white/10" />
-				<div className="h-3.5 w-2/3 rounded bg-white/10" />
-				<div className="h-3.5 w-2/5 rounded bg-white/10" />
+				<div className="h-3.5 w-3/4 rounded bg-foreground/10" />
+				<div className="h-3.5 w-1/2 rounded bg-foreground/10" />
+				<div className="h-3.5 w-2/3 rounded bg-foreground/10" />
+				<div className="h-3.5 w-2/5 rounded bg-foreground/10" />
 			</div>
 		);
 	}
@@ -106,10 +106,10 @@ export function TemplateCodeBlock({
 	}
 
 	return (
-		<div className="my-4 overflow-hidden rounded-xl border border-white/10 bg-[#17191E] shadow-lg">
-			<div className="flex items-center gap-3 border-b border-white/10 bg-white/[0.03] px-4 py-2">
+		<div className="my-4 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+			<div className="flex items-center gap-3 border-b border-border bg-foreground/[0.03] px-4 py-2">
 				<TrafficLights />
-				<span className="font-mono text-xs text-zinc-500">
+				<span className="font-mono text-xs text-muted-foreground">
 					{fileName ?? lang}
 				</span>
 				<div className="ml-auto">

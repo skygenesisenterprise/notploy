@@ -10,54 +10,54 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-	title: "Dokploy vs. CapRover Comparison | Dokploy",
+	title: "Notploy vs. CapRover Comparison | Notploy",
 	description:
-		"Dokploy vs. CapRover: Compare self-hosted PaaS platforms for app deployment, database management, monitoring, and team collaboration.",
+		"Notploy vs. CapRover: Compare self-hosted PaaS platforms for app deployment, database management, monitoring, and team collaboration.",
 };
 
 type FeatureValue = boolean | "limited";
 
 interface FeatureRow {
 	feature: string;
-	dokploy: FeatureValue;
+	notploy: FeatureValue;
 	caprover: FeatureValue;
 	section?: string;
 }
 
 const featureComparisonRows: FeatureRow[] = [
 	// Setup & Installation
-	{ feature: "One-command installation", dokploy: true, caprover: true, section: "Setup & Installation" },
-	{ feature: "Installation feedback and progress logs", dokploy: true, caprover: false },
-	{ feature: "Works with firewall and Tailscale out of the box", dokploy: true, caprover: false },
-	{ feature: "Lightweight CPU usage while idle", dokploy: true, caprover: false },
-	{ feature: "Built with Next.js / TypeScript", dokploy: true, caprover: false },
+	{ feature: "One-command installation", notploy: true, caprover: true, section: "Setup & Installation" },
+	{ feature: "Installation feedback and progress logs", notploy: true, caprover: false },
+	{ feature: "Works with firewall and Tailscale out of the box", notploy: true, caprover: false },
+	{ feature: "Lightweight CPU usage while idle", notploy: true, caprover: false },
+	{ feature: "Built with Next.js / TypeScript", notploy: true, caprover: false },
 	// Deployment
-	{ feature: "Deploy from GitHub, GitLab, Bitbucket", dokploy: true, caprover: "limited", section: "Deployment" },
-	{ feature: "Auto-deploy on git push", dokploy: true, caprover: true },
-	{ feature: "Docker Compose support", dokploy: true, caprover: "limited" },
-	{ feature: "Deploy from custom Docker images", dokploy: true, caprover: true },
-	{ feature: "Nixpacks and Buildpack support", dokploy: true, caprover: false },
-	{ feature: "Preview deployments (review apps)", dokploy: true, caprover: false },
-	{ feature: "One-click app templates", dokploy: true, caprover: true },
+	{ feature: "Deploy from GitHub, GitLab, Bitbucket", notploy: true, caprover: "limited", section: "Deployment" },
+	{ feature: "Auto-deploy on git push", notploy: true, caprover: true },
+	{ feature: "Docker Compose support", notploy: true, caprover: "limited" },
+	{ feature: "Deploy from custom Docker images", notploy: true, caprover: true },
+	{ feature: "Nixpacks and Buildpack support", notploy: true, caprover: false },
+	{ feature: "Preview deployments (review apps)", notploy: true, caprover: false },
+	{ feature: "One-click app templates", notploy: true, caprover: true },
 	// Networking & Domains
-	{ feature: "Built-in reverse proxy (Dokploy: Traefik, CapRover: Nginx)", dokploy: true, caprover: true, section: "Networking & Domains" },
-	{ feature: "Automatic SSL via Let's Encrypt", dokploy: true, caprover: true },
-	{ feature: "Custom domain management", dokploy: true, caprover: true },
+	{ feature: "Built-in reverse proxy (Notploy: Traefik, CapRover: Nginx)", notploy: true, caprover: true, section: "Networking & Domains" },
+	{ feature: "Automatic SSL via Let's Encrypt", notploy: true, caprover: true },
+	{ feature: "Custom domain management", notploy: true, caprover: true },
 	// Infrastructure
-	{ feature: "Multi-server deployment", dokploy: true, caprover: "limited", section: "Infrastructure" },
-	{ feature: "Docker Swarm clustering", dokploy: true, caprover: true },
-	{ feature: "Scheduled database backups (S3)", dokploy: true, caprover: false },
-	{ feature: "Back up arbitrary Docker volumes", dokploy: true, caprover: false },
+	{ feature: "Multi-server deployment", notploy: true, caprover: "limited", section: "Infrastructure" },
+	{ feature: "Docker Swarm clustering", notploy: true, caprover: true },
+	{ feature: "Scheduled database backups (S3)", notploy: true, caprover: false },
+	{ feature: "Back up arbitrary Docker volumes", notploy: true, caprover: false },
 	// Monitoring & Alerts
-	{ feature: "Real-time monitoring (CPU, RAM, disk)", dokploy: true, caprover: false, section: "Monitoring & Alerts" },
-	{ feature: "Metrics enabled by default", dokploy: true, caprover: false },
-	{ feature: "Automated alerts from metrics", dokploy: true, caprover: false },
+	{ feature: "Real-time monitoring (CPU, RAM, disk)", notploy: true, caprover: false, section: "Monitoring & Alerts" },
+	{ feature: "Metrics enabled by default", notploy: true, caprover: false },
+	{ feature: "Automated alerts from metrics", notploy: true, caprover: false },
 	// Teams & Access
-	{ feature: "Teams and multi-user support", dokploy: true, caprover: false, section: "Teams & Access" },
-	{ feature: "Role-based access control (RBAC)", dokploy: true, caprover: false },
-	{ feature: "Projects grouping", dokploy: true, caprover: false },
-	{ feature: "API and CLI access", dokploy: true, caprover: true },
-	{ feature: "AI-assisted deployments", dokploy: true, caprover: false },
+	{ feature: "Teams and multi-user support", notploy: true, caprover: false, section: "Teams & Access" },
+	{ feature: "Role-based access control (RBAC)", notploy: true, caprover: false },
+	{ feature: "Projects grouping", notploy: true, caprover: false },
+	{ feature: "API and CLI access", notploy: true, caprover: true },
+	{ feature: "AI-assisted deployments", notploy: true, caprover: false },
 ];
 
 const whyChooseItems = [
@@ -65,40 +65,40 @@ const whyChooseItems = [
 		icon: Zap,
 		title: "Go beyond simple app hosting",
 		description:
-			"CapRover is great for getting a single app online fast, but Dokploy handles the full deployment lifecycle. From git-connected builds with Nixpacks and Buildpacks to Docker Compose orchestration, preview deployments, and multi-server scaling—Dokploy grows with your project instead of hitting a ceiling.",
+			"CapRover is great for getting a single app online fast, but Notploy handles the full deployment lifecycle. From git-connected builds with Nixpacks and Buildpacks to Docker Compose orchestration, preview deployments, and multi-server scaling—Notploy grows with your project instead of hitting a ceiling.",
 		image: {
-			src: "/images/dokploy-build-logs.png",
-			alt: "Dokploy deployment panel showing build and deployment logs",
+			src: "/images/notploy-build-logs.png",
+			alt: "Notploy deployment panel showing build and deployment logs",
 		},
 	},
 	{
 		icon: Bell,
 		title: "Monitor, alert, and back up without plugins",
 		description:
-			"CapRover doesn't include built-in monitoring or backup tools—you'd need to bolt on Prometheus, Grafana, or custom scripts. Dokploy ships with real-time CPU, memory, and disk metrics, automated alerting, and scheduled S3-compatible backups for databases and volumes, all in one dashboard.",
+			"CapRover doesn't include built-in monitoring or backup tools—you'd need to bolt on Prometheus, Grafana, or custom scripts. Notploy ships with real-time CPU, memory, and disk metrics, automated alerting, and scheduled S3-compatible backups for databases and volumes, all in one dashboard.",
 		image: {
-			src: "/images/dokploy-monitoring-dashboard.png",
-			alt: "Dokploy monitoring dashboard showing CPU, memory and disk metrics",
+			src: "/images/notploy-monitoring-dashboard.png",
+			alt: "Notploy monitoring dashboard showing CPU, memory and disk metrics",
 		},
 	},
 	{
 		icon: Users,
 		title: "Collaborate with your team from day one",
 		description:
-			"CapRover is designed for single-user setups with no built-in team management, RBAC, or project organization. Dokploy supports multiple users, role-based permissions, and project grouping out of the box—making it ready for teams and agencies, not just solo side projects.",
+			"CapRover is designed for single-user setups with no built-in team management, RBAC, or project organization. Notploy supports multiple users, role-based permissions, and project grouping out of the box—making it ready for teams and agencies, not just solo side projects.",
 		image: {
-			src: "/images/dokploy-users.png",
-			alt: "Dokploy team members with role-based access permissions",
+			src: "/images/notploy-users.png",
+			alt: "Notploy team members with role-based access permissions",
 		},
 	},
 	{
 		icon: LayoutDashboard,
 		title: "Work in a modern, polished interface",
 		description:
-			"Dokploy's UI is built with Next.js and TypeScript, offering a fast, consistent experience with predictable workflows. CapRover's captain dashboard is functional but dated, and many operations require CLI commands or manual configuration. Dokploy keeps everything accessible in the browser.",
+			"Notploy's UI is built with Next.js and TypeScript, offering a fast, consistent experience with predictable workflows. CapRover's captain dashboard is functional but dated, and many operations require CLI commands or manual configuration. Notploy keeps everything accessible in the browser.",
 		image: {
-			src: "/images/dokploy-projects-dashboard.png",
-			alt: "Dokploy dashboard with projects and services grid",
+			src: "/images/notploy-projects-dashboard.png",
+			alt: "Notploy dashboard with projects and services grid",
 		},
 	},
 ];
@@ -106,17 +106,17 @@ const whyChooseItems = [
 const integrationRows = [
 	{
 		category: "Git providers",
-		dokploy: "GitHub, GitLab, Bitbucket, Gitea, Git Generic",
+		notploy: "GitHub, GitLab, Bitbucket, Gitea, Git Generic",
 		caprover: "GitHub (via webhook), custom Git",
 	},
 	{
 		category: "Build and deployment systems",
-		dokploy: "Docker, Docker Compose, Nixpacks, Heroku Buildpacks, Paketo Buildpacks, Railpack",
+		notploy: "Docker, Docker Compose, Nixpacks, Heroku Buildpacks, Paketo Buildpacks, Railpack",
 		caprover: "Docker, Captain Definition file",
 	},
 	{
 		category: "Notifications and communication",
-		dokploy: "Slack, Telegram, Discord, Lark, Email (SMTP), Resend, Gotify, Ntfy, Pushover, Webhook",
+		notploy: "Slack, Telegram, Discord, Lark, Email (SMTP), Resend, Gotify, Ntfy, Pushover, Webhook",
 		caprover: "None built-in",
 	},
 ];
@@ -127,11 +127,11 @@ function FeatureCell({ value }: { value: FeatureValue }) {
 	return <X className="mx-auto h-5 w-5 text-muted-foreground/50" />;
 }
 
-export default function DokployVsCapRoverPage() {
+export default function NotployVsCapRoverPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
 				<AnimatedGridPattern
 					numSquares={30}
 					maxOpacity={0.1}
@@ -143,8 +143,8 @@ export default function DokployVsCapRoverPage() {
 				/>
 				<Container className="relative z-10">
 					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
-							Dokploy vs. CapRover
+						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+							Notploy vs. CapRover
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
 							Both platforms let you self-host applications on your own server.
@@ -154,16 +154,16 @@ export default function DokployVsCapRoverPage() {
 
 						<div className="mt-16 grid gap-8 sm:grid-cols-2">
 							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-white">Dokploy</h3>
+								<h3 className="text-xl font-semibold text-foreground">Notploy</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									For teams that want a modern, polished deployment platform
 									with built-in monitoring, automated backups, multi-server
 									support, and a clean UI designed for productivity—choose
-									Dokploy.
+									Notploy.
 								</p>
 							</div>
 							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-white">CapRover</h3>
+								<h3 className="text-xl font-semibold text-foreground">CapRover</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									For solo developers who want a simple, Heroku-like PaaS with
 									one-click apps and a straightforward captain dashboard
@@ -174,26 +174,26 @@ export default function DokployVsCapRoverPage() {
 
 						<Button className="mt-10 rounded-full" asChild>
 							<Link
-								href="https://app.dokploy.com/register"
+								href="https://app.notploy.com/register"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								Get started with Dokploy
+								Get started with Notploy
 							</Link>
 						</Button>
 					</div>
 				</Container>
 			</section>
 
-			{/* Dokploy vs CapRover at a glance */}
+			{/* Notploy vs CapRover at a glance */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Dokploy vs. CapRover at a glance
+							Notploy vs. CapRover at a glance
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Read our comprehensive Dokploy vs. CapRover comparison before you
+							Read our comprehensive Notploy vs. CapRover comparison before you
 							make your decision.
 						</p>
 					</div>
@@ -203,7 +203,7 @@ export default function DokployVsCapRoverPage() {
 							<thead>
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Feature</th>
-									<th className="px-4 py-4 text-center font-semibold">Dokploy</th>
+									<th className="px-4 py-4 text-center font-semibold">Notploy</th>
 									<th className="px-4 py-4 text-center font-semibold">CapRover</th>
 								</tr>
 							</thead>
@@ -226,7 +226,7 @@ export default function DokployVsCapRoverPage() {
 										>
 											<td className="px-4 py-3 text-sm">{row.feature}</td>
 											<td className="px-4 py-3 text-center">
-												<FeatureCell value={row.dokploy} />
+												<FeatureCell value={row.notploy} />
 											</td>
 											<td className="px-4 py-3 text-center">
 												<FeatureCell value={row.caprover} />
@@ -240,12 +240,12 @@ export default function DokployVsCapRoverPage() {
 				</Container>
 			</section>
 
-			{/* Why you should go with Dokploy */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			{/* Why you should go with Notploy */}
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Why you should go with Dokploy
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Why you should go with Notploy
 						</h2>
 					</div>
 
@@ -261,7 +261,7 @@ export default function DokployVsCapRoverPage() {
 									<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
 										<item.icon className="h-6 w-6" />
 									</div>
-									<h3 className="text-xl font-semibold text-white">
+									<h3 className="text-xl font-semibold text-foreground">
 										{item.title}
 									</h3>
 									<p className="mt-3 text-muted-foreground">{item.description}</p>
@@ -283,15 +283,15 @@ export default function DokployVsCapRoverPage() {
 				</Container>
 			</section>
 
-			{/* Dokploy integrates with the leading solutions */}
+			{/* Notploy integrates with the leading solutions */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Dokploy integrates with the leading solutions
+							Notploy integrates with the leading solutions
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							When it comes to a Dokploy vs. CapRover comparison, you want the
+							When it comes to a Notploy vs. CapRover comparison, you want the
 							deployment platform that syncs with the tools in your workflow.
 						</p>
 					</div>
@@ -301,7 +301,7 @@ export default function DokployVsCapRoverPage() {
 							<thead>
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Category</th>
-									<th className="px-4 py-4 text-left font-semibold">Dokploy</th>
+									<th className="px-4 py-4 text-left font-semibold">Notploy</th>
 									<th className="px-4 py-4 text-left font-semibold">CapRover</th>
 								</tr>
 							</thead>
@@ -313,7 +313,7 @@ export default function DokployVsCapRoverPage() {
 									>
 										<td className="px-4 py-3 font-medium">{row.category}</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
-											{row.dokploy}
+											{row.notploy}
 										</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
 											{row.caprover}
@@ -326,16 +326,16 @@ export default function DokployVsCapRoverPage() {
 				</Container>
 			</section>
 
-			{/* Why Dokploy is perfect for teams */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			{/* Why Notploy is perfect for teams */}
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Why Dokploy is perfect for teams of any size
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Why Notploy is perfect for teams of any size
 						</h2>
 						<p className="mt-6 text-lg text-muted-foreground">
 							Whether you're outgrowing CapRover's single-user setup or planning
-							a production deployment from the start, Dokploy gives you the team
+							a production deployment from the start, Notploy gives you the team
 							features, monitoring, and automation that CapRover leaves
 							out—without sacrificing the simplicity of self-hosted deployments.
 						</p>

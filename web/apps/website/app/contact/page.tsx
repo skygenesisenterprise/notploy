@@ -51,14 +51,14 @@ export default function ContactPage() {
 				)}
 			/>
 			<Container>
-				<div className="relative z-10 mx-auto max-w-3xl rounded-lg border border-border bg-black p-8">
+				<div className="relative z-10 mx-auto max-w-3xl rounded-lg border border-border bg-background p-8">
 					<div className="text-center">
 						<h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
 							Contact Us
 						</h1>
 						<p className="mt-6 text-lg leading-8 text-muted-foreground">
 							Get in touch with our team. We're here to help with any questions
-							about Dokploy.
+							about Notploy.
 						</p>
 					</div>
 

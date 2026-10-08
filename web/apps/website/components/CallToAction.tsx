@@ -6,7 +6,7 @@ export function CallToAction() {
 	return (
 		<section
 			id="get-started-today"
-			className="relative  mt-20  overflow-hidden border-y border-border/30 bg-black py-10"
+			className="relative  mt-20  overflow-hidden border-y border-border/30 bg-background py-10"
 		>
 			<svg
 				viewBox="0 0 2000 1000"
@@ -29,19 +29,19 @@ export function CallToAction() {
 			</svg>
 			<Container className="relative z-30">
 				<div className="mx-auto max-w-lg text-center">
-					<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-						Unlock Your Deployment Potential with Dokploy Cloud
+					<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						Deploy and operate on infrastructure you own
 					</h2>
 					<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-						Say goodbye to infrastructure hassles—Dokploy Cloud handles it all.
-						Effortlessly deploy, manage Docker containers, and secure your
-						traffic with Traefik. Focus on building, we'll handle the rest.
+						Self-host Notploy on your own servers, or use Notploy Cloud and let us
+						run the control plane. Either way, deploy applications and databases
+						with routing, certificates and backups handled for you.
 					</p>
 
 					<Button className="mt-10 rounded-full" asChild>
 						<Link
 							href={"https://app.notploy.com/register"}
-							aria-label="Dokploy on GitHub"
+							aria-label="Create a Notploy account"
 							target="_blank"
 							className="flex flex-row items-center gap-2"
 						>

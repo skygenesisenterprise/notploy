@@ -7,7 +7,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { ContactFormModal } from "./ContactFormModal";
 import { Container } from "./Container";
-import { PricingFeatureTable } from "./pricing/PricingFeatureTable";
 import {
 	Accordion,
 	AccordionContent,
@@ -17,50 +16,40 @@ import {
 import AnimatedGridPattern from "./ui/animated-grid-pattern";
 import { Badge } from "./ui/badge";
 import { Button, buttonVariants } from "./ui/button";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 
 const CLOUD_APP_URL = "https://app.notploy.com";
+const DOCS_INSTALL_URL = "https://docs.notploy.com/docs/core/installation";
 
 const pricingFaqs = [
 	{
-		question: "What happens if I need more than one server?",
+		question: "Is Notploy free?",
 		answer:
-			"You can add as many servers as you need. Each additional server costs $4.50/month on the Hobby plan. On the Startup plan, 3 servers are included in the base price, and you can add more at $4.50/month each.",
+			"Yes. The core platform is open source under the Apache-2.0 license and the self-hosted edition is free to run on your own infrastructure.",
 	},
 	{
-		question: "How does the annual billing discount work?",
+		question: "What is the difference between Self and Cloud?",
 		answer:
-			"When you choose annual billing, you get a 20% discount on all plans. For example, the Hobby plan goes from $4.50/month to $3.60/month per server, billed annually.",
-	},
-	{
-		question: "Can I switch between plans?",
-		answer:
-			"Yes, you can upgrade or downgrade your plan at any time. When upgrading, you'll be prorated for the remainder of your billing cycle. When downgrading, the change takes effect at the start of your next billing cycle.",
+			"Notploy Self is the open-source product you host yourself. Notploy Cloud is a managed service operated by Notploy Enterprise: we run the control plane and take on operational responsibility, while you keep using the same platform.",
 	},
 	{
 		question: "Is there a limit on the number of deployments?",
 		answer:
-			"No, there is no limit on the number of deployments in any of the plans. You can deploy unlimited applications and databases.",
+			"No. The platform does not limit the number of applications, databases, services or deployments you can run. Practical limits come from the capacity of the infrastructure you provide.",
 	},
 	{
-		question: "What's included in the Enterprise plan?",
+		question: "What is the Enterprise edition?",
 		answer:
-			"The Enterprise plan includes unlimited servers and organizations, fine-grained RBAC, SSO/SAML integration (Azure, OKTA, etc.), SCIM user provisioning, audit logs, MSA/SLA, white labeling, and priority support. It's available as both Cloud and Self-Hosted.",
-	},
-	{
-		question: "Do you offer refunds?",
-		answer:
-			"We do not offer refunds. However, you can cancel your subscription at any time. Feel free to try our open-source version for free before making a purchase.",
-	},
-	{
-		question: "What kind of support do I get with each plan?",
-		answer:
-			"The Hobby plan includes community support via Discord. The Startup plan adds email and chat support. The Enterprise plan includes priority support and dedicated services.",
+			"A commercial edition with additional features and premium support, maintained by Sky Genesis Enterprise. It is available both as a managed service and self-hosted. Contact us to discuss your requirements.",
 	},
 	{
 		question: "Do I need to provide my own server?",
 		answer:
-			"Yes, you provide your own server (e.g., Hetzner, Hostinger, AWS, etc.) VPS, and we manage the Dokploy UI infrastructure for you.",
+			"Yes. You provide your own infrastructure — a VPS, dedicated servers, on-premise hardware or machines from a hosting provider — and Notploy deploys and operates your workloads on it.",
+	},
+	{
+		question: "What kind of support do I get?",
+		answer:
+			"Community support is available through Discord and GitHub for everyone. Commercial and enterprise customers can access premium support through Sky Genesis Enterprise.",
 	},
 ];
 
@@ -81,64 +70,41 @@ function SwirlyDoodle(props: React.ComponentPropsWithoutRef<"svg">) {
 	);
 }
 
-const hobbyFeatures = [
-	"Unlimited Deployments",
-	"Unlimited Databases",
-	"Unlimited Applications",
-	"Setup 1 Server",
-	"1 Organization",
-	"1 User",
-	"2 Environments",
-	"1 Volume Backup per Application",
-	"1 Backup per Database",
-	"1 Scheduled Job per Application",
-	"Community Support (Discord)",
+const selfFeatures = [
+	"Apache-2.0 open source",
+	"Full platform, no feature gating",
+	"Your servers, your data, your rules",
+	"Applications, Compose and databases",
+	"Servers and Docker Swarm clusters",
+	"Community support via Discord",
 ];
 
-const startupFeatures = [
-	"All the features of Hobby, plus…",
-	"Setup up to 3 Servers",
-	"3 Organizations",
-	"Unlimited Users",
-	"Unlimited Environments",
-	"Unlimited Volume Backups",
-	"Unlimited Database Backups",
-	"Unlimited Scheduled Jobs",
-	"Basic RBAC (Admin, Developer)",
-	"2FA",
-	"Email and Chat Support",
+const cloudFeatures = [
+	"Everything in Self, managed for you",
+	"Managed control plane and updates",
+	"Operational responsibility handled",
+	"Availability and support commitments",
+	"Same platform, no migration surprise",
+	"Start with an account, add your servers",
 ];
 
 const enterpriseFeatures = [
-	"All the features of Startup, plus…",
-	"Setup Unlimited Servers",
-	"Up to Unlimited Organizations",
-	"Fine-grained RBAC",
-	"Complete Hosting Flexibility",
-	"SSO / SAML (Azure, OKTA, etc)",
-	"SCIM User Provisioning",
-	"Audit Logs",
-	"MSA/SLA",
-	"White Labeling",
-	"Priority Support and Services",
+	"Everything in Cloud, plus…",
+	"Commercial edition",
+	"Premium support from Sky Genesis Enterprise",
+	"Deployment flexibility (Cloud or Self-hosted)",
+	"Assistance for regulated environments",
+	"Tailored onboarding",
 ];
 
 export function Pricing() {
-	const [isAnnual, setIsAnnual] = useState(false);
 	const [openContactModal, setOpenContactModal] = useState(false);
-	const [openPartnerModal, setOpenPartnerModal] = useState(false);
-
-	const hobbyMonthlyPrice = 4.5;
-	const hobbyAnnualTotal = hobbyMonthlyPrice * 12 * 0.8; // 20% discount, total per year
-	const hobbyAnnualPerMonth = hobbyAnnualTotal / 12;
-	const startupBaseMonthly = 15;
-	const startupBaseAnnual = startupBaseMonthly * 12 * 0.8;
 
 	return (
 		<section
 			id="pricing"
 			aria-label="Pricing"
-			className="relative border-t border-border/30 bg-black py-20 sm:py-32 overflow-hidden"
+			className="relative border-t border-border/30 bg-background py-20 sm:py-32 overflow-hidden"
 		>
 			<Container className="relative">
 				<div className="relative text-center overflow-hidden py-8 -my-8">
@@ -155,9 +121,9 @@ export function Pricing() {
 						)}
 					/>
 					<Link
-						href={`${CLOUD_APP_URL}/register`}
+						href="https://github.com/skygenesisenterprise/notploy"
 						target="_blank"
-						aria-label="Start your 7-day free trial, no credit card required"
+						aria-label="Notploy is open source and Apache-2.0 licensed"
 						className="relative mb-4 inline-flex"
 					>
 						<Badge
@@ -165,69 +131,43 @@ export function Pricing() {
 							className="gap-1.5 border-primary/30 bg-primary/10 px-3 py-1 text-primary transition-colors hover:bg-primary/20"
 						>
 							<Sparkles className="h-3.5 w-3.5" />
-							7-day free trial · No credit card required
+							Open source · Apache-2.0
 						</Badge>
 					</Link>
-					<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+					<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 						<span className="relative whitespace-nowrap">
 							<SwirlyDoodle className="absolute left-0 top-1/2 h-[1em] w-full fill-muted-foreground" />
-							<span className="relative">Simple Affordable</span>
+							<span className="relative">Open source</span>
 						</span>{" "}
-						Pricing.
+						at the core.
 					</h2>
 					<p className="mt-4 text-lg text-muted-foreground">
-						Infrastructure, we take care of it for you.
+						Self-host the full platform for free, or let us run it for you.
 					</p>
 				</div>
 
-				{/* Billing toggle */}
-				<div className="mx-auto mt-10 flex flex-col items-center gap-6">
-					<Tabs
-						defaultValue="monthly"
-						value={isAnnual ? "annual" : "monthly"}
-						onValueChange={(v) => setIsAnnual(v === "annual")}
-					>
-						<TabsList className=" w-full ">
-							<TabsTrigger value="annual">Yearly (20% discount)</TabsTrigger>
-							<TabsTrigger value="monthly">Monthly</TabsTrigger>
-						</TabsList>
-					</Tabs>
-				</div>
-
 				<div className="mx-auto mt-12 flex max-w-6xl flex-col gap-8">
-					{/* Hobby, Startup, Enterprise - 3 column grid */}
 					<div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{/* Hobby */}
+						{/* Self */}
 						<section
 							className={clsx(
-								"flex flex-col rounded-3xl border-2 border-dashed border-border/50 bg-black/50 px-6 py-8",
+								"flex flex-col rounded-3xl border-2 border-dashed border-border/50 bg-background/50 px-6 py-8",
 							)}
 						>
-							<h3 className="text-lg font-medium text-white">Hobby</h3>
+							<h3 className="text-lg font-medium text-foreground">Self</h3>
 							<p className="mt-1 text-sm text-muted-foreground">
-								Everything an individual developer needs
+								Open-source, self-hosted on your infrastructure
 							</p>
 							<div className="mt-4">
 								<span className="text-2xl font-semibold text-primary">
-									$
-									{isAnnual
-										? hobbyAnnualPerMonth.toFixed(2)
-										: hobbyMonthlyPrice.toFixed(2)}
-									/mo
+									Free
 								</span>
-								{isAnnual ? (
-									<p className="mt-1 text-sm text-muted-foreground">
-										${hobbyAnnualTotal.toFixed(2)}/year per server
-									</p>
-								) : (
-									<span className="ml-2 text-sm text-muted-foreground">
-										per server (add as many servers as you&apos;d like for
-										$4.50/mo)
-									</span>
-								)}
+								<span className="ml-2 text-sm text-muted-foreground">
+									forever, MIT/Apache-2.0 core
+								</span>
 							</div>
 							<ul className="mt-6 flex flex-col gap-2 text-sm text-muted-foreground">
-								{hobbyFeatures.map((f) => (
+								{selfFeatures.map((f) => (
 									<li key={f} className="flex gap-2">
 										<Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
 										{f}
@@ -236,48 +176,39 @@ export function Pricing() {
 							</ul>
 							<div className="mt-auto pt-6">
 								<Link
-									href={`${CLOUD_APP_URL}/register`}
+									href={DOCS_INSTALL_URL}
 									target="_blank"
 									className={buttonVariants({
 										variant: "default",
 										className: "w-full",
 									})}
 								>
-									Get Started
+									Install Notploy
 								</Link>
 							</div>
 						</section>
 
-						{/* Startup */}
+						{/* Cloud */}
 						<section
 							className={clsx(
-								"relative flex flex-col rounded-3xl border-2 border-primary/50 bg-black/80 px-6 py-8",
+								"relative flex flex-col rounded-3xl border-2 border-primary/50 bg-card/80 px-6 py-8",
 							)}
 						>
-							<Badge className="absolute -top-2.5 left-6">Recommended</Badge>
-							<h3 className="text-lg font-medium text-white">Startup</h3>
+							<Badge className="absolute -top-2.5 left-6">Managed</Badge>
+							<h3 className="text-lg font-medium text-foreground">Cloud</h3>
 							<p className="mt-1 text-sm text-muted-foreground">
-								Perfect for small to mid-size teams
+								Managed Notploy operated by Notploy Enterprise
 							</p>
 							<div className="mt-4">
 								<span className="text-2xl font-semibold text-primary">
-									Starting at $
-									{isAnnual
-										? (startupBaseAnnual / 12).toFixed(2)
-										: startupBaseMonthly.toFixed(0)}
-									/mo
+									Managed service
 								</span>
-								{isAnnual ? (
-									<p className="mt-1 text-sm text-muted-foreground">
-										${startupBaseAnnual.toFixed(0)}/year
-									</p>
-								) : null}
-								<p className="mt-1 text-xs text-muted-foreground">
-									Add more servers as you&apos;d like for $4.50/mo
+								<p className="mt-1 text-sm text-muted-foreground">
+									We run the control plane, you bring the infrastructure
 								</p>
 							</div>
 							<ul className="mt-6 flex flex-col gap-2 text-sm text-muted-foreground">
-								{startupFeatures.map((f) => (
+								{cloudFeatures.map((f) => (
 									<li key={f} className="flex gap-2">
 										<Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
 										{f}
@@ -297,26 +228,26 @@ export function Pricing() {
 								</Link>
 							</div>
 						</section>
+
 						{/* Enterprise */}
 						<section
 							className={clsx(
-								"flex flex-col rounded-3xl border-2 border-dashed border-border/50 bg-black/50 px-6 py-8",
+								"flex flex-col rounded-3xl border-2 border-dashed border-border/50 bg-background/50 px-6 py-8",
 							)}
 						>
-							<h3 className="text-lg font-medium text-white">Enterprise</h3>
+							<h3 className="text-lg font-medium text-foreground">Enterprise</h3>
 							<p className="mt-1 text-sm text-muted-foreground">
-								For large organizations who want more control
+								Commercial edition and premium support
 							</p>
-							{/* Cloud & Self Hosted options */}
 							<div className="mt-4 grid grid-cols-2 gap-3">
 								<div className="rounded-xl border border-border/50 bg-background/50 px-4 py-3">
-									<p className="font-medium text-white text-center">Cloud</p>
+									<p className="font-medium text-foreground text-center">Cloud</p>
 									<p className="mt-0.5 text-xs text-muted-foreground text-center">
 										We host and manage everything for you
 									</p>
 								</div>
 								<div className="rounded-xl border border-border/50 bg-background/50 px-4 py-3">
-									<p className="font-medium text-white text-center">
+									<p className="font-medium text-foreground text-center">
 										Self Hosted
 									</p>
 									<p className="mt-0.5 text-xs text-muted-foreground text-center">
@@ -342,47 +273,11 @@ export function Pricing() {
 							</div>
 						</section>
 					</div>
-
-					{/* Agency - below the 3 main plans */}
-					<section
-						className={clsx(
-							"flex flex-col rounded-3xl border-2 border-dashed border-border/50 bg-black/50 px-6 py-8",
-						)}
-					>
-						<h3 className="text-lg font-medium text-white">Agency</h3>
-						<p className="mt-1 text-sm text-muted-foreground">
-							Our Agency plan is uniquely tailored to the needs of agencies.
-							Please contact us below to learn more about this option, as well
-							as about becoming a certified Dokploy partner.{" "}
-							<Link href="/partners" className="text-primary hover:underline">
-								Learn more here
-							</Link>
-						</p>
-						<div className="mt-6">
-							<Button
-								onClick={() => setOpenPartnerModal(true)}
-								className="w-full sm:w-auto"
-								variant="outline"
-							>
-								Contact The Partner Team
-							</Button>
-						</div>
-					</section>
-				</div>
-
-				{/* Feature breakdown */}
-				<div className="mx-auto mt-24 max-w-6xl">
-					<h3 className="text-center text-2xl font-semibold text-white">
-						Feature breakdown by plan
-					</h3>
-					<div className="mt-8">
-						<PricingFeatureTable />
-					</div>
 				</div>
 
 				{/* Pricing FAQ */}
 				<div className="mx-auto mt-24 max-w-3xl">
-					<h3 className="text-center text-2xl font-semibold text-white">
+					<h3 className="text-center text-2xl font-semibold text-foreground">
 						Frequently asked questions
 					</h3>
 					<p className="mt-4 text-center text-sm text-muted-foreground">
@@ -404,11 +299,6 @@ export function Pricing() {
 			<ContactFormModal
 				open={openContactModal}
 				onOpenChange={setOpenContactModal}
-				defaultInquiryType="sales"
-			/>
-			<ContactFormModal
-				open={openPartnerModal}
-				onOpenChange={setOpenPartnerModal}
 				defaultInquiryType="sales"
 			/>
 		</section>

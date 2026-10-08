@@ -10,10 +10,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
 	title: {
-		absolute: "Dokploy - Deploy your applications with ease",
+		absolute: "Notploy - Deploy and operate applications on infrastructure you own",
 	},
 	description:
-		"Open-source self-hostable Platform as a Service (PaaS) that simplifies the deployment and management of applications and databases",
+		"Open-source, self-hostable platform for deploying and operating applications, databases, Docker Compose projects, servers and clusters on infrastructure you own.",
 };
 
 export default function Home() {

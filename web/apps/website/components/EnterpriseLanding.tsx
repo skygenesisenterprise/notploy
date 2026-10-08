@@ -73,7 +73,7 @@ const features = [
 		icon: Paintbrush,
 		title: "White Labeling",
 		description:
-			"Present Dokploy as your own platform with custom branding, logo, and colors for your organization or clients.",
+			"Present Notploy as your own platform with custom branding, logo, and colors for your organization or clients.",
 	},
 ];
 
@@ -104,7 +104,7 @@ export function EnterpriseLanding() {
 	const [contactOpen, setContactOpen] = useState(false);
 
 	return (
-		<div className="bg-black">
+		<div className="bg-background">
 			<ContactFormModal open={contactOpen} onOpenChange={setContactOpen} />
 			{/* Hero Section */}
 			<div className="relative overflow-hidden bg-background pt-20 pb-16 lg:pt-32">
@@ -132,7 +132,7 @@ export function EnterpriseLanding() {
 								<AnimatedGradientText>
 									<span
 										className={cn(
-											"inline animate-gradient bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent",
+											"inline animate-gradient bg-gradient-to-r from-primary via-primary/60 to-primary bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent",
 										)}
 									>
 										Enterprise
@@ -198,7 +198,7 @@ export function EnterpriseLanding() {
 			<section className="py-20">
 				<Container>
 					<div className="text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Built for Enterprise Teams
 						</h2>
 						<p className="mx-auto mt-4 mb-16 max-w-2xl text-muted-foreground">
@@ -211,12 +211,12 @@ export function EnterpriseLanding() {
 						{features.map((feature) => (
 							<div
 								key={feature.title}
-								className="group rounded-2xl border border-border/30 bg-gradient-to-b from-gray-900/50 to-black p-8 transition hover:border-border/60"
+								className="group rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background p-8 transition hover:border-border/60"
 							>
 								<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10 transition group-hover:bg-green-500/20">
 									<feature.icon className="h-6 w-6 text-green-400" />
 								</div>
-								<h3 className="mb-3 text-xl font-semibold text-white">
+								<h3 className="mb-3 text-xl font-semibold text-foreground">
 									{feature.title}
 								</h3>
 								<p className="leading-relaxed text-muted-foreground">
@@ -232,11 +232,11 @@ export function EnterpriseLanding() {
 			<section className="py-20">
 				<Container>
 					<div className="mb-16 text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Deploy Anywhere, Without Compromise
 						</h2>
 						<p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-							The flexibility to host Dokploy exactly where your business needs
+							The flexibility to host Notploy exactly where your business needs
 							it—on your infrastructure or ours.
 						</p>
 					</div>
@@ -245,13 +245,13 @@ export function EnterpriseLanding() {
 						{hostingOptions.map((option) => (
 							<div
 								key={option.title}
-								className="rounded-2xl border border-border/30 bg-gradient-to-br from-gray-900/50 via-black to-gray-900/30 p-10"
+								className="rounded-2xl border border-border/30 bg-gradient-to-br from-card/50 via-background to-card/30 p-10"
 							>
 								<div className="mb-6 flex items-center gap-4">
 									<div className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-500/10">
 										<option.icon className="h-7 w-7 text-green-400" />
 									</div>
-									<h3 className="text-2xl font-semibold text-white">
+									<h3 className="text-2xl font-semibold text-foreground">
 										{option.title}
 									</h3>
 								</div>
@@ -259,7 +259,7 @@ export function EnterpriseLanding() {
 									{option.benefits.map((benefit) => (
 										<li key={benefit} className="flex items-start gap-3">
 											<Check className="mt-0.5 h-5 w-5 shrink-0 text-green-400" />
-											<span className="text-gray-300">{benefit}</span>
+											<span className="text-muted-foreground">{benefit}</span>
 										</li>
 									))}
 								</ul>
@@ -268,11 +268,11 @@ export function EnterpriseLanding() {
 					</div>
 
 					<div className="mt-12 rounded-2xl border border-border/30 bg-gradient-to-r from-green-500/5 to-blue-500/5 p-8 text-center">
-						<h3 className="mb-3 text-2xl font-semibold text-white">
+						<h3 className="mb-3 text-2xl font-semibold text-foreground">
 							Hybrid Deployments
 						</h3>
 						<p className="mx-auto max-w-2xl text-muted-foreground">
-							Need the best of both worlds? Deploy Dokploy across multiple
+							Need the best of both worlds? Deploy Notploy across multiple
 							environments with centralized management and unified monitoring.
 						</p>
 					</div>
@@ -283,11 +283,11 @@ export function EnterpriseLanding() {
 			<section className="py-20">
 				<Container>
 					<div className="mb-12 text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Enterprise-grade governance for AI-built apps
 						</h2>
 						<p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-							AI tools have accelerated how teams ship software. Dokploy gives
+							AI tools have accelerated how teams ship software. Notploy gives
 							enterprises a safe way to do it, with audit trails, access
 							controls, and isolated environments.
 						</p>
@@ -322,12 +322,12 @@ export function EnterpriseLanding() {
 						].map((item) => (
 							<div
 								key={item.title}
-								className="group rounded-2xl border border-border/30 bg-gradient-to-b from-gray-900/50 to-black p-8 transition hover:border-border/60"
+								className="group rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background p-8 transition hover:border-border/60"
 							>
 								<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10 transition group-hover:bg-green-500/20">
 									<item.icon className="h-6 w-6 text-green-400" />
 								</div>
-								<h3 className="mb-3 text-lg font-semibold text-white">
+								<h3 className="mb-3 text-lg font-semibold text-foreground">
 									{item.title}
 								</h3>
 								<p className="text-sm leading-relaxed text-muted-foreground">
@@ -339,7 +339,7 @@ export function EnterpriseLanding() {
 
 					<div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-border/30 bg-gradient-to-r from-green-500/5 to-blue-500/5 p-8 text-center">
 						<p className="text-lg text-muted-foreground">
-							See how Dokploy handles AI deployment — from AI-generated code to
+							See how Notploy handles AI deployment — from AI-generated code to
 							a governed, production-ready environment.
 						</p>
 						<Button className="mt-6 rounded-full" asChild>
@@ -355,7 +355,7 @@ export function EnterpriseLanding() {
 			<section className="py-20">
 				<Container>
 					<div className="mb-16 text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Granular Access Control, Visualized
 						</h2>
 						<p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
@@ -365,8 +365,8 @@ export function EnterpriseLanding() {
 					</div>
 
 					<div className="grid gap-6 md:grid-cols-3">
-						<div className="group overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-gray-900/50 to-black transition hover:border-border/60">
-							<div className="aspect-video w-full overflow-hidden bg-gray-900/80">
+						<div className="group overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background transition hover:border-border/60">
+							<div className="aspect-video w-full overflow-hidden bg-card/80">
 								<img
 									src="/enterprise/custom-roles.png"
 									alt="Create custom roles with fine-grained permissions"
@@ -374,7 +374,7 @@ export function EnterpriseLanding() {
 								/>
 							</div>
 							<div className="p-6">
-								<h3 className="mb-2 text-lg font-semibold text-white">
+								<h3 className="mb-2 text-lg font-semibold text-foreground">
 									Custom Roles
 								</h3>
 								<p className="text-sm text-muted-foreground">
@@ -384,8 +384,8 @@ export function EnterpriseLanding() {
 							</div>
 						</div>
 
-						<div className="group overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-gray-900/50 to-black transition hover:border-border/60">
-							<div className="w-full overflow-hidden bg-gray-950 p-4">
+						<div className="group overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background transition hover:border-border/60">
+							<div className="w-full overflow-hidden bg-accent p-4">
 								<img
 									src="/enterprise/git-permission.png"
 									alt="Assign git providers to individual team members"
@@ -393,7 +393,7 @@ export function EnterpriseLanding() {
 								/>
 							</div>
 							<div className="p-6">
-								<h3 className="mb-2 text-lg font-semibold text-white">
+								<h3 className="mb-2 text-lg font-semibold text-foreground">
 									Git Provider Access
 								</h3>
 								<p className="text-sm text-muted-foreground">
@@ -403,8 +403,8 @@ export function EnterpriseLanding() {
 							</div>
 						</div>
 
-						<div className="group overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-gray-900/50 to-black transition hover:border-border/60">
-							<div className="w-full overflow-hidden bg-gray-950 p-4">
+						<div className="group overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background transition hover:border-border/60">
+							<div className="w-full overflow-hidden bg-accent p-4">
 								<img
 									src="/enterprise/servers-permission.png"
 									alt="Assign remote servers to individual team members"
@@ -412,7 +412,7 @@ export function EnterpriseLanding() {
 								/>
 							</div>
 							<div className="p-6">
-								<h3 className="mb-2 text-lg font-semibold text-white">
+								<h3 className="mb-2 text-lg font-semibold text-foreground">
 									Server Assignment
 								</h3>
 								<p className="text-sm text-muted-foreground">
@@ -429,12 +429,12 @@ export function EnterpriseLanding() {
 			<section className="py-20">
 				<Container>
 					<div className="rounded-3xl border border-border/30 bg-gradient-to-br from-green-500/10 via-transparent to-blue-500/10 p-12 text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Ready to Scale Enterprise?
 						</h2>
 						<p className="mx-auto mt-6 max-w-2xl text-xl text-muted-foreground">
 							Talk to our team about your deployment needs and discover how
-							Dokploy Enterprise can transform your infrastructure.
+							Notploy Enterprise can transform your infrastructure.
 						</p>
 						<Button
 							className="mt-8 rounded-full"
@@ -442,7 +442,7 @@ export function EnterpriseLanding() {
 						>
 							Schedule a call with sales
 						</Button>
-						<p className="mt-6 text-sm text-gray-500">
+						<p className="mt-6 text-sm text-muted-foreground">
 							Questions? Email us at{" "}
 							<a
 								href="mailto:sales@notploy.com"

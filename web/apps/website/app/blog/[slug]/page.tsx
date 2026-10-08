@@ -38,7 +38,7 @@ export async function generateMetadata(
 	const ogUrl = new URL(
 		"/api/og",
 		process.env.NODE_ENV === "production"
-			? "https://dokploy.com"
+			? "https://notploy.com"
 			: "http://localhost:3001",
 	);
 	ogUrl.searchParams.set("slug", slug);

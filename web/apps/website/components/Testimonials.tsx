@@ -83,61 +83,61 @@ const reviews = [
 	{
 		name: "apis",
 		username: "@apis",
-		body: "I replaced my previous setup with Dokploy today. It’s stable, easy to use, and offers excellent support!",
+		body: "I replaced my previous setup with Notploy today. It’s stable, easy to use, and offers excellent support!",
 		img: "https://avatar.vercel.sh/apis",
 	},
 	{
 		name: "yayza_",
 		username: "@yayza_",
-		body: "Migrated all my services to Dokploy—it worked seamlessly! The level of configuration is perfect for all kinds of projects.",
+		body: "Migrated all my services to Notploy—it worked seamlessly! The level of configuration is perfect for all kinds of projects.",
 		img: "https://avatar.vercel.sh/yayza",
 	},
 	{
 		name: "Vaurion",
 		username: "@vaurion",
-		body: "Dokploy makes my deployments incredibly easy. I just test locally, push a preview to GitHub, and Dokploy takes care of the rest.",
+		body: "Notploy makes my deployments incredibly easy. I just test locally, push a preview to GitHub, and Notploy takes care of the rest.",
 		img: "https://avatar.vercel.sh/vaurion",
 	},
 	{
 		name: "vinum?",
 		username: "@vinum",
-		body: "Dokploy is everything I wanted in a PaaS. The functionality is impressive, and it's completely free!",
+		body: "Notploy is everything I wanted in a PaaS. The functionality is impressive, and it's completely free!",
 		img: "https://avatar.vercel.sh/vinum",
 	},
 	{
 		name: "vadzim",
 		username: "@vadzim",
-		body: "Dokploy is fantastic! I rarely encounter any deployment issues, and the community support is top-notch.",
+		body: "Notploy is fantastic! I rarely encounter any deployment issues, and the community support is top-notch.",
 		img: "https://avatar.vercel.sh/vadzim",
 	},
 	{
 		name: "Slurpy Beckerman",
 		username: "@slurpy",
-		body: "This is exactly what I want in a deployment system. I’ve restructured my dev process around Dokploy!",
+		body: "This is exactly what I want in a deployment system. I’ve restructured my dev process around Notploy!",
 		img: "https://avatar.vercel.sh/slurpy",
 	},
 	{
 		name: "lua",
 		username: "@lua",
-		body: "Dokploy is genuinely so nice to use. The hard work behind it really shows.",
+		body: "Notploy is genuinely so nice to use. The hard work behind it really shows.",
 		img: "https://avatar.vercel.sh/lua",
 	},
 	{
 		name: "johnnygri",
 		username: "@johnnygri",
-		body: "Dokploy is a complete joy to use. I’m running a mix of critical and low-priority services seamlessly across servers.",
+		body: "Notploy is a complete joy to use. I’m running a mix of critical and low-priority services seamlessly across servers.",
 		img: "https://avatar.vercel.sh/johnnygri",
 	},
 	{
 		name: "HiJoe",
 		username: "@hijoe",
-		body: "Setting up Dokploy was great—simple, intuitive, and reliable. Perfect for small to medium-sized businesses.",
+		body: "Setting up Notploy was great—simple, intuitive, and reliable. Perfect for small to medium-sized businesses.",
 		img: "https://avatar.vercel.sh/hijoe",
 	},
 	{
 		name: "johannes0910",
 		username: "@johannes0910",
-		body: "Dokploy has been a game-changer for my side projects. Solid UI, straightforward Docker abstraction, and great design.",
+		body: "Notploy has been a game-changer for my side projects. Solid UI, straightforward Docker abstraction, and great design.",
 		img: "https://avatar.vercel.sh/johannes0910",
 	},
 ];
@@ -159,20 +159,17 @@ const ReviewCard = ({
 	return (
 		<figure
 			className={cn(
-				"relative w-64 cursor-pointer overflow-hidden rounded-xl border p-4",
-				// light styles
-				// "border-gray-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05]",
-				// dark styles
-				"hover:bg-gray-50/[.15]",
+				"relative w-64 cursor-pointer overflow-hidden rounded-xl border bg-card p-4",
+				"hover:bg-accent/15",
 			)}
 		>
 			<div className="flex flex-row items-center gap-2">
 				<img className="rounded-full" width="32" height="32" alt="" src={img} />
 				<div className="flex flex-col">
-					<figcaption className="text-sm font-medium text-white">
+					<figcaption className="text-sm font-medium text-foreground">
 						{name}
 					</figcaption>
-					<p className="text-xs font-medium text-white/40">{username}</p>
+					<p className="text-xs font-medium text-muted-foreground">{username}</p>
 				</div>
 			</div>
 			<blockquote className="mt-2 text-sm">{body}</blockquote>
@@ -189,11 +186,11 @@ export function Testimonials() {
 		>
 			<div className="mx-auto max-w-2xl px-4 md:text-center">
 				<h2 className="text-center font-display text-3xl  tracking-tight sm:text-4xl">
-					Why Developers Love Dokploy
+					Why Developers Love Notploy
 				</h2>
 				<p className="mt-4 text-center text-lg tracking-tight text-muted-foreground">
 					Think we’re bragging? Hear from the devs who once doubted too—until
-					Dokploy made their lives (and deployments) surprisingly easier.
+					Notploy made their lives (and deployments) surprisingly easier.
 				</p>
 			</div>
 

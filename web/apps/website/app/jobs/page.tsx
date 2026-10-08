@@ -7,9 +7,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Dokploy Jobs & Open Positions",
+	title: "Notploy Jobs & Open Positions",
 	description:
-		"Join Dokploy and help developers and teams ship faster with open-source and scalable deployment tools built for the modern web.",
+		"Join Notploy and help developers and teams ship faster with open-source and scalable deployment tools built for the modern web.",
 };
 
 const OPEN_POSITIONS: {
@@ -21,7 +21,7 @@ const OPEN_POSITIONS: {
 
 export default function JobsPage() {
 	return (
-		<div className="relative bg-black">
+		<div className="relative bg-background">
 			<AnimatedGridPattern
 				numSquares={30}
 				maxOpacity={0.1}
@@ -36,7 +36,7 @@ export default function JobsPage() {
 			<section className="relative z-10 border-b border-border/30 py-20 sm:py-28">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
-						<h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+						<h1 className="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
 							Join our company and help redefine how the world deploys software.
 						</h1>
 						<p className="mt-4 text-lg text-muted-foreground">
@@ -57,7 +57,7 @@ export default function JobsPage() {
 				className="relative z-10 border-b border-border/30 py-16 sm:py-20"
 			>
 				<Container>
-					<h2 className="mb-8 text-xl font-semibold text-white sm:text-2xl">
+					<h2 className="mb-8 text-xl font-semibold text-foreground sm:text-2xl">
 						Open positions
 					</h2>
 
@@ -66,11 +66,11 @@ export default function JobsPage() {
 							{OPEN_POSITIONS.map((position) => (
 								<div
 									key={position.title}
-									className="flex flex-col gap-4 rounded-2xl border border-border/50 bg-black/80 p-6 sm:flex-row sm:items-center sm:justify-between"
+									className="flex flex-col gap-4 rounded-2xl border border-border/50 bg-card/80 p-6 sm:flex-row sm:items-center sm:justify-between"
 								>
 									<div className="flex flex-col gap-1">
 										<div className="flex flex-wrap items-center gap-3">
-											<h3 className="text-base font-semibold text-white">
+											<h3 className="text-base font-semibold text-foreground">
 												{position.title}
 											</h3>
 											<Badge
@@ -95,7 +95,7 @@ export default function JobsPage() {
 							))}
 						</div>
 					) : (
-						<div className="rounded-2xl border border-border/50 bg-black/80 p-12 text-center">
+						<div className="rounded-2xl border border-border/50 bg-card/80 p-12 text-center">
 							<p className="text-muted-foreground">
 								No open positions at the moment. Check back soon.
 							</p>

@@ -81,7 +81,7 @@ const configFeatures = [
 		icon: Database,
 		title: "Manage how long data is stored",
 		description:
-			"Decide on your retention period and an automated cron job will clean old metrics. Choose which port the Dokploy metrics server listens on—the default is 4500.",
+			"Decide on your retention period and an automated cron job will clean old metrics. Choose which port the Notploy metrics server listens on—the default is 4500.",
 	},
 	{
 		icon: Server,
@@ -109,7 +109,7 @@ const relatedFeatures = [
 		icon: Database,
 		title: "Database Management",
 		description:
-			"Provision, manage, and back up databases without leaving Dokploy.",
+			"Provision, manage, and back up databases without leaving Notploy.",
 		href: "/features/database-management-tool",
 	},
 	{
@@ -140,7 +140,7 @@ const faqs = [
 	{
 		question: "What is the best server monitoring software?",
 		answer:
-			"The best server monitoring software depends on what you need to monitor and whether you want open-source control or a managed SaaS. If you're using Dokploy, you get real-time server monitoring as part of your solution on all plans—with no additional setup required once your server is deployed.",
+			"The best server monitoring software depends on what you need to monitor and whether you want open-source control or a managed SaaS. If you're using Notploy, you get real-time server monitoring as part of your solution on all plans—with no additional setup required once your server is deployed.",
 	},
 ];
 
@@ -148,7 +148,7 @@ export default function ContainerServerMonitoringPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
 				<AnimatedGridPattern
 					numSquares={30}
 					maxOpacity={0.1}
@@ -160,7 +160,7 @@ export default function ContainerServerMonitoringPage() {
 				/>
 				<Container className="relative z-10">
 					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
+						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
 							Real-Time Container Monitoring and Alerts
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
@@ -173,7 +173,7 @@ export default function ContainerServerMonitoringPage() {
 							</Button>
 							<Button variant="outline" className="rounded-full" asChild>
 								<Link
-									href="https://docs.dokploy.com/docs/core"
+									href="https://docs.notploy.com/docs/core"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -217,10 +217,10 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* Configure alerts */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Configure alerts so you never miss an issue
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
@@ -237,7 +237,7 @@ export default function ContainerServerMonitoringPage() {
 								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
 									<feature.icon className="h-6 w-6" />
 								</div>
-								<h3 className="text-xl font-semibold text-white">
+								<h3 className="text-xl font-semibold text-foreground">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -257,7 +257,7 @@ export default function ContainerServerMonitoringPage() {
 							Access server monitoring with no setup required
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Use Dokploy&apos;s container monitoring dashboard as soon as
+							Use Notploy&apos;s container monitoring dashboard as soon as
 							you&apos;ve completed the server deployment setup.
 						</p>
 					</div>
@@ -273,11 +273,11 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* Deployment options */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Host Dokploy where your business needs it
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Host Notploy where your business needs it
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Choose a deployment option that suits your business&mdash;on your
@@ -286,7 +286,7 @@ export default function ContainerServerMonitoringPage() {
 					</div>
 					<div className="mx-auto mt-16 grid max-w-3xl gap-8 sm:grid-cols-2">
 						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<h3 className="text-xl font-semibold text-white">
+							<h3 className="text-xl font-semibold text-foreground">
 								On-Premise Deployment
 							</h3>
 							<ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -297,7 +297,7 @@ export default function ContainerServerMonitoringPage() {
 							</ul>
 						</div>
 						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<h3 className="text-xl font-semibold text-white">
+							<h3 className="text-xl font-semibold text-foreground">
 								Cloud Deployment
 							</h3>
 							<ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -319,7 +319,7 @@ export default function ContainerServerMonitoringPage() {
 							Multiple configuration options
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Set up your Dokploy dashboard to suit your needs with different
+							Set up your Notploy dashboard to suit your needs with different
 							configuration options.
 						</p>
 					</div>
@@ -343,10 +343,10 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* FAQs */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Container and server monitoring FAQs
 						</h2>
 					</div>
@@ -356,7 +356,7 @@ export default function ContainerServerMonitoringPage() {
 								key={faq.question}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<h3 className="text-lg font-semibold text-white">
+								<h3 className="text-lg font-semibold text-foreground">
 									{faq.question}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">{faq.answer}</p>
@@ -374,7 +374,7 @@ export default function ContainerServerMonitoringPage() {
 							Container and Server monitoring tool
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Take advantage of Dokploy&apos;s comprehensive container and server
+							Take advantage of Notploy&apos;s comprehensive container and server
 							monitoring software alongside the rest of the platform.
 						</p>
 					</div>
@@ -407,7 +407,7 @@ export default function ContainerServerMonitoringPage() {
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Get real-time visibility into your servers and containers with
-							Dokploy&apos;s built-in monitoring.
+							Notploy&apos;s built-in monitoring.
 						</p>
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
@@ -415,7 +415,7 @@ export default function ContainerServerMonitoringPage() {
 							</Button>
 							<Button variant="outline" className="rounded-full" asChild>
 								<Link
-									href="https://docs.dokploy.com/docs/core"
+									href="https://docs.notploy.com/docs/core"
 									target="_blank"
 									rel="noopener noreferrer"
 								>

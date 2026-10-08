@@ -18,26 +18,26 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Deploy AI Apps Securely with Dokploy",
+	title: "Deploy AI Apps Securely with Notploy",
 	description:
 		"Empower your team to deploy AI-built apps in a secure, isolated sandbox, with SSO, multitenancy, audit logs, and one-click deploys.",
 	alternates: {
-		canonical: "https://dokploy.com/deploy-ai",
+		canonical: "https://notploy.com/deploy-ai",
 	},
 };
 
 const coreFeatures = [
 	{
 		icon: Bot,
-		title: "Connect AI agents directly to Dokploy",
+		title: "Connect AI agents directly to Notploy",
 		description:
-			"Dokploy's MCP server enables AI agents to interact with your deployment environment through the Model Context Protocol. An AI tool can trigger deployments, query application state, and manage services—without needing a custom integration.",
+			"Notploy's MCP server enables AI agents to interact with your deployment environment through the Model Context Protocol. An AI tool can trigger deployments, query application state, and manage services—without needing a custom integration.",
 	},
 	{
 		icon: Boxes,
 		title: "Deploy any app, from any source",
 		description:
-			"Whether it's a Git repo, a Docker image, or a Docker Compose file, Dokploy handles it. Non-technical users can go from AI-generated code to a running application without a DevOps team in the loop.",
+			"Whether it's a Git repo, a Docker image, or a Docker Compose file, Notploy handles it. Non-technical users can go from AI-generated code to a running application without a DevOps team in the loop.",
 	},
 	{
 		icon: Activity,
@@ -52,7 +52,7 @@ const guardrailFeatures = [
 		icon: Users,
 		title: "Separate every team's environment",
 		description:
-			"Dokploy's multitenancy keeps projects and data isolated at the team level. One team can't see, access, or interfere with another's applications, so AI experimentation stays contained without needing a separate instance per team.",
+			"Notploy's multitenancy keeps projects and data isolated at the team level. One team can't see, access, or interfere with another's applications, so AI experimentation stays contained without needing a separate instance per team.",
 	},
 	{
 		icon: MousePointerClick,
@@ -70,7 +70,7 @@ const guardrailFeatures = [
 		icon: KeyRound,
 		title: "Sign in with the identity provider you already use",
 		description:
-			"Dokploy supports SSO via Okta, Azure AD, Auth0, and more, with SCIM provisioning and deprovisioning. When someone joins a team, they get access. When they leave, it's revoked automatically—no manual cleanup, no lingering credentials.",
+			"Notploy supports SSO via Okta, Azure AD, Auth0, and more, with SCIM provisioning and deprovisioning. When someone joins a team, they get access. When they leave, it's revoked automatically—no manual cleanup, no lingering credentials.",
 		link: {
 			href: "/features/single-sign-on",
 			label: "Learn more about SSO",
@@ -81,7 +81,7 @@ const guardrailFeatures = [
 const testFreelyPoints = [
 	"Deploy AI-built apps without touching production infrastructure",
 	"Keep all environments fully isolated from live data and services",
-	"Audit logs record every action across your Dokploy environment",
+	"Audit logs record every action across your Notploy environment",
 	"Roll back any deployment in seconds if something goes wrong",
 	"Run experiments that never reach customers until you're ready",
 ];
@@ -98,7 +98,7 @@ export default function DeployAIPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
 				<AnimatedGridPattern
 					numSquares={30}
 					maxOpacity={0.1}
@@ -110,30 +110,30 @@ export default function DeployAIPage() {
 				/>
 				<Container className="relative z-10">
 					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
+						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
 							Empower your employees to deploy AI
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
 							Your teams are building with AI. Talk to an expert to learn how
-							Dokploy will give them a safe, governed environment to ship those
+							Notploy will give them a safe, governed environment to ship those
 							tools without touching production infrastructure or involving an
 							engineer.
 						</p>
 						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
-									aria-label="Get Started with Dokploy"
+									href="https://app.notploy.com/register"
+									aria-label="Get Started with Notploy"
 									target="_blank"
 								>
 									Get Started
 								</Link>
 							</Button>
 							<Button
-								className="rounded-full bg-[#5965F2] hover:bg-[#4A55E0]"
+								className="rounded-full bg-primary hover:bg-primary/90"
 								asChild
 							>
-								<Link href="/contact" aria-label="Contact Us" className="text-white">
+								<Link href="/contact" aria-label="Contact Us" className="text-foreground">
 									Contact Us
 								</Link>
 							</Button>
@@ -150,7 +150,7 @@ export default function DeployAIPage() {
 							Everything you need to start deploying AI today
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy is built to take an app from an AI coding tool to a live,
+							Notploy is built to take an app from an AI coding tool to a live,
 							internal URL in minutes.
 						</p>
 					</div>
@@ -174,14 +174,14 @@ export default function DeployAIPage() {
 			</section>
 
 			{/* Built for teams that need guardrails, not gatekeepers */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Built for teams that need guardrails, not gatekeepers
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							AI-generated code moves fast. Dokploy&apos;s enterprise features
+							AI-generated code moves fast. Notploy&apos;s enterprise features
 							make sure that speed doesn&apos;t come at the cost of security or
 							control.
 						</p>
@@ -195,7 +195,7 @@ export default function DeployAIPage() {
 								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
 									<feature.icon className="h-6 w-6" />
 								</div>
-								<h3 className="text-xl font-semibold text-white">
+								<h3 className="text-xl font-semibold text-foreground">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -214,7 +214,7 @@ export default function DeployAIPage() {
 					</div>
 					<div className="mt-12 flex justify-center">
 						<Button className="rounded-full" asChild>
-							<Link href="/enterprise">Discover Dokploy Enterprise</Link>
+							<Link href="/enterprise">Discover Notploy Enterprise</Link>
 						</Button>
 					</div>
 				</Container>
@@ -266,25 +266,25 @@ export default function DeployAIPage() {
 			</section>
 
 			{/* Openclaw */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
 						<div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary">
 							<Sparkles className="h-7 w-7" />
 						</div>
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Get started with Openclaw in one click
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Openclaw is an open-source AI-powered coding assistant that you
-							can self-host on Dokploy with a single template deploy. It gives
+							can self-host on Notploy with a single template deploy. It gives
 							your team a private, internal AI coding environment, and no data
 							leaves your infrastructure.
 						</p>
 						<div className="mt-10">
 							<Button variant="outline" className="rounded-full" asChild>
 								<Link
-									href="https://docs.dokploy.com/docs/templates/openclaw"
+									href="https://docs.notploy.com/docs/templates/openclaw"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -296,15 +296,15 @@ export default function DeployAIPage() {
 				</Container>
 			</section>
 
-			{/* Dokploy Cloud CTA */}
+			{/* Notploy Cloud CTA */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Unlock Your Deployment Potential with Dokploy Cloud
+							Unlock Your Deployment Potential with Notploy Cloud
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Say goodbye to infrastructure hassles, Dokploy Cloud handles it
+							Say goodbye to infrastructure hassles, Notploy Cloud handles it
 							all. Effortlessly deploy, manage Docker containers, and secure
 							your traffic with Traefik. Focus on building, we&apos;ll handle
 							the rest.
@@ -312,7 +312,7 @@ export default function DeployAIPage() {
 						<div className="mt-10">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
+									href="https://app.notploy.com/register"
 									target="_blank"
 									rel="noopener noreferrer"
 								>

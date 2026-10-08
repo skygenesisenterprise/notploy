@@ -166,7 +166,7 @@ function MobileNavigation() {
 									Resources
 								</p>
 								<MobileNavLink href="/templates">Templates</MobileNavLink>
-								<MobileNavLink href="/comparison">Dokploy vs.</MobileNavLink>
+								<MobileNavLink href="/comparison">Notploy vs.</MobileNavLink>
 								<MobileNavLink href="/blog">Blog</MobileNavLink>
 								<MobileNavLink href="/#faqs">FAQ</MobileNavLink>
 								<MobileNavLink href="/jobs">Jobs</MobileNavLink>
@@ -335,7 +335,7 @@ export function Header() {
 													href="/industries/higher-education"
 													title="Education"
 												>
-													How Dokploy supports universities and colleges
+													How Notploy supports universities and colleges
 												</ListItem>
 											</ul>
 										</NavigationMenuContent>
@@ -389,8 +389,8 @@ export function Header() {
 												<ListItem href="/templates" title="Templates">
 													Ready-to-deploy templates
 												</ListItem>
-												<ListItem href="/comparison" title="Dokploy vs.">
-													Compare Dokploy to alternatives
+												<ListItem href="/comparison" title="Notploy vs.">
+													Compare Notploy to alternatives
 												</ListItem>
 												<ListItem href="/blog" title="Blog">
 													Latest news and updates
@@ -399,7 +399,7 @@ export function Header() {
 													Frequently asked questions
 												</ListItem>
 												<ListItem href="/jobs" title="Jobs">
-													See open positions at Dokploy
+													See open positions at Notploy
 												</ListItem>
 											</ul>
 										</NavigationMenuContent>
@@ -418,7 +418,7 @@ export function Header() {
 						>
 							<Link
 								href="https://app.notploy.com/"
-								aria-label="Sign In Dokploy Cloud"
+								aria-label="Sign In Notploy Cloud"
 								target="_blank"
 							>
 								Sign In
@@ -447,7 +447,7 @@ export function Header() {
 						<Button className="rounded-full max-md:hidden" asChild>
 							<Link
 								href="https://app.notploy.com/register"
-								aria-label="Sign Up Dokploy Cloud"
+								aria-label="Sign Up Notploy Cloud"
 								target="_blank"
 							>
 								<div className="group relative mx-auto flex w-full max-w-fit flex-row items-center justify-center rounded-2xl text-sm font-medium">

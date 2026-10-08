@@ -1,6 +1,6 @@
-# Dokploy Website
+# Notploy Website
 
-Main Landing Page of Dokploy
+The official marketing website for Notploy.
 
 ## Development
 

@@ -17,7 +17,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Role-Based Access Control for Teams",
 	description:
-		"Control who can access what across your Dokploy projects. Fine-grained RBAC keeps your infrastructure secure as your team scales.",
+		"Control who can access what across your Notploy projects. Fine-grained RBAC keeps your infrastructure secure as your team scales.",
 };
 
 const coreFeatures = [
@@ -25,7 +25,7 @@ const coreFeatures = [
 		icon: Users,
 		title: "Set organization-wide roles",
 		description:
-			"Assign owners, admins, and members across your organization, with each role scoping what that user can access and action within Dokploy.",
+			"Assign owners, admins, and members across your organization, with each role scoping what that user can access and action within Notploy.",
 	},
 	{
 		icon: FolderLock,
@@ -59,14 +59,14 @@ const relatedFeatures = [
 		icon: ScrollText,
 		title: "Audit logs",
 		description:
-			"Keep a full record of every action taken across your Dokploy environment for compliance and accountability.",
+			"Keep a full record of every action taken across your Notploy environment for compliance and accountability.",
 		href: "/features/audit-logs",
 	},
 	{
 		icon: Paintbrush,
 		title: "White labeling",
 		description:
-			"Present Dokploy as your own product, with custom branding for your clients or organization.",
+			"Present Notploy as your own product, with custom branding for your clients or organization.",
 		href: "/features/white-labeling",
 	},
 ];
@@ -75,7 +75,7 @@ export default function RoleBasedAccessControlPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
 				<AnimatedGridPattern
 					numSquares={30}
 					maxOpacity={0.1}
@@ -87,7 +87,7 @@ export default function RoleBasedAccessControlPage() {
 				/>
 				<Container className="relative z-10">
 					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
+						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
 							Secure access at every level
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
@@ -101,7 +101,7 @@ export default function RoleBasedAccessControlPage() {
 							</Button>
 							<Button variant="outline" className="rounded-full" asChild>
 								<Link
-									href="https://docs.dokploy.com/docs/core"
+									href="https://docs.notploy.com/docs/core"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -121,7 +121,7 @@ export default function RoleBasedAccessControlPage() {
 							Control without compromise
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							RBAC in Dokploy lets you define exactly what each person on your
+							RBAC in Notploy lets you define exactly what each person on your
 							team can see, create, control, and manage.
 						</p>
 					</div>
@@ -145,14 +145,14 @@ export default function RoleBasedAccessControlPage() {
 			</section>
 
 			{/* Powerful features for growing teams */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Powerful features for growing teams
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy scales with your team, with features and plans for when
+							Notploy scales with your team, with features and plans for when
 							you&apos;re ready to take the next step.
 						</p>
 					</div>
@@ -166,7 +166,7 @@ export default function RoleBasedAccessControlPage() {
 								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
 									<feature.icon className="h-6 w-6" />
 								</div>
-								<h3 className="text-lg font-semibold text-white">
+								<h3 className="text-lg font-semibold text-foreground">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -187,7 +187,7 @@ export default function RoleBasedAccessControlPage() {
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Talk to us about fine-grained RBAC and the rest of
-							Dokploy&apos;s higher-tier feature set.
+							Notploy&apos;s higher-tier feature set.
 						</p>
 						<div className="mt-10">
 							<Button className="rounded-full" asChild>

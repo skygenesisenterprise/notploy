@@ -24,23 +24,23 @@ export function BlogCard({ post }: BlogCardProps) {
 						className="object-cover"
 					/>
 				) : (
-					<div className="flex h-full w-full items-center justify-center bg-gray-200">
-						<span className="text-gray-400">No image</span>
+					<div className="flex h-full w-full items-center justify-center bg-muted">
+						<span className="text-muted-foreground">No image</span>
 					</div>
 				)}
 			</div>
-			<div className="flex flex-1 flex-col justify-between bg-white p-6">
+			<div className="flex flex-1 flex-col justify-between bg-card p-6">
 				<div className="flex-1">
 					{post.primary_tag && (
-						<p className="text-sm font-medium text-indigo-600">
+						<p className="text-sm font-medium text-primary">
 							{post.primary_tag.name}
 						</p>
 					)}
 					<Link href={`/blog/${post.slug}`} className="mt-2 block">
-						<h3 className="text-xl font-semibold text-gray-900">
+						<h3 className="text-xl font-semibold text-card-foreground">
 							{post.title}
 						</h3>
-						<p className="mt-3 text-base text-gray-500">{post.excerpt}</p>
+						<p className="mt-3 text-base text-muted-foreground">{post.excerpt}</p>
 					</Link>
 				</div>
 				<div className="mt-6 flex items-center">
@@ -55,10 +55,10 @@ export function BlogCard({ post }: BlogCardProps) {
 						</div>
 					)}
 					<div className="ml-3">
-						<p className="text-sm font-medium text-gray-900">
+						<p className="text-sm font-medium text-card-foreground">
 							{post.primary_author?.name || "Anonymous"}
 						</p>
-						<div className="flex space-x-1 text-sm text-gray-500">
+						<div className="flex space-x-1 text-sm text-muted-foreground">
 							<time dateTime={post.published_at}>{formattedDate}</time>
 							<span aria-hidden="true">&middot;</span>
 							<span>{post.reading_time} min read</span>

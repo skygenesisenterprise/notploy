@@ -8,93 +8,54 @@ import { Container } from "./Container";
 
 const faqs = [
 	{
-		question: "What is Dokploy?",
+		question: "What is Notploy?",
 		answer:
-			"Dokploy is a stable, easy-to-use deployment solution designed to simplify the application management process. Think of Dokploy as a free alternative self-hostable solution to platforms like Heroku, Vercel, and Netlify.",
+			"Notploy is an open-source, self-hostable platform for deploying and operating applications. It provides a web control plane for application and database deployments, Docker Compose projects, servers and clusters.",
 	},
 	{
-		question: "How does Dokploy's Open Source plan work?",
+		question: "Is Notploy free?",
 		answer:
-			"You can host Dokploy UI on your own infrastructure and you will be responsible for the maintenance and updates.",
+			"Yes. The core platform is open source under the Apache-2.0 license and the self-hosted edition is free to run. A commercial edition with additional features and premium support is maintained by Sky Genesis Enterprise.",
 	},
 	{
-		question: "Do I need to provide my own server for the managed plan?",
+		question: "Do I have to host it myself?",
 		answer:
-			"Yes, in the managed plan, you provide your own server (e.g., Hetzner, Hostinger, AWS, etc.) VPS, and we manage the Dokploy UI infrastructure for you.",
+			"No. You can self-host Notploy with Docker Compose or the installer, or use the hosted Notploy Cloud at app.notploy.com if you would rather not manage the control plane.",
 	},
 	{
-		question: "What happens if I need more than one server?",
+		question: "What do I need to run Notploy?",
 		answer:
-			"You can add as many servers as you need. Each additional server costs $4.50/month on the Hobby plan. On the Startup plan, 3 servers are included in the base price, and you can add more at $4.50/month each.",
+			"Node.js 24.4+ and pnpm 10.22+ for development, or just Docker Engine with the Compose plugin for the containerized stack. The application needs a PostgreSQL database and a configured .env file.",
 	},
 	{
-		question: "Is there a limit on the number of deployments?",
+		question: "What can I deploy with Notploy?",
 		answer:
-			"No, there is no limit on the number of deployments in any of the plans.",
+			"Deploy applications from Git providers or container images using Docker, Nixpacks, Railpack or buildpacks, and run Docker Compose projects with their services, configuration, logs and deployments.",
 	},
 	{
-		question: "What happens if I exceed my purchased server limit?",
+		question: "Does Notploy manage databases?",
 		answer:
-			"The most recently added servers will be deactivated. You won't be able to create services on inactive servers until they are reactivated.",
+			"Yes. Notploy provisions and operates PostgreSQL, MySQL, MariaDB, MongoDB and Redis databases with scheduled backups, without wiring up separate tooling.",
 	},
 	{
-		question: "What kind of support do you offer?",
+		question: "Where can I deploy?",
 		answer:
-			"We offer community support for the open source version and priority support for paid plans (via Discord or Email at support@notploy.com).",
+			"Deploy to the local server, independent remote servers over SSH, or a Docker Swarm cluster. Notploy routes traffic through Traefik with managed domains and certificates.",
 	},
 	{
-		question: "What's the catch on the Paid Plan?",
+		question: "How do I automate deployments?",
 		answer:
-			"Nothing, once you link your server (VPS) to your account, you can deploy unlimited applications, databases, and users, and you get unlimited updates, deployments, backups, and more.",
+			"Automate operations with the Notploy API, CLI, TypeScript SDK or MCP server, so deployments fit into existing pipelines instead of replacing them.",
 	},
 	{
-		question: "Why Choose Dokploy?",
+		question: "Where are the templates?",
 		answer:
-			"Dokploy offers simplicity, flexibility, and speed in application deployment and management.",
+			"Browse one-click application blueprints in the Notploy Templates gallery at templates.notploy.com, and deploy them directly from your instance.",
 	},
 	{
-		question: "Is it open source?",
-		answer: "Yes, Dokploy offers a plan that is open source and free to use.",
-	},
-	{
-		question: "Can I use Dokploy to deploy AI-built apps?",
+		question: "How do I get help or report a bug?",
 		answer:
-			"Yes. Dokploy works with code from any source, including apps built with AI coding tools. You can deploy using your existing Git, Docker, and Compose workflows, or create a sandbox environment to give teams a governed space where they can ship AI-built apps with SSO, audit logs, and multitenancy built in.",
-	},
-	{
-		question: "What types of languages can I deploy with Dokploy?",
-		answer:
-			"Dokploy does not restrict programming languages. You are free to choose your preferred language and framework.",
-	},
-	{
-		question: "How do I request a feature or report a bug?",
-		answer:
-			"To request a feature or report a bug, please create an issue on our GitHub repository or ask in our Discord channel.",
-	},
-	{
-		question: "Do you track the usage of Dokploy?",
-		answer: "No, we don't track any usage data.",
-	},
-	{
-		question:
-			"Are there any user forums or communities where I can interact with other users?",
-		answer:
-			"Yes, we have active GitHub discussions and Discord where you can share ideas, ask for help, and connect with other users.",
-	},
-	{
-		question: "Do you offer a refunds?",
-		answer:
-			"We do not offer refunds. However, you can cancel your subscription at any time. Feel free to try our open-source version for free before making a purchase.",
-	},
-	{
-		question: "What types of applications can I deploy with Dokploy?",
-		answer:
-			"You can deploy any application that can be Dockerized, with no limits. Dokploy supports builds from Git repositories, Dockerfiles, Nixpacks, and Buildpacks like Heroku and Paketo.",
-	},
-	{
-		question: "How does Dokploy handle database management?",
-		answer:
-			"Dokploy supports multiple database systems including Postgres, MySQL, MariaDB, MongoDB, and Redis, providing tools for easy deployment and management and backups directly from the dashboard.",
+			"Join the Notploy Discord for questions, or open a GitHub issue for bugs and feature requests. Never report a security vulnerability in a public issue — follow the instructions in SECURITY.md instead.",
 	},
 ];
 
@@ -103,7 +64,7 @@ export function Faqs() {
 		<section
 			id="faqs"
 			aria-labelledby="faq-title"
-			className="relative overflow-hidden bg-black py-20 sm:py-32"
+			className="relative overflow-hidden bg-background py-20 sm:py-32"
 		>
 			<Container className="relative flex flex-col gap-10">
 				<div className="mx-auto w-full justify-center lg:mx-0">

@@ -10,7 +10,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Partners",
 	description:
-		"Join the Dokploy partner program. Agency plan, referral program, and reseller options.",
+		"Join the Notploy partner program. Agency plan, referral program, and reseller options.",
 };
 
 const PROGRAMS = [
@@ -34,7 +34,7 @@ const PROGRAMS = [
 		badge: "Available",
 		badgeVariant: "default" as const,
 		description:
-			"Earn 20% commission on every customer you refer to Dokploy.",
+			"Earn 20% commission on every customer you refer to Notploy.",
 		features: [
 			"Co-marketing opportunities",
 			"Partner dashboard",
@@ -49,7 +49,7 @@ const PROGRAMS = [
 		badge: "Coming Soon",
 		badgeVariant: "secondary" as const,
 		description:
-			"Sell Dokploy directly in your market with local presence and relationships.",
+			"Sell Notploy directly in your market with local presence and relationships.",
 		features: [
 			"Strategic market access",
 			"Cultural advantage",
@@ -63,7 +63,7 @@ const PROGRAMS = [
 
 export default function PartnersPage() {
 	return (
-		<div className="relative bg-black">
+		<div className="relative bg-background">
 			<AnimatedGridPattern
 				numSquares={30}
 				maxOpacity={0.1}
@@ -77,8 +77,8 @@ export default function PartnersPage() {
 			<section className="relative z-10 border-b border-border/30 py-20 sm:py-28">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
-						<h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-							Partner with Dokploy
+						<h1 className="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+							Partner with Notploy
 						</h1>
 						<p className="mt-4 text-lg text-muted-foreground">
 							Join our partner program to unlock premium features, earn revenue
@@ -98,7 +98,7 @@ export default function PartnersPage() {
 						{PROGRAMS.map((program) => (
 							<div
 								key={program.title}
-								className="flex flex-col rounded-2xl border border-border/50 bg-black/80 p-6"
+								className="flex flex-col rounded-2xl border border-border/50 bg-card/80 p-6"
 							>
 								<Badge
 									variant={program.badgeVariant}
@@ -106,7 +106,7 @@ export default function PartnersPage() {
 								>
 									{program.badge}
 								</Badge>
-								<h2 className="text-xl font-semibold text-white">
+								<h2 className="text-xl font-semibold text-foreground">
 									{program.title}
 								</h2>
 								<p className="mt-2 text-sm text-muted-foreground">
@@ -135,13 +135,13 @@ export default function PartnersPage() {
 			<section id="get-started" className="relative z-10 py-16 sm:py-24">
 				<Container>
 					<div className="mx-auto max-w-2xl">
-						<h2 className="text-center text-2xl font-semibold text-white sm:text-3xl">
+						<h2 className="text-center text-2xl font-semibold text-foreground sm:text-3xl">
 							Get Started
 						</h2>
 						<p className="mt-3 text-center text-muted-foreground">
-							Join our partner program and start growing with Dokploy.
+							Join our partner program and start growing with Notploy.
 						</p>
-						<div className="mt-10 rounded-xl border border-border/50 bg-black/80 p-6 sm:p-8">
+						<div className="mt-10 rounded-xl border border-border/50 bg-card/80 p-6 sm:p-8">
 							<PartnerForm />
 						</div>
 					</div>

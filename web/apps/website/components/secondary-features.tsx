@@ -87,11 +87,11 @@ export function SecondaryFeaturesSections() {
 		<section
 			id="features"
 			aria-label="Features for running your books"
-			className="relative overflow-hidden bg-black pb-28 pt-20 sm:py-32"
+			className="relative overflow-hidden bg-background pb-28 pt-20 sm:py-32"
 		>
 			<div className="relative mx-auto max-w-7xl max-lg:px-4">
 				<div className="max-w-2xl md:mx-auto md:text-center xl:max-w-none">
-					<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl md:text-5xl">
+					<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl md:text-5xl">
 						Comprehensive Control of Your Digital Ecosystem
 					</h2>
 					<p className="mt-6 text-lg tracking-tight text-muted-foreground">
@@ -125,7 +125,7 @@ export function SecondaryFeaturesSections() {
 												{selectedIndex === featureIndex && (
 													<motion.span
 														layoutId="tab"
-														className="absolute inset-0 z-10 rounded-full bg-white/5 mix-blend-difference"
+														className="absolute inset-0 z-10 rounded-full bg-foreground/5 mix-blend-difference"
 														initial={{ opacity: 1 }}
 														animate={{ opacity: 1 }}
 														exit={{ opacity: 0 }}
@@ -163,7 +163,7 @@ export function SecondaryFeaturesSections() {
 									<Tab.Panel key={`panel-${index}`}>
 										<div className="relative sm:px-6 ">
 											<div className="absolute -inset-x-4 bottom-[-4.25rem] top-[-6.5rem] bg-card/60 ring-1 ring-inset ring-white/10 sm:inset-x-0 sm:rounded-t-xl" />
-											<p className="relative mx-auto mb-10 max-w-2xl text-base text-white sm:text-center">
+											<p className="relative mx-auto mb-10 max-w-2xl text-base text-foreground sm:text-center">
 												{feature.description}
 											</p>
 										</div>
@@ -187,7 +187,7 @@ export function SecondaryFeaturesSections() {
 														<span className="h-3 w-3 rounded-full bg-yellow-400" />
 														<span className="h-3 w-3 rounded-full bg-green-400" />
 													</div>
-													<div className="h-96 w-full bg-gray-100">
+													<div className="h-96 w-full bg-muted">
 														<img src={feature.image} alt={feature.title} />
 													</div>
 												</div>

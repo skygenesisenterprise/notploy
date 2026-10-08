@@ -10,55 +10,55 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-	title: "Dokploy vs. Portainer Comparison | Dokploy",
+	title: "Notploy vs. Portainer Comparison | Notploy",
 	description:
-		"Comparing Dokploy vs. Portainer? See how these self-hosted or cloud container tools stack up on deployment, reverse proxy, multi-server support, and more.",
+		"Comparing Notploy vs. Portainer? See how these self-hosted or cloud container tools stack up on deployment, reverse proxy, multi-server support, and more.",
 };
 
 type FeatureValue = boolean | "limited";
 
 interface FeatureRow {
 	feature: string;
-	dokploy: FeatureValue;
+	notploy: FeatureValue;
 	portainer: FeatureValue;
 	section?: string;
 }
 
 const featureComparisonRows: FeatureRow[] = [
 	// Setup & Installation
-	{ feature: "One-command installation", dokploy: true, portainer: true, section: "Setup & Installation" },
-	{ feature: "Installation feedback and progress logs", dokploy: true, portainer: false },
-	{ feature: "Works with firewall and Tailscale out of the box", dokploy: true, portainer: false },
-	{ feature: "Lightweight CPU usage while idle", dokploy: true, portainer: true },
+	{ feature: "One-command installation", notploy: true, portainer: true, section: "Setup & Installation" },
+	{ feature: "Installation feedback and progress logs", notploy: true, portainer: false },
+	{ feature: "Works with firewall and Tailscale out of the box", notploy: true, portainer: false },
+	{ feature: "Lightweight CPU usage while idle", notploy: true, portainer: true },
 	// Deployment
-	{ feature: "Deploy web apps from git repos (GitHub, GitLab, Bitbucket)", dokploy: true, portainer: "limited", section: "Deployment" },
-	{ feature: "Auto-deploy on git push", dokploy: true, portainer: "limited" },
-	{ feature: "Docker Compose support", dokploy: true, portainer: true },
-	{ feature: "Deploy from custom Docker images", dokploy: true, portainer: true },
-	{ feature: "Nixpacks and Heroku Buildpack support", dokploy: true, portainer: false },
-	{ feature: "Preview deployments (review apps)", dokploy: true, portainer: false },
-	{ feature: "One-click open source templates", dokploy: true, portainer: true },
+	{ feature: "Deploy web apps from git repos (GitHub, GitLab, Bitbucket)", notploy: true, portainer: "limited", section: "Deployment" },
+	{ feature: "Auto-deploy on git push", notploy: true, portainer: "limited" },
+	{ feature: "Docker Compose support", notploy: true, portainer: true },
+	{ feature: "Deploy from custom Docker images", notploy: true, portainer: true },
+	{ feature: "Nixpacks and Heroku Buildpack support", notploy: true, portainer: false },
+	{ feature: "Preview deployments (review apps)", notploy: true, portainer: false },
+	{ feature: "One-click open source templates", notploy: true, portainer: true },
 	// Networking & Domains
-	{ feature: "Built-in reverse proxy (Traefik)", dokploy: true, portainer: false, section: "Networking & Domains" },
-	{ feature: "Automatic SSL / encrypt cert via Let's Encrypt", dokploy: true, portainer: false },
-	{ feature: "Custom domain management", dokploy: true, portainer: false },
+	{ feature: "Built-in reverse proxy (Traefik)", notploy: true, portainer: false, section: "Networking & Domains" },
+	{ feature: "Automatic SSL / encrypt cert via Let's Encrypt", notploy: true, portainer: false },
+	{ feature: "Custom domain management", notploy: true, portainer: false },
 	// Infrastructure
-	{ feature: "Multi-server support", dokploy: true, portainer: true, section: "Infrastructure" },
-	{ feature: "Docker Swarm clustering", dokploy: true, portainer: true },
-	{ feature: "Kubernetes support", dokploy: false, portainer: true },
+	{ feature: "Multi-server support", notploy: true, portainer: true, section: "Infrastructure" },
+	{ feature: "Docker Swarm clustering", notploy: true, portainer: true },
+	{ feature: "Kubernetes support", notploy: false, portainer: true },
 	// Configuration & Services
-	{ feature: "Real-time monitoring (CPU, RAM, disk)", dokploy: true, portainer: "limited", section: "Configuration & Services" },
-	{ feature: "Metrics enabled by default", dokploy: true, portainer: false },
-	{ feature: "Automated alerts from metrics", dokploy: true, portainer: false },
-	{ feature: "Application and container log viewer", dokploy: true, portainer: true },
+	{ feature: "Real-time monitoring (CPU, RAM, disk)", notploy: true, portainer: "limited", section: "Configuration & Services" },
+	{ feature: "Metrics enabled by default", notploy: true, portainer: false },
+	{ feature: "Automated alerts from metrics", notploy: true, portainer: false },
+	{ feature: "Application and container log viewer", notploy: true, portainer: true },
 	// Teams & Access
-	{ feature: "Teams and multi-user support", dokploy: true, portainer: true, section: "Teams & Access" },
-	{ feature: "Role-based access control (RBAC)", dokploy: true, portainer: true },
-	{ feature: "Projects grouping", dokploy: true, portainer: false },
-	{ feature: "API and CLI access", dokploy: true, portainer: true },
-	{ feature: "AI-assisted deployments", dokploy: true, portainer: false },
-	{ feature: "Free community edition", dokploy: true, portainer: true },
-	{ feature: "Full-featured without a paid plan", dokploy: true, portainer: false },
+	{ feature: "Teams and multi-user support", notploy: true, portainer: true, section: "Teams & Access" },
+	{ feature: "Role-based access control (RBAC)", notploy: true, portainer: true },
+	{ feature: "Projects grouping", notploy: true, portainer: false },
+	{ feature: "API and CLI access", notploy: true, portainer: true },
+	{ feature: "AI-assisted deployments", notploy: true, portainer: false },
+	{ feature: "Free community edition", notploy: true, portainer: true },
+	{ feature: "Full-featured without a paid plan", notploy: true, portainer: false },
 ];
 
 const whyChooseItems = [
@@ -66,40 +66,40 @@ const whyChooseItems = [
 		icon: Zap,
 		title: "Deploy web services end-to-end, don't just manage containers",
 		description:
-			"Dokploy is a full deployment platform. Connect your git repos, and it handles the rest: building code, running it in containers, routing traffic through its built-in reverse proxy, and issuing SSL certificates automatically. Whether you're deploying web apps with Docker Compose files or spinning up databases on a cheap VPS, there's no bash script to maintain and no separate proxy to configure.",
+			"Notploy is a full deployment platform. Connect your git repos, and it handles the rest: building code, running it in containers, routing traffic through its built-in reverse proxy, and issuing SSL certificates automatically. Whether you're deploying web apps with Docker Compose files or spinning up databases on a cheap VPS, there's no bash script to maintain and no separate proxy to configure.",
 		image: {
-			src: "/images/dokploy-build-logs.png",
-			alt: "Dokploy deployment panel showing build and deployment logs",
+			src: "/images/notploy-build-logs.png",
+			alt: "Notploy deployment panel showing build and deployment logs",
 		},
 	},
 	{
 		icon: Globe,
 		title: "Get built-in networking without extra tools",
 		description:
-			"Dokploy offers SSL, built-in reverse proxy, and managed domains and cert issuance encryption. It ships with Traefik integrated, so assigning a domain to a service and getting a valid HTTPS certificate is a few clicks in the UI. You can also manage Traefik config directly via the file editor if you need more control.",
+			"Notploy offers SSL, built-in reverse proxy, and managed domains and cert issuance encryption. It ships with Traefik integrated, so assigning a domain to a service and getting a valid HTTPS certificate is a few clicks in the UI. You can also manage Traefik config directly via the file editor if you need more control.",
 		image: {
-			src: "/images/dokploy-domains.png",
-			alt: "Dokploy domains configuration with automatic HTTPS certificates",
+			src: "/images/notploy-domains.png",
+			alt: "Notploy domains configuration with automatic HTTPS certificates",
 		},
 	},
 	{
 		icon: Bell,
 		title: "Monitor, back up, and alert from one dashboard",
 		description:
-			"Dokploy has real-time CPU, memory, and disk metrics enabled by default, automated alerts, and scheduled S3-compatible database and volume backups built in. There's less to install, less to maintain, and less to go wrong. Troubleshooting is also simpler: logs, metrics, and alerts all live in the same UI.",
+			"Notploy has real-time CPU, memory, and disk metrics enabled by default, automated alerts, and scheduled S3-compatible database and volume backups built in. There's less to install, less to maintain, and less to go wrong. Troubleshooting is also simpler: logs, metrics, and alerts all live in the same UI.",
 		image: {
-			src: "/images/dokploy-monitoring-dashboard.png",
-			alt: "Dokploy monitoring dashboard showing CPU, memory and disk metrics",
+			src: "/images/notploy-monitoring-dashboard.png",
+			alt: "Notploy monitoring dashboard showing CPU, memory and disk metrics",
 		},
 	},
 	{
 		icon: Users,
 		title: "Switch to a more flexible workflow as your project grows",
 		description:
-			"Dokploy's open source version is genuinely full-featured for solo developers, startups, teams, and large enterprises alike. You can manage multi-server deployments, organize services into projects, control user permissions, and deploy across multiple environments—only upgrading as you grow. Whether you're a student running a side project or an agency managing client instances, the same tool scales with you.",
+			"Notploy's open source version is genuinely full-featured for solo developers, startups, teams, and large enterprises alike. You can manage multi-server deployments, organize services into projects, control user permissions, and deploy across multiple environments—only upgrading as you grow. Whether you're a student running a side project or an agency managing client instances, the same tool scales with you.",
 		image: {
-			src: "/images/dokploy-projects-dashboard.png",
-			alt: "Dokploy projects dashboard with services grid and environment selector",
+			src: "/images/notploy-projects-dashboard.png",
+			alt: "Notploy projects dashboard with services grid and environment selector",
 		},
 	},
 ];
@@ -107,17 +107,17 @@ const whyChooseItems = [
 const integrationRows = [
 	{
 		category: "Git providers",
-		dokploy: "GitHub, GitLab, Bitbucket, Gitea, Git Generic",
+		notploy: "GitHub, GitLab, Bitbucket, Gitea, Git Generic",
 		portainer: "Git Generic (any URL with credentials)",
 	},
 	{
 		category: "Build and deployment systems",
-		dokploy: "Docker, Docker Compose, Nixpacks, Heroku Buildpacks, Paketo Buildpacks, Railpack",
+		notploy: "Docker, Docker Compose, Nixpacks, Heroku Buildpacks, Paketo Buildpacks, Railpack",
 		portainer: "Docker, Docker Compose",
 	},
 	{
 		category: "Notifications and communication",
-		dokploy: "Slack, Telegram, Discord, Lark, Email (SMTP), Resend, Gotify, Ntfy, Pushover, Webhook",
+		notploy: "Slack, Telegram, Discord, Lark, Email (SMTP), Resend, Gotify, Ntfy, Pushover, Webhook",
 		portainer: "Slack, Microsoft Teams, Email (SMTP), Webhook",
 	},
 ];
@@ -128,11 +128,11 @@ function FeatureCell({ value }: { value: FeatureValue }) {
 	return <X className="mx-auto h-5 w-5 text-muted-foreground/50" />;
 }
 
-export default function DokployVsPortainerPage() {
+export default function NotployVsPortainerPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
 				<AnimatedGridPattern
 					numSquares={30}
 					maxOpacity={0.1}
@@ -144,8 +144,8 @@ export default function DokployVsPortainerPage() {
 				/>
 				<Container className="relative z-10">
 					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
-							Dokploy vs. Portainer
+						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+							Notploy vs. Portainer
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
 							Both tools help you manage containers on your own server. But they
@@ -154,7 +154,7 @@ export default function DokployVsPortainerPage() {
 
 						<div className="mt-16 grid gap-8 sm:grid-cols-2">
 							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-white">Dokploy</h3>
+								<h3 className="text-xl font-semibold text-foreground">Notploy</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									For scaling teams that want to self-host web apps and databases
 									with a polished UI, automated deployments from git repos,
@@ -162,7 +162,7 @@ export default function DokployVsPortainerPage() {
 								</p>
 							</div>
 							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-white">Portainer</h3>
+								<h3 className="text-xl font-semibold text-foreground">Portainer</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									For enterprises that already run Kubernetes and want a GUI to
 									manage containers, images, and stacks. A practical choice for
@@ -174,26 +174,26 @@ export default function DokployVsPortainerPage() {
 
 						<Button className="mt-10 rounded-full" asChild>
 							<Link
-								href="https://app.dokploy.com/register"
+								href="https://app.notploy.com/register"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								Get started with Dokploy
+								Get started with Notploy
 							</Link>
 						</Button>
 					</div>
 				</Container>
 			</section>
 
-			{/* Dokploy vs Portainer at a glance */}
+			{/* Notploy vs Portainer at a glance */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Dokploy vs. Portainer at a glance
+							Notploy vs. Portainer at a glance
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Read our comprehensive Dokploy vs. Portainer comparison before you
+							Read our comprehensive Notploy vs. Portainer comparison before you
 							make your decision.
 						</p>
 					</div>
@@ -203,7 +203,7 @@ export default function DokployVsPortainerPage() {
 							<thead>
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Feature</th>
-									<th className="px-4 py-4 text-center font-semibold">Dokploy</th>
+									<th className="px-4 py-4 text-center font-semibold">Notploy</th>
 									<th className="px-4 py-4 text-center font-semibold">Portainer</th>
 								</tr>
 							</thead>
@@ -226,7 +226,7 @@ export default function DokployVsPortainerPage() {
 										>
 											<td className="px-4 py-3 text-sm">{row.feature}</td>
 											<td className="px-4 py-3 text-center">
-												<FeatureCell value={row.dokploy} />
+												<FeatureCell value={row.notploy} />
 											</td>
 											<td className="px-4 py-3 text-center">
 												<FeatureCell value={row.portainer} />
@@ -240,12 +240,12 @@ export default function DokployVsPortainerPage() {
 				</Container>
 			</section>
 
-			{/* Why you should go with Dokploy */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			{/* Why you should go with Notploy */}
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Why you should go with Dokploy
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Why you should go with Notploy
 						</h2>
 					</div>
 
@@ -261,7 +261,7 @@ export default function DokployVsPortainerPage() {
 									<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
 										<item.icon className="h-6 w-6" />
 									</div>
-									<h3 className="text-xl font-semibold text-white">
+									<h3 className="text-xl font-semibold text-foreground">
 										{item.title}
 									</h3>
 									<p className="mt-3 text-muted-foreground">{item.description}</p>
@@ -291,13 +291,13 @@ export default function DokployVsPortainerPage() {
 							Deploy AI tools in a secure environment
 						</h2>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Create sandboxes with Dokploy that combine multitenancy, SSO, audit logs, and IP allowlisting in a single setup. Every deployment is logged, access is tied to your identity provider, workspaces are kept separate, and non-technical users can go from code to a running app without an engineer involved.
+							Create sandboxes with Notploy that combine multitenancy, SSO, audit logs, and IP allowlisting in a single setup. Every deployment is logged, access is tied to your identity provider, workspaces are kept separate, and non-technical users can go from code to a running app without an engineer involved.
 						</p>
 					</div>
 					<div className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-xl border border-border/50 shadow-2xl">
 						<Image
-							src="/images/dokploy-audit-logs.png"
-							alt="Dokploy audit logs tracking every deployment and user action"
+							src="/images/notploy-audit-logs.png"
+							alt="Notploy audit logs tracking every deployment and user action"
 							width={1200}
 							height={750}
 							className="w-full object-cover"
@@ -307,15 +307,15 @@ export default function DokployVsPortainerPage() {
 				</Container>
 			</section>
 
-			{/* Dokploy integrates with the leading solutions */}
+			{/* Notploy integrates with the leading solutions */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Dokploy integrates with the leading solutions
+							Notploy integrates with the leading solutions
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							When it comes to a Dokploy vs. Portainer comparison, you want the
+							When it comes to a Notploy vs. Portainer comparison, you want the
 							container management solution that syncs with the tools in your
 							workflow.
 						</p>
@@ -326,7 +326,7 @@ export default function DokployVsPortainerPage() {
 							<thead>
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Category</th>
-									<th className="px-4 py-4 text-left font-semibold">Dokploy</th>
+									<th className="px-4 py-4 text-left font-semibold">Notploy</th>
 									<th className="px-4 py-4 text-left font-semibold">Portainer</th>
 								</tr>
 							</thead>
@@ -338,7 +338,7 @@ export default function DokployVsPortainerPage() {
 									>
 										<td className="px-4 py-3 font-medium">{row.category}</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
-											{row.dokploy}
+											{row.notploy}
 										</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
 											{row.portainer}
@@ -351,17 +351,17 @@ export default function DokployVsPortainerPage() {
 				</Container>
 			</section>
 
-			{/* Why Dokploy is perfect for teams */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			{/* Why Notploy is perfect for teams */}
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Why Dokploy is perfect for teams of any size
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Why Notploy is perfect for teams of any size
 						</h2>
 						<p className="mt-6 text-lg text-muted-foreground">
 							Whether you're a startup founder deploying your first web app on a
 							cheap VPS or a growing team managing multiple services across
-							servers, Dokploy's flexible, polished platform makes self-hosting
+							servers, Notploy's flexible, polished platform makes self-hosting
 							accessible to everyone—from beginners and non-technical users who've
 							never touched a bash script to engineers who want full control over
 							their config, containers, and workflow.

@@ -49,7 +49,7 @@ export default async function TagPage({ params }: Props) {
 		<div className="container mx-auto px-4 py-12">
 			<Link
 				href="/blog"
-				className="text-primary-600 hover:text-primary-800 mb-8 inline-flex items-center transition-colors"
+				className="text-primary hover:text-primary-800 mb-8 inline-flex items-center transition-colors"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -69,9 +69,9 @@ export default async function TagPage({ params }: Props) {
 			<div className="mb-8">
 				<h1 className="mb-2 text-3xl font-bold">
 					Posts tagged with{" "}
-					<span className="text-primary-600">"{tagName}"</span>
+					<span className="text-primary">"{tagName}"</span>
 				</h1>
-				<p className="text-gray-600 dark:text-gray-400">
+				<p className="text-muted-foreground dark:text-muted-foreground">
 					{posts.length} {posts.length === 1 ? "post" : "posts"} found
 				</p>
 			</div>
@@ -94,7 +94,7 @@ function BlogPostCard({ post }: { post: Post }) {
 
 	return (
 		<Link href={`/blog/${post.slug}`} className="group">
-			<div className="overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl dark:bg-gray-800">
+			<div className="overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl dark:bg-card">
 				{post.feature_image && (
 					<div className="relative h-48 w-full">
 						<Image
@@ -106,13 +106,13 @@ function BlogPostCard({ post }: { post: Post }) {
 					</div>
 				)}
 				<div className="p-6">
-					<h2 className="group-hover:text-primary-500 mb-2 text-xl font-semibold transition-colors">
+					<h2 className="group-hover:text-primary mb-2 text-xl font-semibold transition-colors">
 						{post.title}
 					</h2>
-					<p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+					<p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
 						{formattedDate} • {post.reading_time} min read
 					</p>
-					<p className="mb-4 text-gray-700 dark:text-gray-300">
+					<p className="mb-4 text-foreground dark:text-muted-foreground">
 						{post.custom_excerpt || post.excerpt}
 					</p>
 					<div className="flex items-center">

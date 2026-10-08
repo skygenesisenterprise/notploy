@@ -2,9 +2,9 @@ import { Pricing } from "@/components/pricing";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Dokploy Pricing—Simple, Affordable Pricing. For Your Team",
+	title: "Notploy Pricing",
 	description:
-		"Deploy and manage apps with Dokploy. Compare Dokploy's Hobby, Startup, and Enterprise plans to find the right fit for your team.",
+		"Notploy Self is open source and free to self-host. Notploy Cloud is a managed service operated by Notploy Enterprise, with a commercial Enterprise edition.",
 };
 
 export default function PricingPage() {

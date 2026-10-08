@@ -14,7 +14,7 @@ interface TemplateConfigTabsProps {
 }
 
 const tabTriggerClasses =
-	"rounded-md px-2.5 py-1 font-mono text-xs text-zinc-500 data-[state=active]:bg-white/10 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none";
+	"rounded-md px-2.5 py-1 font-mono text-xs text-muted-foreground data-[state=active]:bg-foreground/10 data-[state=active]:text-foreground data-[state=active]:shadow-none";
 
 export function TemplateConfigTabs({
 	dockerCompose,
@@ -28,8 +28,8 @@ export function TemplateConfigTabs({
 
 	return (
 		<Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-			<div className="overflow-hidden rounded-xl border border-white/10 bg-[#17191E] shadow-lg">
-				<div className="flex items-center gap-3 border-b border-white/10 bg-white/[0.03] px-4 py-2">
+			<div className="overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+				<div className="flex items-center gap-3 border-b border-border bg-foreground/[0.03] px-4 py-2">
 					<TrafficLights />
 					<TabsList className="h-auto gap-1 rounded-none bg-transparent p-0">
 						<TabsTrigger value="compose" className={tabTriggerClasses}>

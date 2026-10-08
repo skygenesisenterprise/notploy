@@ -18,41 +18,41 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-	title: "Dokploy Vs. Render: Self-Hosted Vs. Managed PaaS",
+	title: "Notploy Vs. Render: Self-Hosted Vs. Managed PaaS",
 	description:
-		"Compare Dokploy vs. Render: infrastructure ownership, Docker Compose support, pricing, and deployment architecture—decide which fits your team.",
+		"Compare Notploy vs. Render: infrastructure ownership, Docker Compose support, pricing, and deployment architecture—decide which fits your team.",
 };
 
 const featureComparisonRows = [
-	{ feature: "Self-hostable on your own VPS or server", dokploy: true, render: false },
-	{ feature: "Run on any cloud provider via SSH", dokploy: true, render: false },
-	{ feature: "Docker Compose support", dokploy: true, render: false },
-	{ feature: "Docker Stack support", dokploy: true, render: false },
-	{ feature: "Dockerfile and prebuilt image deploys", dokploy: true, render: true },
-	{ feature: "Nixpacks build support", dokploy: true, render: false },
-	{ feature: "Heroku Buildpacks support", dokploy: true, render: true },
-	{ feature: "Paketo Buildpacks support", dokploy: true, render: false },
-	{ feature: "Railpack build support", dokploy: true, render: false },
-	{ feature: "Custom build servers", dokploy: true, render: false },
-	{ feature: "Named Docker volume backups to S3", dokploy: true, render: false },
-	{ feature: "Scheduled database backups to S3 (built-in)", dokploy: true, render: false },
-	{ feature: "Preview deployments", dokploy: true, render: true },
-	{ feature: "Multi-server deployment", dokploy: true, render: false },
-	{ feature: "Docker Swarm clustering", dokploy: true, render: false },
-	{ feature: "One-command installation", dokploy: true, render: false },
-	{ feature: "Scheduled jobs (cron)", dokploy: true, render: true },
-	{ feature: "Background workers", dokploy: true, render: true },
-	{ feature: "Built-in monitoring metrics (CPU, RAM, Disk)", dokploy: true, render: false },
-	{ feature: "Automated metric alerts", dokploy: true, render: false },
-	{ feature: "Metrics enabled by default", dokploy: true, render: false },
-	{ feature: "AI-assisted deployments", dokploy: true, render: false },
-	{ feature: "MCP server support", dokploy: true, render: true },
-	{ feature: "API and CLI automation", dokploy: true, render: true },
-	{ feature: "Fine-grained RBAC", dokploy: true, render: false },
-	{ feature: "SSO / SAML", dokploy: true, render: true },
-	{ feature: "Audit logs", dokploy: true, render: true },
-	{ feature: "Predictable per-server platform pricing", dokploy: true, render: false },
-	{ feature: "Persistent disk shared across services", dokploy: true, render: false },
+	{ feature: "Self-hostable on your own VPS or server", notploy: true, render: false },
+	{ feature: "Run on any cloud provider via SSH", notploy: true, render: false },
+	{ feature: "Docker Compose support", notploy: true, render: false },
+	{ feature: "Docker Stack support", notploy: true, render: false },
+	{ feature: "Dockerfile and prebuilt image deploys", notploy: true, render: true },
+	{ feature: "Nixpacks build support", notploy: true, render: false },
+	{ feature: "Heroku Buildpacks support", notploy: true, render: true },
+	{ feature: "Paketo Buildpacks support", notploy: true, render: false },
+	{ feature: "Railpack build support", notploy: true, render: false },
+	{ feature: "Custom build servers", notploy: true, render: false },
+	{ feature: "Named Docker volume backups to S3", notploy: true, render: false },
+	{ feature: "Scheduled database backups to S3 (built-in)", notploy: true, render: false },
+	{ feature: "Preview deployments", notploy: true, render: true },
+	{ feature: "Multi-server deployment", notploy: true, render: false },
+	{ feature: "Docker Swarm clustering", notploy: true, render: false },
+	{ feature: "One-command installation", notploy: true, render: false },
+	{ feature: "Scheduled jobs (cron)", notploy: true, render: true },
+	{ feature: "Background workers", notploy: true, render: true },
+	{ feature: "Built-in monitoring metrics (CPU, RAM, Disk)", notploy: true, render: false },
+	{ feature: "Automated metric alerts", notploy: true, render: false },
+	{ feature: "Metrics enabled by default", notploy: true, render: false },
+	{ feature: "AI-assisted deployments", notploy: true, render: false },
+	{ feature: "MCP server support", notploy: true, render: true },
+	{ feature: "API and CLI automation", notploy: true, render: true },
+	{ feature: "Fine-grained RBAC", notploy: true, render: false },
+	{ feature: "SSO / SAML", notploy: true, render: true },
+	{ feature: "Audit logs", notploy: true, render: true },
+	{ feature: "Predictable per-server platform pricing", notploy: true, render: false },
+	{ feature: "Persistent disk shared across services", notploy: true, render: false },
 ];
 
 const whyChooseItems = [
@@ -60,7 +60,7 @@ const whyChooseItems = [
 		icon: Building2,
 		title: "Own your infrastructure",
 		description:
-			"Deploy to any VPS, cloud instance, or dedicated server reachable by SSH—Hetzner, DigitalOcean, AWS, or your own hardware. Render runs services on its own infrastructure; Dokploy puts you in control.",
+			"Deploy to any VPS, cloud instance, or dedicated server reachable by SSH—Hetzner, DigitalOcean, AWS, or your own hardware. Render runs services on its own infrastructure; Notploy puts you in control.",
 	},
 	{
 		icon: ContainerIcon,
@@ -89,52 +89,52 @@ const whyChooseItems = [
 ];
 
 const pricingRows = [
-	{ label: "Pricing model", dokploy: "Per server", render: "Workspace plan + per-service compute" },
+	{ label: "Pricing model", notploy: "Per server", render: "Workspace plan + per-service compute" },
 	{
 		label: "Entry price",
-		dokploy: "Free (open source, self-hosted)",
+		notploy: "Free (open source, self-hosted)",
 		render: "$0/month workspace + compute per service",
 	},
 	{
 		label: "Production tier",
-		dokploy: "$15/month (Startup, 3 servers)",
+		notploy: "$15/month (Startup, 3 servers)",
 		render: "$25/month workspace + compute per service",
 	},
-	{ label: "Apps per server or plan", dokploy: "Unlimited", render: "No service cap on paid plans" },
-	{ label: "Databases", dokploy: "Unlimited per server", render: "Billed separately per instance" },
+	{ label: "Apps per server or plan", notploy: "Unlimited", render: "No service cap on paid plans" },
+	{ label: "Databases", notploy: "Unlimited per server", render: "Billed separately per instance" },
 	{
 		label: "Bandwidth",
-		dokploy: "Included (your server's allowance)",
+		notploy: "Included (your server's allowance)",
 		render: "25 GB included on Pro; metered above that",
 	},
-	{ label: "Infrastructure", dokploy: "Your own servers (any provider)", render: "Render-managed only" },
+	{ label: "Infrastructure", notploy: "Your own servers (any provider)", render: "Render-managed only" },
 ];
 
 const integrationRows = [
 	{
 		category: "Git providers",
-		dokploy: "GitHub, GitLab, Bitbucket, Gitea, Git Generic",
+		notploy: "GitHub, GitLab, Bitbucket, Gitea, Git Generic",
 		render: "GitHub, GitLab, Bitbucket",
 	},
 	{
 		category: "Build and deployment systems",
-		dokploy:
+		notploy:
 			"Docker, Docker Compose, Nixpacks, Heroku Buildpacks, Paketo Buildpacks, Railpack",
 		render: "Docker (Dockerfile + prebuilt images), Heroku Buildpacks",
 	},
 	{
 		category: "Notifications and communication",
-		dokploy:
+		notploy:
 			"Slack, Telegram, Discord, Lark, Email (SMTP), Resend, Gotify, Ntfy, Pushover, Webhook",
 		render: "Slack, Email, Webhook (Pro plan+)",
 	},
 ];
 
-export default function DokployVsRenderPage() {
+export default function NotployVsRenderPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
 				<AnimatedGridPattern
 					numSquares={30}
 					maxOpacity={0.1}
@@ -146,26 +146,26 @@ export default function DokployVsRenderPage() {
 				/>
 				<Container className="relative z-10">
 					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
-							Dokploy vs. Render
+						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+							Notploy vs. Render
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Choose Dokploy and choose control over your servers, setup, and
+							Choose Notploy and choose control over your servers, setup, and
 							infrastructure bill.
 						</p>
 
 						<div className="mt-16 grid gap-8 sm:grid-cols-2">
 							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-white">Dokploy</h3>
+								<h3 className="text-xl font-semibold text-foreground">Notploy</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
-									Dokploy gives you PaaS-level simplicity on infrastructure you
+									Notploy gives you PaaS-level simplicity on infrastructure you
 									own. Deploy apps, Docker Compose stacks, databases, and
 									background workers on any VPS or cloud server, with
 									predictable pricing and no vendor lock-in.
 								</p>
 							</div>
 							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-white">Render</h3>
+								<h3 className="text-xl font-semibold text-foreground">Render</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									A hosted, fully managed PaaS, Render handles servers,
 									networking, and scaling for you, with service types for web
@@ -178,7 +178,7 @@ export default function DokployVsRenderPage() {
 						<div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
+									href="https://app.notploy.com/register"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -193,15 +193,15 @@ export default function DokployVsRenderPage() {
 				</Container>
 			</section>
 
-			{/* Dokploy vs Render at a glance */}
+			{/* Notploy vs Render at a glance */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Dokploy vs. Render at a glance
+							Notploy vs. Render at a glance
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Read our comprehensive Render vs. Dokploy features comparison
+							Read our comprehensive Render vs. Notploy features comparison
 							before you make your decision.
 						</p>
 					</div>
@@ -211,7 +211,7 @@ export default function DokployVsRenderPage() {
 							<thead>
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Feature</th>
-									<th className="px-4 py-4 text-center font-semibold">Dokploy</th>
+									<th className="px-4 py-4 text-center font-semibold">Notploy</th>
 									<th className="px-4 py-4 text-center font-semibold">Render</th>
 								</tr>
 							</thead>
@@ -223,7 +223,7 @@ export default function DokployVsRenderPage() {
 									>
 										<td className="px-4 py-3 text-sm">{row.feature}</td>
 										<td className="px-4 py-3 text-center">
-											{row.dokploy ? (
+											{row.notploy ? (
 												<Check className="mx-auto h-5 w-5 text-green-500" />
 											) : (
 												<X className="mx-auto h-5 w-5 text-muted-foreground/50" />
@@ -244,12 +244,12 @@ export default function DokployVsRenderPage() {
 				</Container>
 			</section>
 
-			{/* Why you should choose Dokploy */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			{/* Why you should choose Notploy */}
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Why you should choose Dokploy
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Why you should choose Notploy
 						</h2>
 					</div>
 
@@ -265,7 +265,7 @@ export default function DokployVsRenderPage() {
 									<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
 										<item.icon className="h-6 w-6" />
 									</div>
-									<h3 className="text-xl font-semibold text-white">
+									<h3 className="text-xl font-semibold text-foreground">
 										{item.title}
 									</h3>
 									<p className="mt-3 text-muted-foreground">{item.description}</p>
@@ -274,8 +274,8 @@ export default function DokployVsRenderPage() {
 									{index === 0 ? (
 										<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 											<Image
-												src="/images/dokploy-remote-servers.png"
-												alt="Dokploy remote servers showing connected VPS infrastructure"
+												src="/images/notploy-remote-servers.png"
+												alt="Notploy remote servers showing connected VPS infrastructure"
 												fill
 												className="object-cover object-top"
 												sizes="(max-width: 768px) 100vw, 50vw"
@@ -284,8 +284,8 @@ export default function DokployVsRenderPage() {
 									) : index === 1 ? (
 										<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 											<Image
-												src="/images/dokploy-compose-editor.png"
-												alt="Dokploy Docker Compose editor with multi-service configuration"
+												src="/images/notploy-compose-editor.png"
+												alt="Notploy Docker Compose editor with multi-service configuration"
 												fill
 												className="object-cover object-top"
 												sizes="(max-width: 768px) 100vw, 50vw"
@@ -294,8 +294,8 @@ export default function DokployVsRenderPage() {
 									) : index === 2 ? (
 										<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 											<Image
-												src="/images/dokploy-create-backup.png"
-												alt="Dokploy Create Backup modal for database and volume backups"
+												src="/images/notploy-create-backup.png"
+												alt="Notploy Create Backup modal for database and volume backups"
 												fill
 												className="object-cover object-top"
 												sizes="(max-width: 768px) 100vw, 50vw"
@@ -304,8 +304,8 @@ export default function DokployVsRenderPage() {
 									) : index === 3 ? (
 										<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 											<Image
-												src="/images/dokploy-monitoring-dashboard.png"
-												alt="Dokploy monitoring dashboard showing CPU, memory and disk metrics"
+												src="/images/notploy-monitoring-dashboard.png"
+												alt="Notploy monitoring dashboard showing CPU, memory and disk metrics"
 												fill
 												className="object-cover object-top"
 												sizes="(max-width: 768px) 100vw, 50vw"
@@ -314,8 +314,8 @@ export default function DokployVsRenderPage() {
 									) : (
 										<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 											<Image
-												src="/images/dokploy-audit-logs.png"
-												alt="Dokploy audit logs tracking deployments in governed environments"
+												src="/images/notploy-audit-logs.png"
+												alt="Notploy audit logs tracking deployments in governed environments"
 												fill
 												className="object-cover object-top"
 												sizes="(max-width: 768px) 100vw, 50vw"
@@ -337,7 +337,7 @@ export default function DokployVsRenderPage() {
 							Pricing comparison: platform fees vs. per-service compute
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy Cloud charges per server, not per service, so your platform
+							Notploy Cloud charges per server, not per service, so your platform
 							cost stays flat as your app count grows. Render charges a workspace
 							plan fee plus a separate compute for every service instance, with
 							managed databases, storage, and bandwidth each billed on top.
@@ -350,7 +350,7 @@ export default function DokployVsRenderPage() {
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold" />
 									<th className="px-4 py-4 text-left font-semibold">
-										Dokploy Cloud
+										Notploy Cloud
 									</th>
 									<th className="px-4 py-4 text-left font-semibold">Render</th>
 								</tr>
@@ -360,7 +360,7 @@ export default function DokployVsRenderPage() {
 									<tr key={row.label} className="border-b border-border/50">
 										<td className="px-4 py-3 font-medium">{row.label}</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
-											{row.dokploy}
+											{row.notploy}
 										</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
 											{row.render}
@@ -373,12 +373,12 @@ export default function DokployVsRenderPage() {
 				</Container>
 			</section>
 
-			{/* Dokploy integrates with the leading solutions */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			{/* Notploy integrates with the leading solutions */}
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Dokploy integrates with the leading solutions
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Notploy integrates with the leading solutions
 						</h2>
 					</div>
 
@@ -387,7 +387,7 @@ export default function DokployVsRenderPage() {
 							<thead>
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Category</th>
-									<th className="px-4 py-4 text-left font-semibold">Dokploy</th>
+									<th className="px-4 py-4 text-left font-semibold">Notploy</th>
 									<th className="px-4 py-4 text-left font-semibold">Render</th>
 								</tr>
 							</thead>
@@ -396,7 +396,7 @@ export default function DokployVsRenderPage() {
 									<tr key={row.category} className="border-b border-border/50">
 										<td className="px-4 py-3 font-medium">{row.category}</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
-											{row.dokploy}
+											{row.notploy}
 										</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
 											{row.render}
@@ -409,7 +409,7 @@ export default function DokployVsRenderPage() {
 				</Container>
 			</section>
 
-			{/* Thousands have chosen Dokploy - Stats */}
+			{/* Thousands have chosen Notploy - Stats */}
 			<ComparisonStats />
 
 			{/* Testimonials */}

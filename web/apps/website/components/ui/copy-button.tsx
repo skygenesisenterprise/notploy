@@ -25,7 +25,7 @@ export function CopyButton({ text }: CopyButtonProps) {
 			{isCopied ? (
 				<CheckIcon className="h-full w-full text-green-500" />
 			) : (
-				<CopyIcon className="h-full w-full text-gray-400" />
+				<CopyIcon className="h-full w-full text-muted-foreground" />
 			)}
 		</button>
 	);

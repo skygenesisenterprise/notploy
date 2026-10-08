@@ -73,32 +73,32 @@ const footerSections = [
 		ariaLabel: "Comparisons and guides",
 		links: [
 			{
-				href: "/dokploy-vs-coolify",
-				label: "Dokploy vs. Coolify",
+				href: "/notploy-vs-coolify",
+				label: "Notploy vs. Coolify",
 			},
 			{
-				href: "/dokploy-vs-portainer",
-				label: "Dokploy vs. Portainer",
+				href: "/notploy-vs-portainer",
+				label: "Notploy vs. Portainer",
 			},
 			{
-				href: "/dokploy-vs-caprover",
-				label: "Dokploy vs. CapRover",
+				href: "/notploy-vs-caprover",
+				label: "Notploy vs. CapRover",
 			},
 			{
-				href: "/dokploy-vs-dokku",
-				label: "Dokploy vs. Dokku",
+				href: "/notploy-vs-dokku",
+				label: "Notploy vs. Dokku",
 			},
 			{
-				href: "/dokploy-vs-render",
-				label: "Dokploy vs. Render",
+				href: "/notploy-vs-render",
+				label: "Notploy vs. Render",
 			},
 			{
-				href: "/dokploy-vs-vercel",
-				label: "Dokploy vs. Vercel",
+				href: "/notploy-vs-vercel",
+				label: "Notploy vs. Vercel",
 			},
 			{ href: "/blog", label: "Blog" },
 			{
-				href: "https://docs.dokploy.com/docs/core",
+				href: "https://docs.notploy.com/docs/core",
 				label: "Documentation",
 				external: true,
 			},
@@ -117,23 +117,23 @@ const footerSections = [
 
 export function Footer() {
 	return (
-		<footer className="bg-black" role="contentinfo">
+		<footer className="bg-background" role="contentinfo">
 			<Container>
 				<div className="py-12 md:py-16">
 					{/* Logo + name + tagline */}
 					<div className="flex flex-col items-center gap-2 text-center md:items-start">
 						<Link
 							href="/"
-							aria-label="Dokploy - Home"
+							aria-label="Notploy - Home"
 							className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black rounded"
 						>
 							<Logo className="h-10 w-auto" />
 							<span className="text-xl font-semibold text-primary">
-								Dokploy
+								Notploy
 							</span>
 						</Link>
 						<span className="text-sm font-medium text-muted-foreground">
-							Deploy your applications with ease
+							Deploy and operate applications on infrastructure you own
 						</span>
 					</div>
 
@@ -167,38 +167,38 @@ export function Footer() {
 				</div>
 
 				{/* Bottom bar: social + copyright */}
-				<div className="flex flex-col items-center border-t border-slate-400/10 py-8 sm:flex-row sm:justify-between sm:items-center gap-6">
+				<div className="flex flex-col items-center border-t border-border py-8 sm:flex-row sm:justify-between sm:items-center gap-6">
 					<p className="text-sm text-muted-foreground order-2 sm:order-1">
-						© {new Date().getFullYear()} Dokploy. All rights reserved.
+						© {new Date().getFullYear()} Notploy. Open-source, Apache-2.0.
 					</p>
 					<div
 						className="flex items-center gap-6 order-1 sm:order-2"
 						aria-label="Social links"
 					>
 						<Link
-							href="https://x.com/getdokploy"
+							href="https://discord.gg/2tBnJ3jDJc"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-muted-foreground hover:text-muted-foreground/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black rounded"
-							aria-label="Dokploy on X (Twitter)"
+							aria-label="Notploy on Discord"
 						>
 							<svg
 								stroke="currentColor"
 								fill="currentColor"
 								strokeWidth="0"
-								viewBox="0 0 512 512"
+								viewBox="0 0 24 24"
 								xmlns="http://www.w3.org/2000/svg"
 								className="h-5 w-5"
 							>
-								<path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z" />
+								<path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03ZM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418Zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418Z" />
 							</svg>
 						</Link>
 						<Link
-							href="https://github.com/dokploy/dokploy"
+							href="https://github.com/skygenesisenterprise/notploy"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-muted-foreground hover:text-muted-foreground/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black rounded"
-							aria-label="Dokploy on GitHub"
+							aria-label="Notploy on GitHub"
 						>
 							<svg
 								aria-hidden="true"

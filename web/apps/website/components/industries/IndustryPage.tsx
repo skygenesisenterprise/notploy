@@ -38,7 +38,7 @@ export interface IndustryPageData {
 		heading: string;
 		description: string;
 		without: { title: string; items: string[] };
-		withDokploy: { title: string; items: string[] };
+		withNotploy: { title: string; items: string[] };
 	};
 	workflow: {
 		heading: string;
@@ -61,7 +61,7 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
 				<AnimatedGridPattern
 					numSquares={30}
 					maxOpacity={0.1}
@@ -73,7 +73,7 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 				/>
 				<Container className="relative z-10">
 					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
+						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
 							{data.hero.title}
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
@@ -131,10 +131,10 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 			</section>
 
 			{/* Comparison */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							{data.comparison.heading}
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
@@ -143,13 +143,13 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 					</div>
 					<div className="mx-auto mt-16 grid max-w-5xl gap-8 md:grid-cols-2">
 						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<h3 className="text-xl font-semibold text-white">
+							<h3 className="text-xl font-semibold text-foreground">
 								{data.comparison.without.title}
 							</h3>
 							<ul className="mt-6 space-y-4">
 								{data.comparison.without.items.map((item) => (
 									<li key={item} className="flex items-start gap-3">
-										<AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-500" />
+										<AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary/800" />
 										<span className="text-sm text-muted-foreground">
 											{item}
 										</span>
@@ -159,10 +159,10 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 						</div>
 						<div className="rounded-xl border border-primary/40 bg-card p-8">
 							<h3 className="text-xl font-semibold text-primary">
-								{data.comparison.withDokploy.title}
+								{data.comparison.withNotploy.title}
 							</h3>
 							<ul className="mt-6 space-y-4">
-								{data.comparison.withDokploy.items.map((item) => (
+								{data.comparison.withNotploy.items.map((item) => (
 									<li key={item} className="flex items-start gap-3">
 										<CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
 										<span className="text-sm text-muted-foreground">
@@ -210,11 +210,11 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 			</section>
 
 			{/* Built for + screenshot */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto flex max-w-6xl flex-col gap-12 md:flex-row md:items-center">
 						<div className="flex-1">
-							<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+							<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 								{data.builtFor.heading}
 							</h2>
 							{data.builtFor.paragraphs.map((paragraph) => (
@@ -226,7 +226,7 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 						<div className="flex-1">
 							<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 								<Image
-									src="/images/dokploy-environments.png"
+									src="/images/notploy-environments.png"
 									alt={data.builtFor.screenshotAlt}
 									fill
 									className="object-cover object-top"
@@ -252,7 +252,7 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Area</th>
 									<th className="px-4 py-4 text-left font-semibold">
-										What Dokploy supports
+										What Notploy supports
 									</th>
 								</tr>
 							</thead>
@@ -272,10 +272,10 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 			</section>
 
 			{/* FAQs */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							{data.faqs.heading}
 						</h2>
 					</div>
@@ -286,7 +286,7 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 					>
 						{data.faqs.items.map((faq, index) => (
 							<AccordionItem value={`faq-${index}`} key={faq.question}>
-								<AccordionTrigger className="text-left text-white">
+								<AccordionTrigger className="text-left text-foreground">
 									{faq.question}
 								</AccordionTrigger>
 								<AccordionContent>

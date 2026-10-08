@@ -18,46 +18,46 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-	title: "Dokploy vs. Vercel: Docker-Native vs. Serverless",
+	title: "Notploy vs. Vercel: Docker-Native vs. Serverless",
 	description:
-		"Compare Dokploy vs. Vercel: Docker support, runtime limits, persistent storage, pricing, and full-stack infrastructure. Decide which fits your team.",
+		"Compare Notploy vs. Vercel: Docker support, runtime limits, persistent storage, pricing, and full-stack infrastructure. Decide which fits your team.",
 };
 
 const featureComparisonRows = [
-	{ feature: "Self-hostable on your own VPS or server", dokploy: true, vercel: false },
-	{ feature: "Run on any cloud provider via SSH", dokploy: true, vercel: false },
-	{ feature: "Deploy Docker images and containers", dokploy: true, vercel: false },
-	{ feature: "Docker Compose support", dokploy: true, vercel: false },
-	{ feature: "Docker Stack support", dokploy: true, vercel: false },
-	{ feature: "Persistent filesystem (Docker volumes)", dokploy: true, vercel: false },
-	{ feature: "Persistent disk shared across services", dokploy: true, vercel: false },
-	{ feature: "Named Docker volume backups to S3", dokploy: true, vercel: false },
-	{ feature: "One-click scheduled database backups to S3", dokploy: true, vercel: false },
-	{ feature: "Long-running processes and background workers", dokploy: true, vercel: false },
+	{ feature: "Self-hostable on your own VPS or server", notploy: true, vercel: false },
+	{ feature: "Run on any cloud provider via SSH", notploy: true, vercel: false },
+	{ feature: "Deploy Docker images and containers", notploy: true, vercel: false },
+	{ feature: "Docker Compose support", notploy: true, vercel: false },
+	{ feature: "Docker Stack support", notploy: true, vercel: false },
+	{ feature: "Persistent filesystem (Docker volumes)", notploy: true, vercel: false },
+	{ feature: "Persistent disk shared across services", notploy: true, vercel: false },
+	{ feature: "Named Docker volume backups to S3", notploy: true, vercel: false },
+	{ feature: "One-click scheduled database backups to S3", notploy: true, vercel: false },
+	{ feature: "Long-running processes and background workers", notploy: true, vercel: false },
 	{
 		feature: "WebSocket connections without function duration limits",
-		dokploy: true,
+		notploy: true,
 		vercel: false,
 	},
-	{ feature: "Unlimited function duration", dokploy: true, vercel: false },
-	{ feature: "Custom build servers", dokploy: true, vercel: false },
-	{ feature: "Nixpacks build support", dokploy: true, vercel: false },
-	{ feature: "Heroku Buildpacks support", dokploy: true, vercel: false },
-	{ feature: "Preview deployments", dokploy: true, vercel: true },
-	{ feature: "Multi-server deployment", dokploy: true, vercel: false },
-	{ feature: "Docker Swarm clustering", dokploy: true, vercel: false },
-	{ feature: "One-command installation", dokploy: true, vercel: false },
-	{ feature: "Scheduled jobs (cron)", dokploy: true, vercel: true },
-	{ feature: "Built-in monitoring metrics (CPU, RAM, Disk)", dokploy: true, vercel: false },
-	{ feature: "Automated metric alerts built in", dokploy: true, vercel: true },
-	{ feature: "AI-assisted deployments", dokploy: true, vercel: true },
-	{ feature: "MCP server support", dokploy: true, vercel: true },
-	{ feature: "API and CLI automation", dokploy: true, vercel: true },
-	{ feature: "Fine-grained RBAC", dokploy: true, vercel: false },
-	{ feature: "SSO / SAML", dokploy: true, vercel: true },
-	{ feature: "Audit logs", dokploy: true, vercel: true },
-	{ feature: "Predictable per-server platform pricing", dokploy: true, vercel: false },
-	{ feature: "No per-seat billing", dokploy: true, vercel: false },
+	{ feature: "Unlimited function duration", notploy: true, vercel: false },
+	{ feature: "Custom build servers", notploy: true, vercel: false },
+	{ feature: "Nixpacks build support", notploy: true, vercel: false },
+	{ feature: "Heroku Buildpacks support", notploy: true, vercel: false },
+	{ feature: "Preview deployments", notploy: true, vercel: true },
+	{ feature: "Multi-server deployment", notploy: true, vercel: false },
+	{ feature: "Docker Swarm clustering", notploy: true, vercel: false },
+	{ feature: "One-command installation", notploy: true, vercel: false },
+	{ feature: "Scheduled jobs (cron)", notploy: true, vercel: true },
+	{ feature: "Built-in monitoring metrics (CPU, RAM, Disk)", notploy: true, vercel: false },
+	{ feature: "Automated metric alerts built in", notploy: true, vercel: true },
+	{ feature: "AI-assisted deployments", notploy: true, vercel: true },
+	{ feature: "MCP server support", notploy: true, vercel: true },
+	{ feature: "API and CLI automation", notploy: true, vercel: true },
+	{ feature: "Fine-grained RBAC", notploy: true, vercel: false },
+	{ feature: "SSO / SAML", notploy: true, vercel: true },
+	{ feature: "Audit logs", notploy: true, vercel: true },
+	{ feature: "Predictable per-server platform pricing", notploy: true, vercel: false },
+	{ feature: "No per-seat billing", notploy: true, vercel: false },
 ];
 
 const whyChooseItems = [
@@ -65,19 +65,19 @@ const whyChooseItems = [
 		icon: ContainerLucide,
 		title: "Deploy apps with Docker, Compose, and Stack",
 		description:
-			"Dokploy supports Docker, Docker Compose, and Docker Stack, so your containers run exactly as they do locally—no rewriting for a serverless model. Vercel does not support deploying Docker images or running Docker containers.",
+			"Notploy supports Docker, Docker Compose, and Docker Stack, so your containers run exactly as they do locally—no rewriting for a serverless model. Vercel does not support deploying Docker images or running Docker containers.",
 	},
 	{
 		icon: Settings,
 		title: "Run services without runtime limits",
 		description:
-			"Dokploy runs apps as containers on servers you control, with no platform-imposed timeouts. Vercel Functions have duration, memory, and payload caps that rule out long-running processes, persistent connections, and media pipelines.",
+			"Notploy runs apps as containers on servers you control, with no platform-imposed timeouts. Vercel Functions have duration, memory, and payload caps that rule out long-running processes, persistent connections, and media pipelines.",
 	},
 	{
 		icon: HardDrive,
 		title: "Keep persistent data on your own servers",
 		description:
-			"Dokploy supports persistent Docker volumes with scheduled S3 backups, making it a stronger fit for stateful apps, SQLite-backed tools, and self-hosted services that need durable local storage. Vercel's filesystem is read-only outside a small scratch space.",
+			"Notploy supports persistent Docker volumes with scheduled S3 backups, making it a stronger fit for stateful apps, SQLite-backed tools, and self-hosted services that need durable local storage. Vercel's filesystem is read-only outside a small scratch space.",
 	},
 	{
 		icon: Gauge,
@@ -94,52 +94,52 @@ const whyChooseItems = [
 ];
 
 const pricingRows = [
-	{ label: "Pricing model", dokploy: "Per server", vercel: "Per seat + metered usage" },
+	{ label: "Pricing model", notploy: "Per server", vercel: "Per seat + metered usage" },
 	{
 		label: "Entry price",
-		dokploy: "Free (open source, self-hosted)",
+		notploy: "Free (open source, self-hosted)",
 		vercel: "Free (Hobby, non-commercial only)",
 	},
 	{
 		label: "Production tier",
-		dokploy: "$15/month (Startup, 3 servers)",
+		notploy: "$15/month (Startup, 3 servers)",
 		vercel: "$20/month per deploying seat",
 	},
-	{ label: "Apps per plan", dokploy: "Unlimited", vercel: "Unlimited on Pro" },
-	{ label: "Databases", dokploy: "Unlimited per server", vercel: "Not included – third-party add-ons" },
+	{ label: "Apps per plan", notploy: "Unlimited", vercel: "Unlimited on Pro" },
+	{ label: "Databases", notploy: "Unlimited per server", vercel: "Not included – third-party add-ons" },
 	{
 		label: "Bandwidth",
-		dokploy: "Included (your server's allowance)",
+		notploy: "Included (your server's allowance)",
 		vercel: "1 TB included on Pro; metered above that",
 	},
-	{ label: "Infrastructure", dokploy: "Your own servers (any provider)", vercel: "Vercel-managed only" },
+	{ label: "Infrastructure", notploy: "Your own servers (any provider)", vercel: "Vercel-managed only" },
 ];
 
 const integrationRows = [
 	{
 		category: "Git providers",
-		dokploy: "GitHub, GitLab, Bitbucket, Gitea, Git Generic",
+		notploy: "GitHub, GitLab, Bitbucket, Gitea, Git Generic",
 		vercel: "GitHub, GitLab, Bitbucket, Azure DevOps",
 	},
 	{
 		category: "Build and deployment systems",
-		dokploy:
+		notploy:
 			"Docker, Docker Compose, Nixpacks, Heroku Buildpacks, Paketo Buildpacks, Railpack",
 		vercel: "Vercel framework detection (35+ frameworks), Vercel CLI",
 	},
 	{
 		category: "Notifications and communication",
-		dokploy:
+		notploy:
 			"Slack, Telegram, Discord, Lark, Email (SMTP), Resend, Gotify, Ntfy, Pushover, Webhook",
 		vercel: "Slack, Email, Webhook",
 	},
 ];
 
-export default function DokployVsVercelPage() {
+export default function NotployVsVercelPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
 				<AnimatedGridPattern
 					numSquares={30}
 					maxOpacity={0.1}
@@ -151,26 +151,26 @@ export default function DokployVsVercelPage() {
 				/>
 				<Container className="relative z-10">
 					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
-							Dokploy vs. Vercel
+						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+							Notploy vs. Vercel
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
-							Learn why so many teams are choosing Dokploy as their application
+							Learn why so many teams are choosing Notploy as their application
 							deployment tool over Vercel.
 						</p>
 
 						<div className="mt-16 grid gap-8 sm:grid-cols-2">
 							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-white">Dokploy</h3>
+								<h3 className="text-xl font-semibold text-foreground">Notploy</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
-									Dokploy is built for full-stack, Docker-native deployment on
+									Notploy is built for full-stack, Docker-native deployment on
 									infrastructure you own. Choose Vercel if your app is
 									primarily frontend or serverless and you want a managed
 									platform optimized for that model.
 								</p>
 							</div>
 							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-white">Vercel</h3>
+								<h3 className="text-xl font-semibold text-foreground">Vercel</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									For frontend and serverless-first teams that want a managed
 									platform with a global edge network, zero-config framework
@@ -183,7 +183,7 @@ export default function DokployVsVercelPage() {
 						<div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
 							<Button className="rounded-full" asChild>
 								<Link
-									href="https://app.dokploy.com/register"
+									href="https://app.notploy.com/register"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -198,15 +198,15 @@ export default function DokployVsVercelPage() {
 				</Container>
 			</section>
 
-			{/* Dokploy vs Vercel at a glance */}
+			{/* Notploy vs Vercel at a glance */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Dokploy vs. Vercel at a glance
+							Notploy vs. Vercel at a glance
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Read our comprehensive Vercel vs. Dokploy features comparison
+							Read our comprehensive Vercel vs. Notploy features comparison
 							before you make your decision.
 						</p>
 					</div>
@@ -216,7 +216,7 @@ export default function DokployVsVercelPage() {
 							<thead>
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Feature</th>
-									<th className="px-4 py-4 text-center font-semibold">Dokploy</th>
+									<th className="px-4 py-4 text-center font-semibold">Notploy</th>
 									<th className="px-4 py-4 text-center font-semibold">Vercel</th>
 								</tr>
 							</thead>
@@ -228,7 +228,7 @@ export default function DokployVsVercelPage() {
 									>
 										<td className="px-4 py-3 text-sm">{row.feature}</td>
 										<td className="px-4 py-3 text-center">
-											{row.dokploy ? (
+											{row.notploy ? (
 												<Check className="mx-auto h-5 w-5 text-green-500" />
 											) : (
 												<X className="mx-auto h-5 w-5 text-muted-foreground/50" />
@@ -249,12 +249,12 @@ export default function DokployVsVercelPage() {
 				</Container>
 			</section>
 
-			{/* Why you should choose Dokploy */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			{/* Why you should choose Notploy */}
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Why you should choose Dokploy
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Why you should choose Notploy
 						</h2>
 					</div>
 
@@ -270,7 +270,7 @@ export default function DokployVsVercelPage() {
 									<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
 										<item.icon className="h-6 w-6" />
 									</div>
-									<h3 className="text-xl font-semibold text-white">
+									<h3 className="text-xl font-semibold text-foreground">
 										{item.title}
 									</h3>
 									<p className="mt-3 text-muted-foreground">{item.description}</p>
@@ -279,8 +279,8 @@ export default function DokployVsVercelPage() {
 									{index === 0 ? (
 										<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 											<Image
-												src="/images/dokploy-compose-editor.png"
-												alt="Dokploy Docker Compose editor with multi-service configuration"
+												src="/images/notploy-compose-editor.png"
+												alt="Notploy Docker Compose editor with multi-service configuration"
 												fill
 												className="object-cover object-top"
 												sizes="(max-width: 768px) 100vw, 50vw"
@@ -289,8 +289,8 @@ export default function DokployVsVercelPage() {
 									) : index === 1 ? (
 										<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 											<Image
-												src="/images/dokploy-deployment-log.png"
-												alt="Dokploy application logs streaming from long-running services"
+												src="/images/notploy-deployment-log.png"
+												alt="Notploy application logs streaming from long-running services"
 												fill
 												className="object-cover object-top"
 												sizes="(max-width: 768px) 100vw, 50vw"
@@ -299,8 +299,8 @@ export default function DokployVsVercelPage() {
 									) : index === 2 ? (
 										<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 											<Image
-												src="/images/dokploy-create-backup.png"
-												alt="Dokploy Create Backup modal for database and volume backups"
+												src="/images/notploy-create-backup.png"
+												alt="Notploy Create Backup modal for database and volume backups"
 												fill
 												className="object-cover object-top"
 												sizes="(max-width: 768px) 100vw, 50vw"
@@ -309,8 +309,8 @@ export default function DokployVsVercelPage() {
 									) : index === 3 ? (
 										<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 											<Image
-												src="/images/dokploy-monitoring-dashboard.png"
-												alt="Dokploy monitoring dashboard showing CPU, memory and disk metrics"
+												src="/images/notploy-monitoring-dashboard.png"
+												alt="Notploy monitoring dashboard showing CPU, memory and disk metrics"
 												fill
 												className="object-cover object-top"
 												sizes="(max-width: 768px) 100vw, 50vw"
@@ -319,8 +319,8 @@ export default function DokployVsVercelPage() {
 									) : (
 										<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
 											<Image
-												src="/images/dokploy-audit-logs.png"
-												alt="Dokploy audit logs tracking deployments in governed environments"
+												src="/images/notploy-audit-logs.png"
+												alt="Notploy audit logs tracking deployments in governed environments"
 												fill
 												className="object-cover object-top"
 												sizes="(max-width: 768px) 100vw, 50vw"
@@ -342,7 +342,7 @@ export default function DokployVsVercelPage() {
 							Pricing comparison: per-server vs. per-seat and per-function
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Dokploy Cloud charges per server, not per seat or per function, so
+							Notploy Cloud charges per server, not per seat or per function, so
 							your platform cost stays flat as your team and app count grow.
 							Vercel charges $20 per deploying team member per month, plus
 							metered usage across bandwidth, function invocations, active CPU
@@ -357,7 +357,7 @@ export default function DokployVsVercelPage() {
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold" />
 									<th className="px-4 py-4 text-left font-semibold">
-										Dokploy Cloud
+										Notploy Cloud
 									</th>
 									<th className="px-4 py-4 text-left font-semibold">Vercel</th>
 								</tr>
@@ -367,7 +367,7 @@ export default function DokployVsVercelPage() {
 									<tr key={row.label} className="border-b border-border/50">
 										<td className="px-4 py-3 font-medium">{row.label}</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
-											{row.dokploy}
+											{row.notploy}
 										</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
 											{row.vercel}
@@ -380,12 +380,12 @@ export default function DokployVsVercelPage() {
 				</Container>
 			</section>
 
-			{/* Dokploy integrates with the leading solutions */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			{/* Notploy integrates with the leading solutions */}
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Dokploy integrates with the leading solutions
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Notploy integrates with the leading solutions
 						</h2>
 					</div>
 
@@ -394,7 +394,7 @@ export default function DokployVsVercelPage() {
 							<thead>
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Category</th>
-									<th className="px-4 py-4 text-left font-semibold">Dokploy</th>
+									<th className="px-4 py-4 text-left font-semibold">Notploy</th>
 									<th className="px-4 py-4 text-left font-semibold">Vercel</th>
 								</tr>
 							</thead>
@@ -403,7 +403,7 @@ export default function DokployVsVercelPage() {
 									<tr key={row.category} className="border-b border-border/50">
 										<td className="px-4 py-3 font-medium">{row.category}</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
-											{row.dokploy}
+											{row.notploy}
 										</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
 											{row.vercel}
@@ -416,7 +416,7 @@ export default function DokployVsVercelPage() {
 				</Container>
 			</section>
 
-			{/* Thousands have chosen Dokploy - Stats */}
+			{/* Thousands have chosen Notploy - Stats */}
 			<ComparisonStats />
 
 			{/* Testimonials */}

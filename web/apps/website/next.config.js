@@ -5,6 +5,15 @@ const nextConfig = {
 	typescript: {
 		ignoreBuildErrors: true,
 	},
+	async redirects() {
+		return [
+			{
+				source: "/dokploy-vs-:slug",
+				destination: "/notploy-vs-:slug",
+				permanent: true,
+			},
+		];
+	},
 	images: {
 		remotePatterns: [
 			{
@@ -20,7 +29,7 @@ const nextConfig = {
 				hostname: "www.gravatar.com",
 			},
 			{
-				hostname: "cms.dokploy.com",
+				hostname: "cms.notploy.com",
 			},
 		],
 		// domains: [
@@ -28,7 +37,7 @@ const nextConfig = {
 		// 	"testing-ghost-8423be-31-220-108-27.traefik.me",
 		// 	"images.unsplash.com",
 		// 	"www.gravatar.com",
-		// 	"cms.dokploy.com",
+		// 	"cms.notploy.com",
 		// ],
 	},
 };

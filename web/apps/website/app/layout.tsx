@@ -1,5 +1,3 @@
-import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
-import { OpenPanelComponent } from "@openpanel/nextjs";
 import clsx from "clsx";
 import type { Metadata } from "next";
 import { Inter, Lexend } from "next/font/google";
@@ -14,26 +12,29 @@ type Props = {
 };
 
 export const metadata: Metadata = {
-	metadataBase: new URL("https://dokploy.com"),
+	metadataBase: new URL("https://notploy.com"),
 	title: {
-		default: "Dokploy - Deploy your applications with ease",
-		template: "%s | Dokploy",
+		default: "Notploy - Deploy and operate applications on infrastructure you own",
+		template: "%s | Notploy",
 	},
-	description: "Deploy your applications with ease using Dokploy",
+	description:
+		"Notploy is an open-source, self-hostable platform for deploying and operating applications, databases, servers and clusters on infrastructure you own.",
 	icons: {
 		icon: "/icon.svg",
 		apple: "/apple-touch-icon.png",
 	},
 	openGraph: {
-		title: "Dokploy - Deploy your applications with ease",
-		description: "Deploy your applications with ease using Dokploy",
+		title: "Notploy - Deploy and operate applications on infrastructure you own",
+		description:
+			"Notploy is an open-source, self-hostable platform for deploying and operating applications, databases, servers and clusters on infrastructure you own.",
 		images: "/og.png",
 		type: "website",
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Dokploy - Deploy your applications with ease",
-		description: "Deploy your applications with ease using Dokploy",
+		title: "Notploy - Deploy and operate applications on infrastructure you own",
+		description:
+			"Notploy is an open-source, self-hostable platform for deploying and operating applications, databases, servers and clusters on infrastructure you own.",
 		images: ["/og.png"],
 	},
 };
@@ -60,26 +61,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 				lexend.variable,
 			)}
 		>
-			<GoogleTagManager gtmId="GTM-PWBFB2V2" />
-			<head>
-				<script
-					type="text/javascript"
-					id="hs-script-loader"
-					async
-					defer
-					src="//js-eu1.hs-scripts.com/147033433.js"
-				/>
-			</head>
 			<body>
-				<GoogleAnalytics gaId="G-0RTZ5EPB26" />
-				<OpenPanelComponent
-					apiUrl="https://openpanel.dokploy.com/api"
-					clientId="bf5a178b-7f28-4461-bf47-d63feff15922"
-					trackScreenViews={true}
-					trackOutgoingLinks={true}
-					trackAttributes={true}
-					globalProperties={{ site: "website" }}
-				/>
 				<div className="flex h-full flex-col">
 					<Header />
 					{children}

@@ -13,14 +13,14 @@ export function FeaturesSectionDemo() {
 				"Track and manage your project issues with ease using our intuitive interface.",
 			skeleton: <SkeletonOne />,
 			className:
-				"col-span-1 lg:col-span-4 border-b lg:border-r dark:border-neutral-800",
+				"col-span-1 lg:col-span-4 border-b lg:border-r dark:border-border",
 		},
 		{
 			title: "Capture pictures with AI",
 			description:
 				"Capture stunning photos effortlessly using our advanced AI technology.",
 			skeleton: <SkeletonTwo />,
-			className: "border-b col-span-1 lg:col-span-2 dark:border-neutral-800",
+			className: "border-b col-span-1 lg:col-span-2 dark:border-border",
 		},
 		{
 			title: "Watch our AI on YouTube",
@@ -28,7 +28,7 @@ export function FeaturesSectionDemo() {
 				"Whether its you or Tyler Durden, you can get to know about our product on YouTube",
 			skeleton: <SkeletonThree />,
 			className:
-				"col-span-1 lg:col-span-3 lg:border-r  dark:border-neutral-800",
+				"col-span-1 lg:col-span-3 lg:border-r  dark:border-border",
 		},
 		{
 			title: "Deploy in seconds",
@@ -41,18 +41,18 @@ export function FeaturesSectionDemo() {
 	return (
 		<div className="relative z-20 mx-auto max-w-7xl py-10 lg:py-40">
 			<div className="px-8">
-				<h4 className="mx-auto max-w-5xl text-center text-3xl font-medium tracking-tight text-black dark:text-white lg:text-5xl lg:leading-tight">
+				<h4 className="mx-auto max-w-5xl text-center text-3xl font-medium tracking-tight text-background dark:text-foreground lg:text-5xl lg:leading-tight">
 					Packed with thousands of features
 				</h4>
 
-				<p className="mx-auto my-4  max-w-2xl  text-center text-sm font-normal text-neutral-500 dark:text-neutral-300 lg:text-base">
+				<p className="mx-auto my-4  max-w-2xl  text-center text-sm font-normal text-muted-foreground dark:text-muted-foreground lg:text-base">
 					From Image generation to video generation, Everything AI has APIs for
 					literally everything. It can even create this website copy for you.
 				</p>
 			</div>
 
 			<div className="relative ">
-				<div className="mt-12 grid grid-cols-1 rounded-md dark:border-neutral-800 lg:grid-cols-6 xl:border">
+				<div className="mt-12 grid grid-cols-1 rounded-md dark:border-border lg:grid-cols-6 xl:border">
 					{features.map((feature) => (
 						<FeatureCard key={feature.title} className={feature.className}>
 							<FeatureTitle>{feature.title}</FeatureTitle>
@@ -82,7 +82,7 @@ const FeatureCard = ({
 
 const FeatureTitle = ({ children }: { children?: React.ReactNode }) => {
 	return (
-		<p className=" mx-auto max-w-5xl text-left text-xl tracking-tight text-black dark:text-white md:text-2xl md:leading-snug">
+		<p className=" mx-auto max-w-5xl text-left text-xl tracking-tight text-background dark:text-foreground md:text-2xl md:leading-snug">
 			{children}
 		</p>
 	);
@@ -93,7 +93,7 @@ const FeatureDescription = ({ children }: { children?: React.ReactNode }) => {
 		<p
 			className={cn(
 				"mx-auto max-w-4xl  text-left text-sm md:text-base",
-				"text-center font-normal text-neutral-500 dark:text-neutral-300",
+				"text-center font-normal text-muted-foreground dark:text-muted-foreground",
 				"mx-0 my-2 max-w-sm text-left md:text-sm",
 			)}
 		>
@@ -105,7 +105,7 @@ const FeatureDescription = ({ children }: { children?: React.ReactNode }) => {
 export const SkeletonOne = () => {
 	return (
 		<div className="relative flex h-full gap-10 px-2 py-8">
-			<div className="group  mx-auto  h-full w-full bg-white p-5 shadow-2xl dark:bg-neutral-900">
+			<div className="group  mx-auto  h-full w-full bg-card p-5 shadow-2xl dark:bg-card">
 				<div className="flex h-full w-full flex-1 flex-col space-y-2  ">
 					{/* TODO */}
 					<Image
@@ -182,7 +182,7 @@ export const SkeletonTwo = () => {
 						}}
 						whileHover="whileHover"
 						whileTap="whileTap"
-						className="-mr-4 mt-4 flex-shrink-0 overflow-hidden rounded-xl border border-neutral-100 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-800"
+						className="-mr-4 mt-4 flex-shrink-0 overflow-hidden rounded-xl border border-border bg-card p-1 dark:border-border dark:bg-muted"
 					>
 						<Image
 							src={image}
@@ -204,7 +204,7 @@ export const SkeletonTwo = () => {
 						variants={imageVariants}
 						whileHover="whileHover"
 						whileTap="whileTap"
-						className="-mr-4 mt-4 flex-shrink-0 overflow-hidden rounded-xl border border-neutral-100 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-800"
+						className="-mr-4 mt-4 flex-shrink-0 overflow-hidden rounded-xl border border-border bg-card p-1 dark:border-border dark:bg-muted"
 					>
 						<Image
 							src={image}

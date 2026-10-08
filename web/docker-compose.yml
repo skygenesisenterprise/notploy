@@ -1,0 +1,104 @@
+# Notploy web frontends — website + docs, in dev and prod modes.
+#
+# The monorepo has a single pnpm workspace at the repository root, so:
+#   * prod images are built from the repository root context (see the
+#     `web/Dockerfile.website` / `web/Dockerfile.docs` headers), and
+#   * dev containers mount the repository root at /workspace.
+#
+# Usage (run from the repository root):
+#   Dev:    docker compose -f web/docker-compose.yml --profile dev  up
+#   Prod:   docker compose -f web/docker-compose.yml --profile prod up --build
+#   Single: docker compose -f web/docker-compose.yml --profile prod up website-prod
+#
+# Default ports:
+#   website dev  http://localhost:3001   docs dev  http://localhost:3002
+#   website prod http://localhost:3000   docs prod http://localhost:3003
+#
+# Override ports with WEBSITE_DEV_PORT, DOCS_DEV_PORT, WEBSITE_PORT, DOCS_PORT.
+
+name: notploy-web
+
+x-dev: &dev
+  image: node:24.4-alpine
+  working_dir: /workspace
+  init: true
+  environment:
+    PNPM_HOME: /pnpm
+    PATH: /pnpm:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    CI: "true"
+  volumes:
+    # Repository root — hot reload for both apps.
+    - ..:/workspace
+    # Persist the pnpm store between container runs.
+    - pnpm-store:/pnpm/store
+
+services:
+  # Installs workspace dependencies once so the two dev servers do not race on
+  # the shared node_modules.
+  deps:
+    <<: *dev
+    profiles: ["dev"]
+    command: >-
+      sh -lc "corepack enable &&
+      pnpm install
+      --filter=@notploy/website...
+      --filter=@notploy/docs...
+      --frozen-lockfile"
+    restart: "no"
+
+  # --- website -------------------------------------------------------------
+  website-dev:
+    <<: *dev
+    profiles: ["dev"]
+    depends_on:
+      deps:
+        condition: service_completed_successfully
+    command: >-
+      sh -lc "corepack enable &&
+      pnpm --filter=@notploy/website exec next dev --port 3001 --hostname 0.0.0.0"
+    ports:
+      - "${WEBSITE_DEV_PORT:-3001}:3001"
+
+  website-prod:
+    profiles: ["prod"]
+    build:
+      context: ..
+      dockerfile: web/Dockerfile.website
+    image: notploy/website:${TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    ports:
+      - "${WEBSITE_PORT:-3000}:3000"
+
+  # --- docs ----------------------------------------------------------------
+  docs-dev:
+    <<: *dev
+    profiles: ["dev"]
+    depends_on:
+      deps:
+        condition: service_completed_successfully
+    command: >-
+      sh -lc "corepack enable &&
+      pnpm --filter=@notploy/docs exec next dev --port 3002 --hostname 0.0.0.0"
+    ports:
+      - "${DOCS_DEV_PORT:-3002}:3002"
+
+  docs-prod:
+    profiles: ["prod"]
+    build:
+      context: ..
+      dockerfile: web/Dockerfile.docs
+    image: notploy/docs:${TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    ports:
+      - "${DOCS_PORT:-3003}:3000"
+
+volumes:
+  pnpm-store:

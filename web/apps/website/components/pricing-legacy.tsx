@@ -96,7 +96,7 @@ export function PricingLegacy() {
 		<section
 			id="pricing-legacy"
 			aria-label="Pricing (Legacy)"
-			className="border-t border-border/30 bg-black py-20 sm:py-32"
+			className="border-t border-border/30 bg-background py-20 sm:py-32"
 		>
 			<div className="absolute inset-0">
 				<svg viewBox="0 0 2000 1000" xmlns="http://www.w3.org/2000/svg">
@@ -117,7 +117,7 @@ export function PricingLegacy() {
 			</div>
 			<Container className="relative">
 				<div className="text-center">
-					<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+					<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 						<span className="relative whitespace-nowrap">
 							<SwirlyDoodle className="absolute left-0 top-1/2 h-[1em] w-full fill-muted-foreground" />
 							<span className="relative">Simple Affordable</span>
@@ -147,7 +147,7 @@ export function PricingLegacy() {
 									className={clsx(
 										"flex max-w-sm flex-col  rounded-3xl border-2 border-dashed border-muted px-4",
 										featured
-											? "order-first border bg-black py-8 lg:order-none"
+											? "order-first border bg-background py-8 lg:order-none"
 											: "lg:py-8",
 									)}
 								>
@@ -161,27 +161,27 @@ export function PricingLegacy() {
 									</p>
 								</div>
 
-								<h3 className="mt-5 text-lg font-medium text-white">
-									Dokploy Open Source
+								<h3 className="mt-5 text-lg font-medium text-foreground">
+									Notploy Open Source
 								</h3>
 								<p
 									className={clsx(
 										"text-sm",
-										featured ? "text-white" : "text-slate-400",
+										featured ? "text-foreground" : "text-slate-400",
 									)}
 								>
-									Install and manage Dokploy UI on your own server.
+									Install and manage Notploy UI on your own server.
 								</p>
 
 								<ul
 									role="list"
 									className={clsx(
 										" mt-4 flex flex-col gap-y-2 text-sm",
-										featured ? "text-white" : "text-slate-200",
+										featured ? "text-foreground" : "text-slate-200",
 									)}
 								>
 									{[
-										"Complete Flexibility: Install Dokploy UI on your own infrastructure",
+										"Complete Flexibility: Install Notploy UI on your own infrastructure",
 										"Self-hosted Infrastructure",
 										"Community Support",
 										"Access to Core Features",
@@ -220,7 +220,7 @@ export function PricingLegacy() {
 								className={clsx(
 									"flex max-w-sm flex-col  rounded-3xl  border-2 border-dashed px-4",
 									featured
-										? "order-first border bg-black py-8 lg:order-none"
+										? "order-first border bg-background py-8 lg:order-none"
 										: "lg:py-8",
 								)}
 							>
@@ -250,16 +250,16 @@ export function PricingLegacy() {
 										$ {calculatePrice(serverQuantity, isAnnual).toFixed(2)} USD
 									</p>
 								)}
-								<h3 className="mt-5 text-lg font-medium text-white">
-									Dokploy Plan
+								<h3 className="mt-5 text-lg font-medium text-foreground">
+									Notploy Plan
 								</h3>
 								<p
 									className={clsx(
 										"text-sm",
-										featured ? "text-white" : "text-slate-400",
+										featured ? "text-foreground" : "text-slate-400",
 									)}
 								>
-									We manage the Dokploy UI infrastructure, we take care of it
+									We manage the Notploy UI infrastructure, we take care of it
 									for you.
 								</p>
 
@@ -267,7 +267,7 @@ export function PricingLegacy() {
 									role="list"
 									className={clsx(
 										" mt-4 flex flex-col gap-y-2 text-sm",
-										featured ? "text-white" : "text-slate-200",
+										featured ? "text-foreground" : "text-slate-200",
 									)}
 								>
 									{[
@@ -298,7 +298,7 @@ export function PricingLegacy() {
 												<TooltipTrigger onClick={() => setOpenVideo(true)}>
 													<IconInfoCircle className="size-5 text-muted-foreground transition-colors hover:text-primary " />
 												</TooltipTrigger>
-												<TooltipContent className=" z-[200] w-[400px] rounded-lg text-center font-semibold text-white">
+												<TooltipContent className=" z-[200] w-[400px] rounded-lg text-center font-semibold text-foreground">
 													<div className="mb-2 flex w-full justify-end self-end text-muted-foreground transition-colors hover:text-primary">
 														<X
 															onClick={() => setOpenVideo(false)}
@@ -307,7 +307,7 @@ export function PricingLegacy() {
 													</div>
 													<p className="mb-2 text-left text-primary">
 														We recommend you to watch the video to understand
-														the benefits of Dokploy Cloud
+														the benefits of Notploy Cloud
 													</p>
 
 													<HeroVideoDialog
@@ -386,7 +386,7 @@ export function PricingLegacy() {
 										</AnimatedGradientText>
 									</div>
 
-									<h3 className="mt-3 text-base font-medium text-white">
+									<h3 className="mt-3 text-base font-medium text-foreground">
 										Enterprise Support & Services
 									</h3>
 									<p className="text-sm text-muted-foreground">

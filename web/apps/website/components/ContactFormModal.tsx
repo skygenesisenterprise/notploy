@@ -34,7 +34,7 @@ export function ContactFormModal({
 					<DialogTitle>Contact Sales</DialogTitle>
 					<DialogDescription>
 						Get in touch with our team. We're here to help with any questions
-						about Dokploy Enterprise Services.
+						about Notploy Enterprise Services.
 					</DialogDescription>
 				</DialogHeader>
 				<div className="mt-4">

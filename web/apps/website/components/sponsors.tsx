@@ -18,10 +18,9 @@ export const Sponsors = () => {
 					Sponsors
 				</h3>
 				<p className="mx-auto max-w-2xl text-center text-lg tracking-tight text-muted-foreground">
-					Dokploy is an open source project that is maintained by a community of
-					volunteers. We would like to thank our sponsors for their support and
-					contributions to the project, which help us to continue to develop and
-					improve Dokploy.
+					Notploy is an open source project developed in the open. We would like to
+					thank the contributors and supporters whose work and support help us
+					keep developing and improving Notploy.
 				</p>
 			</div>
 			<div className="relative flex h-[700px] w-full flex-col items-center justify-center overflow-hidden bg-background md:shadow-xl">
@@ -29,7 +28,7 @@ export const Sponsors = () => {
 					<Tooltip>
 						<TooltipTrigger className="z-10 m-0 p-0">
 							<Link
-								href={"https://opencollective.com/dokploy"}
+								href={"https://github.com/skygenesisenterprise/notploy"}
 								target="_blank"
 								className={buttonVariants({
 									variant: "secondary",
@@ -40,7 +39,7 @@ export const Sponsors = () => {
 								<PlusCircleIcon className="size-10 text-muted-foreground transition-colors hover:text-primary" />
 							</Link>
 						</TooltipTrigger>
-						<TooltipContent className="z-[200] w-[200px] rounded-lg border-0 bg-black text-center font-semibold text-white">
+						<TooltipContent className="z-[200] w-[200px] rounded-lg border-0 bg-background text-center font-semibold text-foreground">
 							Become a sponsor 🤑
 						</TooltipContent>
 					</Tooltip>

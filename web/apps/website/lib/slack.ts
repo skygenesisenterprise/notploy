@@ -98,7 +98,7 @@ function formatContactDataForSlack(
 				elements: [
 					{
 						type: "mrkdwn",
-						text: "Sent from Dokploy website contact form",
+						text: "Sent from Notploy website contact form",
 					},
 				],
 			},

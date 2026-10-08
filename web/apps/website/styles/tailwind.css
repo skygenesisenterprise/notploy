@@ -1,76 +1,212 @@
+/*
+ * Notploy website styles.
+ *
+ * Based on `apps/notploy/styles/globals.css` so the website shares the product's
+ * design tokens (oklch palette, radii, scrollbars, motion). The app uses
+ * Tailwind CSS v4 (CSS-first `@theme`), while the website still runs Tailwind
+ * v3, so the tokens are consumed here as raw oklch components
+ * (`oklch(var(--token) / <alpha-value>)`) declared in `tailwind.config.ts`.
+ *
+ * The application ships a light theme by default and a `.dark` theme. The
+ * website is dark-first, so the application's dark theme values are used as the
+ * default `:root` tokens below.
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* *,
-html {
-  font-family: "Inter", sans-serif;
-} */
-
 @layer base {
-  :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
+	:root {
+		/* Application dark theme (apps/notploy/styles/globals.css — `.dark`). */
+		--terminal-paste: rgba(255, 255, 255, 0.2);
 
-    --card: 240 4% 10%;
-    --card-foreground: 0 0% 98%;
+		--background: 0.1913 0 0;
+		--foreground: 0.9173 0.0133 82.4015;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+		--card: 0.2264 0 0;
+		--card-foreground: 0.9173 0.0133 82.4015;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+		--popover: 0.2264 0 0;
+		--popover-foreground: 0.9173 0.0133 82.4015;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+		--primary: 0.8520 0.0205 100.6306;
+		--primary-foreground: 0.3329 0 0;
 
-    --muted: 240 4% 10%;
-    --muted-foreground: 240 5% 64.9%;
+		--secondary: 0.2520 0 0;
+		--secondary-foreground: 0.8520 0.0205 100.6306;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+		--muted: 0.2850 0 0;
+		--muted-foreground: 0.6348 0.0113 81.7875;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+		--accent: 0.3329 0 0;
+		--accent-foreground: 0.8520 0.0205 100.6306;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 4% 10%;
-    --ring: 240 4.9% 83.9%;
+		--destructive: 0.6368 0.2078 25.3313;
+		--destructive-foreground: 1 0 0;
 
-    --radius: 0.5rem;
-  }
+		--border: 0.2931 0 0;
+		--input: 0.2931 0 0;
+		--ring: 0.8520 0.0205 100.6306;
 
+		--chart-1: 0.6863 0.1743 34.2614;
+		--chart-2: 0.8590 0.0209 74.6369;
+		--chart-3: 0.6348 0.0113 81.7875;
+		--chart-4: 0.4681 0.0069 84.5829;
+		--chart-5: 0.3523 0 0;
+
+		--overlay: rgba(0, 0, 0, 0.5);
+
+		--radius: 0.5rem;
+		--tracking-normal: 0.01em;
+
+		--shadow-2xs: 0px 6px 15px 0px hsl(0 0% 0% / 0.15);
+		--shadow-xs: 0px 6px 15px 0px hsl(0 0% 0% / 0.15);
+		--shadow-sm: 0px 6px 15px 0px hsl(0 0% 0% / 0.3),
+			0px 1px 2px -1px hsl(0 0% 0% / 0.3);
+		--shadow: 0px 6px 15px 0px hsl(0 0% 0% / 0.3),
+			0px 1px 2px -1px hsl(0 0% 0% / 0.3);
+		--shadow-md: 0px 6px 15px 0px hsl(0 0% 0% / 0.3),
+			0px 2px 4px -1px hsl(0 0% 0% / 0.3);
+		--shadow-lg: 0px 6px 15px 0px hsl(0 0% 0% / 0.3),
+			0px 4px 6px -1px hsl(0 0% 0% / 0.3);
+		--shadow-xl: 0px 6px 15px 0px hsl(0 0% 0% / 0.3),
+			0px 8px 10px -1px hsl(0 0% 0% / 0.3);
+		--shadow-2xl: 0px 6px 15px 0px hsl(0 0% 0% / 0.75);
+
+		/* Motion tokens (apps/notploy/styles/globals.css). */
+		--duration-quick: 150ms;
+		--duration-fast: 250ms;
+		--duration-medium: 350ms;
+		--duration-slow: 400ms;
+		--ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+	}
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+	html {
+		scrollbar-gutter: stable;
+		-webkit-text-size-adjust: 100%;
+		scroll-padding-top: 6rem;
+	}
+
+	* {
+		@apply border-border;
+	}
+
+	body {
+		@apply bg-background text-foreground antialiased;
+		letter-spacing: var(--tracking-normal);
+		text-rendering: optimizeLegibility;
+	}
+
+	::selection {
+		background-color: oklch(var(--primary) / 0.3);
+	}
+
+	:focus-visible {
+		@apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+	}
+
+	/* Cursor pointer on buttons */
+	button:not([disabled]),
+	[role="button"]:not([disabled]) {
+		cursor: pointer;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4 {
+		@apply font-display tracking-tight text-foreground;
+		text-wrap: balance;
+	}
+
+	/* Custom scrollbar styling */
+	::-webkit-scrollbar {
+		width: 0.3125rem;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: oklch(var(--border));
+		border-radius: 0.3125rem;
+	}
+
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: oklch(var(--border)) transparent;
+	}
 }
 
 @layer components {
-  .code-editor pre.shiki {
-    background: transparent !important;
-    padding: 0.875rem 0;
-  }
-  .code-editor code {
-    display: block;
-    min-width: max-content;
-    counter-reset: line;
-    font-size: 0.8125rem;
-    line-height: 1.7;
-  }
-  .code-editor code .line::before {
-    counter-increment: line;
-    content: counter(line);
-    display: inline-block;
-    width: 2rem;
-    margin-right: 1.25rem;
-    text-align: right;
-    color: rgb(255 255 255 / 0.22);
-    user-select: none;
-  }
+	.code-editor pre.shiki {
+		background: transparent !important;
+		padding: 0.875rem 0;
+	}
+	.code-editor code {
+		display: block;
+		min-width: max-content;
+		counter-reset: line;
+		font-size: 0.8125rem;
+		line-height: 1.7;
+	}
+	.code-editor code .line::before {
+		counter-increment: line;
+		content: counter(line);
+		display: inline-block;
+		width: 2rem;
+		margin-right: 1.25rem;
+		text-align: right;
+		color: oklch(var(--muted-foreground) / 0.5);
+		user-select: none;
+	}
+}
+
+@layer utilities {
+	.no-scrollbar {
+		/* Chrome, Safari and Opera */
+		&::-webkit-scrollbar {
+			display: none;
+		}
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+
+	.custom-logs-scrollbar {
+		scrollbar-width: thin;
+		scrollbar-color: oklch(var(--muted-foreground)) transparent;
+
+		&::-webkit-scrollbar {
+			width: 8px;
+			height: 8px;
+		}
+
+		&::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background-color: oklch(var(--muted-foreground) / 0.3);
+			border-radius: 20px;
+		}
+
+		&::-webkit-scrollbar-thumb:hover {
+			background-color: oklch(var(--muted-foreground) / 0.5);
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+		scroll-behavior: auto !important;
+	}
 }

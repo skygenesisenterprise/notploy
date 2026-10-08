@@ -10,54 +10,54 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-	title: "Dokploy vs. Dokku Comparison | Dokploy | Dokploy",
+	title: "Notploy vs. Dokku Comparison | Notploy | Notploy",
 	description:
-		"Dokploy vs. Dokku: Compare self-hosted PaaS platforms. See how Dokploy's UI-first approach stacks up against Dokku's CLI-based workflow for deployments.",
+		"Notploy vs. Dokku: Compare self-hosted PaaS platforms. See how Notploy's UI-first approach stacks up against Dokku's CLI-based workflow for deployments.",
 };
 
 type FeatureValue = boolean | "limited";
 
 interface FeatureRow {
 	feature: string;
-	dokploy: FeatureValue;
+	notploy: FeatureValue;
 	dokku: FeatureValue;
 	section?: string;
 }
 
 const featureComparisonRows: FeatureRow[] = [
 	// Setup & Installation
-	{ feature: "One-command installation", dokploy: true, dokku: true, section: "Setup & Installation" },
-	{ feature: "Web-based UI dashboard", dokploy: true, dokku: false },
-	{ feature: "Works with firewall and Tailscale out of the box", dokploy: true, dokku: false },
-	{ feature: "Lightweight CPU usage while idle", dokploy: true, dokku: true },
+	{ feature: "One-command installation", notploy: true, dokku: true, section: "Setup & Installation" },
+	{ feature: "Web-based UI dashboard", notploy: true, dokku: false },
+	{ feature: "Works with firewall and Tailscale out of the box", notploy: true, dokku: false },
+	{ feature: "Lightweight CPU usage while idle", notploy: true, dokku: true },
 	// Deployment
-	{ feature: "Deploy from GitHub, GitLab, Bitbucket", dokploy: true, dokku: "limited", section: "Deployment" },
-	{ feature: "Auto-deploy on git push", dokploy: true, dokku: true },
-	{ feature: "Docker Compose support", dokploy: true, dokku: "limited" },
-	{ feature: "Deploy from custom Docker images", dokploy: true, dokku: true },
-	{ feature: "Nixpacks and Buildpack support", dokploy: true, dokku: true },
-	{ feature: "Preview deployments (review apps)", dokploy: true, dokku: false },
-	{ feature: "One-click app templates", dokploy: true, dokku: false },
+	{ feature: "Deploy from GitHub, GitLab, Bitbucket", notploy: true, dokku: "limited", section: "Deployment" },
+	{ feature: "Auto-deploy on git push", notploy: true, dokku: true },
+	{ feature: "Docker Compose support", notploy: true, dokku: "limited" },
+	{ feature: "Deploy from custom Docker images", notploy: true, dokku: true },
+	{ feature: "Nixpacks and Buildpack support", notploy: true, dokku: true },
+	{ feature: "Preview deployments (review apps)", notploy: true, dokku: false },
+	{ feature: "One-click app templates", notploy: true, dokku: false },
 	// Networking & Domains
-	{ feature: "Built-in reverse proxy", dokploy: true, dokku: true, section: "Networking & Domains" },
-	{ feature: "Automatic SSL via Let's Encrypt", dokploy: true, dokku: true },
-	{ feature: "Custom domain management via UI", dokploy: true, dokku: false },
+	{ feature: "Built-in reverse proxy", notploy: true, dokku: true, section: "Networking & Domains" },
+	{ feature: "Automatic SSL via Let's Encrypt", notploy: true, dokku: true },
+	{ feature: "Custom domain management via UI", notploy: true, dokku: false },
 	// Data & Backups
-	{ feature: "Database deployment (Postgres, MySQL, Redis, etc.)", dokploy: true, dokku: true, section: "Data & Backups" },
-	{ feature: "Scheduled database backups (S3)", dokploy: true, dokku: "limited" },
-	{ feature: "Back up arbitrary Docker volumes", dokploy: true, dokku: false },
+	{ feature: "Database deployment (Postgres, MySQL, Redis, etc.)", notploy: true, dokku: true, section: "Data & Backups" },
+	{ feature: "Scheduled database backups (S3)", notploy: true, dokku: "limited" },
+	{ feature: "Back up arbitrary Docker volumes", notploy: true, dokku: false },
 	// Monitoring & Alerts
-	{ feature: "Real-time monitoring (CPU, RAM, disk)", dokploy: true, dokku: false, section: "Monitoring & Alerts" },
-	{ feature: "Metrics enabled by default", dokploy: true, dokku: false },
-	{ feature: "Automated alerts from metrics", dokploy: true, dokku: false },
-	{ feature: "Application log viewer in UI", dokploy: true, dokku: false },
+	{ feature: "Real-time monitoring (CPU, RAM, disk)", notploy: true, dokku: false, section: "Monitoring & Alerts" },
+	{ feature: "Metrics enabled by default", notploy: true, dokku: false },
+	{ feature: "Automated alerts from metrics", notploy: true, dokku: false },
+	{ feature: "Application log viewer in UI", notploy: true, dokku: false },
 	// Teams & Access
-	{ feature: "Teams and multi-user support", dokploy: true, dokku: false, section: "Teams & Access" },
-	{ feature: "Role-based access control (RBAC)", dokploy: true, dokku: false },
-	{ feature: "Projects grouping", dokploy: true, dokku: false },
-	{ feature: "Multi-server deployment", dokploy: true, dokku: false },
-	{ feature: "API access", dokploy: true, dokku: true },
-	{ feature: "AI-assisted deployments", dokploy: true, dokku: false },
+	{ feature: "Teams and multi-user support", notploy: true, dokku: false, section: "Teams & Access" },
+	{ feature: "Role-based access control (RBAC)", notploy: true, dokku: false },
+	{ feature: "Projects grouping", notploy: true, dokku: false },
+	{ feature: "Multi-server deployment", notploy: true, dokku: false },
+	{ feature: "API access", notploy: true, dokku: true },
+	{ feature: "AI-assisted deployments", notploy: true, dokku: false },
 ];
 
 const whyChooseItems = [
@@ -65,50 +65,50 @@ const whyChooseItems = [
 		icon: Zap,
 		title: "Skip the CLI, ship from a dashboard",
 		description:
-			"Dokku requires SSH access and CLI commands for every operation—deploying, scaling, configuring domains, managing databases. Dokploy puts all of that in a visual dashboard. Connect your repo, configure your service, and deploy—all without touching a terminal. You still get full Docker access when you need it.",
+			"Dokku requires SSH access and CLI commands for every operation—deploying, scaling, configuring domains, managing databases. Notploy puts all of that in a visual dashboard. Connect your repo, configure your service, and deploy—all without touching a terminal. You still get full Docker access when you need it.",
 		image: {
-			src: "/images/dokploy-build-logs.png",
-			alt: "Dokploy deployment panel showing build and deployment logs",
+			src: "/images/notploy-build-logs.png",
+			alt: "Notploy deployment panel showing build and deployment logs",
 		},
 	},
 	{
 		icon: Bell,
 		title: "Get monitoring and backups out of the box",
 		description:
-			"Dokku has no built-in monitoring or backup system—you'd need to set up separate tools and cron jobs. Dokploy includes real-time CPU, memory, and disk metrics, automated alerts, and scheduled S3-compatible backups for both databases and Docker volumes from day one.",
+			"Dokku has no built-in monitoring or backup system—you'd need to set up separate tools and cron jobs. Notploy includes real-time CPU, memory, and disk metrics, automated alerts, and scheduled S3-compatible backups for both databases and Docker volumes from day one.",
 		image: {
-			src: "/images/dokploy-monitoring-dashboard.png",
-			alt: "Dokploy monitoring dashboard showing CPU, memory and disk metrics",
+			src: "/images/notploy-monitoring-dashboard.png",
+			alt: "Notploy monitoring dashboard showing CPU, memory and disk metrics",
 		},
 	},
 	{
 		icon: Users,
 		title: "Built for teams, not just solo operators",
 		description:
-			"Dokku is fundamentally a single-server, single-user tool. Dokploy supports multi-user access with role-based permissions, project organization, and multi-server deployments. When your project grows from a solo effort to a team operation, Dokploy scales with you.",
+			"Dokku is fundamentally a single-server, single-user tool. Notploy supports multi-user access with role-based permissions, project organization, and multi-server deployments. When your project grows from a solo effort to a team operation, Notploy scales with you.",
 		image: {
-			src: "/images/dokploy-environments.png",
-			alt: "Dokploy project organization with production and staging environments",
+			src: "/images/notploy-environments.png",
+			alt: "Notploy project organization with production and staging environments",
 		},
 	},
 	{
 		icon: Globe,
 		title: "Manage everything in one place",
 		description:
-			"With Dokku, databases, SSL, and domains each require separate plugins and CLI commands. Dokploy integrates database management, domain configuration, SSL certificates, Docker Compose, and deployment pipelines into a single, cohesive interface—reducing context-switching and operational overhead.",
+			"With Dokku, databases, SSL, and domains each require separate plugins and CLI commands. Notploy integrates database management, domain configuration, SSL certificates, Docker Compose, and deployment pipelines into a single, cohesive interface—reducing context-switching and operational overhead.",
 		image: {
-			src: "/images/dokploy-domains.png",
-			alt: "Dokploy domains configuration with automatic HTTPS certificates",
+			src: "/images/notploy-domains.png",
+			alt: "Notploy domains configuration with automatic HTTPS certificates",
 		},
 	},
 	{
 		icon: Shield,
 		title: "Give teams more control over access",
 		description:
-			"Dokploy gives teams built-in role-based access and project organization in the UI, so you can manage services, databases, and infrastructure as you grow across multiple servers—with the right level of oversight for developers seeking control without handing out broad server access. Dokku user access starts at the SSH key level. More granular control for users with specific needs depends on extra plugins or tooling.",
+			"Notploy gives teams built-in role-based access and project organization in the UI, so you can manage services, databases, and infrastructure as you grow across multiple servers—with the right level of oversight for developers seeking control without handing out broad server access. Dokku user access starts at the SSH key level. More granular control for users with specific needs depends on extra plugins or tooling.",
 		image: {
-			src: "/images/dokploy-users.png",
-			alt: "Dokploy team access and role-based permissions dashboard",
+			src: "/images/notploy-users.png",
+			alt: "Notploy team access and role-based permissions dashboard",
 		},
 	},
 ];
@@ -116,17 +116,17 @@ const whyChooseItems = [
 const integrationRows = [
 	{
 		category: "Git providers",
-		dokploy: "GitHub, GitLab, Bitbucket, Gitea, Git Generic",
+		notploy: "GitHub, GitLab, Bitbucket, Gitea, Git Generic",
 		dokku: "Git push via SSH",
 	},
 	{
 		category: "Build and deployment systems",
-		dokploy: "Docker, Docker Compose, Nixpacks, Heroku Buildpacks, Paketo Buildpacks, Railpack",
+		notploy: "Docker, Docker Compose, Nixpacks, Heroku Buildpacks, Paketo Buildpacks, Railpack",
 		dokku: "Docker, Heroku Buildpacks (via plugins)",
 	},
 	{
 		category: "Notifications and communication",
-		dokploy: "Slack, Telegram, Discord, Lark, Email (SMTP), Resend, Gotify, Ntfy, Pushover, Webhook",
+		notploy: "Slack, Telegram, Discord, Lark, Email (SMTP), Resend, Gotify, Ntfy, Pushover, Webhook",
 		dokku: "None built-in",
 	},
 ];
@@ -137,11 +137,11 @@ function FeatureCell({ value }: { value: FeatureValue }) {
 	return <X className="mx-auto h-5 w-5 text-muted-foreground/50" />;
 }
 
-export default function DokployVsDokkuPage() {
+export default function NotployVsDokkuPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-black py-20 sm:py-32">
+			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
 				<AnimatedGridPattern
 					numSquares={30}
 					maxOpacity={0.1}
@@ -153,8 +153,8 @@ export default function DokployVsDokkuPage() {
 				/>
 				<Container className="relative z-10">
 					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
-							Dokploy vs. Dokku
+						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+							Notploy vs. Dokku
 						</h1>
 						<p className="mt-6 text-lg text-muted-foreground">
 							Both platforms let you self-host applications on your own server.
@@ -164,16 +164,16 @@ export default function DokployVsDokkuPage() {
 
 						<div className="mt-16 grid gap-8 sm:grid-cols-2">
 							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-white">Dokploy</h3>
+								<h3 className="text-xl font-semibold text-foreground">Notploy</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									For teams that want a visual, full-featured deployment
 									platform with a polished UI, built-in monitoring, database
 									management, multi-server support, and team
-									collaboration—choose Dokploy.
+									collaboration—choose Notploy.
 								</p>
 							</div>
 							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-white">Dokku</h3>
+								<h3 className="text-xl font-semibold text-foreground">Dokku</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									For experienced developers who prefer a CLI-driven,
 									Heroku-like PaaS that's minimal and scriptable, with a
@@ -185,11 +185,11 @@ export default function DokployVsDokkuPage() {
 						</div>
 
 						<div className="mt-16">
-							<h2 className="text-xl font-semibold text-white sm:text-2xl">
-								A Dokploy vs. Dokku comparison for growing teams
+							<h2 className="text-xl font-semibold text-foreground sm:text-2xl">
+								A Notploy vs. Dokku comparison for growing teams
 							</h2>
 							<p className="mt-4 text-muted-foreground">
-								Choose Dokploy if you want complete control over your
+								Choose Notploy if you want complete control over your
 								infrastructure with a simpler way to manage apps, databases,
 								and multiple servers.
 							</p>
@@ -197,26 +197,26 @@ export default function DokployVsDokkuPage() {
 
 						<Button className="mt-10 rounded-full" asChild>
 							<Link
-								href="https://app.dokploy.com/register"
+								href="https://app.notploy.com/register"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								Get started with Dokploy
+								Get started with Notploy
 							</Link>
 						</Button>
 					</div>
 				</Container>
 			</section>
 
-			{/* Dokploy vs Dokku at a glance */}
+			{/* Notploy vs Dokku at a glance */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Dokploy vs. Dokku at a glance
+							Notploy vs. Dokku at a glance
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							Read our comprehensive Dokploy vs. Dokku comparison before you
+							Read our comprehensive Notploy vs. Dokku comparison before you
 							make your decision.
 						</p>
 					</div>
@@ -226,7 +226,7 @@ export default function DokployVsDokkuPage() {
 							<thead>
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Feature</th>
-									<th className="px-4 py-4 text-center font-semibold">Dokploy</th>
+									<th className="px-4 py-4 text-center font-semibold">Notploy</th>
 									<th className="px-4 py-4 text-center font-semibold">Dokku</th>
 								</tr>
 							</thead>
@@ -249,7 +249,7 @@ export default function DokployVsDokkuPage() {
 										>
 											<td className="px-4 py-3 text-sm">{row.feature}</td>
 											<td className="px-4 py-3 text-center">
-												<FeatureCell value={row.dokploy} />
+												<FeatureCell value={row.notploy} />
 											</td>
 											<td className="px-4 py-3 text-center">
 												<FeatureCell value={row.dokku} />
@@ -263,12 +263,12 @@ export default function DokployVsDokkuPage() {
 				</Container>
 			</section>
 
-			{/* Why you should go with Dokploy */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			{/* Why you should go with Notploy */}
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Why you should go with Dokploy
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Why you should go with Notploy
 						</h2>
 					</div>
 
@@ -284,7 +284,7 @@ export default function DokployVsDokkuPage() {
 									<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
 										<item.icon className="h-6 w-6" />
 									</div>
-									<h3 className="text-xl font-semibold text-white">
+									<h3 className="text-xl font-semibold text-foreground">
 										{item.title}
 									</h3>
 									<p className="mt-3 text-muted-foreground">{item.description}</p>
@@ -306,15 +306,15 @@ export default function DokployVsDokkuPage() {
 				</Container>
 			</section>
 
-			{/* Dokploy integrates with the leading solutions */}
+			{/* Notploy integrates with the leading solutions */}
 			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-							Dokploy integrates with the leading solutions
+							Notploy integrates with the leading solutions
 						</h2>
 						<p className="mt-4 text-lg text-muted-foreground">
-							When it comes to a Dokploy vs. Dokku comparison, you want the
+							When it comes to a Notploy vs. Dokku comparison, you want the
 							self-hosted PaaS that syncs with the tools in your
 							workflow.
 						</p>
@@ -325,7 +325,7 @@ export default function DokployVsDokkuPage() {
 							<thead>
 								<tr className="border-b border-border">
 									<th className="px-4 py-4 text-left font-semibold">Category</th>
-									<th className="px-4 py-4 text-left font-semibold">Dokploy</th>
+									<th className="px-4 py-4 text-left font-semibold">Notploy</th>
 									<th className="px-4 py-4 text-left font-semibold">Dokku</th>
 								</tr>
 							</thead>
@@ -337,7 +337,7 @@ export default function DokployVsDokkuPage() {
 									>
 										<td className="px-4 py-3 font-medium">{row.category}</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
-											{row.dokploy}
+											{row.notploy}
 										</td>
 										<td className="px-4 py-3 text-sm text-muted-foreground">
 											{row.dokku}
@@ -350,16 +350,16 @@ export default function DokployVsDokkuPage() {
 				</Container>
 			</section>
 
-			{/* Why Dokploy is perfect for teams */}
-			<section className="border-b border-border/30 bg-black py-20 sm:py-32">
+			{/* Why Notploy is perfect for teams */}
+			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
-							Why Dokploy is perfect for teams of any size
+						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							Why Notploy is perfect for teams of any size
 						</h2>
 						<p className="mt-6 text-lg text-muted-foreground">
 							Whether you've outgrown Dokku's CLI-only workflow or you're
-							choosing your first self-hosted PaaS, Dokploy gives you the visual
+							choosing your first self-hosted PaaS, Notploy gives you the visual
 							interface, team features, Docker Compose support, and built-in
 							tooling that Dokku relies on plugins and shell scripts for—all in
 							one cohesive platform.
