@@ -151,3 +151,7 @@ yarn.lock
 .opencode/
 
 build/
+
+# Written by `make docker-build`: the product (self|cloud|console) remembered
+# for the next plain `make docker-up`. Local state, never committed.
+.make-product
