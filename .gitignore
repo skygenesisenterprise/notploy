@@ -152,6 +152,6 @@ yarn.lock
 
 build/
 
-# Written by `make docker-build`: the product (self|cloud|console) remembered
-# for the next plain `make docker-up`. Local state, never committed.
+# Written by `make docker-build` / `make docker-up`: the product
+# (self|cloud|console) remembered for the next start. Local state, never committed.
 .make-product

@@ -29,7 +29,6 @@ NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE ?=
 # Select the product for one invocation, without editing .env or exporting
 # anything. Works with docker-build, docker-up and docker-dev:
 #
-#   make docker-build self       # self-hosted (default)
 #   make docker-up -- --cloud    # cloud (requires a signed entitlement)
 #   make docker-dev console      # console (requires a signed entitlement)
 #
@@ -39,15 +38,16 @@ NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE ?=
 # cloud -> cloud, console -> console.
 #
 # --- Remembered product ----------------------------------------------------
-# `docker-build` records the product it built in PRODUCT_STATE, so the dev and
-# prod flows stay equivalent:
+# Each build records the product in PRODUCT_STATE, so a later command reuses
+# the product that was built last:
 #
-#   make docker-build self   # build the self-hosted image
-#   make docker-up           # start that self-hosted instance
+#   make docker-up self   # build a fresh image + start self-hosted
+#   make docker-up        # start the product built last, without rebuilding
+#   make docker-down      # stop the stack — the image is kept for the next start
 #
-# Precedence: inline product flag > the product recorded by the last
-# docker-build > selfhosted. NOTPLOY_FLAVOR= / NOTPLOY_PRODUCT= passed by hand
-# are rejected (see the warnings below): the flavor only follows the product.
+# Precedence: inline product flag > the product recorded by the last build >
+# selfhosted. NOTPLOY_FLAVOR= / NOTPLOY_PRODUCT= passed by hand are rejected
+# (see the warnings below): the flavor only follows the product.
 PRODUCT_STATE := .make-product
 
 GOAL_PRODUCT := $(firstword $(filter self cloud console,$(patsubst --%,%,$(MAKECMDGOALS))))
@@ -134,17 +134,17 @@ help: ## Show this help
 	@echo ""
 	@echo "Variables: NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_VERSION=$(NOTPLOY_VERSION) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE)"
 	@echo "           IS_CLOUD=$(IS_CLOUD) NOTPLOY_PRODUCT=$(PRODUCT_WORD) NOTPLOY_PORT=$${NOTPLOY_PORT:-3000}"
-	@echo "Product:   $(PRODUCT_WORD)$$(test -f $(PRODUCT_STATE) && echo ' (saved by the last docker-build)')"
+	@echo "Product:   $(PRODUCT_WORD)$$(test -f $(PRODUCT_STATE) && echo ' (saved by the last build)')"
 	@echo "Identity:  the container bootstraps the instance identity into the"
 	@echo "           notploy-config volume at startup (self-hosted needs no network)."
-	@echo "Examples:  make docker-build self             # build the self-hosted image"
-	@echo "           make docker-up                     # start the product built above"
-	@echo "           make docker-up cloud               # build + cloud on :3000"
-	@echo "           make docker-up -- --console        # build + console on :3000"
-	@echo "           make docker-build NOTPLOY_VERSION=local"
-	@echo "           make docker-dev                    # dev, product of the last build"
-	@echo "           make docker-dev self               # dev, self-hosted (default)"
-	@echo "           make docker-dev console            # dev, console (needs entitlement)"
+	@echo "Examples:  make docker-up self              # build a fresh image + start self-hosted"
+	@echo "           make docker-up                   # restart the image built last, no rebuild"
+	@echo "           make docker-up cloud             # build a fresh cloud image + start"
+	@echo "           make docker-up -- --console      # build a fresh console image + start"
+	@echo "           make docker-build self           # rebuild only, without starting"
+	@echo "           make docker-dev                   # dev, product of the last build"
+	@echo "           make docker-dev self              # dev, self-hosted (default)"
+	@echo "           make docker-dev console           # dev, console (needs entitlement)"
 
 # ---------------------------------------------------------------------------
 # Local development (host toolchain)
@@ -178,23 +178,28 @@ lint: ## Lint/format check (pnpm lint)
 # Both targets accept the inline product flag (self | cloud | console), the
 # same way docker-dev does:
 #
-#   make docker-build            # self-hosted (default)
-#   make docker-build cloud      # cloud image (needs entitlement at runtime)
-#   make docker-up self          # build + start self-hosted
-#   make docker-up -- --console  # build + start console
+#   make docker-up self          # build a fresh image + start self-hosted
+#   make docker-up -- --console  # build a fresh image + start console
 #
-# docker-build records the product in PRODUCT_STATE, so the dev and prod flows
-# are equivalent: `make docker-build self` followed by a plain `make docker-up`
-# starts the self-hosted instance that was just built. docker-up depends on
-# docker-build, so a single `make docker-up cloud` builds and starts cloud.
-docker-build: ## Build the Notploy image (add: self | cloud | console, NOTPLOY_VERSION=<tag>)
+# Semantics: an inline product flag means "build a new image", so `docker-up
+# <product>` always triggers docker-build (prefixed, full rebuild) before
+# starting. A plain `make docker-up` never rebuilds: it restarts the stack
+# with the image built previously (PRODUCT_STATE). `make docker-down` only
+# removes the containers, the image stays, so the next plain `make docker-up`
+# relaunches instantly. Use `make docker-build <product>` to rebuild ignoring
+# PRODUCT_STATE.
+docker-build: ## Build the Notploy image only (add: self | cloud | console, NOTPLOY_VERSION=<tag>)
 	@echo "==> building product=$(PRODUCT_WORD) flavor=$(NOTPLOY_FLAVOR) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
 	$(COMPOSE_ENV) $(COMPOSE) build notploy
 	@printf '%s\n' '$(PRODUCT_WORD)' > $(PRODUCT_STATE)
 
-docker-up: docker-build ## Build then start the stack (add: self | cloud | console)
+docker-up: ## Start the stack (add: self | cloud | console to build a fresh image first)
 	@echo "==> starting product=$(PRODUCT_WORD) flavor=$(NOTPLOY_FLAVOR) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
 	$(COMPOSE_ENV) $(COMPOSE) up -d
+
+ifneq ($(GOAL_PRODUCT),)
+docker-up: docker-build
+endif
 
 # Stops whatever is actually running. Compose only removes the containers of the
 # enabled profiles, so the dev profile has to be added as soon as a notploy-dev
