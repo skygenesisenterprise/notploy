@@ -35,6 +35,22 @@ fi
 FORCE_IDENTITY=0
 ACTION="install"
 
+# Migration controls. `MIGRATION_REQUESTED` is tri-state:
+#   ""   -> ask interactively when a supported source installation is detected
+#   "1"  -> force the read-only migration assessment (--migrate)
+#   "-1" -> force a fresh installation (--fresh)
+MIGRATION_REQUESTED="${NOTPLOY_MIGRATION:-}"
+DRY_RUN="${NOTPLOY_DRY_RUN:-0}"
+ASSUME_YES="${NOTPLOY_ASSUME_YES:-0}"
+OUTPUT_JSON="${NOTPLOY_OUTPUT_JSON:-0}"
+
+# Normalize the environment-provided migration choice before arguments override it.
+case "$MIGRATION_REQUESTED" in
+    1|true|yes|migrate) MIGRATION_REQUESTED="1" ;;
+    0|false|no|fresh) MIGRATION_REQUESTED="-1" ;;
+    *) MIGRATION_REQUESTED="" ;;
+esac
+
 # `NOTPLOY_SOURCE_ONLY=1` turns this script into a library: the container
 # entrypoint sources it to reuse the exact same identity bootstrap instead of
 # duplicating the PKI logic. Argument parsing and installation are then skipped.
@@ -45,9 +61,31 @@ if [ "${NOTPLOY_SOURCE_ONLY:-0}" != "1" ]; then
             --cloud) NOTPLOY_PRODUCT="cloud" ;;
             --console) NOTPLOY_PRODUCT="console" ;;
             --force-identity) FORCE_IDENTITY=1 ;;
+            --migrate|--migration) MIGRATION_REQUESTED="1" ;;
+            --fresh|--no-migration) MIGRATION_REQUESTED="-1" ;;
+            --dry-run) DRY_RUN=1 ;;
+            -y|--yes) ASSUME_YES=1 ;;
+            --json) OUTPUT_JSON=1 ;;
             update) ACTION="update" ;;
             -h|--help)
-                echo "Usage: install.sh [--self|--cloud|--console] [--force-identity] [update]"
+                cat <<'USAGE'
+Usage: install.sh [--self|--cloud|--console] [--force-identity] [options] [update]
+
+Installation options:
+  --self|--cloud|--console   Select the Notploy product to install.
+  --force-identity           Regenerate the local instance identity and PKI.
+
+Migration options:
+  --migrate                  Read-only Dokploy assessment (never modifies Dokploy).
+  --fresh                    Force a fresh installation even if Dokploy is present.
+  --dry-run                  Never install; only run the read-only preflight.
+  -y, --yes                  Assume yes for migration prompts (non-interactive).
+  --json                     Emit the detection result as JSON and exit.
+
+Environment:
+  NOTPLOY_MIGRATION          Same as --migrate (1) or --fresh (0).
+  NOTPLOY_ALLOW_DESTRUCTIVE  Set to 1 to allow destroying a detected Docker Swarm.
+USAGE
                 exit 0
                 ;;
             *)
@@ -201,22 +239,27 @@ bootstrap_instance_identity() {
             -subj "/O=Notploy/CN=notploy-instance-$instance_id" \
             -out "$dir/instance.csr" >/dev/null 2>&1
 
-        openssl x509 -req -in "$dir/instance.csr" \
-            -CA "$dir/ca.crt" -CAkey "$dir/ca.key" -CAcreateserial \
-            -days "$INSTANCE_VALIDITY_DAYS" -sha256 \
-            -extfile <(cat <<EXT
+        local extfile
+        extfile="$(mktemp)"
+        cat > "$extfile" <<EXT
 basicConstraints=critical,CA:FALSE
 keyUsage=critical,digitalSignature,keyEncipherment
 extendedKeyUsage=clientAuth,serverAuth
 subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid,issuer
 EXT
-            ) -out "$dir/instance.crt" >/dev/null 2>&1 || {
+
+        openssl x509 -req -in "$dir/instance.csr" \
+            -CA "$dir/ca.crt" -CAkey "$dir/ca.key" -CAcreateserial \
+            -days "$INSTANCE_VALIDITY_DAYS" -sha256 \
+            -extfile "$extfile" \
+            -out "$dir/instance.crt" >/dev/null 2>&1 || {
             echo "Error: failed to sign the instance certificate" >&2
+            rm -f "$extfile"
             exit 1
         }
         chmod 644 "$dir/instance.crt"
-        rm -f "$dir/instance.csr" "$dir/ca.srl"
+        rm -f "$dir/instance.csr" "$dir/ca.srl" "$extfile"
 
         local created_at
         created_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -270,6 +313,401 @@ bootstrap_identity() {
     fi
 }
 
+# ---------------------------------------------------------------------------
+# Dokploy detection and read-only migration assessment
+#
+# Everything in this section is strictly read-only: it inspects Docker state,
+# known Dokploy paths and exposed ports, but never creates, updates or removes
+# anything. An existing Dokploy host must never be treated as a fresh host by
+# accident, so detection runs before any destructive installation step.
+#
+# The result mirrors the DetectedInstallation model from the migration design:
+#   detected, product, version, installationType, confidence, plus evidence.
+# ---------------------------------------------------------------------------
+DOKPLOY_DETECTED=0
+DOKPLOY_VERSION="unknown"
+DOKPLOY_INSTALLATION_TYPE="unknown"
+DOKPLOY_CONFIDENCE="low"
+DOKPLOY_EVIDENCE=""
+
+DOKPLOY_PROJECT_COUNT=0
+DOKPLOY_APPLICATION_COUNT=0
+DOKPLOY_SERVICE_COUNT=0
+DOKPLOY_SERVER_COUNT=0
+DOKPLOY_DOMAIN_COUNT=0
+DOKPLOY_REGISTRY_COUNT=0
+DOKPLOY_GIT_PROVIDER_COUNT=0
+DOKPLOY_VOLUME_COUNT=0
+DOKPLOY_NETWORK_COUNT=0
+
+# Human-readable installation type, matching the installer's preflight wording.
+installation_type_label() {
+    case "$1" in
+        swarm) echo "Docker/Swarm" ;;
+        compose) echo "Docker Compose" ;;
+        docker) echo "Docker" ;;
+        *) echo "Unknown" ;;
+    esac
+}
+
+dokploy_evidence_add() {
+    [ -n "$1" ] || return 0
+    if [ -n "$DOKPLOY_EVIDENCE" ]; then
+        DOKPLOY_EVIDENCE="$DOKPLOY_EVIDENCE; $1"
+    else
+        DOKPLOY_EVIDENCE="$1"
+    fi
+}
+
+json_escape() {
+    printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g' | tr -d '\n\r'
+}
+
+# `id|name|image|labels` for every Docker container that looks like Dokploy.
+# Notploy's own containers are explicitly excluded to avoid self-detection.
+dokploy_containers() {
+    command -v docker >/dev/null 2>&1 || return 0
+    docker ps -a --format '{{.ID}}|{{.Names}}|{{.Image}}|{{.Labels}}' 2>/dev/null \
+        | grep -i 'dokploy' | grep -vi 'notploy'
+}
+
+# `name|image` for Dokploy Swarm services, if a Swarm is active.
+dokploy_services() {
+    command -v docker >/dev/null 2>&1 || return 0
+    docker service ls --format '{{.Name}}|{{.Image}}' 2>/dev/null \
+        | grep -i 'dokploy' | grep -vi 'notploy'
+}
+
+detect_dokploy_version() {
+    local version image
+
+    version="$(dokploy_containers | awk -F'|' '{print $3}' \
+        | grep -oE ':[vV]?[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9]+)*' \
+        | head -n1 | sed 's/^://')"
+
+    if [ -z "$version" ]; then
+        version="$(grep -rhoE 'dokploy/dokploy:[^"[:space:]]+' \
+            /etc/dokploy 2>/dev/null | head -n1 | sed 's#.*:##')"
+    fi
+
+    if [ -z "$version" ]; then
+        image="$(dokploy_containers | awk -F'|' '{print $3}' | head -n1)"
+        if [ -n "$image" ] && command -v docker >/dev/null 2>&1; then
+            version="$(docker image inspect "$image" \
+                --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' \
+                2>/dev/null)"
+        fi
+    fi
+
+    case "$version" in
+        '<no value>'|'') version="" ;;
+    esac
+    printf '%s' "$version"
+}
+
+detect_dokploy_installation_type() {
+    local swarm_state
+    swarm_state="$(docker info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null || true)"
+
+    if [ "$swarm_state" = "active" ] && [ -n "$(dokploy_services)" ]; then
+        echo "swarm"
+        return 0
+    fi
+    if dokploy_containers | awk -F'|' '{print $4}' \
+        | grep -qi 'com\.docker\.compose\.project'; then
+        echo "compose"
+        return 0
+    fi
+    if [ -n "$(dokploy_containers)" ]; then
+        echo "docker"
+        return 0
+    fi
+    echo "unknown"
+}
+
+# Read-only detector. Populates the DOKPLOY_* globals and never mutates state.
+detect_dokploy() {
+    DOKPLOY_DETECTED=0
+    DOKPLOY_VERSION="unknown"
+    DOKPLOY_INSTALLATION_TYPE="unknown"
+    DOKPLOY_CONFIDENCE="low"
+    DOKPLOY_EVIDENCE=""
+
+    local containers services networks volumes path count
+
+    containers="$(dokploy_containers)"
+    services="$(dokploy_services)"
+
+    if [ -n "$containers" ] || [ -n "$services" ]; then
+        DOKPLOY_DETECTED=1
+        DOKPLOY_CONFIDENCE="high"
+        if [ -n "$containers" ]; then
+            count="$(printf '%s\n' "$containers" | grep -c .)"
+            dokploy_evidence_add "$count Dokploy container(s)"
+        fi
+        if [ -n "$services" ]; then
+            count="$(printf '%s\n' "$services" | grep -c .)"
+            dokploy_evidence_add "$count Dokploy Swarm service(s)"
+        fi
+    fi
+
+    networks="$(docker network ls --format '{{.Name}}' 2>/dev/null \
+        | grep -i 'dokploy' | grep -vi 'notploy' | head -n1)"
+    [ -n "$networks" ] && dokploy_evidence_add "Docker network '$networks'"
+
+    volumes="$(docker volume ls --format '{{.Name}}' 2>/dev/null \
+        | grep -i 'dokploy' | grep -vi 'notploy' | head -n1)"
+    [ -n "$volumes" ] && dokploy_evidence_add "Docker volume '$volumes'"
+
+    for path in /etc/dokploy /etc/dokploy/traefik/dynamic \
+        "$HOME/.dokploy" /root/.dokploy /var/lib/dokploy; do
+        [ -e "$path" ] && dokploy_evidence_add "installation path '$path'"
+    done
+
+    # Containers/services are decisive. Paths, networks and volumes are weak
+    # signals: they only raise a medium-confidence flag that forces the
+    # installer to ask before touching the host.
+    if [ "$DOKPLOY_DETECTED" != "1" ] && [ -n "$DOKPLOY_EVIDENCE" ]; then
+        DOKPLOY_DETECTED=1
+        DOKPLOY_CONFIDENCE="medium"
+    fi
+
+    if [ "$DOKPLOY_DETECTED" = "1" ]; then
+        DOKPLOY_INSTALLATION_TYPE="$(detect_dokploy_installation_type)"
+        DOKPLOY_VERSION="$(detect_dokploy_version)"
+        [ -n "$DOKPLOY_VERSION" ] || DOKPLOY_VERSION="unknown"
+    fi
+}
+
+# Extracts Host() rules from Traefik labels, one hostname per line.
+dokploy_collect_domains() {
+    command -v docker >/dev/null 2>&1 || return 0
+    docker ps -a --format '{{.Labels}}' 2>/dev/null \
+        | tr ',' '\n' \
+        | grep -oE 'Host\([`"][^`"]+[`"]\)' \
+        | sed -E 's/^Host\([`"]//; s/[`"]\)$//' \
+        | grep -vi 'notploy' \
+        | sort -u
+}
+
+# Read-only inventory of the observable Dokploy surface. Secrets, git provider
+# credentials and registry credentials are intentionally NOT collected here:
+# they are handled by the Notploy migration engine and never printed.
+dokploy_inventory() {
+    DOKPLOY_PROJECT_COUNT=0
+    DOKPLOY_APPLICATION_COUNT=0
+    DOKPLOY_SERVICE_COUNT=0
+    DOKPLOY_SERVER_COUNT=0
+    DOKPLOY_DOMAIN_COUNT=0
+    DOKPLOY_REGISTRY_COUNT=0
+    DOKPLOY_GIT_PROVIDER_COUNT=0
+    DOKPLOY_VOLUME_COUNT=0
+    DOKPLOY_NETWORK_COUNT=0
+
+    command -v docker >/dev/null 2>&1 || return 0
+
+    DOKPLOY_APPLICATION_COUNT="$(docker ps --format '{{.Names}}' 2>/dev/null \
+        | grep -vi 'dokploy' | grep -vi 'notploy' | grep -vi 'traefik' | grep -c .)"
+    DOKPLOY_SERVICE_COUNT="$(docker service ls --format '{{.Name}}' 2>/dev/null \
+        | grep -vi 'dokploy' | grep -vi 'notploy' | grep -vi 'traefik' | grep -c .)"
+    DOKPLOY_PROJECT_COUNT="$(docker ps -a --format '{{.Labels}}' 2>/dev/null \
+        | tr ',' '\n' | grep -oE 'com\.docker\.compose\.project=[^,]+' \
+        | cut -d= -f2 | grep -vi 'dokploy' | grep -vi 'notploy' \
+        | sort -u | grep -c .)"
+    DOKPLOY_SERVER_COUNT="$(docker node ls --format '{{.ID}}' 2>/dev/null | grep -c .)"
+    DOKPLOY_DOMAIN_COUNT="$(dokploy_collect_domains | grep -c .)"
+    DOKPLOY_REGISTRY_COUNT="$(docker ps -a --format '{{.Names}}|{{.Image}}' 2>/dev/null \
+        | grep -iE 'registry|harbor|nexus|artifactory' \
+        | grep -vi 'dokploy' | grep -vi 'notploy' | grep -c .)"
+    DOKPLOY_GIT_PROVIDER_COUNT=0
+    DOKPLOY_VOLUME_COUNT="$(docker volume ls --format '{{.Name}}' 2>/dev/null \
+        | grep -vi 'notploy' | grep -c .)"
+    DOKPLOY_NETWORK_COUNT="$(docker network ls --format '{{.Name}}' 2>/dev/null \
+        | grep -vE '^(bridge|host|none|ingress|docker_gwbridge)$' \
+        | grep -vi 'notploy' | grep -c .)"
+}
+
+dokploy_json() {
+    if [ "$DOKPLOY_DETECTED" != "1" ]; then
+        cat <<'JSON'
+{
+  "detected": false,
+  "product": "unknown",
+  "installationType": "unknown",
+  "confidence": "high",
+  "inventory": {
+    "projects": 0,
+    "applications": 0,
+    "services": 0,
+    "servers": 0,
+    "domains": 0,
+    "registries": 0,
+    "gitProviders": 0,
+    "volumes": 0,
+    "networks": 0
+  }
+}
+JSON
+        return 0
+    fi
+
+    cat <<JSON
+{
+  "detected": true,
+  "product": "dokploy",
+  "version": "$(json_escape "$DOKPLOY_VERSION")",
+  "installationType": "$(json_escape "$DOKPLOY_INSTALLATION_TYPE")",
+  "confidence": "$(json_escape "$DOKPLOY_CONFIDENCE")",
+  "evidence": "$(json_escape "$DOKPLOY_EVIDENCE")",
+  "inventory": {
+    "projects": $DOKPLOY_PROJECT_COUNT,
+    "applications": $DOKPLOY_APPLICATION_COUNT,
+    "services": $DOKPLOY_SERVICE_COUNT,
+    "servers": $DOKPLOY_SERVER_COUNT,
+    "domains": $DOKPLOY_DOMAIN_COUNT,
+    "registries": $DOKPLOY_REGISTRY_COUNT,
+    "gitProviders": $DOKPLOY_GIT_PROVIDER_COUNT,
+    "volumes": $DOKPLOY_VOLUME_COUNT,
+    "networks": $DOKPLOY_NETWORK_COUNT
+  }
+}
+JSON
+}
+
+show_dokploy_detected() {
+    echo "Checking existing installations..."
+    echo "⚠ Dokploy installation detected"
+    echo ""
+    echo "Dokploy version: ${DOKPLOY_VERSION:-unknown}"
+    echo "Installation: $(installation_type_label "$DOKPLOY_INSTALLATION_TYPE")"
+    echo "Detection confidence: ${DOKPLOY_CONFIDENCE}"
+    [ -n "$DOKPLOY_EVIDENCE" ] && echo "Evidence: $DOKPLOY_EVIDENCE"
+    echo ""
+    echo "Notploy can analyze this installation and prepare"
+    echo "a migration without modifying Dokploy."
+    echo ""
+}
+
+print_dokploy_report() {
+    echo ""
+    echo "Dokploy migration analysis"
+    echo ""
+    printf '%-18s %s\n' "Projects" "$DOKPLOY_PROJECT_COUNT"
+    printf '%-18s %s\n' "Applications" "$DOKPLOY_APPLICATION_COUNT"
+    printf '%-18s %s\n' "Services" "$DOKPLOY_SERVICE_COUNT"
+    printf '%-18s %s\n' "Servers" "$DOKPLOY_SERVER_COUNT"
+    printf '%-18s %s\n' "Domains" "$DOKPLOY_DOMAIN_COUNT"
+    printf '%-18s %s\n' "Registries" "$DOKPLOY_REGISTRY_COUNT"
+    printf '%-18s %s\n' "Git providers" "$DOKPLOY_GIT_PROVIDER_COUNT"
+    printf '%-18s %s\n' "Volumes" "$DOKPLOY_VOLUME_COUNT"
+    echo ""
+    echo "Compatibility"
+    echo ""
+    printf '✓ %s application(s) can be migrated automatically\n' \
+        "$DOKPLOY_APPLICATION_COUNT"
+    if [ "$DOKPLOY_DOMAIN_COUNT" -gt 0 ] 2>/dev/null; then
+        printf '⚠ %s domain(s) require DNS verification\n' "$DOKPLOY_DOMAIN_COUNT"
+    fi
+    if [ "$DOKPLOY_REGISTRY_COUNT" -gt 0 ] 2>/dev/null; then
+        printf '⚠ %s registry(ies) require credentials\n' "$DOKPLOY_REGISTRY_COUNT"
+    fi
+    echo "⚠ Git providers, secrets and schedules require a Dokploy session"
+    echo "✗ Historical deployments are summarized, not imported"
+    echo ""
+    echo "No changes have been made to Dokploy."
+}
+
+# Persists the read-only assessment under the Notploy config directory. This
+# never touches the Dokploy installation itself.
+write_migration_report() {
+    local dir file
+    dir="${NOTPLOY_CONFIG_PATH:-/etc/notploy}/migration"
+    if mkdir -p "$dir" 2>/dev/null; then
+        file="$dir/dokploy-$(date -u +%Y%m%dT%H%M%SZ).json"
+        if dokploy_json > "$file" 2>/dev/null; then
+            chmod 600 "$file" 2>/dev/null || true
+            echo "Assessment report: $file"
+        fi
+    fi
+}
+
+# Prompts the user when a source installation is detected. Returns:
+#   0 -> run the read-only migration assessment
+#   1 -> decline; leave the source installation untouched
+#   2 -> no interactive answer available; the caller must refuse to continue
+resolve_migration_choice() {
+    if [ "$MIGRATION_REQUESTED" = "1" ]; then
+        return 0
+    fi
+    if [ "$MIGRATION_REQUESTED" = "-1" ]; then
+        return 1
+    fi
+    if [ "$ASSUME_YES" = "1" ]; then
+        return 0
+    fi
+
+    # `curl | sh` leaves stdin at EOF, so prefer the controlling terminal. This
+    # also avoids consuming the rest of a piped script with `read`.
+    local answer=""
+    if [ -r /dev/tty ] && [ -w /dev/tty ]; then
+        printf "Continue with migration analysis? [y/N] "
+        read -r answer < /dev/tty || answer=""
+    elif [ -t 0 ]; then
+        printf "Continue with migration analysis? [y/N] "
+        read -r answer || answer=""
+    else
+        return 2
+    fi
+
+    case "$answer" in
+        y|Y|yes|YES) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Prints the read-only system preflight shown before detection. Never exits:
+# a missing Docker install is handled later by the fresh-install path.
+check_system_preflight() {
+    echo "Checking system..."
+
+    if [ "$(uname -s)" = "Linux" ]; then
+        echo "✓ Linux"
+    else
+        echo "✗ Linux"
+    fi
+
+    if command -v docker >/dev/null 2>&1; then
+        echo "✓ Docker"
+    else
+        echo "✗ Docker (will be installed)"
+    fi
+
+    local mem_kb disk_kb
+    mem_kb="$(awk '/^MemTotal:/{print $2}' /proc/meminfo 2>/dev/null)"
+    disk_kb="$(df -Pk / 2>/dev/null | awk 'NR==2 {print $4}')"
+    if [ -n "$mem_kb" ] && [ "$mem_kb" -ge 1048576 ] 2>/dev/null; then
+        if [ -n "$disk_kb" ] && [ "$disk_kb" -ge 2097152 ] 2>/dev/null; then
+            echo "✓ Required resources"
+        else
+            echo "⚠ Required resources (low disk space)"
+        fi
+    else
+        echo "⚠ Required resources (low memory, 1GB+ recommended)"
+    fi
+    echo ""
+}
+
+run_migration_assessment() {
+    dokploy_inventory
+    print_dokploy_report
+    echo ""
+    write_migration_report
+    echo ""
+    echo "Read-only assessment complete. Nothing has been migrated yet."
+    echo "The Notploy migration engine will use this inventory to build a"
+    echo "reviewable plan before any production-impacting operation."
+}
+
 # Detect version from environment variable or default to latest
 detect_version() {
     local version="${NOTPLOY_VERSION}"
@@ -297,6 +735,25 @@ detect_version() {
     echo "$version"
 }
 
+# Maps a release tag to the matching Notploy image reference. Kept POSIX-safe so
+# `curl ... | sh` works even where /bin/sh is dash.
+resolve_docker_image() {
+    case "$1" in
+        v[0-9]*.[0-9]*.[0-9]*-app)
+            printf 'ghcr.io/skygenesisenterprise/notploy:%s' "$1"
+            ;;
+        v[0-9]*.[0-9]*.[0-9]*)
+            printf 'ghcr.io/skygenesisenterprise/notploy:%s-app' "$1"
+            ;;
+        latest)
+            printf 'ghcr.io/skygenesisenterprise/notploy:latest'
+            ;;
+        *)
+            printf 'ghcr.io/skygenesisenterprise/notploy:%s' "$1"
+            ;;
+    esac
+}
+
 # Function to detect if running in Proxmox LXC container
 is_proxmox_lxc() {
     if [ -n "$container" ] && [ "$container" = "lxc" ]; then
@@ -308,6 +765,29 @@ is_proxmox_lxc() {
     fi
     
     return 1
+}
+
+# Fails closed if a port required by Notploy is already taken. This is only
+# enforced on the fresh-install path: during migration the ports belong to
+# Dokploy and must not be claimed.
+assert_required_ports() {
+    command -v ss >/dev/null 2>&1 || return 0
+
+    if ss -tulnp 2>/dev/null | grep ':80 ' >/dev/null 2>&1; then
+        echo "Error: something is already running on port 80" >&2
+        exit 1
+    fi
+
+    if ss -tulnp 2>/dev/null | grep ':443 ' >/dev/null 2>&1; then
+        echo "Error: something is already running on port 443" >&2
+        exit 1
+    fi
+
+    if ss -tulnp 2>/dev/null | grep ':3000 ' >/dev/null 2>&1; then
+        echo "Error: something is already running on port 3000" >&2
+        echo "Notploy requires port 3000 to be available. Please stop any service using this port." >&2
+        exit 1
+    fi
 }
 
 generate_random_password() {
@@ -336,25 +816,6 @@ generate_random_password() {
 }
 
 install_notploy() {
-    VERSION_TAG=$(detect_version)
-    # For self-hosted app image, the tag is typically vX.Y.Z-app, but we need to handle the image
-    # Based on docker-publish.yml, for -app suffix, the image is 'notploy'
-    if [[ "$VERSION_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        DOCKER_IMAGE="ghcr.io/skygenesisenterprise/notploy:${VERSION_TAG}-app"
-    elif [[ "$VERSION_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-app$ ]]; then
-        DOCKER_IMAGE="ghcr.io/skygenesisenterprise/notploy:${VERSION_TAG}"
-    elif [ "$VERSION_TAG" = "latest" ]; then
-        DOCKER_IMAGE="ghcr.io/skygenesisenterprise/notploy:latest"
-    else
-        DOCKER_IMAGE="ghcr.io/skygenesisenterprise/notploy:${VERSION_TAG}"
-    fi
-    
-    echo "Installing Notploy version: ${VERSION_TAG}"
-    if [ "$(id -u)" != "0" ]; then
-        echo "This script must be run as root" >&2
-        exit 1
-    fi
-
     if [ "$(uname)" = "Darwin" ]; then
         echo "This script must be run on Linux" >&2
         exit 1
@@ -365,21 +826,100 @@ install_notploy() {
         exit 1
     fi
 
-    if ss -tulnp | grep ':80 ' >/dev/null 2>&1; then
-        echo "Error: something is already running on port 80" >&2
+    if [ "$OUTPUT_JSON" != "1" ]; then
+        check_system_preflight
+    fi
+
+    # -----------------------------------------------------------------------
+    # Read-only preflight: detect a supported existing installation before any
+    # destructive or state-changing operation. A host running Dokploy must never
+    # be treated as a fresh host by accident. This runs before the root check
+    # because detection and the migration assessment are strictly read-only.
+    # -----------------------------------------------------------------------
+    if command -v docker >/dev/null 2>&1; then
+        detect_dokploy
+    else
+        DOKPLOY_DETECTED=0
+    fi
+
+    if [ "$OUTPUT_JSON" = "1" ]; then
+        if [ "$DOKPLOY_DETECTED" = "1" ]; then
+            dokploy_inventory
+        fi
+        dokploy_json
+        exit 0
+    fi
+
+    if [ "$DOKPLOY_DETECTED" = "1" ]; then
+        if [ "$DRY_RUN" = "1" ]; then
+            run_migration_assessment
+            exit 0
+        fi
+        show_dokploy_detected
+
+        if [ "$MIGRATION_REQUESTED" = "-1" ]; then
+            echo "Fresh installation explicitly requested (--fresh)."
+            echo "Dokploy will not be modified by this installer."
+            echo ""
+        else
+            resolve_migration_choice
+            migration_choice=$?
+            case "$migration_choice" in
+                0)
+                    run_migration_assessment
+                    exit 0
+                    ;;
+                1)
+                    # Declining must leave the source installation untouched.
+                    echo "Migration declined. No changes have been made to Dokploy."
+                    echo "To install Notploy anyway, re-run with --fresh."
+                    exit 0
+                    ;;
+                *)
+                    cat >&2 <<'EOF'
+No interactive input is available to confirm the migration choice.
+
+An existing Dokploy installation was detected, so Notploy refuses to
+continue silently and will not modify the host. Re-run with one of:
+
+  curl -fsSL https://notploy.com/install.sh | sh -s -- --migrate
+      Read-only migration assessment (recommended).
+
+  curl -fsSL https://notploy.com/install.sh | sh -s -- --fresh
+      Explicit fresh installation (subject to the normal safety checks).
+EOF
+                    exit 1
+                    ;;
+            esac
+        fi
+    else
+        echo "No supported existing installation detected."
+    fi
+
+    if [ "$MIGRATION_REQUESTED" = "1" ]; then
+        echo "Error: --migrate was requested but no Dokploy installation was detected." >&2
         exit 1
     fi
 
-    if ss -tulnp | grep ':443 ' >/dev/null 2>&1; then
-        echo "Error: something is already running on port 443" >&2
+    if [ "$DRY_RUN" = "1" ]; then
+        echo "Dry-run: preflight complete, no changes were made."
+        exit 0
+    fi
+
+    # From here on the installer mutates the host and therefore requires root.
+    if [ "$(id -u)" != "0" ]; then
+        echo "This script must be run as root to install Notploy." >&2
         exit 1
     fi
 
-    if ss -tulnp | grep ':3000 ' >/dev/null 2>&1; then
-        echo "Error: something is already running on port 3000" >&2
-        echo "Notploy requires port 3000 to be available. Please stop any service using this port." >&2
-        exit 1
-    fi
+    assert_required_ports
+
+    VERSION_TAG=$(detect_version)
+    # For self-hosted app image, the tag is typically vX.Y.Z-app; resolve_docker_image
+    # maps the release tag to the image published by docker-publish.yml.
+    DOCKER_IMAGE="$(resolve_docker_image "$VERSION_TAG")"
+
+    echo "Installing Notploy version: ${VERSION_TAG}"
 
     command_exists() {
       command -v "$@" > /dev/null 2>&1
@@ -403,6 +943,18 @@ install_notploy() {
         endpoint_mode="--endpoint-mode dnsrr"
         echo "Waiting for 5 seconds before continuing..."
         sleep 5
+    fi
+
+    # Never tear down a detected source Swarm implicitly. The first migration
+    # milestone is read-only, so a fresh install on top of a Dokploy Swarm
+    # requires an explicit, deliberate override.
+    if [ "$DOKPLOY_DETECTED" = "1" ] \
+        && [ "$DOKPLOY_INSTALLATION_TYPE" = "swarm" ] \
+        && [ "${NOTPLOY_ALLOW_DESTRUCTIVE:-0}" != "1" ]; then
+        echo "Error: refusing to leave the existing Docker Swarm cluster that hosts Dokploy." >&2
+        echo "Run the read-only migration assessment (--migrate) instead, or set" >&2
+        echo "NOTPLOY_ALLOW_DESTRUCTIVE=1 if you really intend to destroy the source." >&2
+        exit 1
     fi
 
     docker swarm leave --force 2>/dev/null || true
@@ -591,15 +1143,7 @@ install_notploy() {
 
 update_notploy() {
     VERSION_TAG=$(detect_version)
-    if [[ "$VERSION_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        DOCKER_IMAGE="ghcr.io/skygenesisenterprise/notploy:${VERSION_TAG}-app"
-    elif [[ "$VERSION_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-app$ ]]; then
-        DOCKER_IMAGE="ghcr.io/skygenesisenterprise/notploy:${VERSION_TAG}"
-    elif [ "$VERSION_TAG" = "latest" ]; then
-        DOCKER_IMAGE="ghcr.io/skygenesisenterprise/notploy:latest"
-    else
-        DOCKER_IMAGE="ghcr.io/skygenesisenterprise/notploy:${VERSION_TAG}"
-    fi
+    DOCKER_IMAGE="$(resolve_docker_image "$VERSION_TAG")"
 
     echo "Updating Notploy to version: ${VERSION_TAG}"
     docker pull $DOCKER_IMAGE
