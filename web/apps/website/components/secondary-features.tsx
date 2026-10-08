@@ -86,17 +86,17 @@ export function SecondaryFeaturesSections() {
 	return (
 		<section
 			id="features"
-			aria-label="Features for running your books"
+			aria-label="A tour of the Notploy dashboard"
 			className="relative overflow-hidden bg-background pb-28 pt-20 sm:py-32"
 		>
 			<div className="relative mx-auto max-w-7xl max-lg:px-4">
 				<div className="max-w-2xl md:mx-auto md:text-center xl:max-w-none">
 					<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl md:text-5xl">
-						Comprehensive Control of Your Digital Ecosystem
+						The platform, in screenshots
 					</h2>
 					<p className="mt-6 text-lg tracking-tight text-muted-foreground">
-						Simplify your project and data management, ensure robust monitoring,
-						and secure your backups—all without the fuss over minute details.
+						Applications, Compose stacks, servers, logs, monitoring, backups and
+						routing — one control plane for everything you deploy.
 					</p>
 				</div>
 				<Tab.Group

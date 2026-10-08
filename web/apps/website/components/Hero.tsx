@@ -42,7 +42,7 @@ export function Hero() {
 												"inline animate-gradient bg-gradient-to-r from-primary via-primary/60 to-primary bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent",
 											)}
 										>
-											Open source · Self-hosted or managed
+											Open source · Apache-2.0 · Self-hosted or managed
 										</span>
 										<ChevronRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
 									</AnimatedGradientText>
@@ -76,10 +76,11 @@ export function Hero() {
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.3, delay: 0.2 }}
 						>
-							Notploy is an open-source, self-hostable platform for deploying
-							applications, databases, Docker Compose projects, servers and
-							clusters. Run it on your own infrastructure, or use Notploy
-							Cloud.
+							Notploy is an open-source infrastructure platform: deploy
+							applications, databases and Compose projects, manage servers and
+							clusters, and handle routing, certificates and backups from one
+							control plane. Run it yourself with Notploy Self, or let Notploy
+							operate it with Notploy Cloud.
 						</motion.p>
 						<motion.div
 							className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
@@ -91,9 +92,8 @@ export function Hero() {
 								<div className="mx-auto mt-6 flex w-full max-w-sm flex-wrap items-center justify-center gap-3 md:flex-nowrap">
 									<Button className="w-full rounded-full" asChild>
 										<Link
-											href="https://app.notploy.com/register"
-											aria-label="Get started with Notploy"
-											target="_blank"
+											href="/self"
+											aria-label="Get started with Notploy Self"
 										>
 											Get Started
 										</Link>
@@ -103,11 +103,12 @@ export function Hero() {
 										asChild
 									>
 										<Link
-											href="/contact"
-											aria-label="Contact Us"
+											href="https://app.notploy.com/register"
+											aria-label="Create a Notploy Cloud account"
+											target="_blank"
 											className="text-foreground"
 										>
-											Contact Us
+											Try Notploy Cloud
 										</Link>
 									</Button>
 								</div>

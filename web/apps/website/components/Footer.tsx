@@ -1,119 +1,10 @@
 "use client";
 
+import { footerSections, EXTERNAL_LINKS } from "@/lib/site-navigation";
 import Link from "next/link";
 import { Container } from "./Container";
 import { NavLink } from "./NavLink";
 import { Logo } from "./shared/Logo";
-
-const footerSections = [
-	{
-		title: "Product",
-		ariaLabel: "Product and features",
-		links: [
-			{ href: "/", label: "Home" },
-			{ href: "/#features", label: "Features" },
-			{ href: "/templates", label: "Templates" },
-			{ href: "/pricing", label: "Pricing" },
-			{
-				href: "/features/application-deployment-platform",
-				label: "Application Deployment Platform",
-			},
-			{
-				href: "/features/database-management-tool",
-				label: "Databases",
-			},
-			{ href: "/deploy-ai", label: "Deploy AI" },
-			{ href: "/sandbox-software", label: "Sandbox Software" },
-			{ href: "/self-hosted-paas", label: "Self-Hosted PaaS" },
-			{ href: "/enterprise", label: "Enterprise" },
-			{ href: "/contact", label: "Contact" },
-		],
-	},
-	{
-		title: "Enterprise Features",
-		ariaLabel: "Enterprise features",
-		links: [
-			{
-				href: "/features/security",
-				label: "Security",
-			},
-			{
-				href: "/features/role-based-access-control",
-				label: "RBAC",
-			},
-			{
-				href: "/features/single-sign-on",
-				label: "SSO",
-			},
-			{
-				href: "/features/audit-logs",
-				label: "Audit Logs",
-			},
-			{
-				href: "/features/white-labeling",
-				label: "White Labeling",
-			},
-		],
-	},
-	{
-		title: "Industries",
-		ariaLabel: "Industry solutions",
-		links: [
-			{ href: "/industries/finance-banking", label: "Finance & Banking" },
-			{ href: "/industries/agencies", label: "Agencies" },
-			{ href: "/industries/healthcare", label: "Healthcare" },
-			{ href: "/industries/government", label: "Government" },
-			{ href: "/industries/manufacturing", label: "Manufacturing" },
-			{ href: "/industries/pharmaceuticals", label: "Pharmaceuticals" },
-			{ href: "/industries/higher-education", label: "Higher Education" },
-		],
-	},
-	{
-		title: "Compare & Learn",
-		ariaLabel: "Comparisons and guides",
-		links: [
-			{
-				href: "/notploy-vs-coolify",
-				label: "Notploy vs. Coolify",
-			},
-			{
-				href: "/notploy-vs-portainer",
-				label: "Notploy vs. Portainer",
-			},
-			{
-				href: "/notploy-vs-caprover",
-				label: "Notploy vs. CapRover",
-			},
-			{
-				href: "/notploy-vs-dokku",
-				label: "Notploy vs. Dokku",
-			},
-			{
-				href: "/notploy-vs-render",
-				label: "Notploy vs. Render",
-			},
-			{
-				href: "/notploy-vs-vercel",
-				label: "Notploy vs. Vercel",
-			},
-			{ href: "/blog", label: "Blog" },
-			{
-				href: "https://docs.notploy.com/docs/core",
-				label: "Documentation",
-				external: true,
-			},
-		],
-	},
-	{
-		title: "Company",
-		ariaLabel: "Company",
-		links: [
-			{ href: "/jobs", label: "Careers" },
-			{ href: "/terms-of-service", label: "Terms of Service" },
-			{ href: "/privacy", label: "Privacy Policy" },
-		],
-	},
-] as const;
 
 export function Footer() {
 	return (
@@ -132,9 +23,9 @@ export function Footer() {
 								Notploy
 							</span>
 						</Link>
-						<span className="text-sm font-medium text-muted-foreground">
-							Deploy and operate applications on infrastructure you own
-						</span>
+					<span className="text-sm font-medium text-muted-foreground">
+						The open-source infrastructure platform — self-hosted or managed
+					</span>
 					</div>
 
 					{/* Link columns - SEO-friendly grouping */}
@@ -176,7 +67,7 @@ export function Footer() {
 						aria-label="Social links"
 					>
 						<Link
-							href="https://discord.gg/2tBnJ3jDJc"
+							href={EXTERNAL_LINKS.discord}
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-muted-foreground hover:text-muted-foreground/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black rounded"
@@ -194,7 +85,7 @@ export function Footer() {
 							</svg>
 						</Link>
 						<Link
-							href="https://github.com/skygenesisenterprise/notploy"
+							href={EXTERNAL_LINKS.github}
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-muted-foreground hover:text-muted-foreground/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black rounded"

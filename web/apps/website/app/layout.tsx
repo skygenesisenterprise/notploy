@@ -14,27 +14,28 @@ type Props = {
 export const metadata: Metadata = {
 	metadataBase: new URL("https://notploy.com"),
 	title: {
-		default: "Notploy - Deploy and operate applications on infrastructure you own",
+		default:
+			"Notploy - The open-source infrastructure platform for deploying and operating applications",
 		template: "%s | Notploy",
 	},
 	description:
-		"Notploy is an open-source, self-hostable platform for deploying and operating applications, databases, servers and clusters on infrastructure you own.",
+		"Notploy is an open-source infrastructure platform. Deploy applications, databases and Compose projects, manage servers and clusters, and handle routing, certificates and backups — self-hosted with Notploy Self or managed with Notploy Cloud.",
 	icons: {
 		icon: "/icon.svg",
 		apple: "/apple-touch-icon.png",
 	},
 	openGraph: {
-		title: "Notploy - Deploy and operate applications on infrastructure you own",
+		title: "Notploy - The open-source infrastructure platform",
 		description:
-			"Notploy is an open-source, self-hostable platform for deploying and operating applications, databases, servers and clusters on infrastructure you own.",
+			"Deploy applications, databases and Compose projects, manage servers and clusters, and handle routing, certificates and backups — self-hosted with Notploy Self or managed with Notploy Cloud.",
 		images: "/og.png",
 		type: "website",
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Notploy - Deploy and operate applications on infrastructure you own",
+		title: "Notploy - The open-source infrastructure platform",
 		description:
-			"Notploy is an open-source, self-hostable platform for deploying and operating applications, databases, servers and clusters on infrastructure you own.",
+			"Deploy applications, databases and Compose projects, manage servers and clusters, and handle routing, certificates and backups — self-hosted with Notploy Self or managed with Notploy Cloud.",
 		images: ["/og.png"],
 	},
 };

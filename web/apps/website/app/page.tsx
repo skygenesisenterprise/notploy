@@ -3,17 +3,21 @@ import { Faqs } from "@/components/Faqs";
 import { Hero } from "@/components/Hero";
 import { Testimonials } from "@/components/Testimonials";
 import { FirstFeaturesSection } from "@/components/first-features";
+import { HowItWorks } from "@/components/how-it-works";
+import { ProblemSection } from "@/components/problem-section";
 import { SecondaryFeaturesSections } from "@/components/secondary-features";
-import { Sponsors } from "@/components/sponsors";
+import { SelfVsCloud } from "@/components/self-vs-cloud";
 import { StatsSection } from "@/components/stats";
+import { WaysOfWorking } from "@/components/ways-of-working";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
 	title: {
-		absolute: "Notploy - Deploy and operate applications on infrastructure you own",
+		absolute:
+			"Notploy - The open-source infrastructure platform for deploying and operating applications",
 	},
 	description:
-		"Open-source, self-hostable platform for deploying and operating applications, databases, Docker Compose projects, servers and clusters on infrastructure you own.",
+		"Notploy is an open-source infrastructure platform. Deploy applications, databases and Compose projects, manage servers and clusters, and handle routing, certificates and backups — self-hosted with Notploy Self or managed with Notploy Cloud.",
 };
 
 export default function Home() {
@@ -21,12 +25,15 @@ export default function Home() {
 		<div>
 			<main>
 				<Hero />
+				<ProblemSection />
 				<FirstFeaturesSection />
+				<HowItWorks />
 				<SecondaryFeaturesSections />
+				<SelfVsCloud />
+				<WaysOfWorking />
 				<StatsSection />
 				<Testimonials />
 				<Faqs />
-				{/* <Sponsors /> */}
 				<CallToAction />
 			</main>
 		</div>

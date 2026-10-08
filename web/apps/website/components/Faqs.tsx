@@ -10,52 +10,52 @@ const faqs = [
 	{
 		question: "What is Notploy?",
 		answer:
-			"Notploy is an open-source, self-hostable platform for deploying and operating applications. It provides a web control plane for application and database deployments, Docker Compose projects, servers and clusters.",
+			"Notploy is an open-source infrastructure platform. It gives you one control plane to deploy applications, databases and Docker Compose projects, manage servers and clusters, and handle routing, certificates, backups and monitoring — on infrastructure you own.",
+	},
+	{
+		question: "What is the difference between Notploy Self and Notploy Cloud?",
+		answer:
+			"Notploy Self is the free, Apache-2.0 licensed edition you install and operate yourself. Notploy Cloud is the managed service operated by Notploy: the control plane is hosted, upgraded and supported for you. Both run the same platform capabilities.",
 	},
 	{
 		question: "Is Notploy free?",
 		answer:
-			"Yes. The core platform is open source under the Apache-2.0 license and the self-hosted edition is free to run. A commercial edition with additional features and premium support is maintained by Sky Genesis Enterprise.",
+			"Yes. Notploy Self is free and open source under Apache-2.0 — no platform fees and no per-seat charges, you pay only for your infrastructure. Notploy Cloud is a paid managed service, and a commercial Enterprise edition adds premium features and support.",
 	},
 	{
-		question: "Do I have to host it myself?",
+		question: "Do I need Kubernetes?",
 		answer:
-			"No. You can self-host Notploy with Docker Compose or the installer, or use the hosted Notploy Cloud at app.notploy.com if you would rather not manage the control plane.",
+			"No. Notploy is built on Docker with Docker Swarm for clustering and Traefik for routing and certificates. You get multi-node deployments and load balancing without operating a Kubernetes stack.",
 	},
 	{
 		question: "What do I need to run Notploy?",
 		answer:
-			"Node.js 24.4+ and pnpm 10.22+ for development, or just Docker Engine with the Compose plugin for the containerized stack. The application needs a PostgreSQL database and a configured .env file.",
+			"Any Linux server with Docker — a small VPS, bare metal, a homelab machine or a server from your existing provider. The installer sets up the rest, and remote servers are added later over SSH.",
 	},
 	{
 		question: "What can I deploy with Notploy?",
 		answer:
-			"Deploy applications from Git providers or container images using Docker, Nixpacks, Railpack or buildpacks, and run Docker Compose projects with their services, configuration, logs and deployments.",
+			"Applications built with Nixpacks, Buildpacks, Railpack or your own Dockerfile — sourced from GitHub, GitLab, Gitea or Bitbucket — Docker Compose stacks, databases (PostgreSQL, MySQL, MariaDB, MongoDB, Redis) and ready-made templates.",
 	},
 	{
-		question: "Does Notploy manage databases?",
+		question: "Will I get locked in?",
 		answer:
-			"Yes. Notploy provisions and operates PostgreSQL, MySQL, MariaDB, MongoDB and Redis databases with scheduled backups, without wiring up separate tooling.",
+			"No. The platform is open source, uses standard technologies (Docker, Compose, Traefik) and exposes a full API and CLI. Your data lives on your infrastructure, and your workloads can be migrated away at any time.",
 	},
 	{
-		question: "Where can I deploy?",
+		question: "Who is Notploy for?",
 		answer:
-			"Deploy to the local server, independent remote servers over SSH, or a Docker Swarm cluster. Notploy routes traffic through Traefik with managed domains and certificates.",
+			"Individual developers and self-hosters, small teams, infrastructure and platform teams, companies, public-sector organizations and hosting providers — anyone who wants a simple deployment workflow without giving up control of the infrastructure.",
 	},
 	{
 		question: "How do I automate deployments?",
 		answer:
-			"Automate operations with the Notploy API, CLI, TypeScript SDK or MCP server, so deployments fit into existing pipelines instead of replacing them.",
+			"Everything the dashboard does is available through the REST API, CLI, TypeScript SDK and MCP server, plus webhooks and CI/CD triggers — so Notploy fits into your pipelines instead of replacing them.",
 	},
 	{
-		question: "Where are the templates?",
+		question: "How do I get started?",
 		answer:
-			"Browse one-click application blueprints in the Notploy Templates gallery at templates.notploy.com, and deploy them directly from your instance.",
-	},
-	{
-		question: "How do I get help or report a bug?",
-		answer:
-			"Join the Notploy Discord for questions, or open a GitHub issue for bugs and feature requests. Never report a security vulnerability in a public issue — follow the instructions in SECURITY.md instead.",
+			"Install Notploy Self with one command from the Self page, or create a Notploy Cloud account to start without provisioning anything. The documentation walks you through your first deployment step by step.",
 	},
 ];
 

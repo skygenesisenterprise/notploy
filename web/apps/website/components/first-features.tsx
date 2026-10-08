@@ -1,148 +1,193 @@
-"use client";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
 import {
-	IconActivity,
-	IconCloud,
+	IconApi,
+	IconArchive,
+	IconCertificate,
+	IconCloudDataConnection,
 	IconDatabase,
-	IconEaseInOut,
+	IconGitBranch,
+	IconKey,
+	IconLogs,
+	IconNetwork,
 	IconRocket,
+	IconFileText,
+	IconServer2,
+	IconShieldLock,
 	IconTemplate,
-	IconTerminal,
-	IconTerminal2,
-	IconUsers,
+	IconTransformPoint,
 } from "@tabler/icons-react";
-import { Layers, Lock, UnlockIcon } from "lucide-react";
+import { Container } from "./Container";
+
+const features = [
+	{
+		domain: "Deploy",
+		title: "Application deployment",
+		description:
+			"Build from Nixpacks, Buildpacks, Railpack or your own Dockerfile — sourced from GitHub, GitLab, Gitea or Bitbucket.",
+		icon: IconRocket,
+	},
+	{
+		domain: "Deploy",
+		title: "Docker Compose projects",
+		description:
+			"Run complex stacks natively: services, configuration, logs and deployments managed as one project.",
+		icon: IconTemplate,
+	},
+	{
+		domain: "Deploy",
+		title: "Databases with backups",
+		description:
+			"PostgreSQL, MySQL, MariaDB, MongoDB and Redis — provisioned, scheduled and backed up from the same interface.",
+		icon: IconDatabase,
+	},
+	{
+		domain: "Infrastructure",
+		title: "Servers & clusters",
+		description:
+			"Manage the local server or add remote servers over SSH — and scale into Docker Swarm clusters.",
+		icon: IconServer2,
+	},
+	{
+		domain: "Infrastructure",
+		title: "Storage & object storage",
+		description:
+			"Volumes, mounts and S3-compatible object storage as backup and artifact destinations.",
+		icon: IconArchive,
+	},
+	{
+		domain: "Infrastructure",
+		title: "One-click templates",
+		description:
+			"Deploy ready-made blueprints for popular open-source tools from the community gallery.",
+		icon: IconTransformPoint,
+	},
+	{
+		domain: "Networking",
+		title: "Domains & TLS",
+		description:
+			"Custom domains per service, with automatic certificate issuance and renewal handled for you.",
+		icon: IconCertificate,
+	},
+	{
+		domain: "Networking",
+		title: "Networks & routing",
+		description:
+			"Internal service networking, load balancing and traffic routing through Traefik.",
+		icon: IconNetwork,
+	},
+	{
+		domain: "Networking",
+		title: "Container registries",
+		description:
+			"Connect private registries with stored credentials and deploy the images you already build.",
+		icon: IconCloudDataConnection,
+	},
+	{
+		domain: "Security",
+		title: "Secrets & environments",
+		description:
+			"Per-environment variables and secrets, with a Vault provider for external secret management.",
+		icon: IconKey,
+	},
+	{
+		domain: "Security",
+		title: "Access control & SSO",
+		description:
+			"Organizations, projects, roles, sessions, API keys and single sign-on for the whole team.",
+		icon: IconShieldLock,
+	},
+	{
+		domain: "Security",
+		title: "Audit logs",
+		description:
+			"Track who changed what and when across your organization, for compliance and incident review.",
+		icon: IconFileText,
+	},
+	{
+		domain: "Operations",
+		title: "Monitoring & logs",
+		description:
+			"Real-time CPU, memory and network metrics, container logs and request inspection.",
+		icon: IconLogs,
+	},
+	{
+		domain: "Operations",
+		title: "Schedules & automation",
+		description:
+			"Cron jobs, webhooks, CI/CD triggers — plus a REST API, CLI and SDK for everything else.",
+		icon: IconApi,
+	},
+	{
+		domain: "Operations",
+		title: "Deployments & rollbacks",
+		description:
+			"Full deployment history, preview deployments and instant rollbacks when a release goes wrong.",
+		icon: IconGitBranch,
+	},
+];
 
 export function FirstFeaturesSection() {
-	const features = [
-		{
-			title: "Flexible Application Deployment",
-			description:
-				"Deploy any application using Nixpacks, Heroku Buildpacks, or your custom Dockerfile, tailored to your stack.",
-			icon: <IconRocket />,
-		},
-		{
-			title: "Native Docker Compose Support",
-			description:
-				"Deploy complex applications natively with full Docker Compose integration for seamless orchestration.",
-			icon: <Layers />,
-		},
-		{
-			title: "Multi-server Support",
-			description:
-				"Effortlessly deploy your applications on remote servers, with zero configuration hassle.",
-			icon: <IconCloud />,
-		},
-		{
-			title: "Advanced User Management",
-			description:
-				"Control user access with detailed roles and permissions, keeping your deployments secure and organized.",
-			icon: <IconUsers />,
-		},
-		{
-			title: "Databases with Scheduled Backups",
-			description:
-				"Provision and operate PostgreSQL, MySQL, MariaDB, MongoDB and Redis with scheduled backups, directly from Notploy.",
-			icon: <IconDatabase />,
-		},
-		{
-			title: "API, CLI & TypeScript SDK",
-			description:
-				"Automate operations with the Notploy API, CLI and TypeScript SDK. Everything the dashboard does is scriptable.",
-			icon: <IconTerminal />,
-		},
-		{
-			title: "Docker Swarm Clusters",
-			description:
-				"Scale your deployments seamlessly with built-in Docker Swarm support for robust, multi-node applications.",
-			icon: <IconUsers />,
-		},
-		{
-			title: "Open Source Templates",
-			description:
-				"Get started quickly with pre-configured templates for popular tools like Supabase, Cal.com, and PocketBase.",
-			icon: <IconTemplate />,
-		},
-		{
-			title: "No Vendor Lock-In",
-			description:
-				"Experience complete freedom to modify, scale, and customize Notploy to suit your specific needs.",
-			icon: <UnlockIcon />,
-		},
-		{
-			title: "Real-time Monitoring & Alerts",
-			description:
-				"Monitor CPU, memory, and network usage in real-time across your deployments for full visibility.",
-			icon: <IconActivity />,
-		},
-		{
-			title: "MCP for AI & Agents",
-			description:
-				"Drive Notploy from the MCP server so AI tools and agents can operate your infrastructure through a controlled interface.",
-			icon: <IconTerminal2 />,
-		},
-		{
-			title: "Self-hosted & Open Source",
-			description:
-				"Apache-2.0 licensed and self-hostable, designed around reusable provider adapters and one-click blueprints.",
-			icon: <IconEaseInOut />,
-		},
-	];
 	return (
-		<div className="mt-20 flex flex-col items-center  justify-center px-4">
-			<h2 className="text-center font-display text-3xl tracking-tight text-primary sm:text-4xl">
-				Powerful Deployment Tailored to You
-			</h2>
-			<p className="mt-4 text-center text-lg  tracking-tight text-muted-foreground">
-				Deploy applications, run Docker Compose projects, operate databases and
-				scale across servers and clusters—all on infrastructure you own, with
-				the flexibility of open source.
-			</p>
-			<div className="relative z-10 mx-auto mt-10 grid  max-w-7xl grid-cols-1 py-10 max-sm:mx-0 max-sm:w-full max-sm:p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-				{features.map((feature, index) => (
-					<Feature key={feature.title} {...feature} index={index} />
+		<section
+			aria-labelledby="capabilities"
+			className="flex flex-col items-center justify-center px-4 pt-20 sm:pt-32"
+		>
+			<div className="mx-auto max-w-2xl text-center">
+				<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+					Capabilities
+				</p>
+				<h2
+					id="capabilities"
+					className="font-display text-3xl tracking-tight text-primary sm:text-4xl"
+				>
+					What Notploy manages for you
+				</h2>
+				<p className="mt-4 text-lg tracking-tight text-muted-foreground">
+					Grouped by operational domain: deploy applications, run
+					infrastructure, route traffic, secure access and operate everything —
+					on servers you own.
+				</p>
+			</div>
+
+			<div className="mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-4 py-10 sm:grid-cols-2 lg:grid-cols-3">
+				{features.map((feature) => (
+					<div
+						key={feature.title}
+						className="group relative flex flex-col rounded-xl border border-border/50 bg-card p-6 transition-colors hover:border-border"
+					>
+						<div className="mb-4 flex items-center justify-between">
+							<div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<feature.icon className="h-5 w-5" />
+							</div>
+							<span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+								{feature.domain}
+							</span>
+						</div>
+						<h3 className="text-base font-bold text-foreground transition-transform duration-200 group-hover:translate-x-1">
+							{feature.title}
+						</h3>
+						<p className="mt-2 text-sm text-muted-foreground">
+							{feature.description}
+						</p>
+					</div>
 				))}
 			</div>
-		</div>
+
+			<div className="flex flex-wrap items-center justify-center gap-6 pb-4 text-sm">
+				<Link
+					href="/platform"
+					className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+				>
+					Explore the platform
+				</Link>
+				<Link
+					href="https://docs.notploy.com/docs/core/features"
+					target="_blank"
+					className="font-medium text-muted-foreground underline underline-offset-4 hover:text-foreground"
+				>
+					Full feature list in the docs
+				</Link>
+			</div>
+		</section>
 	);
 }
-
-const Feature = ({
-	title,
-	description,
-	icon,
-	index,
-}: {
-	title: string;
-	description: string;
-	icon: React.ReactNode;
-	index: number;
-}) => {
-	return (
-		<div
-			className={cn(
-				"group/feature relative flex  flex-col border-border py-10 lg:border-r",
-				(index === 0 || index === 4 || index === 8) &&
-					"dark:border-border lg:border-l",
-				(index < 4 || index < 8) && "dark:border-border lg:border-b",
-			)}
-		>
-			{index < 4 && (
-				<div className="pointer-events-none absolute inset-0 h-full w-full bg-gradient-to-t from-card to-transparent opacity-0 transition duration-200 group-hover/feature:opacity-100" />
-			)}
-			{index >= 4 && (
-				<div className="pointer-events-none absolute inset-0 h-full w-full bg-gradient-to-b from-card to-transparent opacity-0 transition duration-200 group-hover/feature:opacity-100" />
-			)}
-			<div className="relative z-10 mb-4 px-10 text-muted-foreground">{icon}</div>
-			<div className="relative z-10 mb-2 px-10 text-lg font-bold">
-				<div className="absolute inset-y-0 left-0 h-6 w-1 origin-center rounded-br-full rounded-tr-full bg-muted transition-all duration-200 group-hover/feature:h-8 group-hover/feature:bg-card" />
-				<span className="inline-block text-foreground transition duration-200 group-hover/feature:translate-x-2">
-					{title}
-				</span>
-			</div>
-			<p className="relative z-10 px-10 text-sm text-muted-foreground lg:max-w-xs">
-				{description}
-			</p>
-		</div>
-	);
-};

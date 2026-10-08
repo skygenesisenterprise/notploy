@@ -1,10 +1,11 @@
 "use client";
 
+import { EXTERNAL_LINKS, navGroups } from "@/lib/site-navigation";
 import { cn } from "@/lib/utils";
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { Fragment, type JSX, type SVGProps, useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Container } from "./Container";
 import GithubStars from "./GithubStars";
@@ -117,72 +118,32 @@ function MobileNavigation() {
 								as="div"
 								className="absolute inset-x-0 top-full mt-4 flex origin-top flex-col rounded-2xl border border-border bg-background p-4 text-lg tracking-tight text-primary shadow-xl ring-1 ring-border/5 max-h-[80vh] overflow-y-auto"
 							>
-								<p className="px-2 py-1 text-xs font-semibold uppercase text-muted-foreground">
-									Features
-								</p>
-								<MobileNavLink href="/features/application-deployment-platform">
-									Application Deployment
-								</MobileNavLink>
-								<MobileNavLink href="/features/database-management-tool">
-									Databases
-								</MobileNavLink>
-								<MobileNavLink href="/features/application-management-software">
-									Application Management
-								</MobileNavLink>
-								<MobileNavLink href="/features/container-server-monitoring">
-									Monitoring
-								</MobileNavLink>
-								<MobileNavLink href="/features/security">
-									Security
-								</MobileNavLink>
-								<MobileNavLink href="/sandbox-software">
-									Sandbox Software
-								</MobileNavLink>
-								<MobileNavLink href="/deploy-ai">AI Deployment</MobileNavLink>
+								{navGroups.map((group, index) => (
+									<div key={group.title}>
+										{index > 0 && <hr className="m-2 border-border" />}
+										<p className="px-2 py-1 text-xs font-semibold uppercase text-muted-foreground">
+											{group.title}
+										</p>
+										{group.items.map((item) => (
+											<MobileNavLink
+												key={item.href}
+												href={item.href}
+												target={item.external ? "_blank" : undefined}
+											>
+												{item.label}
+											</MobileNavLink>
+										))}
+									</div>
+								))}
 								<hr className="m-2 border-border" />
-								<MobileNavLink href="/pricing">Pricing</MobileNavLink>
-								<hr className="m-2 border-border" />
-								<p className="px-2 py-1 text-xs font-semibold uppercase text-muted-foreground">
-									Solutions
-								</p>
-								<MobileNavLink href="/enterprise">Enterprise</MobileNavLink>
-								<MobileNavLink href="/partners">Partners</MobileNavLink>
-								<MobileNavLink href="/self-hosted-paas">
-									Self-Hosted
-								</MobileNavLink>
-								<MobileNavLink href="/industries">Industries</MobileNavLink>
-								<MobileNavLink href="/industries/higher-education">
-									Education
-								</MobileNavLink>
-								<hr className="m-2 border-border" />
-								<MobileNavLink
-									href="https://docs.notploy.com/docs/core"
-									target="_blank"
-								>
-									Docs
-								</MobileNavLink>
-								<hr className="m-2 border-border" />
-								<p className="px-2 py-1 text-xs font-semibold uppercase text-muted-foreground">
-									Resources
-								</p>
-								<MobileNavLink href="/templates">Templates</MobileNavLink>
-								<MobileNavLink href="/comparison">Notploy vs.</MobileNavLink>
-								<MobileNavLink href="/blog">Blog</MobileNavLink>
-								<MobileNavLink href="/#faqs">FAQ</MobileNavLink>
-								<MobileNavLink href="/jobs">Jobs</MobileNavLink>
-								<hr className="m-2 border-border" />
-								<MobileNavLink href="/jobs">Careers</MobileNavLink>
 								<MobileNavLink href="/contact">Contact</MobileNavLink>
-								<MobileNavLink href="https://app.notploy.com/" target="_blank">
+								<MobileNavLink href={EXTERNAL_LINKS.app} target="_blank">
 									Sign In
 								</MobileNavLink>
-								<MobileNavLink
-									href="https://app.notploy.com/register"
-									target="_blank"
-								>
+								<MobileNavLink href={EXTERNAL_LINKS.appRegister} target="_blank">
 									<Button className="w-full" asChild>
 										<div className="group relative mx-auto flex w-full max-w-fit flex-row items-center justify-center rounded-2xl text-sm font-medium">
-											<span>Sign Up</span>
+											<span>Get Started</span>
 											<ChevronRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
 										</div>
 									</Button>
@@ -251,49 +212,25 @@ export function Header() {
 						<div className="hidden md:flex">
 							<NavigationMenu>
 								<NavigationMenuList>
-									<NavigationMenuItem>
-										<NavigationMenuTrigger>Features</NavigationMenuTrigger>
-										<NavigationMenuContent>
-											<ul className="grid w-[200px] gap-1 p-2">
-												<ListItem
-													href="/features/application-deployment-platform"
-													title="Application Deployment"
-												>
-													Deploy and manage applications with ease
-												</ListItem>
-												<ListItem
-													href="/features/database-management-tool"
-													title="Databases"
-												>
-													Manage your databases effortlessly
-												</ListItem>
-												<ListItem
-													href="/features/application-management-software"
-													title="Application Management"
-												>
-													Monitor and control your applications
-												</ListItem>
-												<ListItem
-													href="/features/container-server-monitoring"
-													title="Monitoring"
-												>
-													Keep your systems running
-												</ListItem>
-												<ListItem href="/features/security" title="Security">
-													Access control, SSO, RBAC, and audit logs
-												</ListItem>
-												<ListItem
-													href="/sandbox-software"
-													title="Sandbox Software"
-												>
-													Build and ship internal apps safely
-												</ListItem>
-												<ListItem href="/deploy-ai" title="AI Deployment">
-													Empower your team to deploy AI tools
-												</ListItem>
-											</ul>
-										</NavigationMenuContent>
-									</NavigationMenuItem>
+									{navGroups.map((group) => (
+										<NavigationMenuItem key={group.title}>
+											<NavigationMenuTrigger>{group.title}</NavigationMenuTrigger>
+											<NavigationMenuContent>
+												<ul className="grid w-[260px] gap-1 p-2">
+													{group.items.map((item) => (
+														<ListItem
+															key={item.href}
+															href={item.href}
+															title={item.label}
+															target={item.external ? "_blank" : undefined}
+														>
+															{item.description}
+														</ListItem>
+													))}
+												</ul>
+											</NavigationMenuContent>
+										</NavigationMenuItem>
+									))}
 
 									<NavigationMenuItem>
 										<NavigationMenuLink
@@ -301,108 +238,19 @@ export function Header() {
 											className={navigationMenuTriggerStyle()}
 										>
 											<Link
-												href="/pricing"
-												onClick={() =>
-													trackGAEvent({
-														action: "Nav Link Clicked",
-														category: "Navigation",
-														label: "/pricing",
-													})
-												}
-											>
-												Pricing
-											</Link>
-										</NavigationMenuLink>
-									</NavigationMenuItem>
-
-									<NavigationMenuItem>
-										<NavigationMenuTrigger>Solutions</NavigationMenuTrigger>
-										<NavigationMenuContent>
-											<ul className="grid w-[200px] gap-1 p-2">
-												<ListItem href="/enterprise" title="Enterprise">
-													Enterprise-grade deployment platform
-												</ListItem>
-												<ListItem href="/partners" title="Partners">
-													Partner program and integrations
-												</ListItem>
-												<ListItem href="/self-hosted-paas" title="Self-Hosted">
-													Self-hosted PaaS built for developers
-												</ListItem>
-												<ListItem href="/industries" title="Industries">
-													Deployment solutions by industry
-												</ListItem>
-												<ListItem
-													href="/industries/higher-education"
-													title="Education"
-												>
-													How Notploy supports universities and colleges
-												</ListItem>
-											</ul>
-										</NavigationMenuContent>
-									</NavigationMenuItem>
-
-									<NavigationMenuItem>
-										<NavigationMenuLink
-											asChild
-											className={navigationMenuTriggerStyle()}
-										>
-											<Link
-												href="https://docs.notploy.com/docs/core"
+												href={EXTERNAL_LINKS.docs}
 												target="_blank"
 												onClick={() =>
 													trackGAEvent({
 														action: "Nav Link Clicked",
 														category: "Navigation",
-														label: "https://docs.notploy.com/docs/core",
+														label: EXTERNAL_LINKS.docs,
 													})
 												}
 											>
 												Docs
 											</Link>
 										</NavigationMenuLink>
-									</NavigationMenuItem>
-
-									<NavigationMenuItem>
-										<NavigationMenuLink
-											asChild
-											className={navigationMenuTriggerStyle()}
-										>
-											<Link
-												href="/jobs"
-												onClick={() =>
-													trackGAEvent({
-														action: "Nav Link Clicked",
-														category: "Navigation",
-														label: "/jobs",
-													})
-												}
-											>
-												Careers
-											</Link>
-										</NavigationMenuLink>
-									</NavigationMenuItem>
-
-									<NavigationMenuItem>
-										<NavigationMenuTrigger>Resources</NavigationMenuTrigger>
-										<NavigationMenuContent>
-											<ul className="grid w-[200px] gap-1 p-2">
-												<ListItem href="/templates" title="Templates">
-													Ready-to-deploy templates
-												</ListItem>
-												<ListItem href="/comparison" title="Notploy vs.">
-													Compare Notploy to alternatives
-												</ListItem>
-												<ListItem href="/blog" title="Blog">
-													Latest news and updates
-												</ListItem>
-												<ListItem href="/#faqs" title="FAQ">
-													Frequently asked questions
-												</ListItem>
-												<ListItem href="/jobs" title="Jobs">
-													See open positions at Notploy
-												</ListItem>
-											</ul>
-										</NavigationMenuContent>
 									</NavigationMenuItem>
 								</NavigationMenuList>
 							</NavigationMenu>
@@ -417,7 +265,7 @@ export function Header() {
 							asChild
 						>
 							<Link
-								href="https://app.notploy.com/"
+								href={EXTERNAL_LINKS.app}
 								aria-label="Sign In Notploy Cloud"
 								target="_blank"
 							>
@@ -446,12 +294,12 @@ export function Header() {
 
 						<Button className="rounded-full max-md:hidden" asChild>
 							<Link
-								href="https://app.notploy.com/register"
-								aria-label="Sign Up Notploy Cloud"
+								href={EXTERNAL_LINKS.appRegister}
+								aria-label="Get started with Notploy Cloud"
 								target="_blank"
 							>
 								<div className="group relative mx-auto flex w-full max-w-fit flex-row items-center justify-center rounded-2xl text-sm font-medium">
-									<span>Sign Up</span>
+									<span>Get Started</span>
 									<ChevronRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
 								</div>
 							</Link>
