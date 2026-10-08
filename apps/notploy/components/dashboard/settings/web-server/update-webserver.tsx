@@ -6,7 +6,7 @@ import {
 	RefreshCw,
 	XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
 import {
 	AlertDialog,
@@ -57,12 +57,28 @@ const ServiceStatusItem = ({
 
 export const UpdateWebServer = ({
 	buttonClassName,
+	children,
+	open: openProp,
+	onOpenChange,
 }: {
 	buttonClassName?: string;
+	/** Custom trigger. When omitted, the default "Update Server" button is rendered. */
+	children?: ReactNode;
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }) => {
 	const [modalState, setModalState] = useState<ModalState>("idle");
-	const [open, setOpen] = useState(false);
+	const [internalOpen, setInternalOpen] = useState(false);
 	const [healthResult, setHealthResult] = useState<HealthResult | null>(null);
+
+	const open = openProp ?? internalOpen;
+	const setOpen = (nextOpen: boolean) => {
+		if (onOpenChange) {
+			onOpenChange(nextOpen);
+		} else {
+			setInternalOpen(nextOpen);
+		}
+	};
 
 	const { mutateAsync: updateServer } = api.settings.updateServer.useMutation();
 	const { refetch: checkHealth } =
@@ -136,21 +152,30 @@ export const UpdateWebServer = ({
 	};
 
 	return (
-		<AlertDialog open={open}>
-			<AlertDialogTrigger asChild>
-				<Button
-					className={cn("relative w-full", buttonClassName)}
-					variant="secondary"
-					onClick={() => setOpen(true)}
-				>
-					<HardDriveDownload className="h-4 w-4" />
-					<span className="absolute -right-1 -top-2 flex h-3 w-3">
-						<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-						<span className="relative inline-flex rounded-full h-3 w-3 bg-green-500" />
-					</span>
-					Update Server
-				</Button>
-			</AlertDialogTrigger>
+		<AlertDialog
+			open={open}
+			onOpenChange={(nextOpen) => {
+				if (!nextOpen) {
+					handleClose();
+				}
+			}}
+		>
+			{children ?? (
+				<AlertDialogTrigger asChild>
+					<Button
+						className={cn("relative w-full", buttonClassName)}
+						variant="secondary"
+						onClick={() => setOpen(true)}
+					>
+						<HardDriveDownload className="h-4 w-4" />
+						<span className="absolute -right-1 -top-2 flex h-3 w-3">
+							<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+							<span className="relative inline-flex rounded-full h-3 w-3 bg-green-500" />
+						</span>
+						Update Server
+					</Button>
+				</AlertDialogTrigger>
+			)}
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>
