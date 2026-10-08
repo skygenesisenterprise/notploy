@@ -42,7 +42,7 @@ Notploy is a pnpm monorepo and requires **Node.js 24.4+** and **pnpm 10.22+**. I
 pnpm install
 ```
 
-The application needs PostgreSQL. The quickest way to get a working stack is the Compose stack described in [README.md](../README.md#quick-start-self-host-with-docker-compose):
+The application needs PostgreSQL. The quickest way to get a working stack is the Compose stack described in [README.md](../README.md#self-host-with-docker-compose):
 
 ```bash
 docker compose up --build -d
