@@ -4,6 +4,25 @@ import Docker from "dockerode";
 
 export const IS_CLOUD = process.env.IS_CLOUD === "true";
 
+/**
+ * Legacy flavour hint. Kept for compatibility during the migration to the
+ * capability model (issue #75 §12); it is never the sole basis for unlocking a
+ * protected product.
+ */
+export const NOTPLOY_FLAVOR = process.env.NOTPLOY_FLAVOR;
+
+/**
+ * Public key Notploy signs cloud/console entitlements with. Only the public half
+ * ships here; the signing key is kept offline. Empty by default so a protected
+ * product fails closed until a real key is configured.
+ */
+export const NOTPLOY_ENTITLEMENT_PUBLIC_KEY =
+	process.env.NOTPLOY_ENTITLEMENT_PUBLIC_KEY ?? "";
+
+/** Optional path to the entitlement public key, for file-based deployments. */
+export const NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE =
+	process.env.NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE;
+
 export const NOTPLOY_DOCKER_API_VERSION =
 	process.env.NOTPLOY_DOCKER_API_VERSION;
 export const NOTPLOY_DOCKER_HOST = process.env.NOTPLOY_DOCKER_HOST;
@@ -137,6 +156,7 @@ export const paths = (isServer = false) => {
 		SSH_PATH: `${BASE_PATH}/ssh`,
 		CERTIFICATES_PATH: `${DYNAMIC_TRAEFIK_PATH}/certificates`,
 		MONITORING_PATH: `${BASE_PATH}/monitoring`,
+		IDENTITY_PATH: `${BASE_PATH}/identity`,
 		REGISTRY_PATH: `${BASE_PATH}/registry`,
 		SCHEDULES_PATH: `${BASE_PATH}/schedules`,
 		VOLUME_BACKUPS_PATH: `${BASE_PATH}/volume-backups`,

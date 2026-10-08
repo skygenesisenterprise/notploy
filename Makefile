@@ -17,9 +17,47 @@ SHELL := /bin/bash
 NOTPLOY_FLAVOR ?= selfhosted
 NOTPLOY_VERSION ?= latest
 NOTPLOY_REGISTRY ?= ghcr.io/skygenesisenterprise
+# Protected products (cloud/console) need a signed entitlement; leave empty for
+# the flavor-derived default (self-hosted, or cloud when NOTPLOY_FLAVOR=cloud).
+NOTPLOY_PRODUCT ?=
+NOTPLOY_ENTITLEMENT ?=
+NOTPLOY_ENTITLEMENT_FILE ?=
+NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE ?=
 
+# --- Inline product flag ---------------------------------------------------
+# Select the product for a single invocation, without editing .env or exporting
+# NOTPLOY_FLAVOR:
+#
+#   make docker-dev -- --self      # self-hosted (default)
+#   make docker-dev -- --cloud     # cloud (requires a signed entitlement)
+#   make docker-dev -- --console   # console (requires a signed entitlement)
+#   make docker-dev self           # same, without the `--` separator
+#
+# GNU make itself rejects `make docker-dev --self` (`--self` is parsed as an
+# unknown make option before any recipe runs), hence the `--` separator or the
+# bare word. Each product maps to its Dockerfile target: self -> selfhosted,
+# cloud -> cloud, console -> console.
+GOAL_PRODUCT := $(firstword $(filter self cloud console,$(patsubst --%,%,$(MAKECMDGOALS))))
+
+ifneq ($(GOAL_PRODUCT),)
+NOTPLOY_PRODUCT := $(GOAL_PRODUCT)
+ifeq ($(GOAL_PRODUCT),self)
+NOTPLOY_FLAVOR := selfhosted
+else ifeq ($(GOAL_PRODUCT),console)
+NOTPLOY_FLAVOR := console
+else
+NOTPLOY_FLAVOR := cloud
+endif
+endif
+
+# Three modes: selfhosted (default, also spelled `self`), cloud and console.
+# Cloud and console are protected products: they publish a cloud/console image
+# and run with IS_CLOUD=true, and the PKI layer requires a signed entitlement.
 ifeq ($(NOTPLOY_FLAVOR),cloud)
 NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy-cloud
+IS_CLOUD ?= true
+else ifeq ($(NOTPLOY_FLAVOR),console)
+NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy-console
 IS_CLOUD ?= true
 else
 NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy
@@ -31,11 +69,20 @@ COMPOSE ?= docker compose
 
 # Exported to every compose invocation so build target and image tag stay in
 # sync with the selected flavor.
-COMPOSE_ENV = NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE) NOTPLOY_VERSION=$(NOTPLOY_VERSION) IS_CLOUD=$(IS_CLOUD)
+COMPOSE_ENV = NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE) NOTPLOY_VERSION=$(NOTPLOY_VERSION) IS_CLOUD=$(IS_CLOUD) \
+	NOTPLOY_PRODUCT=$(NOTPLOY_PRODUCT) NOTPLOY_ENTITLEMENT=$(NOTPLOY_ENTITLEMENT) \
+	NOTPLOY_ENTITLEMENT_FILE=$(NOTPLOY_ENTITLEMENT_FILE) NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE=$(NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE)
 
 .PHONY: help install dev build test typecheck lint \
         docker-build docker-up docker-down docker-restart docker-logs docker-ps docker-config docker-dev \
+        self cloud console --self --cloud --console \
         clean
+
+# No-op goals that only carry the product flag (see GOAL_PRODUCT above). They
+# exist so `make docker-dev -- --self` / `make docker-dev self` have a rule to
+# satisfy while docker-dev reads the product from MAKECMDGOALS.
+self cloud console --self --cloud --console:
+	@:
 
 # ---------------------------------------------------------------------------
 # Help
@@ -47,10 +94,14 @@ help: ## Show this help
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "Variables: NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_VERSION=$(NOTPLOY_VERSION) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE)"
-	@echo "           IS_CLOUD=$(IS_CLOUD) NOTPLOY_PORT=$${NOTPLOY_PORT:-3000}"
-	@echo "Examples:  make docker-up                      # self-hosted on :3000"
+	@echo "           IS_CLOUD=$(IS_CLOUD) NOTPLOY_PRODUCT=$${NOTPLOY_PRODUCT:-auto} NOTPLOY_PORT=$${NOTPLOY_PORT:-3000}"
+	@echo "Identity:  the container bootstraps the instance identity into the"
+	@echo "           notploy-config volume at startup (self-hosted needs no network)."
+	@echo "Examples:  make docker-up                      # build + self-hosted on :3000"
 	@echo "           make docker-up NOTPLOY_FLAVOR=cloud  # cloud on :3000"
 	@echo "           make docker-dev                     # dev (hot reload) on :3000"
+	@echo "           make docker-dev -- --self           # dev, self-hosted (default)"
+	@echo "           make docker-dev -- --cloud          # dev, cloud (needs entitlement)"
 	@echo "           make docker-build NOTPLOY_VERSION=local"
 
 # ---------------------------------------------------------------------------
@@ -85,7 +136,7 @@ lint: ## Lint/format check (pnpm lint)
 docker-build: ## Build the Notploy image (NOTPLOY_FLAVOR=selfhosted|cloud, NOTPLOY_VERSION=<tag>)
 	$(COMPOSE_ENV) $(COMPOSE) build
 
-docker-up: ## Start the stack in production mode (http://localhost:3000)
+docker-up: docker-build ## Build then start the stack in production mode (http://localhost:3000)
 	$(COMPOSE_ENV) $(COMPOSE) up -d
 
 # Stops whatever is actually running. Compose only removes the containers of the

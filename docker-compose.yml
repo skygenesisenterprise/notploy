@@ -7,12 +7,17 @@
 #   docker compose logs -f
 #   docker compose down
 #
-# Switching flavors (all use the same Dockerfile targets):
+# Switching modes (three products, one Dockerfile):
 #
 #   self-hosted  docker compose up -d                                (default)
 #   cloud        NOTPLOY_FLAVOR=cloud NOTPLOY_IMAGE=ghcr.io/skygenesisenterprise/notploy-cloud docker compose up -d --build
+#   console      NOTPLOY_FLAVOR=console NOTPLOY_IMAGE=ghcr.io/skygenesisenterprise/notploy-console docker compose up -d --build
 #   pinned image NOTPLOY_IMAGE=ghcr.io/skygenesisenterprise/notploy NOTPLOY_VERSION=v0.30.6 docker compose up -d
 #   development  docker compose --profile dev up --watch notploy-dev  -> http://localhost:3000
+#
+# Cloud and console are protected products: their container entrypoint requires
+# a Notploy-signed entitlement (see the identity section) and fails closed without
+# one. `make docker-up -- --<product>` sets the flavor, image and product for you.
 #
 # The `dev` service bind-mounts `apps/notploy` and `packages` from the host and
 # restores the image's node_modules through anonymous volumes, so the dev
@@ -125,6 +130,21 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-notploy-insecure-default-change-me}
       # Cloud flavor (FLAVOR=cloud / NOTPLOY_FLAVOR=cloud) sets this to true.
       IS_CLOUD: ${IS_CLOUD:-false}
+      # --- Instance identity (PKI) ------------------------------------------
+      # The entrypoint bootstraps the local identity into the notploy-config
+      # volume before the app starts, using the same code as install.sh.
+      # Product defaults to self-hosted, or cloud when IS_CLOUD=true above;
+      # set NOTPLOY_PRODUCT=console to override. Cloud/console additionally
+      # require a signed entitlement (NOTPLOY_ENTITLEMENT / _FILE) verified
+      # against NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE and fail closed without it.
+      # NOTPLOY_FLAVOR is the single mode switch: selfhosted (default), cloud or
+      # console. It also selects the Dockerfile build target above.
+      NOTPLOY_FLAVOR: ${NOTPLOY_FLAVOR:-selfhosted}
+      NOTPLOY_PRODUCT: ${NOTPLOY_PRODUCT:-}
+      NOTPLOY_SKIP_IDENTITY: ${NOTPLOY_SKIP_IDENTITY:-0}
+      NOTPLOY_ENTITLEMENT: ${NOTPLOY_ENTITLEMENT:-}
+      NOTPLOY_ENTITLEMENT_FILE: ${NOTPLOY_ENTITLEMENT_FILE:-}
+      NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE: ${NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE:-/etc/notploy/identity/entitlement-ca.pub}
       TZ: ${TZ:-UTC}
       # Internal DNS: serves the Notploy Internal DNS zones (e.g.
       # gitlab.notploy.lan) to the LAN and forwards the rest upstream.
@@ -200,6 +220,21 @@ services:
       # Same flavor switch as production, so `NOTPLOY_FLAVOR=cloud make docker-dev`
       # exercises the cloud code paths.
       IS_CLOUD: ${IS_CLOUD:-false}
+      # --- Instance identity (PKI) ------------------------------------------
+      # The entrypoint bootstraps the local identity into the notploy-config
+      # volume before the app starts, using the same code as install.sh.
+      # Product defaults to self-hosted, or cloud when IS_CLOUD=true above;
+      # set NOTPLOY_PRODUCT=console to override. Cloud/console additionally
+      # require a signed entitlement (NOTPLOY_ENTITLEMENT / _FILE) verified
+      # against NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE and fail closed without it.
+      # NOTPLOY_FLAVOR is the single mode switch: selfhosted (default), cloud or
+      # console. It also selects the Dockerfile build target above.
+      NOTPLOY_FLAVOR: ${NOTPLOY_FLAVOR:-selfhosted}
+      NOTPLOY_PRODUCT: ${NOTPLOY_PRODUCT:-}
+      NOTPLOY_SKIP_IDENTITY: ${NOTPLOY_SKIP_IDENTITY:-0}
+      NOTPLOY_ENTITLEMENT: ${NOTPLOY_ENTITLEMENT:-}
+      NOTPLOY_ENTITLEMENT_FILE: ${NOTPLOY_ENTITLEMENT_FILE:-}
+      NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE: ${NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE:-/etc/notploy/identity/entitlement-ca.pub}
       TZ: ${TZ:-UTC}
       # Serve templates from the bind-mounted blueprints directory instead of
       # https://templates.notploy.com, so dev never depends on that domain.

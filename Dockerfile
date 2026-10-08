@@ -35,6 +35,11 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 RUN corepack prepare pnpm@10.22.0 --activate
+# openssl signs the local instance identity at container start (see
+# entrypoint.sh) with the same code path as install.sh; ca-certificates keeps
+# outbound TLS verification working in the slim image.
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------------------------------------
 # Development image (dependencies + the deployment tooling; never runs Next's
@@ -62,6 +67,9 @@ ENV NODE_ENV=development
 
 # All launch logic (wait for DB, migrations, server) lives in entrypoint.sh.
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+# install.sh doubles as a library (NOTPLOY_SOURCE_ONLY=1): the entrypoint sources
+# it to bootstrap the instance identity with a single source of truth.
+COPY --chmod=0755 install.sh /usr/local/bin/notploy-install.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # ---------------------------------------------------------------------------
@@ -139,6 +147,8 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
 
 # All launch logic (wait for DB, migrations, server) lives in entrypoint.sh.
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+# Same identity bootstrap as install.sh (see the dev stage above).
+COPY --chmod=0755 install.sh /usr/local/bin/notploy-install.sh
 
 # tini reaps child processes that the entrypoint/server leave defunct.
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
@@ -147,6 +157,14 @@ ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
 # Notploy Cloud — same application without the self-hosted build tooling.
 # ---------------------------------------------------------------------------
 FROM runtime AS cloud
+
+# ---------------------------------------------------------------------------
+# Notploy Console — the instance/fleet management plane. Same runtime as Cloud;
+# what it may do is decided by its `console` product entitlement at runtime, not
+# by the image contents. Kept before `selfhosted` so `selfhosted` stays the
+# default target (the last stage in the file).
+# ---------------------------------------------------------------------------
+FROM runtime AS console
 
 # ---------------------------------------------------------------------------
 # Notploy self-hosted — Cloud plus the tooling deployments need on the host.

@@ -8,12 +8,14 @@
 #   1. resolve mode (development | production/cloud)
 #   2. locate the app directory (production runs in /app, dev runs in the
 #      monorepo workspace)
-#   3. wait for PostgreSQL to accept connections
-#   4. apply database migrations
-#   5. exec the server (Next client + tRPC API)
+#   3. bootstrap the instance identity (PKI), shared with install.sh
+#   4. wait for PostgreSQL to accept connections
+#   5. apply database migrations
+#   6. exec the server (Next client + tRPC API)
 #
 # Escape hatches:
 #   NOTPLOY_MODE=development        force dev mode
+#   NOTPLOY_SKIP_IDENTITY=1         skip the instance identity bootstrap
 #   NOTPLOY_SKIP_DB_WAIT=1          skip the wait-for-postgres step
 #   NOTPLOY_SKIP_MIGRATIONS=1       skip migrations
 #   NOTPLOY_COMMAND="<cmd>"         run an arbitrary command instead
@@ -62,6 +64,23 @@ else
 	SCRIPT_DIR="dist"
 	SCRIPT_EXT="mjs"
 	SERVER_CMD=(node -r dotenv/config dist/server.mjs)
+fi
+
+# --- Instance identity (PKI) -----------------------------------------------
+# Generate (self-hosted) or verify (cloud/console) the local instance identity
+# in the shared config volume before the app reads it. install.sh doubles as a
+# library here, so the container and the host installer share one implementation
+# and can never drift. Self-hosted needs no network and no Notploy account.
+if [ "${NOTPLOY_SKIP_IDENTITY:-0}" != "1" ]; then
+	if [ -f /usr/local/bin/notploy-install.sh ]; then
+		log "bootstrapping the instance identity (product: ${NOTPLOY_PRODUCT:-self})..."
+		export NOTPLOY_SOURCE_ONLY=1
+		# shellcheck source=/dev/null
+		source /usr/local/bin/notploy-install.sh
+		bootstrap_identity
+	else
+		log "identity bootstrap library not found, skipping"
+	fi
 fi
 
 # --- Wait for PostgreSQL ---------------------------------------------------

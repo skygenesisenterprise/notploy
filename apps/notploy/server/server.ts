@@ -13,6 +13,7 @@ import {
 	sendNotployRestartNotifications,
 	setupDirectories,
 	startInternalDnsServer,
+	validateInstallation,
 } from "@notploy/server";
 import { config } from "dotenv";
 import next from "next";
@@ -55,6 +56,27 @@ const ensureNotployNetwork = async () => {
 		console.error("Failed to initialize notploy-network", error);
 	}
 };
+
+// Surface the instance identity state at startup: a missing, expired or
+// unauthorized identity must produce a clear diagnostic rather than a silent
+// boot (issue #75 §6). Self-hosted installs bootstrap it locally (install.sh or
+// the container entrypoint); cloud/console need a signed entitlement.
+const installation = validateInstallation();
+for (const diagnostic of installation.diagnostics) {
+	const line = `[identity] ${diagnostic.code}: ${diagnostic.message}`;
+	if (diagnostic.severity === "error") {
+		console.error(line);
+	} else if (diagnostic.severity === "warning") {
+		console.warn(line);
+	} else {
+		console.log(line);
+	}
+}
+if (!installation.healthy) {
+	console.error(
+		"[identity] this installation is not fully authorized; see the diagnostics above",
+	);
+}
 
 const app = next({ dev, turbopack: process.env.TURBOPACK === "1" });
 const handle = app.getRequestHandler();
