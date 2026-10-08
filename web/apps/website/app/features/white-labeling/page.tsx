@@ -113,13 +113,16 @@ export default function WhiteLabelingPage() {
 			</section>
 
 			{/* Your product, your brand */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="your-product-your-brand" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Make it yours
+						</p>
+						<h2 id="your-product-your-brand" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Your product, your brand
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy&apos;s white labeling lets enterprise teams and agencies
 							deliver a fully branded, professional deployment platform.
 						</p>
@@ -130,10 +133,10 @@ export default function WhiteLabelingPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -144,13 +147,16 @@ export default function WhiteLabelingPage() {
 			</section>
 
 			{/* Powerful features for growing teams */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="powerful-features" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Explore related capabilities
+						</p>
+						<h2 id="powerful-features" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Powerful features for growing teams
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy scales with your team, with features and plans for when
 							you&apos;re ready to take the next step.
 						</p>
@@ -162,10 +168,10 @@ export default function WhiteLabelingPage() {
 								href={feature.href}
 								className="rounded-xl border border-border/50 bg-card p-6 transition hover:border-border"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-lg font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -178,13 +184,16 @@ export default function WhiteLabelingPage() {
 			</section>
 
 			{/* CTA */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="launch-your-platform" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Talk to our team
+						</p>
+						<h2 id="launch-your-platform" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Ready to launch your own platform?
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Talk to us about white labeling and the rest of Notploy&apos;s
 							higher-tier features.
 						</p>

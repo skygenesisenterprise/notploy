@@ -103,13 +103,16 @@ export default function IntegrationsPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="ways-to-work-with-notploy" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Your existing tools
+						</p>
+						<h2 id="ways-to-work-with-notploy" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Ways to work with Notploy
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Each integration solves a concrete workflow, not a checkbox.
 						</p>
 					</div>
@@ -119,10 +122,10 @@ export default function IntegrationsPage() {
 								key={integration.title}
 								className="flex flex-col rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<integration.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<integration.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{integration.title}</h3>
+								<h3 className="text-lg font-semibold">{integration.title}</h3>
 								<p className="mt-1 text-sm font-medium text-primary">
 									{integration.tagline}
 								</p>
@@ -150,13 +153,16 @@ export default function IntegrationsPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="a-concrete-workflow" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							From push to production
+						</p>
+						<h2 id="a-concrete-workflow" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							A concrete workflow
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							How a change in your codebase reaches production on infrastructure
 							you own.
 						</p>
@@ -215,13 +221,16 @@ export default function IntegrationsPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="more-integrations-on-the-way" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							On the roadmap
+						</p>
+						<h2 id="more-integrations-on-the-way" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							More integrations on the way
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy is built around reusable provider adapters, so new
 							sources, editors and automation targets land without redesigning
 							the platform. Have a workflow in mind? Propose it.

@@ -51,8 +51,10 @@ export default async function TemplatesPage({
 				<p className="mb-2 text-sm uppercase tracking-wider text-muted-foreground">
 					TEMPLATES
 				</p>
-				<h1 className="text-4xl font-bold">Open Source Templates</h1>
-				<p className="mt-3 max-w-2xl text-lg text-muted-foreground">
+				<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl">
+					Open Source Templates
+				</h1>
+				<p className="mt-4 max-w-2xl text-lg tracking-tight text-muted-foreground">
 					{templates.length}+ pre-configured open source templates you can
 					deploy on Notploy with a single click.
 				</p>

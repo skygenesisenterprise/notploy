@@ -128,13 +128,16 @@ export default function CommunityPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="ways-to-participate" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Get involved
+						</p>
+						<h2 id="ways-to-participate" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Ways to participate
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Not every contribution is code. These are the paths that keep the
 							project moving.
 						</p>
@@ -145,8 +148,8 @@ export default function CommunityPage() {
 								key={path.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<path.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<path.icon className="h-5 w-5" />
 								</div>
 								<h3 className="text-lg font-semibold">{path.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -158,10 +161,13 @@ export default function CommunityPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="open-source-plainly-stated" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Project principles
+						</p>
+						<h2 id="open-source-plainly-stated" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Open source, plainly stated
 						</h2>
 					</div>
@@ -188,10 +194,13 @@ export default function CommunityPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="where-to-start" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							First steps
+						</p>
+						<h2 id="where-to-start" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Where to start
 						</h2>
 					</div>

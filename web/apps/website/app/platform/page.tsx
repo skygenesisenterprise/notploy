@@ -170,13 +170,16 @@ export default function PlatformPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="capabilities-by-operational-domain" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Five domains
+						</p>
+						<h2 id="capabilities-by-operational-domain" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Capabilities by operational domain
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							The platform covers the full lifecycle of an application, from the
 							first commit to day-two operations. Each domain stands on its own,
 							but they are designed to work together.
@@ -188,10 +191,10 @@ export default function PlatformPage() {
 								key={group.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<group.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<group.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{group.title}</h3>
+								<h3 className="text-lg font-semibold">{group.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{group.description}
 								</p>
@@ -212,13 +215,16 @@ export default function PlatformPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="how-the-platform-fits-together" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Design principles
+						</p>
+						<h2 id="how-the-platform-fits-together" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							How the platform fits together
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy is infrastructure-first: the platform manages the
 							machinery — servers, containers, routing, certificates, storage —
 							while you keep ownership of it.
@@ -230,8 +236,8 @@ export default function PlatformPage() {
 								key={principle.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<principle.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<principle.icon className="h-5 w-5" />
 								</div>
 								<h3 className="text-lg font-semibold">{principle.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -253,25 +259,26 @@ export default function PlatformPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="one-platform-two-ways-to-run-it" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Self and Cloud
+						</p>
+						<h2 id="one-platform-two-ways-to-run-it" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							One platform, two ways to run it
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							The capabilities are the same. What changes is who operates the
 							control plane — you, or Notploy.
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<IconServer2 className="h-6 w-6" />
+						<div className="rounded-xl border border-border/50 bg-card p-6">
+							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<IconServer2 className="h-5 w-5" />
 							</div>
-							<h3 className="text-2xl font-semibold text-foreground">
-								Notploy Self
-							</h3>
+							<h3 className="text-lg font-semibold">Notploy Self</h3>
 							<p className="mt-3 text-sm text-muted-foreground">
 								The open-source edition. You install it on infrastructure you
 								own and keep full control over updates, data and network
@@ -283,13 +290,11 @@ export default function PlatformPage() {
 								</Button>
 							</div>
 						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<IconKey className="h-6 w-6" />
+						<div className="rounded-xl border border-border/50 bg-card p-6">
+							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<IconKey className="h-5 w-5" />
 							</div>
-							<h3 className="text-2xl font-semibold text-foreground">
-								Notploy Cloud
-							</h3>
+							<h3 className="text-lg font-semibold">Notploy Cloud</h3>
 							<p className="mt-3 text-sm text-muted-foreground">
 								The managed service operated by Notploy. The control plane is
 								run and upgraded for you, with support and availability
@@ -305,10 +310,13 @@ export default function PlatformPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="platform-faqs" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Common questions
+						</p>
+						<h2 id="platform-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Platform FAQs
 						</h2>
 					</div>

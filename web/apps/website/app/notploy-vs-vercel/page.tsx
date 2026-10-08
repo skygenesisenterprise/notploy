@@ -199,13 +199,16 @@ export default function NotployVsVercelPage() {
 			</section>
 
 			{/* Notploy vs Vercel at a glance */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="notploy-vs-vercel-at-a-glance" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							At a glance
+						</p>
+						<h2 id="notploy-vs-vercel-at-a-glance" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Notploy vs. Vercel at a glance
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Read our comprehensive Vercel vs. Notploy features comparison
 							before you make your decision.
 						</p>
@@ -250,15 +253,21 @@ export default function NotployVsVercelPage() {
 			</section>
 
 			{/* Why you should choose Notploy */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="why-choose-notploy" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Why choose us
+						</p>
+						<h2 id="why-choose-notploy" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Why you should choose Notploy
 						</h2>
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
+							Key advantages over Vercel.
+						</p>
 					</div>
 
-					<div className="mx-auto mt-16 max-w-6xl space-y-20">
+					<div className="mx-auto mt-14 max-w-6xl space-y-20">
 						{whyChooseItems.map((item, index) => (
 							<div
 								key={item.title}
@@ -267,13 +276,13 @@ export default function NotployVsVercelPage() {
 								}`}
 							>
 								<div className="flex-1">
-									<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-										<item.icon className="h-6 w-6" />
+									<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+										<item.icon className="h-5 w-5" />
 									</div>
-									<h3 className="text-xl font-semibold text-foreground">
+									<h3 className="text-lg font-semibold text-foreground">
 										{item.title}
 									</h3>
-									<p className="mt-3 text-muted-foreground">{item.description}</p>
+									<p className="mt-3 text-sm text-muted-foreground">{item.description}</p>
 								</div>
 								<div className="flex-1">
 									{index === 0 ? (
@@ -335,13 +344,16 @@ export default function NotployVsVercelPage() {
 			</section>
 
 			{/* Pricing comparison */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="pricing-comparison" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Pricing
+						</p>
+						<h2 id="pricing-comparison" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Pricing comparison: per-server vs. per-seat and per-function
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy Cloud charges per server, not per seat or per function, so
 							your platform cost stays flat as your team and app count grow.
 							Vercel charges $20 per deploying team member per month, plus
@@ -381,12 +393,18 @@ export default function NotployVsVercelPage() {
 			</section>
 
 			{/* Notploy integrates with the leading solutions */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="integrations-heading" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Integrations
+						</p>
+						<h2 id="integrations-heading" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Notploy integrates with the leading solutions
 						</h2>
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
+							Seamless connections to your workflow.
+						</p>
 					</div>
 
 					<div className="mx-auto mt-12 max-w-4xl overflow-x-auto">

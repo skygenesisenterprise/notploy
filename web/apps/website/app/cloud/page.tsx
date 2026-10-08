@@ -161,13 +161,16 @@ export default function CloudPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="a-managed-service-not-a-hosted-copy" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Who operates what
+						</p>
+						<h2 id="a-managed-service-not-a-hosted-copy" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							A managed service, not a hosted copy
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Running Notploy yourself and using Notploy Cloud are different
 							operating models. Here is precisely who is responsible for what.
 						</p>
@@ -179,8 +182,8 @@ export default function CloudPage() {
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
 								<div className="mb-4 flex items-center justify-between">
-									<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-										<item.icon className="h-6 w-6" />
+									<div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+										<item.icon className="h-5 w-5" />
 									</div>
 									<span className="rounded-full border border-border/50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 										{item.who}
@@ -196,13 +199,16 @@ export default function CloudPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="what-cloud-adds-on-top-of-self" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Beyond self-hosting
+						</p>
+						<h2 id="what-cloud-adds-on-top-of-self" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							What Cloud adds on top of Self
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Same platform, different responsibility model — plus the
 							expectations you would have from a managed service.
 						</p>
@@ -223,25 +229,26 @@ export default function CloudPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="self-or-cloud" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Choosing an edition
+						</p>
+						<h2 id="self-or-cloud" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Self or Cloud?
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Both editions share the same platform capabilities. The choice is
 							about who operates the control plane.
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<IconServer2 className="h-6 w-6" />
+						<div className="rounded-xl border border-border/50 bg-card p-6">
+							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<IconServer2 className="h-5 w-5" />
 							</div>
-							<h3 className="text-2xl font-semibold text-foreground">
-								Notploy Self
-							</h3>
+							<h3 className="text-lg font-semibold">Notploy Self</h3>
 							<ul className="mt-6 space-y-3 text-sm text-muted-foreground">
 								{[
 									"Free, open source (Apache-2.0)",
@@ -261,13 +268,11 @@ export default function CloudPage() {
 								</Button>
 							</div>
 						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<IconCloud className="h-6 w-6" />
+						<div className="rounded-xl border border-border/50 bg-card p-6">
+							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<IconCloud className="h-5 w-5" />
 							</div>
-							<h3 className="text-2xl font-semibold text-foreground">
-								Notploy Cloud
-							</h3>
+							<h3 className="text-lg font-semibold">Notploy Cloud</h3>
 							<ul className="mt-6 space-y-3 text-sm text-muted-foreground">
 								{[
 									"Managed service operated by Notploy",
@@ -306,10 +311,13 @@ export default function CloudPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="notploy-cloud-faqs" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Common questions
+						</p>
+						<h2 id="notploy-cloud-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Notploy Cloud FAQs
 						</h2>
 					</div>

@@ -52,25 +52,25 @@ export default function JobsPage() {
 			</section>
 
 			{/* Open Positions */}
-			<section
-				id="open-positions"
-				className="relative z-10 border-b border-border/30 py-16 sm:py-20"
-			>
+			<section id="open-positions" aria-labelledby="open-positions-heading" className="relative z-10 border-b border-border/30 py-20 sm:py-32">
 				<Container>
-					<h2 className="mb-8 text-xl font-semibold text-foreground sm:text-2xl">
+					<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+						Careers at Notploy
+					</p>
+					<h2 id="open-positions-heading" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 						Open positions
 					</h2>
 
 					{OPEN_POSITIONS.length > 0 ? (
-						<div className="flex flex-col gap-4">
+						<div className="mt-8 flex flex-col gap-4">
 							{OPEN_POSITIONS.map((position) => (
 								<div
 									key={position.title}
-									className="flex flex-col gap-4 rounded-2xl border border-border/50 bg-card/80 p-6 sm:flex-row sm:items-center sm:justify-between"
+									className="flex flex-col gap-4 rounded-xl border border-border/50 bg-card p-6 sm:flex-row sm:items-center sm:justify-between"
 								>
 									<div className="flex flex-col gap-1">
 										<div className="flex flex-wrap items-center gap-3">
-											<h3 className="text-base font-semibold text-foreground">
+											<h3 className="text-lg font-semibold">
 												{position.title}
 											</h3>
 											<Badge
@@ -81,7 +81,7 @@ export default function JobsPage() {
 												{position.region}
 											</Badge>
 										</div>
-										<p className="text-sm text-muted-foreground">
+										<p className="mt-3 text-sm text-muted-foreground">
 											{position.description}
 										</p>
 									</div>
@@ -95,7 +95,7 @@ export default function JobsPage() {
 							))}
 						</div>
 					) : (
-						<div className="rounded-2xl border border-border/50 bg-card/80 p-12 text-center">
+						<div className="mt-8 rounded-xl border border-border/50 bg-card p-6 text-center">
 							<p className="text-muted-foreground">
 								No open positions at the moment. Check back soon.
 							</p>

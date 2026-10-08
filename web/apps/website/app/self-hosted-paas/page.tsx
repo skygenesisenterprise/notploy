@@ -306,13 +306,16 @@ export default function SelfHostedPaasPage() {
 			</section>
 
 			{/* Full control over your platform */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="full-control-over-your-platform" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Own your infrastructure
+						</p>
+						<h2 id="full-control-over-your-platform" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Full control over your platform
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Self-hosting a PaaS solution means you decide where your
 							infrastructure lives, how resources are allocated, and who has
 							access—without paying for a managed service to make those
@@ -325,10 +328,10 @@ export default function SelfHostedPaasPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -339,13 +342,16 @@ export default function SelfHostedPaasPage() {
 			</section>
 
 			{/* Self-Hosted Enterprise PaaS */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="self-hosted-enterprise-paas" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							For larger teams
+						</p>
+						<h2 id="self-hosted-enterprise-paas" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Self-Hosted Enterprise PaaS
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							For organizations that need more than the open source version,
 							Notploy Enterprise adds the security, compliance, and support
 							features that larger teams require, deployable on-premises or in
@@ -367,10 +373,10 @@ export default function SelfHostedPaasPage() {
 									key={feature.title}
 									className="rounded-xl border border-border/50 bg-card p-6"
 								>
-									<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-										<feature.icon className="h-6 w-6" />
+									<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+										<feature.icon className="h-5 w-5" />
 									</div>
-									<h4 className="text-lg font-semibold text-foreground">
+									<h4 className="text-lg font-semibold">
 										{feature.title}
 									</h4>
 									<p className="mt-3 text-sm text-muted-foreground">
@@ -384,13 +390,16 @@ export default function SelfHostedPaasPage() {
 			</section>
 
 			{/* How to get set up */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="how-to-get-set-up-with-self-hosted-notploy" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Four simple steps
+						</p>
+						<h2 id="how-to-get-set-up-with-self-hosted-notploy" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							How to get set up with self-hosted Notploy
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Getting a self-hosted PaaS running doesn&apos;t have to be an
 							infrastructure project. Notploy is designed for minimal overhead,
 							so you can go from a blank server to a running deployment platform
@@ -406,10 +415,10 @@ export default function SelfHostedPaasPage() {
 								<div className="absolute right-6 top-6 font-display text-4xl font-bold text-primary/30">
 									{step.number}
 								</div>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<step.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<step.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{step.title}</h3>
+								<h3 className="text-lg font-semibold">{step.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{step.description}
 								</p>
@@ -420,24 +429,27 @@ export default function SelfHostedPaasPage() {
 			</section>
 
 			{/* Should you choose Cloud or Self-Hosted? */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="should-you-choose-cloud-or-self-hosted" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Two deployment options
+						</p>
+						<h2 id="should-you-choose-cloud-or-self-hosted" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Should you choose Cloud or Self-Hosted?
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Both are great options. Every key feature available in
 							Self-Hosted is also available in Cloud, and vice versa. The choice
 							comes down to how much you want to manage yourself.
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Server className="h-6 w-6" />
+						<div className="rounded-xl border border-border/50 bg-card p-6">
+							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<Server className="h-5 w-5" />
 							</div>
-							<h3 className="text-2xl font-semibold text-foreground">Self-Hosted</h3>
+							<h3 className="text-lg font-semibold">Self-Hosted</h3>
 							<p className="mt-3 text-sm text-muted-foreground">
 								Choose Self-Hosted if you want zero cost beyond your server
 								bills, full control over everything, or need to run Notploy in
@@ -452,11 +464,11 @@ export default function SelfHostedPaasPage() {
 								))}
 							</ul>
 						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Cloud className="h-6 w-6" />
+						<div className="rounded-xl border border-border/50 bg-card p-6">
+							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<Cloud className="h-5 w-5" />
 							</div>
-							<h3 className="text-2xl font-semibold text-foreground">
+							<h3 className="text-lg font-semibold">
 								Notploy Cloud
 							</h3>
 							<p className="mt-3 text-sm text-muted-foreground">
@@ -478,13 +490,16 @@ export default function SelfHostedPaasPage() {
 			</section>
 
 			{/* One product, two ways to run the control plane */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="one-product-two-ways-to-run-the-control-plane" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Identical deployment engine
+						</p>
+						<h2 id="one-product-two-ways-to-run-the-control-plane" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							One product, two ways to run the control plane
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy&apos;s deployment engine is identical in both options. The
 							only difference is where the control plane—the UI, PostgreSQL
 							database, and Redis instance—runs.
@@ -492,20 +507,20 @@ export default function SelfHostedPaasPage() {
 					</div>
 					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
 						<div className="rounded-xl border border-border/50 bg-card p-6 text-center">
-							<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Server className="h-6 w-6" />
+							<div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<Server className="h-5 w-5" />
 							</div>
-							<h3 className="text-xl font-semibold">Self-Hosted</h3>
+							<h3 className="text-lg font-semibold">Self-Hosted</h3>
 							<p className="mt-3 text-sm text-muted-foreground">
 								Everything runs on your server. Full control, zero external
 								dependencies.
 							</p>
 						</div>
 						<div className="rounded-xl border border-border/50 bg-card p-6 text-center">
-							<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Cloud className="h-6 w-6" />
+							<div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<Cloud className="h-5 w-5" />
 							</div>
-							<h3 className="text-xl font-semibold">Notploy Cloud</h3>
+							<h3 className="text-lg font-semibold">Notploy Cloud</h3>
 							<p className="mt-3 text-sm text-muted-foreground">
 								Your apps keep running independently even if the Cloud control
 								plane is temporarily unavailable.
@@ -516,13 +531,16 @@ export default function SelfHostedPaasPage() {
 			</section>
 
 			{/* CTA */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="your-own-paas-up-and-running-today" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Get started in minutes
+						</p>
+						<h2 id="your-own-paas-up-and-running-today" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Your own PaaS, up and running today
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy is free to self-host and takes just a few commands to
 							install. Create your account, follow the setup guide, and
 							you&apos;ll have a fully functional open source PaaS running on
@@ -544,10 +562,13 @@ export default function SelfHostedPaasPage() {
 			</section>
 
 			{/* FAQs */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="self-hosted-paas-faqs" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Common questions
+						</p>
+						<h2 id="self-hosted-paas-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Self-hosted PaaS FAQs
 						</h2>
 					</div>

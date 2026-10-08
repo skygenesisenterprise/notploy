@@ -18,7 +18,7 @@ export function Hero() {
 		return () => clearTimeout(timer);
 	}, [isCopied]);
 	return (
-		<div className="h-[1100px] bg-background pt-20 sm:h-[1100px] lg:pt-32">
+		<div className="bg-background pt-16 pb-10 sm:pt-24 sm:pb-14 lg:pt-28">
 			<div className=" bottom-0 flex w-full items-center justify-center overflow-hidden rounded-lg  bg-background md:shadow-xl">
 				<div className="relative px-4">
 					<div className="text-center">
@@ -70,18 +70,6 @@ export function Hero() {
 							</span>{" "}
 							on infrastructure you control
 						</motion.h1>
-						<motion.p
-							className="mx-auto mt-6 max-w-2xl text-lg tracking-tight text-muted-foreground"
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.3, delay: 0.2 }}
-						>
-							Notploy is an open-source operational layer for deploying and
-							operating applications and databases on infrastructure you control:
-							servers, Docker clusters, routing, certificates, backups and secrets
-							managed from one control plane. Run it yourself with Notploy Self,
-							or let Notploy Enterprise operate it with Notploy Cloud.
-						</motion.p>
 						<motion.div
 							className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
 							initial={{ opacity: 0, y: 20 }}

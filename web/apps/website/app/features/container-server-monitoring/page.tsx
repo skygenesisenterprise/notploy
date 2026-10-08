@@ -186,13 +186,16 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* Ensure continuous operation */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="continuous-operation" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Prevent downtime early
+						</p>
+						<h2 id="continuous-operation" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Ensure continuous operation with monitoring
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Prevent disruption by setting up a monitoring dashboard and custom
 							alerts.
 						</p>
@@ -203,10 +206,10 @@ export default function ContainerServerMonitoringPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -217,13 +220,16 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* Configure alerts */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="configure-alerts" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Get notified in time
+						</p>
+						<h2 id="configure-alerts" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Configure alerts so you never miss an issue
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Set thresholds, receive notifications where you work, and stay in
 							control of your infrastructure at all times.
 						</p>
@@ -234,10 +240,10 @@ export default function ContainerServerMonitoringPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -250,18 +256,21 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* No setup required */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="no-setup-required" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Monitoring out of the box
+						</p>
+						<h2 id="no-setup-required" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Access server monitoring with no setup required
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Use Notploy&apos;s container monitoring dashboard as soon as
 							you&apos;ve completed the server deployment setup.
 						</p>
 					</div>
-					<div className="mx-auto mt-12 max-w-xl rounded-xl border border-border/50 bg-card p-8 text-center">
+					<div className="mx-auto mt-12 max-w-xl rounded-xl border border-border/50 bg-card p-6 text-center">
 						<p className="font-mono text-sm text-muted-foreground">
 							Remote servers → Select your server → Setup Server
 						</p>
@@ -273,20 +282,23 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* Deployment options */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="host-where-needed" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							On-prem or cloud
+						</p>
+						<h2 id="host-where-needed" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Host Notploy where your business needs it
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Choose a deployment option that suits your business&mdash;on your
 							infrastructure or ours.
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-3xl gap-8 sm:grid-cols-2">
 						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<h3 className="text-xl font-semibold text-foreground">
+							<h3 className="text-lg font-semibold">
 								On-Premise Deployment
 							</h3>
 							<ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -297,7 +309,7 @@ export default function ContainerServerMonitoringPage() {
 							</ul>
 						</div>
 						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<h3 className="text-xl font-semibold text-foreground">
+							<h3 className="text-lg font-semibold">
 								Cloud Deployment
 							</h3>
 							<ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -312,13 +324,16 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* Configuration options */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="configuration-options" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Tune it your way
+						</p>
+						<h2 id="configuration-options" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Multiple configuration options
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Set up your Notploy dashboard to suit your needs with different
 							configuration options.
 						</p>
@@ -329,10 +344,10 @@ export default function ContainerServerMonitoringPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -343,10 +358,13 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* FAQs */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="monitoring-faqs" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Common monitoring questions
+						</p>
+						<h2 id="monitoring-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Container and server monitoring FAQs
 						</h2>
 					</div>
@@ -356,7 +374,7 @@ export default function ContainerServerMonitoringPage() {
 								key={faq.question}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<h3 className="text-lg font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{faq.question}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">{faq.answer}</p>
@@ -367,13 +385,16 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* Related Features */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="monitoring-tool" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Part of one platform
+						</p>
+						<h2 id="monitoring-tool" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Container and Server monitoring tool
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Take advantage of Notploy&apos;s comprehensive container and server
 							monitoring software alongside the rest of the platform.
 						</p>
@@ -385,8 +406,8 @@ export default function ContainerServerMonitoringPage() {
 								href={feature.href}
 								className="rounded-xl border border-border/50 bg-card p-6 transition hover:border-border"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
 								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -399,13 +420,16 @@ export default function ContainerServerMonitoringPage() {
 			</section>
 
 			{/* CTA */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="keep-systems-running" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Start monitoring today
+						</p>
+						<h2 id="keep-systems-running" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Ready to keep your systems running?
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Get real-time visibility into your servers and containers with
 							Notploy&apos;s built-in monitoring.
 						</p>

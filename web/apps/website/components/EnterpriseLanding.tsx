@@ -195,13 +195,19 @@ export function EnterpriseLanding() {
 			</div>
 
 			{/* Features Grid */}
-			<section className="py-20">
+			<section aria-labelledby="enterprise-features" className="py-20">
 				<Container>
 					<div className="text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Features
+						</p>
+						<h2
+							id="enterprise-features"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							Built for Enterprise Teams
 						</h2>
-						<p className="mx-auto mt-4 mb-16 max-w-2xl text-muted-foreground">
+						<p className="mx-auto mt-4 mb-16 max-w-2xl text-lg tracking-tight text-muted-foreground">
 							Everything you need to deploy, manage, and scale mission-critical
 							applications with confidence and security.
 						</p>
@@ -211,15 +217,13 @@ export function EnterpriseLanding() {
 						{features.map((feature) => (
 							<div
 								key={feature.title}
-								className="group rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background p-8 transition hover:border-border/60"
+								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10 transition group-hover:bg-green-500/20">
-									<feature.icon className="h-6 w-6 text-green-400" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="mb-3 text-xl font-semibold text-foreground">
-									{feature.title}
-								</h3>
-								<p className="leading-relaxed text-muted-foreground">
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
+								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
 							</div>
@@ -229,13 +233,19 @@ export function EnterpriseLanding() {
 			</section>
 
 			{/* Hosting Flexibility Section */}
-			<section className="py-20">
+			<section aria-labelledby="enterprise-hosting" className="py-20">
 				<Container>
 					<div className="mb-16 text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Deployment flexibility
+						</p>
+						<h2
+							id="enterprise-hosting"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							Deploy Anywhere, Without Compromise
 						</h2>
-						<p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+						<p className="mx-auto mt-4 max-w-2xl text-lg tracking-tight text-muted-foreground">
 							The flexibility to host Notploy exactly where your business needs
 							it—on your infrastructure or ours.
 						</p>
@@ -245,21 +255,19 @@ export function EnterpriseLanding() {
 						{hostingOptions.map((option) => (
 							<div
 								key={option.title}
-								className="rounded-2xl border border-border/30 bg-gradient-to-br from-card/50 via-background to-card/30 p-10"
+								className="rounded-xl border border-border/50 bg-card p-8"
 							>
 								<div className="mb-6 flex items-center gap-4">
-									<div className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-500/10">
-										<option.icon className="h-7 w-7 text-green-400" />
+									<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+										<option.icon className="h-5 w-5" />
 									</div>
-									<h3 className="text-2xl font-semibold text-foreground">
-										{option.title}
-									</h3>
+									<h3 className="text-lg font-semibold">{option.title}</h3>
 								</div>
 								<ul className="space-y-4">
 									{option.benefits.map((benefit) => (
 										<li key={benefit} className="flex items-start gap-3">
-											<Check className="mt-0.5 h-5 w-5 shrink-0 text-green-400" />
-											<span className="text-muted-foreground">{benefit}</span>
+											<Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+											<span className="text-sm text-muted-foreground">{benefit}</span>
 										</li>
 									))}
 								</ul>
@@ -267,11 +275,11 @@ export function EnterpriseLanding() {
 						))}
 					</div>
 
-					<div className="mt-12 rounded-2xl border border-border/30 bg-gradient-to-r from-green-500/5 to-blue-500/5 p-8 text-center">
-						<h3 className="mb-3 text-2xl font-semibold text-foreground">
+					<div className="mt-12 rounded-xl border border-border/50 bg-card p-8 text-center">
+						<h3 className="text-lg font-semibold">
 							Hybrid Deployments
 						</h3>
-						<p className="mx-auto max-w-2xl text-muted-foreground">
+						<p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
 							Need the best of both worlds? Deploy Notploy across multiple
 							environments with centralized management and unified monitoring.
 						</p>
@@ -280,13 +288,19 @@ export function EnterpriseLanding() {
 			</section>
 
 			{/* AI governance section */}
-			<section className="py-20">
+			<section aria-labelledby="enterprise-ai-governance" className="py-20">
 				<Container>
 					<div className="mb-12 text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							AI governance
+						</p>
+						<h2
+							id="enterprise-ai-governance"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							Enterprise-grade governance for AI-built apps
 						</h2>
-						<p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+						<p className="mx-auto mt-4 max-w-2xl text-lg tracking-tight text-muted-foreground">
 							AI tools have accelerated how teams ship software. Notploy gives
 							enterprises a safe way to do it, with audit trails, access
 							controls, and isolated environments.
@@ -322,23 +336,21 @@ export function EnterpriseLanding() {
 						].map((item) => (
 							<div
 								key={item.title}
-								className="group rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background p-8 transition hover:border-border/60"
+								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10 transition group-hover:bg-green-500/20">
-									<item.icon className="h-6 w-6 text-green-400" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<item.icon className="h-5 w-5" />
 								</div>
-								<h3 className="mb-3 text-lg font-semibold text-foreground">
-									{item.title}
-								</h3>
-								<p className="text-sm leading-relaxed text-muted-foreground">
+								<h3 className="text-lg font-semibold">{item.title}</h3>
+								<p className="mt-3 text-sm text-muted-foreground">
 									{item.description}
 								</p>
 							</div>
 						))}
 					</div>
 
-					<div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-border/30 bg-gradient-to-r from-green-500/5 to-blue-500/5 p-8 text-center">
-						<p className="text-lg text-muted-foreground">
+					<div className="mx-auto mt-12 max-w-2xl rounded-xl border border-border/50 bg-card p-8 text-center">
+						<p className="text-lg tracking-tight text-muted-foreground">
 							See how Notploy handles AI deployment — from AI-generated code to
 							a governed, production-ready environment.
 						</p>
@@ -352,70 +364,70 @@ export function EnterpriseLanding() {
 			</section>
 
 			{/* RBAC Screenshots Section */}
-			<section className="py-20">
+			<section aria-labelledby="enterprise-rbac" className="py-20">
 				<Container>
 					<div className="mb-16 text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Access control
+						</p>
+						<h2
+							id="enterprise-rbac"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							Granular Access Control, Visualized
 						</h2>
-						<p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+						<p className="mx-auto mt-4 max-w-2xl text-lg tracking-tight text-muted-foreground">
 							Powerful RBAC tools that give you complete visibility and control
 							over who can access what—down to the individual resource level.
 						</p>
 					</div>
 
 					<div className="grid gap-6 md:grid-cols-3">
-						<div className="group overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background transition hover:border-border/60">
+						<div className="rounded-xl border border-border/50 bg-card overflow-hidden">
 							<div className="aspect-video w-full overflow-hidden bg-card/80">
 								<img
 									src="/enterprise/custom-roles.png"
 									alt="Create custom roles with fine-grained permissions"
-									className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.02]"
+									className="h-full w-full object-cover object-top"
 								/>
 							</div>
 							<div className="p-6">
-								<h3 className="mb-2 text-lg font-semibold text-foreground">
-									Custom Roles
-								</h3>
-								<p className="text-sm text-muted-foreground">
+								<h3 className="text-lg font-semibold">Custom Roles</h3>
+								<p className="mt-3 text-sm text-muted-foreground">
 									Define roles with preset templates or build from scratch with
 									granular permission toggles per resource.
 								</p>
 							</div>
 						</div>
 
-						<div className="group overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background transition hover:border-border/60">
+						<div className="rounded-xl border border-border/50 bg-card overflow-hidden">
 							<div className="w-full overflow-hidden bg-accent p-4">
 								<img
 									src="/enterprise/git-permission.png"
 									alt="Assign git providers to individual team members"
-									className="w-full rounded-lg object-contain transition duration-500 group-hover:scale-[1.02]"
+									className="w-full rounded-lg object-contain"
 								/>
 							</div>
 							<div className="p-6">
-								<h3 className="mb-2 text-lg font-semibold text-foreground">
-									Git Provider Access
-								</h3>
-								<p className="text-sm text-muted-foreground">
+								<h3 className="text-lg font-semibold">Git Provider Access</h3>
+								<p className="mt-3 text-sm text-muted-foreground">
 									Control which Git providers each team member can access across
 									GitHub, GitLab, Bitbucket, and Gitea.
 								</p>
 							</div>
 						</div>
 
-						<div className="group overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background transition hover:border-border/60">
+						<div className="rounded-xl border border-border/50 bg-card overflow-hidden">
 							<div className="w-full overflow-hidden bg-accent p-4">
 								<img
 									src="/enterprise/servers-permission.png"
 									alt="Assign remote servers to individual team members"
-									className="w-full rounded-lg object-contain transition duration-500 group-hover:scale-[1.02]"
+									className="w-full rounded-lg object-contain"
 								/>
 							</div>
 							<div className="p-6">
-								<h3 className="mb-2 text-lg font-semibold text-foreground">
-									Server Assignment
-								</h3>
-								<p className="text-sm text-muted-foreground">
+								<h3 className="text-lg font-semibold">Server Assignment</h3>
+								<p className="mt-3 text-sm text-muted-foreground">
 									Assign specific remote servers to individual team members so
 									they only see what they need.
 								</p>
@@ -426,13 +438,19 @@ export function EnterpriseLanding() {
 			</section>
 
 			{/* CTA Section */}
-			<section className="py-20">
+			<section aria-labelledby="enterprise-cta" className="py-20">
 				<Container>
-					<div className="rounded-3xl border border-border/30 bg-gradient-to-br from-green-500/10 via-transparent to-blue-500/10 p-12 text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+					<div className="rounded-xl border border-border/50 bg-card p-12 text-center">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Next step
+						</p>
+						<h2
+							id="enterprise-cta"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							Ready to Scale Enterprise?
 						</h2>
-						<p className="mx-auto mt-6 max-w-2xl text-xl text-muted-foreground">
+						<p className="mx-auto mt-6 max-w-2xl text-lg tracking-tight text-muted-foreground">
 							Talk to our team about your deployment needs and discover how
 							Notploy Enterprise can transform your infrastructure.
 						</p>
@@ -446,7 +464,7 @@ export function EnterpriseLanding() {
 							Questions? Email us at{" "}
 							<a
 								href="mailto:sales@notploy.com"
-								className="text-green-400 hover:underline"
+								className="text-primary hover:underline"
 							>
 								sales@notploy.com
 							</a>

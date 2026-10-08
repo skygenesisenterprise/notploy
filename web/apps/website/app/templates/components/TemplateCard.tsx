@@ -9,7 +9,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
 	return (
 		<Link
 			href={`/templates/${template.id}`}
-			className="group flex flex-col gap-3 rounded-lg border border-border bg-background p-5 transition-colors hover:border-primary/50 hover:bg-muted/30"
+			className="group flex flex-col gap-3 rounded-xl border border-border/50 bg-card p-6 transition-colors hover:border-border hover:bg-muted/30"
 		>
 			<div className="flex items-center gap-3">
 				<img
@@ -22,7 +22,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
 					className="h-10 w-10 shrink-0 rounded-md object-contain"
 				/>
 				<div className="min-w-0">
-					<h3 className="truncate font-semibold text-foreground group-hover:text-primary">
+					<h3 className="truncate text-lg font-semibold text-foreground group-hover:text-primary">
 						{template.name}
 					</h3>
 					<p className="text-xs text-muted-foreground">

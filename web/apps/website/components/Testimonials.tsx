@@ -181,14 +181,17 @@ export function Testimonials() {
 	return (
 		<section
 			id="testimonials"
-			aria-label="What our customers are saying"
-			className=" py-20 sm:py-32"
+			aria-labelledby="testimonials-heading"
+			className="border-b border-border/30 py-20 sm:py-32"
 		>
 			<div className="mx-auto max-w-2xl px-4 md:text-center">
-				<h2 className="text-center font-display text-3xl  tracking-tight sm:text-4xl">
+				<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+					Testimonials
+				</p>
+				<h2 id="testimonials-heading" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 					Why Developers Love Notploy
 				</h2>
-				<p className="mt-4 text-center text-lg tracking-tight text-muted-foreground">
+				<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 					Think we’re bragging? Hear from the devs who once doubted too—until
 					Notploy made their lives (and deployments) surprisingly easier.
 				</p>

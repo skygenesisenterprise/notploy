@@ -101,13 +101,22 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 			</section>
 
 			{/* Core features */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section
+				aria-labelledby="industry-section-1"
+				className="border-b border-border/30 py-20 sm:py-32"
+			>
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Core features
+						</p>
+						<h2
+							id="industry-section-1"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							{data.features.heading}
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							{data.features.description}
 						</p>
 					</div>
@@ -117,10 +126,10 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -131,25 +140,34 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 			</section>
 
 			{/* Comparison */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section
+				aria-labelledby="industry-section-2"
+				className="border-b border-border/30 bg-background py-20 sm:py-32"
+			>
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Comparison
+						</p>
+						<h2
+							id="industry-section-2"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							{data.comparison.heading}
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							{data.comparison.description}
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-5xl gap-8 md:grid-cols-2">
 						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<h3 className="text-xl font-semibold text-foreground">
+							<h3 className="text-lg font-semibold text-foreground">
 								{data.comparison.without.title}
 							</h3>
 							<ul className="mt-6 space-y-4">
 								{data.comparison.without.items.map((item) => (
 									<li key={item} className="flex items-start gap-3">
-										<AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary/800" />
+										<AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary/80" />
 										<span className="text-sm text-muted-foreground">
 											{item}
 										</span>
@@ -158,7 +176,7 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 							</ul>
 						</div>
 						<div className="rounded-xl border border-primary/40 bg-card p-8">
-							<h3 className="text-xl font-semibold text-primary">
+							<h3 className="text-lg font-semibold text-primary">
 								{data.comparison.withNotploy.title}
 							</h3>
 							<ul className="mt-6 space-y-4">
@@ -177,13 +195,22 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 			</section>
 
 			{/* Workflow steps */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section
+				aria-labelledby="industry-section-3"
+				className="border-b border-border/30 py-20 sm:py-32"
+			>
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Workflow
+						</p>
+						<h2
+							id="industry-section-3"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							{data.workflow.heading}
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							{data.workflow.description}
 						</p>
 					</div>
@@ -193,8 +220,8 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 								key={step.title}
 								className="flex flex-col rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-lg font-semibold text-primary">
-									{index + 1}
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<span className="text-sm font-semibold">{index + 1}</span>
 								</div>
 								<h3 className="text-lg font-semibold">{step.title}</h3>
 								<p className="mt-3 flex-1 text-sm text-muted-foreground">
@@ -210,11 +237,20 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 			</section>
 
 			{/* Built for + screenshot */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section
+				aria-labelledby="industry-section-4"
+				className="border-b border-border/30 bg-background py-20 sm:py-32"
+			>
 				<Container>
 					<div className="mx-auto flex max-w-6xl flex-col gap-12 md:flex-row md:items-center">
 						<div className="flex-1">
-							<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+							<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+								Built for this industry
+							</p>
+							<h2
+								id="industry-section-4"
+								className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+							>
 								{data.builtFor.heading}
 							</h2>
 							{data.builtFor.paragraphs.map((paragraph) => (
@@ -239,10 +275,19 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 			</section>
 
 			{/* Platform details */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section
+				aria-labelledby="industry-section-5"
+				className="border-b border-border/30 py-20 sm:py-32"
+			>
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Platform details
+						</p>
+						<h2
+							id="industry-section-5"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							Platform details at a glance
 						</h2>
 					</div>
@@ -272,10 +317,19 @@ export function IndustryPage({ data }: { data: IndustryPageData }) {
 			</section>
 
 			{/* FAQs */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section
+				aria-labelledby="industry-section-6"
+				className="border-b border-border/30 bg-background py-20 sm:py-32"
+			>
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							FAQs
+						</p>
+						<h2
+							id="industry-section-6"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							{data.faqs.heading}
 						</h2>
 					</div>

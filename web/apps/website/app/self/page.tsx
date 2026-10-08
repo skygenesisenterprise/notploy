@@ -174,13 +174,16 @@ export default function SelfPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="runs-on-infrastructure-you-choose" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Where it runs
+						</p>
+						<h2 id="runs-on-infrastructure-you-choose" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Runs on infrastructure you choose
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy does not require a specific provider or data center. If it
 							runs Linux and Docker, it can run Notploy.
 						</p>
@@ -191,10 +194,10 @@ export default function SelfPage() {
 								key={target.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<target.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<target.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{target.title}</h3>
+								<h3 className="text-lg font-semibold">{target.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{target.description}
 								</p>
@@ -204,13 +207,16 @@ export default function SelfPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="control-and-sovereignty-by-default" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Your data, your rules
+						</p>
+						<h2 id="control-and-sovereignty-by-default" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Control and sovereignty by default
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Self-hosting is not only about where binaries run. It is about
 							keeping decisions — data location, upgrade cadence, security
 							boundaries — where they belong: with you.
@@ -222,8 +228,8 @@ export default function SelfPage() {
 								key={principle.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<principle.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<principle.icon className="h-5 w-5" />
 								</div>
 								<h3 className="text-lg font-semibold">{principle.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -235,13 +241,16 @@ export default function SelfPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="from-a-blank-server-to-your-first-deployment" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Quick start
+						</p>
+						<h2 id="from-a-blank-server-to-your-first-deployment" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							From a blank server to your first deployment
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy is designed to be operational in minutes, not in a
 							sprint.
 						</p>
@@ -280,7 +289,7 @@ export default function SelfPage() {
 								<div className="absolute right-6 top-6 font-display text-3xl font-bold text-primary/30">
 									{step.number}
 								</div>
-								<div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
 									<IconRocket className="h-5 w-5" />
 								</div>
 								<h3 className="text-lg font-semibold">{step.title}</h3>
@@ -300,10 +309,13 @@ export default function SelfPage() {
 				</Container>
 			</section>
 
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="notploy-self-faqs" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Common questions
+						</p>
+						<h2 id="notploy-self-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Notploy Self FAQs
 						</h2>
 					</div>

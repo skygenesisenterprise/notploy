@@ -223,13 +223,16 @@ export default function DatabaseManagementToolPage() {
 			</section>
 
 			{/* Deploy the database you already use */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="deploy-your-database" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Five systems, one workflow
+						</p>
+						<h2 id="deploy-your-database" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Deploy the database you already use
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy&apos;s database management tool supports five widely used
 							database systems out of the box, so you&apos;re not locked into a
 							single technology. You pick what fits your stack and your data
@@ -242,10 +245,10 @@ export default function DatabaseManagementToolPage() {
 								key={db.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<db.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<db.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{db.title}</h3>
+								<h3 className="text-lg font-semibold">{db.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{db.description}
 								</p>
@@ -256,7 +259,7 @@ export default function DatabaseManagementToolPage() {
 			</section>
 
 			{/* Watch your databases in real time */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="watch-in-real-time" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
 						<div className="mb-6 flex justify-center">
@@ -264,10 +267,13 @@ export default function DatabaseManagementToolPage() {
 								<Activity className="h-7 w-7" />
 							</div>
 						</div>
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Live metrics, zero guessing
+						</p>
+						<h2 id="watch-in-real-time" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Watch your databases in real time
 						</h2>
-						<p className="mt-6 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy surfaces live monitoring graphs for memory, CPU, disk, and
 							network directly in the dashboard. The data updates as you view
 							it, so you can see exactly what your database is doing and catch
@@ -278,13 +284,16 @@ export default function DatabaseManagementToolPage() {
 			</section>
 
 			{/* Protect, recover, and connect with confidence */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="protect-recover-connect" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Backups, logs, restores
+						</p>
+						<h2 id="protect-recover-connect" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Protect, recover, and connect with confidence
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Automated backups, transparent logs, straightforward restores, and
 							flexible connection options. Everything you need to manage a
 							database reliably, all in one place.
@@ -296,10 +305,10 @@ export default function DatabaseManagementToolPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -310,13 +319,16 @@ export default function DatabaseManagementToolPage() {
 			</section>
 
 			{/* Advanced options, your way */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="advanced-options" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Granular control included
+						</p>
+						<h2 id="advanced-options" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Advanced options, your way
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy goes beyond the basics, giving you granular control over
 							how each database runs, from the image it uses to the resources it
 							consumes and everything in between.
@@ -328,10 +340,10 @@ export default function DatabaseManagementToolPage() {
 								key={option.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<option.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<option.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-lg font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{option.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -344,7 +356,7 @@ export default function DatabaseManagementToolPage() {
 			</section>
 
 			{/* Your data stays secure */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="data-stays-secure" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
 						<div className="mb-6 flex justify-center">
@@ -352,10 +364,13 @@ export default function DatabaseManagementToolPage() {
 								<Shield className="h-7 w-7" />
 							</div>
 						</div>
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							On your own server
+						</p>
+						<h2 id="data-stays-secure" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Your data stays secure
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Your database data is stored on your own server. Notploy creates
 							Docker containers on your infrastructure, so you have full
 							control over your data&mdash;no third parties, no external
@@ -368,8 +383,8 @@ export default function DatabaseManagementToolPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6 text-center"
 							>
-								<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
 								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -382,13 +397,16 @@ export default function DatabaseManagementToolPage() {
 			</section>
 
 			{/* Start managing databases smarter */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="manage-databases-smarter" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Up and running fast
+						</p>
+						<h2 id="manage-databases-smarter" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Start managing databases smarter
 						</h2>
-						<p className="mt-6 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy gives you everything you need to deploy, monitor, and
 							protect your databases&mdash;without the complexity. Create your
 							account and have your first database running in minutes with our
@@ -404,10 +422,13 @@ export default function DatabaseManagementToolPage() {
 			</section>
 
 			{/* Database management tool FAQs */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="database-faqs" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Answers before you start
+						</p>
+						<h2 id="database-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Database management tool FAQs
 						</h2>
 					</div>

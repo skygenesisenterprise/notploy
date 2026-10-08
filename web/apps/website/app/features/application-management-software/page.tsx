@@ -208,13 +208,16 @@ export default function ApplicationManagementSoftwarePage() {
 			</section>
 
 			{/* Visibility across every application */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="visibility-at-scale" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							One place for every app
+						</p>
+						<h2 id="visibility-at-scale" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Visibility across every application as you scale
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Bring your entire application landscape into one place with
 							Notploy. Get a clear view of application health, resource usage,
 							and deployment history.
@@ -224,13 +227,16 @@ export default function ApplicationManagementSoftwarePage() {
 			</section>
 
 			{/* Everything your team needs in one platform */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="everything-in-one-platform" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Signals that matter
+						</p>
+						<h2 id="everything-in-one-platform" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Everything your team needs in one platform
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Improving visibility into your application portfolio is the first
 							step toward better application management. Notploy surfaces the
 							signals your IT team needs, in real time, in one place.
@@ -242,10 +248,10 @@ export default function ApplicationManagementSoftwarePage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-lg font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -258,14 +264,17 @@ export default function ApplicationManagementSoftwarePage() {
 			</section>
 
 			{/* Standardize your management process */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="standardize-your-process" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-5xl lg:grid lg:grid-cols-2 lg:gap-16">
 						<div>
-							<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+							<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+								Consistency over tribal knowledge
+							</p>
+							<h2 id="standardize-your-process" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 								Standardize your management process
 							</h2>
-							<p className="mt-4 text-lg text-muted-foreground">
+							<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 								Maintain consistent environments and standardized release
 								processes to keep operational efficiency at peak levels. When
 								every application is managed together, your IT team maintains
@@ -318,13 +327,16 @@ export default function ApplicationManagementSoftwarePage() {
 			</section>
 
 			{/* Full control over your application portfolio */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="full-portfolio-control" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Control at every level
+						</p>
+						<h2 id="full-portfolio-control" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Full control over your application portfolio
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Manage business applications at the level your business goals
 							require, from resource allocation and scaling to security controls
 							and workflow automation.
@@ -336,10 +348,10 @@ export default function ApplicationManagementSoftwarePage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-lg font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -352,13 +364,16 @@ export default function ApplicationManagementSoftwarePage() {
 			</section>
 
 			{/* Run Notploy where your business needs it */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="run-where-needed" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Self-hosted or cloud
+						</p>
+						<h2 id="run-where-needed" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Run Notploy where your business needs it
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Deploy Notploy on your own infrastructure or ours. Both options
 							give you the same application management capabilities, and you
 							choose what fits your operational model and regulatory compliance
@@ -366,11 +381,11 @@ export default function ApplicationManagementSoftwarePage() {
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Server className="h-6 w-6" />
+						<div className="rounded-xl border border-border/50 bg-card p-6">
+							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<Server className="h-5 w-5" />
 							</div>
-							<h3 className="text-xl font-semibold">Self-hosted</h3>
+							<h3 className="text-lg font-semibold">Self-hosted</h3>
 							<ul className="mt-4 space-y-2">
 								{selfHostedItems.map((item) => (
 									<li
@@ -383,11 +398,11 @@ export default function ApplicationManagementSoftwarePage() {
 								))}
 							</ul>
 						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Cloud className="h-6 w-6" />
+						<div className="rounded-xl border border-border/50 bg-card p-6">
+							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<Cloud className="h-5 w-5" />
 							</div>
-							<h3 className="text-xl font-semibold">Notploy Cloud</h3>
+							<h3 className="text-lg font-semibold">Notploy Cloud</h3>
 							<ul className="mt-4 space-y-2">
 								{cloudItems.map((item) => (
 									<li
@@ -405,13 +420,16 @@ export default function ApplicationManagementSoftwarePage() {
 			</section>
 
 			{/* Deploy AI in a controlled environment */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="deploy-ai-safely" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Sandboxed by default
+						</p>
+						<h2 id="deploy-ai-safely" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Deploy AI in a controlled environment
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Use Notploy to create sandbox environments separated from production infrastructure, where technical and non-technical employees can launch AI-coded apps safely.
 						</p>
 					</div>
@@ -452,13 +470,16 @@ export default function ApplicationManagementSoftwarePage() {
 			</section>
 
 			{/* Take control of your application landscape */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="take-control" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Get started in minutes
+						</p>
+						<h2 id="take-control" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Take control of your application landscape
 						</h2>
-						<p className="mt-6 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy gives your IT team the application management software it
 							needs to monitor, maintain, and scale business applications with
 							confidence. Create your account and get started in minutes.
@@ -473,10 +494,13 @@ export default function ApplicationManagementSoftwarePage() {
 			</section>
 
 			{/* FAQs */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="management-software-faqs" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Your questions answered
+						</p>
+						<h2 id="management-software-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Application management software FAQs
 						</h2>
 					</div>

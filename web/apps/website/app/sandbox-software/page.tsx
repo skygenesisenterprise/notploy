@@ -250,13 +250,16 @@ export default function SandboxSoftwarePage() {
 			</section>
 
 			{/* Everything you need to build, test, and ship safely */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="everything-you-need-to-build-test-and-ship-safely" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Contained by default
+						</p>
+						<h2 id="everything-you-need-to-build-test-and-ship-safely" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Everything you need to build, test, and ship safely
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Whether your team is prototyping a new feature or rolling out an
 							AI-coded tool, your sandbox environment handles it—contained,
 							controlled, and completely separate from your live environment.
@@ -268,10 +271,10 @@ export default function SandboxSoftwarePage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -282,13 +285,16 @@ export default function SandboxSoftwarePage() {
 			</section>
 
 			{/* The smart way to release vibe-coded apps internally */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="the-smart-way-to-release-vibe-coded-apps-internally" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Release AI apps safely
+						</p>
+						<h2 id="the-smart-way-to-release-vibe-coded-apps-internally" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							The smart way to release vibe-coded apps internally
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							AI-assisted development is moving fast. Notploy gives your team
 							the infrastructure to deploy and share AI-generated applications
 							in a secure, controlled environment without slowing down the
@@ -301,10 +307,10 @@ export default function SandboxSoftwarePage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-lg font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -322,13 +328,16 @@ export default function SandboxSoftwarePage() {
 			</section>
 
 			{/* The features that make Notploy a powerful sandbox tool */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="the-features-that-make-notploy-a-powerful-sandbox-tool" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Platform capabilities
+						</p>
+						<h2 id="the-features-that-make-notploy-a-powerful-sandbox-tool" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							The features that make Notploy a powerful sandbox tool
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy is designed for teams that need flexibility, security, and
 							control—whether you&apos;re running a single internal app or
 							managing development environments across multiple projects.
@@ -340,8 +349,8 @@ export default function SandboxSoftwarePage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
 								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -354,13 +363,16 @@ export default function SandboxSoftwarePage() {
 			</section>
 
 			{/* Notploy Enterprise: sandbox software built for teams */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="notploy-enterprise-sandbox-software-built-for-teams" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							For organizations at scale
+						</p>
+						<h2 id="notploy-enterprise-sandbox-software-built-for-teams" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Notploy Enterprise: sandbox software built for teams
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							For organizations running sandbox environments at scale, Notploy
 							Enterprise adds the infrastructure, support, and controls that
 							make internal deployments manageable—even for large teams.
@@ -372,10 +384,10 @@ export default function SandboxSoftwarePage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-lg font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -393,14 +405,17 @@ export default function SandboxSoftwarePage() {
 			</section>
 
 			{/* Connect AI agents directly to your sandbox */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="connect-ai-agents-directly-to-your-sandbox" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto grid max-w-5xl items-center gap-12 lg:grid-cols-2">
 						<div>
-							<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+							<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+								MCP server integration
+							</p>
+							<h2 id="connect-ai-agents-directly-to-your-sandbox" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 								Connect AI agents directly to your sandbox
 							</h2>
-							<p className="mt-4 text-lg text-muted-foreground">
+							<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 								Notploy&apos;s MCP server enables AI agents to interact with
 								your deployment environment through the Model Context Protocol,
 								no custom integration required.
@@ -418,7 +433,7 @@ export default function SandboxSoftwarePage() {
 								))}
 							</ul>
 						</div>
-						<div className="flex aspect-square items-center justify-center rounded-2xl border border-border/50 bg-card sm:aspect-video lg:aspect-square">
+						<div className="flex aspect-square items-center justify-center rounded-xl border border-border/50 bg-card sm:aspect-video lg:aspect-square">
 							<div className="flex flex-col items-center gap-4 text-center">
 								<div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/20 text-primary">
 									<Sparkles className="h-8 w-8" />
@@ -433,10 +448,13 @@ export default function SandboxSoftwarePage() {
 			</section>
 
 			{/* FAQs */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="sandbox-software-faqs" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Common questions
+						</p>
+						<h2 id="sandbox-software-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Sandbox software FAQs
 						</h2>
 					</div>
@@ -464,13 +482,16 @@ export default function SandboxSoftwarePage() {
 			</section>
 
 			{/* CTA */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="give-your-team-a-safe-place-to-build" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Start sandboxing today
+						</p>
+						<h2 id="give-your-team-a-safe-place-to-build" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Give your team a safe place to build
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Start deploying internal and AI-coded apps in a sandbox that stays
 							fully separate from production, on infrastructure you control.
 						</p>

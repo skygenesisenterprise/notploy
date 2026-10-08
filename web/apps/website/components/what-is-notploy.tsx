@@ -73,7 +73,7 @@ export function WhatIsNotploy() {
 	return (
 		<section
 			aria-labelledby="what-is-notploy"
-			className="border-b border-border/30 bg-background py-20 sm:py-32"
+			className="border-b border-border/30 bg-background pb-20 pt-10 sm:pb-32 sm:pt-14"
 		>
 			<Container>
 				<div className="mx-auto max-w-2xl text-center">
@@ -123,7 +123,7 @@ export function WhatIsNotploy() {
 							className="rounded-xl border border-border/50 bg-card p-4"
 						>
 							<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<concept.icon className="h-4.5 w-4.5" />
+								<concept.icon className="h-5 w-5" />
 							</div>
 							<h4 className="mt-3 text-sm font-semibold">{concept.title}</h4>
 							<p className="mt-1 text-sm text-muted-foreground">

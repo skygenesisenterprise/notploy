@@ -102,8 +102,7 @@ export function Pricing() {
 
 	return (
 		<section
-			id="pricing"
-			aria-label="Pricing"
+			aria-labelledby="pricing-heading"
 			className="relative border-t border-border/30 bg-background py-20 sm:py-32 overflow-hidden"
 		>
 			<Container className="relative">
@@ -134,14 +133,20 @@ export function Pricing() {
 							Open source · Apache-2.0
 						</Badge>
 					</Link>
-					<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+					<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary relative">
+						Pricing
+					</p>
+					<h2
+						id="pricing-heading"
+						className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+					>
 						<span className="relative whitespace-nowrap">
 							<SwirlyDoodle className="absolute left-0 top-1/2 h-[1em] w-full fill-muted-foreground" />
 							<span className="relative">Open source</span>
 						</span>{" "}
 						at the core.
 					</h2>
-					<p className="mt-4 text-lg text-muted-foreground">
+					<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 						Self-host the full platform for free, or let us run it for you.
 					</p>
 				</div>
@@ -277,12 +282,17 @@ export function Pricing() {
 
 				{/* Pricing FAQ */}
 				<div className="mx-auto mt-24 max-w-3xl">
-					<h3 className="text-center text-2xl font-semibold text-foreground">
-						Frequently asked questions
-					</h3>
-					<p className="mt-4 text-center text-sm text-muted-foreground">
-						Have a different question? Contact us via Discord or email.
-					</p>
+					<div className="text-center">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							FAQs
+						</p>
+						<h3 className="text-2xl font-semibold text-foreground">
+							Frequently asked questions
+						</h3>
+						<p className="mt-4 text-sm text-muted-foreground">
+							Have a different question? Contact us via Discord or email.
+						</p>
+					</div>
 					<Accordion type="single" collapsible className="mt-8 w-full">
 						{pricingFaqs.map((faq, index) => (
 							<AccordionItem value={`${index}`} key={index}>

@@ -274,13 +274,16 @@ export default function SecurityPage() {
 			</section>
 
 			{/* SSO */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="connect-identity-provider" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							SSO with any IdP
+						</p>
+						<h2 id="connect-identity-provider" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Connect any identity provider
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Enterprise users can authenticate through any OIDC or SAML
 							2.0-compatible identity provider. If your organization already
 							runs Okta, Azure AD, or Keycloak, Notploy connects to it.
@@ -292,10 +295,10 @@ export default function SecurityPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -306,13 +309,16 @@ export default function SecurityPage() {
 			</section>
 
 			{/* RBAC */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="control-user-access" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Granular roles and permissions
+						</p>
+						<h2 id="control-user-access" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Control exactly what each user can access
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Role-based access control ships with every paid plan. Enterprise
 							extends it with fully custom roles built from individual
 							permissions across every resource type in the platform.
@@ -325,14 +331,14 @@ export default function SecurityPage() {
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
 								<div className="mb-4 flex items-center justify-between">
-									<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-										<feature.icon className="h-6 w-6" />
+									<div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+										<feature.icon className="h-5 w-5" />
 									</div>
 									<span className="rounded-full bg-primary/20 px-3 py-1 text-xs font-medium text-primary">
 										{feature.plan}
 									</span>
 								</div>
-								<h3 className="text-lg font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -350,13 +356,16 @@ export default function SecurityPage() {
 			</section>
 
 			{/* Audit Logs */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="know-who-did-what" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							A complete audit trail
+						</p>
+						<h2 id="know-who-did-what" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Know exactly who did what and when
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Audit Logs give Enterprise organizations a complete, filterable
 							record of every action taken across the platform&mdash;essential
 							for SOC 2, GDPR, and internal change management processes.
@@ -379,24 +388,27 @@ export default function SecurityPage() {
 			</section>
 
 			{/* Security features by plan */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="security-features-by-plan" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Startup to Enterprise
+						</p>
+						<h2 id="security-features-by-plan" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Security features by plan
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Core access controls come with every paid plan. Enterprise adds
 							the layers that compliance-conscious teams and larger
 							organizations need.
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<h3 className="text-xl font-semibold text-foreground">
+						<div className="rounded-xl border border-border/50 bg-card p-6">
+							<h3 className="text-lg font-semibold">
 								Startup and above
 							</h3>
-							<p className="mt-2 text-sm text-muted-foreground">
+							<p className="mt-3 text-sm text-muted-foreground">
 								A great starting point:
 							</p>
 							<ul className="mt-6 space-y-3">
@@ -411,9 +423,9 @@ export default function SecurityPage() {
 								))}
 							</ul>
 						</div>
-						<div className="rounded-xl border border-primary/50 bg-card p-8">
-							<h3 className="text-xl font-semibold text-foreground">Enterprise</h3>
-							<p className="mt-2 text-sm text-muted-foreground">
+						<div className="rounded-xl border border-primary/50 bg-card p-6">
+							<h3 className="text-lg font-semibold">Enterprise</h3>
+							<p className="mt-3 text-sm text-muted-foreground">
 								Everything in Startup, plus:
 							</p>
 							<ul className="mt-6 space-y-3">
@@ -433,13 +445,16 @@ export default function SecurityPage() {
 			</section>
 
 			{/* Infrastructure security */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="infrastructure-security" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Hardened at the server
+						</p>
+						<h2 id="infrastructure-security" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Security from the infrastructure up
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Access control is only one part of the picture. Notploy is built
 							with server-level security in mind, including built-in guidance to
 							keep your infrastructure hardened alongside your access policies.
@@ -451,10 +466,10 @@ export default function SecurityPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -465,10 +480,13 @@ export default function SecurityPage() {
 			</section>
 
 			{/* FAQs */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="security-faqs" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Your questions answered
+						</p>
+						<h2 id="security-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Security and governance FAQs
 						</h2>
 					</div>
@@ -478,7 +496,7 @@ export default function SecurityPage() {
 								key={faq.question}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<h3 className="text-lg font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{faq.question}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">{faq.answer}</p>
@@ -489,13 +507,16 @@ export default function SecurityPage() {
 			</section>
 
 			{/* Related Features */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="security-in-depth" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Dig into the details
+						</p>
+						<h2 id="security-in-depth" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Explore Notploy&apos;s security features in depth
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Dive deeper into the access control and governance features that
 							keep your organization secure.
 						</p>
@@ -507,8 +528,8 @@ export default function SecurityPage() {
 								href={feature.href}
 								className="rounded-xl border border-border/50 bg-card p-6 transition hover:border-border"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
 								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -521,13 +542,16 @@ export default function SecurityPage() {
 			</section>
 
 			{/* CTA */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="deploy-securely" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Start shipping safely
+						</p>
+						<h2 id="deploy-securely" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Deploy securely with Notploy
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Start shipping applications today with Notploy, safe in the
 							knowledge that your environment is secure. For additional
 							governance, choose our Enterprise plan.

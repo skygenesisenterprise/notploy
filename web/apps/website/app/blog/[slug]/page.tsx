@@ -241,7 +241,7 @@ export default async function BlogPostPage({ params }: Props) {
 			<div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_250px]">
 				<div className="rounded-lg border border-border p-8 shadow-lg">
 					<header className="mb-8">
-						<h1 className="mb-4 text-xl font-bold md:text-2xl xl:text-3xl">
+						<h1 className="mb-4 font-display text-4xl tracking-tight text-foreground sm:text-5xl">
 							{post.title}
 						</h1>
 						<div className="mb-6 flex items-center">

@@ -37,7 +37,7 @@ export default function ContactPage() {
 	}
 
 	return (
-		<div className="relative bg-background py-24 sm:py-32">
+		<section aria-labelledby="contact-us" className="relative bg-background py-24 sm:py-32">
 			<AnimatedGridPattern
 				numSquares={30}
 				maxOpacity={0.1}
@@ -53,10 +53,13 @@ export default function ContactPage() {
 			<Container>
 				<div className="relative z-10 mx-auto max-w-3xl rounded-lg border border-border bg-background p-8">
 					<div className="text-center">
-						<h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Talk to us
+						</p>
+						<h2 id="contact-us" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Contact Us
-						</h1>
-						<p className="mt-6 text-lg leading-8 text-muted-foreground">
+						</h2>
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Get in touch with our team. We're here to help with any questions
 							about Notploy.
 						</p>
@@ -67,6 +70,6 @@ export default function ContactPage() {
 					</div>
 				</div>
 			</Container>
-		</div>
+		</section>
 	);
 }

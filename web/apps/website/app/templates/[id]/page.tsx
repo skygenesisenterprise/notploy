@@ -145,7 +145,9 @@ export default async function TemplatePage({ params }: Props) {
 					/>
 					<div>
 						<div className="flex flex-wrap items-center gap-3">
-							<h1 className="text-3xl font-bold">{template.name}</h1>
+							<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl">
+								{template.name}
+							</h1>
 							<Badge variant="secondary">v{template.version}</Badge>
 						</div>
 						<p className="mt-2 max-w-2xl text-muted-foreground">
@@ -202,8 +204,18 @@ export default async function TemplatePage({ params }: Props) {
 				)}
 			</div>
 
-			<section id="deploy" className="mt-12 scroll-mt-24">
-				<h2 className="text-2xl font-semibold">
+			<section
+				id="deploy"
+				aria-labelledby="deploy-title"
+				className="mt-12 scroll-mt-24"
+			>
+				<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+					How to deploy
+				</p>
+				<h2
+					id="deploy-title"
+					className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+				>
 					Deploy {template.name} on Notploy
 				</h2>
 				<ol className="mt-4 list-decimal space-y-2 pl-6 text-muted-foreground">
@@ -247,9 +259,17 @@ export default async function TemplatePage({ params }: Props) {
 				</div>
 			</section>
 
-			<section className="mt-12">
-				<h2 className="text-2xl font-semibold">Configuration</h2>
-				<p className="mt-2 text-muted-foreground">
+			<section className="mt-12" aria-labelledby="configuration-title">
+				<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+					Reference files
+				</p>
+				<h2
+					id="configuration-title"
+					className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+				>
+					Configuration
+				</h2>
+				<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 					The exact Docker Compose and template configuration this template
 					deploys.
 				</p>
@@ -260,8 +280,16 @@ export default async function TemplatePage({ params }: Props) {
 			</section>
 
 			{files.instructions && (
-				<section className="mt-12">
-					<h2 className="text-2xl font-semibold">Instructions</h2>
+				<section className="mt-12" aria-labelledby="instructions-title">
+					<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+						Usage guide
+					</p>
+					<h2
+						id="instructions-title"
+						className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+					>
+						Instructions
+					</h2>
 					<div className="mt-4">
 						<TemplateMarkdown content={files.instructions} />
 					</div>
@@ -269,8 +297,16 @@ export default async function TemplatePage({ params }: Props) {
 			)}
 
 			{relatedTemplates.length > 0 && (
-				<section className="mt-12">
-					<h2 className="text-2xl font-semibold">Related Templates</h2>
+				<section className="mt-12" aria-labelledby="related-templates-title">
+					<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+						More like this
+					</p>
+					<h2
+						id="related-templates-title"
+						className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+					>
+						Related Templates
+					</h2>
 					<div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{relatedTemplates.map((related) => (
 							<TemplateCard key={related.id} template={related} />
@@ -279,16 +315,25 @@ export default async function TemplatePage({ params }: Props) {
 				</section>
 			)}
 
-			<section className="mt-12 flex flex-col items-start gap-3 rounded-lg border border-border bg-muted/30 p-6">
-				<h2 className="text-xl font-semibold">
+			<section
+				aria-labelledby="self-host-title"
+				className="mt-12 flex flex-col items-start rounded-xl border border-border/50 bg-card p-6"
+			>
+				<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+					Free and open source
+				</p>
+				<h2
+					id="self-host-title"
+					className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+				>
 					Self-host {template.name} in minutes
 				</h2>
-				<p className="text-muted-foreground">
+				<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 					Notploy is a free, open source deployment platform. Deploy{" "}
 					{template.name} and {templates.length - 1}+ other templates on your
 					own infrastructure with a single click.
 				</p>
-				<div className="flex flex-wrap gap-3">
+				<div className="mt-6 flex flex-wrap gap-3">
 					<a
 						href="https://docs.notploy.com/docs/core/installation"
 						target="_blank"

@@ -46,7 +46,7 @@ export default async function TagPage({ params }: Props) {
 		posts[0].tags?.find((t: { slug: string }) => t.slug === tag)?.name || tag;
 
 	return (
-		<div className="container mx-auto px-4 py-12">
+		<div className="container mx-auto max-w-5xl px-4 py-12">
 			<Link
 				href="/blog"
 				className="text-primary hover:text-primary-800 mb-8 inline-flex items-center transition-colors"
@@ -67,7 +67,7 @@ export default async function TagPage({ params }: Props) {
 			</Link>
 
 			<div className="mb-8">
-				<h1 className="mb-2 text-3xl font-bold">
+				<h1 className="mb-2 font-display text-4xl tracking-tight text-foreground sm:text-5xl">
 					Posts tagged with{" "}
 					<span className="text-primary">"{tagName}"</span>
 				</h1>
@@ -94,7 +94,7 @@ function BlogPostCard({ post }: { post: Post }) {
 
 	return (
 		<Link href={`/blog/${post.slug}`} className="group">
-			<div className="overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl dark:bg-card">
+			<div className="overflow-hidden rounded-xl border border-border/50 bg-card transition-all duration-300 hover:border-border">
 				{post.feature_image && (
 					<div className="relative h-48 w-full">
 						<Image

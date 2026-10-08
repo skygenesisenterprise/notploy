@@ -257,13 +257,16 @@ export default function ApplicationDeploymentPlatformPage() {
 			</section>
 
 			{/* Professional features for every developer */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="professional-features" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Flexible by design
+						</p>
+						<h2 id="professional-features" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Professional features for every developer
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Take advantage of flexible features that empower everyone, no
 							matter your build strategy or the size of your team.
 						</p>
@@ -274,10 +277,10 @@ export default function ApplicationDeploymentPlatformPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -288,13 +291,16 @@ export default function ApplicationDeploymentPlatformPage() {
 			</section>
 
 			{/* AI deployment */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="ai-built-apps" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							From prompt to production
+						</p>
+						<h2 id="ai-built-apps" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Deploy the apps your teams are already building with AI
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							AI coding tools are changing how applications get written. Notploy handles the deployment side, from AI-generated code to a live URL, powered by your existing workflows.
 						</p>
 					</div>
@@ -304,8 +310,8 @@ export default function ApplicationDeploymentPlatformPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
 								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -314,8 +320,8 @@ export default function ApplicationDeploymentPlatformPage() {
 							</div>
 						))}
 					</div>
-					<div className="mx-auto mt-16 max-w-2xl rounded-xl border border-border/50 bg-card p-8 text-center">
-						<h3 className="text-xl font-semibold">Need a governed environment for AI tools?</h3>
+					<div className="mx-auto mt-16 max-w-2xl rounded-xl border border-border/50 bg-card p-6 text-center">
+						<h3 className="text-lg font-semibold">Need a governed environment for AI tools?</h3>
 						<p className="mt-3 text-muted-foreground">
 							See how Notploy handles sandboxed deploys, non-technical users, and enterprise security for AI-built apps.
 						</p>
@@ -329,7 +335,7 @@ export default function ApplicationDeploymentPlatformPage() {
 			</section>
 
 			{/* Ship from GitHub, Bitbucket, and more */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="ship-from-any-provider" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
 						<div className="mb-6 flex justify-center">
@@ -337,10 +343,13 @@ export default function ApplicationDeploymentPlatformPage() {
 								<GitBranch className="h-7 w-7" />
 							</div>
 						</div>
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Connect your Git provider
+						</p>
+						<h2 id="ship-from-any-provider" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Ship from GitHub, Bitbucket, and more
 						</h2>
-						<p className="mt-6 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Connect your repo and deploy on push with webhooks. We support
 							GitHub, GitLab, Gitea, Bitbucket, Docker registry, and Git generic
 							provider. Control exactly what changes trigger a release, including
@@ -351,13 +360,16 @@ export default function ApplicationDeploymentPlatformPage() {
 			</section>
 
 			{/* Automate deployments and test changes */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="automate-deployments" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Ship on autopilot
+						</p>
+						<h2 id="automate-deployments" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Automate deployments and test changes
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Keep application deployments hands-off, while still staying in
 							control of what ships and when.
 						</p>
@@ -368,8 +380,8 @@ export default function ApplicationDeploymentPlatformPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6 text-center"
 							>
-								<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
 								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -382,13 +394,16 @@ export default function ApplicationDeploymentPlatformPage() {
 			</section>
 
 			{/* Host Notploy where your business needs it */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="host-where-needed" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							On-prem or cloud
+						</p>
+						<h2 id="host-where-needed" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Host Notploy where your business needs it
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Choose a deployment option that suits your business–on your
 							infrastructure or ours.
 						</p>
@@ -397,12 +412,12 @@ export default function ApplicationDeploymentPlatformPage() {
 						{deploymentOptions.map((option) => (
 							<div
 								key={option.title}
-								className="rounded-xl border border-border/50 bg-card p-8"
+								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<option.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<option.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{option.title}
 								</h3>
 								<ul className="mt-4 space-y-2">
@@ -423,7 +438,7 @@ export default function ApplicationDeploymentPlatformPage() {
 			</section>
 
 			{/* Hundreds of templates */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="hundreds-of-templates" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
 						<div className="mb-6 flex justify-center">
@@ -431,10 +446,13 @@ export default function ApplicationDeploymentPlatformPage() {
 								<LayoutTemplate className="h-7 w-7" />
 							</div>
 						</div>
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Ready-to-run app library
+						</p>
+						<h2 id="hundreds-of-templates" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Hundreds of templates to get started
 						</h2>
-						<p className="mt-6 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Deploy popular open-source apps in one click with Notploy Templates,
 							a ready-to-run library of pre-configured apps you can deploy fast,
 							without rebuilding the same stack from scratch.
@@ -444,7 +462,7 @@ export default function ApplicationDeploymentPlatformPage() {
 			</section>
 
 			{/* Dashboard screenshot */}
-			<section className="border-b border-border/30 py-12 sm:py-16">
+			<section className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-6xl overflow-hidden rounded-xl border border-border/50 shadow-2xl">
 						<Image
@@ -461,13 +479,16 @@ export default function ApplicationDeploymentPlatformPage() {
 			</section>
 
 			{/* Everything you need in a deployment platform */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="everything-you-need" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							The complete toolkit
+						</p>
+						<h2 id="everything-you-need" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Everything you need in a deployment platform
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy is the software deployment platform for shipping anything
 							from a single service to a full multi-container stack.
 						</p>
@@ -478,10 +499,10 @@ export default function ApplicationDeploymentPlatformPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-lg font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -494,10 +515,13 @@ export default function ApplicationDeploymentPlatformPage() {
 			</section>
 
 			{/* Application deployment FAQs */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="application-deployment-faqs" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Common questions
+						</p>
+						<h2 id="application-deployment-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Application deployment FAQs
 						</h2>
 					</div>

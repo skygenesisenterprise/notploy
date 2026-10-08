@@ -143,13 +143,16 @@ export default function DeployAIPage() {
 			</section>
 
 			{/* Everything you need to start deploying AI today */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="everything-you-need-to-start-deploying-ai-today" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							AI deployment essentials
+						</p>
+						<h2 id="everything-you-need-to-start-deploying-ai-today" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Everything you need to start deploying AI today
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Notploy is built to take an app from an AI coding tool to a live,
 							internal URL in minutes.
 						</p>
@@ -160,10 +163,10 @@ export default function DeployAIPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{feature.title}</h3>
+								<h3 className="text-lg font-semibold">{feature.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{feature.description}
 								</p>
@@ -174,13 +177,16 @@ export default function DeployAIPage() {
 			</section>
 
 			{/* Built for teams that need guardrails, not gatekeepers */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="built-for-teams-that-need-guardrails-not-gatekeepers" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Secure AI rollout
+						</p>
+						<h2 id="built-for-teams-that-need-guardrails-not-gatekeepers" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Built for teams that need guardrails, not gatekeepers
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							AI-generated code moves fast. Notploy&apos;s enterprise features
 							make sure that speed doesn&apos;t come at the cost of security or
 							control.
@@ -192,10 +198,10 @@ export default function DeployAIPage() {
 								key={feature.title}
 								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold text-foreground">
+								<h3 className="text-lg font-semibold">
 									{feature.title}
 								</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -221,23 +227,26 @@ export default function DeployAIPage() {
 			</section>
 
 			{/* Test freely. Ship confidently. */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="test-freely-ship-confidently" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Your internal sandbox
+						</p>
+						<h2 id="test-freely-ship-confidently" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Test freely. Ship confidently.
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							A dedicated internal sandbox means your teams can move fast
 							without creating risk for the rest of the business.
 						</p>
 					</div>
 					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
 						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<FlaskConical className="h-6 w-6" />
+							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<FlaskConical className="h-5 w-5" />
 							</div>
-							<h3 className="text-xl font-semibold">Test without the risk</h3>
+							<h3 className="text-lg font-semibold">Test without the risk</h3>
 							<ul className="mt-4 space-y-3 text-sm text-muted-foreground">
 								{testFreelyPoints.map((point) => (
 									<li key={point} className="flex gap-3">
@@ -248,10 +257,10 @@ export default function DeployAIPage() {
 							</ul>
 						</div>
 						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Rocket className="h-6 w-6" />
+							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+								<Rocket className="h-5 w-5" />
 							</div>
-							<h3 className="text-xl font-semibold">Empower your team</h3>
+							<h3 className="text-lg font-semibold">Empower your team</h3>
 							<ul className="mt-4 space-y-3 text-sm text-muted-foreground">
 								{empowerTeamPoints.map((point) => (
 									<li key={point} className="flex gap-3">
@@ -266,16 +275,19 @@ export default function DeployAIPage() {
 			</section>
 
 			{/* Openclaw */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="get-started-with-openclaw-in-one-click" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-3xl text-center">
 						<div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary">
 							<Sparkles className="h-7 w-7" />
 						</div>
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Private AI coding
+						</p>
+						<h2 id="get-started-with-openclaw-in-one-click" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Get started with Openclaw in one click
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Openclaw is an open-source AI-powered coding assistant that you
 							can self-host on Notploy with a single template deploy. It gives
 							your team a private, internal AI coding environment, and no data
@@ -297,13 +309,16 @@ export default function DeployAIPage() {
 			</section>
 
 			{/* Notploy Cloud CTA */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="unlock-your-deployment-potential-with-notploy-cloud" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Fully managed hosting
+						</p>
+						<h2 id="unlock-your-deployment-potential-with-notploy-cloud" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Unlock Your Deployment Potential with Notploy Cloud
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							Say goodbye to infrastructure hassles, Notploy Cloud handles it
 							all. Effortlessly deploy, manage Docker containers, and secure
 							your traffic with Traefik. Focus on building, we&apos;ll handle

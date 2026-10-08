@@ -118,13 +118,16 @@ export default function IndustriesPage() {
 			</section>
 
 			{/* Industries grid */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="explore-notploy-by-industry" className="border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Solutions for every sector
+						</p>
+						<h2 id="explore-notploy-by-industry" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Explore Notploy by industry
 						</h2>
-						<p className="mt-4 text-lg text-muted-foreground">
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 							The same deployment platform, adapted to the workflows,
 							governance, and infrastructure requirements of your sector.
 						</p>
@@ -136,10 +139,10 @@ export default function IndustriesPage() {
 								href={industry.href}
 								className="rounded-xl border border-border/50 bg-card p-6 transition hover:border-border"
 							>
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<industry.icon className="h-6 w-6" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<industry.icon className="h-5 w-5" />
 								</div>
-								<h3 className="text-xl font-semibold">{industry.title}</h3>
+								<h3 className="text-lg font-semibold">{industry.title}</h3>
 								<p className="mt-3 text-sm text-muted-foreground">
 									{industry.description}
 								</p>

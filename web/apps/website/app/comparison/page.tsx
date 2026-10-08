@@ -124,12 +124,12 @@ export default function ComparisonPage() {
 							<Link
 								key={competitor.name}
 								href={competitor.href}
-								className="group rounded-xl border border-border/50 bg-card p-8 transition hover:border-border hover:bg-muted/30"
+								className="group rounded-xl border border-border/50 bg-card p-6 transition hover:border-border hover:bg-muted/30"
 							>
 								<div className="flex items-center justify-between">
-									<h2 className="text-xl font-semibold text-foreground">
+									<h3 className="text-lg font-semibold text-foreground">
 										Notploy vs. {competitor.name}
-									</h2>
+									</h3>
 									<ArrowRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
 								</div>
 								<p className="mt-3 text-sm text-muted-foreground">
@@ -142,27 +142,31 @@ export default function ComparisonPage() {
 			</section>
 
 			{/* Why Notploy is the best PaaS solution */}
-			<section className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="why-notploy-best-paas" className="border-b border-border/30 bg-background py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+							Best solution
+						</p>
+						<h2 id="why-notploy-best-paas" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
 							Why Notploy is the best PaaS solution for scaling teams
 						</h2>
+						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
+							Discover the advantages that make Notploy ideal for growing teams.
+						</p>
 					</div>
 
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2">
+					<div className="mx-auto mt-14 grid max-w-6xl gap-8 sm:grid-cols-2">
 						{whyNotploy.map((item) => (
 							<div
 								key={item.title}
-								className="group rounded-2xl border border-border/30 bg-gradient-to-b from-card/50 to-background p-8 transition hover:border-border/60"
+								className="rounded-xl border border-border/50 bg-card p-6"
 							>
-								<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 transition group-hover:bg-primary/20">
-									<item.icon className="h-6 w-6 text-primary" />
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
+									<item.icon className="h-5 w-5" />
 								</div>
-								<h3 className="mb-3 text-xl font-semibold text-foreground">
-									{item.title}
-								</h3>
-								<p className="leading-relaxed text-muted-foreground">
+								<h3 className="text-lg font-semibold">{item.title}</h3>
+								<p className="mt-3 text-sm text-muted-foreground">
 									{item.description}
 								</p>
 							</div>

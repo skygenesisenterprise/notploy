@@ -92,13 +92,16 @@ export default function PartnersPage() {
 			</section>
 
 			{/* Program cards */}
-			<section className="relative z-10 border-b border-border/30 py-16 sm:py-20">
+			<section aria-labelledby="partner-programs" className="relative z-10 border-b border-border/30 py-20 sm:py-32">
 				<Container>
+					<p id="partner-programs" className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+						Partner programs
+					</p>
 					<div className="grid gap-8 md:grid-cols-3">
 						{PROGRAMS.map((program) => (
 							<div
 								key={program.title}
-								className="flex flex-col rounded-2xl border border-border/50 bg-card/80 p-6"
+								className="flex flex-col rounded-xl border border-border/50 bg-card p-6"
 							>
 								<Badge
 									variant={program.badgeVariant}
@@ -109,7 +112,7 @@ export default function PartnersPage() {
 								<h2 className="text-xl font-semibold text-foreground">
 									{program.title}
 								</h2>
-								<p className="mt-2 text-sm text-muted-foreground">
+								<p className="mt-3 text-sm text-muted-foreground">
 									{program.description}
 								</p>
 								<ul className="mt-4 flex flex-col gap-2 text-sm text-muted-foreground">
@@ -132,16 +135,21 @@ export default function PartnersPage() {
 			</section>
 
 			{/* Get Started / Form */}
-			<section id="get-started" className="relative z-10 py-16 sm:py-24">
+			<section id="get-started" aria-labelledby="get-started-heading" className="relative z-10 border-b border-border/30 py-20 sm:py-32">
 				<Container>
 					<div className="mx-auto max-w-2xl">
-						<h2 className="text-center text-2xl font-semibold text-foreground sm:text-3xl">
-							Get Started
-						</h2>
-						<p className="mt-3 text-center text-muted-foreground">
-							Join our partner program and start growing with Notploy.
-						</p>
-						<div className="mt-10 rounded-xl border border-border/50 bg-card/80 p-6 sm:p-8">
+						<div className="text-center">
+							<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+								Grow with Notploy
+							</p>
+							<h2 id="get-started-heading" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+								Get Started
+							</h2>
+							<p className="mt-4 text-lg tracking-tight text-muted-foreground">
+								Join our partner program and start growing with Notploy.
+							</p>
+						</div>
+						<div className="mt-10 rounded-xl border border-border/50 bg-card p-6">
 							<PartnerForm />
 						</div>
 					</div>
