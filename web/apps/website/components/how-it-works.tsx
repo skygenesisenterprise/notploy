@@ -5,7 +5,7 @@ import Link from "next/link";
 const steps = [
 	{
 		number: "01",
-		title: "GitHub",
+		title: "Git repository",
 		description:
 			"A push or pull request notifies Notploy through a webhook — GitHub, GitLab, Gitea or Bitbucket.",
 	},
@@ -13,19 +13,31 @@ const steps = [
 		number: "02",
 		title: "Notploy",
 		description:
-			"The platform builds the application with Nixpacks, Buildpacks or your Dockerfile, resolves secrets and prepares the release.",
+			"The control plane resolves your configuration, environments and secrets, then plans the release.",
 	},
 	{
 		number: "03",
+		title: "Build & deploy",
+		description:
+			"The application is built with Nixpacks, Buildpacks, Railpack or your own Dockerfile and turned into a release.",
+	},
+	{
+		number: "04",
 		title: "Infrastructure",
 		description:
 			"Containers are scheduled on your servers or Swarm cluster. Routing, DNS and TLS certificates are updated automatically.",
 	},
 	{
-		number: "04",
-		title: "Applications",
+		number: "05",
+		title: "Application",
 		description:
-			"The new version serves traffic. Logs, metrics, rollbacks and backups stay available from the dashboard, CLI or API.",
+			"The new version serves traffic. Databases, volumes and configuration are updated in place, with instant rollback available.",
+	},
+	{
+		number: "06",
+		title: "Monitoring & operations",
+		description:
+			"Logs, metrics, schedules, backups and rollbacks stay available from the dashboard, CLI or API.",
 	},
 ];
 
@@ -47,12 +59,13 @@ export function HowItWorks() {
 						From a commit to production, on your own infrastructure
 					</h2>
 					<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-						One workflow connects your code, the platform and the machines that
-						run it. Nothing runs on infrastructure you cannot see.
+						Notploy is the operational layer between your development workflow
+						and the machines that run your applications. Nothing runs on
+						infrastructure you cannot see.
 					</p>
 				</div>
 
-				<ol className="mx-auto mt-14 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
+				<ol className="mx-auto mt-14 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
 					{steps.map((step) => (
 						<li
 							key={step.number}

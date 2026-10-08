@@ -140,7 +140,7 @@ export function FirstFeaturesSection() {
 					id="capabilities"
 					className="font-display text-3xl tracking-tight text-primary sm:text-4xl"
 				>
-					What Notploy manages for you
+					What can Notploy manage?
 				</h2>
 				<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 					Grouped by operational domain: deploy applications, run

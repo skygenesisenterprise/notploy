@@ -6,14 +6,14 @@ import Link from "next/link";
 const models = [
 	{
 		name: "Notploy Self",
-		tagline: "Open-source infrastructure you run",
+		tagline: "You operate the platform",
 		description:
-			"Install Notploy on the servers you already own. You operate the control plane — upgrades, backups and network boundaries are your decisions.",
+			"Install Notploy on the servers you already own. You are responsible for the environment — and you keep every lever that comes with it.",
 		bullets: [
-			"Free and open source (Apache-2.0)",
-			"Runs on any Linux server, VPS, bare metal or homelab",
-			"Works in air-gapped and restricted environments",
-			"Full API, CLI and SSH access",
+			"You own the infrastructure and the data, end to end",
+			"You install, administer and upgrade Notploy itself",
+			"You decide backups, network boundaries and security policy",
+			"You can modify and extend the installation (Apache-2.0)",
 		],
 		href: "/self",
 		cta: "Explore Self",
@@ -22,14 +22,14 @@ const models = [
 	},
 	{
 		name: "Notploy Cloud",
-		tagline: "The managed service operated by Notploy",
+		tagline: "Notploy Enterprise operates it for you",
 		description:
-			"Notploy runs and upgrades the control plane for you. Your applications keep running on infrastructure you control, with support when you need it.",
+			"Notploy Enterprise provides the service, runs the control plane and owns its availability — while your workloads keep running on infrastructure you control.",
 		bullets: [
-			"Control plane hosted, monitored and upgraded by Notploy",
-			"Always on a supported release",
-			"Support and availability commitments",
-			"Same platform capabilities as Self",
+			"Notploy provides and operates the hosted service",
+			"Availability, upgrades and monitoring are handled for you",
+			"Always on a supported release, with support commitments",
+			"Same platform capabilities as Self — not a reduced edition",
 		],
 		href: "https://app.notploy.com/register",
 		cta: "Get started",
@@ -53,11 +53,13 @@ export function SelfVsCloud() {
 						id="self-vs-cloud"
 						className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
 					>
-						One platform, two operating models
+						Same platform, different operating model
 					</h2>
 					<p className="mt-4 text-lg tracking-tight text-muted-foreground">
 						Both editions share the same capabilities. What changes is who
-						operates the control plane — you, or Notploy.
+						operates the control plane and carries the operational
+						responsibilities — you, or Notploy Enterprise. Cloud is not a
+						reduced version of Self.
 					</p>
 				</div>
 

@@ -67,8 +67,10 @@ export function WaysOfWorking() {
 						Use Notploy from wherever you work
 					</h2>
 					<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-						Notploy is not only a web dashboard. Pick the surface that fits the
-						moment — they all talk to the same platform.
+						Notploy is not only a web interface. Developers drive it from the
+						CLI, API and SDK, administrators use the full control plane, and
+						automation — pipelines, scripts and AI agents — talks to the API
+						and MCP. Every surface runs against the same platform.
 					</p>
 				</div>
 

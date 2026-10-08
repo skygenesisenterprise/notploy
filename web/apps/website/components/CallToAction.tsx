@@ -5,24 +5,24 @@ import { Button } from "./ui/button";
 const paths = [
 	{
 		href: "/self",
-		label: "Install Self",
+		label: "Get started with Notploy Self",
 		description: "Free, open source, on your servers",
 	},
 	{
 		href: "https://app.notploy.com/register",
-		label: "Try Cloud",
+		label: "Explore Notploy Cloud",
 		description: "Managed by Notploy, ready in minutes",
 		external: true,
 	},
 	{
 		href: "https://docs.notploy.com/docs/core",
-		label: "Read the docs",
-		description: "Guides, architecture and reference",
+		label: "Read the documentation",
+		description: "Guides, installation, architecture and reference",
 		external: true,
 	},
 	{
 		href: "https://github.com/skygenesisenterprise/notploy",
-		label: "Star on GitHub",
+		label: "View GitHub",
 		description: "Source code, issues and releases",
 		external: true,
 	},

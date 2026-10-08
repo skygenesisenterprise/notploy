@@ -19,7 +19,6 @@ import {
 	NavigationMenuLink,
 	NavigationMenuList,
 	NavigationMenuTrigger,
-	navigationMenuTriggerStyle,
 } from "./ui/navigation-menu";
 
 function MobileNavLink({
@@ -136,7 +135,6 @@ function MobileNavigation() {
 									</div>
 								))}
 								<hr className="m-2 border-border" />
-								<MobileNavLink href="/contact">Contact</MobileNavLink>
 								<MobileNavLink href={EXTERNAL_LINKS.app} target="_blank">
 									Sign In
 								</MobileNavLink>
@@ -232,26 +230,6 @@ export function Header() {
 										</NavigationMenuItem>
 									))}
 
-									<NavigationMenuItem>
-										<NavigationMenuLink
-											asChild
-											className={navigationMenuTriggerStyle()}
-										>
-											<Link
-												href={EXTERNAL_LINKS.docs}
-												target="_blank"
-												onClick={() =>
-													trackGAEvent({
-														action: "Nav Link Clicked",
-														category: "Navigation",
-														label: EXTERNAL_LINKS.docs,
-													})
-												}
-											>
-												Docs
-											</Link>
-										</NavigationMenuLink>
-									</NavigationMenuItem>
 								</NavigationMenuList>
 							</NavigationMenu>
 						</div>
@@ -274,25 +252,9 @@ export function Header() {
 						</Button>
 
 						<Button
-							variant="outline"
 							className="rounded-full max-md:hidden"
 							asChild
 						>
-							<Link
-								href="/contact"
-								onClick={() => {
-									trackGAEvent({
-										action: "Contact Button Clicked",
-										category: "Contact",
-										label: "Header",
-									});
-								}}
-							>
-								Contact
-							</Link>
-						</Button>
-
-						<Button className="rounded-full max-md:hidden" asChild>
 							<Link
 								href={EXTERNAL_LINKS.appRegister}
 								aria-label="Get started with Notploy Cloud"

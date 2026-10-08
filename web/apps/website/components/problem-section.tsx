@@ -34,6 +34,21 @@ const principles = [
 		description:
 			"The infrastructure, the data and the decisions remain under your control, on Self or with Cloud.",
 	},
+	{
+		title: "No proprietary cloud required",
+		description:
+			"Notploy runs on your servers, your homelab or any provider you choose — never only on ours.",
+	},
+	{
+		title: "One operational surface",
+		description:
+			"Deployment, networking, secrets, backups and monitoring converge in a single control plane instead of half-integrated tools.",
+	},
+	{
+		title: "Start simple, go deeper",
+		description:
+			"Begin with the guided UI, then move to the CLI, API, SDK and full infrastructure controls when you need them.",
+	},
 ];
 
 export function ProblemSection() {
@@ -75,7 +90,7 @@ export function ProblemSection() {
 					))}
 				</div>
 
-				<div className="mx-auto mt-16 grid max-w-5xl gap-8 border-t border-border/40 pt-10 sm:grid-cols-3">
+				<div className="mx-auto mt-16 grid max-w-5xl gap-8 border-t border-border/40 pt-10 sm:grid-cols-2 lg:grid-cols-3">
 					{principles.map((principle) => (
 						<div key={principle.title}>
 							<h3 className="font-display text-lg text-primary">

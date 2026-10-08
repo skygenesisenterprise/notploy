@@ -19,6 +19,8 @@ export const EXTERNAL_LINKS = {
 	docsDifferences: "https://docs.notploy.com/docs/core/differences",
 	github: "https://github.com/skygenesisenterprise/notploy",
 	githubDiscussions: "https://github.com/skygenesisenterprise/notploy/discussions",
+	githubIssues: "https://github.com/skygenesisenterprise/notploy/issues",
+	githubReleases: "https://github.com/skygenesisenterprise/notploy/releases",
 	discord: "https://discord.gg/2tBnJ3jDJc",
 	app: "https://app.notploy.com/",
 	appRegister: "https://app.notploy.com/register",
@@ -29,9 +31,9 @@ export const navGroups: NavGroup[] = [
 		title: "Product",
 		items: [
 			{
-				href: "/platform",
-				label: "Platform",
-				description: "The capabilities behind the Notploy ecosystem",
+				href: "/",
+				label: "Overview",
+				description: "What Notploy is and what it manages",
 			},
 			{
 				href: "/self",
@@ -41,7 +43,12 @@ export const navGroups: NavGroup[] = [
 			{
 				href: "/cloud",
 				label: "Notploy Cloud",
-				description: "A managed service operated by Notploy",
+				description: "A managed service operated by Notploy Enterprise",
+			},
+			{
+				href: "/platform",
+				label: "Platform",
+				description: "The capabilities behind the Notploy ecosystem",
 			},
 			{
 				href: "/pricing",
@@ -54,9 +61,15 @@ export const navGroups: NavGroup[] = [
 		title: "Developers",
 		items: [
 			{
+				href: EXTERNAL_LINKS.docs,
+				label: "Documentation",
+				description: "Guides, installation, architecture and reference",
+				external: true,
+			},
+			{
 				href: "/integrations",
 				label: "Integrations",
-				description: "GitHub, VS Code, CLI, API, SDK and MCP",
+				description: "Web UI, CLI, API, SDK, VS Code and MCP",
 			},
 			{
 				href: "/templates",
@@ -69,26 +82,15 @@ export const navGroups: NavGroup[] = [
 				description: "Let AI agents work with your infrastructure",
 				external: true,
 			},
-			{
-				href: EXTERNAL_LINKS.docs,
-				label: "Documentation",
-				description: "Guides, architecture and reference",
-				external: true,
-			},
 		],
 	},
 	{
 		title: "Community",
 		items: [
 			{
-				href: "/community",
-				label: "Contributing",
-				description: "Report, discuss, document and build with us",
-			},
-			{
 				href: EXTERNAL_LINKS.github,
 				label: "GitHub",
-				description: "Source code, issues and releases",
+				description: "Source code, releases and issue tracker",
 				external: true,
 			},
 			{
@@ -97,21 +99,22 @@ export const navGroups: NavGroup[] = [
 				description: "Ask questions and share ideas",
 				external: true,
 			},
+			{
+				href: "/community",
+				label: "Contributing",
+				description: "Code, docs, templates, translations and support",
+			},
+			{
+				href: EXTERNAL_LINKS.githubIssues,
+				label: "Roadmap",
+				description: "Follow planned work in the public issue tracker",
+				external: true,
+			},
 		],
 	},
 	{
 		title: "Resources",
 		items: [
-			{
-				href: "/comparison",
-				label: "Comparisons",
-				description: "Notploy compared to similar tools",
-			},
-			{
-				href: "/industries",
-				label: "Industries",
-				description: "Notploy for agencies, finance, government and more",
-			},
 			{
 				href: "/blog",
 				label: "Blog",
@@ -122,6 +125,22 @@ export const navGroups: NavGroup[] = [
 				label: "Architecture",
 				description: "How Notploy's core components fit together",
 				external: true,
+			},
+			{
+				href: EXTERNAL_LINKS.githubReleases,
+				label: "Changelog",
+				description: "Every release, from the GitHub releases feed",
+				external: true,
+			},
+			{
+				href: "/comparison",
+				label: "Comparisons",
+				description: "Notploy compared to similar tools",
+			},
+			{
+				href: "/industries",
+				label: "Industries",
+				description: "Notploy for agencies, finance, government and more",
 			},
 		],
 	},
