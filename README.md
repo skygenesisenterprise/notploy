@@ -1,10 +1,10 @@
 # Notploy
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/github/license/skygenesisenterprise/notploy)](LICENSE)
 [![Node.js 24](https://img.shields.io/badge/Node.js-24-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![pnpm 10](https://img.shields.io/badge/pnpm-10-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/CONTRIBUTING.md)
-[![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/2tBnJ3jDJc)
+[![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/qrPgGxRZpW)
 
 > Deploy and operate applications on infrastructure you own.
 
@@ -53,7 +53,7 @@
 
 🧩 **Automate everything** — Drive Notploy from the API, CLI, TypeScript SDK or MCP server, so deployments fit into existing pipelines instead of replacing them.
 
-🤝 **Open source and extensible** — The platform is MIT-licensed, self-hostable, and designed around reusable provider adapters and one-click blueprints.
+🤝 **Open source and extensible** — The platform is Apache 2.0, self-hostable, and designed around reusable provider adapters and one-click blueprints.
 
 ## What you can do
 
@@ -167,7 +167,7 @@ The application requires PostgreSQL and its runtime environment configuration. F
 
 ### Is Notploy free?
 
-Yes. The core platform is open source and licensed under MIT, and the self-hosted edition is free to run. Some separately published packages or components may carry their own license terms; check the relevant package's license file before redistributing it. A commercial edition with additional features and premium support is maintained by [Sky Genesis Enterprise](https://skygenesisenterprise.com).
+Yes. The core platform is open source and licensed under Apache 2.0, and the self-hosted edition is free to run. Some separately published packages or components may carry their own license terms; check the relevant package's license file before redistributing it. A commercial edition with additional features and premium support is maintained by [Sky Genesis Enterprise](https://skygenesisenterprise.com).
 
 ### Do I have to host it myself?
 

@@ -90,6 +90,8 @@ Environment:
   NOTPLOY_CONFIG_MODE        Permissions for the config dir (default 700; 750 when
                              NOTPLOY_CONFIG_GROUP is set).
   NOTPLOY_CONFIG_GROUP       Group granted access to the config dir (optional).
+  NOTPLOY_DOKPLOY_AUTH_SECRET  Dokploy's BETTER_AUTH_SECRET, to supply it explicitly
+                             when it cannot be read from the running container.
 
 Safety:
   An active Docker Swarm that this installer did not create is never left or
@@ -141,6 +143,55 @@ fi
 
 # Reports are not secrets, but they describe the host: keep them private too.
 CONFIG_FILE_MODE="600"
+
+# ---------------------------------------------------------------------------
+# Privilege elevation (rootless + sudo)
+#
+# Mirrors the server setup script: the installer can run as a non-root user that
+# has passwordless sudo. `SUDO_CMD` is empty when already root and `sudo`
+# otherwise, and every privileged operation (Docker, writes under /etc, service
+# management) is prefixed with it. When neither root nor a passwordless sudoer
+# is available, read-only detection still runs, but mutating actions fail
+# closed through require_elevation.
+# ---------------------------------------------------------------------------
+CURRENT_USER=""
+SUDO_CMD=""
+ELEVATED=0
+
+detect_elevation() {
+    CURRENT_USER="$(id -un 2>/dev/null || echo "${USER:-unknown}")"
+    if [ "$(id -u)" = "0" ]; then
+        SUDO_CMD=""
+        ELEVATED=1
+        [ "$OUTPUT_JSON" = "1" ] || echo "Running as root"
+    elif command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+        SUDO_CMD="sudo"
+        ELEVATED=1
+        [ "$OUTPUT_JSON" = "1" ] || echo "Running as $CURRENT_USER with sudo privileges"
+    else
+        SUDO_CMD=""
+        ELEVATED=0
+        if [ "$OUTPUT_JSON" != "1" ]; then
+            echo "Not running as root and passwordless sudo is unavailable." >&2
+        fi
+    fi
+}
+
+# Fails closed when a mutating action cannot obtain privileges.
+require_elevation() {
+    [ "$ELEVATED" = "1" ] && return 0
+    echo "Error: root (or a non-root user with passwordless sudo) is required." >&2
+    echo "Run this installer as root, or grant passwordless sudo first:" >&2
+    echo "  echo '$CURRENT_USER ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/$CURRENT_USER" >&2
+    echo "and re-run it." >&2
+    exit 1
+}
+
+# Elevates a single command when running as a non-root sudoer.
+sudo_run() {
+    # shellcheck disable=SC2086
+    $SUDO_CMD "$@"
+}
 
 capabilities_for_product() {
     case "$1" in
@@ -411,14 +462,14 @@ json_escape() {
 # Notploy's own containers are explicitly excluded to avoid self-detection.
 dokploy_containers() {
     command -v docker >/dev/null 2>&1 || return 0
-    docker ps -a --format '{{.ID}}|{{.Names}}|{{.Image}}|{{.Labels}}' 2>/dev/null \
+    $SUDO_CMD docker ps -a --format '{{.ID}}|{{.Names}}|{{.Image}}|{{.Labels}}' 2>/dev/null \
         | grep -i 'dokploy' | grep -vi 'notploy'
 }
 
 # `name|image` for Dokploy Swarm services, if a Swarm is active.
 dokploy_services() {
     command -v docker >/dev/null 2>&1 || return 0
-    docker service ls --format '{{.Name}}|{{.Image}}' 2>/dev/null \
+    $SUDO_CMD docker service ls --format '{{.Name}}|{{.Image}}' 2>/dev/null \
         | grep -i 'dokploy' | grep -vi 'notploy'
 }
 
@@ -437,7 +488,7 @@ detect_dokploy_version() {
     if [ -z "$version" ]; then
         image="$(dokploy_containers | awk -F'|' '{print $3}' | head -n1)"
         if [ -n "$image" ] && command -v docker >/dev/null 2>&1; then
-            version="$(docker image inspect "$image" \
+            version="$($SUDO_CMD docker image inspect "$image" \
                 --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' \
                 2>/dev/null)"
         fi
@@ -451,7 +502,7 @@ detect_dokploy_version() {
 
 detect_dokploy_installation_type() {
     local swarm_state
-    swarm_state="$(docker info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null || true)"
+    swarm_state="$($SUDO_CMD docker info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null || true)"
 
     if [ "$swarm_state" = "active" ] && [ -n "$(dokploy_services)" ]; then
         echo "swarm"
@@ -495,11 +546,11 @@ detect_dokploy() {
         fi
     fi
 
-    networks="$(docker network ls --format '{{.Name}}' 2>/dev/null \
+    networks="$($SUDO_CMD docker network ls --format '{{.Name}}' 2>/dev/null \
         | grep -i 'dokploy' | grep -vi 'notploy' | head -n1)"
     [ -n "$networks" ] && dokploy_evidence_add "Docker network '$networks'"
 
-    volumes="$(docker volume ls --format '{{.Name}}' 2>/dev/null \
+    volumes="$($SUDO_CMD docker volume ls --format '{{.Name}}' 2>/dev/null \
         | grep -i 'dokploy' | grep -vi 'notploy' | head -n1)"
     [ -n "$volumes" ] && dokploy_evidence_add "Docker volume '$volumes'"
 
@@ -526,7 +577,7 @@ detect_dokploy() {
 # Names of Docker networks that can be attributed to Dokploy (never Notploy's).
 dokploy_networks() {
     command -v docker >/dev/null 2>&1 || return 0
-    docker network ls --format '{{.Name}}' 2>/dev/null \
+    $SUDO_CMD docker network ls --format '{{.Name}}' 2>/dev/null \
         | grep -i 'dokploy' | grep -vi 'notploy'
 }
 
@@ -558,7 +609,7 @@ is_notploy_infra_name() {
 dokploy_collect_domains() {
     command -v docker >/dev/null 2>&1 || return 0
     local name networks labels
-    docker ps -a --format '{{.Names}}|{{.Networks}}|{{.Labels}}' 2>/dev/null \
+    $SUDO_CMD docker ps -a --format '{{.Names}}|{{.Networks}}|{{.Labels}}' 2>/dev/null \
         | while IFS='|' read -r name networks labels; do
             is_notploy_infra_name "$name" && continue
             container_is_dokploy_attributed "$networks" "$labels" || continue
@@ -605,7 +656,7 @@ dokploy_inventory() {
             DOKPLOY_UNATTRIBUTED_COUNT=$((DOKPLOY_UNATTRIBUTED_COUNT + 1))
         fi
     done <<EOF
-$(docker ps --format '{{.Names}}|{{.Networks}}|{{.Labels}}|{{.Image}}' 2>/dev/null)
+$($SUDO_CMD docker ps --format '{{.Names}}|{{.Networks}}|{{.Labels}}|{{.Image}}' 2>/dev/null)
 EOF
 
     # Stopped attributed containers cannot be reconstructed faithfully.
@@ -618,7 +669,7 @@ EOF
         container_is_dokploy_attributed "$networks" "$labels" \
             && DOKPLOY_STOPPED_COUNT=$((DOKPLOY_STOPPED_COUNT + 1))
     done <<EOF
-$(docker ps -a --filter status=exited --filter status=created --format '{{.Names}}|{{.Networks}}|{{.Labels}}|{{.Image}}' 2>/dev/null)
+$($SUDO_CMD docker ps -a --filter status=exited --filter status=created --format '{{.Names}}|{{.Networks}}|{{.Labels}}|{{.Image}}' 2>/dev/null)
 EOF
 
     # Swarm services are only attributed when their name or image says Dokploy.
@@ -627,13 +678,13 @@ EOF
     # Compose projects are counted only when an attributed container carries them.
     DOKPLOY_PROJECT_COUNT="$(dokploy_attributed_projects | grep -c .)"
 
-    DOKPLOY_SERVER_COUNT="$(docker node ls --format '{{.ID}}' 2>/dev/null | grep -c .)"
+    DOKPLOY_SERVER_COUNT="$($SUDO_CMD docker node ls --format '{{.ID}}' 2>/dev/null | grep -c .)"
     DOKPLOY_DOMAIN_COUNT="$(dokploy_collect_domains | grep -c .)"
-    DOKPLOY_REGISTRY_COUNT="$(docker ps -a --format '{{.Names}}|{{.Image}}' 2>/dev/null \
+    DOKPLOY_REGISTRY_COUNT="$($SUDO_CMD docker ps -a --format '{{.Names}}|{{.Image}}' 2>/dev/null \
         | grep -iE 'registry|harbor|nexus|artifactory' \
         | grep -vi 'notploy' | grep -c .)"
     DOKPLOY_GIT_PROVIDER_COUNT=0
-    DOKPLOY_VOLUME_COUNT="$(docker volume ls --format '{{.Name}}' 2>/dev/null \
+    DOKPLOY_VOLUME_COUNT="$($SUDO_CMD docker volume ls --format '{{.Name}}' 2>/dev/null \
         | grep -i 'dokploy' | grep -vi 'notploy' | grep -c .)"
     DOKPLOY_NETWORK_COUNT="$(dokploy_networks | grep -c .)"
 }
@@ -642,7 +693,7 @@ EOF
 dokploy_attributed_projects() {
     command -v docker >/dev/null 2>&1 || return 0
     local name networks labels project
-    docker ps -a --format '{{.Names}}|{{.Networks}}|{{.Labels}}' 2>/dev/null \
+    $SUDO_CMD docker ps -a --format '{{.Names}}|{{.Networks}}|{{.Labels}}' 2>/dev/null \
         | while IFS='|' read -r name networks labels; do
             is_notploy_infra_name "$name" && continue
             container_is_dokploy_attributed "$networks" "$labels" || continue
@@ -921,10 +972,10 @@ detect_swarm_state() {
         return 0
     fi
     local state control
-    state="$(docker info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null)"
+    state="$($SUDO_CMD docker info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null)"
     case "$state" in
         active)
-            control="$(docker info --format '{{.Swarm.ControlAvailable}}' 2>/dev/null)"
+            control="$($SUDO_CMD docker info --format '{{.Swarm.ControlAvailable}}' 2>/dev/null)"
             case "$control" in
                 true) echo "active-manager" ;;
                 false) echo "active-worker" ;;
@@ -942,11 +993,11 @@ NOTPLOY_INSTALLED=0
 detect_notploy_installation() {
     NOTPLOY_INSTALLED=0
     command -v docker >/dev/null 2>&1 || return 0
-    if docker service ls --format '{{.Name}}' 2>/dev/null | grep -qx 'notploy'; then
+    if $SUDO_CMD docker service ls --format '{{.Name}}' 2>/dev/null | grep -qx 'notploy'; then
         NOTPLOY_INSTALLED=1
         return 0
     fi
-    if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qE '^notploy$'; then
+    if $SUDO_CMD docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qE '^notploy$'; then
         NOTPLOY_INSTALLED=1
         return 0
     fi
@@ -979,15 +1030,102 @@ port_is_listening() {
 port_published_by_notploy() {
     local port="$1"
     command -v docker >/dev/null 2>&1 || return 1
-    docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null \
+    $SUDO_CMD docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null \
         | grep -E '^notploy' \
         | grep -qE "(:${port}->|:${port}/)"
 }
 
+# Prints the name of every Dokploy *management* container publishing `port`.
+# Only names/images that identify Dokploy itself are selected, so a user
+# application that merely sits on the Dokploy network is never matched and can
+# never be stopped by the migration.
+dokploy_container_port_publishers() {
+    local port="$1"
+    command -v docker >/dev/null 2>&1 || return 0
+    local name image ports
+    $SUDO_CMD docker ps --format '{{.Names}}|{{.Image}}|{{.Ports}}' 2>/dev/null \
+        | while IFS='|' read -r name image ports; do
+            [ -n "$name" ] || continue
+            is_notploy_infra_name "$name" && continue
+            printf '%s' "$ports" | grep -qE "(^|[^0-9])${port}->" || continue
+            printf '%s|%s' "$name" "$image" | grep -qi 'dokploy' && printf '%s\n' "$name"
+        done
+}
+
+# Prints the name of every Dokploy *management* Swarm service publishing `port`.
+dokploy_service_port_publishers() {
+    local port="$1"
+    command -v docker >/dev/null 2>&1 || return 0
+    local name ports
+    $SUDO_CMD docker service ls --format '{{.Name}}|{{.Ports}}' 2>/dev/null \
+        | while IFS='|' read -r name ports; do
+            [ -n "$name" ] || continue
+            is_notploy_infra_name "$name" && continue
+            printf '%s' "$ports" | grep -qE "(^|[^0-9])${port}->" || continue
+            printf '%s' "$name" | grep -qi 'dokploy' && printf '%s\n' "$name"
+        done
+}
+
+# True when a Dokploy management container or service publishes `port`.
+port_published_by_dokploy() {
+    [ -n "$(dokploy_container_port_publishers "$1")" ] && return 0
+    [ -n "$(dokploy_service_port_publishers "$1")" ] && return 0
+    return 1
+}
+
+# Reclaims the ports Notploy needs from Dokploy's own management containers and
+# services. A reverse proxy or panel installed under a non-standard name is
+# still recognised from its name/image and removed. Deployed applications are
+# never targeted: they are neither named nor imaged after Dokploy.
+reclaim_dokploy_ports() {
+    command -v docker >/dev/null 2>&1 || return 0
+    local port name service
+    for port in 80 443 3000; do
+        port_is_listening "$port" || continue
+        while IFS= read -r service; do
+            [ -n "$service" ] || continue
+            echo "Reclaiming port $port from Dokploy service '$service'."
+            $SUDO_CMD docker service rm "$service" >/dev/null 2>&1 || true
+        done <<EOF
+$(dokploy_service_port_publishers "$port")
+EOF
+        while IFS= read -r name; do
+            [ -n "$name" ] || continue
+            echo "Reclaiming port $port from Dokploy container '$name'."
+            $SUDO_CMD docker rm -f "$name" >/dev/null 2>&1 || true
+        done <<EOF
+$(dokploy_container_port_publishers "$port")
+EOF
+    done
+}
+
+# Waits (bounded) for the required ports to be released after Dokploy is
+# stopped: Docker keeps a published port bound for a short moment after the
+# container or service that published it is removed.
+wait_for_required_ports_free() {
+    local timeout="${1:-30}" waited=0 port busy
+    port_check_available || return 0
+    while [ "$waited" -lt "$timeout" ]; do
+        busy=0
+        for port in 80 443 3000; do
+            if port_is_listening "$port" && ! port_published_by_notploy "$port"; then
+                busy=1
+            fi
+        done
+        [ "$busy" = "0" ] && return 0
+        sleep 2
+        waited=$((waited + 2))
+    done
+    return 1
+}
+
 # Fails closed if a port required by Notploy is taken by a *third party*. A port
 # already served by this host's own Notploy installation is allowed (reinstall /
-# update path). Third-party services are never stopped.
+# update path). During a Dokploy migration (`$1` = 1), a port still held by a
+# Dokploy management container/service is treated as reclaimable instead of
+# fatal, because Notploy is replacing it. Third-party services are never stopped.
 assert_required_ports() {
+    local reclaim_dokploy="${1:-0}"
     if ! port_check_available; then
         echo "Warning: 'ss' is not available; skipping the listening-port check." >&2
         echo "Ensure ports 80, 443 and 3000 are free before continuing." >&2
@@ -999,6 +1137,10 @@ assert_required_ports() {
         if port_is_listening "$port"; then
             if port_published_by_notploy "$port"; then
                 echo "Port $port is served by the existing Notploy installation (reusing it)."
+                continue
+            fi
+            if [ "$reclaim_dokploy" = "1" ] && port_published_by_dokploy "$port"; then
+                echo "Port $port is held by Dokploy and will be reclaimed during migration."
                 continue
             fi
             echo "Error: port $port is already in use by another service." >&2
@@ -1070,23 +1212,28 @@ ensure_config_dir() {
         echo "Error: $NOTPLOY_CONFIG_DIR exists but is not a directory." >&2
         exit 1
     fi
-    mkdir -p "$NOTPLOY_CONFIG_DIR" 2>/dev/null || {
+    $SUDO_CMD mkdir -p "$NOTPLOY_CONFIG_DIR" 2>/dev/null || {
         echo "Error: cannot create the config directory $NOTPLOY_CONFIG_DIR." >&2
         exit 1
     }
 
-    if [ "$(id -u)" = "0" ]; then
+    if [ -z "$SUDO_CMD" ]; then
+        # Running as root: keep the config root-owned.
         chown root:root "$NOTPLOY_CONFIG_DIR" 2>/dev/null || true
-        if [ -n "$NOTPLOY_CONFIG_GROUP" ]; then
-            if chgrp "$NOTPLOY_CONFIG_GROUP" "$NOTPLOY_CONFIG_DIR" 2>/dev/null; then
-                :
-            else
-                echo "Warning: group '$NOTPLOY_CONFIG_GROUP' not found; keeping the default group." >&2
-            fi
+    else
+        # Running as a non-root user with sudo: hand the config directory to the
+        # invoking user so later steps and the Notploy service can manage it.
+        $SUDO_CMD chown -R "$CURRENT_USER" "$NOTPLOY_CONFIG_DIR" 2>/dev/null || true
+    fi
+    if [ -n "$NOTPLOY_CONFIG_GROUP" ]; then
+        if $SUDO_CMD chgrp "$NOTPLOY_CONFIG_GROUP" "$NOTPLOY_CONFIG_DIR" 2>/dev/null; then
+            :
+        else
+            echo "Warning: group '$NOTPLOY_CONFIG_GROUP' not found; keeping the default group." >&2
         fi
     fi
 
-    chmod "$CONFIG_DIR_MODE" "$NOTPLOY_CONFIG_DIR" 2>/dev/null || {
+    $SUDO_CMD chmod "$CONFIG_DIR_MODE" "$NOTPLOY_CONFIG_DIR" 2>/dev/null || {
         echo "Error: cannot set permissions on $NOTPLOY_CONFIG_DIR." >&2
         exit 1
     }
@@ -1118,9 +1265,9 @@ instance_identity_is_coherent() {
 # Idempotent network creation: reuse a compatible overlay, refuse to delete or
 # replace any other network that happens to share the name.
 ensure_network() {
-    if docker network inspect notploy-network >/dev/null 2>&1; then
+    if $SUDO_CMD docker network inspect notploy-network >/dev/null 2>&1; then
         local driver
-        driver="$(docker network inspect notploy-network --format '{{.Driver}}' 2>/dev/null)"
+        driver="$($SUDO_CMD docker network inspect notploy-network --format '{{.Driver}}' 2>/dev/null)"
         if [ "$driver" = "overlay" ]; then
             echo "Reusing the existing 'notploy-network' overlay network."
             return 0
@@ -1129,7 +1276,7 @@ ensure_network() {
         echo "Refusing to delete it. Handle that network deliberately, then re-run." >&2
         exit 1
     fi
-    docker network create --driver overlay --attachable notploy-network >/dev/null 2>&1 || {
+    $SUDO_CMD docker network create --driver overlay --attachable notploy-network >/dev/null 2>&1 || {
         echo "Error: failed to create the 'notploy-network' overlay network." >&2
         exit 1
     }
@@ -1141,11 +1288,11 @@ ensure_network() {
 ensure_secret() {
     local name="$1"
     local value="$2"
-    if docker secret inspect "$name" >/dev/null 2>&1; then
+    if $SUDO_CMD docker secret inspect "$name" >/dev/null 2>&1; then
         echo "Secret '$name' already exists; reusing it."
         return 0
     fi
-    if printf '%s' "$value" | docker secret create "$name" - >/dev/null 2>&1; then
+    if printf '%s' "$value" | $SUDO_CMD docker secret create "$name" - >/dev/null 2>&1; then
         echo "Created Docker secret '$name'."
         return 0
     fi
@@ -1155,7 +1302,7 @@ ensure_secret() {
 }
 
 service_exists() {
-    docker service inspect "$1" >/dev/null 2>&1
+    $SUDO_CMD docker service inspect "$1" >/dev/null 2>&1
 }
 
 # Polls a service until it converges (all replicas running, no update in
@@ -1165,15 +1312,15 @@ wait_for_service_convergence() {
     local service="$1" timeout="${2:-180}" waited=0 replicas update_state running desired
     while [ "$waited" -lt "$timeout" ]; do
         if service_exists "$service"; then
-            update_state="$(docker service inspect "$service" \
+            update_state="$($SUDO_CMD docker service inspect "$service" \
                 --format '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}' 2>/dev/null)"
             case "$update_state" in
                 rollback_started|rollback_paused|rollback_completed) return 1 ;;
             esac
-            desired="$(docker service inspect "$service" \
+            desired="$($SUDO_CMD docker service inspect "$service" \
                 --format '{{.Spec.Mode.Replicated.Replicas}}' 2>/dev/null)"
             [ -n "$desired" ] || desired=1
-            running="$(docker service ps "$service" \
+            running="$($SUDO_CMD docker service ps "$service" \
                 --filter desired-state=running \
                 --format '{{.CurrentState}}' 2>/dev/null | grep -c '^Running')"
             if [ "$desired" != "0" ] && [ "$running" = "$desired" ] \
@@ -1192,7 +1339,7 @@ assert_docker_ready() {
         echo "Error: Docker is not installed." >&2
         exit 1
     }
-    if ! docker info >/dev/null 2>&1; then
+    if ! $SUDO_CMD docker info >/dev/null 2>&1; then
         echo "Error: the Docker daemon is not reachable." >&2
         echo "Start Docker and ensure the current account can access it, then re-run." >&2
         exit 1
@@ -1205,14 +1352,14 @@ assert_docker_ready() {
 ensure_traefik_container() {
     local image="traefik:v3.6.25"
 
-    if docker inspect notploy-traefik >/dev/null 2>&1; then
+    if $SUDO_CMD docker inspect notploy-traefik >/dev/null 2>&1; then
         echo "Container 'notploy-traefik' already exists; leaving it untouched."
         return 0
     fi
 
-    if ! docker image inspect "$image" >/dev/null 2>&1; then
+    if ! $SUDO_CMD docker image inspect "$image" >/dev/null 2>&1; then
         echo "Pulling $image..."
-        if ! docker pull "$image" >/dev/null 2>&1; then
+        if ! $SUDO_CMD docker pull "$image" >/dev/null 2>&1; then
             echo "Error: could not pull $image from the registry." >&2
             echo "This looks like a registry/network problem, not a missing version." >&2
             echo "Check connectivity/registry access and re-run." >&2
@@ -1220,7 +1367,7 @@ ensure_traefik_container() {
         fi
     fi
 
-    if ! docker run -d \
+    if ! $SUDO_CMD docker run -d \
         --name notploy-traefik \
         --restart always \
         --network notploy-network \
@@ -1248,7 +1395,7 @@ create_notploy_postgres_service() {
         echo "Service 'notploy-postgres' already exists; leaving it untouched."
         return 0
     fi
-    docker service create \
+    $SUDO_CMD docker service create \
         --name notploy-postgres \
         --constraint 'node.role==manager' \
         --network notploy-network \
@@ -1271,7 +1418,7 @@ create_notploy_app_service() {
         echo "Service 'notploy' already exists; leaving it untouched."
         return 0
     fi
-    docker service create \
+    $SUDO_CMD docker service create \
         --name notploy \
         --replicas 1 \
         --network notploy-network \
@@ -1349,6 +1496,38 @@ format_ip_for_url() {
     fi
 }
 
+# Initializes a single-node Docker Swarm on this host. Shared by the fresh
+# install path and the migration path: a host running the Compose-based Dokploy
+# has no Swarm yet, and Notploy cannot schedule its services without one.
+initialize_swarm() {
+    local advertise_addr="${ADVERTISE_ADDR:-$(get_private_ip)}"
+    if [ -z "$advertise_addr" ]; then
+        advertise_addr="$(get_ip)"
+    fi
+    if [ -z "$advertise_addr" ]; then
+        echo "ERROR: We couldn't detect your server IP address." >&2
+        echo "Please set the ADVERTISE_ADDR environment variable manually." >&2
+        exit 1
+    fi
+    echo "Using advertise address: $advertise_addr"
+
+    local swarm_init_args="${DOCKER_SWARM_INIT_ARGS:-}"
+    if [ -n "$swarm_init_args" ]; then
+        echo "Using custom swarm init arguments: $swarm_init_args"
+        # shellcheck disable=SC2086
+        $SUDO_CMD docker swarm init --advertise-addr "$advertise_addr" $swarm_init_args || {
+            echo "Error: failed to initialize Docker Swarm." >&2
+            exit 1
+        }
+    else
+        $SUDO_CMD docker swarm init --advertise-addr "$advertise_addr" || {
+            echo "Error: failed to initialize Docker Swarm." >&2
+            exit 1
+        }
+    fi
+    echo "Swarm initialized"
+}
+
 DOKPLOY_MIGRATABLE=0
 DOKPLOY_MISSING=""
 DOKPLOY_CONFIG_SOURCE="/etc/dokploy"
@@ -1356,20 +1535,105 @@ DOKPLOY_DB_NAME="dokploy"
 DOKPLOY_DB_USER="dokploy"
 DOKPLOY_NETWORK_NAME=""
 DOKPLOY_POSTGRES_CONTAINER=""
+DOKPLOY_AUTH_SECRET=""
+DOKPLOY_AUTH_SECRET_READY=0
 BACKUP_DIR=""
 BACKUP_TS=""
 
 # ID (or name) of the container running the Dokploy Postgres database.
 dokploy_postgres_id() {
     local match
-    match="$(docker ps -a --format '{{.ID}}|{{.Names}}' 2>/dev/null \
+    match="$($SUDO_CMD docker ps -a --format '{{.ID}}|{{.Names}}' 2>/dev/null \
         | awk -F'|' '$2 ~ /dokploy-postgres/ {print $1; exit}')"
     if [ -z "$match" ]; then
         # Compose variants may name the container differently.
-        match="$(docker ps -a --format '{{.ID}}|{{.Names}}|{{.Networks}}|{{.Image}}' 2>/dev/null \
+        match="$($SUDO_CMD docker ps -a --format '{{.ID}}|{{.Names}}|{{.Networks}}|{{.Image}}' 2>/dev/null \
             | awk -F'|' '$4 ~ /postgres/ {print $1; exit}')"
     fi
     printf '%s' "$match"
+}
+
+# Reads Dokploy's Better Auth secret from its running application container.
+# Docker Swarm secrets are write-only through the API, so the value is only
+# reachable from a container that has it mounted as a file. This must be called
+# before Dokploy is stopped. Prints the secret, or nothing if it is unreachable.
+dokploy_auth_secret_value() {
+    command -v docker >/dev/null 2>&1 || return 0
+    local cid value name
+    cid="$($SUDO_CMD docker ps -q \
+        --filter 'label=com.docker.swarm.service.name=dokploy' 2>/dev/null | head -n1)"
+    if [ -z "$cid" ]; then
+        cid="$($SUDO_CMD docker ps --format '{{.ID}}|{{.Names}}' 2>/dev/null \
+            | awk -F'|' '$2 == "dokploy" || $2 ~ /^dokploy\.[0-9]+\./ {print $1; exit}')"
+    fi
+    [ -n "$cid" ] || return 0
+
+    # Current Dokploy installs mount the secret as a file; accept the names used
+    # across versions.
+    for name in dokploy_auth_secret better_auth_secret auth_secret; do
+        value="$($SUDO_CMD docker exec "$cid" cat "/run/secrets/$name" 2>/dev/null)"
+        if [ -n "$value" ]; then
+            printf '%s' "$value"
+            return 0
+        fi
+    done
+
+    # Older installations set BETTER_AUTH_SECRET inline instead of a Docker secret.
+    value="$($SUDO_CMD docker inspect "$cid" \
+        --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null \
+        | sed -n 's/^BETTER_AUTH_SECRET=//p' | head -n1)"
+    [ -n "$value" ] || return 0
+    printf '%s' "$value"
+}
+
+# Resolves the secret Dokploy used for its encrypted-at-rest columns before any
+# destructive step. Docker secrets are write-only through the API, so the value
+# is recovered from Dokploy's still-running container. Fails closed when the
+# database holds encrypted values but the secret cannot be recovered, instead of
+# silently generating a new one (which would orphan those values and make
+# deployments run with an empty environment).
+resolve_dokploy_auth_secret() {
+    DOKPLOY_AUTH_SECRET_READY=0
+    DOKPLOY_AUTH_SECRET=""
+
+    if [ -n "${NOTPLOY_DOKPLOY_AUTH_SECRET:-}" ]; then
+        DOKPLOY_AUTH_SECRET="$NOTPLOY_DOKPLOY_AUTH_SECRET"
+        DOKPLOY_AUTH_SECRET_READY=1
+        echo "Using the Dokploy auth secret provided via NOTPLOY_DOKPLOY_AUTH_SECRET."
+        return 0
+    fi
+
+    DOKPLOY_AUTH_SECRET="$(dokploy_auth_secret_value)"
+    if [ -n "$DOKPLOY_AUTH_SECRET" ]; then
+        DOKPLOY_AUTH_SECRET_READY=1
+        echo "Recovered Dokploy's auth secret from its running container."
+        return 0
+    fi
+
+    local encrypted
+    encrypted="$(grep -c 'enc:v1:[A-Za-z0-9+/]' "$BACKUP_DIR/database.sql" 2>/dev/null || true)"
+    case "$encrypted" in
+        ''|*[!0-9]*) encrypted=0 ;;
+    esac
+    if [ "$encrypted" -gt 0 ]; then
+        cat >&2 <<'EOF'
+Error: Dokploy's auth secret could not be recovered, but the Dokploy database
+contains encrypted values (enc:v1:...). Importing them without the original
+secret would make environment variables, registry and git credentials
+unreadable, and deployments would silently run with an empty environment.
+
+Provide the secret explicitly and re-run the migration:
+  NOTPLOY_DOKPLOY_AUTH_SECRET=<value> sh install.sh --migrate
+
+The value is Dokploy's BETTER_AUTH_SECRET (or its dokploy_auth_secret).
+No change was made to the Dokploy installation.
+EOF
+        exit 1
+    fi
+
+    echo "Dokploy's auth secret is not retrievable, but the database holds no encrypted values; continuing." >&2
+    DOKPLOY_AUTH_SECRET_READY=1
+    return 0
 }
 
 # Read-only: determines whether the detected Dokploy runtime can be migrated.
@@ -1414,22 +1678,24 @@ backup_dokploy() {
 
     echo "Backing up the Dokploy configuration..."
     if command -v tar >/dev/null 2>&1; then
-        tar -czf "$BACKUP_DIR/config.tar.gz" \
+        $SUDO_CMD tar -czf "$BACKUP_DIR/config.tar.gz" \
             -C "$(dirname "$DOKPLOY_CONFIG_SOURCE")" \
             "$(basename "$DOKPLOY_CONFIG_SOURCE")" 2>/dev/null || {
             echo "Error: failed to back up $DOKPLOY_CONFIG_SOURCE." >&2
             exit 1
         }
     else
-        cp -a "$DOKPLOY_CONFIG_SOURCE" "$BACKUP_DIR/config-copy" 2>/dev/null || {
+        $SUDO_CMD cp -a "$DOKPLOY_CONFIG_SOURCE" "$BACKUP_DIR/config-copy" 2>/dev/null || {
             echo "Error: failed to back up $DOKPLOY_CONFIG_SOURCE." >&2
             exit 1
         }
     fi
 
     echo "Backing up the Dokploy database..."
-    if ! docker exec "$DOKPLOY_POSTGRES_CONTAINER" pg_dump -U "$DOKPLOY_DB_USER" \
-        -d "$DOKPLOY_DB_NAME" --no-owner > "$BACKUP_DIR/database.sql" 2>/dev/null; then
+    # `--no-owner` drops ownership; `--no-acl` drops GRANTs that reference the
+    # Dokploy role, which would otherwise abort the import under ON_ERROR_STOP.
+    if ! $SUDO_CMD docker exec "$DOKPLOY_POSTGRES_CONTAINER" pg_dump -U "$DOKPLOY_DB_USER" \
+        -d "$DOKPLOY_DB_NAME" --no-owner --no-acl > "$BACKUP_DIR/database.sql" 2>/dev/null; then
         echo "Error: failed to dump the Dokploy database." >&2
         exit 1
     fi
@@ -1446,10 +1712,54 @@ copy_dokploy_config() {
         return 0
     fi
     echo "Adopting the Dokploy configuration into $NOTPLOY_CONFIG_DIR..."
-    cp -a "$DOKPLOY_CONFIG_SOURCE/." "$NOTPLOY_CONFIG_DIR/" 2>/dev/null || {
+    $SUDO_CMD cp -a "$DOKPLOY_CONFIG_SOURCE/." "$NOTPLOY_CONFIG_DIR/" 2>/dev/null || {
         echo "Error: could not copy $DOKPLOY_CONFIG_SOURCE into $NOTPLOY_CONFIG_DIR." >&2
         exit 1
     }
+    # `cp -a` under sudo preserves the (root) ownership; hand the adopted files
+    # to the invoking user so normalization can rewrite and re-permission them.
+    $SUDO_CMD chown -R "$CURRENT_USER" "$NOTPLOY_CONFIG_DIR" 2>/dev/null || true
+}
+
+# The Notploy application always reads its data from /etc/notploy inside the
+# container (the config directory is bind-mounted there). Dokploy's own Traefik
+# static config references /etc/dokploy, so the adopted copy is rewritten or the
+# imported routes and ACME certificates would point at a path that does not
+# exist in the Notploy container.
+normalize_dokploy_config() {
+    local dir="$NOTPLOY_CONFIG_DIR"
+    local file
+
+    # Every adopted *text* config file may embed absolute Dokploy paths (the
+    # Traefik static config, dynamic provider files, compose definitions, ...).
+    # Rewrite them all, not just traefik.yml, so nothing points at /etc/dokploy
+    # which does not exist inside the Notploy container. `grep -I` skips binary
+    # files and the backup directory is excluded so the pristine Dokploy state
+    # (database.sql, config.tar.gz) can still be restored verbatim.
+    if command -v grep >/dev/null 2>&1; then
+        while IFS= read -r file; do
+            [ -n "$file" ] || continue
+            case "$file" in
+                "$dir"/backups/*) continue ;;
+            esac
+            if sed "s#/etc/dokploy#/etc/notploy#g" "$file" > "$file.tmp" 2>/dev/null \
+                && mv "$file.tmp" "$file"; then
+                echo "Pointing the adopted config at /etc/notploy: $file"
+            else
+                rm -f "$file.tmp"
+                echo "Warning: could not normalize $file." >&2
+            fi
+        done <<EOF
+$(grep -rlI --exclude-dir=backups '/etc/dokploy' "$dir" 2>/dev/null)
+EOF
+    fi
+
+    # Traefik refuses to start (or silently loses certificates) when acme.json is
+    # group/world readable; enforce the required mode after the copy.
+    local acme="$dir/traefik/dynamic/acme.json"
+    if [ -f "$acme" ]; then
+        chmod 600 "$acme" 2>/dev/null || true
+    fi
 }
 
 # Removes only Dokploy's own management services/containers (the panel, its
@@ -1458,8 +1768,8 @@ stop_dokploy_infrastructure() {
     echo "Stopping Dokploy's own management services and containers..."
     local name
     for name in dokploy dokploy-postgres dokploy-redis dokploy-traefik; do
-        if docker service inspect "$name" >/dev/null 2>&1; then
-            docker service rm "$name" >/dev/null 2>&1 || {
+        if $SUDO_CMD docker service inspect "$name" >/dev/null 2>&1; then
+            $SUDO_CMD docker service rm "$name" >/dev/null 2>&1 || {
                 echo "Error: failed to remove the Dokploy service '$name'." >&2
                 exit 1
             }
@@ -1467,8 +1777,8 @@ stop_dokploy_infrastructure() {
         fi
     done
     for name in dokploy dokploy-postgres dokploy-redis dokploy-traefik; do
-        if docker inspect "$name" >/dev/null 2>&1; then
-            docker rm -f "$name" >/dev/null 2>&1 || {
+        if $SUDO_CMD docker inspect "$name" >/dev/null 2>&1; then
+            $SUDO_CMD docker rm -f "$name" >/dev/null 2>&1 || {
                 echo "Error: failed to remove the Dokploy container '$name'." >&2
                 exit 1
             }
@@ -1477,24 +1787,53 @@ stop_dokploy_infrastructure() {
     done
 }
 
+# Dokploy records absolute paths (/etc/dokploy/...) for certificates, SSH keys
+# and compose sources. Notploy's container sees the adopted data at /etc/notploy,
+# so the dump is rewritten before it is imported; the pristine dump is kept.
+prepare_dokploy_dump() {
+    local source="$BACKUP_DIR/database.sql"
+    local target="$BACKUP_DIR/database-import.sql"
+    if grep -q "/etc/dokploy" "$source" 2>/dev/null; then
+        echo "Rewriting /etc/dokploy paths to /etc/notploy in the imported dump..." >&2
+        if ! sed "s#/etc/dokploy#/etc/notploy#g" "$source" > "$target"; then
+            echo "Error: could not rewrite the Dokploy dump paths." >&2
+            exit 1
+        fi
+    else
+        cp "$source" "$target" || {
+            echo "Error: could not prepare the Dokploy dump for import." >&2
+            exit 1
+        }
+    fi
+    printf '%s' "$target"
+}
+
 restore_dokploy_database() {
     echo "Restoring the Dokploy database into Notploy's Postgres..."
+    local import_dump
+    import_dump="$(prepare_dokploy_dump)"
     local psql_image="postgres:16"
-    if ! docker image inspect "$psql_image" >/dev/null 2>&1; then
-        docker pull "$psql_image" >/dev/null 2>&1 || {
+    if ! $SUDO_CMD docker image inspect "$psql_image" >/dev/null 2>&1; then
+        $SUDO_CMD docker pull "$psql_image" >/dev/null 2>&1 || {
             echo "Error: could not pull $psql_image to restore the database." >&2
             exit 1
         }
     fi
+    # ON_ERROR_STOP makes a partially applied import fail loudly instead of
+    # leaving a silently corrupted instance. stdout/stderr are captured so the
+    # psql diagnostic can be surfaced.
     # shellcheck disable=SC2086
-    docker run --rm -i --network notploy-network \
+    local restore_log="$BACKUP_DIR/restore.log"
+    if ! $SUDO_CMD docker run --rm -i --network notploy-network \
         --env "PGPASSWORD=$POSTGRES_PASSWORD" \
         "$psql_image" \
-        psql -h notploy-postgres -U notploy -d notploy < "$BACKUP_DIR/database.sql" >/dev/null 2>&1 || {
+        psql -v ON_ERROR_STOP=1 -h notploy-postgres -U notploy -d notploy \
+        < "$import_dump" > "$restore_log" 2>&1; then
         echo "Error: failed to restore the Dokploy database." >&2
+        tail -n 20 "$restore_log" >&2 2>/dev/null || true
         echo "The backup is preserved at $BACKUP_DIR/database.sql." >&2
         exit 1
-    }
+    fi
     echo "Database imported. Notploy applies the remaining schema migrations on boot."
 }
 
@@ -1504,21 +1843,18 @@ connect_dokploy_network() {
     local svc
     for svc in notploy notploy-postgres; do
         if service_exists "$svc"; then
-            docker service update --network-add "$DOKPLOY_NETWORK_NAME" "$svc" >/dev/null 2>&1 \
+            $SUDO_CMD docker service update --network-add "$DOKPLOY_NETWORK_NAME" "$svc" >/dev/null 2>&1 \
                 || echo "Warning: could not attach '$svc' to $DOKPLOY_NETWORK_NAME." >&2
         fi
     done
-    if docker inspect notploy-traefik >/dev/null 2>&1; then
-        docker network connect "$DOKPLOY_NETWORK_NAME" notploy-traefik >/dev/null 2>&1 \
+    if $SUDO_CMD docker inspect notploy-traefik >/dev/null 2>&1; then
+        $SUDO_CMD docker network connect "$DOKPLOY_NETWORK_NAME" notploy-traefik >/dev/null 2>&1 \
             || echo "Warning: could not attach 'notploy-traefik' to $DOKPLOY_NETWORK_NAME." >&2
     fi
 }
 
 migrate_dokploy() {
-    if [ "$(id -u)" != "0" ]; then
-        echo "This script must be run as root to migrate Dokploy to Notploy." >&2
-        exit 1
-    fi
+    require_elevation
     assert_docker_ready
 
     detect_notploy_installation
@@ -1545,13 +1881,19 @@ EOF
     fi
 
     case "$(detect_swarm_state)" in
-        active-manager|active-worker|active-unknown) : ;;
-        *)
-            echo "Error: Notploy requires an active Docker Swarm." >&2
-            echo "Dokploy was detected, but this host is not part of a Swarm." >&2
-            echo "Run: docker swarm init --advertise-addr <this-host-ip>" >&2
-            echo "then re-run the installer." >&2
+        active-manager|active-unknown) : ;;
+        active-worker)
+            echo "Error: this host is a Docker Swarm worker node." >&2
+            echo "Notploy schedules its services on a manager node. Run the migration" >&2
+            echo "on the Dokploy manager node, or promote this node first." >&2
             exit 1
+            ;;
+        *)
+            # The standard Dokploy installation runs on Docker Compose, not on a
+            # Swarm. Initializing a single-node Swarm here is what lets the
+            # migration proceed instead of aborting on a host we are replacing.
+            echo "No active Docker Swarm detected; initializing one for Notploy..."
+            initialize_swarm
             ;;
     esac
 
@@ -1568,17 +1910,32 @@ EOF
     echo "and the configuration from ${DOKPLOY_CONFIG_SOURCE}."
     echo ""
 
-    backup_dokploy
     ensure_config_dir
+    backup_dokploy
+
+    # Resolve the auth secret now: Dokploy still runs, and a recoverable failure
+    # (database encrypted but secret unreadable) must abort before the config is
+    # adopted or Dokploy is stopped. The dump written above is reused for the
+    # encrypted-values check, so no second pg_dump is needed.
+    resolve_dokploy_auth_secret
+
     copy_dokploy_config
+    normalize_dokploy_config
     bootstrap_identity
 
     # Free ports 80/443/3000 held by Dokploy's own management containers before
-    # Notploy binds them. Deployed applications are never touched.
+    # Notploy binds them. Deployed applications are never touched. A proxy or
+    # panel installed under a non-standard name is still reclaimed, and the
+    # assertion below never lets Dokploy's own ports block the migration.
     stop_dokploy_infrastructure
+    reclaim_dokploy_ports
+    if ! wait_for_required_ports_free 30; then
+        echo "Warning: some required ports are still busy after stopping Dokploy;" >&2
+        echo "continuing because they belong to the Dokploy installation being replaced." >&2
+    fi
 
     ensure_network
-    assert_required_ports
+    assert_required_ports 1
 
     local endpoint_mode=""
     if is_proxmox_lxc; then
@@ -1588,7 +1945,12 @@ EOF
 
     POSTGRES_PASSWORD="$(generate_random_password)"
     ensure_secret notploy_postgres_password "$POSTGRES_PASSWORD"
-    AUTH_SECRET="$(openssl rand -hex 32)"
+    if [ -n "$DOKPLOY_AUTH_SECRET" ]; then
+        echo "Reusing the Dokploy auth secret so imported encrypted values stay readable."
+        AUTH_SECRET="$DOKPLOY_AUTH_SECRET"
+    else
+        AUTH_SECRET="$(openssl rand -hex 32)"
+    fi
     ensure_secret notploy_auth_secret "$AUTH_SECRET"
     echo "Secure database credentials and auth secret stored as Docker Secrets."
 
@@ -1596,7 +1958,7 @@ EOF
     echo "Waiting for the 'notploy-postgres' service to converge (up to 120s)..."
     if ! wait_for_service_convergence notploy-postgres 120; then
         echo "Error: the 'notploy-postgres' service did not converge." >&2
-        docker service ps notploy-postgres --no-trunc >&2 2>/dev/null || true
+        $SUDO_CMD docker service ps notploy-postgres --no-trunc >&2 2>/dev/null || true
         exit 1
     fi
     restore_dokploy_database
@@ -1618,7 +1980,7 @@ EOF
         echo "Service 'notploy' converged."
     else
         echo "Error: the 'notploy' service did not converge within the timeout." >&2
-        docker service ps notploy --no-trunc >&2 2>/dev/null || true
+        $SUDO_CMD docker service ps notploy --no-trunc >&2 2>/dev/null || true
         echo "Diagnose with: docker service ps notploy" >&2
         exit 1
     fi
@@ -1715,26 +2077,24 @@ install_notploy() {
         exit 0
     fi
 
-    # From here on the installer mutates the host and therefore requires root.
-    if [ "$(id -u)" != "0" ]; then
-        echo "This script must be run as root to install Notploy." >&2
-        exit 1
-    fi
+    # From here on the installer mutates the host and therefore requires root
+    # or a non-root user with passwordless sudo.
+    require_elevation
 
     # Requisites are validated up-front so we never start mutating a host we
     # cannot finish configuring.
     if ! command -v docker >/dev/null 2>&1; then
         echo "Installing Docker $DOCKER_VERSION..."
-        curl -fsSL https://get.docker.com | sh -s -- --version "$DOCKER_VERSION" || {
+        curl -fsSL https://get.docker.com | $SUDO_CMD sh -s -- --version "$DOCKER_VERSION" || {
             echo "Error: failed to install Docker." >&2
             exit 1
         }
         if command -v apt-mark >/dev/null 2>&1; then
-            apt-mark hold docker-ce docker-ce-cli docker-ce-rootless-extras 2>/dev/null \
+            $SUDO_CMD apt-mark hold docker-ce docker-ce-cli docker-ce-rootless-extras 2>/dev/null \
                 || echo "Warning: could not pin the Docker packages (apt-mark hold failed)." >&2
         fi
         if command -v systemctl >/dev/null 2>&1; then
-            systemctl enable --now docker >/dev/null 2>&1 \
+            $SUDO_CMD systemctl enable --now docker >/dev/null 2>&1 \
                 || echo "Warning: could not enable the Docker service automatically." >&2
         fi
     else
@@ -1780,34 +2140,7 @@ install_notploy() {
         sleep 5
     fi
 
-    advertise_addr="${ADVERTISE_ADDR:-$(get_private_ip)}"
-
-    if [ -z "$advertise_addr" ]; then
-        advertise_addr=$(get_ip)
-    fi
-
-    if [ -z "$advertise_addr" ]; then
-        echo "ERROR: We couldn't detect your server IP address."
-        echo "Please set the ADVERTISE_ADDR environment variable manually."
-        exit 1
-    fi
-    echo "Using advertise address: $advertise_addr"
-
-    swarm_init_args="${DOCKER_SWARM_INIT_ARGS:-}"
-    if [ -n "$swarm_init_args" ]; then
-        echo "Using custom swarm init arguments: $swarm_init_args"
-        # shellcheck disable=SC2086
-        docker swarm init --advertise-addr "$advertise_addr" $swarm_init_args || {
-            echo "Error: failed to initialize Docker Swarm." >&2
-            exit 1
-        }
-    else
-        docker swarm init --advertise-addr "$advertise_addr" || {
-            echo "Error: failed to initialize Docker Swarm." >&2
-            exit 1
-        }
-    fi
-    echo "Swarm initialized"
+    initialize_swarm
 
     ensure_network
     ensure_config_dir
@@ -1852,7 +2185,7 @@ install_notploy() {
         echo "Service 'notploy' converged."
     else
         echo "Error: the 'notploy' service did not converge within the timeout." >&2
-        docker service ps notploy --no-trunc >&2 2>/dev/null || true
+        $SUDO_CMD docker service ps notploy --no-trunc >&2 2>/dev/null || true
         echo "Diagnose with: docker service ps notploy" >&2
         exit 1
     fi
@@ -1881,10 +2214,7 @@ install_notploy() {
 # a bounded convergence before reporting success. On failure it prints a recovery
 # procedure; note that rolling back the image does NOT undo database migrations.
 update_notploy() {
-    if [ "$(id -u)" != "0" ]; then
-        echo "This script must be run as root to update Notploy." >&2
-        exit 1
-    fi
+    require_elevation
 
     assert_docker_ready
     detect_notploy_installation
@@ -1907,14 +2237,14 @@ update_notploy() {
 
     # Precondition: the image must be fetchable before the running service is
     # touched, so a registry failure leaves the installation untouched.
-    if ! docker pull "$DOCKER_IMAGE" >/dev/null 2>&1; then
+    if ! $SUDO_CMD docker pull "$DOCKER_IMAGE" >/dev/null 2>&1; then
         echo "Error: could not pull ${DOCKER_IMAGE}." >&2
         echo "Nothing was changed; the running version is untouched." >&2
         echo "Check the version tag and registry connectivity, then retry." >&2
         exit 1
     fi
 
-    if ! docker service update --image "$DOCKER_IMAGE" notploy >/dev/null 2>&1; then
+    if ! $SUDO_CMD docker service update --image "$DOCKER_IMAGE" notploy >/dev/null 2>&1; then
         echo "Error: 'docker service update' failed." >&2
         echo "Recover with: docker service rollback notploy" >&2
         exit 1
@@ -1925,7 +2255,7 @@ update_notploy() {
         echo "Notploy has been updated to version: ${VERSION_TAG}."
     else
         echo "Error: the update did not converge to a running state within the timeout." >&2
-        docker service ps notploy --no-trunc >&2 2>/dev/null || true
+        $SUDO_CMD docker service ps notploy --no-trunc >&2 2>/dev/null || true
         echo "Recovery: 'docker service rollback notploy'" >&2
         echo "Note: an image rollback does not undo database schema migrations;" >&2
         echo "check the release notes if the new version changed the schema." >&2
@@ -1935,6 +2265,7 @@ update_notploy() {
 
 # When sourced (NOTPLOY_SOURCE_ONLY=1) only the definitions above are used.
 if [ "${NOTPLOY_SOURCE_ONLY:-0}" != "1" ]; then
+    detect_elevation
     if [ "$ACTION" = "update" ]; then
         update_notploy
     else

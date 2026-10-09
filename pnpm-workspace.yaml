@@ -9,7 +9,11 @@ packages:
   - templates/build-scripts
 
 ignoredBuiltDependencies:
+  - '@prisma/engines'
+  - '@swc/core'
+  - '@vscode/vsce-sign'
   - free-email-domains
+  - prisma
 
 onlyBuiltDependencies:
   - '@scarf/scarf'

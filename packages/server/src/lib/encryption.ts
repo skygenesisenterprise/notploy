@@ -19,14 +19,29 @@ const AUTH_TAG_LENGTH = 16;
 const deriveKey = (secret: string) =>
 	createHmac("sha256", secret).update("notploy:db-encryption:v1").digest();
 
+// Dokploy (the project Notploy migrates from) derived its at-rest key with a
+// different domain-separation tag. Keep that derivation as a decrypt-only
+// fallback so values imported from a Dokploy installation (environment
+// variables, build args/secrets, registry and git credentials, web server
+// secrets) stay readable after migration; they are lazily re-encrypted under
+// the Notploy key on their next write. Encryption never uses this key.
+const deriveLegacyDokployKey = (secret: string) =>
+	createHmac("sha256", secret).update("dokploy:db-encryption:v1").digest();
+
 const primaryKey = deriveKey(encryptionSecret ?? betterAuthSecret);
 
 // Installs that adopt a dedicated ENCRYPTION_KEY still hold values encrypted
 // with the auth-secret-derived key; keep it as a decrypt fallback so they
-// lazily re-encrypt on the next write instead of becoming unreadable.
+// lazily re-encrypt on the next write instead of becoming unreadable. The
+// Dokploy-derived key is always kept so a migrated installation can still read
+// the rows it imported (Dokploy had no dedicated encryption key).
 const decryptionKeys = encryptionSecret
-	? [primaryKey, deriveKey(betterAuthSecret)]
-	: [primaryKey];
+	? [
+			primaryKey,
+			deriveKey(betterAuthSecret),
+			deriveLegacyDokployKey(betterAuthSecret),
+		]
+	: [primaryKey, deriveLegacyDokployKey(betterAuthSecret)];
 
 // Derived keys only — never the raw secrets. A leaked key can decrypt
 // stored values, but the raw BETTER_AUTH_SECRET could also forge sessions.

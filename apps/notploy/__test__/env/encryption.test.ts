@@ -1,4 +1,11 @@
 import {
+	createCipheriv,
+	createDecipheriv,
+	createHmac,
+	randomBytes,
+} from "node:crypto";
+import { betterAuthSecret } from "@notploy/server/lib/auth-secret";
+import {
 	decryptValue,
 	encryptValue,
 	exportEncryptionKeys,
@@ -89,5 +96,87 @@ describe("dedicated ENCRYPTION_KEY", () => {
 		// the write used the primary key, not the legacy one
 		expect(withKey.decryptValue(reEncrypted)).toBe("KEY=migrated");
 		expect(() => other.decryptValue(reEncrypted)).toThrow();
+	});
+});
+
+const PREFIX = "enc:v1:";
+const IV_LENGTH = 12;
+const AUTH_TAG_LENGTH = 16;
+
+const deriveWithTag = (tag: string, secret: string) =>
+	createHmac("sha256", secret).update(tag).digest();
+
+// Produces a ciphertext exactly as Dokploy would have written it, so the
+// migration compatibility of the decrypt-only fallback is exercised for real.
+const sealWithTag = (tag: string, secret: string, value: string) => {
+	const iv = randomBytes(IV_LENGTH);
+	const cipher = createCipheriv("aes-256-gcm", deriveWithTag(tag, secret), iv);
+	const body = Buffer.concat([cipher.update(value, "utf8"), cipher.final()]);
+	return `${PREFIX}${Buffer.concat([
+		iv,
+		cipher.getAuthTag(),
+		body,
+	]).toString("base64")}`;
+};
+
+const openWithTag = (tag: string, secret: string, value: string) => {
+	const payload = Buffer.from(value.slice(PREFIX.length), "base64");
+	const iv = payload.subarray(0, IV_LENGTH);
+	const authTag = payload.subarray(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);
+	const body = payload.subarray(IV_LENGTH + AUTH_TAG_LENGTH);
+	const decipher = createDecipheriv(
+		"aes-256-gcm",
+		deriveWithTag(tag, secret),
+		iv,
+	);
+	decipher.setAuthTag(authTag);
+	return Buffer.concat([decipher.update(body), decipher.final()]).toString(
+		"utf8",
+	);
+};
+
+describe("Dokploy-encrypted values (migration compatibility)", () => {
+	afterEach(() => {
+		vi.unstubAllEnvs();
+		vi.resetModules();
+	});
+
+	it("decrypts values encrypted by Dokploy with the same auth secret", () => {
+		const value = "DATABASE_URL=postgres://user:secret@host:5432/db";
+		const fromDokploy = sealWithTag(
+			"dokploy:db-encryption:v1",
+			betterAuthSecret,
+			value,
+		);
+
+		expect(decryptValue(fromDokploy)).toBe(value);
+	});
+
+	it("re-encrypts migrated values under the Notploy key on write", () => {
+		const value = "KEY=migrated";
+		const fromDokploy = sealWithTag(
+			"dokploy:db-encryption:v1",
+			betterAuthSecret,
+			value,
+		);
+		const reEncrypted = encryptValue(decryptValue(fromDokploy));
+
+		expect(reEncrypted).not.toBe(fromDokploy);
+		expect(
+			openWithTag("notploy:db-encryption:v1", betterAuthSecret, reEncrypted),
+		).toBe(value);
+	});
+
+	it("decrypts Dokploy values even after adopting a dedicated ENCRYPTION_KEY", async () => {
+		const fromDokploy = sealWithTag(
+			"dokploy:db-encryption:v1",
+			betterAuthSecret,
+			"KEY=value",
+		);
+		vi.stubEnv("ENCRYPTION_KEY", "my-dedicated-key");
+		vi.resetModules();
+		const withKey = await import("@notploy/server/lib/encryption");
+
+		expect(withKey.decryptValue(fromDokploy)).toBe("KEY=value");
 	});
 });
