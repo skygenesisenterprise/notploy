@@ -36,7 +36,7 @@
 		"@biomejs/biome": "2.5.7",
 		"@changesets/changelog-github": "^1.0.1",
 		"@changesets/cli": "^2.29.7",
-		"@commitlint/cli": "^19.3.0",
+		"@commitlint/cli": "^21.2.3",
 		"@commitlint/config-conventional": "^19.2.2",
 		"@types/node": "^24.4.0",
 		"dotenv": "16.4.5",
