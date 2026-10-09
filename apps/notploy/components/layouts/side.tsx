@@ -797,7 +797,9 @@ export default function Page({ children }: Props) {
 								{whitelabeling.footerText}
 							</div>
 						)}
-						{notployVersion && (
+						{/* Cloud surfaces its own product version elsewhere, so the
+						    self-hosted build tag is hidden under the account block. */}
+						{!isCloud && notployVersion && (
 							<div className="px-3 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden">
 								Version {notployVersion}
 							</div>

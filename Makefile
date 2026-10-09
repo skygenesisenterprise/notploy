@@ -112,6 +112,20 @@ COMPOSE_ENV = NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE) NO
 	NOTPLOY_PRODUCT=$(NOTPLOY_PRODUCT) NOTPLOY_ENTITLEMENT=$(NOTPLOY_ENTITLEMENT) \
 	NOTPLOY_ENTITLEMENT_FILE=$(NOTPLOY_ENTITLEMENT_FILE) NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE=$(NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE)
 
+# A legacy `notploy-traefik` created outside Compose (install.sh, or the app's
+# own traefik-setup) carries no `com.docker.compose.project` label, yet it
+# occupies the fixed `container_name: notploy-traefik` the Compose `traefik`
+# service needs — so `docker compose up` aborts with "Conflict. The container
+# name ... is already in use". Remove it, but only when no Compose label is
+# present, so a Compose-managed traefik is left untouched.
+CLEAN_EXTERNAL_TRAEFIK = [ -z "$$(docker ps -aq -f 'name=^notploy-traefik$$')" ] || docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' notploy-traefik 2>/dev/null | grep -q . || { echo "==> removing non-Compose notploy-traefik container"; docker rm -f notploy-traefik >/dev/null; }
+
+# `notploy-network` is `external` in docker-compose.yml (it must not be deleted
+# by `docker compose down` while deployed apps are attached to it), so Compose no
+# longer creates it. Create it here — exactly like install.sh / the server setup
+# — before starting the stack on a fresh host.
+ENSURE_NETWORK = docker network inspect notploy-network >/dev/null 2>&1 || { echo "==> creating notploy-network"; docker network create --driver overlay --attachable notploy-network >/dev/null; }
+
 .PHONY: help install dev build test typecheck lint \
         docker-build docker-up docker-down docker-restart docker-logs docker-ps docker-config docker-dev \
         self cloud console --self --cloud --console \
@@ -195,6 +209,8 @@ docker-build: ## Build the Notploy image only (add: self | cloud | console, NOTP
 
 docker-up: ## Start the stack (add: self | cloud | console to build a fresh image first)
 	@echo "==> starting product=$(PRODUCT_WORD) flavor=$(NOTPLOY_FLAVOR) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
+	@$(CLEAN_EXTERNAL_TRAEFIK)
+	@$(ENSURE_NETWORK)
 	$(COMPOSE_ENV) $(COMPOSE) up -d
 
 ifneq ($(GOAL_PRODUCT),)
@@ -230,6 +246,8 @@ docker-dev: ## Run the containerized dev server with hot reload (http://localhos
 	@# Recreate the dev container every run: reusing one whose network endpoint is
 	@# stale makes the daemon fail with "Could not attach to network ... not found".
 	@$(COMPOSE) --profile dev rm -sf notploy-dev >/dev/null 2>&1 || true
+	@$(CLEAN_EXTERNAL_TRAEFIK)
+	@$(ENSURE_NETWORK)
 	$(COMPOSE_ENV) $(COMPOSE) --profile dev up --build --watch notploy-dev
 
 # ---------------------------------------------------------------------------

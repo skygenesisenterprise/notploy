@@ -17,6 +17,8 @@ DOCKER_VERSION="28.5.2"
 #   2. NOTPLOY_FLAVOR (self/selfhosted | cloud | console), else
 #   3. the legacy IS_CLOUD=true signal (cloud), else
 #   4. self-hosted.
+# ---------------------------------------------------------------------------
+
 NOTPLOY_PRODUCT="${NOTPLOY_PRODUCT:-}"
 if [ -z "$NOTPLOY_PRODUCT" ]; then
     case "${NOTPLOY_FLAVOR:-}" in
@@ -372,8 +374,27 @@ JSON
     fi
 }
 
+# Development-only escape hatch: lets a protected product (cloud/console) run
+# without a Notploy-signed entitlement on a local dev machine. It is never a
+# production downgrade: the check is ignored whenever NODE_ENV=production, so a
+# leaked environment variable cannot unlock a real host. Opt in explicitly with
+# NOTPLOY_ALLOW_UNLICENSED_DEV=1; the dev Compose service sets it automatically.
+allow_unlicensed_dev() {
+    case "${NOTPLOY_ALLOW_UNLICENSED_DEV:-}" in
+        1 | true | yes) ;;
+        *) return 1 ;;
+    esac
+    [ "${NODE_ENV:-}" != "production" ] || return 1
+    return 0
+}
+
 # Persists and verifies the signed entitlement required by protected products.
 bootstrap_entitlement() {
+    if allow_unlicensed_dev; then
+        echo "Warning: running product '$NOTPLOY_PRODUCT' without a signed entitlement (development only)." >&2
+        return 0
+    fi
+
     local token="${NOTPLOY_ENTITLEMENT:-}"
 
     if [ -z "$token" ] && [ -n "${NOTPLOY_ENTITLEMENT_FILE:-}" ]; then

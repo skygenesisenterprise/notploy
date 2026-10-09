@@ -15,6 +15,7 @@ import {
 	Globe,
 	HardDrive,
 	House,
+	KeyRound,
 	LayoutGrid,
 	LogIn,
 	type LucideIcon,
@@ -142,6 +143,54 @@ const SHARED_ITEMS = {
 		icon: Tags,
 		isEnabled: ({ permissions }) => !!permissions?.tag.read,
 	},
+	schedules: {
+		label: "Schedules",
+		href: "/dashboard/schedules",
+		icon: Clock,
+		isEnabled: ({ permissions }) => !!permissions?.organization.update,
+	},
+	notifications: {
+		label: "Notifications",
+		href: "/dashboard/settings/notifications",
+		icon: Bell,
+		isEnabled: ({ permissions }) => !!permissions?.notification.read,
+	},
+	gitProviders: {
+		label: "Git Providers",
+		href: "/dashboard/settings/git-providers",
+		icon: GitBranch,
+		isEnabled: ({ permissions }) => !!permissions?.gitProviders.read,
+	},
+	containerRegistries: {
+		label: "Container Registries",
+		href: "/dashboard/settings/registry",
+		icon: Package,
+		isEnabled: ({ permissions }) => !!permissions?.registry.read,
+	},
+	dnsProviders: {
+		label: "DNS Providers",
+		href: "/dashboard/settings/dns",
+		icon: Globe,
+		isEnabled: ({ permissions }) => !!permissions?.dnsProvider.read,
+	},
+	objectStorage: {
+		label: "Object Storage",
+		href: "/dashboard/settings/destinations",
+		icon: HardDrive,
+		isEnabled: ({ permissions }) => !!permissions?.objectStorage.read,
+	},
+	teamAccess: {
+		label: "Team & Access",
+		href: "/dashboard/settings/users",
+		icon: Users,
+		isEnabled: ({ permissions }) => !!permissions?.member.read,
+	},
+	apiKeys: {
+		label: "API Keys",
+		href: "/dashboard/settings/api-keys",
+		icon: KeyRound,
+		isEnabled: ({ permissions }) => !!permissions?.api.read,
+	},
 } satisfies Record<string, NavigationItem>;
 
 /**
@@ -169,7 +218,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "Monitoring",
 				href: "/dashboard/monitoring",
 				icon: BarChartHorizontalBigIcon,
-				environments: ["self"],
 				isEnabled: ({ permissions }) => !!permissions?.monitoring.read,
 			},
 			{
@@ -187,12 +235,8 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				activeTab: null,
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
 			},
-			{
-				label: "Schedules",
-				href: "/dashboard/schedules",
-				icon: Clock,
-				isEnabled: ({ permissions }) => !!permissions?.organization.update,
-			},
+			// Cloud moves Schedules into its own Operations section.
+			{ ...SHARED_ITEMS.schedules, environments: ["self"] },
 		],
 	},
 	{
@@ -258,54 +302,53 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 		],
 	},
 	{
-		id: "resources",
-		label: "Resources",
+		id: "operations",
+		label: "Operations",
 		environments: ["cloud"],
-		items: [SHARED_ITEMS.certificates],
+		items: [
+			SHARED_ITEMS.schedules,
+			SHARED_ITEMS.certificates,
+			SHARED_ITEMS.notifications,
+			SHARED_ITEMS.auditLogs,
+		],
+	},
+	{
+		id: "cloud-integrations",
+		label: "Integrations",
+		environments: ["cloud"],
+		items: [
+			SHARED_ITEMS.gitProviders,
+			SHARED_ITEMS.containerRegistries,
+			SHARED_ITEMS.dnsProviders,
+			SHARED_ITEMS.objectStorage,
+		],
 	},
 	{
 		id: "security",
 		label: "Security",
 		environments: ["cloud"],
-		items: [SHARED_ITEMS.secretsManager, SHARED_ITEMS.sso],
+		items: [
+			SHARED_ITEMS.secretsManager,
+			SHARED_ITEMS.sso,
+			SHARED_ITEMS.teamAccess,
+			SHARED_ITEMS.sessions,
+		],
 	},
+	// Self-hosted keeps its full Integrations section; cloud has its own
+	// narrower one above (see `cloud-integrations`).
 	{
 		id: "integrations",
 		label: "Integrations",
+		environments: ["self"],
 		items: [
-			{
-				label: "Git Providers",
-				href: "/dashboard/settings/git-providers",
-				icon: GitBranch,
-				isEnabled: ({ permissions }) => !!permissions?.gitProviders.read,
-			},
-			{
-				label: "Container Registries",
-				href: "/dashboard/settings/registry",
-				icon: Package,
-				isEnabled: ({ permissions }) => !!permissions?.registry.read,
-			},
-			{
-				label: "DNS Providers",
-				href: "/dashboard/settings/dns",
-				icon: Globe,
-				isEnabled: ({ permissions }) => !!permissions?.dnsProvider.read,
-			},
+			SHARED_ITEMS.gitProviders,
+			SHARED_ITEMS.containerRegistries,
+			SHARED_ITEMS.dnsProviders,
 			// Self-hosted keeps SSO under Integrations, cloud surfaces it under
 			// Security, so the shared item is scoped to `self` here.
-			{ ...SHARED_ITEMS.sso, environments: ["self"] },
-			{
-				label: "Object Storage",
-				href: "/dashboard/settings/destinations",
-				icon: HardDrive,
-				isEnabled: ({ permissions }) => !!permissions?.objectStorage.read,
-			},
-			{
-				label: "Notifications",
-				href: "/dashboard/settings/notifications",
-				icon: Bell,
-				isEnabled: ({ permissions }) => !!permissions?.notification.read,
-			},
+			SHARED_ITEMS.sso,
+			SHARED_ITEMS.objectStorage,
+			SHARED_ITEMS.notifications,
 			{
 				label: "AI Providers",
 				href: "/dashboard/settings/ai",
@@ -338,19 +381,12 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 		],
 	},
 	{
-		id: "account",
-		label: "Account",
+		id: "settings",
+		label: "Settings",
 		environments: ["cloud"],
 		items: [
-			{
-				label: "Team",
-				href: "/dashboard/settings/users",
-				icon: Users,
-				isEnabled: ({ permissions }) => !!permissions?.member.read,
-			},
-			SHARED_ITEMS.sessions,
-			SHARED_ITEMS.auditLogs,
-			SHARED_ITEMS.tags,
+			{ ...SHARED_ITEMS.tags, label: "Workspace & Tags" },
+			SHARED_ITEMS.apiKeys,
 			{ label: "Profile", href: "/dashboard/settings/profile", icon: User },
 			{
 				label: "Billing",

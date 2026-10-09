@@ -235,6 +235,11 @@ services:
       NOTPLOY_ENTITLEMENT: ${NOTPLOY_ENTITLEMENT:-}
       NOTPLOY_ENTITLEMENT_FILE: ${NOTPLOY_ENTITLEMENT_FILE:-}
       NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE: ${NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE:-/etc/notploy/identity/entitlement-ca.pub}
+      # Development-only: lets this dev stack boot a protected product (cloud or
+      # console) without a Notploy-signed entitlement. Ignored when
+      # NODE_ENV=production, so it can never unlock the production service above.
+      # Set NOTPLOY_ALLOW_UNLICENSED_DEV=0 to exercise the real entitlement gate.
+      NOTPLOY_ALLOW_UNLICENSED_DEV: ${NOTPLOY_ALLOW_UNLICENSED_DEV:-1}
       TZ: ${TZ:-UTC}
       # Serve templates from the bind-mounted blueprints directory instead of
       # https://templates.notploy.com, so dev never depends on that domain.
@@ -297,14 +302,20 @@ services:
     networks:
       - notploy
 
-# Shared deployment network. Its real name must stay `notploy-network`:
-# the installer, the Traefik config and the domain labels Notploy generates all
-# hardcode it, and deployments attach their `external: notploy-network` to it.
+# Shared deployment network. It is a long-lived, host-wide resource that
+# outlives this stack: deployed applications attach to it as
+# `external: notploy-network`, and Notploy creates it when missing (install.sh
+# and the server setup run `docker network create --driver overlay --attachable
+# notploy-network`). It is therefore declared `external` here so Compose never
+# tries to delete it — otherwise `docker compose down` fails with
+# "Network notploy-network Resource is still in use" as soon as a deployed app
+# is still attached. The Makefile's docker-up/docker-dev create it first when it
+# is absent. Its real name must stay `notploy-network`: the installer, the
+# Traefik config and the domain labels Notploy generates all hardcode it.
 networks:
   notploy:
     name: notploy-network
-    driver: overlay
-    attachable: true
+    external: true
 
 volumes:
   notploy-postgres-data:

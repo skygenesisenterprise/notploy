@@ -122,7 +122,10 @@ export const DashboardLayout = ({ children, metaName }: Props) => {
 	const { data: haveRootAccess } = api.user.haveRootAccess.useQuery();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 	const { config: whitelabeling } = useWhitelabeling();
-	const appName = whitelabeling?.appName || "Notploy";
+	// Cloud is branded as a distinct product in the browser tab; self-hosted
+	// keeps the generic name (unless a whitelabel app name overrides both).
+	const appName =
+		whitelabeling?.appName || (isCloud ? "Notploy Cloud" : "Notploy");
 	const pageTitle =
 		metaName ?? getDashboardPageTitle(router.pathname, router.query);
 	const { data: currentPlan } = api.stripe.getCurrentPlan.useQuery(undefined, {

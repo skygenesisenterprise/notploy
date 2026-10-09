@@ -1,4 +1,4 @@
-import { getPublicWhitelabelingConfig } from "@notploy/server";
+import { getPublicWhitelabelingConfig, IS_CLOUD } from "@notploy/server";
 import NextDocument, {
 	type DocumentContext,
 	type DocumentInitialProps,
@@ -25,7 +25,9 @@ export default function Document({
 	customCss,
 	baseUrl,
 }: WhitelabelingDocumentProps) {
-	const title = appName || "Notploy";
+	// Cloud is branded as its own product on first paint; a whitelabel app name
+	// (and self-hosted) keep the generic name.
+	const title = appName || (IS_CLOUD ? "Notploy Cloud" : "Notploy");
 	const description =
 		appDescription || "The Open Source alternative to Netlify, Vercel, Heroku.";
 

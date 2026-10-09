@@ -23,6 +23,22 @@ export const NOTPLOY_ENTITLEMENT_PUBLIC_KEY =
 export const NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE =
 	process.env.NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE;
 
+/**
+ * Development-only escape hatch for protected products (cloud/console).
+ *
+ * Local development must be able to boot a protected product without a real
+ * Notploy-signed entitlement, which is only minted by Notploy's authority. It is
+ * never a security downgrade: the check is ignored whenever NODE_ENV=production,
+ * so a leaked environment variable can never unlock a protected product on a
+ * real host. Opt in explicitly with NOTPLOY_ALLOW_UNLICENSED_DEV=1; the dev
+ * Compose service sets it automatically.
+ */
+export const allowUnlicensedDevInstance = (): boolean =>
+	process.env.NODE_ENV !== "production" &&
+	["1", "true", "yes"].includes(
+		(process.env.NOTPLOY_ALLOW_UNLICENSED_DEV ?? "").toLowerCase(),
+	);
+
 export const NOTPLOY_DOCKER_API_VERSION =
 	process.env.NOTPLOY_DOCKER_API_VERSION;
 export const NOTPLOY_DOCKER_HOST = process.env.NOTPLOY_DOCKER_HOST;

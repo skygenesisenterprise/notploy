@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import {
+	allowUnlicensedDevInstance,
 	IS_CLOUD,
 	NOTPLOY_ENTITLEMENT_PUBLIC_KEY,
 	NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE,
@@ -71,6 +72,11 @@ export interface GetInstallationOptions {
 	now?: Date;
 	/** Overrides the configured entitlement public key (tests, tooling). */
 	entitlementPublicKey?: string;
+	/**
+	 * Overrides the development-only bypass (tests, tooling). Defaults to
+	 * `allowUnlicensedDevInstance()`, which is false in production.
+	 */
+	allowUnlicensed?: boolean;
 }
 
 const isProtected = (product: NotployProduct) =>
@@ -87,6 +93,10 @@ export const getInstallation = (
 ): Installation => {
 	const identityDir = options.identityDir ?? defaultIdentityDir();
 	const now = options.now ?? new Date();
+	// Development-only: a protected product runs on the built-in capabilities
+	// without a signed entitlement. Always false in production.
+	const allowUnlicensed =
+		options.allowUnlicensed ?? allowUnlicensedDevInstance();
 
 	const loaded = loadInstanceIdentity(identityDir, { now });
 	const diagnostics = [...loaded.diagnostics];
@@ -172,15 +182,19 @@ export const getInstallation = (
 	const evaluation: CapabilityEvaluation = evaluateCapabilities({
 		product,
 		entitlement,
+		// In development, protected products keep their declared capabilities so
+		// the cloud code paths are exercisable without a signed entitlement.
+		allowProductDefaults: allowUnlicensed ? true : undefined,
 	});
 
 	if (isProtected(product) && !entitlement) {
 		diagnostics.push({
 			code: "entitlement.missing",
-			severity: "error",
+			severity: allowUnlicensed ? "warning" : "error",
 			message: `Product "${product}" requires a Notploy-signed entitlement`,
-			remediation:
-				"Enroll this instance with a signed entitlement; a local installer flag is not a security boundary.",
+			remediation: allowUnlicensed
+				? "Running unlicensed is allowed only in development (NOTPLOY_ALLOW_UNLICENSED_DEV). Enroll this instance with a signed entitlement before deploying."
+				: "Enroll this instance with a signed entitlement; a local installer flag is not a security boundary.",
 		});
 	}
 

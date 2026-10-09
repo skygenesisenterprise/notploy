@@ -275,7 +275,34 @@ describe("runtime installation", () => {
 		const validation = validateInstallation({ identityDir, now });
 		expect(validation.healthy).toBe(false);
 		expect(
-			validation.diagnostics.some((d) => d.code === "entitlement.missing"),
+			validation.diagnostics.some(
+				(d) => d.code === "entitlement.missing" && d.severity === "error",
+			),
+		).toBe(true);
+	});
+
+	it("allows an unlicensed cloud installation in development mode", () => {
+		const identityDir = tempDir();
+		generateLocalInstanceIdentity({ identityDir, product: "cloud", now });
+
+		const installation = getInstallation({
+			identityDir,
+			now,
+			allowUnlicensed: true,
+		});
+		expect(installation.product).toBe("cloud");
+		expect(installation.hasCapability("cloud.control-plane")).toBe(true);
+		expect(installation.hasCapability("cloud.fleet")).toBe(true);
+		expect(
+			installation.diagnostics.some((d) => d.severity === "error"),
+		).toBe(false);
+		expect(
+			installation.diagnostics.find((d) => d.code === "entitlement.missing")
+				?.severity,
+		).toBe("warning");
+		expect(
+			validateInstallation({ identityDir, now, allowUnlicensed: true })
+				.healthy,
 		).toBe(true);
 	});
 
