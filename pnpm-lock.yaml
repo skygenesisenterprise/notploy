@@ -1518,8 +1518,8 @@ importers:
         specifier: ^11.3.19
         version: 11.18.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       free-email-domains:
-        specifier: ^1.2.26
-        version: 1.12.15
+        specifier: ^1.12.19
+        version: 1.12.19
       hast-util-to-jsx-runtime:
         specifier: ^2.3.5
         version: 2.3.6
@@ -10234,8 +10234,8 @@ packages:
       react-dom:
         optional: true
 
-  free-email-domains@1.12.15:
-    resolution: {integrity: sha512-Loye/gk+yvmKfFVEVN2vH4QffY1ERSg1ivyMLOyqMCCOWRg/OI37L2FThx8Fvquf2OsC5H4n1eebVrQsyasJrQ==}
+  free-email-domains@1.12.19:
+    resolution: {integrity: sha512-FryG7WQ6p7n3rH6P1DWZ6+dfmMjedDLZFS/vL8pQhE1Fr1P6rSLXAjZLEzO8alLl402G/pNi1bY5ngwhlXMaIA==}
     engines: {node: '>= 18'}
 
   fresh@0.5.2:
@@ -24603,7 +24603,7 @@ snapshots:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 
-  free-email-domains@1.12.15: {}
+  free-email-domains@1.12.19: {}
 
   fresh@0.5.2: {}
 
