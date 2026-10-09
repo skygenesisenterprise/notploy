@@ -45,7 +45,7 @@ export function HowItWorks() {
 	return (
 		<section
 			aria-labelledby="how-notploy-works"
-			className="border-b border-border/30 py-20 sm:py-32"
+			className="py-20 sm:py-32"
 		>
 			<Container>
 				<div className="mx-auto max-w-2xl text-center">

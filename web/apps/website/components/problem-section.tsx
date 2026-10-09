@@ -55,7 +55,7 @@ export function ProblemSection() {
 	return (
 		<section
 			aria-labelledby="why-notploy"
-			className="border-b border-border/30 bg-background py-20 sm:py-32"
+			className="bg-background py-20 sm:py-32"
 		>
 			<Container>
 				<div className="mx-auto max-w-2xl text-center">

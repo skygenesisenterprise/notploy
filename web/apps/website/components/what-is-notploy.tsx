@@ -73,7 +73,7 @@ export function WhatIsNotploy() {
 	return (
 		<section
 			aria-labelledby="what-is-notploy"
-			className="border-b border-border/30 bg-background pb-20 pt-10 sm:pb-32 sm:pt-14"
+			className="bg-background pb-20 pt-24 sm:pb-32 sm:pt-40"
 		>
 			<Container>
 				<div className="mx-auto max-w-2xl text-center">

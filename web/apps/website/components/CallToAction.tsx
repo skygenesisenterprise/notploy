@@ -32,7 +32,7 @@ export function CallToAction() {
 	return (
 		<section
 			id="get-started-today"
-			className="relative mt-20 overflow-hidden border-y border-border/30 bg-background py-16 sm:py-20"
+			className="relative mt-20 overflow-hidden bg-background py-16 sm:py-20"
 		>
 			<svg
 				viewBox="0 0 2000 1000"

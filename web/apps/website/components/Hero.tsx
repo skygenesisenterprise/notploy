@@ -18,9 +18,9 @@ export function Hero() {
 		return () => clearTimeout(timer);
 	}, [isCopied]);
 	return (
-		<div className="bg-background pt-16 pb-10 sm:pt-24 sm:pb-14 lg:pt-28">
-			<div className=" bottom-0 flex w-full items-center justify-center overflow-hidden rounded-lg  bg-background md:shadow-xl">
-				<div className="relative px-4">
+		<div className="bg-background py-16 sm:py-24 lg:py-28">
+			<div className=" bottom-0 flex w-full items-center justify-center overflow-hidden rounded-lg  bg-background">
+				<div className="relative px-4 py-10">
 					<div className="text-center">
 						<motion.div
 							className="relative z-10 mb-4 inline-block"
