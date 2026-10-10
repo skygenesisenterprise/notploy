@@ -35,12 +35,12 @@ export function NavLinks() {
 		},
 		{
 			text: "Templates",
-			url: "https://notploy.com/templates",
+			url: "https://templates.notploy.com",
 			icon: LayoutGrid,
 		},
 		{
 			text: "Discord",
-			url: "https://discord.com/invite/2tBnJ3jDJc",
+			url: "https://discord.gg/qrPgGxRZpW",
 			icon: () => (
 				<svg
 					role="img"
@@ -55,7 +55,7 @@ export function NavLinks() {
 		},
 		{
 			text: "Support",
-			url: "https://opencollective.com/notploy",
+			url: "https://support.skygenesisenterprise.com",
 			icon: Heart,
 		},
 		{

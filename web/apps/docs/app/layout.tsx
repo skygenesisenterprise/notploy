@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 	),
 	title: {
 		default: "Notploy Documentation",
-		template: "%s | Notploy",
+		template: "%s | Notploy Documentation",
 	},
 	description:
 		"Open Source Alternative to Vercel, Netlify and Heroku. Deploy your applications with ease.",
