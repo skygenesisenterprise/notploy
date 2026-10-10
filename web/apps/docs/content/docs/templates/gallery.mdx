@@ -1,0 +1,100 @@
+---
+title: Templates gallery
+description: "Browse the blueprint catalogue and deploy a template from the dashboard."
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+**Purpose** — The gallery is the catalogue of ready-made blueprints. You browse it on the web at [templates.notploy.com](https://templates.notploy.com) or directly from a project environment, and Notploy turns the selected blueprint into a deployable Compose service.
+
+## Where blueprints come from
+
+| Source | When it is used |
+| --- | --- |
+| **Public gallery** (`https://templates.notploy.com`) | Default for every Notploy installation. |
+| **Local checkout** | You run Notploy from the repository: blueprints are read from `templates/blueprints`, so a blueprint you just added is usable without publishing anything. |
+| **Custom base URL** | You host your own gallery. Set the **Base URL (optional)** field of the template dialog; your browser remembers it. |
+
+<Callout type="info">
+The panel asks the chosen source for its catalogue (`/meta.json`) and downloads `docker-compose.yml`,
+`template.toml` and `instructions.md` only for the blueprint you select.
+</Callout>
+
+## Deploy a blueprint
+
+<Steps>
+<Step>
+**Open the template dialog.** In a project environment, click **Create Service → Template**.
+The dialog is titled *Create from Template*.
+</Step>
+<Step>
+**Find the blueprint.** Use the search box, filter by tags, or show only your bookmarks (star icon).
+The view toggle switches between a detailed card layout and a compact icon grid. Each card links to
+the project's GitHub repository, website and documentation.
+</Step>
+<Step>
+**Create the service.** Click **Create** and confirm. When several targets are possible, pick a
+**Server** — this step is mandatory on Notploy Cloud and when the instance is configured to deploy
+to remote servers only.
+</Step>
+<Step>
+**Deploy.** Notploy creates a Compose service named after the blueprint, resolves every variable,
+writes the environment, creates the mounts and domains declared by the template, and attaches the
+blueprint logo. Open the service and click **Deploy**.
+</Step>
+</Steps>
+
+<Callout type="warn" title="Secrets are generated once">
+Helpers such as `${password}`, `${hash}` or `${jwt}` run when the service is created, not on every
+deployment. Review the generated values in the **Environment** tab before the first deploy, and
+change them there whenever you need to.
+</Callout>
+
+After deployment the blueprint behaves like any other [Compose stack](/docs/core/docker-compose):
+edit the file, add [domains](/docs/core/docker-compose/domains), mount [utilities](/docs/core/docker-compose/utilities) and roll out updates from the service page.
+
+## Browse the public gallery
+
+The web gallery is a static site that mirrors the same catalogue:
+
+- **Search and filter** — the query lives in the URL (`?q=`), tags combine with AND semantics, and the grid/rows toggle switches layout.
+- **Template dialog** — opens with the *Instructions* tab when the blueprint ships a guide, plus *Docker Compose* and *Configuration* tabs with copy buttons.
+- **Base64 Configuration** — an encoded bundle of the compose file and the configuration, ready to paste into Notploy (see below).
+- **Edit Template** — links straight to the blueprint folder in the Notploy repository, and **Add Template** opens a GitHub issue for missing blueprints.
+
+→ Browse the gallery at [templates.notploy.com](https://templates.notploy.com)
+
+## Import a Base64 configuration
+
+Any source that can produce a Base64 bundle can create or reconfigure a Compose service:
+
+1. **Create Service → Import** — give the service a name and an app name, paste the payload and confirm the preview.
+2. On an existing Compose service, open the **Advanced** tab and use **Import** to replace that service's configuration.
+
+The payload is the Base64 encoding of a JSON object with two plain-text fields:
+
+```json
+{
+  "compose": "services:\n  grafana:\n    image: grafana/grafana:latest\n",
+  "config": "[[config.domains]]\nserviceName = \"grafana\"\nport = 3000\n"
+}
+```
+
+Generate it from the two files of any blueprint:
+
+```bash
+jq -n --rawfile compose docker-compose.yml --rawfile config template.toml \
+  '{compose: $compose, config: $config}' | base64 | tr -d '\n'
+```
+
+<Callout type="warn" title="Import replaces the service configuration">
+Importing a payload overwrites the compose file and environment, and recreates the mounts and
+domains of the target service. Keep a copy of anything you want to restore.
+</Callout>
+
+## Related
+
+- [Blueprint anatomy](/docs/templates/blueprint)
+- [Template configuration](/docs/templates/configuration)
+- [Docker Compose](/docs/core/docker-compose)
+- [Environment variables](/docs/core/variables)

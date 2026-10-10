@@ -16,14 +16,37 @@ import { Card, Cards } from 'fumadocs-ui/components/card';
 
 ## Templates gallery
 
-The [Notploy Templates gallery](https://templates.notploy.com) is a catalogue of one-click open-source blueprints. Each template provides a Docker Compose definition that Notploy can deploy directly, so you can stand up a service without authoring the compose file yourself.
+The [Notploy Templates gallery](https://templates.notploy.com) is a catalogue of more than 500 one-click open-source blueprints. Each blueprint ships a Docker Compose definition plus a small configuration that tells Notploy which secrets to generate, which domains to route and which files to mount, so you can stand up a service without authoring the compose file yourself.
 
-→ Browse the gallery at [templates.notploy.com](https://templates.notploy.com)
+Deploy one straight from a project environment:
+
+1. **Create Service → Template** — search the catalogue.
+2. **Create** — Notploy builds a Compose service from the blueprint.
+3. **Deploy** — open the generated domain.
+
+→ Full walkthrough in [Templates gallery](/docs/templates/gallery)
 
 <Callout type="info">
 Templates deploy as [Docker Compose](/docs/core/docker-compose) services. Once deployed, they behave like
 any other Compose stack — you can edit the compose file, set variables and add domains.
 </Callout>
+
+## Anatomy of a blueprint
+
+Every blueprint is a self-contained folder under `templates/blueprints/` in the Notploy repository. Four pieces make it work:
+
+| Piece | Role |
+| --- | --- |
+| `docker-compose.yml` | The stack Notploy deploys. |
+| `template.toml` | Variables, environment, domains and file mounts resolved when the service is created. |
+| `meta.json` + logo | Catalogue metadata: name, version, description, links and tags. |
+| `instructions.md` | Optional setup guide shown in the gallery. |
+
+<Cards>
+  <Card href="/docs/templates/blueprint" title="Blueprint anatomy" description="The files a blueprint contains and the Compose rules it must follow." />
+  <Card href="/docs/templates/configuration" title="Template configuration" description="Reference for template.toml: variables, helpers, domains, env and mounts." />
+  <Card href="/docs/templates/contributing" title="Contribute a template" description="Add or fix a blueprint, validate it and open a pull request." />
+</Cards>
 
 ## Framework examples
 
@@ -40,10 +63,11 @@ Examples show how to deploy common frameworks on Notploy, including the recommen
   <Card href="/docs/templates/examples/turborepo" title="Turborepo" />
 </Cards>
 
-See the full list in the **Examples** section of this sidebar.
+→ All framework examples: [Examples](/docs/templates/examples)
 
 ## Related
 
+- [Templates gallery](/docs/templates/gallery)
 - [Docker Compose](/docs/core/docker-compose)
 - [Build types](/docs/core/applications/build-type)
 - [Deploy your first application](/docs/core/first-deployment)

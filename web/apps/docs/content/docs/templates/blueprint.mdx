@@ -1,0 +1,93 @@
+---
+title: Blueprint anatomy
+description: "The files that make up a template and the rules every blueprint follows."
+---
+
+**Purpose** — A blueprint is one folder under `templates/blueprints/` in the Notploy repository, mirrored at `/blueprints/<id>/` on every gallery host. This page describes its files, the metadata contract and the Compose rules the validators enforce.
+
+## Files
+
+| File | Required | Role |
+| --- | --- | --- |
+| `docker-compose.yml` | Yes | The stack Notploy deploys. |
+| `template.toml` | Yes | Variables, environment, domains and file mounts generated on import. |
+| `meta.json` | Yes | Catalogue metadata: identity, links and tags. |
+| `<logo>.svg` (or `.png`, `.webp`, `.jpg`) | Yes | Logo referenced by the `logo` field of `meta.json`. |
+| `instructions.md` | No | Setup guide rendered in the gallery's *Instructions* tab. |
+| `README.md` | No | Notes for people reading the repository. |
+
+A blueprint is valid only when `docker-compose.yml`, `template.toml` and `meta.json` are all present — that is also what the panel checks when it lists blueprints from a local checkout.
+
+## meta.json
+
+Every blueprint owns its metadata in its own folder, so pull requests never touch a shared file and merge conflicts cannot happen. The build aggregates the per-folder files into the single catalogue the gallery serves at `/meta.json`.
+
+```json
+{
+  "id": "grafana",
+  "name": "Grafana",
+  "version": "12.4",
+  "description": "Grafana is an open source platform for data visualization and monitoring.",
+  "logo": "grafana.svg",
+  "links": {
+    "github": "https://github.com/grafana/grafana",
+    "website": "https://grafana.com/",
+    "docs": "https://grafana.com/docs/"
+  },
+  "tags": ["monitoring"]
+}
+```
+
+| Field | Rule |
+| --- | --- |
+| `id` | Must equal the folder name. |
+| `name`, `version`, `description` | Displayed on the card and in the dialog. |
+| `logo` | File name inside the folder; the file must exist. |
+| `links` | Must contain `github`, `website` and `docs`. An empty string means "this project has none"; a missing key is an error. |
+| `tags` | Non-empty array. Tags drive filtering in the gallery and the panel — for example `monitoring`, `database`, `ai`, `media`. |
+
+## docker-compose.yml
+
+The compose file is a regular Docker Compose file, with three Notploy conventions:
+
+| Rule | Why |
+| --- | --- |
+| No `container_name` | Notploy names containers per deployment so several copies can coexist. |
+| No `networks` section | Notploy creates the network the stack runs on. |
+| Ports as bare numbers (`3000`), never `3000:3000` | Notploy routes traffic to the service itself; publishing ports on the host is not needed. |
+
+Service names should be lowercase and use hyphens instead of underscores. At least one service is required.
+
+```yaml
+version: "3.8"
+services:
+  grafana:
+    image: grafana/grafana-enterprise:12.4
+    restart: unless-stopped
+    volumes:
+      - grafana-storage:/var/lib/grafana
+volumes:
+  grafana-storage: {}
+```
+
+### Opt-out markers
+
+Two comment markers lift a rule for blueprints whose protocol genuinely requires it. Put the marker on its own line at the top of the compose file and explain why:
+
+| Marker | Use when |
+| --- | --- |
+| `# notploy: allow-host-ports` | Traffic cannot be routed by the HTTP proxy: raw TCP/UDP protocols (game servers, VPNs, mail SMTP/IMAP, DNS, streaming, peer-to-peer). |
+| `# notploy: allow-container-names` | The stack functionally resolves other containers by name, and the names are deployment-unique. Rare — legacy Supabase is the reference case. |
+
+With a marker in place the validator downgrades the violation to a warning and records the reason in its output.
+
+## Documentation files
+
+- **`instructions.md`** — rendered as Markdown in the gallery dialog. Use it for first-run steps: where credentials are generated, which URL to open, which environment variables to review. The Supabase and Firefly III blueprints are good references.
+- **`README.md`** — for repository readers; it is not shown by the gallery.
+
+## Related
+
+- [Template configuration](/docs/templates/configuration)
+- [Contribute a template](/docs/templates/contributing)
+- [Docker Compose](/docs/core/docker-compose)

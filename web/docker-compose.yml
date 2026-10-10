@@ -11,8 +11,13 @@
 #   Single: docker compose -f web/docker-compose.yml --profile prod up website-prod
 #
 # Default ports:
-#   website dev  http://localhost:3001   docs dev  http://localhost:3002
-#   website prod http://localhost:3000   docs prod http://localhost:3003
+#   website dev  http://localhost:3000   docs dev  http://localhost:3000
+#   website prod http://localhost:3000   docs prod http://localhost:3000
+#
+# Port 3000 is the universal one: the Makefile publishes whichever service you
+# select (dev or prod, website or docs) on it, one service at a time. Because
+# both prod services default to 3000, running them together requires overriding
+# one of the two (WEBSITE_PORT / DOCS_PORT).
 #
 # Override ports with WEBSITE_DEV_PORT, DOCS_DEV_PORT, WEBSITE_PORT, DOCS_PORT.
 
@@ -55,9 +60,9 @@ services:
         condition: service_completed_successfully
     command: >-
       sh -lc "corepack enable &&
-      pnpm --filter=@notploy/website exec next dev --port 3001 --hostname 0.0.0.0"
+      pnpm --filter=@notploy/website exec next dev --port 3000 --hostname 0.0.0.0"
     ports:
-      - "${WEBSITE_DEV_PORT:-3001}:3001"
+      - "${WEBSITE_DEV_PORT:-3000}:3000"
 
   website-prod:
     profiles: ["prod"]
@@ -82,9 +87,9 @@ services:
         condition: service_completed_successfully
     command: >-
       sh -lc "corepack enable &&
-      pnpm --filter=@notploy/docs exec next dev --port 3002 --hostname 0.0.0.0"
+      pnpm --filter=@notploy/docs exec next dev --port 3000 --hostname 0.0.0.0"
     ports:
-      - "${DOCS_DEV_PORT:-3002}:3002"
+      - "${DOCS_DEV_PORT:-3000}:3000"
 
   docs-prod:
     profiles: ["prod"]
@@ -98,7 +103,7 @@ services:
       HOSTNAME: 0.0.0.0
       PORT: "3000"
     ports:
-      - "${DOCS_PORT:-3003}:3000"
+      - "${DOCS_PORT:-3000}:3000"
 
 volumes:
   pnpm-store:

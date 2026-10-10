@@ -1,0 +1,112 @@
+---
+title: Contribute a template
+description: "Add or fix a blueprint, validate it, and get it into the gallery."
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+**Purpose** — Every blueprint lives in `templates/blueprints/` of the Notploy repository. Adding one is a normal pull request: create the folder, validate it locally, preview it in the gallery and open the PR. Missing a blueprint? The gallery's **Add Template** button opens a GitHub issue, and each template's **Edit Template** link points at its folder.
+
+## Repository layout
+
+| Path | Role |
+| --- | --- |
+| `templates/blueprints/` | One folder per blueprint — the content you contribute. |
+| `templates/build-scripts/` | Validators and the catalogue generator. |
+| `templates/app/` | The gallery web app (Vite + React) served as a static site. |
+| `templates/Dockerfile`, `templates/nginx.conf` | Container image that publishes the gallery. |
+
+Both `templates/app` and `templates/build-scripts` are workspace packages of the monorepo.
+
+## Add a blueprint
+
+<Steps>
+<Step>
+**Create the folder.** `templates/blueprints/<id>/` — the id is lowercase and hyphenated, and
+`meta.json`'s `id` must match it exactly.
+</Step>
+<Step>
+**Write the compose file.** Follow the rules of [Blueprint anatomy](/docs/templates/blueprint): no
+`container_name`, no `networks`, ports as bare numbers. Add an opt-out marker only when the
+protocol truly requires host-published ports.
+</Step>
+<Step>
+**Describe the configuration.** Add `template.toml` with the variables, environment, domains and
+mounts the service needs — see [Template configuration](/docs/templates/configuration).
+</Step>
+<Step>
+**Add the metadata.** Ship `meta.json` and the logo it references. Add `instructions.md` when the
+app needs first-run guidance.
+</Step>
+<Step>
+**Validate and preview**, then open the pull request.
+</Step>
+</Steps>
+
+## Validate locally
+
+The validators live in `templates/build-scripts` and are run from that directory:
+
+```bash
+cd templates/build-scripts
+pnpm install
+
+# template.toml against the compose file
+pnpm validate-template -- --dir ../blueprints/<id>
+
+# Compose rules (container names, networks, port formats)
+pnpm validate-docker-compose -- --file ../blueprints/<id>/docker-compose.yml
+
+# every meta.json in the catalogue (validate only, write nothing)
+node generate-meta.js --check
+
+# every github / website / docs link
+node check-links.js
+```
+
+Add `-v` to either validator for details of the services and domains it found. What each check enforces:
+
+| Check | Fails when |
+| --- | --- |
+| `validate-template` | `template.toml` is missing or invalid, a domain points at an unknown service, a mount lacks `filePath`/`content`, or a helper argument is malformed. |
+| `validate-docker-compose` | A compose file uses `container_name`, declares `networks`, or maps `host:container` ports without an opt-out marker. |
+| `generate-meta.js` | A `meta.json` is missing a required field, `id` and folder name differ, `tags` is empty, or the logo file does not exist. |
+| `check-links` | A link returns a broken status (`403` counts as reachable, `429` is skipped as rate-limited). |
+
+<Callout type="info">
+`generate-meta.js` resolves every path from its own location, so it can be run from anywhere in the
+repository. It aggregates the per-blueprint files into `app/public/meta.json`, the catalogue the
+gallery serves, and both `pnpm dev` and `pnpm build` of the gallery app run it automatically.
+</Callout>
+
+## Preview the gallery
+
+```bash
+pnpm --filter=@notploy/templates-app dev
+```
+
+The dev server regenerates the catalogue, copies the blueprints into the bundle and serves the
+gallery locally. Because a local Notploy checkout reads `templates/blueprints` directly, the same
+blueprint can be deployed from the panel right away — set `NOTPLOY_TEMPLATES_DIR` if your blueprints
+live outside the checkout.
+
+## Publish
+
+- The gallery is built from the **repository root** with `templates/Dockerfile` (the pnpm workspace lives there): a multi-stage build that runs `pnpm --filter=@notploy/templates-app build`, then serves the output with nginx on port `80`.
+- Release tags of the form `vX.Y.Z-templates` publish the `notploy-templates` image, which is how [templates.notploy.com](https://templates.notploy.com) is updated.
+
+## Checklist before opening a pull request
+
+- [ ] Folder name and `meta.json` `id` match.
+- [ ] Both validators and `generate-meta.js --check` pass.
+- [ ] Links resolve (`check-links.js`).
+- [ ] The blueprint deploys from a local panel.
+- [ ] `instructions.md` explains any first-run step that is not obvious.
+- [ ] No real credentials, tokens or personal data anywhere in the files.
+
+## Related
+
+- [Blueprint anatomy](/docs/templates/blueprint)
+- [Template configuration](/docs/templates/configuration)
+- [Contributing to Notploy](/docs/core/develop/contributing)
+- [Templates gallery](/docs/templates/gallery)

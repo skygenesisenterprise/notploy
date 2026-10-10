@@ -1,0 +1,58 @@
+---
+title: Examples
+description: "Deploy a sample application for each supported framework."
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+**Purpose** — Each example walks through deploying a sample application with the settings its framework expects: build type, publish directory, port or start command. They are reference pages — nothing is imported for you.
+
+## How an example works
+
+Every example follows the same shape:
+
+1. **Git provider** — point a service at the Notploy repository, branch `main`, and the build path of the example.
+2. **Settings** — apply the framework's build type, publish directory, port or environment variables.
+3. **Deploy**, then **generate a domain** and open it.
+
+<Callout type="info">
+Want a one-click stack instead of a walkthrough? Use a [blueprint from the gallery](/docs/templates/gallery)
+— it ships the compose file and the configuration already wired up.
+</Callout>
+
+## The examples
+
+| Example | Notable settings |
+| --- | --- |
+| [Next.js](/docs/templates/examples/nextjs) | Nixpacks (default). |
+| [Vite React](/docs/templates/examples/vite-react) | Nixpacks, publish directory `./dist`, port `80`. |
+| [Remix](/docs/templates/examples/remix) | Nixpacks (default). |
+| [Nest.js](/docs/templates/examples/nestjs) | Nixpacks (default). |
+| [Astro](/docs/templates/examples/astro) | Nixpacks, publish directory `./dist`, port `80`. |
+| [Astro SSR](/docs/templates/examples/astro-ssr) | `NIXPACKS_START_CMD="pnpm run preview"`. |
+| [Svelte](/docs/templates/examples/svelte) | Nixpacks, publish directory `./dist`, port `80`. |
+| [Vue.js](/docs/templates/examples/vuejs) | Nixpacks, publish directory `./dist`, port `80`. |
+| [Solid.js](/docs/templates/examples/solidjs) | Nixpacks, publish directory `./dist`, port `80`. |
+| [Preact](/docs/templates/examples/preact) | Nixpacks, publish directory `./dist`, port `80`. |
+| [Lit](/docs/templates/examples/lit) | Nixpacks, publish directory `./dist`, port `80`. |
+| [Qwik](/docs/templates/examples/qwik) | `NIXPACKS_START_CMD="pnpm run preview"`. |
+| [Tanstack](/docs/templates/examples/tanstack) | Nixpacks, port `3000`. |
+| [Turborepo](/docs/templates/examples/turborepo) | Nixpacks with turbo build and start commands, port `3000`. |
+| [11ty](/docs/templates/examples/11ty) | Nixpacks, publish directory `./_site`, port `80`. |
+| [Deno](/docs/templates/examples/deno) | Dockerfile build type, port `8080`. |
+| [HTML](/docs/templates/examples/html) | Static build type, port `80`. |
+
+<Cards>
+  <Card href="/docs/templates/examples/nextjs" title="Next.js" />
+  <Card href="/docs/templates/examples/vite-react" title="Vite + React" />
+  <Card href="/docs/templates/examples/astro" title="Astro" />
+  <Card href="/docs/templates/examples/turborepo" title="Turborepo" />
+  <Card href="/docs/templates/examples/deno" title="Deno" />
+  <Card href="/docs/templates/examples/html" title="HTML" />
+</Cards>
+
+## Related
+
+- [Build types](/docs/core/applications/build-type)
+- [Deploy your first application](/docs/core/first-deployment)
+- [Templates gallery](/docs/templates/gallery)

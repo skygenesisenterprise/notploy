@@ -1,0 +1,23 @@
+{
+	"title": "Examples",
+	"pages": [
+		"index",
+		"nextjs",
+		"vite-react",
+		"remix",
+		"nestjs",
+		"astro",
+		"astro-ssr",
+		"svelte",
+		"vuejs",
+		"solidjs",
+		"preact",
+		"lit",
+		"qwik",
+		"tanstack",
+		"turborepo",
+		"11ty",
+		"deno",
+		"html"
+	]
+}

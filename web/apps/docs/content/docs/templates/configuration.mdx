@@ -1,0 +1,165 @@
+---
+title: Template configuration
+description: "Reference for template.toml: generated variables, environment, domains and file mounts."
+---
+
+**Purpose** — `template.toml` tells Notploy what to generate when someone creates a service from the blueprint: which secrets to mint, which environment variables to set, which domains to route and which files to write. It is processed once, at creation time, and the result lands in the normal service settings.
+
+## [variables]
+
+Variables hold the values a blueprint needs more than once. Each value is either a literal or a helper that generates one.
+
+```toml
+[variables]
+main_domain = "${domain}"
+db_password = "${password:32}"
+cron_token = "${hash:32}"
+site_owner = "${email}"
+timezone = "UTC"
+```
+
+### Helpers
+
+| Helper | Generates |
+| --- | --- |
+| `${domain}` | A domain for this deployment, built from the project name and the server IP. |
+| `${base64}`, `${base64:32}` | Base64-encoded random bytes (argument = byte count, default `32`). |
+| `${password}`, `${password:32}` | Random password of letters, digits and symbols (default length `16`). |
+| `${hash}`, `${hash:32}` | Lowercase hexadecimal string (argument = number of hex characters, default `8`). |
+| `${uuid}` | A UUID. |
+| `${timestamp}`, `${timestampms}` | Current time in milliseconds since the epoch. |
+| `${timestamps}` | Current time in seconds since the epoch. |
+| `${timestampms:2024-01-01}`, `${timestamps:2024-01-01}` | A fixed date converted to milliseconds or seconds. |
+| `${randomPort}` | A random port number. |
+| `${jwt}` | A JWT-shaped token: `header.payload.signature`. |
+| `${jwt:32}` | Legacy form: 32 hexadecimal characters. |
+| `${jwt:secret_var}` | Token signed with the value of another variable. |
+| `${jwt:secret_var:payload_json}` | Token with a JSON payload — either a literal object or the name of a variable that holds one. |
+| `${username}`, `${email}` | A generated identity. |
+
+Notploy also injects `APP_NAME`, the unique name of the service being created, so a blueprint can reference `${APP_NAME}` in any value.
+
+**References between variables** are resolved in a second pass, so a generated secret can be reused everywhere:
+
+```toml
+[variables]
+app_key = "${base64:32}"
+main_domain = "${domain}"
+
+[config]
+env = [
+  "APP_KEY=base64:${app_key}",
+  "APP_URL=https://${main_domain}",
+]
+```
+
+<Callout type="info">
+Any `${...}` in `env`, `domains` and `mounts` is resolved with the same helpers, not only inside
+`[variables]`. A reference that resolves to nothing is left untouched, which the validator reports
+as a warning.
+</Callout>
+
+## [config] env
+
+Environment variables written to the service. Two shapes are accepted:
+
+```toml
+[config]
+env = [
+  "TZ=UTC",
+  "MYSQL_DATABASE=${db_name}",
+  "MYSQL_PASSWORD=${db_password}",
+]
+```
+
+```toml
+[config.env]
+TZ = "UTC"
+MYSQL_PASSWORD = "${db_password}"
+```
+
+Values are substituted with the resolved variables before they are stored, so the **Environment** tab of the created service shows final values. From there they behave like any other [service variable](/docs/core/variables).
+
+## [[config.domains]]
+
+One entry per public route. `serviceName` must match a service of the `docker-compose.yml`, otherwise validation fails.
+
+```toml
+[[config.domains]]
+serviceName = "grafana"
+port = 3_000
+host = "${main_domain}"
+```
+
+| Field | Rule |
+| --- | --- |
+| `serviceName` | Must exist in the compose file. |
+| `port` | Internal port of the service (1–65535). TOML separators such as `3_000` are allowed. |
+| `host` | Usually `${main_domain}`; a random domain is generated when it is omitted. |
+| `path` | Optional route path, for blueprints that expose several routes on one service. |
+
+The domains are created with the service, exactly as if you had added them on the **Domains** tab. See [Docker Compose domains](/docs/core/docker-compose/domains).
+
+## [[config.mounts]]
+
+Files Notploy writes into the deployment before it starts — configuration files, init scripts, gateway configuration. `content` is a string, so TOML multi-line strings are the natural fit, and variables are substituted like everywhere else.
+
+```toml
+[[config.mounts]]
+filePath = "garage.toml"
+content = """
+replication_factor = 1
+rpc_secret = "${hash:64}"
+
+[s3_api]
+s3_region = "garage"
+"""
+```
+
+| Field | Rule |
+| --- | --- |
+| `filePath` | Required. Name (or path) of the file to create. |
+| `content` | Required. File content; `${...}` is resolved. |
+
+Mounted files appear with the service's mounts and can be edited later; see [Volumes & Mounts](/docs/core/volumes-mounts).
+
+## Worked example
+
+The full lifecycle of a minimal blueprint:
+
+```toml
+[variables]
+main_domain = "${domain}"
+db_password = "${password:32}"
+
+[config]
+env = [
+  "DATABASE_URL=postgres://app:${db_password}@db:5432/app",
+  "APP_URL=https://${main_domain}",
+]
+mounts = []
+
+[[config.domains]]
+serviceName = "app"
+port = 3000
+host = "${main_domain}"
+```
+
+When someone creates a service from this blueprint, Notploy:
+
+1. Resolves `main_domain` and `db_password` once.
+2. Writes the two environment variables with their final values.
+3. Creates the domain pointing at `app:3000`.
+4. Stores everything on the service — after that, the template is no longer involved.
+
+<Callout type="warn" title="Generated once">
+Because helpers run at creation time, later deployments reuse the stored values. Rotate a secret by
+editing it in the **Environment** tab, not by redeploying.
+</Callout>
+
+## Related
+
+- [Blueprint anatomy](/docs/templates/blueprint)
+- [Contribute a template](/docs/templates/contributing)
+- [Environment variables](/docs/core/variables)
+- [Docker Compose](/docs/core/docker-compose)

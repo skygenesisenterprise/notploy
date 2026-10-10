@@ -11,17 +11,22 @@ SHELL := /bin/bash
 
 # --- Selectable configuration ---------------------------------------------
 # TAG overrides the image tag; the ports let you remap what the Compose file
-# already exposes (see docker-compose.yml for the defaults):
-#   website prod http://localhost:3000  docs prod http://localhost:3003
+# already exposes. Everything defaults to the universal port 3000 — dev and
+# prod, website and docs:
+#   website dev/prod http://localhost:3000   docs dev/prod http://localhost:3000
 #
-# Dev servers are different on purpose: web and docs are never run together,
-# so both are published on the same DEV_PORT (3000) and only the selected one
-# is started (see docker-dev). This way `make docker-dev web` and
-# `make docker-dev docs` both answer on http://localhost:3000.
+# One service at a time: docker-up is prod only (it clears the dev stack and
+# the prod service of the other target), docker-dev is dev only (it clears
+# both prod services). Nothing from the other mode can keep port 3000 busy —
+# see the Docker section below.
+#
+# Want two services side by side? Give them distinct ports, which stops the
+# cross-target removal (dev servers stay mutually exclusive either way):
+#   make docker-up web DOCS_PORT=3003
 TAG ?= latest
 DEV_PORT ?= 3000
 WEBSITE_PORT ?= 3000
-DOCS_PORT ?= 3003
+DOCS_PORT ?= 3000
 
 # --- Inline target flag ----------------------------------------------------
 # Choose what to run for one invocation, without editing anything:
@@ -34,14 +39,15 @@ DOCS_PORT ?= 3003
 # matching Compose service pair (website-* / docs-*).
 #
 # --- Remembered target -----------------------------------------------------
-# Each build records the target in TARGET_STATE, so a later command reuses the
-# target that was built last:
+# Each build and each docker-dev run records the target in TARGET_STATE, so a
+# later command reuses the target that was used last:
 #
 #   make docker-up web    # build a fresh image + start the website
-#   make docker-up        # start the target built last, without rebuilding
+#   make docker-up        # start the target used last, without rebuilding
+#   make docker-dev       # dev server of the target used last
 #   make docker-down      # stop the stack — the image is kept for the next start
 #
-# Precedence: inline target flag > the target recorded by the last build > web.
+# Precedence: inline target flag > the target recorded by the last run > web.
 TARGET_STATE := .make-target
 
 GOAL_TARGET := $(firstword $(filter web docs,$(MAKECMDGOALS)))
@@ -77,6 +83,19 @@ else
 DEV_PORT_ENV := WEBSITE_DEV_PORT=$(DEV_PORT) DOCS_DEV_PORT=3002
 endif
 
+# With a single shared port, only one prod service can run: docker-up removes
+# the prod service of the other target first. Different port values opt out of
+# that removal so both prod services can coexist.
+ifeq ($(WEBSITE_PORT),$(DOCS_PORT))
+ifneq ($(SELECTED_TARGET),docs)
+OTHER_PROD_SERVICE := docs-prod
+else
+OTHER_PROD_SERVICE := website-prod
+endif
+else
+OTHER_PROD_SERVICE :=
+endif
+
 PNPM ?= pnpm
 COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.yml
@@ -108,14 +127,17 @@ help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 	@echo ""
-	@echo "Target:    $(SELECTED_TARGET)$$(test -f $(TARGET_STATE) && echo ' (saved by the last build)')"
+	@echo "Target:    $(SELECTED_TARGET)$$(test -f $(TARGET_STATE) && echo ' (saved by the last run)')"
 	@echo "Services:  prod=$(PROD_SERVICE) dev=$(DEV_SERVICE) image=$(TARGET_IMAGE):$(TAG)"
-	@echo "Ports:     website prod=$(WEBSITE_PORT)  docs prod=$(DOCS_PORT)  dev=$(DEV_PORT) (one at a time)"
+	@echo "Modes:     docker-up = prod only (clears the dev stack and the other prod target)"
+	@echo "           docker-dev = dev only (clears both prod targets)"
+	@echo "Ports:     everything on one port — dev=$(DEV_PORT)  website prod=$(WEBSITE_PORT)  docs prod=$(DOCS_PORT) (one at a time)"
 	@echo "Examples:  make docker-up web              # build a fresh website image + start"
 	@echo "           make docker-up docs             # build a fresh docs image + start"
-	@echo "           make docker-up                  # restart the target built last, no rebuild"
+	@echo "           make docker-up                  # restart the target used last, no rebuild"
 	@echo "           make docker-dev docs            # docs dev server (http://localhost:$(DEV_PORT))"
 	@echo "           make docker-build web           # rebuild only, without starting"
+	@echo "           make docker-up web DOCS_PORT=3003   # run both prod targets side by side"
 
 # ---------------------------------------------------------------------------
 # Local development (host toolchain)
@@ -135,9 +157,16 @@ format: ## Format sources with Prettier (pnpm format)
 # ---------------------------------------------------------------------------
 # Docker (web/Dockerfile.website + web/Dockerfile.docs, docker-compose.yml)
 #
-# Both prod services publish on their own port (website 3000, docs 3003), so
-# they can run at the same time. Dev servers are mutually exclusive: they share
-# DEV_PORT (3000) and docker-dev starts only the selected one.
+# One port, one service: dev and prod, website and docs, everything publishes
+# on 3000 by default (DEV_PORT / WEBSITE_PORT / DOCS_PORT). Mode exclusivity
+# makes that safe — each command owns its mode and clears whatever would hold
+# the port before starting:
+#
+#   docker-up   prod only: removes website-dev, docs-dev and deps, then the
+#               prod service of the other target (unless the ports differ),
+#               then starts the selected prod service on its port.
+#   docker-dev  dev only: removes website-prod and docs-prod, then starts the
+#               selected dev server (and any stale one) on DEV_PORT.
 # ---------------------------------------------------------------------------
 # docker-up / docker-build accept the inline target flag (web | docs):
 #
@@ -146,7 +175,7 @@ format: ## Format sources with Prettier (pnpm format)
 #
 # An inline target flag means "build a new image", so `docker-up <target>`
 # always triggers docker-build before starting. A plain `make docker-up` never
-# rebuilds: it restarts the stack with the image built previously
+# rebuilds: it restarts the stack with the image used previously
 # (TARGET_STATE). `make docker-down` only removes the containers; the image
 # stays, so the next plain `make docker-up` relaunches instantly.
 docker-build: ## Build the selected target image only (add: web | docs, TAG=<tag>)
@@ -154,8 +183,14 @@ docker-build: ## Build the selected target image only (add: web | docs, TAG=<tag
 	$(COMPOSE_ENV) $(COMPOSE) -f $(COMPOSE_FILE) --profile prod build $(PROD_SERVICE)
 	@printf '%s\n' '$(SELECTED_TARGET)' > $(TARGET_STATE)
 
-docker-up: ## Start the selected target (add: web | docs to build a fresh image first)
-	@echo "==> starting target=$(SELECTED_TARGET) service=$(PROD_SERVICE) image=$(TARGET_IMAGE):$(TAG)"
+docker-up: ## Start the selected target in prod mode (add: web | docs to build a fresh image first)
+	@# prod only — stop every dev container first so it cannot hold the port.
+	@$(COMPOSE) -f $(COMPOSE_FILE) --profile dev rm -sf website-dev docs-dev deps >/dev/null 2>&1 || true
+ifneq ($(OTHER_PROD_SERVICE),)
+	@# one prod service per port: free it from the other target first.
+	@$(COMPOSE) -f $(COMPOSE_FILE) --profile prod rm -sf $(OTHER_PROD_SERVICE) >/dev/null 2>&1 || true
+endif
+	@echo "==> starting target=$(SELECTED_TARGET) service=$(PROD_SERVICE) port=$(TARGET_PORT) image=$(TARGET_IMAGE):$(TAG)"
 	$(COMPOSE_ENV) $(COMPOSE) -f $(COMPOSE_FILE) --profile prod up -d $(PROD_SERVICE)
 
 ifneq ($(GOAL_TARGET),)
@@ -177,10 +212,15 @@ docker-ps: ## Show stack status
 docker-config: ## Validate and print the resolved Compose configuration
 	$(COMPOSE_ENV) $(COMPOSE) -f $(COMPOSE_FILE) --profile prod --profile dev config
 
-docker-dev: ## Run the selected dev server on http://localhost:3000 (add: web | docs)
+docker-dev: ## Run the selected dev server in dev mode on http://localhost:3000 (add: web | docs)
+	@# dev only — drop the prod containers first, they would keep the ports.
+	@$(COMPOSE) -f $(COMPOSE_FILE) --profile prod rm -sf website-prod docs-prod >/dev/null 2>&1 || true
 	@# web and docs share DEV_PORT, so make sure the other one (and a stale
 	@# instance of this one) is gone before publishing the port.
 	@$(COMPOSE) -f $(COMPOSE_FILE) --profile dev rm -sf website-dev docs-dev >/dev/null 2>&1 || true
+	@# Remember the target now: the dev server runs in the foreground, so the
+	@# recipe only returns once you stop it.
+	@printf '%s\n' '$(SELECTED_TARGET)' > $(TARGET_STATE)
 	$(DEV_COMPOSE_ENV) $(COMPOSE) -f $(COMPOSE_FILE) --profile dev up --build $(DEV_SERVICE)
 
 # ---------------------------------------------------------------------------
