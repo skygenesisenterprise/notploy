@@ -1,0 +1,151 @@
+---
+title: Command reference
+description: "Every group and command the Notploy CLI exposes — 57 groups, 604 commands."
+---
+
+This reference is generated from the CLI source (`packages/cli`), so it lists exactly what
+`notploy 1.0.0` registers with its command parser — no more, no less.
+
+**57 groups · 604 commands.**
+
+Each group below is a page of this section, and every page lists the commands of that group with
+their flags, required inputs and allowed values.
+
+<Callout>
+	Every command accepts `--json` to print the raw API response, and
+	`notploy auth` — the one command that is not part of the generated groups — is covered in
+	[Authentication](/docs/cli/authentication).
+</Callout>
+
+## Groups
+
+### Overview
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [Overview](/docs/cli/overview) | `notploy overview` | 3 | Aggregated counters for the dashboard: services, backups and domains. |
+
+### Projects
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [Deployments](/docs/cli/deployment) | `notploy deployment` | 9 | Inspect deployment history and queues, read deployment logs and kill a running build. |
+| [Environments](/docs/cli/environment) | `notploy environment` | 7 | Applications and databases live inside an environment, and environments belong to a project. |
+| [Projects](/docs/cli/project) | `notploy project` | 11 | Create, update, search and remove projects, and read the onboarding state of an instance. |
+| [Rollbacks](/docs/cli/rollback) | `notploy rollback` | 2 | Roll a deployment back to a previously built image. |
+| [Tags](/docs/cli/tag) | `notploy tag` | 8 | Label projects and filter the dashboard by tag. |
+
+### Applications
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [Applications](/docs/cli/application) | `notploy application` | 32 | Create applications, connect a source, configure the build and drive the whole lifecycle. |
+| [Compose](/docs/cli/compose) | `notploy compose` | 31 | Docker Compose projects: templates, imports, isolated deployments and previews. |
+| [Mounts](/docs/cli/mounts) | `notploy mounts` | 6 | Bind mounts and named volumes attached to applications and Compose services. |
+| [Patches](/docs/cli/patch) | `notploy patch` | 12 | Versioned file overrides applied to an application at deploy time. |
+| [Preview deployments](/docs/cli/preview-deployment) | `notploy preview-deployment` | 4 | Per-branch deployments created when preview deployments are enabled. |
+| [Schedules](/docs/cli/schedule) | `notploy schedule` | 6 | Cron jobs that run a shell command inside a deployed service. |
+| [Security](/docs/cli/security) | `notploy security` | 4 | Per-application HTTP basic auth and response security headers. |
+| [Vault providers](/docs/cli/vault-provider) | `notploy vault-provider` | 7 | External secret managers connected to the platform to resolve secrets at deploy time. |
+
+### Databases
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [libSQL](/docs/cli/libsql) | `notploy libsql` | 14 | Provision and operate libSQL (SQLite-compatible) databases. |
+| [MariaDB](/docs/cli/mariadb) | `notploy mariadb` | 16 | Provision and operate MariaDB databases, including backups and external ports. |
+| [MongoDB](/docs/cli/mongo) | `notploy mongo` | 16 | Provision and operate MongoDB databases, including backups and external ports. |
+| [MySQL](/docs/cli/mysql) | `notploy mysql` | 16 | Provision and operate MySQL databases, including backups and external ports. |
+| [PostgreSQL](/docs/cli/postgres) | `notploy postgres` | 16 | Provision and operate PostgreSQL databases, including backups and external ports. |
+| [Redis](/docs/cli/redis) | `notploy redis` | 16 | Provision and operate Redis instances, including backups and external ports. |
+
+### Backups
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [Backups](/docs/cli/backup) | `notploy backup` | 12 | Scheduled and manual backups for databases, Compose services and the web server. |
+| [Destinations](/docs/cli/destination) | `notploy destination` | 6 | S3-compatible storage destinations that backups are uploaded to. |
+| [Volume backups](/docs/cli/volume-backups) | `notploy volume-backups` | 6 | Back up Docker volumes on a schedule and download the resulting archives. |
+
+### Domains & networking
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [Certificates](/docs/cli/certificates) | `notploy certificates` | 5 | Custom TLS certificates loaded by Traefik alongside automatic Let's Encrypt ones. |
+| [DNS providers](/docs/cli/dns-provider) | `notploy dns-provider` | 11 | Zones and records for connected DNS providers such as Cloudflare and Route 53. |
+| [Domains](/docs/cli/domain) | `notploy domain` | 10 | Attach domains to applications and Compose stacks, and generate or validate them. |
+| [Forward auth](/docs/cli/forward-auth) | `notploy forward-auth` | 10 | Deploy an authentication proxy in front of applications and manage its domains. |
+| [Networks](/docs/cli/network) | `notploy network` | 9 | Docker networks: create, import, inspect and resynchronise them across servers. |
+| [Ports](/docs/cli/port) | `notploy port` | 4 | Publish container ports directly, without routing them through a domain. |
+| [Redirects](/docs/cli/redirects) | `notploy redirects` | 4 | HTTP redirects served by Traefik for an application's domains. |
+
+### Git providers
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [Bitbucket](/docs/cli/bitbucket) | `notploy bitbucket` | 7 | Bitbucket connections, plus branch and repository lookups. |
+| [Git providers](/docs/cli/git-provider) | `notploy git-provider` | 4 | List, share and remove every Git provider connected to an organization. |
+| [Gitea](/docs/cli/gitea) | `notploy gitea` | 8 | Gitea connections, plus branch and repository lookups. |
+| [GitHub](/docs/cli/github) | `notploy github` | 6 | GitHub app connections, plus branch and repository lookups. |
+| [GitLab](/docs/cli/gitlab) | `notploy gitlab` | 7 | GitLab connections, plus branch and repository lookups. |
+
+### Servers & infrastructure
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [Cluster](/docs/cli/cluster) | `notploy cluster` | 4 | Add and remove Swarm workers and managers. |
+| [Docker](/docs/cli/docker) | `notploy docker` | 18 | Containers, the Docker daemon configuration, events and container files. |
+| [Docker disk usage](/docs/cli/docker-disk-usage) | `notploy docker-disk-usage` | 3 | Disk usage per Docker object type, and build cache pruning. |
+| [Docker images](/docs/cli/docker-image) | `notploy docker-image` | 3 | List, inspect and remove images stored on a server. |
+| [Docker volumes](/docs/cli/docker-volume) | `notploy docker-volume` | 8 | Inspect volumes, their size and the files inside them. |
+| [Registries](/docs/cli/registry) | `notploy registry` | 7 | Container registries used to pull private images. |
+| [Servers](/docs/cli/server) | `notploy server` | 19 | Add remote servers over SSH, validate them and read their metrics and services. |
+| [SSH keys](/docs/cli/ssh-key) | `notploy ssh-key` | 7 | SSH keys used to reach servers and clone private repositories. |
+| [Swarm](/docs/cli/swarm) | `notploy swarm` | 4 | Inspect Docker Swarm nodes, node workloads and container statistics. |
+
+### Notifications
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [Notifications](/docs/cli/notification) | `notploy notification` | 41 | Notification channels — Slack, Discord, Telegram, email and others — plus test deliveries. |
+
+### Team & access
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [Audit log](/docs/cli/audit-log) | `notploy audit-log` | 1 | Every recorded action performed in the organization. |
+| [Custom roles](/docs/cli/custom-role) | `notploy custom-role` | 6 | Organization roles built from a set of permission statements. |
+| [Organizations](/docs/cli/organization) | `notploy organization` | 11 | Organizations, members, invitations and the active organization. |
+| [SCIM](/docs/cli/scim) | `notploy scim` | 3 | SCIM provisioning providers and tokens used for directory sync. |
+| [SSO](/docs/cli/sso) | `notploy sso` | 11 | Single sign-on providers, enforcement and trusted origins. |
+| [Users](/docs/cli/user) | `notploy user` | 26 | Accounts, API keys, sessions, permissions and per-user metrics. |
+
+### Platform
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [Admin](/docs/cli/admin) | `notploy admin` | 1 | Administrative operations that apply to the whole instance. |
+| [License keys](/docs/cli/license-key) | `notploy license-key` | 6 | Activate and inspect the enterprise license of the instance. |
+| [Settings](/docs/cli/settings) | `notploy settings` | 52 | Instance-wide settings: Traefik, Docker cleanup, monitoring, GPUs, updates and SSH. |
+| [Stripe](/docs/cli/stripe) | `notploy stripe` | 10 | Billing for Notploy Cloud: plans, invoices, checkout and the customer portal. |
+| [Whitelabeling](/docs/cli/whitelabeling) | `notploy whitelabeling` | 4 | Rebrand the instance: application name, logos, favicon and links. |
+
+### Automation
+
+| Group | Command | Commands | Description |
+| --- | --- | --- | --- |
+| [AI](/docs/cli/ai) | `notploy ai` | 14 | AI providers and models, plus log analysis and configuration suggestions. |
+
+## Naming
+
+Groups are the first argument and commands the second: `notploy <group> <command>`. Both are
+lowercase and hyphenated, matching the API namespace they call (`docker-disk-usage` →
+`dockerDiskUsage.*`).
+
+Flags are the input fields of that operation, in camelCase: `--environmentId` is passed
+through as `environmentId`. A flag marked **Yes** in the Required column aborts the command
+when it is missing, so it always has to be provided; the others are omitted from the request when you
+leave them out, which lets the server apply its defaults.
+
+Flag names, required flags and allowed values are read from the CLI itself, so this page cannot drift
+from what `notploy --help` reports.

@@ -1,29 +1,131 @@
 ---
 title: Authentication
-description: A guide to authenticating with the Notploy CLI
+description: "Create an API key, hand it to the CLI, and know which credential source wins."
 ---
 
-The Notploy CLI uses a token-based authentication system. To authenticate, you'll need to create an access token and store it securely.
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
-## Creating an Access Token
+The CLI authenticates with an **API key** sent as an `x-api-key` header. There is no login session and no browser round-trip: a key belongs to a user and carries that user's permissions, so treat it like a password.
 
-To create an access token, first you need to have permissions if you are admin you don't need permissions.
+## Create an API key
 
-By default, an access token never expires, but you can optionally set an expiration date when creating it — recommended if the token will be used by a script, CI job, or anything outside your own machine.
+<Steps>
+<Step>
+Open **Settings → API Keys** in the dashboard (the same list is available under **Settings → Profile → Developer access**), and generate a new key.
+</Step>
+<Step>
+Give it a name and, optionally, an expiration date. An expiring key is the safer choice for anything that lives outside your own machine — a CI job, a cron job, a shared laptop.
+</Step>
+<Step>
+Copy the key when it is shown. It is displayed once; only a prefix is kept afterwards.
+</Step>
+</Steps>
 
-You can go to `dashboard/settings/profile` and click on the `Generate` button.
+<Callout type="warn">
+	An API key inherits the permissions of its owner. Create keys under an account that has only the access the automation needs, and delete them when they are no longer used.
+</Callout>
 
-<ImageZoom  src="/assets/cli/token.png" width={800} height={630} alt='home og image' className="rounded-lg" />
+## Log the CLI in
 
+```bash
+notploy auth -u https://panel.example.com -t YOUR_API_KEY
+```
 
-## Storing the Access Token
+Both `--url` and `--token` are required. The CLI:
 
-Notploy when you create an access token automatically will generate a config.json with the access token and the server url.
+1. strips any trailing slash from the URL,
+2. calls `GET {url}/api/trpc/user.get` with your key to prove the credentials work,
+3. writes the credentials to its config file and prints `Authenticated successfully.`
 
+If the call fails you get `Authentication failed: <reason>` and the command exits with code 1 — nothing is stored, so a typo cannot leave the CLI in a half-configured state.
 
+## Where the credentials are stored
 
-## Commands
+`notploy auth` writes a `config.json` next to the installed CLI package:
 
-1. `notploy auth -u <host> -t <token>` - Authenticate with the Notploy CLI.
-2. `notploy verify` - Verify if the access token is valid.
+```json
+{
+	"url": "https://panel.example.com",
+	"token": "YOUR_API_KEY"
+}
+```
 
+Because that file lives inside the package directory (for a global install, something like `$(npm root -g)/@notploy/cli/config.json`), that directory has to be writable by your user. It usually is — and when it is not, the environment variables below are the better answer.
+
+The file is plain text, so keep it out of backups and repositories. It is not read from your project — the CLI always uses the file in its own package directory.
+
+## Environment variables
+
+For CI, containers and ephemeral machines, configure the CLI through the environment instead of writing a file:
+
+| Variable | Purpose |
+| --- | --- |
+| `NOTPLOY_URL` | Base URL of your instance, for example `https://panel.example.com`. |
+| `NOTPLOY_API_KEY` | The API key. Preferred name. |
+| `NOTPLOY_AUTH_TOKEN` | Alternative name for the key, used when `NOTPLOY_API_KEY` is not set. |
+
+<Tabs items={['Shell', 'CI (GitHub Actions)']}>
+<Tab value="Shell">
+```bash
+export NOTPLOY_URL="https://panel.example.com"
+export NOTPLOY_API_KEY="YOUR_API_KEY"
+
+notploy project all
+```
+</Tab>
+<Tab value="CI (GitHub Actions)">
+```yaml
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm install -g @notploy/cli
+      - run: notploy application deploy --applicationId "$APP_ID"
+        env:
+          NOTPLOY_URL: ${{ secrets.NOTPLOY_URL }}
+          NOTPLOY_API_KEY: ${{ secrets.NOTPLOY_API_KEY }}
+```
+</Tab>
+</Tabs>
+
+Both the URL **and** the key have to be present in the environment: if only one of them is set, the CLI ignores the environment and falls back to `config.json`.
+
+## `.env` files
+
+The CLI also reads a `.env` file from **the directory you run it in**, on every command:
+
+```bash
+NOTPLOY_URL="https://panel.example.com"
+NOTPLOY_API_KEY="YOUR_API_KEY"
+```
+
+- Variables already defined in the shell **win**: the file only fills in what the environment does not provide.
+- Surrounding quotes are stripped, and blank lines and `#` comments are ignored.
+- The file is resolved from the current working directory, not from the project root — run the CLI from the directory that holds the `.env` you mean.
+
+## Which source wins
+
+| Order | Source | Notes |
+| --- | --- | --- |
+| 1 | Environment variables | Used when `NOTPLOY_URL` and either key variable are set. |
+| 2 | `.env` in the working directory | Only fills variables the shell does not already define. |
+| 3 | `config.json` from `notploy auth` | Used when the environment does not provide a complete pair. |
+
+A typical setup therefore is: `notploy auth` on your own machine, environment variables in CI, and never both in the same place.
+
+## Troubleshooting
+
+| Message | Cause |
+| --- | --- |
+| `No configuration found. Please run 'notploy auth' first or set NOTPLOY_URL and NOTPLOY_AUTH_TOKEN environment variables.` | Nothing is configured — no usable environment pair and no `config.json`. |
+| `Incomplete auth config. Run 'notploy auth' or set environment variables.` | A `config.json` exists but is missing `url` or `token`. Re-run `notploy auth`. |
+| `Authentication failed: <reason>` | `notploy auth` could not validate the key: wrong URL, wrong key, expired key, or the instance is unreachable. |
+| `error: required option '--name <value>' not specified` | A different problem: a mandatory flag is missing. See the [command reference](/docs/cli/reference). |
+
+Every one of these exits with code 1, so a script stops instead of running against the wrong instance.
+
+## Managing keys from the CLI
+
+Keys can also be managed headlessly — `notploy user create-api-key` creates one and `notploy user delete-api-key` revokes it. Both need an already-authenticated CLI, which makes them handy for rotating a key from the machine that holds it. Their flags, including expiry and rate limits, are listed under [Users](/docs/cli/user).

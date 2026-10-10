@@ -1,9 +1,29 @@
 ---
 title: Introduction
-description: A guide to using the Notploy command-line interface
+description: "Install the Notploy CLI, authenticate it and drive projects, applications and servers from your terminal."
 ---
 
-Notploy CLI is a command-line tool for remotely managing your Notploy server. It simplifies creating, deploying, and managing applications and databases.
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+`notploy` is the official command-line client for Notploy. It talks to the same API the dashboard uses, so anything you can do in the interface — create projects, deploy applications, provision databases, inspect logs, clean up servers — you can do from a shell, a CI job or a Makefile.
+
+The command surface is generated from the API specification rather than written by hand: **57 command groups and 604 commands**, each one mapping to exactly one API operation.
+
+<Cards>
+	<Card title="Authentication" href="/docs/cli/authentication">
+		Create an API key and hand it to the CLI.
+	</Card>
+	<Card title="Command reference" href="/docs/cli/reference">
+		Every group and command the CLI exposes.
+	</Card>
+</Cards>
+
+## Requirements
+
+- **Node.js 18 or newer** — the CLI declares `>=18.0.0` in its `engines` field.
+- **A Notploy instance you can reach over HTTP** — self-hosted or Notploy Cloud.
+- **An API key** with the permissions you need. See [Authentication](/docs/cli/authentication).
 
 ## Installation
 
@@ -11,13 +31,116 @@ Notploy CLI is a command-line tool for remotely managing your Notploy server. It
 npm install -g @notploy/cli
 ```
 
-## Usage
+The package installs a single binary called `notploy`:
 
 ```bash
-notploy COMMAND
+notploy --version
 ```
-To get help on a specific command:
+
+`pnpm add -g @notploy/cli` and `bun add -g @notploy/cli` work the same way.
+
+## Authenticate
 
 ```bash
-notploy COMMAND --help
+notploy auth -u https://panel.example.com -t "$NOTPLOY_API_KEY"
 ```
+
+The CLI validates the key against your instance and stores it for later commands. Environment variables (`NOTPLOY_URL` + `NOTPLOY_API_KEY`) are an alternative that is a better fit for CI — both are covered in [Authentication](/docs/cli/authentication).
+
+## How commands work
+
+Every command follows the same shape:
+
+```bash
+notploy <group> <command> [options]
+```
+
+| Example | What it does |
+| --- | --- |
+| `notploy project all` | Lists projects (a command with no inputs). |
+| `notploy application one --applicationId <applicationId>` | Reads a single application. |
+| `notploy postgres create --name <name> --environmentId <environmentId>` | Creates a database. |
+
+Flags and behaviour:
+
+- **Flags mirror the API inputs**, written in camelCase: `--environmentId` is sent as `environmentId`. The [command reference](/docs/cli/reference) lists them per command.
+- **Required flags** (marked *Yes* in the reference) abort the command when missing — commander refuses to run it. Everything else is optional, and anything you leave out is **omitted from the request entirely**, so the server applies its own default.
+- **Booleans** are passed without a value: `--enableDockerCleanup`. They are only sent when you include them.
+- **Numbers** are converted before they are sent, so `--port 5432` reaches the API as a number, not a string.
+- **Every command accepts `--json`** to print the raw API response instead of the formatted output.
+
+### Help
+
+```bash
+notploy --help                    # groups
+notploy application --help        # commands in a group
+notploy application create --help # options of one command
+```
+
+Running `notploy` or `notploy <group>` without a command prints the same help, and `notploy --help` is safe to paste into any script.
+
+## Output and exit codes
+
+| Situation | What you get |
+| --- | --- |
+| Default | The response, pretty-printed as JSON with two-space indentation. Plain strings are printed as-is, and an empty response prints `OK`. |
+| `--json` | The raw API payload, unformatted. |
+| Failure (bad key, unknown resource, network error) | The error message on stderr and **exit code 1**. |
+
+Because failures are non-zero exits, the CLI drops straight into pipelines: `notploy application deploy --applicationId "$APP_ID" && echo deployed`.
+
+## How requests are made
+
+The CLI calls the public API directly, so you can reproduce any command by hand:
+
+- **Endpoint** — `{url}/api/trpc/{group}.{command}`, for example `POST /api/trpc/application.create`.
+- **Authentication** — an `x-api-key` header with your key.
+- **Reads** (`GET`) pass the inputs as a single URL-encoded `input` query parameter; **writes** (`POST`) send `{ "json": { ... } }` as the body.
+
+This is the same contract described in the [API reference](/docs/api), which is useful when the CLI does not expose something you need.
+
+## Quick start
+
+Create a project, add an environment, wire up a Git application and deploy it:
+
+```bash
+# 1. Point the CLI at your instance
+notploy auth -u https://panel.example.com -t "$NOTPLOY_API_KEY"
+
+# 2. Look around
+notploy project all
+notploy server all
+
+# 3. Create a project, then an environment inside it
+notploy project create --name my-project --description "My first project" --env production
+notploy environment create --name production --description "Production" --projectId <projectId>
+
+# 4. Create an application in that environment
+notploy application create --name my-app --environmentId <environmentId>
+
+# 5. Connect the Git repository it should build from
+notploy application save-github-provider \
+  --applicationId <applicationId> \
+  --githubId <githubId> \
+  --owner <owner> \
+  --repository <repository> \
+  --branch main \
+  --buildPath / \
+  --triggerType push
+
+# 6. Deploy, then follow the deployment
+notploy application deploy --applicationId <applicationId>
+notploy deployment all --applicationId <applicationId>
+notploy deployment read-logs --deploymentId <deploymentId>
+```
+
+<Callout type="info">
+	Identifiers such as `<projectId>` are placeholders for values returned by a previous command.
+	`notploy project all --json` prints the raw payload so you can pull them out with `jq`.
+</Callout>
+
+## Where to go next
+
+- [Authentication](/docs/cli/authentication) — API keys, the config file, environment variables and precedence.
+- [Command reference](/docs/cli/reference) — all 57 groups, including every flag and its allowed values.
+- [API reference](/docs/api) — the same operations over HTTP.

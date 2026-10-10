@@ -9,6 +9,7 @@
 		"types:check": "fumadocs-mdx && tsc --noEmit",
 		"postinstall": "fumadocs-mdx",
 		"fix-openapi": "node scripts/fix-openapi.mjs",
+		"generate:cli": "node scripts/generate-cli-docs.mjs",
 		"build:docs": "npm run fix-openapi && node generate-docs.mjs && node scripts/fix-api-paths.mjs"
 	},
 	"dependencies": {

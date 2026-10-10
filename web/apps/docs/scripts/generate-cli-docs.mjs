@@ -1,5 +1,8 @@
-// Generates the CLI reference under content/docs/cli/commands/ from the CLI
-// itself, so the documentation always mirrors the surface that `notploy` ships.
+// Generates the CLI reference under content/docs/cli/ from the CLI itself, so
+// the documentation always mirrors the surface that `notploy` ships. Every
+// command group is a page of the CLI section — siblings of "Introduction" and
+// "Authentication" — so a group can be read on its own, without a nested
+// reference folder.
 //
 // Source of truth: packages/cli/src/generated/commands.ts — the file the CLI
 // registers with commander (itself produced from packages/cli/openapi.json by
@@ -17,7 +20,28 @@ const DOCS_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CLI_ROOT = resolve(DOCS_ROOT, "../../../packages/cli");
 const COMMANDS_SOURCE = join(CLI_ROOT, "src/generated/commands.ts");
 const CLI_PACKAGE = JSON.parse(readFileSync(join(CLI_ROOT, "package.json"), "utf8"));
-const OUT_DIR = join(DOCS_ROOT, "content/docs/cli/commands");
+const OUT_DIR = join(DOCS_ROOT, "content/docs/cli");
+// Earlier builds nested the generated pages one level deeper; drop that layout
+// so the section is not documented twice.
+const LEGACY_OUT_DIR = join(OUT_DIR, "commands");
+
+// Fields the section's meta.json keeps next to the generated page list.
+const SECTION_META = {
+	title: "CLI",
+	description: "Command-line interface for managing Notploy from your terminal.",
+	icon: "SquareTerminal",
+	root: true,
+};
+
+// Hand-written pages of the section, kept in place when the generated list is
+// rewritten.
+const STATIC_PAGES = [
+	"---Get started---",
+	"index",
+	"authentication",
+	"---Reference---",
+	"reference",
+];
 
 // ---------------------------------------------------------------------------
 // Presentation metadata — the CLI only knows group/action names, so the
@@ -540,7 +564,7 @@ function renderReferenceIndex(groups) {
 				.sort((a, b) => GROUPS[a.name].title.localeCompare(GROUPS[b.name].title))
 				.map(
 					(group) =>
-						`| [${GROUPS[group.name].title}](/docs/cli/commands/${group.name}) | ${code(
+						`| [${GROUPS[group.name].title}](/docs/cli/${group.name}) | ${code(
 							`notploy ${group.name}`,
 						)} | ${group.commands.length} | ${GROUPS[group.name].blurb} |`,
 				)
@@ -565,9 +589,13 @@ ${code(`notploy ${CLI_PACKAGE.version}`)} registers with its command parser — 
 
 **${groups.length} groups · ${total} commands.**
 
+Each group below is a page of this section, and every page lists the commands of that group with
+their flags, required inputs and allowed values.
+
 <Callout>
-	Every command accepts ${code("--json")} to print the raw API response. See
-	[How commands work](/docs/cli) for the shared conventions.
+	Every command accepts ${code("--json")} to print the raw API response, and
+	${code("notploy auth")} — the one command that is not part of the generated groups — is covered in
+	[Authentication](/docs/cli/authentication).
 </Callout>
 
 ## Groups
@@ -582,31 +610,35 @@ ${code("dockerDiskUsage.*")}).
 
 Flags are the input fields of that operation, in camelCase: ${code("--environmentId")} is passed
 through as ${code("environmentId")}. A flag marked **Yes** in the Required column aborts the command
-when it is missing, so it always has to be provided.
+when it is missing, so it always has to be provided; the others are omitted from the request when you
+leave them out, which lets the server apply its defaults.
+
+Flag names, required flags and allowed values are read from the CLI itself, so this page cannot drift
+from what ${code("notploy --help")} reports.
 `;
 }
 
 function renderMetaJson(groups) {
 	const sections = orderedSections(groups);
-	const pages = ["index"];
+	const pages = [...STATIC_PAGES];
 	for (const section of sections) {
 		pages.push(`---${section}---`);
 		for (const group of groups.filter((g) => GROUPS[g.name].section === section)) {
 			pages.push(group.name);
 		}
 	}
-	return `${JSON.stringify({ title: "Commands", pages }, null, "\t")}\n`;
+	return `${JSON.stringify({ ...SECTION_META, pages }, null, "\t")}\n`;
 }
 
 // ---------------------------------------------------------------------------
 // Write
 // ---------------------------------------------------------------------------
 
-rmSync(OUT_DIR, { recursive: true, force: true });
+rmSync(LEGACY_OUT_DIR, { recursive: true, force: true });
 mkdirSync(OUT_DIR, { recursive: true });
 
 writeFileSync(join(OUT_DIR, "meta.json"), renderMetaJson(groups));
-writeFileSync(join(OUT_DIR, "index.mdx"), renderReferenceIndex(groups));
+writeFileSync(join(OUT_DIR, "reference.mdx"), renderReferenceIndex(groups));
 for (const group of groups) {
 	writeFileSync(join(OUT_DIR, `${group.name}.mdx`), renderGroupPage(group));
 }

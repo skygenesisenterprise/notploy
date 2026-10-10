@@ -2,6 +2,16 @@
 // Legacy documentation URLs mapped to the refactored Notploy documentation.
 export const legacyDocRedirects = [
 	{
+		"source": "/docs/cli/databases",
+		"destination": "/docs/cli/reference",
+		"permanent": true
+	},
+	{
+		"source": "/docs/cli/enviroment",
+		"destination": "/docs/cli/environment",
+		"permanent": true
+	},
+	{
 		"source": "/docs/core/11ty",
 		"destination": "/docs/templates/examples/11ty",
 		"permanent": true
