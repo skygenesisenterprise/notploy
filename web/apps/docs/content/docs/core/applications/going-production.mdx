@@ -74,6 +74,10 @@ jobs:
             namespace/example:latest 
           platforms: linux/amd64     
 ```
+<Callout type="info">
+To also trigger the deployment from this workflow — and fail the job when the deployment fails — use the official [GitHub Actions](/docs/core/github-actions) action after the image push.
+</Callout>
+
 7. Create your own Dockerfile, in this case we will use the `Dockerfile` from the repository.
 
 ```properties

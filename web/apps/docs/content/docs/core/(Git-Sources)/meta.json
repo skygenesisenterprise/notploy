@@ -1,4 +1,4 @@
 {
 	"title": "Git Sources",
-	"pages": ["index", "github", "gitlab", "bitbucket", "gitea", "docker"]
+	"pages": ["github", "gitlab", "bitbucket", "gitea", "docker"]
 }

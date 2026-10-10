@@ -1,0 +1,198 @@
+---
+title: GitHub Actions
+description: "Trigger a Notploy deployment from a workflow and wait for it with the official notploy-actions GitHub Action."
+---
+
+**Purpose** — The official Notploy GitHub Action ([skygenesisenterprise/notploy-actions](https://github.com/skygenesisenterprise/notploy-actions)) triggers a deployment on your Notploy instance from a workflow and, by default, waits for it to finish — so the job fails when the deployment fails. It is a container action: a GitHub-hosted runner (or any runner with Docker) is enough, no Node.js tooling required.
+
+## What it does
+
+```text
+GitHub Actions job
+        │
+        ├─ reads the runner context (repository, ref, sha, actor, workflow, run …)
+        │
+        ├─ POST /api/application.deploy   → triggers the deployment
+        │
+        ├─ GET  /api/deployment.all       → finds the deployment it created
+        │                                   and follows its status
+        │
+        └─ writes step outputs, a job summary and readable log lines
+```
+
+With `wait: true` (the default) the step polls until the deployment reaches a final state and exits non-zero only when the deployment fails or the wait cannot complete.
+
+## Requirements
+
+- A Notploy instance reachable from the runner.
+- An [API key](/docs/core/security/api-keys) that can trigger and read deployments on the target application. Store it as a secret — never in the workflow file.
+- The **application id** of the service to deploy, from the application's settings.
+- A runner with Docker (any GitHub-hosted runner qualifies).
+
+## Configuration
+
+| Input | Required | Default | Description |
+| --- | --- | --- | --- |
+| `endpoint` | yes | — | Base URL of the Notploy instance, e.g. `https://notploy.example.com`. Do **not** append `/api`; it is added automatically. |
+| `api-key` | yes | — | Notploy API key, sent as the `x-api-key` header. Always pass it via a secret. |
+| `application-id` | yes | — | Identifier of the application to deploy. |
+| `wait` | no | `true` | Wait for the deployment to reach a final state. |
+| `timeout` | no | `30m` | Maximum time to wait, as a Go duration (`30m`, `90s`, `1h`). Only used when `wait` is `true`. |
+| `poll-interval` | no | `5s` | Delay between two status lookups. Minimum `1s`. |
+
+<Callout type="info">
+Durations use Go syntax: `s`, `m`, `h` (`1h30m`, `90s`). Days (`1d`) are not supported.
+</Callout>
+
+## Outputs
+
+| Output | Description |
+| --- | --- |
+| `deployment-id` | Identifier of the triggered deployment. Empty when the deployment is not visible yet, or when the API key cannot read deployments. |
+| `deployment-status` | Last observed status: `running`, `done`, `error`, `cancelled`, or `triggered` when `wait` is `false`. |
+| `deployment-url` | Public URL of the application, when it has an enabled domain. |
+
+**About `deployment-status`** — these are the four statuses Notploy actually stores for a deployment. A deployment row is created with the status `running`; Notploy has no separate queued state, and `done`/`error` are what a successful or failed deployment ends as.
+
+**About `deployment-url`** — `POST /api/application.deploy` returns an empty body, so the action resolves the application's first enabled domain (`https` preferred). It is empty when the application has no domain yet, and resolving it is best effort: a failure there never fails the step.
+
+## Examples
+
+### Minimal
+
+```yaml
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Notploy
+        id: deploy
+        uses: skygenesisenterprise/notploy-actions@v1
+        with:
+          endpoint: ${{ secrets.NOTPLOY_URL }}
+          api-key: ${{ secrets.NOTPLOY_API_KEY }}
+          application-id: ${{ secrets.NOTPLOY_APPLICATION_ID }}
+```
+
+`wait` defaults to `true`, so this step fails if the deployment fails.
+
+### Consume the outputs
+
+```yaml
+      - name: Deploy to Notploy
+        id: notploy
+        uses: skygenesisenterprise/notploy-actions@v1
+        with:
+          endpoint: ${{ secrets.NOTPLOY_URL }}
+          api-key: ${{ secrets.NOTPLOY_API_KEY }}
+          application-id: ${{ secrets.NOTPLOY_APPLICATION_ID }}
+          wait: true
+          timeout: 30m
+          poll-interval: 5s
+
+      - name: Show deployment
+        run: |
+          echo "Deployment: ${{ steps.notploy.outputs.deployment-id }}"
+          echo "Status: ${{ steps.notploy.outputs.deployment-status }}"
+          echo "URL: ${{ steps.notploy.outputs.deployment-url }}"
+```
+
+Use these outputs to annotate the run, comment on a pull request, post a notification, or pass the URL to a smoke-test step.
+
+### Build in CI, deploy the image
+
+The recommended production flow: build and push the image in CI, then ask Notploy to deploy that exact tag. The Notploy server then only pulls and runs the image instead of building it.
+
+```yaml
+name: Build and deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+      - name: Deploy to Notploy
+        id: notploy
+        uses: skygenesisenterprise/notploy-actions@v1
+        with:
+          endpoint: ${{ secrets.NOTPLOY_URL }}
+          api-key: ${{ secrets.NOTPLOY_API_KEY }}
+          application-id: ${{ secrets.NOTPLOY_APPLICATION_ID }}
+          wait: true
+          timeout: 15m
+
+      - name: Smoke test
+        run: curl --fail --retry 5 --retry-delay 5 "${{ steps.notploy.outputs.deployment-url }}"
+```
+
+The application in Notploy must be configured with the **Docker** source type pointing at the tag pushed above. If the tag changes per commit, update it through `application.update` before deploying, or use a moving tag such as `latest`.
+
+## Handling secrets
+
+- Store the endpoint, the API key and the application id as repository or environment secrets and reference them with `${{ secrets.NAME }}`. Never put them in the workflow file or in `with:` as literals.
+- The action registers the API key with `::add-mask::` as its very first action, so the runner redacts it from every later log line — including lines produced by the action itself and by other steps.
+- The API key is never written to `$GITHUB_OUTPUT`, to `$GITHUB_STEP_SUMMARY`, to an error message or to any annotation. Error messages only carry the operation, the HTTP status and the public message Notploy returned.
+- `GITHUB_TOKEN` is not used: the action only talks to Notploy. Give the job `permissions: contents: read` unless it needs more.
+
+## Behaviour on failure
+
+| Situation | Step result |
+| --- | --- |
+| Deployment reaches `done` | success |
+| Deployment reaches `error` | **failure** — the step exits non-zero, with the deployment id, status and Notploy's `errorMessage` |
+| Deployment reaches `cancelled` | success, with a warning annotation (a cancelled deployment is not a CI failure) |
+| `timeout` reached while still `running` | **failure**, after reporting the last observed status |
+| Job cancelled (`SIGTERM`) | **failure**, the wait stops immediately |
+| Trigger rejected (401/403/400/404) | **failure**, with an actionable hint about which input to check |
+| Temporary network or 5xx/429 error while polling | retried a few times, then the step fails if the instance stays unreachable |
+
+Outputs are written even when the deployment fails, so later steps can still link to the failed deployment. The job summary is written in every case.
+
+## Versioning
+
+```yaml
+uses: skygenesisenterprise/notploy-actions@v1     # moving major tag
+uses: skygenesisenterprise/notploy-actions@v1.2.0 # exact release
+```
+
+A release is a Git tag on the repository plus a moving `v1` tag pointing at the latest `v1.x.x`. The action is also published on the [GitHub Marketplace](https://github.com/marketplace/actions/notploy-deployment).
+
+## Related
+
+- [API → Applications](/docs/api/application) — the endpoints the action calls
+- [API keys](/docs/core/security/api-keys) — credentials for the action
+- [Auto-deploy](/docs/core/auto-deploy) — deploy on push without a workflow
+- [Integrations](/docs/core/develop/integrations) — CI/CD patterns
+- [notploy-actions on GitHub](https://github.com/skygenesisenterprise/notploy-actions)

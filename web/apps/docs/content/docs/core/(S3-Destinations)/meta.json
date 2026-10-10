@@ -1,4 +1,4 @@
 {
 	"title": "S3 Destinations",
-	"pages": ["index", "aws-s3", "cloudflare-r2", "backblaze-b2", "cloud-storage", "actions"]
+	"pages": ["aws-s3", "cloudflare-r2", "backblaze-b2", "cloud-storage", "actions"]
 }

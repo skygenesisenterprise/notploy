@@ -46,6 +46,8 @@ curl -X POST 'https://your-panel.example.com/api/application.deploy' \
 
 Store `NOTPLOY_API_KEY` in your CI secret store. See [API keys](/docs/core/security/api-keys).
 
+On GitHub Actions, use the official [GitHub Actions](/docs/core/github-actions) action instead of hand-writing the call: it triggers the deployment, waits for the result and fails the job when the deployment fails.
+
 ## Preview environments
 
 To build a preview per pull request, create a [preview deployment](/docs/core/applications/preview-deployments) and expose it on a generated or wildcard domain.
@@ -56,7 +58,7 @@ To build a preview per pull request, create a [preview deployment](/docs/core/ap
 | --- | --- |
 | Deploy on every push to `main` | Provider webhook + auto-deploy. |
 | Deploy only when `apps/api` changes | Provider webhook + [watch paths](/docs/core/watch-paths). |
-| Run tests before deploying | CI job + API/CLI deploy call. |
+| Run tests before deploying | CI job + API/CLI deploy call, or the official [GitHub Actions](/docs/core/github-actions) action. |
 | Preview per pull request | Preview deployments. |
 | Sync infrastructure state | [SDK](/docs/core/develop/sdk) reconciliation script. |
 
