@@ -1,0 +1,66 @@
+---
+title: "Cluster"
+description: "Add and remove Swarm workers and managers. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Add and remove Swarm workers and managers.
+
+`notploy cluster` exposes **4 commands**. They map one-to-one onto the `cluster.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy cluster --help` to list these commands in your terminal, or
+	`notploy cluster <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy cluster add-manager`
+
+Calls `GET /api/trpc/cluster.addManager`.
+
+```bash
+notploy cluster add-manager [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy cluster add-worker`
+
+Calls `GET /api/trpc/cluster.addWorker`.
+
+```bash
+notploy cluster add-worker [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy cluster get-nodes`
+
+Calls `GET /api/trpc/cluster.getNodes`.
+
+```bash
+notploy cluster get-nodes [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy cluster remove-worker`
+
+Calls `POST /api/trpc/cluster.removeWorker`.
+
+```bash
+notploy cluster remove-worker --nodeId <nodeId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--nodeId <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |

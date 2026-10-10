@@ -1,0 +1,79 @@
+---
+title: Prerequisites
+description: "Supported platforms, resources, network access and accounts you need before installing Notploy."
+---
+
+Read this before installing. Almost every failed install comes down to a missing prerequisite — a busy port, too little memory, or a firewall that blocks access.
+
+## Supported platforms
+
+Notploy targets **Linux hosts running Docker**. The install script has been tested on recent versions of:
+
+- Ubuntu (20.04 LTS and later)
+- Debian (10 and later)
+- Fedora 40
+- CentOS 8 / 9
+
+Proxmox LXC containers are detected and configured automatically. See [Platform support](/docs/core/reference/platform-support) for the current, authoritative list.
+
+<Callout type="info">
+Docker and Linux are the primary target. If your environment is not listed, you can still
+run the containerized stack manually — see [Manual installation](/docs/core/manual-installation).
+</Callout>
+
+## Server resources
+
+| Resource | Minimum | Recommended |
+| --- | --- | --- |
+| **RAM** | 2 GB | 4 GB+ for builds |
+| **Disk** | 30 GB | More if you store volumes and backups locally |
+| **CPU** | 1 vCPU | 2+ for concurrent builds |
+
+Docker builds are the main resource consumer and the most common cause of a server becoming unresponsive. If you plan to build on the Notploy host, size for the build, not just for the running application.
+
+When the control plane only *manages* remote servers and builds happen elsewhere, a much smaller host (around 250 MB of RAM) is sufficient.
+
+## Network access
+
+The following ports must be free and reachable:
+
+| Port | Purpose |
+| --- | --- |
+| **80** | HTTP traffic, handled by Traefik. |
+| **443** | HTTPS traffic, handled by Traefik. |
+| **3000** | Notploy web interface (default). |
+| **4500** | Metrics, only if [monitoring](/docs/core/monitoring) is enabled. |
+
+<Callout type="warn" title="Ports in use">
+The installation fails if any required port is already in use. Stop conflicting services
+(such as another reverse proxy on port 80/443) before installing.
+</Callout>
+
+Outbound network access is required to pull images and packages, to reach Git providers, and — for domains — to obtain TLS certificates from Let's Encrypt.
+
+## Access and accounts
+
+- **SSH access** to the target server with a user that can run Docker (typically `root` or a `sudo`-capable user).
+- A **Git provider account** (GitHub, GitLab, Bitbucket or Gitea) or a container image, if you intend to deploy from a source.
+- A **domain** and access to its DNS records if you want a public HTTPS endpoint. A generated `traefik.me` domain is available for HTTP-only tests.
+
+## Software installed by the installer
+
+The install script provides what is missing:
+
+- **Docker Engine** and the **Compose plugin**, installed if not present.
+- **Docker Swarm** initialised (Notploy runs services as Swarm services).
+- The Notploy stack: the application, PostgreSQL, Redis and Traefik.
+
+## Before you continue
+
+- [ ] The host is reachable over SSH and has 2 GB+ RAM.
+- [ ] Ports 80, 443 and 3000 are free.
+- [ ] DNS for your domain (if any) can point at the host's IP.
+- [ ] You have decided whether to self-host or use [Notploy Cloud](/docs/core/cloud).
+
+## Related
+
+- [Installation](/docs/core/installation)
+- [Manual installation](/docs/core/manual-installation)
+- [Platform support](/docs/core/reference/platform-support)

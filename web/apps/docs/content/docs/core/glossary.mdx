@@ -1,0 +1,85 @@
+---
+title: Glossary
+description: "Canonical Notploy terms and their definitions."
+---
+
+A compact dictionary of the terms used across the documentation. Concept pages explain these in depth; this page is the quick reference.
+
+## Platform
+
+**Notploy** — An open-source, self-hostable control plane for deploying and operating applications and databases on servers you own.
+
+**Control plane** — Notploy itself: the dashboard, API, workers, PostgreSQL and Redis that store configuration and orchestrate deployments.
+
+**Data plane** — Where workloads run: your applications, Compose stacks, databases and Traefik, on the Docker engine.
+
+**Deployment engine** — The shared logic that builds, releases and tracks workloads. Identical across local, remote and Swarm topologies.
+
+## Model
+
+**Organization** — The top-level tenant that owns projects, resources and members.
+
+**Member** — A user with a role inside an organization.
+
+**Project** — A group of related services managed together.
+
+**Environment** — A named deployment context within a project (for example `production`, `staging`) with its own services and shared variables.
+
+**Service** — A deployable unit inside a project and environment: an **Application**, a **Database**, or a **Docker Compose** stack.
+
+**Application** — A service that runs a single container, built from a source or run from an image.
+
+**Compose** — A service defined by a `docker-compose.yml`, running multiple containers.
+
+**Deployment** — One immutable attempt to build and release a service.
+
+**Domain** — A binding between a hostname and a service's container port, with optional TLS.
+
+**Resource** — A shared infrastructure object (registry, S3 destination, DNS provider, certificate, SSH key, secrets provider, notification channel) consumed by services.
+
+**Server** — An execution target where Notploy builds or runs workloads.
+
+**Local server** — The machine where the Notploy control plane is installed.
+
+**Deployment server** — A remote server that runs workloads.
+
+**Build server** — A remote server that only builds images and pushes them to a registry.
+
+**Swarm node** — A worker or manager node joined to the local server's Docker Swarm.
+
+## Features
+
+**Build type** — How Notploy turns a source into a runnable image: Dockerfile, Nixpacks, Railpack, buildpacks, or a prebuilt image.
+
+**Registry** — A container image registry from which builds push and deployments pull images.
+
+**S3 destination** — An S3-compatible object storage target where backups are written and restored from.
+
+**Volume backup** — A scheduled backup of a Docker **named** volume to an S3 destination.
+
+**Preview deployment** — A temporary deployment created for a pull request or branch.
+
+**Rollback** — Releasing a previously built deployment of a service.
+
+**Traefik** — The reverse proxy that routes external traffic to services and terminates TLS.
+
+**Generated domain** — A free `traefik.me` hostname provided for quick, HTTP-only testing.
+
+## Editions
+
+**Self-Hosted (OSS)** — The free, Apache-2.0 edition you install and operate.
+
+**Cloud** — The hosted edition where Notploy manages the control plane and you connect your own servers.
+
+**Enterprise** — Licensed edition that adds SSO, SCIM, custom roles, audit logs and whitelabeling (Self-Hosted) or managed delivery (Cloud).
+
+**Console** — The internal operator surface used to run Notploy Cloud. It is **not** covered in public documentation.
+
+## Status labels
+
+**Available** — Implemented and verified. **Experimental** — Implemented but incomplete or subject to change. **Planned** — On the roadmap, not yet available. **Unsupported** — Out of scope.
+
+## Related
+
+- [Core concepts](/docs/core/concepts) — the same terms, explained in context.
+- [Editions & scope](/docs/core/differences) — how editions differ.

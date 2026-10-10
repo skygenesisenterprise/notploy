@@ -1,0 +1,55 @@
+---
+title: Object storage (S3)
+description: "Configure S3-compatible destinations where Notploy writes and restores backups."
+---
+
+**Purpose** — An **S3 destination** is an S3-compatible object storage target that Notploy uses to store backups and restore from them. You configure a destination once, then reference it when scheduling [database](/docs/core/databases/backups) and [volume](/docs/core/volume-backups) backups.
+
+## How it fits into Notploy
+
+An S3 destination is a **resource**: it is not tied to a single service. Multiple databases and volumes can back up to the same destination, and restores read from it. This makes the destination part of your disaster-recovery path — if it is misconfigured, you find out when you try to restore.
+
+```text
+Database / Named volume  ──scheduled backup──►  S3 destination (bucket)
+                                                  │
+                          restore  ◄──────────────┘
+```
+
+## Supported destinations
+
+Notploy works with any S3-compatible provider. Guides are available for the common ones:
+
+<Cards>
+  <Card href="/docs/core/aws-s3" title="AWS S3" description="Amazon's object storage." />
+  <Card href="/docs/core/cloudflare-r2" title="Cloudflare R2" description="S3-compatible storage with zero egress fees." />
+  <Card href="/docs/core/backblaze-b2" title="Backblaze B2" description="Low-cost S3-compatible storage." />
+  <Card href="/docs/core/cloud-storage" title="Google Cloud Storage" description="GCS with S3 interoperability." />
+</Cards>
+
+Multiple destinations are supported, so you can separate production and staging backups.
+
+## Prerequisites
+
+- An S3-compatible account with a bucket you control.
+- An access key and secret with permission to read and write objects in that bucket.
+- Network access from the Notploy host to the provider's endpoint.
+
+## Configuration
+
+Configure destinations under **Settings → S3 Destinations**, providing the endpoint, region, bucket and credentials. Then select the destination when you create a backup schedule on a database or volume.
+
+## Verification
+
+Create a manual backup to the destination and confirm the object appears in the bucket. Then — before you rely on it — perform a [restore](/docs/core/databases/restore) in a safe environment.
+
+## Security and limitations
+
+- **Never** put real credentials in examples or repositories; store them in Notploy's settings, which are encrypted.
+- Volume Backups only cover Docker **named volumes**, not bind mounts (`../files`).
+- Restoring overwrites current data — always confirm the snapshot.
+
+## Related
+
+- [Backups](/docs/core/backups)
+- [Volume backups](/docs/core/volume-backups)
+- [Restore](/docs/core/databases/restore)

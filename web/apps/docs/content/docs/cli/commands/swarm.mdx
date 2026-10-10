@@ -1,0 +1,66 @@
+---
+title: "Swarm"
+description: "Inspect Docker Swarm nodes, node workloads and container statistics. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Inspect Docker Swarm nodes, node workloads and container statistics.
+
+`notploy swarm` exposes **4 commands**. They map one-to-one onto the `swarm.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy swarm --help` to list these commands in your terminal, or
+	`notploy swarm <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy swarm get-container-stats`
+
+Calls `GET /api/trpc/swarm.getContainerStats`.
+
+```bash
+notploy swarm get-container-stats [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy swarm get-node-apps`
+
+Calls `GET /api/trpc/swarm.getNodeApps`.
+
+```bash
+notploy swarm get-node-apps [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy swarm get-node-info`
+
+Calls `GET /api/trpc/swarm.getNodeInfo`.
+
+```bash
+notploy swarm get-node-info --nodeId <nodeId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--nodeId <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy swarm get-nodes`
+
+Calls `GET /api/trpc/swarm.getNodes`.
+
+```bash
+notploy swarm get-nodes [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |

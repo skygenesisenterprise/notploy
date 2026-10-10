@@ -1,0 +1,71 @@
+---
+title: "Redirects"
+description: "HTTP redirects served by Traefik for an application's domains. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+HTTP redirects served by Traefik for an application's domains.
+
+`notploy redirects` exposes **4 commands**. They map one-to-one onto the `redirects.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy redirects --help` to list these commands in your terminal, or
+	`notploy redirects <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy redirects create`
+
+Calls `POST /api/trpc/redirects.create`.
+
+```bash
+notploy redirects create --regex <regex> --replacement <replacement> --permanent --applicationId <applicationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--regex <value>` | string | Yes | — |
+| `--replacement <value>` | string | Yes | — |
+| `--permanent` | boolean | Yes | — |
+| `--applicationId <value>` | string | Yes | — |
+
+### `notploy redirects delete`
+
+Calls `POST /api/trpc/redirects.delete`.
+
+```bash
+notploy redirects delete --redirectId <redirectId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--redirectId <value>` | string | Yes | — |
+
+### `notploy redirects one`
+
+Calls `GET /api/trpc/redirects.one`.
+
+```bash
+notploy redirects one --redirectId <redirectId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--redirectId <value>` | string | Yes | — |
+
+### `notploy redirects update`
+
+Calls `POST /api/trpc/redirects.update`.
+
+```bash
+notploy redirects update --redirectId <redirectId> --regex <regex> --replacement <replacement> --permanent
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--redirectId <value>` | string | Yes | — |
+| `--regex <value>` | string | Yes | — |
+| `--replacement <value>` | string | Yes | — |
+| `--permanent` | boolean | Yes | — |

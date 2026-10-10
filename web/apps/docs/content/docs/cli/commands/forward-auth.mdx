@@ -1,0 +1,134 @@
+---
+title: "Forward auth"
+description: "Deploy an authentication proxy in front of applications and manage its domains. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Deploy an authentication proxy in front of applications and manage its domains.
+
+`notploy forward-auth` exposes **10 commands**. They map one-to-one onto the `forward-auth.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy forward-auth --help` to list these commands in your terminal, or
+	`notploy forward-auth <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy forward-auth deploy-on-server`
+
+Calls `POST /api/trpc/forwardAuth.deployOnServer`.
+
+```bash
+notploy forward-auth deploy-on-server --serverId <serverId> --providerId <providerId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | Yes | — |
+| `--providerId <value>` | string | Yes | — |
+
+### `notploy forward-auth disable`
+
+Calls `POST /api/trpc/forwardAuth.disable`.
+
+```bash
+notploy forward-auth disable --domainId <domainId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--domainId <value>` | string | Yes | — |
+
+### `notploy forward-auth enable`
+
+Calls `POST /api/trpc/forwardAuth.enable`.
+
+```bash
+notploy forward-auth enable --domainId <domainId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--domainId <value>` | string | Yes | — |
+
+### `notploy forward-auth get-auth-domain`
+
+Calls `GET /api/trpc/forwardAuth.getAuthDomain`.
+
+```bash
+notploy forward-auth get-auth-domain --serverId <serverId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | Yes | — |
+
+### `notploy forward-auth list-providers`
+
+Calls `GET /api/trpc/forwardAuth.listProviders`.
+
+```bash
+notploy forward-auth list-providers
+```
+
+### `notploy forward-auth remove-auth-domain`
+
+Calls `POST /api/trpc/forwardAuth.removeAuthDomain`.
+
+```bash
+notploy forward-auth remove-auth-domain --serverId <serverId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | Yes | — |
+
+### `notploy forward-auth remove-on-server`
+
+Calls `POST /api/trpc/forwardAuth.removeOnServer`.
+
+```bash
+notploy forward-auth remove-on-server --serverId <serverId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | Yes | — |
+
+### `notploy forward-auth server-status`
+
+Calls `GET /api/trpc/forwardAuth.serverStatus`.
+
+```bash
+notploy forward-auth server-status
+```
+
+### `notploy forward-auth set-auth-domain`
+
+Calls `POST /api/trpc/forwardAuth.setAuthDomain`.
+
+```bash
+notploy forward-auth set-auth-domain --serverId <serverId> --authDomain <authDomain> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | Yes | — |
+| `--authDomain <value>` | string | Yes | — |
+| `--https` | boolean | No | — |
+| `--certificateType <value>` | string | No | `none`, `letsencrypt`, `custom` |
+| `--customCertResolver <value>` | string | No | — |
+
+### `notploy forward-auth status`
+
+Calls `GET /api/trpc/forwardAuth.status`.
+
+```bash
+notploy forward-auth status --domainId <domainId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--domainId <value>` | string | Yes | — |

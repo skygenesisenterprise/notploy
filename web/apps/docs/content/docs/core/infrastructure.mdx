@@ -1,0 +1,51 @@
+---
+title: Infrastructure
+description: "Servers, Docker, Traefik, DNS, certificates, registries, storage and secrets — the platform your services run on."
+---
+
+Where the [Applications](/docs/core/applications) section is about what you deploy, this section is about **where and how it runs**. Notploy is built on standard infrastructure components — Docker, Docker Swarm and Traefik — and this section documents how Notploy manages them and how you configure the surrounding services.
+
+## Servers and execution targets
+
+Your workloads run on one or more **servers**. Start with the [deployment options](/docs/core/deployment-options) to choose a topology, then learn how each type works:
+
+<Cards>
+  <Card href="/docs/core/deployment-options" title="Deployment options" description="Local server, remote servers, or a Swarm cluster." />
+  <Card href="/docs/core/remote-servers" title="Servers" description="Deployment and build servers reached over SSH." />
+  <Card href="/docs/core/cluster" title="Swarm" description="Join nodes and replicate applications across machines." />
+  <Card href="/docs/core/ssh-keys" title="SSH keys" description="Credentials for Git hosts and remote servers." />
+</Cards>
+
+## Networking and routing
+
+- **[Traefik](/docs/core/traefik)** — the reverse proxy that routes traffic to services and terminates TLS.
+- **[DNS providers](/docs/core/dns-providers)** — automate DNS records (Cloudflare, Route53).
+- **[Certificates](/docs/core/certificates)** — automatic and custom TLS certificate lifecycle.
+
+## Storage
+
+- **[Registries](/docs/core/registry)** — push and pull images for remote servers and clusters.
+- **[Object storage (S3)](/docs/core/s3-destinations)** — destinations for backups.
+- **[Backups](/docs/core/backups)** and **[volume backups](/docs/core/volume-backups)** — protect data and restore it.
+
+## Secrets and integrations
+
+- **[Secrets providers](/docs/core/secrets-providers)** — read secrets from external vaults.
+- **[Notifications](/docs/core/overview)** — delivery channels for deployments and alerts.
+
+## How each infrastructure guide is structured
+
+Because infrastructure mistakes are expensive, each guide in this section covers, where relevant:
+
+- **Purpose** — what the component is for and when to use it.
+- **Architecture** — how it fits into Notploy and what it depends on.
+- **Prerequisites** — resources, permissions, ports and protocols.
+- **Configuration** — how to set it up.
+- **Verification** — how to confirm it works.
+- **Troubleshooting and recovery** — common failures and their consequences.
+
+## Related
+
+- [Discover → Architecture](/docs/core/architecture)
+- [Ecosystem](/docs/core/ecosystem)
+- [Operate & administer](/docs/core/administration)

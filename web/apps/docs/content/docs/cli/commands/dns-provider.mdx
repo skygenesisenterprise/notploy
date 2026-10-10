@@ -1,0 +1,165 @@
+---
+title: "DNS providers"
+description: "Zones and records for connected DNS providers such as Cloudflare and Route 53. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Zones and records for connected DNS providers such as Cloudflare and Route 53.
+
+`notploy dns-provider` exposes **11 commands**. They map one-to-one onto the `dns-provider.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy dns-provider --help` to list these commands in your terminal, or
+	`notploy dns-provider <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy dns-provider all`
+
+Calls `GET /api/trpc/dnsProvider.all`.
+
+```bash
+notploy dns-provider all
+```
+
+### `notploy dns-provider create`
+
+Calls `POST /api/trpc/dnsProvider.create`.
+
+```bash
+notploy dns-provider create --name <name> --config <config>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--config <value>` | string | Yes | — |
+
+### `notploy dns-provider create-record`
+
+Calls `POST /api/trpc/dnsProvider.createRecord`.
+
+```bash
+notploy dns-provider create-record --type <type> --name <name> --content <content> --dnsProviderId <dnsProviderId> --zoneId <zoneId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--type <value>` | string | Yes | `A`, `AAAA`, `CNAME`, `MX`, `TXT`, `NS`, `SRV`, `CAA`, `PTR` |
+| `--name <value>` | string | Yes | — |
+| `--content <value>` | string | Yes | — |
+| `--ttl <value>` | number | No | — |
+| `--proxied` | boolean | No | — |
+| `--dnsProviderId <value>` | string | Yes | — |
+| `--zoneId <value>` | string | Yes | — |
+
+### `notploy dns-provider delete-record`
+
+Calls `POST /api/trpc/dnsProvider.deleteRecord`.
+
+```bash
+notploy dns-provider delete-record --dnsProviderId <dnsProviderId> --zoneId <zoneId> --recordId <recordId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--dnsProviderId <value>` | string | Yes | — |
+| `--zoneId <value>` | string | Yes | — |
+| `--recordId <value>` | string | Yes | — |
+
+### `notploy dns-provider list-records`
+
+Calls `GET /api/trpc/dnsProvider.listRecords`.
+
+```bash
+notploy dns-provider list-records --dnsProviderId <dnsProviderId> --zoneId <zoneId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--dnsProviderId <value>` | string | Yes | — |
+| `--zoneId <value>` | string | Yes | — |
+
+### `notploy dns-provider list-zones`
+
+Calls `GET /api/trpc/dnsProvider.listZones`.
+
+```bash
+notploy dns-provider list-zones --dnsProviderId <dnsProviderId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--dnsProviderId <value>` | string | Yes | — |
+
+### `notploy dns-provider one`
+
+Calls `GET /api/trpc/dnsProvider.one`.
+
+```bash
+notploy dns-provider one --dnsProviderId <dnsProviderId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--dnsProviderId <value>` | string | Yes | — |
+
+### `notploy dns-provider remove`
+
+Calls `POST /api/trpc/dnsProvider.remove`.
+
+```bash
+notploy dns-provider remove --dnsProviderId <dnsProviderId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--dnsProviderId <value>` | string | Yes | — |
+
+### `notploy dns-provider test-connection`
+
+Calls `POST /api/trpc/dnsProvider.testConnection`.
+
+```bash
+notploy dns-provider test-connection [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--dnsProviderId <value>` | string | No | — |
+| `--config <value>` | string | No | — |
+
+### `notploy dns-provider update`
+
+Calls `POST /api/trpc/dnsProvider.update`.
+
+```bash
+notploy dns-provider update --dnsProviderId <dnsProviderId> --name <name> --config <config>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--dnsProviderId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--config <value>` | string | Yes | — |
+
+### `notploy dns-provider update-record`
+
+Calls `POST /api/trpc/dnsProvider.updateRecord`.
+
+```bash
+notploy dns-provider update-record --type <type> --name <name> --content <content> --dnsProviderId <dnsProviderId> --zoneId <zoneId> --recordId <recordId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--type <value>` | string | Yes | `A`, `AAAA`, `CNAME`, `MX`, `TXT`, `NS`, `SRV`, `CAA`, `PTR` |
+| `--name <value>` | string | Yes | — |
+| `--content <value>` | string | Yes | — |
+| `--ttl <value>` | number | No | — |
+| `--proxied` | boolean | No | — |
+| `--dnsProviderId <value>` | string | Yes | — |
+| `--zoneId <value>` | string | Yes | — |
+| `--recordId <value>` | string | Yes | — |

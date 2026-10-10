@@ -1,0 +1,78 @@
+---
+title: Migrating from Dokploy
+description: "A manual migration path from Dokploy, the data that transfers, and how to validate the result."
+---
+
+<Callout type="warn" title="Status: manual migration">
+Notploy does **not** ship an automated Dokploy importer. Migration is a **manual** process
+performed on a Notploy installation you control. This page describes the supported approach,
+what transfers cleanly, what does not, and how to validate the result. There is no
+one-click "import Dokploy" button.
+</Callout>
+
+Notploy and Dokploy share a lineage: both orchestrate Docker containers and Traefik, and both use projects, applications, databases and Compose stacks. That makes a manual migration tractable. It does not make it automatic.
+
+## Before you start
+
+1. **Inventory the source.** List every Dokploy project and its services: applications (with source repository, build type and environment variables), databases (type, version, credentials, backups), and Compose stacks (compose file, `.env`, volumes, domains).
+2. **Back up everything on the Dokploy side.** Database dumps, volume data and the compose files. A migration you cannot roll back is not a migration.
+3. **Back up on the Notploy side.** If you are adopting an existing Notploy installation, take a database backup first. See [Upgrade, backup and restore](/docs/core/upgrade-backup-restore).
+4. **Prepare destinations.** Configure the [Git providers](/docs/core/providers), [registries](/docs/core/registry), [SSH keys](/docs/core/ssh-keys) and [S3 destinations](/docs/core/s3-destinations) you will need in Notploy.
+
+## What transfers, and how
+
+| Dokploy concept | Notploy equivalent | How |
+| --- | --- | --- |
+| Project | [Project](/docs/core/concepts#project) | Recreate; names and descriptions are informational. |
+| Application | [Application](/docs/core/applications) | Recreate the source, build type and variables. |
+| Compose stack | [Docker Compose](/docs/core/docker-compose) | Re-create from the same `docker-compose.yml`. |
+| Database | [Database](/docs/core/databases) | Create a new instance and **restore** a dump. |
+| Environment variables | [Environment variables](/docs/core/variables) | Copy values; re-enter secrets. |
+| Domain | [Domain](/docs/core/domains) | Re-add and let Notploy issue a certificate. |
+| Volume data | Volumes / [Volume backups](/docs/core/volume-backups) | Copy data or restore from backup. |
+
+<Callout type="info" title="Re-enter secrets manually">
+Copying an encrypted configuration blob across platforms is neither reliable nor safe. Re-enter
+secrets explicitly on the Notploy side, or source them from a [secrets provider](/docs/core/secrets-providers).
+</Callout>
+
+## What does not transfer
+
+- **Encrypted settings and secrets.** They are platform-specific; re-enter them.
+- **Traefik configuration.** Notploy regenerates routing rules from domains you configure.
+- **Docker images not in a registry.** Rebuild or push them to a registry first.
+- **Version-specific behavior.** A service that relied on a Dokploy-specific default may need adjustment.
+
+## Procedure
+
+1. Create the **project** and its **environment(s)** in Notploy.
+2. Recreate each **application**: add the source, pick the [build type](/docs/core/applications/build-type) that matches the original, and set its variables.
+3. Recreate each **Compose** stack from its compose file; move repository-sourced files into [mounts](/docs/core/docker-compose#volumes) as needed.
+4. Create **databases** and restore their dumps into the new instances. See [Restore](/docs/core/databases/restore).
+5. Copy **volume data** — via backup/restore where possible.
+6. Add **domains** and let certificates issue. Keep the old stack serving traffic until the new one is verified.
+7. **Cut DNS over** last, and keep the old installation available for rollback.
+
+## Post-migration validation
+
+A project appearing in the UI proves nothing. Verify each item:
+
+- [ ] Every **application** builds and its latest deployment reaches `running`.
+- [ ] Each service **responses correctly** behind its domain over HTTPS.
+- [ ] **Environment variables** are present and correct (no startup crashes).
+- [ ] **Databases** contain the expected data (spot-check tables/collections).
+- [ ] **Compose stacks** behave as before, including volumes and networks.
+- [ ] **Backups** are scheduled and a **test restore** succeeds.
+- [ ] **Auto-deploy** webhooks fire on a push.
+
+Distinguish three things when you report status: what was **imported** (configuration re-entered), what was **verified** (builds and runs), and what is **operational** (serving traffic you depend on).
+
+## Rollback
+
+Until the destination is validated, keep the source Dokploy installation running and **do not** decommission it or its data. If validation fails, point DNS back and continue on the source.
+
+## Related
+
+- [Compatibility](/docs/core/migration/compatibility)
+- [Known limitations](/docs/core/reference/limitations)
+- [Servers](/docs/core/remote-servers)

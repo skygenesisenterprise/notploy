@@ -1,0 +1,76 @@
+---
+title: Upgrade, backup and restore
+description: "Update Notploy, protect its data, and understand what uninstalling removes."
+---
+
+Running Notploy means maintaining it. This page covers the three operations every operator needs: **updating**, **backing up** and **restoring** — plus what uninstalling actually removes.
+
+## Upgrading Notploy
+
+Update the platform to the latest release:
+
+```bash
+curl -sSL https://notploy.com/install.sh | sh -s update
+```
+
+To target a specific version, use the `install.sh` attached to that version's [GitHub release](https://github.com/skygenesisenterprise/notploy/releases):
+
+```bash
+curl -sL https://github.com/skygenesisenterprise/notploy/releases/download/v<version>/install.sh | sh -s update
+```
+
+<Callout type="info" title="Cloud editions">
+On **Notploy Cloud** and **Enterprise Cloud**, the control plane is updated automatically —
+there is nothing to run. On self-hosted editions, choose when to update.
+</Callout>
+
+Before upgrading, take a backup (below). After upgrading, confirm the dashboard loads and a test deployment still succeeds.
+
+## What holds your data
+
+Two kinds of data must be protected:
+
+| Data | Where it lives | How to protect it |
+| --- | --- | --- |
+| **Notploy configuration** (projects, services, settings) | The Notploy PostgreSQL database. | Back up the database. |
+| **Your application data** | Docker **named volumes** and database volumes. | Use [Volume Backups](/docs/core/volume-backups) and [database backups](/docs/core/databases/backups). |
+
+Application data is not stored in the Notploy database — back up both.
+
+## Backing up
+
+1. **Configure an S3 destination** once, under **Settings → S3 Destinations**. See [Object storage](/docs/core/s3-destinations).
+2. **Schedule backups** for each database and for relevant volumes. See [Backups](/docs/core/backups).
+
+The Notploy named Docker volumes (`notploy-postgres`, `notploy-redis`) are **preserved** by `docker compose down` — do not remove them if you need your configuration.
+
+<Callout type="warn">
+Bind mounts (the `../files` folder in Compose) are **not** covered by Volume Backups. If you
+rely on automated backups, store data in Docker **named volumes** instead. See
+[Docker Compose volumes](/docs/core/docker-compose#volumes).
+</Callout>
+
+## Restoring
+
+Restore a database from a backup using its **Backups** tab; see [Restore](/docs/core/databases/restore). Restoring overwrites the current data, so confirm you have the right snapshot and that the app is prepared for the interruption.
+
+**Test restores.** A backup you have never restored is an assumption, not a safety net.
+
+## Uninstalling
+
+Uninstalling removes the Notploy services, networks and volumes. Full steps are in [Uninstall](/docs/core/uninstall). In short:
+
+- Notploy's own volumes (`notploy`, `notploy-postgres`, `notploy-redis`) are deleted — **your configuration goes with them**.
+- Any application data you stored in volumes outside Notploy's own volumes must be removed or backed up separately.
+- If the host is part of a cluster, worker nodes must leave the swarm first.
+
+<Callout type="warn" title="Irreversible">
+Uninstalling deletes the Notploy PostgreSQL database. Back up anything you need **before**
+uninstalling.
+</Callout>
+
+## Related
+
+- [Backups](/docs/core/backups)
+- [Restore](/docs/core/databases/restore)
+- [Uninstall](/docs/core/uninstall)

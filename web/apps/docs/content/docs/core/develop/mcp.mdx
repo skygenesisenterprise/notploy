@@ -1,0 +1,50 @@
+---
+title: MCP
+description: "Connect Notploy to AI tooling through the Model Context Protocol server."
+---
+
+**Purpose** — The Notploy MCP server exposes Notploy operations to AI assistants and tools that speak the [Model Context Protocol](https://modelcontextprotocol.io). It lets an assistant inspect and manage a Notploy installation through defined tools instead of screen-scraping the UI.
+
+<Callout type="info" title="Status: integration surface">
+The MCP server is published as `@notploy/mcp`. As an integration surface it may evolve faster
+than the core API — pin a version and review its tools after upgrading. Treat actions it
+performs with the same care as manual ones.
+</Callout>
+
+## Package
+
+```bash
+npm install @notploy/mcp
+# or run it via the configured client
+npx @notploy/mcp
+```
+
+## Configuration
+
+The MCP server authenticates to your Notploy instance with an **API key** and a base URL. Configure it in your MCP client (for example an AI-enabled editor) with:
+
+- the **base URL** of your panel,
+- an **API key** (see [API keys](/docs/core/security/api-keys)).
+
+Store the key in your client's secret configuration, not in a shared file.
+
+## What it exposes
+
+The server surfaces Notploy resources — projects, applications, deployments and their status — as MCP tools, so an assistant can answer questions like "what is deployed?" or "why did the last deployment fail?" and, where enabled, take actions.
+
+<Callout type="warn" title="Grant least privilege">
+Because MCP tools can act on your behalf, use an API key with the narrowest scope that supports
+the tasks you expect. Review what your client is allowed to call.
+</Callout>
+
+## Security considerations
+
+- The MCP server has the permissions of the key you give it.
+- Prefer read-heavy usage unless you specifically need mutation.
+- Audit activity in Enterprise via [audit logs](/docs/core/enterprise/audit-logs).
+
+## Related
+
+- [API reference](/docs/api)
+- [SDK](/docs/core/develop/sdk)
+- [API keys](/docs/core/security/api-keys)

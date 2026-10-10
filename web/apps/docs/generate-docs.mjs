@@ -8,7 +8,7 @@ const openapi = createOpenAPI({
 try {
 	await generateFiles({
 		input: openapi,
-		output: "./content/docs/api",
+		output: "./content/docs/reference/api",
 		per: "tag",
 		includeDescription: true,
 	});

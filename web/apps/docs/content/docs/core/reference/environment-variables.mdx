@@ -1,0 +1,67 @@
+---
+title: Configuration & environment variables
+description: "Environment variables that configure a Notploy installation."
+---
+
+**Purpose** — Reference the environment variables that configure the Notploy stack itself (the control plane), as opposed to the variables you give your own services. For your services' variables, see [Environment variables](/docs/core/variables).
+
+These variables are read from the `.env` file used by the Docker Compose stack. Copy [`.env.example`](https://github.com/skygenesisenterprise/notploy/blob/master/.env.example) to `.env` and set every placeholder **before** exposing the instance.
+
+<Callout type="warn" title="Defaults are not safe for production">
+The defaults exist only so `docker compose config` works out of the box. Generate unique values
+for every secret, for example with `openssl rand -hex 32`.
+</Callout>
+
+## Image and product
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `NOTPLOY_FLAVOR` | `selfhosted` | Selects the mode and Dockerfile target: `selfhosted`, `cloud` or `console`. |
+| `NOTPLOY_IMAGE` | `ghcr.io/skygenesisenterprise/notploy` | Image reference; override for a mirror. |
+| `NOTPLOY_VERSION` | `latest` | Image tag to run. |
+| `IS_CLOUD` | `false` | Switches the app to cloud behaviour (managed queue, billing). Set automatically for `cloud` and `console`. |
+| `NOTPLOY_PRODUCT` | _(derived)_ | Explicit product override (`self`, `cloud`, `console`). Cloud and console require a **signed entitlement**. |
+
+## Networking
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `NOTPLOY_PORT` | `3000` | Host port for the dashboard. |
+| `NOTPLOY_DNS_HOST_PORT` | `53` | Host port for the Notploy DNS server (the container listens on `53`). Must be free — `systemd-resolved`, `dnsmasq` or Pi-hole commonly occupy `53`. |
+
+## Database
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `POSTGRES_USER` | `notploy` | Database user. |
+| `POSTGRES_DB` | `notploy` | Database name. |
+| `POSTGRES_PASSWORD` | `change-me…` | **Change this.** Generate with `openssl rand -base64 32`. |
+
+## Authentication
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `BETTER_AUTH_SECRET` | `change-me…` | **Change this.** Session signing secret. Generate with `openssl rand -hex 32`. |
+
+## Miscellaneous
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `TZ` | `UTC` | Timezone for the stack. |
+
+## Application runtime (development)
+
+When running the application directly rather than the container stack:
+
+| Variable | Description |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL connection string. |
+| `PORT` | Port the application listens on (default `3000`). |
+| `NODE_ENV` | `development` or `production`. |
+| `NOTPLOY_TEMPLATES_DIR` | Optional absolute path to template blueprints. Auto-detected in a repository checkout. |
+
+## Related
+
+- [Installation](/docs/core/installation)
+- [Manual installation](/docs/core/manual-installation)
+- [Configuration & environment variables for services](/docs/core/variables)

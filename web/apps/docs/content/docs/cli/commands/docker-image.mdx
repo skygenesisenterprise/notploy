@@ -1,0 +1,58 @@
+---
+title: "Docker images"
+description: "List, inspect and remove images stored on a server. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+List, inspect and remove images stored on a server.
+
+`notploy docker-image` exposes **3 commands**. They map one-to-one onto the `docker-image.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy docker-image --help` to list these commands in your terminal, or
+	`notploy docker-image <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy docker-image get-image-config`
+
+Calls `GET /api/trpc/dockerImage.getImageConfig`.
+
+```bash
+notploy docker-image get-image-config --imageRef <imageRef> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--imageRef <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-image get-images`
+
+Calls `GET /api/trpc/dockerImage.getImages`.
+
+```bash
+notploy docker-image get-images [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-image remove-image`
+
+Calls `POST /api/trpc/dockerImage.removeImage`.
+
+```bash
+notploy docker-image remove-image --repository <repository> --tag <tag> --id <id> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--repository <value>` | string | Yes | — |
+| `--tag <value>` | string | Yes | — |
+| `--id <value>` | string | Yes | — |
+| `--force` | boolean | No | — |
+| `--serverId <value>` | string | No | — |

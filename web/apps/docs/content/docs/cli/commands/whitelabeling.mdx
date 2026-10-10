@@ -1,0 +1,53 @@
+---
+title: "Whitelabeling"
+description: "Rebrand the instance: application name, logos, favicon and links. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Rebrand the instance: application name, logos, favicon and links.
+
+`notploy whitelabeling` exposes **4 commands**. They map one-to-one onto the `whitelabeling.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy whitelabeling --help` to list these commands in your terminal, or
+	`notploy whitelabeling <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy whitelabeling get`
+
+Calls `GET /api/trpc/whitelabeling.get`.
+
+```bash
+notploy whitelabeling get
+```
+
+### `notploy whitelabeling get-public`
+
+Calls `GET /api/trpc/whitelabeling.getPublic`.
+
+```bash
+notploy whitelabeling get-public
+```
+
+### `notploy whitelabeling reset`
+
+Calls `POST /api/trpc/whitelabeling.reset`.
+
+```bash
+notploy whitelabeling reset
+```
+
+### `notploy whitelabeling update`
+
+Calls `POST /api/trpc/whitelabeling.update`.
+
+```bash
+notploy whitelabeling update --whitelabelingConfig <whitelabelingConfig>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--whitelabelingConfig <value>` | string | Yes | — |

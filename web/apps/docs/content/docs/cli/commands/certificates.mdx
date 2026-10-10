@@ -1,0 +1,83 @@
+---
+title: "Certificates"
+description: "Custom TLS certificates loaded by Traefik alongside automatic Let's Encrypt ones. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Custom TLS certificates loaded by Traefik alongside automatic Let's Encrypt ones.
+
+`notploy certificates` exposes **5 commands**. They map one-to-one onto the `certificates.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy certificates --help` to list these commands in your terminal, or
+	`notploy certificates <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy certificates all`
+
+Calls `GET /api/trpc/certificates.all`.
+
+```bash
+notploy certificates all
+```
+
+### `notploy certificates create`
+
+Calls `POST /api/trpc/certificates.create`.
+
+```bash
+notploy certificates create --name <name> --certificateData <certificateData> --privateKey <privateKey> --organizationId <organizationId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--certificateId <value>` | string | No | — |
+| `--name <value>` | string | Yes | — |
+| `--certificateData <value>` | string | Yes | — |
+| `--privateKey <value>` | string | Yes | — |
+| `--certificatePath <value>` | string | No | — |
+| `--autoRenew` | boolean | No | — |
+| `--organizationId <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy certificates one`
+
+Calls `GET /api/trpc/certificates.one`.
+
+```bash
+notploy certificates one --certificateId <certificateId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--certificateId <value>` | string | Yes | — |
+
+### `notploy certificates remove`
+
+Calls `POST /api/trpc/certificates.remove`.
+
+```bash
+notploy certificates remove --certificateId <certificateId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--certificateId <value>` | string | Yes | — |
+
+### `notploy certificates update`
+
+Calls `POST /api/trpc/certificates.update`.
+
+```bash
+notploy certificates update --certificateId <certificateId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--certificateId <value>` | string | Yes | — |
+| `--name <value>` | string | No | — |
+| `--certificateData <value>` | string | No | — |
+| `--privateKey <value>` | string | No | — |

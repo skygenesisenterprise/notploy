@@ -1,0 +1,265 @@
+---
+title: "MongoDB"
+description: "Provision and operate MongoDB databases, including backups and external ports. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Provision and operate MongoDB databases, including backups and external ports.
+
+`notploy mongo` exposes **16 commands**. They map one-to-one onto the `mongo.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy mongo --help` to list these commands in your terminal, or
+	`notploy mongo <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy mongo change-password`
+
+Calls `POST /api/trpc/mongo.changePassword`.
+
+```bash
+notploy mongo change-password --mongoId <mongoId> --password <password>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |
+
+### `notploy mongo change-status`
+
+Calls `POST /api/trpc/mongo.changeStatus`.
+
+```bash
+notploy mongo change-status --mongoId <mongoId> --applicationStatus <applicationStatus>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+| `--applicationStatus <value>` | string | Yes | `idle`, `running`, `done`, `error` |
+
+### `notploy mongo create`
+
+Calls `POST /api/trpc/mongo.create`.
+
+```bash
+notploy mongo create --name <name> --environmentId <environmentId> --databaseUser <databaseUser> --databasePassword <databasePassword> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--appName <value>` | string | No | — |
+| `--dockerImage <value>` | string | No | — |
+| `--environmentId <value>` | string | Yes | — |
+| `--description <value>` | string | No | — |
+| `--databaseUser <value>` | string | Yes | — |
+| `--databasePassword <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+| `--replicaSets` | boolean | No | — |
+
+### `notploy mongo deploy`
+
+Calls `POST /api/trpc/mongo.deploy`.
+
+```bash
+notploy mongo deploy --mongoId <mongoId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+
+### `notploy mongo move`
+
+Calls `POST /api/trpc/mongo.move`.
+
+```bash
+notploy mongo move --mongoId <mongoId> --targetEnvironmentId <targetEnvironmentId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+| `--targetEnvironmentId <value>` | string | Yes | — |
+
+### `notploy mongo one`
+
+Calls `GET /api/trpc/mongo.one`.
+
+```bash
+notploy mongo one --mongoId <mongoId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+
+### `notploy mongo read-logs`
+
+Calls `GET /api/trpc/mongo.readLogs`.
+
+```bash
+notploy mongo read-logs --mongoId <mongoId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+| `--tail <value>` | number | No | — |
+| `--since <value>` | string | No | — |
+| `--search <value>` | string | No | — |
+
+### `notploy mongo rebuild`
+
+Calls `POST /api/trpc/mongo.rebuild`.
+
+```bash
+notploy mongo rebuild --mongoId <mongoId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+
+### `notploy mongo reload`
+
+Calls `POST /api/trpc/mongo.reload`.
+
+```bash
+notploy mongo reload --mongoId <mongoId> --appName <appName>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+| `--appName <value>` | string | Yes | — |
+
+### `notploy mongo remove`
+
+Calls `POST /api/trpc/mongo.remove`.
+
+```bash
+notploy mongo remove --mongoId <mongoId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+
+### `notploy mongo save-environment`
+
+Calls `POST /api/trpc/mongo.saveEnvironment`.
+
+```bash
+notploy mongo save-environment --mongoId <mongoId> --env <env>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+| `--env <value>` | string | Yes | — |
+
+### `notploy mongo save-external-port`
+
+Calls `POST /api/trpc/mongo.saveExternalPort`.
+
+```bash
+notploy mongo save-external-port --mongoId <mongoId> --externalPort <externalPort>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+| `--externalPort <value>` | number | Yes | — |
+
+### `notploy mongo search`
+
+Calls `GET /api/trpc/mongo.search`.
+
+```bash
+notploy mongo search [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--q <value>` | string | No | — |
+| `--name <value>` | string | No | — |
+| `--appName <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--projectId <value>` | string | No | — |
+| `--environmentId <value>` | string | No | — |
+| `--limit <value>` | number | No | — |
+| `--offset <value>` | number | No | — |
+
+### `notploy mongo start`
+
+Calls `POST /api/trpc/mongo.start`.
+
+```bash
+notploy mongo start --mongoId <mongoId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+
+### `notploy mongo stop`
+
+Calls `POST /api/trpc/mongo.stop`.
+
+```bash
+notploy mongo stop --mongoId <mongoId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+
+### `notploy mongo update`
+
+Calls `POST /api/trpc/mongo.update`.
+
+```bash
+notploy mongo update --mongoId <mongoId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mongoId <value>` | string | Yes | — |
+| `--name <value>` | string | No | — |
+| `--appName <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--databaseUser <value>` | string | No | — |
+| `--databasePassword <value>` | string | No | — |
+| `--dockerImage <value>` | string | No | — |
+| `--command <value>` | string | No | — |
+| `--args <value>` | string | No | — |
+| `--env <value>` | string | No | — |
+| `--memoryReservation <value>` | string | No | — |
+| `--memoryLimit <value>` | string | No | — |
+| `--cpuReservation <value>` | string | No | — |
+| `--cpuLimit <value>` | string | No | — |
+| `--externalPort <value>` | number | No | — |
+| `--applicationStatus <value>` | string | No | `idle`, `running`, `done`, `error` |
+| `--healthCheckSwarm <value>` | string | No | — |
+| `--restartPolicySwarm <value>` | string | No | — |
+| `--placementSwarm <value>` | string | No | — |
+| `--updateConfigSwarm <value>` | string | No | — |
+| `--rollbackConfigSwarm <value>` | string | No | — |
+| `--modeSwarm <value>` | string | No | — |
+| `--labelsSwarm <value>` | string | No | — |
+| `--networkSwarm <value>` | string | No | — |
+| `--stopGracePeriodSwarm <value>` | string | No | — |
+| `--endpointSpecSwarm <value>` | string | No | — |
+| `--ulimitsSwarm <value>` | string | No | — |
+| `--replicas <value>` | number | No | — |
+| `--createdAt <value>` | string | No | — |
+| `--environmentId <value>` | string | No | — |
+| `--replicaSets` | boolean | No | — |
+| `--networkIds <value>` | string | No | — |
+| `--detachNotployNetwork` | boolean | No | — |

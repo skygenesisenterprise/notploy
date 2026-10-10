@@ -1,0 +1,105 @@
+---
+title: "Vault providers"
+description: "External secret managers connected to the platform to resolve secrets at deploy time. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+External secret managers connected to the platform to resolve secrets at deploy time.
+
+`notploy vault-provider` exposes **7 commands**. They map one-to-one onto the `vault-provider.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy vault-provider --help` to list these commands in your terminal, or
+	`notploy vault-provider <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy vault-provider all`
+
+Calls `GET /api/trpc/vaultProvider.all`.
+
+```bash
+notploy vault-provider all
+```
+
+### `notploy vault-provider create`
+
+Calls `POST /api/trpc/vaultProvider.create`.
+
+```bash
+notploy vault-provider create --name <name> --config <config> --assignments <assignments>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--config <value>` | string | Yes | — |
+| `--assignments <value>` | string | Yes | — |
+
+### `notploy vault-provider list-secret-names`
+
+Calls `GET /api/trpc/vaultProvider.listSecretNames`.
+
+```bash
+notploy vault-provider list-secret-names --vaultProviderId <vaultProviderId> --projectId <projectId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--vaultProviderId <value>` | string | Yes | — |
+| `--projectId <value>` | string | Yes | — |
+| `--environmentId <value>` | string | No | — |
+
+### `notploy vault-provider one`
+
+Calls `GET /api/trpc/vaultProvider.one`.
+
+```bash
+notploy vault-provider one --vaultProviderId <vaultProviderId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--vaultProviderId <value>` | string | Yes | — |
+
+### `notploy vault-provider remove`
+
+Calls `POST /api/trpc/vaultProvider.remove`.
+
+```bash
+notploy vault-provider remove --vaultProviderId <vaultProviderId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--vaultProviderId <value>` | string | Yes | — |
+
+### `notploy vault-provider test-connection`
+
+Calls `POST /api/trpc/vaultProvider.testConnection`.
+
+```bash
+notploy vault-provider test-connection [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--vaultProviderId <value>` | string | No | — |
+| `--config <value>` | string | No | — |
+
+### `notploy vault-provider update`
+
+Calls `POST /api/trpc/vaultProvider.update`.
+
+```bash
+notploy vault-provider update --vaultProviderId <vaultProviderId> --name <name> --config <config> --assignments <assignments>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--vaultProviderId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--config <value>` | string | Yes | — |
+| `--assignments <value>` | string | Yes | — |

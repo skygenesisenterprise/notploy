@@ -1,0 +1,120 @@
+---
+title: "Bitbucket"
+description: "Bitbucket connections, plus branch and repository lookups. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Bitbucket connections, plus branch and repository lookups.
+
+`notploy bitbucket` exposes **7 commands**. They map one-to-one onto the `bitbucket.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy bitbucket --help` to list these commands in your terminal, or
+	`notploy bitbucket <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy bitbucket bitbucket-providers`
+
+Calls `GET /api/trpc/bitbucket.bitbucketProviders`.
+
+```bash
+notploy bitbucket bitbucket-providers
+```
+
+### `notploy bitbucket create`
+
+Calls `POST /api/trpc/bitbucket.create`.
+
+```bash
+notploy bitbucket create --authId <authId> --name <name> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--bitbucketId <value>` | string | No | — |
+| `--bitbucketUsername <value>` | string | No | — |
+| `--bitbucketEmail <value>` | string | No | — |
+| `--appPassword <value>` | string | No | — |
+| `--apiToken <value>` | string | No | — |
+| `--bitbucketWorkspaceName <value>` | string | No | — |
+| `--gitProviderId <value>` | string | No | — |
+| `--authId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+
+### `notploy bitbucket get-bitbucket-branches`
+
+Calls `GET /api/trpc/bitbucket.getBitbucketBranches`.
+
+```bash
+notploy bitbucket get-bitbucket-branches --owner <owner> --repo <repo> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--owner <value>` | string | Yes | — |
+| `--repo <value>` | string | Yes | — |
+| `--bitbucketId <value>` | string | No | — |
+
+### `notploy bitbucket get-bitbucket-repositories`
+
+Calls `GET /api/trpc/bitbucket.getBitbucketRepositories`.
+
+```bash
+notploy bitbucket get-bitbucket-repositories --bitbucketId <bitbucketId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--bitbucketId <value>` | string | Yes | — |
+
+### `notploy bitbucket one`
+
+Calls `GET /api/trpc/bitbucket.one`.
+
+```bash
+notploy bitbucket one --bitbucketId <bitbucketId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--bitbucketId <value>` | string | Yes | — |
+
+### `notploy bitbucket test-connection`
+
+Calls `POST /api/trpc/bitbucket.testConnection`.
+
+```bash
+notploy bitbucket test-connection --bitbucketId <bitbucketId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--bitbucketId <value>` | string | Yes | — |
+| `--bitbucketUsername <value>` | string | No | — |
+| `--bitbucketEmail <value>` | string | No | — |
+| `--workspaceName <value>` | string | No | — |
+| `--apiToken <value>` | string | No | — |
+| `--appPassword <value>` | string | No | — |
+
+### `notploy bitbucket update`
+
+Calls `POST /api/trpc/bitbucket.update`.
+
+```bash
+notploy bitbucket update --bitbucketId <bitbucketId> --gitProviderId <gitProviderId> --name <name> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--bitbucketId <value>` | string | Yes | — |
+| `--bitbucketUsername <value>` | string | No | — |
+| `--bitbucketEmail <value>` | string | No | — |
+| `--appPassword <value>` | string | No | — |
+| `--apiToken <value>` | string | No | — |
+| `--bitbucketWorkspaceName <value>` | string | No | — |
+| `--gitProviderId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |

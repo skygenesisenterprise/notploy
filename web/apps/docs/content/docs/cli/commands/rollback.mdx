@@ -1,0 +1,41 @@
+---
+title: "Rollbacks"
+description: "Roll a deployment back to a previously built image. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Roll a deployment back to a previously built image.
+
+`notploy rollback` exposes **2 commands**. They map one-to-one onto the `rollback.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy rollback --help` to list these commands in your terminal, or
+	`notploy rollback <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy rollback delete`
+
+Calls `POST /api/trpc/rollback.delete`.
+
+```bash
+notploy rollback delete --rollbackId <rollbackId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--rollbackId <value>` | string | Yes | — |
+
+### `notploy rollback rollback`
+
+Calls `POST /api/trpc/rollback.rollback`.
+
+```bash
+notploy rollback rollback --rollbackId <rollbackId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--rollbackId <value>` | string | Yes | — |

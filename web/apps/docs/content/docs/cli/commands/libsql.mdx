@@ -1,0 +1,239 @@
+---
+title: "libSQL"
+description: "Provision and operate libSQL (SQLite-compatible) databases. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Provision and operate libSQL (SQLite-compatible) databases.
+
+`notploy libsql` exposes **14 commands**. They map one-to-one onto the `libsql.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy libsql --help` to list these commands in your terminal, or
+	`notploy libsql <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy libsql change-status`
+
+Calls `POST /api/trpc/libsql.changeStatus`.
+
+```bash
+notploy libsql change-status --libsqlId <libsqlId> --applicationStatus <applicationStatus>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+| `--applicationStatus <value>` | string | Yes | `idle`, `running`, `done`, `error` |
+
+### `notploy libsql create`
+
+Calls `POST /api/trpc/libsql.create`.
+
+```bash
+notploy libsql create --name <name> --appName <appName> --dockerImage <dockerImage> --environmentId <environmentId> --description <description> --databaseUser <databaseUser> --databasePassword <databasePassword> --sqldNode <sqldNode> --sqldPrimaryUrl <sqldPrimaryUrl> --enableNamespaces --serverId <serverId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--appName <value>` | string | Yes | — |
+| `--dockerImage <value>` | string | Yes | — |
+| `--environmentId <value>` | string | Yes | — |
+| `--description <value>` | string | Yes | — |
+| `--databaseUser <value>` | string | Yes | — |
+| `--databasePassword <value>` | string | Yes | — |
+| `--sqldNode <value>` | string | Yes | `primary`, `replica` |
+| `--sqldPrimaryUrl <value>` | string | Yes | — |
+| `--enableNamespaces` | boolean | Yes | — |
+| `--serverId <value>` | string | Yes | — |
+
+### `notploy libsql deploy`
+
+Calls `POST /api/trpc/libsql.deploy`.
+
+```bash
+notploy libsql deploy --libsqlId <libsqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+
+### `notploy libsql move`
+
+Calls `POST /api/trpc/libsql.move`.
+
+```bash
+notploy libsql move --libsqlId <libsqlId> --targetEnvironmentId <targetEnvironmentId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+| `--targetEnvironmentId <value>` | string | Yes | — |
+
+### `notploy libsql one`
+
+Calls `GET /api/trpc/libsql.one`.
+
+```bash
+notploy libsql one --libsqlId <libsqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+
+### `notploy libsql read-logs`
+
+Calls `GET /api/trpc/libsql.readLogs`.
+
+```bash
+notploy libsql read-logs --libsqlId <libsqlId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+| `--tail <value>` | number | No | — |
+| `--since <value>` | string | No | — |
+| `--search <value>` | string | No | — |
+
+### `notploy libsql rebuild`
+
+Calls `POST /api/trpc/libsql.rebuild`.
+
+```bash
+notploy libsql rebuild --libsqlId <libsqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+
+### `notploy libsql reload`
+
+Calls `POST /api/trpc/libsql.reload`.
+
+```bash
+notploy libsql reload --libsqlId <libsqlId> --appName <appName>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+| `--appName <value>` | string | Yes | — |
+
+### `notploy libsql remove`
+
+Calls `POST /api/trpc/libsql.remove`.
+
+```bash
+notploy libsql remove --libsqlId <libsqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+
+### `notploy libsql save-environment`
+
+Calls `POST /api/trpc/libsql.saveEnvironment`.
+
+```bash
+notploy libsql save-environment --libsqlId <libsqlId> --env <env>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+| `--env <value>` | string | Yes | — |
+
+### `notploy libsql save-external-ports`
+
+Calls `POST /api/trpc/libsql.saveExternalPorts`.
+
+```bash
+notploy libsql save-external-ports --libsqlId <libsqlId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+| `--externalPort <value>` | number | No | — |
+| `--externalGRPCPort <value>` | number | No | — |
+| `--externalAdminPort <value>` | number | No | — |
+
+### `notploy libsql start`
+
+Calls `POST /api/trpc/libsql.start`.
+
+```bash
+notploy libsql start --libsqlId <libsqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+
+### `notploy libsql stop`
+
+Calls `POST /api/trpc/libsql.stop`.
+
+```bash
+notploy libsql stop --libsqlId <libsqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+
+### `notploy libsql update`
+
+Calls `POST /api/trpc/libsql.update`.
+
+```bash
+notploy libsql update --libsqlId <libsqlId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--libsqlId <value>` | string | Yes | — |
+| `--name <value>` | string | No | — |
+| `--appName <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--databaseUser <value>` | string | No | — |
+| `--databasePassword <value>` | string | No | — |
+| `--sqldNode <value>` | string | No | `primary`, `replica` |
+| `--sqldPrimaryUrl <value>` | string | No | — |
+| `--enableNamespaces` | boolean | No | — |
+| `--dockerImage <value>` | string | No | — |
+| `--command <value>` | string | No | — |
+| `--env <value>` | string | No | — |
+| `--memoryReservation <value>` | string | No | — |
+| `--memoryLimit <value>` | string | No | — |
+| `--cpuReservation <value>` | string | No | — |
+| `--cpuLimit <value>` | string | No | — |
+| `--externalPort <value>` | number | No | — |
+| `--externalGRPCPort <value>` | number | No | — |
+| `--externalAdminPort <value>` | number | No | — |
+| `--applicationStatus <value>` | string | No | `idle`, `running`, `done`, `error` |
+| `--healthCheckSwarm <value>` | string | No | — |
+| `--restartPolicySwarm <value>` | string | No | — |
+| `--placementSwarm <value>` | string | No | — |
+| `--updateConfigSwarm <value>` | string | No | — |
+| `--rollbackConfigSwarm <value>` | string | No | — |
+| `--modeSwarm <value>` | string | No | — |
+| `--labelsSwarm <value>` | string | No | — |
+| `--networkSwarm <value>` | string | No | — |
+| `--stopGracePeriodSwarm <value>` | string | No | — |
+| `--endpointSpecSwarm <value>` | string | No | — |
+| `--replicas <value>` | number | No | — |
+| `--networkIds <value>` | string | No | — |
+| `--detachNotployNetwork` | boolean | No | — |
+| `--createdAt <value>` | string | No | — |
+| `--environmentId <value>` | string | No | — |

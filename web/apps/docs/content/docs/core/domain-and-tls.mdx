@@ -1,0 +1,53 @@
+---
+title: Domain and TLS
+description: "Route a hostname to your service and secure it with HTTPS."
+---
+
+A running service becomes reachable from the internet when a **domain** binds a hostname to its container port. This step connects the three layers described in the [Ecosystem](/docs/core/ecosystem#dns-domains-services-tls) overview: DNS → domain → TLS.
+
+## 1. Point DNS at your server
+
+Create a DNS record for your hostname:
+
+- Type: **A**
+- Name: your hostname (for example `app` for `app.example.com`)
+- Value: your server's public IP address
+
+If you use a [supported DNS provider](/docs/core/dns-providers), Notploy can manage records for you; otherwise add the record at your provider's control panel.
+
+**Expected result:** the hostname resolves to your server's IP (`dig app.example.com`).
+
+## 2. Add the domain in Notploy
+
+1. Open the service and go to the **Domains** tab.
+2. Add a domain:
+   - **Host** — `app.example.com`
+   - **Container port** — the port your app listens on (for example `3000`, or `80` for static builds)
+   - **HTTPS** — enabled
+   - **Certificate** — Let's Encrypt
+3. Save.
+
+For Applications, Notploy writes a Traefik routing rule and applies it immediately — no redeploy needed. For Compose, the route is defined by Docker labels, so you must **redeploy** for a domain change to take effect. See [Domains](/docs/core/domains) for the differences.
+
+**Expected result:** Notploy requests a certificate and reports it issued.
+
+## 3. Verify HTTPS
+
+Open `https://app.example.com`. You should see your application over a valid certificate.
+
+<Callout type="warn" title="Certificate not issued?">
+Let's Encrypt validates by reaching your hostname, so it fails if DNS is wrong, port 80 is
+blocked, or a redirect prevents the challenge. Fix DNS first, then retry. See
+[Certificates](/docs/core/certificates) and
+[Domains & Traefik troubleshooting](/docs/core/troubleshooting/domains).
+</Callout>
+
+## Generated domains (testing only)
+
+For quick tests without DNS setup, Notploy can generate a free `traefik.me` hostname. These are **HTTP-only**; enabling HTTPS on them requires an additional step described in [Certificates](/docs/core/certificates).
+
+## Related
+
+- [Domains](/docs/core/domains)
+- [Certificates](/docs/core/certificates)
+- [DNS providers](/docs/core/dns-providers)

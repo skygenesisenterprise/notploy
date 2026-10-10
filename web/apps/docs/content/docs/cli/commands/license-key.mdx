@@ -1,0 +1,73 @@
+---
+title: "License keys"
+description: "Activate and inspect the enterprise license of the instance. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Activate and inspect the enterprise license of the instance.
+
+`notploy license-key` exposes **6 commands**. They map one-to-one onto the `license-key.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy license-key --help` to list these commands in your terminal, or
+	`notploy license-key <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy license-key activate`
+
+Calls `POST /api/trpc/licenseKey.activate`.
+
+```bash
+notploy license-key activate --licenseKey <licenseKey>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--licenseKey <value>` | string | Yes | — |
+
+### `notploy license-key deactivate`
+
+Calls `POST /api/trpc/licenseKey.deactivate`.
+
+```bash
+notploy license-key deactivate
+```
+
+### `notploy license-key get-enterprise-settings`
+
+Calls `GET /api/trpc/licenseKey.getEnterpriseSettings`.
+
+```bash
+notploy license-key get-enterprise-settings
+```
+
+### `notploy license-key have-valid-license-key`
+
+Calls `GET /api/trpc/licenseKey.haveValidLicenseKey`.
+
+```bash
+notploy license-key have-valid-license-key
+```
+
+### `notploy license-key update-enterprise-settings`
+
+Calls `POST /api/trpc/licenseKey.updateEnterpriseSettings`.
+
+```bash
+notploy license-key update-enterprise-settings [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--enableEnterpriseFeatures` | boolean | No | — |
+
+### `notploy license-key validate`
+
+Calls `POST /api/trpc/licenseKey.validate`.
+
+```bash
+notploy license-key validate
+```

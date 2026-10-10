@@ -1,0 +1,63 @@
+---
+title: Connect a source
+description: "Connect a Git provider, a repository, or a container image so Notploy can deploy it."
+---
+
+Before you can deploy, Notploy needs somewhere to get your code or image from. This step connects that **source**. You can skip it entirely if you intend to deploy a prebuilt container image or upload an archive.
+
+## Option 1 — Connect a Git provider (recommended)
+
+A provider integration gives Notploy repository access, branch selection and webhooks for [auto-deploy](/docs/core/auto-deploy).
+
+1. Open **Settings → Git Providers**.
+2. Select your provider: **GitHub**, **GitLab**, **Bitbucket** or **Gitea**.
+3. Complete the provider setup (OAuth/git app or a token, depending on the provider).
+4. Authorise the repositories you want Notploy to see.
+
+**Expected result:** the provider appears as connected and its repositories are selectable when you create an application.
+
+<Callout type="info">
+Some providers require a public callback URL to complete the OAuth flow. If your panel is only
+reachable over `http://ip:3000`, configure the provider's callback to match that URL, or put the
+panel behind HTTPS first. See [Domain and TLS](/docs/core/domain-and-tls) and the
+individual provider pages under [Sources & providers](/docs/core/providers).
+</Callout>
+
+## Option 2 — Use any Git repository
+
+For repositories outside a supported provider, including private repositories over SSH:
+
+1. Create an **[SSH key](/docs/core/ssh-keys)** in Notploy (or generate an RSA key).
+2. Add the **public key** to your Git host (Settings → SSH keys).
+3. When creating a source, provide the repository URL, the branch, and the SSH key.
+
+Use the **SSH URL** (`git@host:user/repo.git`), not the HTTPS URL, for private repositories.
+
+## Option 3 — Deploy an image or archive
+
+- **Container image** — provide the image reference (for example `ghcr.io/org/app:tag`). If the registry is private, add it under [Registries](/docs/core/registry) so Notploy can authenticate.
+- **Uploaded archive** — upload a `.zip` from your machine; Notploy deploys it directly.
+
+## Which did I need?
+
+| Your situation | Use |
+| --- | --- |
+| Code in GitHub/GitLab/Bitbucket/Gitea | Provider integration |
+| Code in any other Git host, or private over SSH | SSH key |
+| A prebuilt image | Container image |
+| A one-off upload | Archive |
+
+<Callout type="info">
+Sources are configured **per service**, not globally. The provider integrations are shared
+resources; the repository and branch are chosen on each application or Compose service.
+</Callout>
+
+## Verify
+
+Create an application and confirm the repository and branch resolve without an authentication error. If you see a permission error, the SSH key or provider token is not authorised for that repository.
+
+## Related
+
+- [Sources & providers](/docs/core/providers)
+- [SSH keys](/docs/core/ssh-keys)
+- [Deploy your first application](/docs/core/first-deployment)

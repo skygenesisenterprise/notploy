@@ -1,0 +1,90 @@
+---
+title: "GitHub"
+description: "GitHub app connections, plus branch and repository lookups. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+GitHub app connections, plus branch and repository lookups.
+
+`notploy github` exposes **6 commands**. They map one-to-one onto the `github.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy github --help` to list these commands in your terminal, or
+	`notploy github <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy github get-github-branches`
+
+Calls `GET /api/trpc/github.getGithubBranches`.
+
+```bash
+notploy github get-github-branches --repo <repo> --owner <owner> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--repo <value>` | string | Yes | — |
+| `--owner <value>` | string | Yes | — |
+| `--githubId <value>` | string | No | — |
+
+### `notploy github get-github-repositories`
+
+Calls `GET /api/trpc/github.getGithubRepositories`.
+
+```bash
+notploy github get-github-repositories --githubId <githubId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--githubId <value>` | string | Yes | — |
+
+### `notploy github github-providers`
+
+Calls `GET /api/trpc/github.githubProviders`.
+
+```bash
+notploy github github-providers
+```
+
+### `notploy github one`
+
+Calls `GET /api/trpc/github.one`.
+
+```bash
+notploy github one --githubId <githubId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--githubId <value>` | string | Yes | — |
+
+### `notploy github test-connection`
+
+Calls `POST /api/trpc/github.testConnection`.
+
+```bash
+notploy github test-connection --githubId <githubId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--githubId <value>` | string | Yes | — |
+
+### `notploy github update`
+
+Calls `POST /api/trpc/github.update`.
+
+```bash
+notploy github update --githubId <githubId> --name <name> --gitProviderId <gitProviderId> --githubAppName <githubAppName>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--githubId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--gitProviderId <value>` | string | Yes | — |
+| `--githubAppName <value>` | string | Yes | — |

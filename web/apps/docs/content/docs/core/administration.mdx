@@ -1,0 +1,49 @@
+---
+title: Operate & administer
+description: "Run Notploy day to day: monitoring, maintenance, access control, troubleshooting and enterprise controls."
+---
+
+Deploying is the start, not the end. This section covers keeping Notploy and your workloads healthy, secure and recoverable over time.
+
+## Observability and health
+
+- **[Monitoring](/docs/core/monitoring)** — server and service metrics, thresholds and alerts.
+- **[Logs & monitoring troubleshooting](/docs/core/troubleshooting/logs-monitoring)** — when metrics or logs do not load.
+
+## Routine operations
+
+- **[Upgrade, backup and restore](/docs/core/upgrade-backup-restore)** — maintaining the platform itself.
+- **[Concurrent builds](/docs/core/concurrent-builds)** — controlling how many builds run at once per server.
+- **[Backups](/docs/core/backups)** — scheduled data protection.
+- **[Production hardening](/docs/core/guides/production-hardening)** — locking down a public installation.
+
+## Access control and administration
+
+- **[Permissions](/docs/core/permissions)** — roles and what they allow.
+- **[Account security](/docs/core/account-security)** — passwords, 2FA and sessions.
+- **[Multi-tenancy](/docs/core/multi-tenancy)** — running several isolated organizations.
+- **[Enterprise](/docs/core/enterprise)** — SSO, SCIM, custom roles, audit logs and whitelabeling.
+
+## Troubleshooting by symptom
+
+When something breaks, start from the symptom:
+
+<Cards>
+  <Card href="/docs/core/troubleshooting/domains" title="Domains & Traefik" description="404, 502, certificate and routing failures." />
+  <Card href="/docs/core/troubleshooting/networking" title="Networking & DNS" description="Swarm networking, service-to-service DNS, address pools." />
+  <Card href="/docs/core/troubleshooting/volumes-mounts" title="Volumes & mounts" description="Persistence, file mounts and repository files." />
+  <Card href="/docs/core/troubleshooting/logs-monitoring" title="Logs & monitoring" description="Missing logs or metrics on workers and remote servers." />
+  <Card href="/docs/core/troubleshooting/instance" title="Notploy instance" description="The panel itself is unavailable." />
+</Cards>
+
+## Guides
+
+- **[Production hardening](/docs/core/guides/production-hardening)**
+- **[Cloudflare Tunnels](/docs/core/guides/cloudflare-tunnels)**
+- **[Tailscale](/docs/core/guides/tailscale)**
+
+## Related
+
+- [Security](/docs/core/security)
+- [Reference → Known limitations](/docs/core/reference/limitations)
+- [Compatibility](/docs/core/migration/compatibility)

@@ -1,0 +1,332 @@
+---
+title: "Users"
+description: "Accounts, API keys, sessions, permissions and per-user metrics. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Accounts, API keys, sessions, permissions and per-user metrics.
+
+`notploy user` exposes **26 commands**. They map one-to-one onto the `user.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy user --help` to list these commands in your terminal, or
+	`notploy user <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy user all`
+
+Calls `GET /api/trpc/user.all`.
+
+```bash
+notploy user all
+```
+
+### `notploy user assign-permissions`
+
+Calls `POST /api/trpc/user.assignPermissions`.
+
+```bash
+notploy user assign-permissions --id <id> --accessedProjects <accessedProjects> --accessedEnvironments <accessedEnvironments> --accessedServices <accessedServices> --accessedGitProviders <accessedGitProviders> --accessedServers <accessedServers> --canCreateProjects --canCreateServices --canDeleteProjects --canDeleteServices --canAccessToDocker --canAccessToTraefikFiles --canAccessToAPI --canAccessToSSHKeys --canAccessToGitProviders --canDeleteEnvironments --canCreateEnvironments
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--id <value>` | string | Yes | — |
+| `--accessedProjects <value>` | string | Yes | — |
+| `--accessedEnvironments <value>` | string | Yes | — |
+| `--accessedServices <value>` | string | Yes | — |
+| `--accessedGitProviders <value>` | string | Yes | — |
+| `--accessedServers <value>` | string | Yes | — |
+| `--canCreateProjects` | boolean | Yes | — |
+| `--canCreateServices` | boolean | Yes | — |
+| `--canDeleteProjects` | boolean | Yes | — |
+| `--canDeleteServices` | boolean | Yes | — |
+| `--canAccessToDocker` | boolean | Yes | — |
+| `--canAccessToTraefikFiles` | boolean | Yes | — |
+| `--canAccessToAPI` | boolean | Yes | — |
+| `--canAccessToSSHKeys` | boolean | Yes | — |
+| `--canAccessToGitProviders` | boolean | Yes | — |
+| `--canDeleteEnvironments` | boolean | Yes | — |
+| `--canCreateEnvironments` | boolean | Yes | — |
+
+### `notploy user check-user-organizations`
+
+Calls `GET /api/trpc/user.checkUserOrganizations`.
+
+```bash
+notploy user check-user-organizations --userId <userId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--userId <value>` | string | Yes | — |
+
+### `notploy user create-api-key`
+
+Calls `POST /api/trpc/user.createApiKey`.
+
+```bash
+notploy user create-api-key --name <name> --metadata <metadata> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--prefix <value>` | string | No | — |
+| `--expiresIn <value>` | number | No | — |
+| `--metadata <value>` | string | Yes | — |
+| `--rateLimitEnabled` | boolean | No | — |
+| `--rateLimitTimeWindow <value>` | number | No | — |
+| `--rateLimitMax <value>` | number | No | — |
+| `--remaining <value>` | number | No | — |
+| `--refillAmount <value>` | number | No | — |
+| `--refillInterval <value>` | number | No | — |
+
+### `notploy user create-user-with-credentials`
+
+Calls `POST /api/trpc/user.createUserWithCredentials`.
+
+```bash
+notploy user create-user-with-credentials --email <email> --password <password> --role <role>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--email <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |
+| `--role <value>` | string | Yes | — |
+
+### `notploy user delete-api-key`
+
+Calls `POST /api/trpc/user.deleteApiKey`.
+
+```bash
+notploy user delete-api-key --apiKeyId <apiKeyId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--apiKeyId <value>` | string | Yes | — |
+
+### `notploy user generate-token`
+
+Calls `POST /api/trpc/user.generateToken`.
+
+```bash
+notploy user generate-token
+```
+
+### `notploy user get`
+
+Calls `GET /api/trpc/user.get`.
+
+```bash
+notploy user get
+```
+
+### `notploy user get-backups`
+
+Calls `GET /api/trpc/user.getBackups`.
+
+```bash
+notploy user get-backups
+```
+
+### `notploy user get-bookmarked-templates`
+
+Calls `GET /api/trpc/user.getBookmarkedTemplates`.
+
+```bash
+notploy user get-bookmarked-templates
+```
+
+### `notploy user get-container-metrics`
+
+Calls `GET /api/trpc/user.getContainerMetrics`.
+
+```bash
+notploy user get-container-metrics --url <url> --token <token> --appName <appName> --dataPoints <dataPoints>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--url <value>` | string | Yes | — |
+| `--token <value>` | string | Yes | — |
+| `--appName <value>` | string | Yes | — |
+| `--dataPoints <value>` | string | Yes | — |
+
+### `notploy user get-invitations`
+
+Calls `GET /api/trpc/user.getInvitations`.
+
+```bash
+notploy user get-invitations
+```
+
+### `notploy user get-metrics-token`
+
+Calls `GET /api/trpc/user.getMetricsToken`.
+
+```bash
+notploy user get-metrics-token
+```
+
+### `notploy user get-permissions`
+
+Calls `GET /api/trpc/user.getPermissions`.
+
+```bash
+notploy user get-permissions
+```
+
+### `notploy user get-server-metrics`
+
+Calls `GET /api/trpc/user.getServerMetrics`.
+
+```bash
+notploy user get-server-metrics
+```
+
+### `notploy user get-user-by-token`
+
+Calls `GET /api/trpc/user.getUserByToken`.
+
+```bash
+notploy user get-user-by-token --token <token>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--token <value>` | string | Yes | — |
+
+### `notploy user have-root-access`
+
+Calls `GET /api/trpc/user.haveRootAccess`.
+
+```bash
+notploy user have-root-access
+```
+
+### `notploy user list-passkeys`
+
+Calls `GET /api/trpc/user.listPasskeys`.
+
+```bash
+notploy user list-passkeys
+```
+
+### `notploy user list-sessions`
+
+Calls `GET /api/trpc/user.listSessions`.
+
+```bash
+notploy user list-sessions
+```
+
+### `notploy user one`
+
+Calls `GET /api/trpc/user.one`.
+
+```bash
+notploy user one --userId <userId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--userId <value>` | string | Yes | — |
+
+### `notploy user remove`
+
+Calls `POST /api/trpc/user.remove`.
+
+```bash
+notploy user remove --userId <userId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--userId <value>` | string | Yes | — |
+
+### `notploy user revoke-session`
+
+Calls `POST /api/trpc/user.revokeSession`.
+
+```bash
+notploy user revoke-session --sessionId <sessionId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--sessionId <value>` | string | Yes | — |
+
+### `notploy user send-invitation`
+
+Calls `POST /api/trpc/user.sendInvitation`.
+
+```bash
+notploy user send-invitation --invitationId <invitationId> --notificationId <notificationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--invitationId <value>` | string | Yes | — |
+| `--notificationId <value>` | string | Yes | — |
+
+### `notploy user session`
+
+Calls `GET /api/trpc/user.session`.
+
+```bash
+notploy user session
+```
+
+### `notploy user toggle-template-bookmark`
+
+Calls `POST /api/trpc/user.toggleTemplateBookmark`.
+
+```bash
+notploy user toggle-template-bookmark --templateId <templateId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--templateId <value>` | string | Yes | — |
+
+### `notploy user update`
+
+Calls `POST /api/trpc/user.update`.
+
+```bash
+notploy user update [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--id <value>` | string | No | — |
+| `--firstName <value>` | string | No | — |
+| `--lastName <value>` | string | No | — |
+| `--isRegistered` | boolean | No | — |
+| `--expirationDate <value>` | string | No | — |
+| `--createdAt2 <value>` | string | No | — |
+| `--createdAt <value>` | string | No | — |
+| `--twoFactorEnabled` | boolean | No | — |
+| `--email <value>` | string | No | — |
+| `--emailVerified` | boolean | No | — |
+| `--image <value>` | string | No | — |
+| `--banned` | boolean | No | — |
+| `--banReason <value>` | string | No | — |
+| `--banExpires <value>` | string | No | — |
+| `--updatedAt <value>` | string | No | — |
+| `--enablePaidFeatures` | boolean | No | — |
+| `--allowImpersonation` | boolean | No | — |
+| `--enableEnterpriseFeatures` | boolean | No | — |
+| `--licenseKey <value>` | string | No | — |
+| `--stripeCustomerId <value>` | string | No | — |
+| `--stripeSubscriptionId <value>` | string | No | — |
+| `--serversQuantity <value>` | number | No | — |
+| `--sendInvoiceNotifications` | boolean | No | — |
+| `--password <value>` | string | No | — |
+| `--currentPassword <value>` | string | No | — |

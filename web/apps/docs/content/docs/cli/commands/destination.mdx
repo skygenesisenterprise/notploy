@@ -1,0 +1,110 @@
+---
+title: "Destinations"
+description: "S3-compatible storage destinations that backups are uploaded to. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+S3-compatible storage destinations that backups are uploaded to.
+
+`notploy destination` exposes **6 commands**. They map one-to-one onto the `destination.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy destination --help` to list these commands in your terminal, or
+	`notploy destination <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy destination all`
+
+Calls `GET /api/trpc/destination.all`.
+
+```bash
+notploy destination all
+```
+
+### `notploy destination create`
+
+Calls `POST /api/trpc/destination.create`.
+
+```bash
+notploy destination create --name <name> --provider <provider> --accessKey <accessKey> --bucket <bucket> --region <region> --endpoint <endpoint> --secretAccessKey <secretAccessKey> --additionalFlags <additionalFlags> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--provider <value>` | string | Yes | — |
+| `--accessKey <value>` | string | Yes | — |
+| `--bucket <value>` | string | Yes | — |
+| `--region <value>` | string | Yes | — |
+| `--endpoint <value>` | string | Yes | — |
+| `--secretAccessKey <value>` | string | Yes | — |
+| `--additionalFlags <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy destination one`
+
+Calls `GET /api/trpc/destination.one`.
+
+```bash
+notploy destination one --destinationId <destinationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--destinationId <value>` | string | Yes | — |
+
+### `notploy destination remove`
+
+Calls `POST /api/trpc/destination.remove`.
+
+```bash
+notploy destination remove --destinationId <destinationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--destinationId <value>` | string | Yes | — |
+
+### `notploy destination test-connection`
+
+Calls `POST /api/trpc/destination.testConnection`.
+
+```bash
+notploy destination test-connection --name <name> --provider <provider> --accessKey <accessKey> --bucket <bucket> --region <region> --endpoint <endpoint> --secretAccessKey <secretAccessKey> --additionalFlags <additionalFlags> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--provider <value>` | string | Yes | — |
+| `--accessKey <value>` | string | Yes | — |
+| `--bucket <value>` | string | Yes | — |
+| `--region <value>` | string | Yes | — |
+| `--endpoint <value>` | string | Yes | — |
+| `--secretAccessKey <value>` | string | Yes | — |
+| `--additionalFlags <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy destination update`
+
+Calls `POST /api/trpc/destination.update`.
+
+```bash
+notploy destination update --name <name> --accessKey <accessKey> --bucket <bucket> --region <region> --endpoint <endpoint> --secretAccessKey <secretAccessKey> --destinationId <destinationId> --provider <provider> --additionalFlags <additionalFlags> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--accessKey <value>` | string | Yes | — |
+| `--bucket <value>` | string | Yes | — |
+| `--region <value>` | string | Yes | — |
+| `--endpoint <value>` | string | Yes | — |
+| `--secretAccessKey <value>` | string | Yes | — |
+| `--destinationId <value>` | string | Yes | — |
+| `--provider <value>` | string | Yes | — |
+| `--additionalFlags <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |

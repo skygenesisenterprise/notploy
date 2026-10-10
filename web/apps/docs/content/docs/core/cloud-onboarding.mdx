@@ -1,0 +1,51 @@
+---
+title: Cloud onboarding
+description: "Create a Cloud account, connect your first server, and deploy."
+---
+
+**Purpose** — Get from a new Notploy Cloud account to a running deployment, with your workloads on your own servers.
+
+<Callout type="info" title="Scope">
+This page applies to **Notploy Cloud**. On **Self-Hosted**, you install the control plane yourself —
+see [Get started](/docs/core/get-started).
+</Callout>
+
+## 1. Create an account
+
+Register at [app.notploy.com](https://app.notploy.com). The account provisions a managed control plane for you — dashboard, database and orchestration — so there is nothing to install.
+
+## 2. Connect a server
+
+Cloud deploys to **your** servers, so it needs at least one:
+
+1. Add a server by providing SSH connection details (host, port, user and SSH key).
+2. Cloud connects and prepares the server — Docker, Traefik and a lightweight monitoring agent.
+3. Confirm the server shows as reachable.
+
+The server can be from any provider (AWS, GCP, Azure, DigitalOcean, Hetzner…) and must be reachable over SSH.
+
+<Callout type="info">
+Your code and data stay on your servers. Cloud manages orchestration, not your workloads' data.
+</Callout>
+
+## 3. Deploy
+
+From here the workflow matches Self-Hosted: connect a [source](/docs/core/connect-source), create a project and an [application](/docs/core/first-deployment), then add a [domain](/docs/core/domain-and-tls).
+
+## 4. Understand what is managed
+
+| Component | Managed by |
+| --- | --- |
+| Control plane (dashboard, database, orchestration) | **Notploy** — updates and uptime handled for you. |
+| Your workloads, data, Traefik on your servers | **You.** |
+
+<Callout type="info">
+If the Cloud control plane is briefly unavailable, your applications keep running — Traefik
+serves them independently. Only management is interrupted. See [Architecture](/docs/core/architecture).
+</Callout>
+
+## Related
+
+- [Notploy Cloud](/docs/core/cloud)
+- [Plans](/docs/core/cloud-plans)
+- [Editions & scope](/docs/core/differences)

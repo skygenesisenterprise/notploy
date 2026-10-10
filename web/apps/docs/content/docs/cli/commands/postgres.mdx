@@ -1,0 +1,265 @@
+---
+title: "PostgreSQL"
+description: "Provision and operate PostgreSQL databases, including backups and external ports. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Provision and operate PostgreSQL databases, including backups and external ports.
+
+`notploy postgres` exposes **16 commands**. They map one-to-one onto the `postgres.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy postgres --help` to list these commands in your terminal, or
+	`notploy postgres <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy postgres change-password`
+
+Calls `POST /api/trpc/postgres.changePassword`.
+
+```bash
+notploy postgres change-password --postgresId <postgresId> --password <password>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |
+
+### `notploy postgres change-status`
+
+Calls `POST /api/trpc/postgres.changeStatus`.
+
+```bash
+notploy postgres change-status --postgresId <postgresId> --applicationStatus <applicationStatus>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+| `--applicationStatus <value>` | string | Yes | `idle`, `running`, `done`, `error` |
+
+### `notploy postgres create`
+
+Calls `POST /api/trpc/postgres.create`.
+
+```bash
+notploy postgres create --name <name> --databaseName <databaseName> --databaseUser <databaseUser> --databasePassword <databasePassword> --environmentId <environmentId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--appName <value>` | string | No | — |
+| `--databaseName <value>` | string | Yes | — |
+| `--databaseUser <value>` | string | Yes | — |
+| `--databasePassword <value>` | string | Yes | — |
+| `--dockerImage <value>` | string | No | — |
+| `--environmentId <value>` | string | Yes | — |
+| `--description <value>` | string | No | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy postgres deploy`
+
+Calls `POST /api/trpc/postgres.deploy`.
+
+```bash
+notploy postgres deploy --postgresId <postgresId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+
+### `notploy postgres move`
+
+Calls `POST /api/trpc/postgres.move`.
+
+```bash
+notploy postgres move --postgresId <postgresId> --targetEnvironmentId <targetEnvironmentId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+| `--targetEnvironmentId <value>` | string | Yes | — |
+
+### `notploy postgres one`
+
+Calls `GET /api/trpc/postgres.one`.
+
+```bash
+notploy postgres one --postgresId <postgresId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+
+### `notploy postgres read-logs`
+
+Calls `GET /api/trpc/postgres.readLogs`.
+
+```bash
+notploy postgres read-logs --postgresId <postgresId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+| `--tail <value>` | number | No | — |
+| `--since <value>` | string | No | — |
+| `--search <value>` | string | No | — |
+
+### `notploy postgres rebuild`
+
+Calls `POST /api/trpc/postgres.rebuild`.
+
+```bash
+notploy postgres rebuild --postgresId <postgresId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+
+### `notploy postgres reload`
+
+Calls `POST /api/trpc/postgres.reload`.
+
+```bash
+notploy postgres reload --postgresId <postgresId> --appName <appName>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+| `--appName <value>` | string | Yes | — |
+
+### `notploy postgres remove`
+
+Calls `POST /api/trpc/postgres.remove`.
+
+```bash
+notploy postgres remove --postgresId <postgresId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+
+### `notploy postgres save-environment`
+
+Calls `POST /api/trpc/postgres.saveEnvironment`.
+
+```bash
+notploy postgres save-environment --postgresId <postgresId> --env <env>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+| `--env <value>` | string | Yes | — |
+
+### `notploy postgres save-external-port`
+
+Calls `POST /api/trpc/postgres.saveExternalPort`.
+
+```bash
+notploy postgres save-external-port --postgresId <postgresId> --externalPort <externalPort>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+| `--externalPort <value>` | number | Yes | — |
+
+### `notploy postgres search`
+
+Calls `GET /api/trpc/postgres.search`.
+
+```bash
+notploy postgres search [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--q <value>` | string | No | — |
+| `--name <value>` | string | No | — |
+| `--appName <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--projectId <value>` | string | No | — |
+| `--environmentId <value>` | string | No | — |
+| `--limit <value>` | number | No | — |
+| `--offset <value>` | number | No | — |
+
+### `notploy postgres start`
+
+Calls `POST /api/trpc/postgres.start`.
+
+```bash
+notploy postgres start --postgresId <postgresId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+
+### `notploy postgres stop`
+
+Calls `POST /api/trpc/postgres.stop`.
+
+```bash
+notploy postgres stop --postgresId <postgresId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+
+### `notploy postgres update`
+
+Calls `POST /api/trpc/postgres.update`.
+
+```bash
+notploy postgres update --postgresId <postgresId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--postgresId <value>` | string | Yes | — |
+| `--name <value>` | string | No | — |
+| `--appName <value>` | string | No | — |
+| `--databaseName <value>` | string | No | — |
+| `--databaseUser <value>` | string | No | — |
+| `--databasePassword <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--dockerImage <value>` | string | No | — |
+| `--command <value>` | string | No | — |
+| `--args <value>` | string | No | — |
+| `--env <value>` | string | No | — |
+| `--memoryReservation <value>` | string | No | — |
+| `--externalPort <value>` | number | No | — |
+| `--memoryLimit <value>` | string | No | — |
+| `--cpuReservation <value>` | string | No | — |
+| `--cpuLimit <value>` | string | No | — |
+| `--applicationStatus <value>` | string | No | `idle`, `running`, `done`, `error` |
+| `--healthCheckSwarm <value>` | string | No | — |
+| `--restartPolicySwarm <value>` | string | No | — |
+| `--placementSwarm <value>` | string | No | — |
+| `--updateConfigSwarm <value>` | string | No | — |
+| `--rollbackConfigSwarm <value>` | string | No | — |
+| `--modeSwarm <value>` | string | No | — |
+| `--labelsSwarm <value>` | string | No | — |
+| `--networkSwarm <value>` | string | No | — |
+| `--stopGracePeriodSwarm <value>` | string | No | — |
+| `--endpointSpecSwarm <value>` | string | No | — |
+| `--ulimitsSwarm <value>` | string | No | — |
+| `--replicas <value>` | number | No | — |
+| `--createdAt <value>` | string | No | — |
+| `--environmentId <value>` | string | No | — |
+| `--networkIds <value>` | string | No | — |
+| `--detachNotployNetwork` | boolean | No | — |

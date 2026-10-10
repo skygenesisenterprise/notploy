@@ -1,0 +1,69 @@
+---
+title: "Security"
+description: "Per-application HTTP basic auth and response security headers. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Per-application HTTP basic auth and response security headers.
+
+`notploy security` exposes **4 commands**. They map one-to-one onto the `security.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy security --help` to list these commands in your terminal, or
+	`notploy security <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy security create`
+
+Calls `POST /api/trpc/security.create`.
+
+```bash
+notploy security create --applicationId <applicationId> --username <username> --password <password>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--applicationId <value>` | string | Yes | — |
+| `--username <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |
+
+### `notploy security delete`
+
+Calls `POST /api/trpc/security.delete`.
+
+```bash
+notploy security delete --securityId <securityId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--securityId <value>` | string | Yes | — |
+
+### `notploy security one`
+
+Calls `GET /api/trpc/security.one`.
+
+```bash
+notploy security one --securityId <securityId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--securityId <value>` | string | Yes | — |
+
+### `notploy security update`
+
+Calls `POST /api/trpc/security.update`.
+
+```bash
+notploy security update --securityId <securityId> --username <username> --password <password>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--securityId <value>` | string | Yes | — |
+| `--username <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |

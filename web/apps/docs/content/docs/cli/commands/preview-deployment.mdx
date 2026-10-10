@@ -1,0 +1,67 @@
+---
+title: "Preview deployments"
+description: "Per-branch deployments created when preview deployments are enabled. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Per-branch deployments created when preview deployments are enabled.
+
+`notploy preview-deployment` exposes **4 commands**. They map one-to-one onto the `preview-deployment.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy preview-deployment --help` to list these commands in your terminal, or
+	`notploy preview-deployment <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy preview-deployment all`
+
+Calls `GET /api/trpc/previewDeployment.all`.
+
+```bash
+notploy preview-deployment all --applicationId <applicationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--applicationId <value>` | string | Yes | — |
+
+### `notploy preview-deployment delete`
+
+Calls `POST /api/trpc/previewDeployment.delete`.
+
+```bash
+notploy preview-deployment delete --previewDeploymentId <previewDeploymentId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--previewDeploymentId <value>` | string | Yes | — |
+
+### `notploy preview-deployment one`
+
+Calls `GET /api/trpc/previewDeployment.one`.
+
+```bash
+notploy preview-deployment one --previewDeploymentId <previewDeploymentId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--previewDeploymentId <value>` | string | Yes | — |
+
+### `notploy preview-deployment redeploy`
+
+Calls `POST /api/trpc/previewDeployment.redeploy`.
+
+```bash
+notploy preview-deployment redeploy --previewDeploymentId <previewDeploymentId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--previewDeploymentId <value>` | string | Yes | — |
+| `--title <value>` | string | No | — |
+| `--description <value>` | string | No | — |

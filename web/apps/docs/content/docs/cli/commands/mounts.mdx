@@ -1,0 +1,112 @@
+---
+title: "Mounts"
+description: "Bind mounts and named volumes attached to applications and Compose services. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Bind mounts and named volumes attached to applications and Compose services.
+
+`notploy mounts` exposes **6 commands**. They map one-to-one onto the `mounts.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy mounts --help` to list these commands in your terminal, or
+	`notploy mounts <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy mounts all-named-by-application-id`
+
+Calls `GET /api/trpc/mounts.allNamedByApplicationId`.
+
+```bash
+notploy mounts all-named-by-application-id --applicationId <applicationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--applicationId <value>` | string | Yes | — |
+
+### `notploy mounts create`
+
+Calls `POST /api/trpc/mounts.create`.
+
+```bash
+notploy mounts create --type <type> --mountPath <mountPath> --serviceId <serviceId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--type <value>` | string | Yes | `bind`, `volume`, `file` |
+| `--hostPath <value>` | string | No | — |
+| `--volumeName <value>` | string | No | — |
+| `--content <value>` | string | No | — |
+| `--mountPath <value>` | string | Yes | — |
+| `--filePath <value>` | string | No | — |
+| `--serviceType <value>` | string | No | `application`, `postgres`, `mysql`, `mariadb`, `mongo`, `redis`, `compose`, `libsql` |
+| `--serviceId <value>` | string | Yes | — |
+
+### `notploy mounts list-by-service-id`
+
+Calls `GET /api/trpc/mounts.listByServiceId`.
+
+```bash
+notploy mounts list-by-service-id --serviceType <serviceType> --serviceId <serviceId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serviceType <value>` | string | Yes | — |
+| `--serviceId <value>` | string | Yes | — |
+
+### `notploy mounts one`
+
+Calls `GET /api/trpc/mounts.one`.
+
+```bash
+notploy mounts one --mountId <mountId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mountId <value>` | string | Yes | — |
+
+### `notploy mounts remove`
+
+Calls `POST /api/trpc/mounts.remove`.
+
+```bash
+notploy mounts remove --mountId <mountId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mountId <value>` | string | Yes | — |
+
+### `notploy mounts update`
+
+Calls `POST /api/trpc/mounts.update`.
+
+```bash
+notploy mounts update --mountId <mountId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mountId <value>` | string | Yes | — |
+| `--type <value>` | string | No | `bind`, `volume`, `file` |
+| `--hostPath <value>` | string | No | — |
+| `--volumeName <value>` | string | No | — |
+| `--filePath <value>` | string | No | — |
+| `--content <value>` | string | No | — |
+| `--serviceType <value>` | string | No | `application`, `postgres`, `mysql`, `mariadb`, `mongo`, `redis`, `compose`, `libsql` |
+| `--mountPath <value>` | string | No | — |
+| `--applicationId <value>` | string | No | — |
+| `--composeId <value>` | string | No | — |
+| `--libsqlId <value>` | string | No | — |
+| `--mariadbId <value>` | string | No | — |
+| `--mongoId <value>` | string | No | — |
+| `--mysqlId <value>` | string | No | — |
+| `--postgresId <value>` | string | No | — |
+| `--redisId <value>` | string | No | — |

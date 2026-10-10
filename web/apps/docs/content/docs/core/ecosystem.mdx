@@ -1,0 +1,83 @@
+---
+title: Ecosystem
+description: "How Notploy's features connect — the relationships between DNS, domains, secrets, registries, storage and your services."
+---
+
+Notploy is not a list of unrelated menu entries. Its features form a connected platform, and most real problems are solved by understanding how they relate. This page maps the important relationships so you can follow them from whatever you are configuring.
+
+## The relationships at a glance
+
+```text
+Git provider ──► Source ──► Build ──► Registry ──► Deployment ──► Container
+   (SSH key)                  │                          │
+                              │                          ├──► Domain ──► TLS certificate
+                              │                          │       ▲
+                              │                          │    DNS provider / records
+                              │                          │
+                              │                          └──► Notifications
+                              │
+Secrets provider ─────────────┘ (read at build/deploy time)
+
+Object storage (S3) ◄── Backups ◄── Database & Volumes (Volume Backups)
+                          └──► Restore
+```
+
+## Sources → builds → deployments
+
+An **Application** or **Compose** service reads its code from a **source**: a Git provider, any Git URL, a container image, an uploaded archive or (for Compose) a raw file. The **source** and the **build type** together determine how Notploy produces a runnable image.
+
+- Git-based sources need credentials — either the provider app/integration or an [SSH key](/docs/core/ssh-keys).
+- The **build type** (Dockerfile, Nixpacks, Railpack, buildpacks, or a prebuilt image) decides whether Notploy builds anything at all.
+- When a workload runs away from where it is built, the resulting image must be pushed to a [registry](/docs/core/registry) that the target server can pull from.
+
+→ [Sources & providers](/docs/core/providers) · [Build types](/docs/core/applications/build-type) · [Deployments](/docs/core/concepts#deployment)
+
+## Secrets → services
+
+Environment variables and secrets are consumed by services at build and deploy time. Notploy resolves them from multiple levels — **project**, **environment**, **service** — and can also read secrets from an external [secrets provider](/docs/core/secrets-providers) such as HashiCorp Vault, AWS Secrets Manager or Infisical. Which level you use determines scope and blast radius.
+
+→ [Environment variables](/docs/core/variables) · [Secrets](/docs/core/security/secrets)
+
+## DNS → domains → services → TLS
+
+Three layers make a service reachable:
+
+1. **DNS** maps a hostname to the server's address. You can manage records manually at your provider or connect a [DNS provider](/docs/core/dns-providers) to automate them.
+2. A **domain** in Notploy binds that hostname to the service's container port and creates the routing rule in Traefik.
+3. **TLS** — automatic via Let's Encrypt, a [generated certificate](/docs/core/certificates) or your own — secures the connection. Certificate issuance depends on DNS already resolving correctly.
+
+Each layer depends on the one before it, which is why "the domain does not work" is usually a DNS problem rather than a Notploy problem. The [troubleshooting guides](/docs/core/troubleshooting/domains) walk the chain in order.
+
+→ [Domains](/docs/core/domains) · [Certificates](/docs/core/certificates)
+
+## Object storage → backups → restore
+
+**Databases** and **Docker named volumes** can be backed up on a schedule. Backups are written to an **S3-compatible destination** you configure once as a resource. Restoring reads back from that same destination, so if the destination is misconfigured you discover it at the worst possible time — configure and test it before you need it.
+
+Bind mounts (the `../files` folder in Compose) are **not** covered by Volume Backups; only Docker named volumes are.
+
+→ [Backups](/docs/core/backups) · [Object storage](/docs/core/s3-destinations) · [Volume backups](/docs/core/volume-backups)
+
+## Servers → deployments
+
+Where a service runs is decided by its **server target** and, for clusters, its **registry** and replica settings. The same build can be released to the local server, a [remote server](/docs/core/remote-servers) over SSH, or a [Swarm node](/docs/core/cluster). Moving a service between topologies changes *where* it runs, not *how* it is described.
+
+→ [Deployment options](/docs/core/deployment-options)
+
+## Deployments → notifications
+
+Deployment results, and monitoring threshold alerts, are delivered through **notification channels**. Connecting a channel turns status from something you have to check into something that reaches your team.
+
+→ [Notifications](/docs/core/overview) · [Monitoring](/docs/core/monitoring)
+
+## Automation → everything
+
+Every management action available in the dashboard is available through the **API**, and therefore through the **CLI**, **SDK** and **MCP server**. Automation does not bypass the model above — it drives the same projects, services and resources, so a deployment triggered by CI and one triggered by the UI are the same deployment.
+
+→ [Develop & integrate](/docs/core/develop)
+
+## Related
+
+- [Core concepts](/docs/core/concepts) — the vocabulary behind these relationships.
+- [Architecture](/docs/core/architecture) — control plane vs. data plane.
+- [Capabilities](/docs/core/features) — the features themselves.

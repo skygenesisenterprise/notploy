@@ -1,0 +1,122 @@
+---
+title: "Schedules"
+description: "Cron jobs that run a shell command inside a deployed service. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Cron jobs that run a shell command inside a deployed service.
+
+`notploy schedule` exposes **6 commands**. They map one-to-one onto the `schedule.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy schedule --help` to list these commands in your terminal, or
+	`notploy schedule <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy schedule create`
+
+Calls `POST /api/trpc/schedule.create`.
+
+```bash
+notploy schedule create --name <name> --cronExpression <cronExpression> --command <command> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--scheduleId <value>` | string | No | — |
+| `--name <value>` | string | Yes | — |
+| `--description <value>` | string | No | — |
+| `--cronExpression <value>` | string | Yes | — |
+| `--appName <value>` | string | No | — |
+| `--serviceName <value>` | string | No | — |
+| `--shellType <value>` | string | No | `bash`, `sh` |
+| `--scheduleType <value>` | string | No | `application`, `compose`, `server`, `notploy-server` |
+| `--command <value>` | string | Yes | — |
+| `--script <value>` | string | No | — |
+| `--applicationId <value>` | string | No | — |
+| `--composeId <value>` | string | No | — |
+| `--serverId <value>` | string | No | — |
+| `--organizationId <value>` | string | No | — |
+| `--enabled` | boolean | No | — |
+| `--timezone <value>` | string | No | — |
+| `--createdAt <value>` | string | No | — |
+
+### `notploy schedule delete`
+
+Calls `POST /api/trpc/schedule.delete`.
+
+```bash
+notploy schedule delete --scheduleId <scheduleId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--scheduleId <value>` | string | Yes | — |
+
+### `notploy schedule list`
+
+Calls `GET /api/trpc/schedule.list`.
+
+```bash
+notploy schedule list --id <id> --scheduleType <scheduleType>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--id <value>` | string | Yes | — |
+| `--scheduleType <value>` | string | Yes | `application`, `compose`, `server`, `notploy-server` |
+
+### `notploy schedule one`
+
+Calls `GET /api/trpc/schedule.one`.
+
+```bash
+notploy schedule one --scheduleId <scheduleId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--scheduleId <value>` | string | Yes | — |
+
+### `notploy schedule run-manually`
+
+Calls `POST /api/trpc/schedule.runManually`.
+
+```bash
+notploy schedule run-manually --scheduleId <scheduleId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--scheduleId <value>` | string | Yes | — |
+
+### `notploy schedule update`
+
+Calls `POST /api/trpc/schedule.update`.
+
+```bash
+notploy schedule update --scheduleId <scheduleId> --name <name> --cronExpression <cronExpression> --command <command> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--scheduleId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--description <value>` | string | No | — |
+| `--cronExpression <value>` | string | Yes | — |
+| `--appName <value>` | string | No | — |
+| `--serviceName <value>` | string | No | — |
+| `--shellType <value>` | string | No | `bash`, `sh` |
+| `--scheduleType <value>` | string | No | `application`, `compose`, `server`, `notploy-server` |
+| `--command <value>` | string | Yes | — |
+| `--script <value>` | string | No | — |
+| `--applicationId <value>` | string | No | — |
+| `--composeId <value>` | string | No | — |
+| `--serverId <value>` | string | No | — |
+| `--organizationId <value>` | string | No | — |
+| `--enabled` | boolean | No | — |
+| `--timezone <value>` | string | No | — |
+| `--createdAt <value>` | string | No | — |

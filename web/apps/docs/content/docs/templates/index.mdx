@@ -1,0 +1,49 @@
+---
+title: Templates
+description: "Start from a blueprint or an example instead of a blank project."
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+**Purpose** — Templates give you a working starting point. Instead of configuring an application or Compose stack from scratch, you deploy a blueprint and adapt it, or follow an example that matches your framework.
+
+## Two kinds of starting point
+
+| | Use when |
+| --- | --- |
+| **Templates gallery** | You want a ready-made Compose stack for a known open-source app (databases, CMS, analytics, tools). |
+| **Framework examples** | You are deploying your own application and want the recommended settings for its framework. |
+
+## Templates gallery
+
+The [Notploy Templates gallery](https://templates.notploy.com) is a catalogue of one-click open-source blueprints. Each template provides a Docker Compose definition that Notploy can deploy directly, so you can stand up a service without authoring the compose file yourself.
+
+→ Browse the gallery at [templates.notploy.com](https://templates.notploy.com)
+
+<Callout type="info">
+Templates deploy as [Docker Compose](/docs/core/docker-compose) services. Once deployed, they behave like
+any other Compose stack — you can edit the compose file, set variables and add domains.
+</Callout>
+
+## Framework examples
+
+Examples show how to deploy common frameworks on Notploy, including the recommended **build type** and any framework-specific settings (for example the port to expose, or a build command). They are reference pages, not files you deploy directly.
+
+<Cards>
+  <Card href="/docs/templates/examples/nextjs" title="Next.js" />
+  <Card href="/docs/templates/examples/vite-react" title="Vite + React" />
+  <Card href="/docs/templates/examples/remix" title="Remix" />
+  <Card href="/docs/templates/examples/nestjs" title="NestJS" />
+  <Card href="/docs/templates/examples/astro" title="Astro" />
+  <Card href="/docs/templates/examples/svelte" title="Svelte" />
+  <Card href="/docs/templates/examples/vuejs" title="Vue.js" />
+  <Card href="/docs/templates/examples/turborepo" title="Turborepo" />
+</Cards>
+
+See the full list in the **Examples** section of this sidebar.
+
+## Related
+
+- [Docker Compose](/docs/core/docker-compose)
+- [Build types](/docs/core/applications/build-type)
+- [Deploy your first application](/docs/core/first-deployment)

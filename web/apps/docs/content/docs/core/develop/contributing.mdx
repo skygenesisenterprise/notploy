@@ -1,0 +1,77 @@
+---
+title: Contributing
+description: "Set up the development environment, understand the repository, and contribute changes."
+---
+
+**Purpose** — Help contributors run Notploy locally, find their way around the monorepo, and land changes with the expected checks. This page is aimed at people changing Notploy itself, not at people deploying with it.
+
+## Requirements
+
+- **Node.js** 24.4 or later (24.x line)
+- **pnpm** 10.22 or later
+- **PostgreSQL** (provided by the Docker Compose stack if you prefer)
+
+See [Platform support](/docs/core/reference/platform-support).
+
+## Getting started
+
+```bash
+git clone https://github.com/skygenesisenterprise/notploy.git
+cd notploy
+pnpm install --frozen-lockfile
+```
+
+The easiest way to get a full local stack (including PostgreSQL) is Docker Compose:
+
+```bash
+cp .env.example .env
+# set POSTGRES_PASSWORD and BETTER_AUTH_SECRET
+docker compose up --build -d
+```
+
+For running the application directly against your own database, use the root scripts.
+
+## Repository layout
+
+| Path | Role |
+| --- | --- |
+| `apps/notploy` | Main dashboard, API and application server. |
+| `packages/server` | Shared server, deployment, database and platform logic. |
+| `apps/api` | API and background-work service. |
+| `apps/schedules` | Scheduled jobs service. |
+| `packages/cli` | CLI client. |
+| `packages/sdk` | Generated TypeScript SDK. |
+| `packages/mcp` | MCP server. |
+| `web/apps/website`, `web/apps/docs` | Website and documentation. |
+| `templates` | Template gallery and blueprints. |
+| `examples` | Standalone deployment examples (outside the workspace). |
+
+## Common commands
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm dev` | Run the Notploy application. |
+| `pnpm build` | Build workspace packages. |
+| `pnpm test` | Run the application test suite. |
+| `pnpm typecheck` | Type-check workspace packages. |
+| `pnpm lint` | Run Biome checks. |
+| `pnpm docs:dev` / `pnpm docs:build` | Run or build the documentation site. |
+
+## Before opening a pull request
+
+- Run `pnpm test`, `pnpm typecheck` and `pnpm lint`.
+- Keep PR titles in [Conventional Commits](https://www.conventionalcommits.org) format (`fix: …`, `feat: …`, `docs: …`).
+- Add a changeset with `pnpm changeset` when your change is user-facing.
+- Choose the right pull request template.
+
+## Documentation changes
+
+When a change affects user-facing behavior, configuration, deployment, security, migration or API contracts, update the documentation in the same pull request. Follow the [editorial principles](/docs/core/philosophy) and the page template: purpose, concepts, prerequisites, procedure, verification, troubleshooting, limitations and related pages.
+
+Keep examples aligned with current package names, commands, endpoints and environment variables, and never include real credentials.
+
+## Related
+
+- [Architecture](/docs/core/architecture#repository-architecture)
+- [Product philosophy](/docs/core/philosophy)
+- [Changelog](/docs/core/reference/changelog)

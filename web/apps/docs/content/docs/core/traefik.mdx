@@ -1,0 +1,59 @@
+---
+title: Traefik
+description: "How Notploy uses Traefik as its reverse proxy to route traffic and terminate TLS."
+---
+
+**Purpose** — Traefik is the reverse proxy and load balancer that sits in front of your services. It receives all HTTP/HTTPS traffic on the server and forwards each request to the right container based on routing rules that Notploy configures. It also terminates TLS.
+
+## How it fits into Notploy
+
+Traefik listens on ports **80** and **443**. For every service you expose with a [domain](/docs/core/domains), Notploy creates a routing rule — a *router* (matches the hostname), a *service* (points at the container) and any *middlewares* (redirects, path handling, forward auth). Traefik then load-balances across the healthy replicas of that service.
+
+How Notploy feeds Traefik depends on the service type:
+
+| Service type | Mechanism | Apply changes by |
+| --- | --- | --- |
+| **Application** | A configuration file managed through Traefik's file provider. | Saving — applied immediately (hot reload). |
+| **Docker Compose** | Docker **labels** on the containers. | **Redeploying** the stack. |
+
+This difference explains a frequent surprise: an Application's domain change takes effect at once, while a Compose domain change requires a new deployment. See [Domains](/docs/core/domains).
+
+## Inspecting the configuration
+
+- **Traefik File System** — view and edit the generated configuration from the dashboard.
+- **Advanced → Traefik** on a service — see the rules generated for that service.
+- **Requests** — analyze incoming HTTP requests handled by Traefik.
+
+Because the routing is ordinary Traefik configuration, it remains inspectable: you can read exactly which router matches which hostname and which service it points at.
+
+## TLS
+
+Traefik obtains and renews certificates using the configured resolvers (Let's Encrypt by default) and serves them on the `websecure` entrypoint. Custom certificates are managed as [resources](/docs/core/certificates).
+
+## Prerequisites and permissions
+
+- Ports **80** and **443** must be free and reachable from the internet for public routing and certificate issuance.
+- Modifying the Traefik file system requires access to the relevant server.
+
+## Verification
+
+1. A domain resolves to the server's IP.
+2. A request reaches the service (`curl -I https://your-domain` returns the app's response, not a proxy error).
+3. Traefik logs show a matching router and no errors.
+
+## Troubleshooting
+
+| Symptom | Likely cause |
+| --- | --- |
+| 404 from Traefik | No matching router — the domain is not configured or DNS points elsewhere. |
+| 502 Bad Gateway | Router matched, but the container is down or on the wrong port. |
+| Certificate errors | DNS not resolving, port 80 blocked, or a redirect interrupting the challenge. |
+| Compose domain not applied | The stack was not redeployed after the change. |
+
+See [Domains & Traefik troubleshooting](/docs/core/troubleshooting/domains) for the full chain.
+
+## Related
+
+- [Domains](/docs/core/domains)
+- [Certificates](/docs/core/certificates)
+- [DNS providers](/docs/core/dns-providers)

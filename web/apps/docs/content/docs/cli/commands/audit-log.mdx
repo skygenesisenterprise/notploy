@@ -1,0 +1,37 @@
+---
+title: "Audit log"
+description: "Every recorded action performed in the organization. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Every recorded action performed in the organization.
+
+`notploy audit-log` exposes **1 command**. They map one-to-one onto the `audit-log.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy audit-log --help` to list these commands in your terminal, or
+	`notploy audit-log <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy audit-log all`
+
+Calls `GET /api/trpc/auditLog.all`.
+
+```bash
+notploy audit-log all [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--userId <value>` | string | No | — |
+| `--userEmail <value>` | string | No | — |
+| `--resourceName <value>` | string | No | — |
+| `--action <value>` | string | No | `create`, `update`, `delete`, `deploy`, `cancel`, `redeploy`, `login`, `logout` |
+| `--resourceType <value>` | string | No | `project`, `service`, `environment`, `deployment`, `user`, `customRole`, `domain`, `certificate`, `registry`, `server`, `sshKey`, `gitProvider`, `notification`, `settings`, `session` |
+| `--from <value>` | string | No | — |
+| `--to <value>` | string | No | — |
+| `--limit <value>` | number | No | — |
+| `--offset <value>` | number | No | — |

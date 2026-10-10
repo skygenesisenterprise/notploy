@@ -1,27 +1,101 @@
 ---
-title: 'Architecture of Notploy'
-description: 'Overview of the core architecture components of Notploy.'
+title: Architecture
+description: "How the Notploy control plane and the infrastructure it manages fit together."
 ---
 
-Understanding the architecture of Notploy is crucial for both deploying and scaling applications. Below is a diagram illustrating the core components:
+Notploy is a control plane that sits in front of a data plane. The **control plane** is Notploy itself — the dashboard, the API and the database that store your configuration. The **data plane** is where your workloads actually run: containers, proxy routes, volumes and networks on one or more servers.
 
-<ImageZoom src="/assets/architecture.png" alt="Architecture Diagram" width={1000} height={600} className="rounded-lg"/>
+Understanding the boundary between the two is the key to predicting how Notploy behaves — especially when the control plane is updated, restarted or temporarily unavailable.
 
+## Components
 
-## Installation Process
+```text
+┌───────────────────────── Notploy control plane ─────────────────────────┐
+│                                                                          │
+│   Dashboard (web UI)          API + background workers                    │
+│   ─────────────────           ─────────────────────                       │
+│   Projects, services,         Deployment queue, build orchestration,      │
+│   domains, settings           scheduled jobs, notifications               │
+│                                                                          │
+│   PostgreSQL  (configuration & state)     Redis  (queues & cache)         │
+│                                                                          │
+└───────────────────────────────────┬──────────────────────────────────────┘
+                                    │  Docker API / SSH
+┌───────────────────────────────────▼──────────────────────────────────────┐
+│                          Docker engine (host)                             │
+│                                                                          │
+│   Traefik  ── routes external traffic to services, terminates TLS         │
+│   Applications / Compose stacks / Databases  ── your workloads            │
+│   Networks · Volumes · Swarm services                                     │
+└──────────────────────────────────────────────────────────────────────────┘
+```
 
-When Notploy is installed, it automatically sets up the following components:
+| Component | Role |
+| --- | --- |
+| **Dashboard** | The web interface used to configure projects, services, domains and platform settings. |
+| **API & workers** | Serve the dashboard and automation clients, and run the deployment queue, builds, scheduled jobs and notifications. |
+| **PostgreSQL** | Stores configuration and operational state: organizations, projects, services, deployments, settings. |
+| **Redis** | Backs queues and caching used by deployments and background work. |
+| **Docker engine** | The runtime that actually builds images and runs your containers, networks and volumes. |
+| **Traefik** | The reverse proxy and load balancer. It reads routes and terminates TLS for your services. |
 
-1. **Next.js Application**: Serves as the frontend interface. Utilizing Next.js allows for an integrated server-side rendering experience, streamlining the UI and backend into a single cohesive application.
-2. **PostgreSQL Database**: Acts as the primary database for Notploy, chosen for its robustness and widespread adoption. It stores all the configuration and operational data.
-3. **Traefik**: Used as a reverse proxy and load balancer. Traefik facilitates dynamic routing and service discovery which simplifies the configuration process by allowing declarative setup through the UI.
+<Callout type="info" title="The control plane is not in the request path">
+Your **applications keep serving traffic** even if the Notploy control plane is down or being
+updated. Traefik routes requests to running containers independently. The control plane is
+required for *management* operations — deploying, changing configuration or reading metrics —
+not for serving your users.
+</Callout>
 
-## Purpose and Functionality
+## Control plane vs. data plane
 
-Each component in the Notploy architecture plays a vital role:
+| | Control plane | Data plane |
+| --- | --- | --- |
+| **What runs** | Dashboard, API, workers, PostgreSQL, Redis | Your applications, Compose stacks, databases, Traefik |
+| **Who manages it** | You (Self-Hosted) or Notploy (Cloud) | You, always |
+| **Stores** | Configuration and state | Your application code and data |
+| **If it goes down** | Management stops; apps keep running | Your users are affected |
 
-- **Next.js**: Provides a scalable and easy-to-manage frontend framework, encapsulating both server and client-side logic in one platform. This simplifies deployment and development workflows.
-- **PostgreSQL**: Delivers reliable and secure data storage capabilities. Its use within Notploy ensures consistency and high performance for all database operations.
-- **Traefik**: Enhances Docker integration. Its ability to read from and write to Docker configurations declaratively allows Notploy to automate and streamline network traffic management and service discovery.
+## How the pieces cooperate
 
-This structure ensures that Notploy is not only efficient in deploying applications but also robust in handling traffic and data at scale.
+A deployment is a short-lived pipeline that the control plane runs against the data plane:
+
+1. The control plane resolves the service's **source** (a Git repository, an image, or a raw Compose file) and **build type**.
+2. A worker builds the image — on the local server, or on a dedicated [build server](/docs/core/remote-servers/build-server) when configured — and pushes it to a registry if the workload runs elsewhere.
+3. The image is released as a workload on a Docker engine (local, remote over SSH, or a Swarm node).
+4. Traefik discovers the new container — via Docker labels for Compose, or a generated file for Applications — and routes traffic to it.
+5. The control plane records the [deployment](/docs/core/concepts#deployment), its logs and its status.
+
+Because the control plane drives Docker and Traefik through their normal interfaces, everything it creates is standard Docker and Traefik configuration. Nothing proprietary runs on your servers beyond the Notploy containers themselves.
+
+## Where Notploy itself runs
+
+By default, Notploy is installed on a single server: the dashboard, PostgreSQL, Redis, Traefik and your workloads all live on the same machine. This is the simplest topology and the recommended starting point.
+
+As you grow you can separate concerns:
+
+- **Remote servers** — run workloads on independent machines reached over SSH, keeping the control plane on a small host. See [Servers](/docs/core/remote-servers).
+- **Swarm cluster** — join machines to a Docker Swarm to replicate the same application across nodes with load balancing. See [Swarm](/docs/core/cluster).
+- **Notploy Cloud** — let Notploy host the control plane while your workloads stay on your own servers. See [Notploy Cloud](/docs/core/cloud).
+
+## Repository architecture
+
+Notploy is a pnpm monorepo. For contributors, the main pieces are:
+
+| Path | Role |
+| --- | --- |
+| `apps/notploy` | Main dashboard, API and application server. |
+| `packages/server` | Shared server, deployment, database and platform logic. |
+| `apps/api` | API and background-work service. |
+| `apps/schedules` | Scheduled jobs service. |
+| `packages/cli` | Command-line client. |
+| `packages/sdk` | Generated TypeScript API SDK. |
+| `packages/mcp` | Model Context Protocol server. |
+| `web/apps/website`, `web/apps/docs` | Marketing website and this documentation. |
+
+See [Contributing](/docs/core/develop/contributing) for the development environment.
+
+## Related
+
+- [Core concepts](/docs/core/concepts) — the vocabulary used throughout the docs.
+- [Ecosystem](/docs/core/ecosystem) — how features relate to one another.
+- [Deployment options](/docs/core/deployment-options) — choosing where workloads run.

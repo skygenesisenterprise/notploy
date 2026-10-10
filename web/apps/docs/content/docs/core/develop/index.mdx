@@ -1,0 +1,46 @@
+---
+title: Develop & integrate
+description: "Drive Notploy from the API, CLI, SDK, MCP server, VS Code and your CI/CD pipelines."
+---
+
+Everything you can do in the dashboard is available to code. This section documents the interfaces Notploy exposes so deployments and operations can live inside your existing tooling rather than beside it.
+
+## Interfaces
+
+<Cards>
+  <Card href="/docs/cli" title="CLI" description="Manage Notploy from the terminal." />
+  <Card href="/docs/api" title="API" description="The REST endpoints behind everything, with an OpenAPI reference." />
+  <Card href="/docs/core/develop/sdk" title="SDK" description="TypeScript client for programmatic use." />
+  <Card href="/docs/core/develop/mcp" title="MCP" description="Model Context Protocol server for AI-assisted tooling." />
+  <Card href="/docs/core/develop/vscode" title="VS Code" description="Editor integration." />
+  <Card href="/docs/core/develop/integrations" title="Integrations" description="Git providers and CI/CD workflows." />
+</Cards>
+
+## Concepts before endpoints
+
+All interfaces speak the same model described in [Core concepts](/docs/core/concepts): organizations, projects, environments, services and deployments. The API is the source of truth; the CLI, SDK and MCP server are thin clients over it.
+
+## Authentication
+
+Programmatic access uses **API keys** (or tokens) scoped to a user or organization. The CLI and SDK authenticate with a key you generate in the dashboard. See [API keys](/docs/core/security/api-keys) for creation, scope and handling.
+
+## Automation patterns
+
+- **Deploy from CI** — trigger a deployment when a branch is pushed, either through the provider webhook ([auto-deploy](/docs/core/auto-deploy)) or by calling the API from your pipeline.
+- **Preview environments** — create temporary deployments per pull request. See [Preview deployments](/docs/core/applications/preview-deployments).
+- **Infrastructure as code** — reconcile projects and services with the SDK or CLI.
+
+## Building on Notploy
+
+- **[Templates & examples](/docs/templates/examples)** — deployable blueprints.
+- **[Contributing](/docs/core/develop/contributing)** — development environment and where to make changes.
+
+## Status of interfaces
+
+The API and CLI are the most stable interfaces. The SDK mirrors the API. The MCP server and VS Code extension are integration surfaces whose contracts may evolve faster — check each page for its current status.
+
+## Related
+
+- [Reference → API](/docs/api)
+- [Security → API keys](/docs/core/security/api-keys)
+- [Migration → Compatibility](/docs/core/migration/compatibility)

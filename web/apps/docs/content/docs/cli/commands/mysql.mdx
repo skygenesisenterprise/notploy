@@ -1,0 +1,268 @@
+---
+title: "MySQL"
+description: "Provision and operate MySQL databases, including backups and external ports. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Provision and operate MySQL databases, including backups and external ports.
+
+`notploy mysql` exposes **16 commands**. They map one-to-one onto the `mysql.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy mysql --help` to list these commands in your terminal, or
+	`notploy mysql <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy mysql change-password`
+
+Calls `POST /api/trpc/mysql.changePassword`.
+
+```bash
+notploy mysql change-password --mysqlId <mysqlId> --password <password> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |
+| `--type <value>` | string | No | `user`, `root` |
+
+### `notploy mysql change-status`
+
+Calls `POST /api/trpc/mysql.changeStatus`.
+
+```bash
+notploy mysql change-status --mysqlId <mysqlId> --applicationStatus <applicationStatus>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+| `--applicationStatus <value>` | string | Yes | `idle`, `running`, `done`, `error` |
+
+### `notploy mysql create`
+
+Calls `POST /api/trpc/mysql.create`.
+
+```bash
+notploy mysql create --name <name> --environmentId <environmentId> --databaseName <databaseName> --databaseUser <databaseUser> --databasePassword <databasePassword> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--appName <value>` | string | No | — |
+| `--dockerImage <value>` | string | No | — |
+| `--environmentId <value>` | string | Yes | — |
+| `--description <value>` | string | No | — |
+| `--databaseName <value>` | string | Yes | — |
+| `--databaseUser <value>` | string | Yes | — |
+| `--databasePassword <value>` | string | Yes | — |
+| `--databaseRootPassword <value>` | string | No | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy mysql deploy`
+
+Calls `POST /api/trpc/mysql.deploy`.
+
+```bash
+notploy mysql deploy --mysqlId <mysqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+
+### `notploy mysql move`
+
+Calls `POST /api/trpc/mysql.move`.
+
+```bash
+notploy mysql move --mysqlId <mysqlId> --targetEnvironmentId <targetEnvironmentId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+| `--targetEnvironmentId <value>` | string | Yes | — |
+
+### `notploy mysql one`
+
+Calls `GET /api/trpc/mysql.one`.
+
+```bash
+notploy mysql one --mysqlId <mysqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+
+### `notploy mysql read-logs`
+
+Calls `GET /api/trpc/mysql.readLogs`.
+
+```bash
+notploy mysql read-logs --mysqlId <mysqlId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+| `--tail <value>` | number | No | — |
+| `--since <value>` | string | No | — |
+| `--search <value>` | string | No | — |
+
+### `notploy mysql rebuild`
+
+Calls `POST /api/trpc/mysql.rebuild`.
+
+```bash
+notploy mysql rebuild --mysqlId <mysqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+
+### `notploy mysql reload`
+
+Calls `POST /api/trpc/mysql.reload`.
+
+```bash
+notploy mysql reload --mysqlId <mysqlId> --appName <appName>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+| `--appName <value>` | string | Yes | — |
+
+### `notploy mysql remove`
+
+Calls `POST /api/trpc/mysql.remove`.
+
+```bash
+notploy mysql remove --mysqlId <mysqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+
+### `notploy mysql save-environment`
+
+Calls `POST /api/trpc/mysql.saveEnvironment`.
+
+```bash
+notploy mysql save-environment --mysqlId <mysqlId> --env <env>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+| `--env <value>` | string | Yes | — |
+
+### `notploy mysql save-external-port`
+
+Calls `POST /api/trpc/mysql.saveExternalPort`.
+
+```bash
+notploy mysql save-external-port --mysqlId <mysqlId> --externalPort <externalPort>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+| `--externalPort <value>` | number | Yes | — |
+
+### `notploy mysql search`
+
+Calls `GET /api/trpc/mysql.search`.
+
+```bash
+notploy mysql search [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--q <value>` | string | No | — |
+| `--name <value>` | string | No | — |
+| `--appName <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--projectId <value>` | string | No | — |
+| `--environmentId <value>` | string | No | — |
+| `--limit <value>` | number | No | — |
+| `--offset <value>` | number | No | — |
+
+### `notploy mysql start`
+
+Calls `POST /api/trpc/mysql.start`.
+
+```bash
+notploy mysql start --mysqlId <mysqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+
+### `notploy mysql stop`
+
+Calls `POST /api/trpc/mysql.stop`.
+
+```bash
+notploy mysql stop --mysqlId <mysqlId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+
+### `notploy mysql update`
+
+Calls `POST /api/trpc/mysql.update`.
+
+```bash
+notploy mysql update --mysqlId <mysqlId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mysqlId <value>` | string | Yes | — |
+| `--name <value>` | string | No | — |
+| `--appName <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--databaseName <value>` | string | No | — |
+| `--databaseUser <value>` | string | No | — |
+| `--databasePassword <value>` | string | No | — |
+| `--databaseRootPassword <value>` | string | No | — |
+| `--dockerImage <value>` | string | No | — |
+| `--command <value>` | string | No | — |
+| `--args <value>` | string | No | — |
+| `--env <value>` | string | No | — |
+| `--memoryReservation <value>` | string | No | — |
+| `--memoryLimit <value>` | string | No | — |
+| `--cpuReservation <value>` | string | No | — |
+| `--cpuLimit <value>` | string | No | — |
+| `--externalPort <value>` | number | No | — |
+| `--applicationStatus <value>` | string | No | `idle`, `running`, `done`, `error` |
+| `--healthCheckSwarm <value>` | string | No | — |
+| `--restartPolicySwarm <value>` | string | No | — |
+| `--placementSwarm <value>` | string | No | — |
+| `--updateConfigSwarm <value>` | string | No | — |
+| `--rollbackConfigSwarm <value>` | string | No | — |
+| `--modeSwarm <value>` | string | No | — |
+| `--labelsSwarm <value>` | string | No | — |
+| `--networkSwarm <value>` | string | No | — |
+| `--stopGracePeriodSwarm <value>` | string | No | — |
+| `--endpointSpecSwarm <value>` | string | No | — |
+| `--ulimitsSwarm <value>` | string | No | — |
+| `--replicas <value>` | number | No | — |
+| `--createdAt <value>` | string | No | — |
+| `--environmentId <value>` | string | No | — |
+| `--networkIds <value>` | string | No | — |
+| `--detachNotployNetwork` | boolean | No | — |

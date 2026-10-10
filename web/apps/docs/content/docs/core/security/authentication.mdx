@@ -1,0 +1,42 @@
+---
+title: Authentication & authorization
+description: "Accounts, sessions and the role boundaries that decide what a member can do."
+---
+
+**Purpose** — Explain who can access Notploy and how access is limited, so you can reason about the security boundary of your installation.
+
+## Authentication
+
+Users authenticate with an **account** (email and password) and receive a **session**. Administrators should enable two-factor authentication — see [Account security](/docs/core/account-security). Enterprise editions can delegate authentication to an external identity provider via [SSO](/docs/core/enterprise/sso).
+
+Programmatic clients authenticate with **API keys** instead of sessions. See [API keys](/docs/core/security/api-keys).
+
+## Authorization
+
+Every resource belongs to an [organization](/docs/core/concepts#organization), and every member holds a **role** within it. The role determines what the member can view and change. Default roles include **Owner**, **Admin** and **Member**; Enterprise adds fine-grained [custom roles](/docs/core/enterprise/custom-roles).
+
+The model is scoped: a member sees the projects and resources of their organization only. Multi-organization setups keep tenants isolated. See [Multi-tenancy](/docs/core/multi-tenancy).
+
+## Boundaries worth knowing
+
+- **Owner** — full control, including members and organization settings.
+- **Admin** — manage projects, services and most settings, without the highest-level controls.
+- **Member** — operate within projects according to the granted role; cannot manage the organization.
+
+Exact permissions per role are described in [Permissions](/docs/core/permissions). In Enterprise, custom roles let you define granular permissions starting from presets.
+
+## Prerequisites and verification
+
+- HTTPS on the panel before public exposure.
+- 2FA enabled for administrators.
+- Review the member list and roles periodically: **Settings → Users**.
+
+## Security implications
+
+The panel is a privileged control plane with host Docker access. Compromise of an administrator account is equivalent to compromise of the host. Keep the number of Owners and Admins small, and prefer scoped roles for day-to-day work.
+
+## Related
+
+- [Permissions](/docs/core/permissions)
+- [Account security](/docs/core/account-security)
+- [Enterprise → SSO](/docs/core/enterprise/sso)

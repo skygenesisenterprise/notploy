@@ -1,0 +1,73 @@
+---
+title: "Ports"
+description: "Publish container ports directly, without routing them through a domain. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Publish container ports directly, without routing them through a domain.
+
+`notploy port` exposes **4 commands**. They map one-to-one onto the `port.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy port --help` to list these commands in your terminal, or
+	`notploy port <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy port create`
+
+Calls `POST /api/trpc/port.create`.
+
+```bash
+notploy port create --publishedPort <publishedPort> --publishMode <publishMode> --targetPort <targetPort> --protocol <protocol> --applicationId <applicationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--publishedPort <value>` | number | Yes | — |
+| `--publishMode <value>` | string | Yes | `ingress`, `host` |
+| `--targetPort <value>` | number | Yes | — |
+| `--protocol <value>` | string | Yes | `tcp`, `udp` |
+| `--applicationId <value>` | string | Yes | — |
+
+### `notploy port delete`
+
+Calls `POST /api/trpc/port.delete`.
+
+```bash
+notploy port delete --portId <portId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--portId <value>` | string | Yes | — |
+
+### `notploy port one`
+
+Calls `GET /api/trpc/port.one`.
+
+```bash
+notploy port one --portId <portId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--portId <value>` | string | Yes | — |
+
+### `notploy port update`
+
+Calls `POST /api/trpc/port.update`.
+
+```bash
+notploy port update --portId <portId> --publishedPort <publishedPort> --publishMode <publishMode> --targetPort <targetPort> --protocol <protocol>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--portId <value>` | string | Yes | — |
+| `--publishedPort <value>` | number | Yes | — |
+| `--publishMode <value>` | string | Yes | `ingress`, `host` |
+| `--targetPort <value>` | number | Yes | — |
+| `--protocol <value>` | string | Yes | `tcp`, `udp` |

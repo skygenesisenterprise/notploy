@@ -1,0 +1,105 @@
+---
+title: Core concepts
+description: "The domain model behind Notploy: organization, project, environment, service, deployment, server and resource."
+---
+
+Every page in these docs uses the same vocabulary. This page defines it, using the names the product actually uses. Read it once and the rest of the documentation will read as one system rather than a list of screens.
+
+## The model
+
+```text
+Organization
+├── Members & roles
+├── Resources            registries · S3 destinations · DNS providers · certificate · SSH keys
+│                        secrets providers · notification channels
+└── Projects
+    └── Environments     shared variables per environment
+        └── Services     Application · Database · Docker Compose
+            └── Deployments
+                └── Domains  (routing + TLS)
+```
+
+## Organization
+
+The **organization** is the top-level tenant. It owns every project, every resource and every member, and it is the boundary for permissions and billing. A self-hosted installation typically has one organization; Cloud accounts can have more than one depending on the plan.
+
+Everything is scoped to an organization: a project belongs to exactly one organization, and its services inherit that scope.
+
+→ [Permissions](/docs/core/permissions) · [Multi-tenancy](/docs/core/multi-tenancy)
+
+## Member
+
+A **member** is a person with a role inside an organization. Roles decide what a member can see and do — deploying, editing resources, or managing the organization itself. Members authenticate with an account and are the subject of [authentication](/docs/core/security/authentication) and [API keys](/docs/core/security/api-keys).
+
+## Project
+
+A **project** groups related services that are deployed and managed together, for example "Storefront" or "Internal tools". It is an organizational boundary, not a runtime one: it does not host containers itself, it holds the services and the environments they run in.
+
+Projects are where shared settings live, and they are the unit you navigate from in the dashboard.
+
+## Environment
+
+An **environment** is a named deployment context inside a project — typically `production` and `staging`, but the name is yours. Each environment has its own set of services and its own **shared variables**, so the same project can target different databases, credentials and domains per environment without duplicating configuration.
+
+Variable resolution flows from broad to specific: **project → environment → service**, where a service can reference values from the levels above it. See [Environment variables](/docs/core/variables).
+
+## Service
+
+A **service** is a deployable unit inside a project and environment. Notploy has three kinds:
+
+| Kind | What it is | Page |
+| --- | --- | --- |
+| **Application** | A single container built from a source (Git, image) or run from an image. | [Applications](/docs/core/applications) |
+| **Database** | A managed PostgreSQL, MySQL, MariaDB, MongoDB or Redis instance. | [Databases](/docs/core/databases) |
+| **Docker Compose** | A multi-container stack defined by a `docker-compose.yml`. | [Docker Compose](/docs/core/docker-compose) |
+
+All three share the same operational surface: environment variables, monitoring, logs, deployments, domains and advanced settings. That consistency is deliberate — learn it once, apply it everywhere.
+
+## Deployment
+
+A **deployment** is one immutable attempt to build and release a service. It has a status (`queued`, `building`, `running`, `error`, …), build and runtime logs, and it produces a specific image and container. Every deploy creates a new record; you can inspect the history, cancel queued deployments, and [roll back](/docs/core/applications/rollbacks) to a previous one.
+
+The deployment is the object that answers "what happened?" when a release fails.
+
+## Server
+
+A **server** is an execution target — a machine where Notploy builds or runs workloads. Notploy distinguishes the **local server** (where the control plane is installed), **deployment servers** and **build servers**, and **Swarm nodes**. The deployment engine is identical; only the destination differs.
+
+→ [Servers](/docs/core/remote-servers) · [Deployment options](/docs/core/deployment-options)
+
+## Domain
+
+A **domain** binds a hostname to a service's container port and, when enabled, terminates TLS. Domains are how a service becomes reachable from the internet. They are backed by Traefik routing rules and can be auto-generated for quick tests.
+
+→ [Domains](/docs/core/domains) · [Certificates](/docs/core/certificates)
+
+## Resource
+
+A **resource** is a shared infrastructure object an organization creates once and reuses across services. Resources are not workloads — they are configuration and credentials that services consume:
+
+| Resource | Consumed by |
+| --- | --- |
+| **Registry** | Builds and deployments that push or pull images. |
+| **S3 destination** | Database and volume [backups](/docs/core/backups). |
+| **DNS provider** | Automatic DNS record management. |
+| **Certificate** | Domains that use a custom TLS certificate. |
+| **SSH key** | Connecting to Git repositories and [servers](/docs/core/remote-servers). |
+| **Secrets provider** | Services that read secrets from an external vault. |
+| **Notification channel** | Deployment and alert notifications. |
+
+## Status and availability
+
+Throughout the documentation, features are marked so you never mistake a plan for a capability:
+
+| Label | Meaning |
+| --- | --- |
+| **Available** | Implemented and verified against the current release. |
+| **Experimental** | Implemented but incomplete or subject to change; may need opt-in. |
+| **Planned** | On the roadmap; **not** available yet. |
+| **Unsupported** | Out of scope, or not supported in the relevant edition. |
+
+## Related
+
+- [Ecosystem](/docs/core/ecosystem) — how these concepts interact in practice.
+- [Glossary](/docs/core/glossary) — a compact dictionary of terms.
+- [Editions & scope](/docs/core/differences) — how concepts differ across editions.

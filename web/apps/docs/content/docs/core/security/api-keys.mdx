@@ -1,0 +1,52 @@
+---
+title: API keys
+description: "Create, scope, store and rotate the credentials used by the API, CLI, SDK and MCP server."
+---
+
+**Purpose** — API keys are how programs authenticate to Notploy. This page covers creating them, the privilege they carry, and how to handle them safely.
+
+## What an API key is
+
+An API key is a credential issued to a user. It inherits the permissions of that user, so a key issued to an administrator can perform administrative actions. Treat a key with the same care as the user's password.
+
+## Creating a key
+
+1. Open **Settings → Profile** (or **Account**) and find the **API / CLI** section.
+2. Choose a name that identifies where the key will be used (for example `ci-production`).
+3. Generate the key and **copy it immediately** — it is shown once.
+
+Some actions are also available as scoped tokens (for example CI/CD deploy tokens) with narrower reach. Prefer the narrowest credential that gets the job done.
+
+## Using a key
+
+Pass the key as the `x-api-key` header:
+
+```bash
+curl -X GET 'https://your-panel.example.com/api/project.all' \
+  -H 'accept: application/json' \
+  -H 'x-api-key: YOUR_API_KEY'
+```
+
+The CLI and SDK accept the same key through their configuration.
+
+## Handling rules
+
+<Callout type="warn" title="Never commit keys">
+Do not put API keys in repositories, screenshots, logs or documentation examples. Use your
+CI/CD secret store and environment variables instead.
+</Callout>
+
+- **Least privilege** — issue keys to the least-privileged user that can do the job.
+- **One key per use** — separate keys for CI, scripts and humans so you can revoke precisely.
+- **Rotate** — revoke and reissue keys on a schedule and immediately if one leaks.
+- **Audit** — Enterprise editions record API activity in [audit logs](/docs/core/enterprise/audit-logs).
+
+## Verification
+
+After creating a key, call an endpoint that requires authentication (for example list projects) and confirm it succeeds. A `401` means the key is wrong or revoked; a `403` means the key lacks permission for that action.
+
+## Related
+
+- [API reference](/docs/api)
+- [CLI](/docs/cli)
+- [Authentication & authorization](/docs/core/security/authentication)

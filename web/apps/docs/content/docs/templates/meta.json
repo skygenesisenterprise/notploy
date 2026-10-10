@@ -1,0 +1,7 @@
+{
+	"title": "Templates",
+	"description": "Blueprints and application examples you can deploy on Notploy.",
+	"icon": "LayoutTemplate",
+	"root": true,
+	"pages": ["index", "---Examples---", "examples"]
+}

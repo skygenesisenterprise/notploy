@@ -1,0 +1,52 @@
+---
+title: Feature support matrix
+description: "Which capabilities exist in which Notploy edition."
+---
+
+**Purpose** — Give a single view of how capabilities differ across editions. Every edition shares the same deployment engine; the differences are in governance, delivery and support — not in how applications are built and run.
+
+## Editions
+
+Notploy comes in four editions: **Self-Hosted (OSS)**, **Cloud**, **Enterprise Self-Hosted**, and **Enterprise Cloud**. See [Editions & scope](/docs/core/differences) for what each one is.
+
+## Matrix
+
+| Capability | Self-Hosted (OSS) | Cloud | Enterprise Self-Hosted | Enterprise Cloud |
+| --- | :---: | :---: | :---: | :---: |
+| Core deployments (apps, databases, Compose, domains, TLS, templates) | ✅ | ✅ | ✅ | ✅ |
+| Remote servers / build servers | ✅ | ✅ | ✅ | ✅ |
+| Docker Swarm cluster | ✅ | ✅ | ✅ | ✅ |
+| Backups & restore | ✅ | ✅ | ✅ | ✅ |
+| Scheduled jobs | ✅ | ✅ | ✅ | ✅ |
+| Concurrent builds | ✅ | Managed | ✅ | Managed |
+| Basic roles (Owner, Admin, Member) | ✅ | ✅ | ✅ | ✅ |
+| Custom roles (granular permissions) | ❌ | Plan-dependent | ✅ | ✅ |
+| SSO (OIDC / SAML) | ❌ | ❌ | ✅ | ✅ |
+| SCIM provisioning | ❌ | ❌ | ✅ | ✅ |
+| Application Authentication (forward auth) | ❌ | ❌ | ✅ | ✅ |
+| Audit logs | ❌ | ❌ | ✅ | ✅ |
+| Whitelabeling | ❌ | ❌ | ✅ | ❌ |
+| Advanced monitoring dashboard | Basic | ✅ | Basic | ✅ |
+| Managed control plane (uptime & updates) | ❌ | ✅ | ❌ | ✅ |
+| Support | Community | Email & Chat | Priority | Priority + SLA |
+
+<Callout type="info">
+[Concurrent builds](/docs/core/concurrent-builds) are included in every self-hosted edition,
+no license required. Whitelabeling is available on Enterprise **Self-Hosted** only, because the
+Cloud control plane is shared infrastructure.
+</Callout>
+
+## Status vocabulary
+
+Each capability in the docs also carries a status:
+
+- **Available** — implemented and verified today.
+- **Experimental** — implemented but incomplete or subject to change.
+- **Planned** — on the roadmap; not available.
+- **Unsupported** — out of scope or edition-dependent (as marked in the matrix).
+
+## Related
+
+- [Editions & scope](/docs/core/differences)
+- [Known limitations](/docs/core/reference/limitations)
+- [Platform support](/docs/core/reference/platform-support)

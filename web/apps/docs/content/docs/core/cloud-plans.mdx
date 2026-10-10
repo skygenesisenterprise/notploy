@@ -1,0 +1,52 @@
+---
+title: Plans
+description: "How Notploy Cloud plans are structured and how to choose one."
+---
+
+**Purpose** — Explain how Cloud plans differ, so you can pick one without hunting through the pricing page. Prices and exact limits change; the [Pricing](https://notploy.com/pricing) page is the source of truth.
+
+<Callout type="info">
+Plan names, prices and per-plan limits are updated over time. Always confirm the current numbers
+on [notploy.com/pricing](https://notploy.com/pricing) before committing to a plan.
+</Callout>
+
+## How plans differ
+
+Cloud plans are primarily distinguished by:
+
+- **How many servers** you can connect (and the price per additional server).
+- **Team size and organizations** (users, organizations, environments).
+- **Backups and scheduled jobs** (how many per service).
+- **RBAC** (basic roles vs. fine-grained custom roles).
+- **Security and governance** (2FA, SSO/SAML, SCIM, audit logs).
+- **Support level** (community, email & chat, priority with SLA).
+
+The **deployment engine is identical** on every plan — plans govern capacity, teams and governance, not how applications are built or run.
+
+## Typical plan shapes
+
+| Plan | Best for |
+| --- | --- |
+| **Hobby** | Solo developers on a single server. |
+| **Startup** | Small teams needing multiple environments, backups and scheduled jobs. |
+| **Enterprise** | SSO/SAML, SCIM, audit logs, custom roles and priority support. |
+| **Agency** | Managing infrastructure for multiple clients. |
+
+Exact inclusion per plan is listed on the pricing page; the [feature matrix](/docs/core/reference/feature-matrix) compares editions and Enterprise capabilities.
+
+<Callout type="info">
+Annual billing is typically cheaper than monthly. See the pricing page for current discounts.
+</Callout>
+
+## What is the same, regardless of plan
+
+- Same deployment engine and API.
+- Same [project / environment / service](/docs/core/concepts) model.
+- Same domain and TLS handling.
+- Same migration and backup behavior.
+
+## Related
+
+- [Notploy Cloud](/docs/core/cloud)
+- [Editions & scope](/docs/core/differences)
+- [Feature support matrix](/docs/core/reference/feature-matrix)

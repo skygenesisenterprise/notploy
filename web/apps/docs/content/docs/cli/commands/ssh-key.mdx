@@ -1,0 +1,100 @@
+---
+title: "SSH keys"
+description: "SSH keys used to reach servers and clone private repositories. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+SSH keys used to reach servers and clone private repositories.
+
+`notploy ssh-key` exposes **7 commands**. They map one-to-one onto the `ssh-key.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy ssh-key --help` to list these commands in your terminal, or
+	`notploy ssh-key <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy ssh-key all`
+
+Calls `GET /api/trpc/sshKey.all`.
+
+```bash
+notploy ssh-key all
+```
+
+### `notploy ssh-key all-for-apps`
+
+Calls `GET /api/trpc/sshKey.allForApps`.
+
+```bash
+notploy ssh-key all-for-apps
+```
+
+### `notploy ssh-key create`
+
+Calls `POST /api/trpc/sshKey.create`.
+
+```bash
+notploy ssh-key create --name <name> --privateKey <privateKey> --publicKey <publicKey> --organizationId <organizationId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--description <value>` | string | No | — |
+| `--privateKey <value>` | string | Yes | — |
+| `--publicKey <value>` | string | Yes | — |
+| `--organizationId <value>` | string | Yes | — |
+
+### `notploy ssh-key generate`
+
+Calls `POST /api/trpc/sshKey.generate`.
+
+```bash
+notploy ssh-key generate [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--type <value>` | string | No | `rsa`, `ed25519` |
+
+### `notploy ssh-key one`
+
+Calls `GET /api/trpc/sshKey.one`.
+
+```bash
+notploy ssh-key one --sshKeyId <sshKeyId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--sshKeyId <value>` | string | Yes | — |
+
+### `notploy ssh-key remove`
+
+Calls `POST /api/trpc/sshKey.remove`.
+
+```bash
+notploy ssh-key remove --sshKeyId <sshKeyId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--sshKeyId <value>` | string | Yes | — |
+
+### `notploy ssh-key update`
+
+Calls `POST /api/trpc/sshKey.update`.
+
+```bash
+notploy ssh-key update --sshKeyId <sshKeyId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--lastUsedAt <value>` | string | No | — |
+| `--sshKeyId <value>` | string | Yes | — |

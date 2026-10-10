@@ -1,0 +1,190 @@
+---
+title: "Backups"
+description: "Scheduled and manual backups for databases, Compose services and the web server. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Scheduled and manual backups for databases, Compose services and the web server.
+
+`notploy backup` exposes **12 commands**. They map one-to-one onto the `backup.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy backup --help` to list these commands in your terminal, or
+	`notploy backup <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy backup create`
+
+Calls `POST /api/trpc/backup.create`.
+
+```bash
+notploy backup create --schedule <schedule> --prefix <prefix> --destinationId <destinationId> --database <database> --databaseType <databaseType> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--schedule <value>` | string | Yes | — |
+| `--enabled` | boolean | No | — |
+| `--prefix <value>` | string | Yes | — |
+| `--destinationId <value>` | string | Yes | — |
+| `--keepLatestCount <value>` | number | No | — |
+| `--database <value>` | string | Yes | — |
+| `--mariadbId <value>` | string | No | — |
+| `--mysqlId <value>` | string | No | — |
+| `--postgresId <value>` | string | No | — |
+| `--mongoId <value>` | string | No | — |
+| `--libsqlId <value>` | string | No | — |
+| `--databaseType <value>` | string | Yes | `postgres`, `mariadb`, `mysql`, `mongo`, `web-server`, `libsql` |
+| `--userId <value>` | string | No | — |
+| `--backupType <value>` | string | No | `database`, `compose` |
+| `--composeId <value>` | string | No | — |
+| `--serviceName <value>` | string | No | — |
+| `--includeEncryptionKey` | boolean | No | — |
+| `--metadata <value>` | string | No | — |
+
+### `notploy backup list-backup-files`
+
+Calls `GET /api/trpc/backup.listBackupFiles`.
+
+```bash
+notploy backup list-backup-files --destinationId <destinationId> --search <search> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--destinationId <value>` | string | Yes | — |
+| `--search <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy backup manual-backup-compose`
+
+Calls `POST /api/trpc/backup.manualBackupCompose`.
+
+```bash
+notploy backup manual-backup-compose --backupId <backupId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--backupId <value>` | string | Yes | — |
+
+### `notploy backup manual-backup-libsql`
+
+Calls `POST /api/trpc/backup.manualBackupLibsql`.
+
+```bash
+notploy backup manual-backup-libsql --backupId <backupId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--backupId <value>` | string | Yes | — |
+
+### `notploy backup manual-backup-mariadb`
+
+Calls `POST /api/trpc/backup.manualBackupMariadb`.
+
+```bash
+notploy backup manual-backup-mariadb --backupId <backupId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--backupId <value>` | string | Yes | — |
+
+### `notploy backup manual-backup-mongo`
+
+Calls `POST /api/trpc/backup.manualBackupMongo`.
+
+```bash
+notploy backup manual-backup-mongo --backupId <backupId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--backupId <value>` | string | Yes | — |
+
+### `notploy backup manual-backup-my-sql`
+
+Calls `POST /api/trpc/backup.manualBackupMySql`.
+
+```bash
+notploy backup manual-backup-my-sql --backupId <backupId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--backupId <value>` | string | Yes | — |
+
+### `notploy backup manual-backup-postgres`
+
+Calls `POST /api/trpc/backup.manualBackupPostgres`.
+
+```bash
+notploy backup manual-backup-postgres --backupId <backupId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--backupId <value>` | string | Yes | — |
+
+### `notploy backup manual-backup-web-server`
+
+Calls `POST /api/trpc/backup.manualBackupWebServer`.
+
+```bash
+notploy backup manual-backup-web-server --backupId <backupId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--backupId <value>` | string | Yes | — |
+
+### `notploy backup one`
+
+Calls `GET /api/trpc/backup.one`.
+
+```bash
+notploy backup one --backupId <backupId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--backupId <value>` | string | Yes | — |
+
+### `notploy backup remove`
+
+Calls `POST /api/trpc/backup.remove`.
+
+```bash
+notploy backup remove --backupId <backupId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--backupId <value>` | string | Yes | — |
+
+### `notploy backup update`
+
+Calls `POST /api/trpc/backup.update`.
+
+```bash
+notploy backup update --schedule <schedule> --enabled --prefix <prefix> --backupId <backupId> --destinationId <destinationId> --database <database> --keepLatestCount <keepLatestCount> --serviceName <serviceName> --metadata <metadata> --databaseType <databaseType> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--schedule <value>` | string | Yes | — |
+| `--enabled` | boolean | Yes | — |
+| `--prefix <value>` | string | Yes | — |
+| `--backupId <value>` | string | Yes | — |
+| `--destinationId <value>` | string | Yes | — |
+| `--database <value>` | string | Yes | — |
+| `--keepLatestCount <value>` | number | Yes | — |
+| `--serviceName <value>` | string | Yes | — |
+| `--metadata <value>` | string | Yes | — |
+| `--databaseType <value>` | string | Yes | `postgres`, `mariadb`, `mysql`, `mongo`, `web-server`, `libsql` |
+| `--includeEncryptionKey` | boolean | No | — |

@@ -1,102 +1,73 @@
 ---
-title: 'Features'
-description: 'Explore the comprehensive suite of features available in Notploy for optimized application deployment and management.'
+title: Capabilities
+description: "What Notploy can do today, organized by the jobs it does: deploy, operate, automate and scale."
 ---
 
-Notploy provides a comprehensive suite of features designed to simplify and enhance the application deployment process.
+This page is an inventory of what Notploy does, grouped by intent rather than by screen. Each capability links to the page that explains it. Features that are experimental or edition-specific are labelled where they appear in the detailed pages.
 
-## Application Deployment
+## Deploy
 
-Notploy supports two primary methods for deploying applications:
+- **Applications** built from a Git provider, any Git URL, a container image, or an uploaded archive.
+- **Build types**: Dockerfile, Nixpacks, Railpack, Heroku/Paketo buildpacks, or a prebuilt image (no build).
+- **Docker Compose** stacks from a repository or a raw `docker-compose.yml`, edited in-app.
+- **Blueprints** from the [Notploy Templates gallery](https://templates.notploy.com) for one-click starting points.
+- **Databases**: PostgreSQL, MySQL, MariaDB, MongoDB and Redis.
+- **[Preview deployments](/docs/core/applications/preview-deployments)** for pull requests and branches.
+- **[Auto-deploy](/docs/core/auto-deploy)** from Git webhooks and CI.
 
-1. **Applications**: This straightforward method allows for effortless deployment. Ideal for single applications, it offers a near plug-and-play experience.
-2. **Docker Compose**: A more advanced option, requiring the creation of Dockerfiles and `docker-compose.yml`. This method provides greater control over deployment settings and full utilization of Docker Compose capabilities.
+→ [Applications & deployment](/docs/core/applications)
 
-### Applications Management
+## Operate
 
-Manage your applications through a range of features:
+- **Domains and TLS** with automatic Let's Encrypt certificates and a generated-domain option for quick tests.
+- **Environment variables and secrets** at project, environment and service scope, plus external [secret managers](/docs/core/secrets-providers).
+- **Volumes and mounts** for persistent data, with [volume backups](/docs/core/volume-backups) for Docker named volumes.
+- **Scheduled backups** for databases and volumes to S3-compatible storage, with [restore](/docs/core/databases/restore).
+- **Scheduled jobs** (cron) against your services.
+- **Logs and resource monitoring** per service and per server.
+- **Notifications** to Slack, Discord, Telegram, Teams, email and others.
+- **[Rollbacks](/docs/core/applications/rollbacks)** to a previous deployment.
 
-**Basic Operations**:
-  1. Deploy, stop, and delete applications.
-  2. Open a terminal directly in the application container.
+→ [Operate & administer](/docs/core/administration)
 
-**Source and Build Configuration**:
-  1. Choose source providers (GitHub, Git, Docker).
-  2. Select build types (Docker, Nixpacks, Heroku Buildpacks, Paketo Buildpacks).
+## Automate
 
+- **REST API** covering the management model.
+- **CLI** for terminal-driven workflows.
+- **TypeScript SDK** for programmatic use.
+- **MCP server** for AI-assisted tooling.
+- **VS Code extension** for editor integration.
+- **CI/CD** integration for deploying from your pipelines.
 
-**Environment Management**:
-  1. Add and manage environment variables.
+→ [Develop & integrate](/docs/core/develop) · [API reference](/docs/api)
 
-**Monitoring Tools**:
-  1. Monitor CPU, memory, disk, and network usage.
+## Scale
 
-**Logs**:
-  1. Access real-time logs.
+- **Local server** (single machine) as the default topology.
+- **Remote deployment servers** over SSH for isolation and distribution.
+- **Dedicated build servers** to offload builds and push to a registry.
+- **Docker Swarm cluster** to replicate the same application across nodes with load balancing.
 
-**Deployments**:
-  1. View and manage deployments, you can see the logs of the building application.
-  2. Cancel queued deployments in case you have a lot of deployments in the queue, the most common is when you push alot of times in your repository, you can cancel the incoming queues, not the deployments that are already running.
+→ [Deployment options](/docs/core/deployment-options)
 
-**Domain Management**:
-  1. Add, delete, and generate domains.
+## Govern
 
-**Advanced Settings**:
-  1. Customize initial commands and cluster settings.
-  2. Set resource limits and manage volumes for data persistence.
-  3. Configure redirects, security headers, and port settings.
-  4. Detailed Traefik configuration for specific needs.
+- **Organizations, members and roles**, with [custom roles](/docs/core/enterprise/custom-roles) in Enterprise.
+- **SSO** (OIDC / SAML) and **SCIM provisioning** in Enterprise.
+- **Audit logs** in Enterprise.
+- **Whitelabeling** in Enterprise Self-Hosted.
+- **Multi-tenancy** for running several isolated organizations.
 
-### Docker Compose Management
+→ [Permissions](/docs/core/permissions) · [Enterprise](/docs/core/enterprise)
 
-Enhance your Docker Compose experience with these advanced functionalities:
+<Callout type="info" title="Availability">
+Some capabilities above are edition-specific. See [Editions & scope](/docs/core/differences)
+for the full breakdown, and the individual pages for status labels (available, experimental,
+planned, unsupported).
+</Callout>
 
-**Lifecycle Management**:
-  1. Deploy, stop, and delete Docker Compose setups.
-  2. Open a terminal with service selection capability.
+## Related
 
-**Source Configuration**:
-  1. Choose source providers (GitHub, Git, Raw).
-
-**Environment Management**:
-  1. Add and manage environment variables.
-
-**Monitoring Tools**:
-  1. Monitor CPU, memory, disk, and network usage of each service.
-
-**Logs**:
-  1. View real-time logs of each service.
-
-**Deployments**:
-  1. View and manage deployments, you can see the logs of the building application.
-  2. Cancel queued deployments in case you have a lot of deployments in the queue, the most common is when you push alot of times in your repository, you can cancel the incoming queues, not the deployments that are already running.
-
-**Advanced Settings**:
-  1. Custom command, by default we use an internal command to build the docker compose, however you can override it with your own command. Note that the custom command fully replaces the default one (the default command is shown in the UI as a reference, and the command always starts with `docker`).
-  2. Manage volumes and mounts.
-
-## Database Deployment
-
-Deploy and manage a variety of databases:
-
-
-**Supported Databases**:
-  1. MySQL, PostgreSQL, MongoDB, Redis, MariaDB.
-
-**General Management**:
-  1. Deploy, stop, and delete databases.
-  2. Open a terminal within the database container.
-
-**Environment and Monitoring**:
-  1. Manage environment variables.
-  2. Monitor CPU, memory, disk, and network usage.
-
-**Backups and Logs**:
-  1. Configure manual and scheduled backups.
-  2. View real-time logs.
-
-**Advanced Configuration**:
-  1. Use custom Docker images and initial commands.
-  2. Configure volumes and resource limits.
-
-These features are designed to offer flexibility and control over your deployment environments, ensuring that Notploy meets the diverse needs of modern application deployment and management.
+- [Ecosystem](/docs/core/ecosystem) — how these capabilities combine.
+- [Feature support matrix](/docs/core/reference/feature-matrix) — capability by edition.
+- [Known limitations](/docs/core/reference/limitations) — constraints worth knowing up front.

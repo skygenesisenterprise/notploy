@@ -1,0 +1,52 @@
+---
+title: Compatibility
+description: "What Notploy is compatible with, and the differences that affect migrations and upgrades."
+---
+
+**Purpose** — Record the compatibility boundaries that matter when you migrate to Notploy or upgrade it: platforms, versions, and behavioral differences to expect.
+
+## Platform compatibility
+
+Notploy targets **Linux hosts running Docker**. See [Platform support](/docs/core/reference/platform-support) for the authoritative list of operating systems, Docker versions and architectures. Docker Swarm is required for the service model Notploy uses.
+
+## Edition compatibility
+
+All editions share the deployment engine, API and core features. Differences are in team and enterprise capabilities and in who operates the control plane. See [Editions & scope](/docs/core/differences) and the [feature matrix](/docs/core/reference/feature-matrix).
+
+## Migrating between Notploy installations
+
+Because configuration lives in Notploy's PostgreSQL database and data lives in volumes and S3 destinations:
+
+- **Same-edition moves** work by restoring the database and the relevant volumes/backups.
+- **Self-Hosted → Cloud** keeps your servers and workloads; the control plane moves to Notploy. See [Notploy Cloud](/docs/core/cloud).
+- **Edition upgrades** (for example adding Enterprise) activate licensed capabilities without changing the deployment engine; see [License keys](/docs/core/enterprise/license-keys).
+
+## Upgrading Notploy
+
+Upgrades are done by re-running the installer with `update`. Before upgrading:
+
+- read the release notes for your target version,
+- take a **database backup**,
+- verify after the upgrade that the dashboard loads and a test deployment succeeds.
+
+See [Upgrade, backup and restore](/docs/core/upgrade-backup-restore).
+
+## Behavioral differences to watch
+
+| Area | Difference to expect |
+| --- | --- |
+| **Domains (Application)** | Applied immediately (Traefik file provider). |
+| **Domains (Compose)** | Require a **redeploy** (Docker labels). |
+| **Volume backups** | Cover Docker **named volumes**, not bind mounts (`../files`). |
+| **Swarm** | Some Compose features (such as `build`) are not available in Stack mode. |
+| **Storage cleanup** | Not automatic on extra Swarm nodes. |
+
+## Compatibility matrix
+
+For a capability-by-edition view, see [Feature support matrix](/docs/core/reference/feature-matrix). For known gaps and unsupported cases, see [Known limitations](/docs/core/reference/limitations).
+
+## Related
+
+- [Migration overview](/docs/core/migration)
+- [Migrating from Dokploy](/docs/core/migration/from-dokploy)
+- [Platform support](/docs/core/reference/platform-support)

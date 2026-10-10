@@ -1,0 +1,4 @@
+{
+	"title": "Security",
+	"pages": ["index", "authentication", "api-keys", "ssh-access", "secrets", "tls-network", "vulnerability-disclosure"]
+}

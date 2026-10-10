@@ -1,0 +1,53 @@
+---
+title: "Docker disk usage"
+description: "Disk usage per Docker object type, and build cache pruning. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Disk usage per Docker object type, and build cache pruning.
+
+`notploy docker-disk-usage` exposes **3 commands**. They map one-to-one onto the `docker-disk-usage.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy docker-disk-usage --help` to list these commands in your terminal, or
+	`notploy docker-disk-usage <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy docker-disk-usage get-build-cache`
+
+Calls `GET /api/trpc/dockerDiskUsage.getBuildCache`.
+
+```bash
+notploy docker-disk-usage get-build-cache [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-disk-usage get-disk-usage`
+
+Calls `GET /api/trpc/dockerDiskUsage.getDiskUsage`.
+
+```bash
+notploy docker-disk-usage get-disk-usage [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-disk-usage prune-build-cache`
+
+Calls `POST /api/trpc/dockerDiskUsage.pruneBuildCache`.
+
+```bash
+notploy docker-disk-usage prune-build-cache [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |

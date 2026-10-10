@@ -1,0 +1,50 @@
+---
+title: TLS & network hardening
+description: "Reduce the network attack surface of a Notploy installation."
+---
+
+**Purpose** — Notploy necessarily exposes services to the internet. This page explains how to keep that exposure intentional and minimal.
+
+## TLS
+
+- **Automatic certificates** — Let's Encrypt via Traefik for public domains. See [Certificates](/docs/core/certificates).
+- **Custom certificates** — bring your own certificate as a [resource](/docs/core/certificates) for domains that need it.
+- **Panel TLS** — put the dashboard itself behind a domain with TLS before exposing it.
+
+Redirect HTTP to HTTPS so credentials and tokens never travel in clear text. Notploy's generated Application routes include an HTTPS redirect middleware by default.
+
+## Inventory what is exposed
+
+For each public service, know:
+
+- the **hostname** and the **container port** it routes to,
+- whether it should be public at all,
+- whether it needs authentication (consider [Application Authentication](/docs/core/enterprise/sso/application-authentication) in Enterprise).
+
+Use the **Requests** view to see what Traefik is actually serving.
+
+## Ports
+
+| Port | Exposure |
+| --- | --- |
+| 80 / 443 | Public — required for routing and certificate issuance. |
+| 3000 | The panel. **Restrict or disable** once a TLS domain is working. |
+| 4500 | Metrics. Restrict to the control plane. |
+| 22 | SSH. Restrict to known addresses where possible. |
+
+## Hardening checklist
+
+1. Panel behind HTTPS on a real domain; direct `ip:3000` disabled.
+2. Firewall allows only ports `80`, `443` and restricted SSH.
+3. 2FA on administrator accounts.
+4. Monitoring port not publicly reachable.
+5. Unused services and servers removed.
+6. Docker socket treated as privileged; panel access limited to trusted operators.
+
+See [Production hardening](/docs/core/guides/production-hardening) for the full walkthrough.
+
+## Related
+
+- [Authentication & authorization](/docs/core/security/authentication)
+- [SSH access](/docs/core/security/ssh-access)
+- [Certificates](/docs/core/certificates)

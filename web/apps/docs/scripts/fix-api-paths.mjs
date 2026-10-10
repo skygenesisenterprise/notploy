@@ -6,7 +6,7 @@
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const API_DOCS_DIR = join(process.cwd(), "content", "docs", "api");
+const API_DOCS_DIR = join(process.cwd(), "content", "docs", "reference", "api");
 
 let totalFixed = 0;
 for (const name of readdirSync(API_DOCS_DIR)) {

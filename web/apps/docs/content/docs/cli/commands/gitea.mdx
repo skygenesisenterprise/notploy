@@ -1,0 +1,140 @@
+---
+title: "Gitea"
+description: "Gitea connections, plus branch and repository lookups. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Gitea connections, plus branch and repository lookups.
+
+`notploy gitea` exposes **8 commands**. They map one-to-one onto the `gitea.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy gitea --help` to list these commands in your terminal, or
+	`notploy gitea <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy gitea create`
+
+Calls `POST /api/trpc/gitea.create`.
+
+```bash
+notploy gitea create --giteaUrl <giteaUrl> --name <name> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--giteaId <value>` | string | No | — |
+| `--giteaUrl <value>` | string | Yes | — |
+| `--giteaInternalUrl <value>` | string | No | — |
+| `--redirectUri <value>` | string | No | — |
+| `--clientId <value>` | string | No | — |
+| `--clientSecret <value>` | string | No | — |
+| `--gitProviderId <value>` | string | No | — |
+| `--accessToken <value>` | string | No | — |
+| `--refreshToken <value>` | string | No | — |
+| `--expiresAt <value>` | number | No | — |
+| `--scopes <value>` | string | No | — |
+| `--lastAuthenticatedAt <value>` | number | No | — |
+| `--name <value>` | string | Yes | — |
+| `--giteaUsername <value>` | string | No | — |
+| `--organizationName <value>` | string | No | — |
+
+### `notploy gitea get-gitea-branches`
+
+Calls `GET /api/trpc/gitea.getGiteaBranches`.
+
+```bash
+notploy gitea get-gitea-branches --owner <owner> --repositoryName <repositoryName> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--owner <value>` | string | Yes | — |
+| `--repositoryName <value>` | string | Yes | — |
+| `--giteaId <value>` | string | No | — |
+
+### `notploy gitea get-gitea-repositories`
+
+Calls `GET /api/trpc/gitea.getGiteaRepositories`.
+
+```bash
+notploy gitea get-gitea-repositories --giteaId <giteaId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--giteaId <value>` | string | Yes | — |
+
+### `notploy gitea get-gitea-url`
+
+Calls `GET /api/trpc/gitea.getGiteaUrl`.
+
+```bash
+notploy gitea get-gitea-url --giteaId <giteaId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--giteaId <value>` | string | Yes | — |
+
+### `notploy gitea gitea-providers`
+
+Calls `GET /api/trpc/gitea.giteaProviders`.
+
+```bash
+notploy gitea gitea-providers
+```
+
+### `notploy gitea one`
+
+Calls `GET /api/trpc/gitea.one`.
+
+```bash
+notploy gitea one --giteaId <giteaId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--giteaId <value>` | string | Yes | — |
+
+### `notploy gitea test-connection`
+
+Calls `POST /api/trpc/gitea.testConnection`.
+
+```bash
+notploy gitea test-connection [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--giteaId <value>` | string | No | — |
+| `--organizationName <value>` | string | No | — |
+
+### `notploy gitea update`
+
+Calls `POST /api/trpc/gitea.update`.
+
+```bash
+notploy gitea update --giteaId <giteaId> --giteaUrl <giteaUrl> --gitProviderId <gitProviderId> --name <name> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--giteaId <value>` | string | Yes | — |
+| `--giteaUrl <value>` | string | Yes | — |
+| `--giteaInternalUrl <value>` | string | No | — |
+| `--redirectUri <value>` | string | No | — |
+| `--clientId <value>` | string | No | — |
+| `--clientSecret <value>` | string | No | — |
+| `--gitProviderId <value>` | string | Yes | — |
+| `--accessToken <value>` | string | No | — |
+| `--refreshToken <value>` | string | No | — |
+| `--expiresAt <value>` | number | No | — |
+| `--scopes <value>` | string | No | — |
+| `--lastAuthenticatedAt <value>` | number | No | — |
+| `--name <value>` | string | Yes | — |
+| `--giteaUsername <value>` | string | No | — |
+| `--organizationName <value>` | string | No | — |

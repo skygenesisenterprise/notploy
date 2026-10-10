@@ -1,0 +1,67 @@
+---
+title: Integrations
+description: "Git providers, CI/CD workflows and common automation patterns."
+---
+
+**Purpose** — Notploy is meant to fit into your existing pipeline, not replace it. This page covers the two ways deployments are triggered from outside the dashboard and how to wire them up.
+
+## Git providers
+
+Connect providers so Notploy can read repositories and receive push webhooks:
+
+- [GitHub](/docs/core/github)
+- [GitLab](/docs/core/gitlab)
+- [Bitbucket](/docs/core/bitbucket)
+- [Gitea](/docs/core/gitea)
+
+A provider connection gives you repository access, branch selection and **auto-deploy** on push. See [Auto-deploy](/docs/core/auto-deploy) and [Watch paths](/docs/core/watch-paths) to control when a push triggers a deployment.
+
+For repositories outside a supported provider, use an [SSH key](/docs/core/ssh-keys) and any Git URL.
+
+## CI/CD workflows
+
+There are two integration patterns:
+
+### 1. Push-to-deploy (webhook)
+
+Notploy exposes a webhook per service. When the provider notifies Notploy of a push, Notploy deploys. This keeps the pipeline out of the loop entirely:
+
+```text
+git push ──► Git provider ──► webhook ──► Notploy deploy
+```
+
+Best when your build is fully described by the [build type](/docs/core/applications/build-type) and you do not need CI steps beyond building.
+
+### 2. Deploy-from-CI (API call)
+
+When you need CI steps — tests, migrations, extra checks — run them in your pipeline and trigger the deployment at the end by calling the [API](/docs/api) or [CLI](/docs/cli):
+
+```bash
+# after your tests pass
+curl -X POST 'https://your-panel.example.com/api/application.deploy' \
+  -H 'x-api-key: '"$NOTPLOY_API_KEY" \
+  -H 'content-type: application/json' \
+  -d '{"applicationId":"'"$APP_ID"'"}'
+```
+
+Store `NOTPLOY_API_KEY` in your CI secret store. See [API keys](/docs/core/security/api-keys).
+
+## Preview environments
+
+To build a preview per pull request, create a [preview deployment](/docs/core/applications/preview-deployments) and expose it on a generated or wildcard domain.
+
+## Automation patterns
+
+| Goal | Approach |
+| --- | --- |
+| Deploy on every push to `main` | Provider webhook + auto-deploy. |
+| Deploy only when `apps/api` changes | Provider webhook + [watch paths](/docs/core/watch-paths). |
+| Run tests before deploying | CI job + API/CLI deploy call. |
+| Preview per pull request | Preview deployments. |
+| Sync infrastructure state | [SDK](/docs/core/develop/sdk) reconciliation script. |
+
+## Related
+
+- [Sources & providers](/docs/core/providers)
+- [Auto-deploy](/docs/core/auto-deploy)
+- [API reference](/docs/api)

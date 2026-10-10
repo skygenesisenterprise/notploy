@@ -1,0 +1,50 @@
+---
+title: Supported platforms & versions
+description: "Operating systems, container runtimes and toolchain versions Notploy supports."
+---
+
+**Purpose** — State precisely what Notploy runs on, so you can plan an installation or a development environment without guessing.
+
+## Server operating systems
+
+Notploy targets **Linux hosts with Docker**. The install script has been tested on:
+
+| Distribution | Versions |
+| --- | --- |
+| Ubuntu | 20.04 LTS, 22.04 LTS, 23.10, 24.04 LTS, 18.04 LTS |
+| Debian | 10, 11, 12 |
+| Fedora | 40 |
+| CentOS | 8, 9 |
+
+**Proxmox LXC** containers are detected and configured automatically (`--endpoint-mode dnsrr`).
+
+Some minimal or appliance-style distributions ship kernels without IPVS support; on those, install with `ENDPOINT_MODE=dnsrr`. See [Networking troubleshooting](/docs/core/troubleshooting/networking).
+
+## Container runtime
+
+- **Docker Engine** with the **Compose plugin**. The installer provides them if missing.
+- **Docker Swarm** is initialised by the installer; Notploy runs workloads as Swarm services.
+
+## Client and API
+
+- Any modern browser for the dashboard.
+- The **API** is HTTP/JSON and can be consumed from any language; the official SDK is TypeScript.
+
+## Development toolchain
+
+| Tool | Version |
+| --- | --- |
+| **Node.js** | 24.4 or later in the 24.x line |
+| **pnpm** | 10.22 or later |
+
+See the repository [README](https://github.com/skygenesisenterprise/notploy#development) and [Contributing](/docs/core/develop/contributing) for development setup.
+
+## Architectures
+
+Notploy runs on the architectures your host and Docker support (commonly `x86_64` and `arm64`). Within a Docker Swarm, nodes must share the architecture of images they run.
+
+## Related
+
+- [Prerequisites](/docs/core/prerequisites)
+- [Compatibility](/docs/core/migration/compatibility)
+- [Installation](/docs/core/installation)

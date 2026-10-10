@@ -1,0 +1,42 @@
+---
+title: SSH access
+description: "How Notploy uses SSH to reach servers and Git hosts, and the trust it implies."
+---
+
+**Purpose** — Notploy reaches remote servers and private Git repositories over SSH. This page explains what that access allows, how it is configured, and how to reduce its risk.
+
+## Where SSH is used
+
+- **[Remote servers](/docs/core/remote-servers)** — deployment and build servers that Notploy manages over SSH.
+- **Build servers** — dedicated hosts that build images and push them to a registry.
+- **Private Git repositories** — clones over SSH using an [SSH key](/docs/core/ssh-keys).
+
+## What the access allows
+
+A server connected to Notploy is, by design, a machine Notploy can fully operate: install and run containers, manage Traefik, read logs and inspect storage. An SSH connection to a server therefore grants the equivalent of administrative access to that server.
+
+<Callout type="warn" title="Treat server access as root-level">
+Only connect servers you intend Notploy to control. Remove a server from Notploy the moment you
+no longer want the platform to manage it, and rotate its SSH key.
+</Callout>
+
+## Configuration
+
+1. Generate or provide an **SSH key pair** for the server under [SSH Keys](/docs/core/ssh-keys).
+2. Give Notploy the connection details — host, port, user and key.
+3. Run the **validation** step to confirm connectivity. See [Servers → Validate](/docs/core/remote-servers/validate).
+
+Prefer a dedicated user and key per server so a compromised key has limited blast radius.
+
+## Recommendations
+
+- **Isolate the panel.** Run the control plane on a small host and restrict who can reach it.
+- **Restrict network exposure.** Firewall SSH to known addresses where possible. See [TLS & network hardening](/docs/core/security/tls-network).
+- **Keep servers patched.** Notploy does not patch the operating system for you.
+- **Review connected servers** regularly and remove unused ones.
+
+## Related
+
+- [Servers](/docs/core/remote-servers)
+- [SSH keys](/docs/core/ssh-keys)
+- [Authentication & authorization](/docs/core/security/authentication)

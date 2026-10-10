@@ -1,0 +1,143 @@
+---
+title: "Organizations"
+description: "Organizations, members, invitations and the active organization. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Organizations, members, invitations and the active organization.
+
+`notploy organization` exposes **11 commands**. They map one-to-one onto the `organization.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy organization --help` to list these commands in your terminal, or
+	`notploy organization <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy organization active`
+
+Calls `GET /api/trpc/organization.active`.
+
+```bash
+notploy organization active
+```
+
+### `notploy organization all`
+
+Calls `GET /api/trpc/organization.all`.
+
+```bash
+notploy organization all
+```
+
+### `notploy organization all-invitations`
+
+Calls `GET /api/trpc/organization.allInvitations`.
+
+```bash
+notploy organization all-invitations
+```
+
+### `notploy organization create`
+
+Calls `POST /api/trpc/organization.create`.
+
+```bash
+notploy organization create --name <name> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--logo <value>` | string | No | — |
+
+### `notploy organization delete`
+
+Calls `POST /api/trpc/organization.delete`.
+
+```bash
+notploy organization delete --organizationId <organizationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--organizationId <value>` | string | Yes | — |
+
+### `notploy organization invite-member`
+
+Calls `POST /api/trpc/organization.inviteMember`.
+
+```bash
+notploy organization invite-member --email <email> --role <role>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--email <value>` | string | Yes | — |
+| `--role <value>` | string | Yes | — |
+
+### `notploy organization one`
+
+Calls `GET /api/trpc/organization.one`.
+
+```bash
+notploy organization one --organizationId <organizationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--organizationId <value>` | string | Yes | — |
+
+### `notploy organization remove-invitation`
+
+Calls `POST /api/trpc/organization.removeInvitation`.
+
+```bash
+notploy organization remove-invitation --invitationId <invitationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--invitationId <value>` | string | Yes | — |
+
+### `notploy organization set-default`
+
+Calls `POST /api/trpc/organization.setDefault`.
+
+```bash
+notploy organization set-default --organizationId <organizationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--organizationId <value>` | string | Yes | — |
+
+### `notploy organization update`
+
+Calls `POST /api/trpc/organization.update`.
+
+```bash
+notploy organization update --organizationId <organizationId> --name <name> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--organizationId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--logo <value>` | string | No | — |
+| `--defaultRole <value>` | string | No | — |
+
+### `notploy organization update-member-role`
+
+Calls `POST /api/trpc/organization.updateMemberRole`.
+
+```bash
+notploy organization update-member-role --memberId <memberId> --role <role>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--memberId <value>` | string | Yes | — |
+| `--role <value>` | string | Yes | — |

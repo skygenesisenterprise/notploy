@@ -1,0 +1,119 @@
+---
+title: "Registries"
+description: "Container registries used to pull private images. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Container registries used to pull private images.
+
+`notploy registry` exposes **7 commands**. They map one-to-one onto the `registry.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy registry --help` to list these commands in your terminal, or
+	`notploy registry <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy registry all`
+
+Calls `GET /api/trpc/registry.all`.
+
+```bash
+notploy registry all
+```
+
+### `notploy registry create`
+
+Calls `POST /api/trpc/registry.create`.
+
+```bash
+notploy registry create --registryName <registryName> --username <username> --password <password> --registryUrl <registryUrl> --registryType <registryType> --imagePrefix <imagePrefix> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryName <value>` | string | Yes | — |
+| `--username <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |
+| `--registryUrl <value>` | string | Yes | — |
+| `--registryType <value>` | string | Yes | `cloud` |
+| `--imagePrefix <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy registry one`
+
+Calls `GET /api/trpc/registry.one`.
+
+```bash
+notploy registry one --registryId <registryId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | Yes | — |
+
+### `notploy registry remove`
+
+Calls `POST /api/trpc/registry.remove`.
+
+```bash
+notploy registry remove --registryId <registryId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | Yes | — |
+
+### `notploy registry test-registry`
+
+Calls `POST /api/trpc/registry.testRegistry`.
+
+```bash
+notploy registry test-registry --username <username> --password <password> --registryUrl <registryUrl> --registryType <registryType> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryName <value>` | string | No | — |
+| `--username <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |
+| `--registryUrl <value>` | string | Yes | — |
+| `--registryType <value>` | string | Yes | `cloud` |
+| `--imagePrefix <value>` | string | No | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy registry test-registry-by-id`
+
+Calls `POST /api/trpc/registry.testRegistryById`.
+
+```bash
+notploy registry test-registry-by-id [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | No | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy registry update`
+
+Calls `POST /api/trpc/registry.update`.
+
+```bash
+notploy registry update --registryId <registryId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | Yes | — |
+| `--registryName <value>` | string | No | — |
+| `--imagePrefix <value>` | string | No | — |
+| `--username <value>` | string | No | — |
+| `--password <value>` | string | No | — |
+| `--registryUrl <value>` | string | No | — |
+| `--createdAt <value>` | string | No | — |
+| `--registryType <value>` | string | No | `cloud` |
+| `--organizationId <value>` | string | No | — |
+| `--serverId <value>` | string | No | — |

@@ -1,0 +1,117 @@
+---
+title: "Tags"
+description: "Label projects and filter the dashboard by tag. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Label projects and filter the dashboard by tag.
+
+`notploy tag` exposes **8 commands**. They map one-to-one onto the `tag.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy tag --help` to list these commands in your terminal, or
+	`notploy tag <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy tag all`
+
+Calls `GET /api/trpc/tag.all`.
+
+```bash
+notploy tag all
+```
+
+### `notploy tag assign-to-project`
+
+Calls `POST /api/trpc/tag.assignToProject`.
+
+```bash
+notploy tag assign-to-project --projectId <projectId> --tagId <tagId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--projectId <value>` | string | Yes | — |
+| `--tagId <value>` | string | Yes | — |
+
+### `notploy tag bulk-assign`
+
+Calls `POST /api/trpc/tag.bulkAssign`.
+
+```bash
+notploy tag bulk-assign --projectId <projectId> --tagIds <tagIds>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--projectId <value>` | string | Yes | — |
+| `--tagIds <value>` | string | Yes | — |
+
+### `notploy tag create`
+
+Calls `POST /api/trpc/tag.create`.
+
+```bash
+notploy tag create --name <name> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--color <value>` | string | No | — |
+
+### `notploy tag one`
+
+Calls `GET /api/trpc/tag.one`.
+
+```bash
+notploy tag one --tagId <tagId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--tagId <value>` | string | Yes | — |
+
+### `notploy tag remove`
+
+Calls `POST /api/trpc/tag.remove`.
+
+```bash
+notploy tag remove --tagId <tagId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--tagId <value>` | string | Yes | — |
+
+### `notploy tag remove-from-project`
+
+Calls `POST /api/trpc/tag.removeFromProject`.
+
+```bash
+notploy tag remove-from-project --projectId <projectId> --tagId <tagId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--projectId <value>` | string | Yes | — |
+| `--tagId <value>` | string | Yes | — |
+
+### `notploy tag update`
+
+Calls `POST /api/trpc/tag.update`.
+
+```bash
+notploy tag update --tagId <tagId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--tagId <value>` | string | Yes | — |
+| `--name <value>` | string | No | — |
+| `--color <value>` | string | No | — |
+| `--createdAt <value>` | string | No | — |
+| `--organizationId <value>` | string | No | — |

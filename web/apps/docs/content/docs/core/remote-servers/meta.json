@@ -1,0 +1,4 @@
+{
+	"title": "Remote Servers",
+	"pages": ["index", "deploy-server", "build-server", "deployments", "validate", "security"]
+}

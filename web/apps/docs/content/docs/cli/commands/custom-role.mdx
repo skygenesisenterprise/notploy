@@ -1,0 +1,84 @@
+---
+title: "Custom roles"
+description: "Organization roles built from a set of permission statements. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Organization roles built from a set of permission statements.
+
+`notploy custom-role` exposes **6 commands**. They map one-to-one onto the `custom-role.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy custom-role --help` to list these commands in your terminal, or
+	`notploy custom-role <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy custom-role all`
+
+Calls `GET /api/trpc/customRole.all`.
+
+```bash
+notploy custom-role all
+```
+
+### `notploy custom-role create`
+
+Calls `POST /api/trpc/customRole.create`.
+
+```bash
+notploy custom-role create --roleName <roleName> --permissions <permissions>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--roleName <value>` | string | Yes | — |
+| `--permissions <value>` | string | Yes | — |
+
+### `notploy custom-role get-statements`
+
+Calls `GET /api/trpc/customRole.getStatements`.
+
+```bash
+notploy custom-role get-statements
+```
+
+### `notploy custom-role members-by-role`
+
+Calls `GET /api/trpc/customRole.membersByRole`.
+
+```bash
+notploy custom-role members-by-role --roleName <roleName>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--roleName <value>` | string | Yes | — |
+
+### `notploy custom-role remove`
+
+Calls `POST /api/trpc/customRole.remove`.
+
+```bash
+notploy custom-role remove --roleName <roleName>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--roleName <value>` | string | Yes | — |
+
+### `notploy custom-role update`
+
+Calls `POST /api/trpc/customRole.update`.
+
+```bash
+notploy custom-role update --roleName <roleName> --permissions <permissions> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--roleName <value>` | string | Yes | — |
+| `--newRoleName <value>` | string | No | — |
+| `--permissions <value>` | string | Yes | — |

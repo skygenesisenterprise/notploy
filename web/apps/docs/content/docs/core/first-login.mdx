@@ -1,0 +1,51 @@
+---
+title: First login
+description: "Complete the initial setup, create the administrator account and secure access."
+---
+
+After the installation finishes, Notploy is running but has no administrator yet. The first visit creates one.
+
+## Complete the initial setup
+
+1. Open `http://<your-server-ip>:3000` in a browser.
+2. On the setup page, create the **administrator account** — this becomes the owner of your organization.
+3. Sign in with the credentials you just created.
+
+**Expected result:** you land on the dashboard, signed in, with an empty organization ready for its first project.
+
+<Callout type="warn" title="You cannot reach the setup page">
+Confirm the server firewall allows port `3000` and that the Notploy containers are running.
+See [Notploy instance troubleshooting](/docs/core/troubleshooting/instance).
+</Callout>
+
+## What you are now
+
+The account you created is the organization **owner**: it can manage projects, resources and members. Additional members are invited later with roles that limit what they can do — see [Permissions](/docs/core/permissions).
+
+## Secure the installation
+
+Before you expose Notploy to the internet, do two things:
+
+1. **Put the dashboard behind HTTPS.** Follow [Domain and TLS](/docs/core/domain-and-tls) to point a domain at the panel and enable a certificate.
+2. **Then disable direct IP:port access** (optional but recommended). Once HTTPS for your panel domain is confirmed working, you can stop publishing port `3000` directly:
+
+   ```bash
+   docker service update --publish-rm "published=3000,target=3000,mode=host" notploy
+   ```
+
+<Callout type="warn">
+Do **not** disable IP:port access before a working HTTPS domain is in place, or you will lock
+yourself out of the dashboard. Verify first, remove access second.
+</Callout>
+
+## Recommended next steps
+
+- Enable **[two-factor authentication](/docs/core/account-security)** on the admin account.
+- Connect a **[Git provider or source](/docs/core/connect-source)**.
+- Deploy your first [application](/docs/core/first-deployment).
+
+## Related
+
+- [Interface overview](/docs/core/interface-overview)
+- [Account security](/docs/core/account-security)
+- [Security overview](/docs/core/security)

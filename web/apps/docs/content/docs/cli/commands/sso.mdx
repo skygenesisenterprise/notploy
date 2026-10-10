@@ -1,0 +1,146 @@
+---
+title: "SSO"
+description: "Single sign-on providers, enforcement and trusted origins. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Single sign-on providers, enforcement and trusted origins.
+
+`notploy sso` exposes **11 commands**. They map one-to-one onto the `sso.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy sso --help` to list these commands in your terminal, or
+	`notploy sso <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy sso add-trusted-origin`
+
+Calls `POST /api/trpc/sso.addTrustedOrigin`.
+
+```bash
+notploy sso add-trusted-origin --origin <origin>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--origin <value>` | string | Yes | — |
+
+### `notploy sso delete-provider`
+
+Calls `POST /api/trpc/sso.deleteProvider`.
+
+```bash
+notploy sso delete-provider --providerId <providerId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--providerId <value>` | string | Yes | — |
+
+### `notploy sso enforce-sso`
+
+Calls `GET /api/trpc/sso.enforceSSO`.
+
+```bash
+notploy sso enforce-sso
+```
+
+### `notploy sso get-trusted-origins`
+
+Calls `GET /api/trpc/sso.getTrustedOrigins`.
+
+```bash
+notploy sso get-trusted-origins
+```
+
+### `notploy sso list-providers`
+
+Calls `GET /api/trpc/sso.listProviders`.
+
+```bash
+notploy sso list-providers
+```
+
+### `notploy sso one`
+
+Calls `GET /api/trpc/sso.one`.
+
+```bash
+notploy sso one --providerId <providerId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--providerId <value>` | string | Yes | — |
+
+### `notploy sso register`
+
+Calls `POST /api/trpc/sso.register`.
+
+```bash
+notploy sso register --providerId <providerId> --issuer <issuer> --domains <domains> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--providerId <value>` | string | Yes | — |
+| `--issuer <value>` | string | Yes | — |
+| `--domains <value>` | string | Yes | — |
+| `--oidcConfig <value>` | string | No | — |
+| `--samlConfig <value>` | string | No | — |
+| `--organizationId <value>` | string | No | — |
+| `--overrideUserInfo` | boolean | No | — |
+
+### `notploy sso remove-trusted-origin`
+
+Calls `POST /api/trpc/sso.removeTrustedOrigin`.
+
+```bash
+notploy sso remove-trusted-origin --origin <origin>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--origin <value>` | string | Yes | — |
+
+### `notploy sso show-sign-in-with-sso`
+
+Calls `GET /api/trpc/sso.showSignInWithSSO`.
+
+```bash
+notploy sso show-sign-in-with-sso
+```
+
+### `notploy sso update`
+
+Calls `POST /api/trpc/sso.update`.
+
+```bash
+notploy sso update --providerId <providerId> --issuer <issuer> --domains <domains> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--providerId <value>` | string | Yes | — |
+| `--issuer <value>` | string | Yes | — |
+| `--domains <value>` | string | Yes | — |
+| `--oidcConfig <value>` | string | No | — |
+| `--samlConfig <value>` | string | No | — |
+| `--organizationId <value>` | string | No | — |
+| `--overrideUserInfo` | boolean | No | — |
+
+### `notploy sso update-trusted-origin`
+
+Calls `POST /api/trpc/sso.updateTrustedOrigin`.
+
+```bash
+notploy sso update-trusted-origin --oldOrigin <oldOrigin> --newOrigin <newOrigin>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--oldOrigin <value>` | string | Yes | — |
+| `--newOrigin <value>` | string | Yes | — |

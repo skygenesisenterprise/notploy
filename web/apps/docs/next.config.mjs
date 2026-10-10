@@ -1,5 +1,6 @@
 import { createMDX } from "fumadocs-mdx/next";
 import path from "node:path";
+import { legacyDocRedirects } from "./scripts/redirects.mjs";
 
 const withMDX = createMDX();
 
@@ -53,23 +54,22 @@ const config = {
 	// Directory indexes make deep links work on static hosts that do not perform
 	// Next.js route resolution.
 	...(isStaticExport ? { trailingSlash: true } : {}),
-	// `redirects()` is unsupported under `output: "export"`. The template
-	// gallery moved to the marketing site, so static exports omit these redirects.
+	// `redirects()` is unsupported under `output: "export"`, so static exports
+	// omit these redirects.
 	...(isStaticExport
 		? {}
 		: {
 				async redirects() {
 					return [
+						// The docs entry point is the Core section. 307 (temporary) so the
+						// landing target can move later without a stale permanent redirect.
 						{
-							source: "/docs/templates",
-							destination: "https://notploy.com/templates",
-							permanent: true,
+							source: "/",
+							destination: "/docs/core",
+							permanent: false,
 						},
-						{
-							source: "/docs/templates/:id*",
-							destination: "https://notploy.com/templates/:id*",
-							permanent: true,
-						},
+						// Preserve legacy public URLs from the pre-refactor documentation.
+						...legacyDocRedirects,
 					];
 				},
 			}),

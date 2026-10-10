@@ -1,0 +1,71 @@
+---
+title: Deploy your first application
+description: "Create a project, add an application from a source, and get it running."
+---
+
+This is the payoff of the setup path: a project, an application, and a deployment that reaches `running`.
+
+## 1. Create a project
+
+1. Open **Projects** and create a new project — for example `demo`.
+2. Give it a name; Notploy creates a default **environment** (usually `production`).
+
+A project groups related services; the environment is the deployment context they run in. See [Core concepts](/docs/core/concepts#project).
+
+**Expected result:** you have an empty project with one environment.
+
+## 2. Add an application
+
+1. Inside the project, choose **Create service → Application**.
+2. Pick the **source** you connected in the previous step (a repository, an image, or an upload).
+3. Select the **build type**:
+   - **Dockerfile** if your repository contains one.
+   - **Nixpacks / Railpack / buildpacks** to let Notploy detect and build your stack.
+   - **Static** / **Docker image** when no build is needed.
+4. Save. Notploy reads the repository and prepares the service.
+
+See [Build types](/docs/core/applications/build-type) if you are unsure which to choose.
+
+<Callout type="info" title="No Dockerfile?">
+For common frameworks — Next.js, Vite/React, Remix, NestJS, Django and more — Nixpacks or
+buildpacks will build the app without a Dockerfile. The [Examples](/docs/templates/examples)
+pages show recommended settings per framework.
+</Callout>
+
+## 3. Configure environment
+
+If your application needs configuration, add it in the **Environment** tab. Variables can be defined at the project, environment or service level; the more specific level wins. See [Environment variables](/docs/core/variables).
+
+Never commit real credentials to the repository — put them in environment variables or a [secrets provider](/docs/core/secrets-providers).
+
+## 4. Deploy
+
+Click **Deploy**. Notploy:
+
+1. fetches the source,
+2. builds (or pulls) the image,
+3. releases the container as a Swarm service,
+4. registers the route with Traefik,
+5. records a **[deployment](/docs/core/concepts#deployment)**.
+
+Watch the build and runtime output in the **Deployments** tab.
+
+**Expected result:** the latest deployment reaches a running state and the service is healthy.
+
+## 5. Reach the app
+
+By default the service is not published to a domain. To open it over HTTP for a quick test you can use a **generated domain** (a free `traefik.me` hostname). For a real address, continue to [Domain and TLS](/docs/core/domain-and-tls).
+
+## When something goes wrong
+
+- **Build fails** — open the deployment log; the failing step is named. Common causes: a missing build dependency, a wrong build type, or a missing environment variable.
+- **Deployment succeeds but the app is unreachable** — check the container is listening on the expected port and that a domain is configured.
+- **The process exits immediately** — inspect runtime logs; the container likely needs configuration it did not receive.
+
+See [Troubleshooting](/docs/core/troubleshooting) for symptom-based guidance.
+
+## Related
+
+- [Applications & deployment](/docs/core/applications)
+- [Verify a deployment](/docs/core/verify-deployment)
+- [Rollbacks](/docs/core/applications/rollbacks)

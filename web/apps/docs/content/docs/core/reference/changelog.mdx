@@ -1,0 +1,49 @@
+---
+title: Changelog
+description: "How Notploy releases and their notes are published."
+---
+
+**Purpose** — Explain where release information lives and how to track changes that affect you, instead of duplicating a release feed here.
+
+## Where releases are published
+
+Notploy releases are published on GitHub:
+
+- **Releases and notes** — [github.com/skygenesisenterprise/notploy/releases](https://github.com/skygenesisenterprise/notploy/releases)
+- **Changesets** — user-facing changes are tracked with [Changesets](https://github.com/changesets/changesets) in the repository; each release aggregates the entries for the version.
+
+Each release attaches its own `install.sh`, which installs exactly that version with the setup it expects. This is the supported way to install or update to a **specific** version. See [Installation](/docs/core/installation).
+
+## How to follow changes
+
+- **Subscribe** to the GitHub releases feed for notifications.
+- **Read the notes before upgrading** — they call out breaking changes and required migrations.
+- **Check the docs companion**: when a release changes user-facing behavior, configuration, deployment, security, migration or API contracts, the documentation is expected to change with it. See the maintenance policy below.
+
+## Versioning
+
+Release tags are semantic-ish version tags (for example `v0.26.6`). Pre-release / development builds are published under the **canary** channel:
+
+```bash
+export NOTPLOY_VERSION=canary && curl -sSL https://notploy.com/install.sh | sh
+```
+
+<Callout type="warn">
+Canary builds are for testing. Do not run canary in production unless you intend to track a
+moving target.
+</Callout>
+
+## Documentation maintenance policy
+
+To keep this reference trustworthy:
+
+- Documentation changes accompany **behavior-changing code changes** where user-facing behavior, configuration, deployment, security, migration or API contracts change.
+- Pages use **status labels** (available, experimental, planned, unsupported) rather than describing roadmap items as shipped.
+- Instructions that vary by release are labelled with version requirements.
+- Examples track current package names, commands, endpoints and environment variables.
+
+## Related
+
+- [Upgrade, backup and restore](/docs/core/upgrade-backup-restore)
+- [Compatibility](/docs/core/migration/compatibility)
+- [Contributing](/docs/core/develop/contributing)

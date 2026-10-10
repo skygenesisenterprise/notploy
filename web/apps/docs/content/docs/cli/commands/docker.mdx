@@ -1,0 +1,252 @@
+---
+title: "Docker"
+description: "Containers, the Docker daemon configuration, events and container files. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Containers, the Docker daemon configuration, events and container files.
+
+`notploy docker` exposes **18 commands**. They map one-to-one onto the `docker.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy docker --help` to list these commands in your terminal, or
+	`notploy docker <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy docker delete-container-file`
+
+Calls `POST /api/trpc/docker.deleteContainerFile`.
+
+```bash
+notploy docker delete-container-file --containerId <containerId> --path <path> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--containerId <value>` | string | Yes | — |
+| `--path <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker get-config`
+
+Calls `GET /api/trpc/docker.getConfig`.
+
+```bash
+notploy docker get-config --containerId <containerId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--containerId <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker get-containers`
+
+Calls `GET /api/trpc/docker.getContainers`.
+
+```bash
+notploy docker get-containers [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker get-containers-by-app-label`
+
+Calls `GET /api/trpc/docker.getContainersByAppLabel`.
+
+```bash
+notploy docker get-containers-by-app-label --appName <appName> --type <type> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appName <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+| `--type <value>` | string | Yes | `standalone`, `swarm` |
+
+### `notploy docker get-containers-by-app-name-match`
+
+Calls `GET /api/trpc/docker.getContainersByAppNameMatch`.
+
+```bash
+notploy docker get-containers-by-app-name-match --appName <appName> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appType <value>` | string | No | `stack`, `docker-compose` |
+| `--appName <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker get-events`
+
+Calls `GET /api/trpc/docker.getEvents`.
+
+```bash
+notploy docker get-events [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+| `--minutes <value>` | number | No | — |
+
+### `notploy docker get-server-health`
+
+Calls `GET /api/trpc/docker.getServerHealth`.
+
+```bash
+notploy docker get-server-health [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+| `--sinceHours <value>` | number | No | — |
+
+### `notploy docker get-service-containers-by-app-name`
+
+Calls `GET /api/trpc/docker.getServiceContainersByAppName`.
+
+```bash
+notploy docker get-service-containers-by-app-name --appName <appName> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appName <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker get-stack-containers-by-app-name`
+
+Calls `GET /api/trpc/docker.getStackContainersByAppName`.
+
+```bash
+notploy docker get-stack-containers-by-app-name --appName <appName> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appName <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker kill-container`
+
+Calls `POST /api/trpc/docker.killContainer`.
+
+```bash
+notploy docker kill-container --containerId <containerId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--containerId <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker list-container-files`
+
+Calls `GET /api/trpc/docker.listContainerFiles`.
+
+```bash
+notploy docker list-container-files --containerId <containerId> --path <path> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--containerId <value>` | string | Yes | — |
+| `--path <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker read-container-file`
+
+Calls `GET /api/trpc/docker.readContainerFile`.
+
+```bash
+notploy docker read-container-file --containerId <containerId> --path <path> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--containerId <value>` | string | Yes | — |
+| `--path <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker remove-container`
+
+Calls `POST /api/trpc/docker.removeContainer`.
+
+```bash
+notploy docker remove-container --containerId <containerId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--containerId <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker restart-container`
+
+Calls `POST /api/trpc/docker.restartContainer`.
+
+```bash
+notploy docker restart-container --containerId <containerId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--containerId <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker start-container`
+
+Calls `POST /api/trpc/docker.startContainer`.
+
+```bash
+notploy docker start-container --containerId <containerId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--containerId <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker stop-container`
+
+Calls `POST /api/trpc/docker.stopContainer`.
+
+```bash
+notploy docker stop-container --containerId <containerId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--containerId <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker upload-file-to-container`
+
+Calls `POST /api/trpc/docker.uploadFileToContainer`.
+
+```bash
+notploy docker upload-file-to-container
+```
+
+### `notploy docker write-container-file`
+
+Calls `POST /api/trpc/docker.writeContainerFile`.
+
+```bash
+notploy docker write-container-file --containerId <containerId> --path <path> --content <content> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--containerId <value>` | string | Yes | — |
+| `--path <value>` | string | Yes | — |
+| `--content <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |

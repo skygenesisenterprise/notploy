@@ -1,0 +1,58 @@
+---
+title: Verify a deployment
+description: "Read deployment status and logs, and know what a healthy deployment looks like."
+---
+
+A successful deploy is not just "no red banner". This page explains the signals Notploy exposes so you can confirm a release works and diagnose it when it does not.
+
+## Deployment status
+
+Each **deployment** moves through a lifecycle. The important states:
+
+| Status | Meaning |
+| --- | --- |
+| `queued` | Waiting for a worker. A long queue usually means many builds are in flight. |
+| `building` | Producing the image from the source. |
+| `running` | Container released and healthy. |
+| `error` | The build or release failed — open the logs. |
+
+Queued deployments can be **cancelled**; those already running cannot.
+
+## Where to look
+
+- **Deployments tab** — the history of the last deployments for the service, with the build log of each. When a deploy fails, the log names the step that broke.
+- **Logs tab** — real-time runtime output from the running container(s). This is where you see application errors after a successful build.
+- **Monitoring tab** — CPU, memory, disk and network for the service. Metrics only update while the page is open.
+- **Server view** — for host-level health (disk pressure, Docker usage).
+
+## What "healthy" means
+
+A deployment is healthy when:
+
+1. its status is `running`,
+2. the container repeatedly passes its health check (if configured), and
+3. the domain, if any, serves requests.
+
+If the build succeeds but the app does not answer, the problem has moved from *build* to *runtime* — check the container port and environment variables before redeploying.
+
+## Failure triage
+
+| Symptom | First thing to check |
+| --- | --- |
+| Build fails | Deployment log — the failing step and its stderr. |
+| Deploy runs, app unreachable | Container port vs. domain container port. |
+| App crashes on start | Runtime logs — usually a missing env var or bad config. |
+| Works locally, fails here | Missing environment variables or build-type mismatch. |
+| Intermittent 502 | Health checks, resource limits, or a crash loop. |
+
+## Recovering
+
+- **Roll back** to a previous working deployment — see [Rollbacks](/docs/core/applications/rollbacks).
+- **Redeploy** after fixing configuration.
+- Investigate with [Troubleshooting](/docs/core/troubleshooting).
+
+## Related
+
+- [Getting to production](/docs/core/applications/going-production)
+- [Zero-downtime deployments](/docs/core/applications/zero-downtime)
+- [Monitoring](/docs/core/monitoring)

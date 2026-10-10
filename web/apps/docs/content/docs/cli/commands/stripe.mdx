@@ -1,0 +1,118 @@
+---
+title: "Stripe"
+description: "Billing for Notploy Cloud: plans, invoices, checkout and the customer portal. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Billing for Notploy Cloud: plans, invoices, checkout and the customer portal.
+
+`notploy stripe` exposes **10 commands**. They map one-to-one onto the `stripe.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy stripe --help` to list these commands in your terminal, or
+	`notploy stripe <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy stripe can-create-more-servers`
+
+Calls `GET /api/trpc/stripe.canCreateMoreServers`.
+
+```bash
+notploy stripe can-create-more-servers
+```
+
+### `notploy stripe create-checkout-session`
+
+Calls `POST /api/trpc/stripe.createCheckoutSession`.
+
+```bash
+notploy stripe create-checkout-session --tier <tier> --productId <productId> --serverQuantity <serverQuantity> --isAnnual
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--tier <value>` | string | Yes | `legacy`, `hobby`, `startup` |
+| `--productId <value>` | string | Yes | — |
+| `--serverQuantity <value>` | number | Yes | — |
+| `--isAnnual` | boolean | Yes | — |
+
+### `notploy stripe create-customer-portal-session`
+
+Calls `POST /api/trpc/stripe.createCustomerPortalSession`.
+
+```bash
+notploy stripe create-customer-portal-session
+```
+
+### `notploy stripe get-billing-status`
+
+Calls `GET /api/trpc/stripe.getBillingStatus`.
+
+```bash
+notploy stripe get-billing-status
+```
+
+### `notploy stripe get-current-plan`
+
+Calls `GET /api/trpc/stripe.getCurrentPlan`.
+
+```bash
+notploy stripe get-current-plan
+```
+
+### `notploy stripe get-invoices`
+
+Calls `GET /api/trpc/stripe.getInvoices`.
+
+```bash
+notploy stripe get-invoices
+```
+
+### `notploy stripe get-products`
+
+Calls `GET /api/trpc/stripe.getProducts`.
+
+```bash
+notploy stripe get-products
+```
+
+### `notploy stripe start-free-trial`
+
+Calls `POST /api/trpc/stripe.startFreeTrial`.
+
+```bash
+notploy stripe start-free-trial --tier <tier>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--tier <value>` | string | Yes | `hobby`, `startup` |
+
+### `notploy stripe update-invoice-notifications`
+
+Calls `POST /api/trpc/stripe.updateInvoiceNotifications`.
+
+```bash
+notploy stripe update-invoice-notifications --enabled
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--enabled` | boolean | Yes | — |
+
+### `notploy stripe upgrade-subscription`
+
+Calls `POST /api/trpc/stripe.upgradeSubscription`.
+
+```bash
+notploy stripe upgrade-subscription --tier <tier> --serverQuantity <serverQuantity> --isAnnual
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--tier <value>` | string | Yes | `hobby`, `startup` |
+| `--serverQuantity <value>` | number | Yes | — |
+| `--isAnnual` | boolean | Yes | — |

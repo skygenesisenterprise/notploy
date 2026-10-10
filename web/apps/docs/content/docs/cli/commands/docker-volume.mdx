@@ -1,0 +1,124 @@
+---
+title: "Docker volumes"
+description: "Inspect volumes, their size and the files inside them. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Inspect volumes, their size and the files inside them.
+
+`notploy docker-volume` exposes **8 commands**. They map one-to-one onto the `docker-volume.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy docker-volume --help` to list these commands in your terminal, or
+	`notploy docker-volume <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy docker-volume delete-volume-file`
+
+Calls `POST /api/trpc/dockerVolume.deleteVolumeFile`.
+
+```bash
+notploy docker-volume delete-volume-file --volumeName <volumeName> --path <path> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--volumeName <value>` | string | Yes | — |
+| `--path <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-volume get-volume-config`
+
+Calls `GET /api/trpc/dockerVolume.getVolumeConfig`.
+
+```bash
+notploy docker-volume get-volume-config --volumeName <volumeName> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--volumeName <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-volume get-volumes`
+
+Calls `GET /api/trpc/dockerVolume.getVolumes`.
+
+```bash
+notploy docker-volume get-volumes [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-volume get-volumes-size`
+
+Calls `GET /api/trpc/dockerVolume.getVolumesSize`.
+
+```bash
+notploy docker-volume get-volumes-size [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-volume list-volume-files`
+
+Calls `GET /api/trpc/dockerVolume.listVolumeFiles`.
+
+```bash
+notploy docker-volume list-volume-files --volumeName <volumeName> --path <path> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--volumeName <value>` | string | Yes | — |
+| `--path <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-volume read-volume-file`
+
+Calls `GET /api/trpc/dockerVolume.readVolumeFile`.
+
+```bash
+notploy docker-volume read-volume-file --volumeName <volumeName> --path <path> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--volumeName <value>` | string | Yes | — |
+| `--path <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-volume remove-volume`
+
+Calls `POST /api/trpc/dockerVolume.removeVolume`.
+
+```bash
+notploy docker-volume remove-volume --volumeName <volumeName> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--volumeName <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy docker-volume write-volume-file`
+
+Calls `POST /api/trpc/dockerVolume.writeVolumeFile`.
+
+```bash
+notploy docker-volume write-volume-file --volumeName <volumeName> --path <path> --content <content> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--volumeName <value>` | string | Yes | — |
+| `--path <value>` | string | Yes | — |
+| `--content <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |

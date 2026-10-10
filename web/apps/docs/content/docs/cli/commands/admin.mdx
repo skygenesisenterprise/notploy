@@ -1,0 +1,29 @@
+---
+title: "Admin"
+description: "Administrative operations that apply to the whole instance. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Administrative operations that apply to the whole instance.
+
+`notploy admin` exposes **1 command**. They map one-to-one onto the `admin.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy admin --help` to list these commands in your terminal, or
+	`notploy admin <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy admin setup-monitoring`
+
+Calls `POST /api/trpc/admin.setupMonitoring`.
+
+```bash
+notploy admin setup-monitoring --metricsConfig <metricsConfig>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--metricsConfig <value>` | string | Yes | — |

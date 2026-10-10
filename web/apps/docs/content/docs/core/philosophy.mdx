@@ -1,0 +1,59 @@
+---
+title: Product philosophy
+description: "The goals and design principles behind Notploy."
+---
+
+Notploy exists because deploying software should not require surrendering control of the infrastructure it runs on. These are the principles that shape what the product does — and, just as importantly, what it does not do.
+
+## 1. You own the infrastructure
+
+Notploy runs on servers you choose. Your code, your data, your backups and your network traffic stay on infrastructure you control. There is no control-plane lock-in: the platform is Apache-2.0 licensed and self-hostable, and it is built on open primitives (Docker, Swarm, Traefik) that you could operate by hand if you ever needed to.
+
+This is a deliberate trade-off. A managed platform will always be less work to start. Notploy optimizes for teams that need ownership, data residency, cost control or auditability — and gives them a control plane so ownership is not the same as manual toil.
+
+## 2. Build on boring, verifiable primitives
+
+Notploy does not invent a container runtime, a proxy or a cluster orchestrator. Every workload is a Docker container; every route is a Traefik rule; clustering is Docker Swarm. The consequence is that **what Notploy does is inspectable**: you can open a terminal, list `docker service ls`, or edit the generated Traefik configuration and see exactly what the platform produced.
+
+New abstractions are added only when they earn their keep. When Notploy mirrors a UI action, it is usually just writing a configuration file or calling a Docker API — and the documentation explains which.
+
+## 3. Concepts before procedures
+
+It is easy to write documentation that tells you which button to click. It is more useful to explain **what a concept is, why it exists, what it depends on and how to verify it works**. Notploy's docs lead with the model — projects, environments, services, deployments, servers — so that the procedures make sense in context rather than requiring memorization.
+
+## 4. Be truthful about implementation status
+
+A feature that is "coming soon" is not a feature. Documentation that describes a roadmap as if it were shipped erodes trust every time a user discovers otherwise. Every page aims to state clearly whether a capability is **available and verified**, **experimental**, **planned** or **unsupported**, and to call out version requirements and known limitations. Where behavior differs by edition, the docs say which edition applies.
+
+## 5. One engine, many topologies
+
+The same deployment engine is used whether applications run on the local server, on remote servers over SSH, or on a Swarm cluster. The difference between those topologies is **where workloads run**, not how they are built or described. This keeps the mental model small: learn deployment once, then choose a topology.
+
+## 6. Extensible by adapters, not forks
+
+Integrations — Git providers, registries, DNS providers, S3 destinations, secret managers, notification channels — are implemented as provider adapters behind a shared interface. Adding a provider should not require reshaping the product, and the docs present these adapters as a coherent family rather than a pile of unrelated menu entries.
+
+## 7. Make the system operable, not just deployable
+
+Shipping an application is the middle of its life, not the end. Notploy treats operations as a first-class concern: logs, resource metrics, health, backups, restores, rollbacks, upgrades and troubleshooting are part of the same model, and the documentation covers the failure modes as carefully as the happy path.
+
+## What this means for the documentation
+
+These principles translate directly into how these docs are written:
+
+- **Explain before instructing.** Every guide grounds the task in the concept it depends on.
+- **Name the Notploy model.** Terminology matches the product: organization, project, environment, service, deployment, server.
+- **Show relationships.** DNS relates to domains, domains to services; secrets are consumed by services; registries relate to builds and deployments; object storage relates to backups and restores.
+- **State the limits.** Prerequisites, permissions, security implications and common failure modes are documented, not implied.
+
+<Callout type="info">
+If a page only mirrors the UI — fields without purpose, steps without context — it does not
+yet meet the standard. See [Core concepts](/docs/core/concepts) for the vocabulary this
+documentation is built on.
+</Callout>
+
+## Related
+
+- [Architecture](/docs/core/architecture) — how the components fit together.
+- [Editions & scope](/docs/core/differences) — Self-Hosted, Cloud, Enterprise and Console.
+- [Capabilities](/docs/core/features) — what the platform can do today.

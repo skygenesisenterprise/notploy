@@ -1,0 +1,58 @@
+---
+title: "Git providers"
+description: "List, share and remove every Git provider connected to an organization. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+List, share and remove every Git provider connected to an organization.
+
+`notploy git-provider` exposes **4 commands**. They map one-to-one onto the `git-provider.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy git-provider --help` to list these commands in your terminal, or
+	`notploy git-provider <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy git-provider all-for-permissions`
+
+Calls `GET /api/trpc/gitProvider.allForPermissions`.
+
+```bash
+notploy git-provider all-for-permissions
+```
+
+### `notploy git-provider get-all`
+
+Calls `GET /api/trpc/gitProvider.getAll`.
+
+```bash
+notploy git-provider get-all
+```
+
+### `notploy git-provider remove`
+
+Calls `POST /api/trpc/gitProvider.remove`.
+
+```bash
+notploy git-provider remove --gitProviderId <gitProviderId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--gitProviderId <value>` | string | Yes | — |
+
+### `notploy git-provider toggle-share`
+
+Calls `POST /api/trpc/gitProvider.toggleShare`.
+
+```bash
+notploy git-provider toggle-share --gitProviderId <gitProviderId> --sharedWithOrganization
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--gitProviderId <value>` | string | Yes | — |
+| `--sharedWithOrganization` | boolean | Yes | — |

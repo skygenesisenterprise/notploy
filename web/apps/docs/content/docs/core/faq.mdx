@@ -1,0 +1,91 @@
+---
+title: FAQ
+description: "Answers to common questions about Notploy, its editions and how to run it."
+---
+
+## Product
+
+### What is Notploy?
+
+An open-source, self-hostable platform for deploying and operating applications, databases and Docker Compose stacks on servers you own. See [What is Notploy?](/docs/core).
+
+### Is Notploy free?
+
+The core platform is open source under Apache-2.0, and the Self-Hosted edition is free to run. Some separately published packages or components may carry their own license terms. A commercial edition with additional capabilities and premium support is maintained by [Sky Genesis Enterprise](https://skygenesisenterprise.com). See [Editions & scope](/docs/core/differences).
+
+### Do I have to host it myself?
+
+No. You can [self-host](/docs/core/installation) with the install script or Docker Compose, or use the hosted [Notploy Cloud](https://app.notploy.com) and connect your own servers.
+
+### How is Notploy different from a managed PaaS?
+
+Notploy runs on your infrastructure. Your code, data and traffic stay on servers you control, and the platform is built on open primitives (Docker, Swarm, Traefik) you can inspect. A managed PaaS handles the infrastructure for you but owns the control plane and your data.
+
+### Does Notploy replace Kubernetes?
+
+No. Notploy targets teams that want a simple, Docker-native deployment experience, not Kubernetes-style orchestration. It uses Docker and Docker Swarm, not Kubernetes.
+
+## Requirements
+
+### What do I need to run Notploy?
+
+For the containerized stack: Docker Engine with the Compose plugin, a PostgreSQL database and a filled-in `.env`. For development, Node.js 24.4+ (24.x) and pnpm 10.22+. See [Prerequisites](/docs/core/prerequisites).
+
+### What are the minimum server resources?
+
+A server with at least **2 GB of RAM** and **30 GB of disk** is recommended — Docker builds are the main consumer. A low-resource host can be enough when the control plane only manages remote servers.
+
+### Which ports are needed?
+
+`80` and `443` for Traefik, and `3000` for the Notploy web interface by default. Monitoring uses `4500` when enabled. See [Prerequisites](/docs/core/prerequisites).
+
+### Which platforms are supported?
+
+Docker and Linux hosts are the primary target. See [Platform support](/docs/core/reference/platform-support) for the current list and notes.
+
+## Operations
+
+### Will my applications keep running if the control plane goes down?
+
+Yes. Traefik routes traffic to running containers independently of the control plane. You lose management access until it is back, but your users are not affected. See [Architecture](/docs/core/architecture).
+
+### How do I update Notploy?
+
+Re-run the install script with the `update` argument. See [Upgrade, backup and restore](/docs/core/upgrade-backup-restore).
+
+### Where are backups stored?
+
+Database and volume backups are written to an S3-compatible destination you configure. Restores read from the same destination. See [Backups](/docs/core/backups).
+
+### How do I troubleshoot a broken domain?
+
+Work the chain in order: DNS → domain rule → Traefik → container. See [Domains & Traefik troubleshooting](/docs/core/troubleshooting/domains).
+
+## Editions and access
+
+### What is the difference between Self-Hosted and Cloud?
+
+Self-Hosted runs the whole platform on your servers; Cloud hosts the control plane and connects to your servers. The deployment engine is the same. See [Editions & scope](/docs/core/differences).
+
+### What is Notploy Console?
+
+The internal operator surface used to run the managed Cloud service. It is **not** part of the public product and its operational procedures are intentionally not documented here.
+
+### Can I migrate from Dokploy?
+
+Migration from Dokploy is a supported scenario with caveats. See [Migration](/docs/core/migration) for prerequisites, what transfers, and post-migration validation.
+
+## Getting help
+
+### Where do I get help or report a bug?
+
+Join the [Notploy Discord](https://discord.gg/2tBnJ3jDJc) for questions, or open a [GitHub issue](https://github.com/skygenesisenterprise/notploy/issues) for bugs and feature requests.
+
+### How do I report a security vulnerability?
+
+Never in a public issue. Follow [Vulnerability disclosure](/docs/core/security/vulnerability-disclosure).
+
+## Related
+
+- [Glossary](/docs/core/glossary) — term definitions.
+- [Get started](/docs/core/get-started) — the guided setup path.

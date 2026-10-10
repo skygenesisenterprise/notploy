@@ -1,0 +1,53 @@
+---
+title: Known limitations
+description: "Constraints, unsupported cases and their practical implications."
+---
+
+**Purpose** — Collect the constraints that are easy to discover the hard way. Knowing these before you build saves hours. Each item links to the page that explains it.
+
+## Data and backups
+
+- **Volume Backups only cover Docker named volumes**, not bind mounts (the `../files` folder). If you rely on automated backups, store data in named volumes. → [Docker Compose volumes](/docs/core/docker-compose#volumes)
+- **Restoring overwrites current data.** There is no "merge"; confirm the snapshot first. → [Restore](/docs/core/databases/restore)
+- **A backup you have never restored is unverified.** Test restores.
+
+## Domains and routing
+
+- **Compose domain changes require a redeploy** (they are Docker labels); Application domain changes apply immediately (file provider). → [Domains](/docs/core/domains)
+- **Generated `traefik.me` domains are HTTP-only** and intended for testing, not production. → [Certificates](/docs/core/certificates)
+- **Certificate issuance depends on DNS and port 80** being reachable; fix those first.
+
+## Builds and images
+
+- **Compose "Stack" mode cannot use `build`** — some Compose features are unavailable in Swarm mode. → [Docker Compose](/docs/core/docker-compose)
+- **Remote servers and clusters need images in a registry**; local-only images cannot be pulled elsewhere. → [Registries](/docs/core/registry)
+
+## Servers and clusters
+
+- **Remote servers are independent** and know nothing about each other; they do not form a cluster. → [Deployment options](/docs/core/deployment-options)
+- **Notploy does not perform automatic storage cleanup on extra Swarm nodes.**
+- **Swarm nodes must share the architecture** of the images they run.
+- **Remote server monitoring is not supported** for performance reasons. → [Servers](/docs/core/remote-servers)
+
+## Editions
+
+- **SSO, SCIM, custom roles and audit logs are Enterprise-only.** → [Feature matrix](/docs/core/reference/feature-matrix)
+- **Whitelabeling is Enterprise Self-Hosted only** (the Cloud control plane is shared).
+- **Notploy Console is internal** and its procedures are not documented publicly. → [Editions & scope](/docs/core/differences)
+
+## Security and operations
+
+- **The control plane has host Docker access** — panel compromise is host compromise. → [Security](/docs/core/security)
+- **IPVS-less kernels** need `ENDPOINT_MODE=dnsrr`. → [Networking troubleshooting](/docs/core/troubleshooting/networking)
+- **The installer requires ports 80, 443 and 3000 to be free.**
+
+<Callout type="info">
+Found a limitation that is not listed here? That is a documentation gap worth fixing. See
+[Contributing](/docs/core/develop/contributing).
+</Callout>
+
+## Related
+
+- [Compatibility](/docs/core/migration/compatibility)
+- [Feature support matrix](/docs/core/reference/feature-matrix)
+- [Troubleshooting](/docs/core/troubleshooting)

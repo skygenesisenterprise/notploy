@@ -1,78 +1,69 @@
 ---
-title: Applications
-description: "Explore the multiple deployment methods available in Notploy, including GitHub, Git, Docker, and automated deployments via webhooks."
+title: Applications & deployment
+description: "How services are defined, built, released and exposed on Notploy."
 ---
 
-Applications in Notploy are treated as a single service, entity or container, making it easy and intuitive for users to work with each application in its own workspace.
+This section covers everything about turning a source into a running service: choosing where code comes from, how it is built, how it is configured and exposed, and how the deployment lifecycle behaves.
 
-We offer multiple functionalities that you can use to manage your applications, such as:
+A **service** in Notploy is one of three kinds — an **Application**, a **Database**, or a **Docker Compose** stack — and all three share the same operational surface. This section is organized around that surface.
 
-## General
+## Start here
 
-Configure the source of your code, the way your application is built, and also manage actions like deploying, updating, and deleting your application, and stopping it.
+<Cards>
+  <Card href="/docs/core/providers" title="Sources & providers" description="GitHub, GitLab, Bitbucket, Gitea, Git URLs, images and uploads." />
+  <Card href="/docs/core/applications/build-type" title="Build types" description="Dockerfile, Nixpacks, Railpack, buildpacks, or prebuilt images." />
+  <Card href="/docs/core/docker-compose" title="Docker Compose" description="Multi-service stacks from a compose file." />
+  <Card href="/docs/core/databases" title="Databases" description="PostgreSQL, MySQL, MariaDB, MongoDB and Redis with backups." />
+</Cards>
 
-## Environment
+## Projects, environments and services
 
-If you need to assign environment variables to your application, you can do so here.
+A [project](/docs/core/concepts#project) groups related services; an [environment](/docs/core/concepts#environment) is the deployment context inside it (for example `production` and `staging`); a [service](/docs/core/concepts#service) is what actually runs. Configuration resolves from broad to specific — project, then environment, then service.
 
-In case you need to use a multiline variable, you can wrap it in double quotes just like this `'"here_is_my_private_key"'`.
+## The deployment lifecycle
 
-## Monitoring
+Every service moves through the same lifecycle:
 
-Four graphs will be displayed for the use of memory, CPU, disk, and network. Note that the information is only updated if you are viewing the current page, otherwise it will not be updated.
+1. **Source** is fetched (Git clone, image pull, or upload).
+2. **Build** produces an image according to the service's [build type](/docs/core/applications/build-type).
+3. **Release** starts the new container as a Swarm service; the old one is drained.
+4. **Route** — Traefik exposes the service on its [domains](/docs/core/domains).
+5. **Record** — the [deployment](/docs/core/concepts#deployment) is stored with its logs and status.
 
-## Logs
+Health checks, logs, [rollbacks](/docs/core/applications/rollbacks) and [zero-downtime](/docs/core/applications/zero-downtime) behavior all attach to this lifecycle.
 
-If you want to see any important logs from your application that is running, you can do so here and determine if your application is displaying any errors or not.
+## What you can configure on a service
 
-## Deployments
+All service types share these tabs, with the same meaning everywhere:
 
-You can view the last 10 deployments of your application. When you deploy your application in real time, a new deployment record will be created and it will gradually show you how your application is being built.
+| Tab | Purpose |
+| --- | --- |
+| **General** | Source, build configuration and lifecycle actions (deploy, stop, delete). |
+| **Environment** | Variables and secrets, addressed by scope. |
+| **Domains** | Hostnames, ports and TLS. |
+| **Deployments** | History, logs, cancel and rollback. |
+| **Logs** | Real-time runtime output. |
+| **Monitoring** | CPU, memory, disk and network. |
+| **Advanced** | Commands, resources, volumes, ports, Traefik and cluster settings. |
 
-We also offer a button to cancel deployments that are in queue. Note that those in progress cannot be canceled.
+Learn this surface once on an Application, and it applies to Databases and Compose unchanged.
 
-We provide a webhook so that you can trigger your own deployments by pushing to your GitHub, Gitea, GitLab, Bitbucket, DockerHub repository.
+## Going further
 
-## Domains
+- **[Environment variables](/docs/core/variables)** and secrets across scopes.
+- **[Domains](/docs/core/domains)** and routing for Applications vs. Compose.
+- **[Advanced settings](/docs/core/applications/advanced)** for resources, volumes, ports and Traefik.
+- **[Preview deployments](/docs/core/applications/preview-deployments)** and **[auto-deploy](/docs/core/auto-deploy)** for automation.
+- **[Scheduled jobs](/docs/core/schedule-jobs)**, **[watch paths](/docs/core/watch-paths)** and **[patches](/docs/core/patches)**.
+- **[Going to production](/docs/core/applications/going-production)** — a checklist before you ship.
 
-This is where you will assign your domain so that your application can be accessed from the internet.
+<Callout type="info" title="Keyboard shortcuts">
+Service pages support GitHub-style shortcuts: press `g` then a letter to jump to a tab
+(`g` General, `e` Environment, `u` Domains, `d` Deployments, `l` Logs, `m` Monitoring, `a` Advanced).
+</Callout>
 
-There are two ways to assign a domain:
+## Related
 
-1. Create a custom domain.
-2. Use a generated domain, we use traefik.me to generate free domains.
-
-## Advanced Settings
-
-This section provides advanced configuration options for experienced users. It includes tools for custom commands within the container, managing Docker Swarm settings, and adjusting cluster settings such as replicas and registry selection. These tools are typically not required for standard application deployment and are intended for complex management and troubleshooting tasks.
-
-- **Run Command**: Execute custom commands directly in the container, after the application has been build & running.
-- **Cluster Settings**: Configure the number of replicas and select the Docker registry for your deployment to manage how your application scales and where it pulls images from.
-- **Swarm Settings**: Access additional Docker Swarm configurations for detailed orchestration and scaling across multiple nodes.
-- **Resources**: Adjust the CPU and memory allocation for your application.
-- **Volumes**: To ensure data persistence across deployments, configure storage volumes for your application, you can create Volumes, Binds, File Mounts.
-- **Ports**: Expose your application to the internet by configuring network ports.
-- **Traefik**: Modify Traefik settings to manage HTTP request handling for your application.
-
-## Keyboard Shortcuts
-
-To help speed up navigating there are some built in keyboard shortcuts for
-navigating tabs on application pages. Similar to GitHub these are all prefixed
-with the `g` key so to use them press `g` and then the shortcut key.
-
-| Key | Tab                 |
-| --- | ------------------- |
-| `g` | General             |
-| `e` | Environment         |
-| `u` | Domains             |
-| `p` | Preview Deployments |
-| `s` | Schedules           |
-| `v` | Volume Backups      |
-| `d` | Deployments         |
-| `l` | Logs                |
-| `m` | Monitoring          |
-| `a` | Advanced            |
-
-### Note
-
-Adjust these settings carefully as incorrect configurations can significantly impact your application’s functionality and availability.
+- [Core concepts](/docs/core/concepts)
+- [Infrastructure](/docs/core/infrastructure)
+- [Example projects](/docs/templates/examples)

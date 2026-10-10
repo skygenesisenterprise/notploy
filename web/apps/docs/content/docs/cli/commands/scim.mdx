@@ -1,0 +1,49 @@
+---
+title: "SCIM"
+description: "SCIM provisioning providers and tokens used for directory sync. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+SCIM provisioning providers and tokens used for directory sync.
+
+`notploy scim` exposes **3 commands**. They map one-to-one onto the `scim.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy scim --help` to list these commands in your terminal, or
+	`notploy scim <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy scim delete-provider`
+
+Calls `POST /api/trpc/scim.deleteProvider`.
+
+```bash
+notploy scim delete-provider --providerId <providerId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--providerId <value>` | string | Yes | — |
+
+### `notploy scim generate-token`
+
+Calls `POST /api/trpc/scim.generateToken`.
+
+```bash
+notploy scim generate-token --providerId <providerId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--providerId <value>` | string | Yes | — |
+
+### `notploy scim list-providers`
+
+Calls `GET /api/trpc/scim.listProviders`.
+
+```bash
+notploy scim list-providers
+```

@@ -1,0 +1,119 @@
+---
+title: "Deployments"
+description: "Inspect deployment history and queues, read deployment logs and kill a running build. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Inspect deployment history and queues, read deployment logs and kill a running build.
+
+`notploy deployment` exposes **9 commands**. They map one-to-one onto the `deployment.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy deployment --help` to list these commands in your terminal, or
+	`notploy deployment <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy deployment all`
+
+Calls `GET /api/trpc/deployment.all`.
+
+```bash
+notploy deployment all --applicationId <applicationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--applicationId <value>` | string | Yes | — |
+
+### `notploy deployment all-by-compose`
+
+Calls `GET /api/trpc/deployment.allByCompose`.
+
+```bash
+notploy deployment all-by-compose --composeId <composeId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--composeId <value>` | string | Yes | — |
+
+### `notploy deployment all-by-server`
+
+Calls `GET /api/trpc/deployment.allByServer`.
+
+```bash
+notploy deployment all-by-server --serverId <serverId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | Yes | — |
+
+### `notploy deployment all-by-type`
+
+Calls `GET /api/trpc/deployment.allByType`.
+
+```bash
+notploy deployment all-by-type --id <id> --type <type>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--id <value>` | string | Yes | — |
+| `--type <value>` | string | Yes | `application`, `compose`, `server`, `schedule`, `previewDeployment`, `backup`, `volumeBackup` |
+
+### `notploy deployment all-centralized`
+
+Calls `GET /api/trpc/deployment.allCentralized`.
+
+```bash
+notploy deployment all-centralized
+```
+
+### `notploy deployment kill-process`
+
+Calls `POST /api/trpc/deployment.killProcess`.
+
+```bash
+notploy deployment kill-process --deploymentId <deploymentId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--deploymentId <value>` | string | Yes | — |
+
+### `notploy deployment queue-list`
+
+Calls `GET /api/trpc/deployment.queueList`.
+
+```bash
+notploy deployment queue-list
+```
+
+### `notploy deployment read-logs`
+
+Calls `GET /api/trpc/deployment.readLogs`.
+
+```bash
+notploy deployment read-logs --deploymentId <deploymentId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--deploymentId <value>` | string | Yes | — |
+| `--tail <value>` | number | No | — |
+
+### `notploy deployment remove-deployment`
+
+Calls `POST /api/trpc/deployment.removeDeployment`.
+
+```bash
+notploy deployment remove-deployment --deploymentId <deploymentId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--deploymentId <value>` | string | Yes | — |

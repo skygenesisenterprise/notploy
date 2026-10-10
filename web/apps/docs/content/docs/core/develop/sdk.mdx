@@ -1,0 +1,66 @@
+---
+title: SDK
+description: "Use the TypeScript SDK to drive Notploy programmatically."
+---
+
+**Purpose** — The Notploy SDK is a TypeScript client that wraps the [API](/docs/api) with typed methods, so scripts and services can manage Notploy without hand-writing HTTP calls.
+
+## Package
+
+```bash
+npm install @notploy/sdk
+# or
+pnpm add @notploy/sdk
+```
+
+The SDK mirrors the API: it is generated from the same contract, so an endpoint you can call over HTTP has a corresponding method.
+
+## Authentication
+
+The SDK authenticates with an **API key**. Generate one in the dashboard and pass it when creating the client.
+
+```ts
+import { createClient } from '@notploy/sdk';
+
+const client = createClient({
+  baseUrl: 'https://your-panel.example.com/api',
+  apiKey: process.env.NOTPLOY_API_KEY, // never hard-code keys
+});
+```
+
+<Callout type="warn">
+Keep API keys in environment variables or your CI secret store. Never commit them or paste them
+into examples. See [API keys](/docs/core/security/api-keys).
+</Callout>
+
+## Example — list projects
+
+```ts
+const projects = await client.project.all();
+console.log(projects.map((p) => p.name));
+```
+
+## Example — deploy an application
+
+```ts
+// Trigger a deployment for an existing application.
+await client.application.deploy({ applicationId: process.env.APP_ID! });
+```
+
+Method names follow the API's resource grouping (`project`, `application`, `compose`, `database`, …). Refer to the [API reference](/docs/api) for the exact operations and payloads.
+
+## When to use the SDK vs. the API
+
+- **SDK** — TypeScript projects; you want types and less boilerplate.
+- **API** — any other language, or when you want no dependency.
+- **CLI** — shell scripts and one-off operations; see [CLI](/docs/cli).
+
+## Status
+
+The SDK tracks the API and is published as `@notploy/sdk`. Because it is generated, its surface follows the API's version. Check the [Changelog](/docs/core/reference/changelog) when upgrading.
+
+## Related
+
+- [API reference](/docs/api)
+- [API keys](/docs/core/security/api-keys)
+- [CLI](/docs/cli)

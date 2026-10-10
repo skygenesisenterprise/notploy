@@ -1,0 +1,831 @@
+---
+title: "Notifications"
+description: "Notification channels — Slack, Discord, Telegram, email and others — plus test deliveries. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Notification channels — Slack, Discord, Telegram, email and others — plus test deliveries.
+
+`notploy notification` exposes **41 commands**. They map one-to-one onto the `notification.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy notification --help` to list these commands in your terminal, or
+	`notploy notification <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy notification all`
+
+Calls `GET /api/trpc/notification.all`.
+
+```bash
+notploy notification all
+```
+
+### `notploy notification create-custom`
+
+Calls `POST /api/trpc/notification.createCustom`.
+
+```bash
+notploy notification create-custom --name <name> --endpoint <endpoint> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--endpoint <value>` | string | Yes | — |
+| `--headers <value>` | string | No | — |
+
+### `notploy notification create-discord`
+
+Calls `POST /api/trpc/notification.createDiscord`.
+
+```bash
+notploy notification create-discord --appBuildError --databaseBackup --notployBackup --volumeBackup --notployRestart --name <name> --appDeploy --dockerCleanup --serverThreshold --webhookUrl <webhookUrl> --decoration
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | Yes | — |
+| `--databaseBackup` | boolean | Yes | — |
+| `--notployBackup` | boolean | Yes | — |
+| `--volumeBackup` | boolean | Yes | — |
+| `--notployRestart` | boolean | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | Yes | — |
+| `--dockerCleanup` | boolean | Yes | — |
+| `--serverThreshold` | boolean | Yes | — |
+| `--webhookUrl <value>` | string | Yes | — |
+| `--decoration` | boolean | Yes | — |
+
+### `notploy notification create-email`
+
+Calls `POST /api/trpc/notification.createEmail`.
+
+```bash
+notploy notification create-email --appBuildError --databaseBackup --notployBackup --volumeBackup --notployRestart --name <name> --appDeploy --dockerCleanup --serverThreshold --smtpServer <smtpServer> --smtpPort <smtpPort> --username <username> --password <password> --fromAddress <fromAddress> --toAddresses <toAddresses>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | Yes | — |
+| `--databaseBackup` | boolean | Yes | — |
+| `--notployBackup` | boolean | Yes | — |
+| `--volumeBackup` | boolean | Yes | — |
+| `--notployRestart` | boolean | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | Yes | — |
+| `--dockerCleanup` | boolean | Yes | — |
+| `--serverThreshold` | boolean | Yes | — |
+| `--smtpServer <value>` | string | Yes | — |
+| `--smtpPort <value>` | number | Yes | — |
+| `--username <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |
+| `--fromAddress <value>` | string | Yes | — |
+| `--toAddresses <value>` | string | Yes | — |
+
+### `notploy notification create-gotify`
+
+Calls `POST /api/trpc/notification.createGotify`.
+
+```bash
+notploy notification create-gotify --appBuildError --databaseBackup --notployBackup --volumeBackup --notployRestart --name <name> --appDeploy --dockerCleanup --serverThreshold --serverUrl <serverUrl> --appToken <appToken> --priority <priority> --decoration
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | Yes | — |
+| `--databaseBackup` | boolean | Yes | — |
+| `--notployBackup` | boolean | Yes | — |
+| `--volumeBackup` | boolean | Yes | — |
+| `--notployRestart` | boolean | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | Yes | — |
+| `--dockerCleanup` | boolean | Yes | — |
+| `--serverThreshold` | boolean | Yes | — |
+| `--serverUrl <value>` | string | Yes | — |
+| `--appToken <value>` | string | Yes | — |
+| `--priority <value>` | number | Yes | — |
+| `--decoration` | boolean | Yes | — |
+
+### `notploy notification create-lark`
+
+Calls `POST /api/trpc/notification.createLark`.
+
+```bash
+notploy notification create-lark --appBuildError --databaseBackup --notployBackup --volumeBackup --notployRestart --name <name> --appDeploy --dockerCleanup --serverThreshold --webhookUrl <webhookUrl>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | Yes | — |
+| `--databaseBackup` | boolean | Yes | — |
+| `--notployBackup` | boolean | Yes | — |
+| `--volumeBackup` | boolean | Yes | — |
+| `--notployRestart` | boolean | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | Yes | — |
+| `--dockerCleanup` | boolean | Yes | — |
+| `--serverThreshold` | boolean | Yes | — |
+| `--webhookUrl <value>` | string | Yes | — |
+
+### `notploy notification create-mattermost`
+
+Calls `POST /api/trpc/notification.createMattermost`.
+
+```bash
+notploy notification create-mattermost --appBuildError --databaseBackup --notployBackup --volumeBackup --notployRestart --name <name> --appDeploy --dockerCleanup --serverThreshold --webhookUrl <webhookUrl> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | Yes | — |
+| `--databaseBackup` | boolean | Yes | — |
+| `--notployBackup` | boolean | Yes | — |
+| `--volumeBackup` | boolean | Yes | — |
+| `--notployRestart` | boolean | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | Yes | — |
+| `--dockerCleanup` | boolean | Yes | — |
+| `--serverThreshold` | boolean | Yes | — |
+| `--webhookUrl <value>` | string | Yes | — |
+| `--channel <value>` | string | No | — |
+| `--username <value>` | string | No | — |
+
+### `notploy notification create-ntfy`
+
+Calls `POST /api/trpc/notification.createNtfy`.
+
+```bash
+notploy notification create-ntfy --appBuildError --databaseBackup --notployBackup --volumeBackup --notployRestart --name <name> --appDeploy --dockerCleanup --serverThreshold --serverUrl <serverUrl> --topic <topic> --accessToken <accessToken> --priority <priority>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | Yes | — |
+| `--databaseBackup` | boolean | Yes | — |
+| `--notployBackup` | boolean | Yes | — |
+| `--volumeBackup` | boolean | Yes | — |
+| `--notployRestart` | boolean | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | Yes | — |
+| `--dockerCleanup` | boolean | Yes | — |
+| `--serverThreshold` | boolean | Yes | — |
+| `--serverUrl <value>` | string | Yes | — |
+| `--topic <value>` | string | Yes | — |
+| `--accessToken <value>` | string | Yes | — |
+| `--priority <value>` | number | Yes | — |
+
+### `notploy notification create-pushover`
+
+Calls `POST /api/trpc/notification.createPushover`.
+
+```bash
+notploy notification create-pushover --name <name> --userKey <userKey> --apiToken <apiToken> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--userKey <value>` | string | Yes | — |
+| `--apiToken <value>` | string | Yes | — |
+| `--priority <value>` | number | No | — |
+| `--retry <value>` | number | No | — |
+| `--expire <value>` | number | No | — |
+
+### `notploy notification create-resend`
+
+Calls `POST /api/trpc/notification.createResend`.
+
+```bash
+notploy notification create-resend --appBuildError --databaseBackup --notployBackup --volumeBackup --notployRestart --name <name> --appDeploy --dockerCleanup --serverThreshold --apiKey <apiKey> --fromAddress <fromAddress> --toAddresses <toAddresses>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | Yes | — |
+| `--databaseBackup` | boolean | Yes | — |
+| `--notployBackup` | boolean | Yes | — |
+| `--volumeBackup` | boolean | Yes | — |
+| `--notployRestart` | boolean | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | Yes | — |
+| `--dockerCleanup` | boolean | Yes | — |
+| `--serverThreshold` | boolean | Yes | — |
+| `--apiKey <value>` | string | Yes | — |
+| `--fromAddress <value>` | string | Yes | — |
+| `--toAddresses <value>` | string | Yes | — |
+
+### `notploy notification create-slack`
+
+Calls `POST /api/trpc/notification.createSlack`.
+
+```bash
+notploy notification create-slack --appBuildError --databaseBackup --notployBackup --volumeBackup --notployRestart --name <name> --appDeploy --dockerCleanup --serverThreshold --webhookUrl <webhookUrl> --channel <channel>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | Yes | — |
+| `--databaseBackup` | boolean | Yes | — |
+| `--notployBackup` | boolean | Yes | — |
+| `--volumeBackup` | boolean | Yes | — |
+| `--notployRestart` | boolean | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | Yes | — |
+| `--dockerCleanup` | boolean | Yes | — |
+| `--serverThreshold` | boolean | Yes | — |
+| `--webhookUrl <value>` | string | Yes | — |
+| `--channel <value>` | string | Yes | — |
+
+### `notploy notification create-teams`
+
+Calls `POST /api/trpc/notification.createTeams`.
+
+```bash
+notploy notification create-teams --appBuildError --databaseBackup --notployBackup --volumeBackup --notployRestart --name <name> --appDeploy --dockerCleanup --serverThreshold --webhookUrl <webhookUrl>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | Yes | — |
+| `--databaseBackup` | boolean | Yes | — |
+| `--notployBackup` | boolean | Yes | — |
+| `--volumeBackup` | boolean | Yes | — |
+| `--notployRestart` | boolean | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | Yes | — |
+| `--dockerCleanup` | boolean | Yes | — |
+| `--serverThreshold` | boolean | Yes | — |
+| `--webhookUrl <value>` | string | Yes | — |
+
+### `notploy notification create-telegram`
+
+Calls `POST /api/trpc/notification.createTelegram`.
+
+```bash
+notploy notification create-telegram --appBuildError --databaseBackup --notployBackup --volumeBackup --notployRestart --name <name> --appDeploy --dockerCleanup --serverThreshold --botToken <botToken> --chatId <chatId> --messageThreadId <messageThreadId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | Yes | — |
+| `--databaseBackup` | boolean | Yes | — |
+| `--notployBackup` | boolean | Yes | — |
+| `--volumeBackup` | boolean | Yes | — |
+| `--notployRestart` | boolean | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--appDeploy` | boolean | Yes | — |
+| `--dockerCleanup` | boolean | Yes | — |
+| `--serverThreshold` | boolean | Yes | — |
+| `--botToken <value>` | string | Yes | — |
+| `--chatId <value>` | string | Yes | — |
+| `--messageThreadId <value>` | string | Yes | — |
+
+### `notploy notification get-email-providers`
+
+Calls `GET /api/trpc/notification.getEmailProviders`.
+
+```bash
+notploy notification get-email-providers
+```
+
+### `notploy notification one`
+
+Calls `GET /api/trpc/notification.one`.
+
+```bash
+notploy notification one --notificationId <notificationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--notificationId <value>` | string | Yes | — |
+
+### `notploy notification receive-notification`
+
+Calls `POST /api/trpc/notification.receiveNotification`.
+
+```bash
+notploy notification receive-notification --Type <Type> --Value <Value> --Threshold <Threshold> --Message <Message> --Timestamp <Timestamp> --Token <Token> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--ServerType <value>` | string | No | `Notploy`, `Remote` |
+| `--Type <value>` | string | Yes | `Memory`, `CPU` |
+| `--Value <value>` | number | Yes | — |
+| `--Threshold <value>` | number | Yes | — |
+| `--Message <value>` | string | Yes | — |
+| `--Timestamp <value>` | string | Yes | — |
+| `--Token <value>` | string | Yes | — |
+
+### `notploy notification remove`
+
+Calls `POST /api/trpc/notification.remove`.
+
+```bash
+notploy notification remove --notificationId <notificationId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--notificationId <value>` | string | Yes | — |
+
+### `notploy notification test-custom-connection`
+
+Calls `POST /api/trpc/notification.testCustomConnection`.
+
+```bash
+notploy notification test-custom-connection --endpoint <endpoint> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--endpoint <value>` | string | Yes | — |
+| `--headers <value>` | string | No | — |
+
+### `notploy notification test-discord-connection`
+
+Calls `POST /api/trpc/notification.testDiscordConnection`.
+
+```bash
+notploy notification test-discord-connection --webhookUrl <webhookUrl> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--webhookUrl <value>` | string | Yes | — |
+| `--decoration` | boolean | No | — |
+
+### `notploy notification test-email-connection`
+
+Calls `POST /api/trpc/notification.testEmailConnection`.
+
+```bash
+notploy notification test-email-connection --smtpServer <smtpServer> --smtpPort <smtpPort> --username <username> --password <password> --toAddresses <toAddresses> --fromAddress <fromAddress>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--smtpServer <value>` | string | Yes | — |
+| `--smtpPort <value>` | number | Yes | — |
+| `--username <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |
+| `--toAddresses <value>` | string | Yes | — |
+| `--fromAddress <value>` | string | Yes | — |
+
+### `notploy notification test-gotify-connection`
+
+Calls `POST /api/trpc/notification.testGotifyConnection`.
+
+```bash
+notploy notification test-gotify-connection --serverUrl <serverUrl> --appToken <appToken> --priority <priority> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverUrl <value>` | string | Yes | — |
+| `--appToken <value>` | string | Yes | — |
+| `--priority <value>` | number | Yes | — |
+| `--decoration` | boolean | No | — |
+
+### `notploy notification test-lark-connection`
+
+Calls `POST /api/trpc/notification.testLarkConnection`.
+
+```bash
+notploy notification test-lark-connection --webhookUrl <webhookUrl>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--webhookUrl <value>` | string | Yes | — |
+
+### `notploy notification test-mattermost-connection`
+
+Calls `POST /api/trpc/notification.testMattermostConnection`.
+
+```bash
+notploy notification test-mattermost-connection --webhookUrl <webhookUrl> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--webhookUrl <value>` | string | Yes | — |
+| `--channel <value>` | string | No | — |
+| `--username <value>` | string | No | — |
+
+### `notploy notification test-ntfy-connection`
+
+Calls `POST /api/trpc/notification.testNtfyConnection`.
+
+```bash
+notploy notification test-ntfy-connection --serverUrl <serverUrl> --topic <topic> --accessToken <accessToken> --priority <priority>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverUrl <value>` | string | Yes | — |
+| `--topic <value>` | string | Yes | — |
+| `--accessToken <value>` | string | Yes | — |
+| `--priority <value>` | number | Yes | — |
+
+### `notploy notification test-pushover-connection`
+
+Calls `POST /api/trpc/notification.testPushoverConnection`.
+
+```bash
+notploy notification test-pushover-connection --userKey <userKey> --apiToken <apiToken> --priority <priority> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--userKey <value>` | string | Yes | — |
+| `--apiToken <value>` | string | Yes | — |
+| `--priority <value>` | number | Yes | — |
+| `--retry <value>` | number | No | — |
+| `--expire <value>` | number | No | — |
+
+### `notploy notification test-resend-connection`
+
+Calls `POST /api/trpc/notification.testResendConnection`.
+
+```bash
+notploy notification test-resend-connection --apiKey <apiKey> --fromAddress <fromAddress> --toAddresses <toAddresses>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--apiKey <value>` | string | Yes | — |
+| `--fromAddress <value>` | string | Yes | — |
+| `--toAddresses <value>` | string | Yes | — |
+
+### `notploy notification test-slack-connection`
+
+Calls `POST /api/trpc/notification.testSlackConnection`.
+
+```bash
+notploy notification test-slack-connection --webhookUrl <webhookUrl> --channel <channel>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--webhookUrl <value>` | string | Yes | — |
+| `--channel <value>` | string | Yes | — |
+
+### `notploy notification test-teams-connection`
+
+Calls `POST /api/trpc/notification.testTeamsConnection`.
+
+```bash
+notploy notification test-teams-connection --webhookUrl <webhookUrl>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--webhookUrl <value>` | string | Yes | — |
+
+### `notploy notification test-telegram-connection`
+
+Calls `POST /api/trpc/notification.testTelegramConnection`.
+
+```bash
+notploy notification test-telegram-connection --botToken <botToken> --chatId <chatId> --messageThreadId <messageThreadId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--botToken <value>` | string | Yes | — |
+| `--chatId <value>` | string | Yes | — |
+| `--messageThreadId <value>` | string | Yes | — |
+
+### `notploy notification update-custom`
+
+Calls `POST /api/trpc/notification.updateCustom`.
+
+```bash
+notploy notification update-custom --notificationId <notificationId> --customId <customId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--endpoint <value>` | string | No | — |
+| `--headers <value>` | string | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--customId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+
+### `notploy notification update-discord`
+
+Calls `POST /api/trpc/notification.updateDiscord`.
+
+```bash
+notploy notification update-discord --notificationId <notificationId> --discordId <discordId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--webhookUrl <value>` | string | No | — |
+| `--decoration` | boolean | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--discordId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+
+### `notploy notification update-email`
+
+Calls `POST /api/trpc/notification.updateEmail`.
+
+```bash
+notploy notification update-email --notificationId <notificationId> --emailId <emailId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--smtpServer <value>` | string | No | — |
+| `--smtpPort <value>` | number | No | — |
+| `--username <value>` | string | No | — |
+| `--password <value>` | string | No | — |
+| `--fromAddress <value>` | string | No | — |
+| `--toAddresses <value>` | string | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--emailId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+
+### `notploy notification update-gotify`
+
+Calls `POST /api/trpc/notification.updateGotify`.
+
+```bash
+notploy notification update-gotify --notificationId <notificationId> --gotifyId <gotifyId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--serverUrl <value>` | string | No | — |
+| `--appToken <value>` | string | No | — |
+| `--priority <value>` | number | No | — |
+| `--decoration` | boolean | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--gotifyId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+
+### `notploy notification update-lark`
+
+Calls `POST /api/trpc/notification.updateLark`.
+
+```bash
+notploy notification update-lark --notificationId <notificationId> --larkId <larkId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--webhookUrl <value>` | string | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--larkId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+
+### `notploy notification update-mattermost`
+
+Calls `POST /api/trpc/notification.updateMattermost`.
+
+```bash
+notploy notification update-mattermost --notificationId <notificationId> --mattermostId <mattermostId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--webhookUrl <value>` | string | No | — |
+| `--channel <value>` | string | No | — |
+| `--username <value>` | string | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--mattermostId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+
+### `notploy notification update-ntfy`
+
+Calls `POST /api/trpc/notification.updateNtfy`.
+
+```bash
+notploy notification update-ntfy --notificationId <notificationId> --ntfyId <ntfyId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--serverUrl <value>` | string | No | — |
+| `--topic <value>` | string | No | — |
+| `--accessToken <value>` | string | No | — |
+| `--priority <value>` | number | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--ntfyId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+
+### `notploy notification update-pushover`
+
+Calls `POST /api/trpc/notification.updatePushover`.
+
+```bash
+notploy notification update-pushover --notificationId <notificationId> --pushoverId <pushoverId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--notificationId <value>` | string | Yes | — |
+| `--pushoverId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+| `--userKey <value>` | string | No | — |
+| `--apiToken <value>` | string | No | — |
+| `--priority <value>` | number | No | — |
+| `--retry <value>` | number | No | — |
+| `--expire <value>` | number | No | — |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+
+### `notploy notification update-resend`
+
+Calls `POST /api/trpc/notification.updateResend`.
+
+```bash
+notploy notification update-resend --notificationId <notificationId> --resendId <resendId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--apiKey <value>` | string | No | — |
+| `--fromAddress <value>` | string | No | — |
+| `--toAddresses <value>` | string | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--resendId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+
+### `notploy notification update-slack`
+
+Calls `POST /api/trpc/notification.updateSlack`.
+
+```bash
+notploy notification update-slack --notificationId <notificationId> --slackId <slackId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--webhookUrl <value>` | string | No | — |
+| `--channel <value>` | string | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--slackId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+
+### `notploy notification update-teams`
+
+Calls `POST /api/trpc/notification.updateTeams`.
+
+```bash
+notploy notification update-teams --notificationId <notificationId> --teamsId <teamsId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--webhookUrl <value>` | string | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--teamsId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |
+
+### `notploy notification update-telegram`
+
+Calls `POST /api/trpc/notification.updateTelegram`.
+
+```bash
+notploy notification update-telegram --notificationId <notificationId> --telegramId <telegramId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--appBuildError` | boolean | No | — |
+| `--databaseBackup` | boolean | No | — |
+| `--notployBackup` | boolean | No | — |
+| `--volumeBackup` | boolean | No | — |
+| `--notployRestart` | boolean | No | — |
+| `--name <value>` | string | No | — |
+| `--appDeploy` | boolean | No | — |
+| `--dockerCleanup` | boolean | No | — |
+| `--serverThreshold` | boolean | No | — |
+| `--botToken <value>` | string | No | — |
+| `--chatId <value>` | string | No | — |
+| `--messageThreadId <value>` | string | No | — |
+| `--notificationId <value>` | string | Yes | — |
+| `--telegramId <value>` | string | Yes | — |
+| `--organizationId <value>` | string | No | — |

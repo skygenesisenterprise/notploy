@@ -1,0 +1,268 @@
+---
+title: "MariaDB"
+description: "Provision and operate MariaDB databases, including backups and external ports. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Provision and operate MariaDB databases, including backups and external ports.
+
+`notploy mariadb` exposes **16 commands**. They map one-to-one onto the `mariadb.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy mariadb --help` to list these commands in your terminal, or
+	`notploy mariadb <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy mariadb change-password`
+
+Calls `POST /api/trpc/mariadb.changePassword`.
+
+```bash
+notploy mariadb change-password --mariadbId <mariadbId> --password <password> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+| `--password <value>` | string | Yes | — |
+| `--type <value>` | string | No | `user`, `root` |
+
+### `notploy mariadb change-status`
+
+Calls `POST /api/trpc/mariadb.changeStatus`.
+
+```bash
+notploy mariadb change-status --mariadbId <mariadbId> --applicationStatus <applicationStatus>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+| `--applicationStatus <value>` | string | Yes | `idle`, `running`, `done`, `error` |
+
+### `notploy mariadb create`
+
+Calls `POST /api/trpc/mariadb.create`.
+
+```bash
+notploy mariadb create --name <name> --environmentId <environmentId> --databaseName <databaseName> --databaseUser <databaseUser> --databasePassword <databasePassword> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--appName <value>` | string | No | — |
+| `--dockerImage <value>` | string | No | — |
+| `--databaseRootPassword <value>` | string | No | — |
+| `--environmentId <value>` | string | Yes | — |
+| `--description <value>` | string | No | — |
+| `--databaseName <value>` | string | Yes | — |
+| `--databaseUser <value>` | string | Yes | — |
+| `--databasePassword <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+
+### `notploy mariadb deploy`
+
+Calls `POST /api/trpc/mariadb.deploy`.
+
+```bash
+notploy mariadb deploy --mariadbId <mariadbId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+
+### `notploy mariadb move`
+
+Calls `POST /api/trpc/mariadb.move`.
+
+```bash
+notploy mariadb move --mariadbId <mariadbId> --targetEnvironmentId <targetEnvironmentId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+| `--targetEnvironmentId <value>` | string | Yes | — |
+
+### `notploy mariadb one`
+
+Calls `GET /api/trpc/mariadb.one`.
+
+```bash
+notploy mariadb one --mariadbId <mariadbId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+
+### `notploy mariadb read-logs`
+
+Calls `GET /api/trpc/mariadb.readLogs`.
+
+```bash
+notploy mariadb read-logs --mariadbId <mariadbId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+| `--tail <value>` | number | No | — |
+| `--since <value>` | string | No | — |
+| `--search <value>` | string | No | — |
+
+### `notploy mariadb rebuild`
+
+Calls `POST /api/trpc/mariadb.rebuild`.
+
+```bash
+notploy mariadb rebuild --mariadbId <mariadbId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+
+### `notploy mariadb reload`
+
+Calls `POST /api/trpc/mariadb.reload`.
+
+```bash
+notploy mariadb reload --mariadbId <mariadbId> --appName <appName>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+| `--appName <value>` | string | Yes | — |
+
+### `notploy mariadb remove`
+
+Calls `POST /api/trpc/mariadb.remove`.
+
+```bash
+notploy mariadb remove --mariadbId <mariadbId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+
+### `notploy mariadb save-environment`
+
+Calls `POST /api/trpc/mariadb.saveEnvironment`.
+
+```bash
+notploy mariadb save-environment --mariadbId <mariadbId> --env <env>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+| `--env <value>` | string | Yes | — |
+
+### `notploy mariadb save-external-port`
+
+Calls `POST /api/trpc/mariadb.saveExternalPort`.
+
+```bash
+notploy mariadb save-external-port --mariadbId <mariadbId> --externalPort <externalPort>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+| `--externalPort <value>` | number | Yes | — |
+
+### `notploy mariadb search`
+
+Calls `GET /api/trpc/mariadb.search`.
+
+```bash
+notploy mariadb search [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--q <value>` | string | No | — |
+| `--name <value>` | string | No | — |
+| `--appName <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--projectId <value>` | string | No | — |
+| `--environmentId <value>` | string | No | — |
+| `--limit <value>` | number | No | — |
+| `--offset <value>` | number | No | — |
+
+### `notploy mariadb start`
+
+Calls `POST /api/trpc/mariadb.start`.
+
+```bash
+notploy mariadb start --mariadbId <mariadbId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+
+### `notploy mariadb stop`
+
+Calls `POST /api/trpc/mariadb.stop`.
+
+```bash
+notploy mariadb stop --mariadbId <mariadbId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+
+### `notploy mariadb update`
+
+Calls `POST /api/trpc/mariadb.update`.
+
+```bash
+notploy mariadb update --mariadbId <mariadbId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--mariadbId <value>` | string | Yes | — |
+| `--name <value>` | string | No | — |
+| `--appName <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--databaseName <value>` | string | No | — |
+| `--databaseUser <value>` | string | No | — |
+| `--databasePassword <value>` | string | No | — |
+| `--databaseRootPassword <value>` | string | No | — |
+| `--dockerImage <value>` | string | No | — |
+| `--command <value>` | string | No | — |
+| `--args <value>` | string | No | — |
+| `--env <value>` | string | No | — |
+| `--memoryReservation <value>` | string | No | — |
+| `--memoryLimit <value>` | string | No | — |
+| `--cpuReservation <value>` | string | No | — |
+| `--cpuLimit <value>` | string | No | — |
+| `--externalPort <value>` | number | No | — |
+| `--applicationStatus <value>` | string | No | `idle`, `running`, `done`, `error` |
+| `--healthCheckSwarm <value>` | string | No | — |
+| `--restartPolicySwarm <value>` | string | No | — |
+| `--placementSwarm <value>` | string | No | — |
+| `--updateConfigSwarm <value>` | string | No | — |
+| `--rollbackConfigSwarm <value>` | string | No | — |
+| `--modeSwarm <value>` | string | No | — |
+| `--labelsSwarm <value>` | string | No | — |
+| `--networkSwarm <value>` | string | No | — |
+| `--stopGracePeriodSwarm <value>` | string | No | — |
+| `--endpointSpecSwarm <value>` | string | No | — |
+| `--ulimitsSwarm <value>` | string | No | — |
+| `--replicas <value>` | number | No | — |
+| `--createdAt <value>` | string | No | — |
+| `--environmentId <value>` | string | No | — |
+| `--networkIds <value>` | string | No | — |
+| `--detachNotployNetwork` | boolean | No | — |

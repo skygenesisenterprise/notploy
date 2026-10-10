@@ -1,0 +1,37 @@
+---
+title: VS Code
+description: "Manage and inspect Notploy from within Visual Studio Code."
+---
+
+**Purpose** — The Notploy VS Code extension brings your instances, projects and deployments into the editor, so you can check deployment status and logs without leaving your work.
+
+<Callout type="info" title="Status: early integration">
+The VS Code extension (`notploy`) is an early integration. Its views and commands may change.
+Check the extension's page for the current feature set before relying on it in a workflow.
+</Callout>
+
+## What it provides
+
+The extension contributes views for:
+
+- **Instances** — the Notploy panels you are connected to,
+- **Projects** — the projects on an instance,
+- **Deployments** — recent deployments and their status.
+
+## Setup
+
+1. Install the **notploy** extension from the marketplace (or the packaged `.vsix`).
+2. Add an instance: provide the panel's base URL.
+3. Authenticate with an **API key**. See [API keys](/docs/core/security/api-keys).
+
+Store the key in the extension's settings; avoid putting it in workspace files that could be committed.
+
+## Security
+
+The extension acts with the permissions of the API key you supply. Use a scoped key and revoke it if the machine or editor is shared.
+
+## Related
+
+- [CLI](/docs/cli)
+- [API keys](/docs/core/security/api-keys)
+- [Develop & integrate](/docs/core/develop)

@@ -1,54 +1,82 @@
 ---
-title: Welcome to Notploy
-description: Notploy is a open source alternative to Heroku, Vercel, and Netlify.
-
+title: What is Notploy?
+description: "Notploy is an open-source, self-hostable platform for deploying and operating applications on infrastructure you own."
 ---
+
 import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
 
+**Notploy** is an open-source platform that gives you a web control plane for deploying and operating applications, databases and Docker Compose stacks on servers you control. You connect a machine, and Notploy builds, ships, routes and monitors your workloads using standard primitives — **Docker**, **Docker Swarm** and **Traefik**.
 
-Notploy is a stable, easy-to-use deployment solution designed to simplify the application management process. Think of Notploy as your free self hostable alternative to platforms like Heroku, Vercel, and Netlify, leveraging the robustness of [Docker](https://www.docker.com/) and the flexibility of [Traefik](https://traefik.io/).
+It brings the developer experience of a managed Platform-as-a-Service to your own infrastructure: `git push`, a build, a running container behind a domain with TLS — without handing over your servers, your data or your bill.
 
+## What problem does it solve?
 
+Deploying a real application normally means stitching together a build pipeline, an image registry, a reverse proxy, TLS certificates, DNS records, databases, backups and monitoring. Each of those is a separate tool with its own configuration, and keeping them consistent across environments is where most of the work — and most of the outages — come from.
 
-{/* <ImageZoom  src="/logo.png" width={1300} height={630} alt='home og image' /> */}
+Notploy consolidates that surface into one control plane:
 
-![Logo](/logo.png)
+- **One model** for applications, databases and Compose stacks that share projects, environments, secrets, domains and backups.
+- **One place** to see deployment status, logs, resource usage and failures.
+- **A consistent contract** — the same deployment engine whether you run on the local server, on remote servers over SSH, or on a Swarm cluster.
+- **Interfaces for automation** — an API, CLI, TypeScript SDK, MCP server and VS Code extension so deployments fit into existing pipelines instead of replacing them.
 
-## Why Choose Notploy?
+## Where does it run?
 
-- **Simplicity:** Easy setup and management of deployments.
-- **Flexibility:** Supports a wide range of applications and databases.
-- **Open Source:** Free and open-source software, available for anyone to use.
+Notploy is designed around a single, explicit place to run things: your **server**. That can be:
 
+- the **same machine** where the Notploy control plane is installed (the default — start here),
+- **independent remote servers** reached over SSH, or
+- **nodes of a Docker Swarm cluster** for replicated workloads.
 
-## Setting up Notploy
+See [Deployment Options](/docs/core/deployment-options) for how to choose, and [Architecture](/docs/core/architecture) for how the pieces fit together.
 
-Getting started with Notploy is straightforward. Follow our guides to install and configure your applications and databases effectively.
+## What can you do with it?
 
-## Setting up
+- **Deploy** from Git providers (GitHub, GitLab, Bitbucket, Gitea), any Git URL, a container image or a raw Compose file, using Docker, Nixpacks, Railpack or buildpacks.
+- **Operate** PostgreSQL, MySQL, MariaDB, MongoDB and Redis with scheduled backups.
+- **Route** traffic through Traefik with managed domains and automatic TLS.
+- **Scale** from one server to remote servers or a Swarm cluster.
+- **Automate** everything through the API, CLI, SDK and MCP server.
 
-Please go to get started.
+The full list lives in [Capabilities](/docs/core/features).
 
+## Which edition am I reading about?
+
+Notploy ships in several editions that share one deployment engine. The documentation marks edition-specific behavior explicitly; when a page has no label, it applies to **Self-Hosted** and **Cloud** alike.
 
 <Cards>
   <Card
-    href="/docs/core/installation"
-    title="Installation"
-    description="Learn how to install Notploy."
+    href="/docs/core/differences"
+    title="Editions & scope"
+    description="Self-Hosted, Cloud, Enterprise and the Console boundary."
   />
   <Card
-    href="/docs/core/applications"
-    title="Applications"
-    description="Learn how to deploy applications."
+    href="/docs/core/get-started"
+    title="Get started"
+    description="From prerequisites to a first successful deployment."
   />
   <Card
-    href="/docs/core/databases"
-    title="Databases"
-    description="Learn how to deploy databases."
+    href="/docs/core/concepts"
+    title="Core concepts"
+    description="Organization, project, environment, service, deployment, server."
   />
   <Card
-    href="/docs/core/docker-compose"
-    title="Docker Compose"
-    description="Learn how to use Docker Compose with Notploy."
+    href="/docs/core/architecture"
+    title="Architecture"
+    description="How the control plane and the data plane work together."
   />
 </Cards>
+
+<Callout type="info" title="About these docs">
+This documentation describes Notploy as its own product. It is grounded in the current
+repository and verified behavior, and it distinguishes features that are **available and
+verified**, **experimental**, **planned** and **unsupported**. When something is not yet
+true of the implementation, the docs say so instead of describing a roadmap as if it shipped.
+</Callout>
+
+## Next steps
+
+1. Read [Product philosophy](/docs/core/philosophy) to understand the design principles.
+2. Learn the [core concepts](/docs/core/concepts) that every other page builds on.
+3. Follow the [Get started](/docs/core/get-started) path to deploy your first application.

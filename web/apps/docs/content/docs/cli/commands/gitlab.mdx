@@ -1,0 +1,117 @@
+---
+title: "GitLab"
+description: "GitLab connections, plus branch and repository lookups. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+GitLab connections, plus branch and repository lookups.
+
+`notploy gitlab` exposes **7 commands**. They map one-to-one onto the `gitlab.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy gitlab --help` to list these commands in your terminal, or
+	`notploy gitlab <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy gitlab create`
+
+Calls `POST /api/trpc/gitlab.create`.
+
+```bash
+notploy gitlab create --authId <authId> --name <name> --gitlabUrl <gitlabUrl> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--applicationId <value>` | string | No | — |
+| `--secret <value>` | string | No | — |
+| `--groupName <value>` | string | No | — |
+| `--gitProviderId <value>` | string | No | — |
+| `--redirectUri <value>` | string | No | — |
+| `--authId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--gitlabUrl <value>` | string | Yes | — |
+| `--gitlabInternalUrl <value>` | string | No | — |
+
+### `notploy gitlab get-gitlab-branches`
+
+Calls `GET /api/trpc/gitlab.getGitlabBranches`.
+
+```bash
+notploy gitlab get-gitlab-branches --owner <owner> --repo <repo> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--id <value>` | number | No | — |
+| `--owner <value>` | string | Yes | — |
+| `--repo <value>` | string | Yes | — |
+| `--gitlabId <value>` | string | No | — |
+
+### `notploy gitlab get-gitlab-repositories`
+
+Calls `GET /api/trpc/gitlab.getGitlabRepositories`.
+
+```bash
+notploy gitlab get-gitlab-repositories --gitlabId <gitlabId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--gitlabId <value>` | string | Yes | — |
+
+### `notploy gitlab gitlab-providers`
+
+Calls `GET /api/trpc/gitlab.gitlabProviders`.
+
+```bash
+notploy gitlab gitlab-providers
+```
+
+### `notploy gitlab one`
+
+Calls `GET /api/trpc/gitlab.one`.
+
+```bash
+notploy gitlab one --gitlabId <gitlabId>
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--gitlabId <value>` | string | Yes | — |
+
+### `notploy gitlab test-connection`
+
+Calls `POST /api/trpc/gitlab.testConnection`.
+
+```bash
+notploy gitlab test-connection --gitlabId <gitlabId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--gitlabId <value>` | string | Yes | — |
+| `--groupName <value>` | string | No | — |
+
+### `notploy gitlab update`
+
+Calls `POST /api/trpc/gitlab.update`.
+
+```bash
+notploy gitlab update --name <name> --gitlabId <gitlabId> --gitlabUrl <gitlabUrl> --gitProviderId <gitProviderId> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--applicationId <value>` | string | No | — |
+| `--secret <value>` | string | No | — |
+| `--groupName <value>` | string | No | — |
+| `--redirectUri <value>` | string | No | — |
+| `--name <value>` | string | Yes | — |
+| `--gitlabId <value>` | string | Yes | — |
+| `--gitlabUrl <value>` | string | Yes | — |
+| `--gitProviderId <value>` | string | Yes | — |
+| `--gitlabInternalUrl <value>` | string | No | — |

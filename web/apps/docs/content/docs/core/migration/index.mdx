@@ -1,0 +1,35 @@
+---
+title: Migration & compatibility
+description: "Moving to Notploy from Dokploy, and what compatibility to expect."
+---
+
+Notploy shares a technical lineage with Dokploy: both orchestrate Docker and Traefik and expose a similar deployment model. That makes migration possible — but "similar" is not "identical", and a project appearing in a UI is not proof that it works.
+
+This section explains what migration means in practice, what is verified, and how to validate a migrated installation.
+
+<Callout type="warn" title="Verify before you trust">
+Migration imports configuration. It does not prove that a Compose file, deployment or domain
+still behaves correctly. Always run the [post-migration validation](/docs/core/migration/from-dokploy#post-migration-validation)
+before directing production traffic.
+</Callout>
+
+## Pages
+
+<Cards>
+  <Card href="/docs/core/migration/from-dokploy" title="Migrating from Dokploy" description="Prerequisites, inventory, procedure and validation." />
+  <Card href="/docs/core/migration/compatibility" title="Compatibility" description="What is supported, and known differences." />
+</Cards>
+
+## The principle
+
+Notploy documents migration honestly:
+
+- We distinguish **data that was imported** from **configuration that was verified** and **resources that are actually operational**.
+- We state the **gaps**: what does not transfer, and what needs manual attention.
+- We give you a **rollback** path and a validation checklist rather than a promise.
+
+## Related
+
+- [Get started → Upgrade, backup and restore](/docs/core/upgrade-backup-restore)
+- [Reference → Known limitations](/docs/core/reference/limitations)
+- [Reference → Feature support matrix](/docs/core/reference/feature-matrix)
