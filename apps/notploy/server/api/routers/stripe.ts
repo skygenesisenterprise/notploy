@@ -4,7 +4,10 @@ import {
 	IS_CLOUD,
 	updateUser,
 } from "@notploy/server";
+import { db } from "@notploy/server/db";
+import { member, organization } from "@notploy/server/db/schema";
 import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import { z } from "zod";
 import {
@@ -14,6 +17,8 @@ import {
 	TRIAL_DURATION_DAYS,
 	TRIAL_SERVER_LIMITS,
 } from "@/server/utils/billing";
+import { PLAN_LIMITS } from "@/server/api/utils/plan-limits";
+import { PLAN_DEFINITIONS } from "@/utils/plans";
 import {
 	type BillingTier,
 	getStripeItems,
@@ -29,11 +34,32 @@ import {
 	WEBSITE_URL,
 } from "@/server/utils/stripe";
 import {
-	adminProcedure,
 	createTRPCRouter,
 	protectedProcedure,
 	withPermission,
 } from "../trpc";
+
+/**
+ * Resolves the account that owns billing for the active organization.
+ *
+ * Notploy Cloud keeps Stripe state on the organization owner's user row, so
+ * every billing operation is scoped through that owner rather than the caller.
+ * This is what makes billing organization-level even though the data model is
+ * denormalized.
+ */
+const getBillingOwner = async (ctx: { user: { ownerId: string } }) => {
+	const owner = await findUserById(ctx.user.ownerId);
+	if (!owner) {
+		throw new TRPCError({
+			code: "NOT_FOUND",
+			message: "Billing account not found",
+		});
+	}
+	return owner;
+};
+
+const toDisplayLimit = (value: number) =>
+	Number.isFinite(value) ? value : null;
 
 export const stripeRouter = createTRPCRouter({
 	/** Returns the current billing plan for the user's organization. Used to gate features like chat (Startup only). */
@@ -45,7 +71,178 @@ export const stripeRouter = createTRPCRouter({
 		return getBillingStatus(ctx.user.ownerId);
 	}),
 
-	startFreeTrial: adminProcedure
+	/**
+	 * Organization-level billing snapshot: plan, trial, subscription renewal,
+	 * payment-method presence, seat usage and the Stripe customer we bill.
+	 */
+	getBillingOverview: withPermission("billing", "read").query(async ({ ctx }) => {
+		const owner = await getBillingOwner(ctx);
+		const status = await getBillingStatus(owner.id);
+		const servers = await findServersByUserId(owner.id);
+
+		let subscriptionStatus: string | null = null;
+		let currentPeriodEnd: Date | null = null;
+		let cancelAtPeriodEnd = false;
+		let customerEmail: string | null = owner.email;
+		let customerName: string | null = null;
+
+		if (owner.stripeCustomerId) {
+			const stripe = getStripeClient();
+			const customer = await stripe.customers.retrieve(owner.stripeCustomerId);
+			if (!customer.deleted) {
+				customerEmail = customer.email ?? owner.email;
+				customerName = customer.name ?? null;
+			}
+			if (owner.stripeSubscriptionId) {
+				const subscription = await stripe.subscriptions.retrieve(
+					owner.stripeSubscriptionId,
+				);
+				subscriptionStatus = subscription.status;
+				cancelAtPeriodEnd = subscription.cancel_at_period_end;
+				currentPeriodEnd = subscription.current_period_end
+					? new Date(subscription.current_period_end * 1000)
+					: null;
+			}
+		}
+
+		return {
+			organizationId: ctx.session.activeOrganizationId,
+			plan: status.plan,
+			isOnTrial: status.isOnTrial,
+			trialEndsAt: status.trialEndsAt,
+			trialDaysRemaining: status.trialDaysRemaining,
+			hasUsedTrial: status.hasUsedTrial,
+			hasActiveAccess: status.hasActiveAccess,
+			hasPaymentMethod: status.hasPaymentMethod,
+			isAnnual: status.isAnnual,
+			serversUsed: servers.length,
+			serversIncluded: owner.serversQuantity,
+			isEnterpriseCloud: owner.isEnterpriseCloud,
+			customerEmail,
+			customerName,
+			subscriptionStatus,
+			currentPeriodEnd,
+			cancelAtPeriodEnd,
+		};
+	}),
+
+	/** Public plan catalogue enriched with the enforced resource limits. */
+	getPlans: withPermission("billing", "read").query(async () => {
+		return PLAN_DEFINITIONS.map((plan) => {
+			if (plan.id === "enterprise") {
+				return { ...plan, limits: null };
+			}
+			const limits = PLAN_LIMITS[plan.id];
+			return {
+				...plan,
+				limits: {
+					organization: toDisplayLimit(limits.organization),
+					member: toDisplayLimit(limits.member),
+					environment: toDisplayLimit(limits.environment),
+					volumeBackup: toDisplayLimit(limits.volumeBackup),
+					databaseBackup: toDisplayLimit(limits.databaseBackup),
+					scheduledJob: toDisplayLimit(limits.scheduledJob),
+				},
+			};
+		});
+	}),
+
+	/** Current consumption against the organization's plan limits. */
+	getUsage: withPermission("billing", "read").query(async ({ ctx }) => {
+		const owner = await getBillingOwner(ctx);
+		const organizationId = ctx.session.activeOrganizationId;
+		const [servers, organizations, members, status] = await Promise.all([
+			findServersByUserId(owner.id),
+			db.query.organization.findMany({
+				where: eq(organization.ownerId, owner.id),
+			}),
+			db.query.member.findMany({
+				where: eq(member.organizationId, organizationId),
+			}),
+			getBillingStatus(owner.id),
+		]);
+		const limits = PLAN_LIMITS[status.plan ?? "legacy"];
+		return {
+			plan: status.plan,
+			resources: [
+				{
+					resource: "server" as const,
+					label: "Servers",
+					used: servers.length,
+					limit: owner.serversQuantity,
+				},
+				{
+					resource: "organization" as const,
+					label: "Organizations",
+					used: organizations.length,
+					limit: toDisplayLimit(limits.organization),
+				},
+				{
+					resource: "member" as const,
+					label: "Members",
+					used: members.length,
+					limit: toDisplayLimit(limits.member),
+				},
+			],
+		};
+	}),
+
+	/** Saved payment methods on the organization's Stripe customer. */
+	getPaymentMethods: withPermission("billing", "read").query(async ({ ctx }) => {
+		const owner = await getBillingOwner(ctx);
+		if (!owner.stripeCustomerId) {
+			return { defaultPaymentMethodId: null, paymentMethods: [] };
+		}
+		const stripe = getStripeClient();
+		try {
+			let defaultPaymentMethodId: string | null = null;
+			const customer = await stripe.customers.retrieve(owner.stripeCustomerId);
+			if (!customer.deleted) {
+				const fallback = customer.invoice_settings?.default_payment_method;
+				defaultPaymentMethodId =
+					typeof fallback === "string" ? fallback : (fallback?.id ?? null);
+			}
+			const methods = await stripe.paymentMethods.list({
+				customer: owner.stripeCustomerId,
+				type: "card",
+			});
+			return {
+				defaultPaymentMethodId,
+				paymentMethods: methods.data.map((pm) => ({
+					id: pm.id,
+					brand: pm.card?.brand ?? null,
+					last4: pm.card?.last4 ?? null,
+					expMonth: pm.card?.exp_month ?? null,
+					expYear: pm.card?.exp_year ?? null,
+				})),
+			};
+		} catch {
+			return { defaultPaymentMethodId: null, paymentMethods: [] };
+		}
+	}),
+
+	/** Billing contact details held on the Stripe customer. */
+	getBillingContact: withPermission("billing", "read").query(async ({ ctx }) => {
+		const owner = await getBillingOwner(ctx);
+		if (!owner.stripeCustomerId) {
+			return { email: owner.email, name: null };
+		}
+		const stripe = getStripeClient();
+		try {
+			const customer = await stripe.customers.retrieve(owner.stripeCustomerId);
+			if (customer.deleted) {
+				return { email: owner.email, name: null };
+			}
+			return {
+				email: customer.email ?? owner.email,
+				name: customer.name ?? null,
+			};
+		} catch {
+			return { email: owner.email, name: null };
+		}
+	}),
+
+	startFreeTrial: withPermission("billing", "manage")
 		.input(z.object({ tier: z.enum(["hobby", "startup"]) }))
 		.mutation(async ({ ctx, input }) => {
 			if (!IS_CLOUD) {
@@ -122,7 +319,7 @@ export const stripeRouter = createTRPCRouter({
 			};
 		}),
 
-	getProducts: adminProcedure.query(async ({ ctx }) => {
+	getProducts: withPermission("billing", "read").query(async ({ ctx }) => {
 		const user = await findUserById(ctx.user.ownerId);
 		const stripeCustomerId = user.stripeCustomerId;
 
@@ -221,7 +418,7 @@ export const stripeRouter = createTRPCRouter({
 			currentPriceAmount,
 		};
 	}),
-	createCheckoutSession: adminProcedure
+	createCheckoutSession: withPermission("billing", "manage")
 		.input(
 			z
 				.object({
@@ -282,7 +479,8 @@ export const stripeRouter = createTRPCRouter({
 
 			return { sessionId: session.id };
 		}),
-	createCustomerPortalSession: adminProcedure.mutation(async ({ ctx }) => {
+	createCustomerPortalSession: withPermission("billing", "manage").mutation(
+		async ({ ctx }) => {
 		// Use the organization's owner account for billing portal
 		const owner = await findUserById(ctx.user.ownerId);
 
@@ -312,7 +510,7 @@ export const stripeRouter = createTRPCRouter({
 		}
 	}),
 
-	upgradeSubscription: adminProcedure
+	upgradeSubscription: withPermission("billing", "manage")
 		.input(
 			z
 				.object({
@@ -409,7 +607,7 @@ export const stripeRouter = createTRPCRouter({
 		},
 	),
 
-	updateInvoiceNotifications: adminProcedure
+	updateInvoiceNotifications: withPermission("billing", "manage")
 		.input(z.object({ enabled: z.boolean() }))
 		.mutation(async ({ ctx, input }) => {
 			if (!IS_CLOUD) {
@@ -425,7 +623,7 @@ export const stripeRouter = createTRPCRouter({
 			return { ok: true };
 		}),
 
-	getInvoices: adminProcedure.query(async ({ ctx }) => {
+	getInvoices: withPermission("billing", "read").query(async ({ ctx }) => {
 		const user = await findUserById(ctx.user.ownerId);
 		const stripeCustomerId = user.stripeCustomerId;
 

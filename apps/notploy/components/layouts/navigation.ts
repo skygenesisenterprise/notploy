@@ -56,9 +56,25 @@ export type NavigationEnvironment = "self" | "cloud" | "console";
  * visibility) stays separate from *whether the current user may see it*
  * (access control).
  */
+/**
+ * Workspace licence tiers, from the free plan up to a managed Enterprise
+ * agreement. Cloud resolves one per workspace; self-hosted instances are
+ * unlicensed (`null`).
+ */
+export type LicenseTier = "free" | "pro" | "enterprise";
+
+/** Ordered so a destination can require a *minimum* tier. */
+const LICENSE_RANK: Record<LicenseTier, number> = {
+	free: 0,
+	pro: 1,
+	enterprise: 2,
+};
+
 export type NavigationContext = {
 	auth?: AuthQueryOutput;
 	permissions?: PermissionsOutput;
+	/** Current workspace licence tier. `null`/omitted means unlicensed. */
+	license?: LicenseTier | null;
 };
 
 export type NavigationItem = {
@@ -69,6 +85,11 @@ export type NavigationItem = {
 	activeRoutes?: Array<{ href: string; activeTab?: string | null }>;
 	/** Environments where the item is rendered. Omitted means every environment. */
 	environments?: NavigationEnvironment[];
+	/**
+	 * Minimum licence tier required to render the item. Omitted means every
+	 * tier, including unlicensed self-hosted instances.
+	 */
+	minLicense?: LicenseTier;
 	isEnabled?: (opts: NavigationContext) => boolean;
 };
 
@@ -77,6 +98,7 @@ export type NavigationGroup = {
 	label: string;
 	items: NavigationItem[];
 	environments?: NavigationEnvironment[];
+	minLicense?: LicenseTier;
 	isEnabled?: (opts: NavigationContext) => boolean;
 };
 
@@ -86,6 +108,7 @@ export type NavigationSection = {
 	items: NavigationItem[];
 	groups?: NavigationGroup[];
 	environments?: NavigationEnvironment[];
+	minLicense?: LicenseTier;
 	isEnabled?: (opts: NavigationContext) => boolean;
 };
 
@@ -235,7 +258,7 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				activeTab: null,
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
 			},
-			// Cloud moves Schedules into its own Operations section.
+			// Cloud surfaces Schedules under its Infrastructure pole instead.
 			{ ...SHARED_ITEMS.schedules, environments: ["self"] },
 		],
 	},
@@ -301,41 +324,45 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 			},
 		],
 	},
+	// Cloud groups its destinations under Infrastructure and Settings, which
+	// complete the shared Overview (`home`) section above.
 	{
-		id: "operations",
-		label: "Operations",
-		environments: ["cloud"],
-		items: [
-			SHARED_ITEMS.schedules,
-			SHARED_ITEMS.certificates,
-			SHARED_ITEMS.notifications,
-			SHARED_ITEMS.auditLogs,
-		],
-	},
-	{
-		id: "cloud-integrations",
-		label: "Integrations",
+		id: "cloud-infrastructure",
+		label: "Infrastructure",
 		environments: ["cloud"],
 		items: [
 			SHARED_ITEMS.gitProviders,
-			SHARED_ITEMS.containerRegistries,
+			{ ...SHARED_ITEMS.containerRegistries, minLicense: "pro" },
 			SHARED_ITEMS.dnsProviders,
-			SHARED_ITEMS.objectStorage,
+			{ ...SHARED_ITEMS.objectStorage, minLicense: "pro" },
+			SHARED_ITEMS.certificates,
+			{ ...SHARED_ITEMS.secretsManager, minLicense: "pro" },
+			{ ...SHARED_ITEMS.sso, minLicense: "enterprise" },
+			{ ...SHARED_ITEMS.auditLogs, minLicense: "enterprise" },
+			{ ...SHARED_ITEMS.schedules, minLicense: "pro" },
+			SHARED_ITEMS.notifications,
 		],
 	},
 	{
-		id: "security",
-		label: "Security",
+		id: "cloud-settings",
+		label: "Settings",
 		environments: ["cloud"],
 		items: [
-			SHARED_ITEMS.secretsManager,
-			SHARED_ITEMS.sso,
-			SHARED_ITEMS.teamAccess,
+			{ ...SHARED_ITEMS.tags, label: "Workspace & Tags", minLicense: "pro" },
+			{ ...SHARED_ITEMS.teamAccess, minLicense: "pro" },
+			{ ...SHARED_ITEMS.apiKeys, minLicense: "pro" },
+			{
+				label: "Billing",
+				href: "/dashboard/settings/billing",
+				icon: CreditCard,
+				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
+			},
+			{ label: "Profile", href: "/dashboard/settings/profile", icon: User },
 			SHARED_ITEMS.sessions,
 		],
 	},
-	// Self-hosted keeps its full Integrations section; cloud has its own
-	// narrower one above (see `cloud-integrations`).
+	// Self-hosted keeps a full Integrations section; cloud distributes these
+	// providers across its Infrastructure and Settings poles.
 	{
 		id: "integrations",
 		label: "Integrations",
@@ -345,7 +372,7 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 			SHARED_ITEMS.containerRegistries,
 			SHARED_ITEMS.dnsProviders,
 			// Self-hosted keeps SSO under Integrations, cloud surfaces it under
-			// Security, so the shared item is scoped to `self` here.
+			// Infrastructure, so the shared item is scoped to `self` here.
 			SHARED_ITEMS.sso,
 			SHARED_ITEMS.objectStorage,
 			SHARED_ITEMS.notifications,
@@ -377,22 +404,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/settings/server",
 				icon: PanelsTopLeft,
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,
-			},
-		],
-	},
-	{
-		id: "settings",
-		label: "Settings",
-		environments: ["cloud"],
-		items: [
-			{ ...SHARED_ITEMS.tags, label: "Workspace & Tags" },
-			SHARED_ITEMS.apiKeys,
-			{ label: "Profile", href: "/dashboard/settings/profile", icon: User },
-			{
-				label: "Billing",
-				href: "/dashboard/settings/billing",
-				icon: CreditCard,
-				isEnabled: ({ auth }) => auth?.role === "owner",
 			},
 		],
 	},
@@ -492,10 +503,28 @@ function filterItemsByEnvironment(
 	);
 }
 
+/**
+ * Licence visibility pass. A destination declaring `minLicense` is only
+ * rendered when the workspace tier is at least that high; an unlicensed
+ * (self-hosted) context never satisfies a tiered requirement.
+ */
+function filterByLicense<T extends { minLicense?: LicenseTier }>(
+	items: readonly T[],
+	context: NavigationContext,
+): T[] {
+	const tier = context.license ?? null;
+	return items.filter((item) => {
+		if (!item.minLicense) return true;
+		if (tier === null) return false;
+		return LICENSE_RANK[tier] >= LICENSE_RANK[item.minLicense];
+	});
+}
+
 export function createNavigation(opts: {
 	environment: NavigationEnvironment;
 	auth?: AuthQueryOutput;
 	permissions?: PermissionsOutput;
+	license?: LicenseTier | null;
 	whitelabeling?: {
 		docsUrl?: string | null;
 		supportUrl?: string | null;
@@ -504,6 +533,7 @@ export function createNavigation(opts: {
 	const context: NavigationContext = {
 		auth: opts.auth,
 		permissions: opts.permissions,
+		license: opts.license ?? null,
 	};
 
 	const external = filterEnabled(
@@ -529,8 +559,11 @@ export function createNavigation(opts: {
 		)
 		.map((section) => ({
 			...section,
-			items: filterEnabled(
-				filterItemsByEnvironment(section.items, opts.environment),
+			items: filterByLicense(
+				filterEnabled(
+					filterItemsByEnvironment(section.items, opts.environment),
+					context,
+				),
 				context,
 			),
 			groups: section.groups
@@ -540,8 +573,11 @@ export function createNavigation(opts: {
 				.filter((group) => (group.isEnabled ? group.isEnabled(context) : true))
 				.map((group) => ({
 					...group,
-					items: filterEnabled(
-						filterItemsByEnvironment(group.items, opts.environment),
+					items: filterByLicense(
+						filterEnabled(
+							filterItemsByEnvironment(group.items, opts.environment),
+							context,
+						),
 						context,
 					),
 				}))

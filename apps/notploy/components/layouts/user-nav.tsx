@@ -1,4 +1,4 @@
-import { LogOut, Moon, Smartphone, Sun, UserRound } from "lucide-react";
+import { LogOut, Moon, Sun } from "lucide-react";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,7 +21,7 @@ const _AUTO_CHECK_UPDATES_INTERVAL_MINUTES = 7;
  * Personal space of the signed in user.
  *
  * This menu intentionally only carries what belongs to *the user* (identity,
- * sessions, credentials, appearance, sign out). Platform areas (workloads,
+ * appearance, sign out). Platform areas (workloads,
  * infrastructure, integrations, administration) are owned by the sidebar
  * sections, so they are not duplicated here: two places to look for the same
  * page is how a navigation stops being trustworthy.
@@ -34,9 +34,6 @@ export const UserNav = () => {
 	const user = data?.user;
 	const fullName = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
 	const displayName = fullName || user?.email || "Account";
-	const goTo = (href: string) => () => {
-		router.push(href);
-	};
 
 	const toggleTheme = () => {
 		setTheme(theme === "dark" ? "light" : "dark");
@@ -100,21 +97,6 @@ export const UserNav = () => {
 				<DropdownMenuLabel className="px-2 py-1 text-[11px] font-semibold tracking-wider text-muted-foreground/70 uppercase">
 					Account
 				</DropdownMenuLabel>
-				<DropdownMenuItem
-					className="cursor-pointer gap-2"
-					onSelect={goTo("/dashboard/settings/profile")}
-				>
-					<UserRound className="size-4 text-muted-foreground" />
-					Profile
-				</DropdownMenuItem>
-				<DropdownMenuItem
-					className="cursor-pointer gap-2"
-					onSelect={goTo("/dashboard/settings/sessions")}
-				>
-					<Smartphone className="size-4 text-muted-foreground" />
-					Sessions
-				</DropdownMenuItem>
-				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					className="cursor-pointer gap-2"
 					onSelect={(event) => {

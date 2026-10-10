@@ -75,6 +75,7 @@ import {
 	createNavigation,
 	findActiveNavigation,
 	isActiveRoute,
+	type LicenseTier,
 	type Navigation,
 	type NavigationItem,
 } from "./navigation";
@@ -153,6 +154,71 @@ interface Props {
 	children: React.ReactNode;
 }
 
+const LICENSE_META: Record<
+	LicenseTier,
+	{ label: string; variant: "blank" | "blue" | "green"; hint: string }
+> = {
+	free: {
+		label: "Free",
+		variant: "blank",
+		hint: "Free licence — no active paid subscription",
+	},
+	pro: {
+		label: "Pro",
+		variant: "blue",
+		hint: "Pro licence — active paid subscription",
+	},
+	enterprise: {
+		label: "Enterprise",
+		variant: "green",
+		hint: "Enterprise licence — managed agreement",
+	},
+};
+
+function LicenseBadge({
+	license,
+	className,
+}: {
+	license: LicenseTier;
+	className?: string;
+}) {
+	const meta = LICENSE_META[license];
+	return (
+		<Badge
+			variant={meta.variant}
+			title={meta.hint}
+			aria-label={meta.hint}
+			className={cn("shrink-0 tracking-wide uppercase", className)}
+		>
+			{meta.label}
+		</Badge>
+	);
+}
+
+/**
+ * Resolves the cloud licence tier of the active workspace.
+ *
+ * Local development has no real subscription, so it defaults to the Enterprise
+ * licence: that keeps licence gating from blocking developers. The dev stack is
+ * the only place NODE_ENV is not "production" (mirrors
+ * `allowUnlicensedDevInstance`); production always resolves the real tier.
+ * Self-hosted instances are unlicensed and always return `null`.
+ */
+function useWorkspaceLicense(): LicenseTier | null {
+	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const { data: user } = api.user.get.useQuery();
+	const { data: currentPlan } = api.stripe.getCurrentPlan.useQuery(undefined, {
+		enabled: isCloud === true,
+		refetchOnWindowFocus: false,
+	});
+
+	if (!isCloud) return null;
+	if (process.env.NODE_ENV !== "production" || user?.user.isEnterpriseCloud) {
+		return "enterprise";
+	}
+	return currentPlan ? "pro" : "free";
+}
+
 function LogoWrapper() {
 	return <SidebarLogo />;
 }
@@ -174,6 +240,9 @@ function SidebarLogo() {
 	const { isMobile } = useSidebar();
 	const isCollapsed = state === "collapsed" && !isMobile;
 	const { data: activeOrganization } = api.organization.active.useQuery();
+
+	// Workspace licence, resolved once and shared with the navigation engine.
+	const license = useWorkspaceLicense();
 
 	const [_activeTeam, setActiveTeam] = useState<
 		typeof activeOrganization | null
@@ -211,8 +280,9 @@ function SidebarLogo() {
 									size={isCollapsed ? "sm" : "lg"}
 									className={cn(
 										"data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
-										isCollapsed &&
-											"flex justify-center items-center p-2 h-10 w-10 mx-auto",
+										isCollapsed
+											? "flex justify-center items-center p-2 h-10 w-10 mx-auto"
+											: "h-auto min-h-12",
 									)}
 								>
 									<div
@@ -240,14 +310,13 @@ function SidebarLogo() {
 												isCollapsed && "hidden",
 											)}
 										>
-											<div className="flex items-center gap-1.5 min-w-0 w-full">
-												<TruncateTooltip
-													text={
-														activeOrganization?.name ?? "Select Organization"
-													}
-													className="text-sm font-medium"
-												/>
-											</div>
+											<TruncateTooltip
+												text={activeOrganization?.name ?? "Select Organization"}
+												className="w-full text-sm font-medium"
+											/>
+											{license && (
+												<LicenseBadge license={license} className="mt-0.5" />
+											)}
 										</div>
 									</div>
 									<ChevronsUpDown
@@ -284,7 +353,7 @@ function SidebarLogo() {
 														}}
 														className="flex items-center justify-between gap-1"
 													>
-														<div className="flex min-w-0 flex-1 items-center gap-2">
+														<div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
 															<div className="flex size-6 shrink-0 items-center justify-center rounded-sm border">
 																<Logo
 																	className={cn(
@@ -294,7 +363,18 @@ function SidebarLogo() {
 																	logoUrl={org.logo ?? undefined}
 																/>
 															</div>
-															<span className="truncate">{org.name}</span>
+															<div className="flex min-w-0 flex-1 flex-col items-start">
+																<span className="w-full truncate">
+																	{org.name}
+																</span>
+																{license &&
+																	org.id === activeOrganization?.id && (
+																		<LicenseBadge
+																			license={license}
+																			className="mt-0.5 max-w-full"
+																		/>
+																	)}
+															</div>
 														</div>
 
 														<div
@@ -686,6 +766,7 @@ export default function Page({ children }: Props) {
 	});
 
 	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const license = useWorkspaceLicense();
 
 	const navigation = createNavigation({
 		// Self-hosted Notploy exposes the infrastructure control plane layout,
@@ -694,6 +775,7 @@ export default function Page({ children }: Props) {
 		environment: isCloud ? "cloud" : "self",
 		auth,
 		permissions,
+		license,
 		whitelabeling,
 	});
 
@@ -850,20 +932,18 @@ export default function Page({ children }: Props) {
 								</Breadcrumb>{" "}
 							</div>
 							<div className="flex shrink-0 items-center gap-1">
-								{!isCloud && <TimeBadge />}
+								<TimeBadge />
 								<NotificationsButton />
-								{!isCloud && (
-									<Button variant="ghost" size="icon" asChild>
-										<Link
-											href="https://github.com/skygenesisenterprise/notploy"
-											target="_blank"
-											rel="noopener noreferrer"
-											aria-label="Notploy on GitHub"
-										>
-											<GithubIcon className="size-4" />
-										</Link>
-									</Button>
-								)}
+								<Button variant="ghost" size="icon" asChild>
+									<Link
+										href="https://github.com/skygenesisenterprise/notploy"
+										target="_blank"
+										rel="noopener noreferrer"
+										aria-label="Notploy on GitHub"
+									>
+										<GithubIcon className="size-4" />
+									</Link>
+								</Button>
 							</div>
 						</div>
 					</header>

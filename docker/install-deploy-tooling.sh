@@ -18,6 +18,22 @@ RAILPACK_VERSION="${RAILPACK_VERSION:-0.15.4}"
 
 log() { printf '[tooling] %s\n' "$*"; }
 
+# Transient DNS/resolver failures inside the build sandbox are the difference
+# between a green build and `curl: (6) Could not resolve host`. Every download
+# below goes through this helper so it retries before giving up.
+fetch() {
+	curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 "$@"
+}
+
+# Maps `uname -m` to the target triple used by the release archives.
+release_target() {
+	case "$(uname -m)" in
+	x86_64) printf 'x86_64-unknown-linux-musl' ;;
+	aarch64 | arm64) printf 'arm64-unknown-linux-musl' ;;
+	*) return 1 ;;
+	esac
+}
+
 log "installing system packages"
 apt-get update
 apt-get install -y --no-install-recommends \
@@ -32,17 +48,31 @@ rm -rf /var/lib/apt/lists/*
 # The docker CLI talks to the host engine through the mounted socket; the daemon
 # itself is never started inside the container.
 log "installing the docker CLI (${DOCKER_VERSION})"
-curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+fetch https://get.docker.com -o /tmp/get-docker.sh
 sh /tmp/get-docker.sh --version "${DOCKER_VERSION}"
 rm -f /tmp/get-docker.sh
 
 log "installing nixpacks (${NIXPACKS_VERSION})"
-curl -sSL https://nixpacks.com/install.sh -o /tmp/nixpacks-install.sh
+fetch https://nixpacks.com/install.sh -o /tmp/nixpacks-install.sh
 chmod +x /tmp/nixpacks-install.sh
 /tmp/nixpacks-install.sh
 rm -f /tmp/nixpacks-install.sh
 
+# Installed straight from the GitHub release instead of `railpack.com/install.sh`
+# so a DNS blip on that single domain cannot break the whole image build; the
+# tarball is checksum-verified the same way the upstream installer does it.
 log "installing railpack (${RAILPACK_VERSION})"
-curl -sSL https://railpack.com/install.sh | bash
+target="$(release_target)" || {
+	log "unsupported architecture: $(uname -m)"
+	exit 1
+}
+archive="railpack-v${RAILPACK_VERSION}-${target}.tar.gz"
+release_base="https://github.com/railwayapp/railpack/releases/download/v${RAILPACK_VERSION}"
+fetch "${release_base}/${archive}" -o "/tmp/${archive}"
+fetch "${release_base}/checksums.txt" -o /tmp/railpack-checksums.txt
+(cd /tmp && grep " ${archive}\$" railpack-checksums.txt | sha256sum -c -)
+tar -xzf "/tmp/${archive}" -C /usr/local/bin railpack
+chmod 0755 /usr/local/bin/railpack
+rm -f "/tmp/${archive}" /tmp/railpack-checksums.txt
 
 log "done"

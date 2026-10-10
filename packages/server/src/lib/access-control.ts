@@ -28,6 +28,7 @@ export const statements = {
 	gitProviders: ["read", "create", "delete"],
 	traefikFiles: ["read", "write"],
 	api: ["read"],
+	billing: ["read", "manage"],
 
 	// Service-level resources — only assignable via custom roles
 	volume: ["read", "create", "delete"],
@@ -73,6 +74,7 @@ export const ownerRole = ac.newRole({
 	gitProviders: ["read", "create", "delete"],
 	traefikFiles: ["read", "write"],
 	api: ["read"],
+	billing: ["read", "manage"],
 	networkProvider: ["read", "create", "update", "delete"],
 	volume: ["read", "create", "delete"],
 	deployment: ["read", "create", "cancel"],
@@ -114,6 +116,7 @@ export const adminRole = ac.newRole({
 	gitProviders: ["read", "create", "delete"],
 	traefikFiles: ["read", "write"],
 	api: ["read"],
+	billing: ["read", "manage"],
 	networkProvider: ["read", "create", "update", "delete"],
 	volume: ["read", "create", "delete"],
 	deployment: ["read", "create", "cancel"],
@@ -157,6 +160,7 @@ export const memberRole = ac.newRole({
 	gitProviders: [],
 	traefikFiles: [],
 	api: [],
+	billing: [],
 	// Service-level resources — member can do everything within services they have access to
 	volume: ["read", "create", "delete"],
 	deployment: ["read", "create", "cancel"],
