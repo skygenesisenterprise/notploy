@@ -3,9 +3,12 @@ import { format, formatDistanceToNow, startOfDay } from "date-fns";
 import {
 	Activity,
 	ArrowRight,
+	BookOpen,
 	Boxes,
 	CheckCircle2,
 	CircleAlert,
+	FolderInput,
+	GitBranch,
 	Rocket,
 	Server,
 	TriangleAlert,
@@ -25,8 +28,10 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
+import { HandleProject } from "@/components/dashboard/projects/handle-project";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
 	ChartContainer,
@@ -82,16 +87,17 @@ function StatCard({
 	detail,
 	icon: Icon,
 	tone = "text-muted-foreground",
+	href,
 }: {
 	label: string;
 	value: number | string;
 	detail: string;
 	icon: React.ElementType;
 	tone?: string;
+	href?: string;
 }) {
-	return (
-		<Card className="min-w-0 overflow-hidden">
-			<CardContent className="p-4 sm:p-5">
+	const body = (
+		<CardContent className="p-4 sm:p-5">
 				<div className="flex items-start justify-between gap-3">
 					<div className="min-w-0">
 						<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -105,8 +111,21 @@ function StatCard({
 						<Icon className="size-4" aria-hidden />
 					</div>
 				</div>
-				<p className="mt-3 truncate text-xs text-muted-foreground">{detail}</p>
-			</CardContent>
+			<p className="mt-3 truncate text-xs text-muted-foreground">{detail}</p>
+		</CardContent>
+	);
+
+	return (
+		<Card
+			className={`min-w-0 overflow-hidden ${href ? "transition-colors hover:border-foreground/20" : ""}`}
+		>
+			{href ? (
+				<Link href={href} className="block h-full">
+					{body}
+				</Link>
+			) : (
+				body
+			)}
 		</Card>
 	);
 }
@@ -170,6 +189,10 @@ export function OperationsCenter() {
 		(service) => service.status === "error",
 	).length;
 	const failedDeployments = activity?.failed ?? [];
+	const recentDeployments = activity?.recent ?? [];
+	const inProgressDeployments = recentDeployments.filter(
+		(deployment) => deployment.status === "running",
+	).length;
 	const activeServers =
 		serversQuery.data?.filter((server) => server.serverStatus === "active")
 			.length ?? 0;
@@ -260,55 +283,125 @@ export function OperationsCenter() {
 			})),
 	].slice(0, 5);
 
-	if (servicesQuery.isError || deploymentsQuery.isError || statsQuery.isError) {
-		return (
-			<AlertBlock type="error">
-				The dashboard could not load all operational data. Refresh to try again.
-			</AlertBlock>
-		);
+	const hasPartialError =
+		servicesQuery.isError || deploymentsQuery.isError || statsQuery.isError;
+
+	const quickActions: {
+		label: string;
+		href: string;
+		icon: React.ElementType;
+		meta?: string;
+		external?: boolean;
+	}[] = [{ label: "View projects", href: "/dashboard/projects", icon: FolderInput }];
+	if (canReadDeployments) {
+		quickActions.push({
+			label: "Review deployments",
+			href: "/dashboard/deployments",
+			icon: Rocket,
+		});
 	}
+	if (permissions?.monitoring?.read) {
+		quickActions.push({
+			label: "Open monitoring",
+			href: "/dashboard/monitoring",
+			icon: Activity,
+		});
+	}
+	if (canReadServers) {
+		quickActions.push({
+			label: "Manage servers",
+			href: "/dashboard/settings/servers",
+			icon: Server,
+			meta: `${activeServers} active`,
+		});
+	}
+	if (permissions?.gitProviders?.read) {
+		quickActions.push({
+			label: "Connect a Git provider",
+			href: "/dashboard/settings/git-providers",
+			icon: GitBranch,
+		});
+	}
+	quickActions.push({
+		label: "Documentation",
+		href: "https://docs.notploy.com/docs/core",
+		icon: BookOpen,
+		external: true,
+	});
 
 	return (
 		<Card className="min-h-[85vh] w-full rounded-xl bg-sidebar p-2.5">
 			<div className="flex h-full min-h-[calc(85vh-1.25rem)] flex-col gap-6 rounded-xl bg-background p-4 shadow-md sm:p-6">
-				<header className="space-y-1">
-					<h1 className="text-3xl font-semibold tracking-tight">Overview</h1>
-					<p className="text-sm text-muted-foreground">
-						A concise view of your projects, workloads, deployments, and the
-						issues that need attention.
-					</p>
+				<header className="flex flex-wrap items-start justify-between gap-3">
+					<div className="space-y-1">
+						<h1 className="text-3xl font-semibold tracking-tight">Overview</h1>
+						<p className="max-w-2xl text-sm text-muted-foreground">
+							Track your projects, services and deployments, and act on what
+							needs attention.
+						</p>
+					</div>
+					<div className="flex items-center gap-2">
+						<Button asChild variant="outline" size="sm">
+							<a
+								href="https://docs.notploy.com/docs/core"
+								target="_blank"
+								rel="noreferrer"
+							>
+								<BookOpen className="size-4" aria-hidden />
+								<span className="hidden sm:inline">Documentation</span>
+							</a>
+						</Button>
+						{permissions?.project.create && <HandleProject />}
+					</div>
 				</header>
+				{hasPartialError && (
+					<AlertBlock type="error">
+						Some operational data could not be loaded. Showing the information
+						that is currently available.
+					</AlertBlock>
+				)}
 				<section
-					aria-label="Key status"
+					aria-label="Workspace summary"
 					className="grid grid-cols-2 gap-3 xl:grid-cols-4"
 				>
 					<StatCard
-						label="Workloads"
+						label="Projects"
+						value={statsQuery.isError ? "—" : (statsQuery.data?.projects ?? 0)}
+						detail={
+							statsQuery.data
+								? `${statsQuery.data.environments} environments`
+								: "Projects in this workspace"
+						}
+						icon={FolderInput}
+						href="/dashboard/projects"
+					/>
+					<StatCard
+						label="Services"
 						value={
 							isLoading ? "—" : (statsQuery.data?.services ?? services.length)
 						}
 						detail={
-							statsQuery.data
-								? `${statsQuery.data.projects} projects · ${statsQuery.data.environments} environments`
-								: "Services you can access"
+							canReadServices
+								? `${running} healthy · ${failedServices} failed`
+								: "Permission required"
 						}
 						icon={Boxes}
+						tone="text-sky-600 dark:text-sky-400"
+						href="/dashboard/overview"
 					/>
 					<StatCard
-						label="Healthy"
-						value={canReadServices ? running : "—"}
-						detail={
-							canReadServices ? "Running workloads" : "Permission required"
+						label="Deployments"
+						value={
+							canReadDeployments && activity ? recentDeployments.length : "—"
 						}
-						icon={CheckCircle2}
-						tone="text-emerald-600 dark:text-emerald-400"
-					/>
-					<StatCard
-						label="Deploying"
-						value={canReadServices ? deploying : "—"}
-						detail="Workloads rolling out now"
+						detail={
+							canReadDeployments
+								? `${inProgressDeployments} in progress · ${failedDeployments.length} failed`
+								: "Permission required"
+						}
 						icon={Rocket}
 						tone="text-amber-600 dark:text-amber-400"
+						href="/dashboard/deployments"
 					/>
 					<StatCard
 						label="Needs attention"
@@ -317,7 +410,7 @@ export function OperationsCenter() {
 								? failedServices + failedDeployments.length
 								: "—"
 						}
-						detail="Failures across accessible resources"
+						detail="Failed services and deployments"
 						icon={TriangleAlert}
 						tone="text-destructive"
 					/>
@@ -338,7 +431,11 @@ export function OperationsCenter() {
 								</Link>
 							}
 						/>
-						{deploymentSeries.length === 0 ? (
+						{deploymentsQuery.isError ? (
+							<EmptyPanel>
+								Deployment activity is unavailable right now.
+							</EmptyPanel>
+						) : deploymentSeries.length === 0 ? (
 							<EmptyPanel>
 								No deployment activity has been recorded yet.
 							</EmptyPanel>
@@ -417,6 +514,8 @@ export function OperationsCenter() {
 						/>
 						{!canReadServices ? (
 							<EmptyPanel>You do not have access to service health.</EmptyPanel>
+						) : servicesQuery.isError ? (
+							<EmptyPanel>Service health is unavailable right now.</EmptyPanel>
 						) : healthSeries.length === 0 ? (
 							<EmptyPanel>No workloads are available yet.</EmptyPanel>
 						) : (
@@ -468,7 +567,11 @@ export function OperationsCenter() {
 							title="Workloads by project"
 							description="Your busiest accessible projects"
 						/>
-						{projectSeries.length === 0 ? (
+						{!canReadServices ? (
+							<EmptyPanel>You do not have access to project workloads.</EmptyPanel>
+						) : servicesQuery.isError ? (
+							<EmptyPanel>Project workloads are unavailable right now.</EmptyPanel>
+						) : projectSeries.length === 0 ? (
 							<EmptyPanel>No project workloads are available yet.</EmptyPanel>
 						) : (
 							<CardContent className="pt-4">
@@ -526,19 +629,25 @@ export function OperationsCenter() {
 								>
 									{attentionItems.length > 0
 										? `${attentionItems.length} open`
-										: "All clear"}
+										: hasPartialError
+											? "Partial data"
+											: "All clear"}
 								</Badge>
 							}
 						/>
 						{attentionItems.length === 0 ? (
 							<EmptyPanel>
-								<span className="inline-flex items-center gap-2">
-									<CheckCircle2
-										className="size-4 text-emerald-600"
-										aria-hidden
-									/>
-									No failed workloads or deployments need attention.
-								</span>
+								{hasPartialError ? (
+									"Some attention data could not be loaded."
+								) : (
+									<span className="inline-flex items-center gap-2">
+										<CheckCircle2
+											className="size-4 text-emerald-600"
+											aria-hidden
+										/>
+										No failed services or deployments need attention.
+									</span>
+								)}
 							</EmptyPanel>
 						) : (
 							<ul className="mt-3 divide-y border-t">
@@ -590,6 +699,10 @@ export function OperationsCenter() {
 							<EmptyPanel>
 								You do not have access to deployment history.
 							</EmptyPanel>
+						) : deploymentsQuery.isError ? (
+							<EmptyPanel>
+								Deployment history is unavailable right now.
+							</EmptyPanel>
 						) : (activity?.recent ?? []).length === 0 ? (
 							<EmptyPanel>
 								No deployment activity has been recorded yet.
@@ -638,45 +751,55 @@ export function OperationsCenter() {
 					</Card>
 					<Card className="xl:col-span-4">
 						<PanelHeading
-							title="Infrastructure"
-							description="Connected Notploy resources"
+							title="Quick actions"
+							description="Shortcuts for common tasks"
 						/>
 						<div className="mt-3 divide-y border-t">
-							<Link
-								href="/dashboard/settings/servers"
-								className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40 sm:px-5"
-							>
-								<Server className="size-4 text-muted-foreground" aria-hidden />
-								<span className="flex-1 text-sm font-medium">Servers</span>
-								<span className="text-xs text-muted-foreground">
-									{canReadServers ? `${activeServers} active` : "Restricted"}
-								</span>
-							</Link>
-							<Link
-								href="/dashboard/docker"
-								className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40 sm:px-5"
-							>
-								<Boxes className="size-4 text-muted-foreground" aria-hidden />
-								<span className="flex-1 text-sm font-medium">Docker</span>
-								<ArrowRight
-									className="size-4 text-muted-foreground"
-									aria-hidden
-								/>
-							</Link>
-							<Link
-								href="/dashboard/monitoring"
-								className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40 sm:px-5"
-							>
-								<Activity
-									className="size-4 text-muted-foreground"
-									aria-hidden
-								/>
-								<span className="flex-1 text-sm font-medium">Monitoring</span>
-								<ArrowRight
-									className="size-4 text-muted-foreground"
-									aria-hidden
-								/>
-							</Link>
+							{quickActions.map((action) => {
+								const Icon = action.icon;
+								const className =
+									"flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40 sm:px-5";
+								const content = (
+									<>
+										<Icon
+											className="size-4 shrink-0 text-muted-foreground"
+											aria-hidden
+										/>
+										<span className="flex-1 text-sm font-medium">
+											{action.label}
+										</span>
+										{action.meta ? (
+											<span className="text-xs text-muted-foreground">
+												{action.meta}
+											</span>
+										) : (
+											<ArrowRight
+												className="size-4 shrink-0 text-muted-foreground"
+												aria-hidden
+											/>
+										)}
+									</>
+								);
+								return action.external ? (
+									<a
+										key={action.label}
+										href={action.href}
+										target="_blank"
+										rel="noreferrer"
+										className={className}
+									>
+										{content}
+									</a>
+								) : (
+									<Link
+										key={action.label}
+										href={action.href}
+										className={className}
+									>
+										{content}
+									</Link>
+								);
+							})}
 						</div>
 					</Card>
 				</section>
