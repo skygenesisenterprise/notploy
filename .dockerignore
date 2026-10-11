@@ -7,6 +7,13 @@ node_modules
 .turbo
 coverage
 
+# Status engine runtime state (SQLite database, snapshot, backups). The
+# container keeps it in a volume, never in the build context.
+apps/status/data
+apps/status/.status-data
+packages/status/data
+.make-product
+
 # Desktop (Electron) and website packaging artifacts: several GB of local build
 # output that the server image never needs. Without these the build context is
 # ~2.4GB instead of a few MB.

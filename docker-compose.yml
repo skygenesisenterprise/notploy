@@ -337,6 +337,100 @@ services:
     networks:
       - notploy
 
+  # -------------------------------------------------------------------------
+  # Notploy Status — the standalone status page (Notploy Cloud, API, MCP
+  # Server, GitHub App, Website, Docs). Opt-in via the `status` profile so it
+  # never starts with the control plane, and independent from it: no
+  # PostgreSQL, no Redis, no Traefik, no Docker socket. The engine keeps its
+  # state in a SQLite file inside the `status-data` volume.
+  #
+  #   docker compose --profile status up -d status   -> http://localhost:4100
+  #   make docker-up status / make docker-dev status
+  # -------------------------------------------------------------------------
+  status:
+    profiles:
+      - status
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: status
+    image: ${STATUS_IMAGE:-ghcr.io/skygenesisenterprise/notploy-status}:${NOTPLOY_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # Selects the status application in the shared entrypoint.
+      NOTPLOY_APP: status
+      PORT: 4100
+      HOSTNAME: 0.0.0.0
+      # SQLite database, snapshot and backups all live in the mounted volume.
+      STATUS_DATA_DIR: /data
+      # Canonical public origin, used for absolute links and the RSS feed.
+      STATUS_PUBLIC_URL: ${STATUS_PUBLIC_URL:-http://localhost:4100}
+      # Slug rendered at `/`; empty falls back to the first status page.
+      STATUS_DEFAULT_PAGE: ${STATUS_DEFAULT_PAGE:-}
+      STATUS_LOG_LEVEL: ${STATUS_LOG_LEVEL:-info}
+      # Empty disables webhook signing (the channel is then reported as
+      # disabled instead of pretending deliveries succeeded).
+      STATUS_SECRET_KEY: ${STATUS_SECRET_KEY:-}
+      TZ: ${TZ:-UTC}
+    ports:
+      - "${STATUS_PORT:-4100}:4100"
+    volumes:
+      - status-data:/data
+
+  # -------------------------------------------------------------------------
+  # Notploy Status in development mode (hot reload). Opt-in via the `status`
+  # and `dev` profiles, and run explicitly so it never races the production
+  # service for the port:
+  #   docker compose --profile status --profile dev up --watch status-dev
+  # -------------------------------------------------------------------------
+  status-dev:
+    profiles:
+      - status
+      - dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: status-dev
+    image: notploy-status-dev:local
+    working_dir: /usr/src/app
+    environment:
+      NODE_ENV: development
+      NOTPLOY_APP: status
+      PORT: 4100
+      STATUS_DATA_DIR: /data
+      STATUS_PUBLIC_URL: ${STATUS_PUBLIC_URL:-http://localhost:4100}
+      STATUS_DEFAULT_PAGE: ${STATUS_DEFAULT_PAGE:-}
+      STATUS_LOG_LEVEL: ${STATUS_LOG_LEVEL:-debug}
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Inotify works through bind mounts on Linux. On Docker Desktop
+      # (macOS/Windows) set DEV_POLLING=true to use polling instead.
+      CHOKIDAR_USEPOLLING: ${DEV_POLLING:-false}
+      WATCHPACK_POLLING: ${DEV_POLLING:-false}
+      TZ: ${TZ:-UTC}
+    ports:
+      - "${STATUS_PORT:-4100}:4100"
+    volumes:
+      # The sources are bind-mounted from the host so that editing a file
+      # hot-reloads the dev server.
+      - ./apps/status:/usr/src/app/apps/status
+      - ./packages/status:/usr/src/app/packages/status
+      # Those bind mounts shadow the node_modules installed in the image;
+      # anonymous volumes restore them from the image every time the container
+      # is created. `make docker-dev status` passes --build so the image always
+      # matches pnpm-lock.yaml.
+      - /usr/src/app/node_modules
+      - /usr/src/app/apps/status/node_modules
+      - /usr/src/app/packages/status/node_modules
+      # Keep Next's output inside the container: the dev server runs as root,
+      # so a bind-mounted .next would leave root-owned files in the repository.
+      - /usr/src/app/apps/status/.next
+      - status-dev-data:/data
+    develop:
+      watch:
+        - action: rebuild
+          path: pnpm-lock.yaml
+
 # Shared deployment network. It is a long-lived, host-wide resource that
 # outlives this stack: deployed applications attach to it as
 # `external: notploy-network`, and Notploy creates it when missing (install.sh
@@ -361,3 +455,9 @@ volumes:
     name: notploy-config
   notploy-docker:
     name: notploy-docker
+  # Status engine state: SQLite database, last-known-public snapshot and
+  # backups. One volume, one file — the whole product is stateless otherwise.
+  status-data:
+    name: notploy-status-data
+  status-dev-data:
+    name: notploy-status-dev-data

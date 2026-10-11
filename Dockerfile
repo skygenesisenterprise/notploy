@@ -167,6 +167,66 @@ FROM runtime AS cloud
 FROM runtime AS console
 
 # ---------------------------------------------------------------------------
+# Notploy Status — the standalone status page (apps/status + the packages/status
+# engine). Deliberately independent from the control plane: no PostgreSQL, no
+# Redis, no Docker socket, no instance identity. The engine owns a dedicated
+# SQLite file under STATUS_DATA_DIR, so the whole product is one container and
+# one volume.
+#
+#   docker build --target status     -t notploy-status .      # production
+#   docker build --target status-dev -t notploy-status-dev .  # development
+#
+# The production image ships Next's `output: "standalone"` bundle, so it does
+# not carry the monorepo or its pnpm store.
+# ---------------------------------------------------------------------------
+FROM base AS status-builder
+COPY . /usr/src/app
+WORKDIR /usr/src/app
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+# Produces apps/status/.next/standalone (traced Node dependencies included).
+RUN pnpm --filter=./apps/status run build
+
+FROM base AS status
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=4100
+ENV HOSTNAME=0.0.0.0
+RUN apt-get update && apt-get install -y --no-install-recommends tini curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+# Self-contained server: node_modules is the traced subset, not the workspace.
+COPY --from=status-builder /usr/src/app/apps/status/.next/standalone ./
+COPY --from=status-builder /usr/src/app/apps/status/.next/static ./apps/status/.next/static
+
+ARG NOTPLOY_VERSION=dev
+LABEL org.opencontainers.image.title="notploy-status" \
+      org.opencontainers.image.description="Notploy Status — status page, incidents and uptime history" \
+      org.opencontainers.image.source="https://github.com/skygenesisenterprise/notploy" \
+      org.opencontainers.image.version="${NOTPLOY_VERSION}" \
+      org.opencontainers.image.licenses="Apache-2.0"
+
+EXPOSE 4100
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=5 \
+  CMD curl -fs http://localhost:4100/api/v1/pages || exit 1
+
+# Same entrypoint as every other image: it detects the status application
+# (NOTPLOY_APP=status) and execs the standalone server.
+COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
+
+# ---------------------------------------------------------------------------
+# Notploy Status (development) — reuses the `dev` stage (workspace sources +
+# dependencies + entrypoint) and only selects the status application. Compose
+# bind-mounts apps/status and packages/status over it for hot reload.
+# ---------------------------------------------------------------------------
+FROM dev AS status-dev
+ENV NOTPLOY_APP=status
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# ---------------------------------------------------------------------------
 # Notploy self-hosted — Cloud plus the tooling deployments need on the host.
 # This is the default target (last stage in the file).
 # ---------------------------------------------------------------------------

@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"target": "es2022",
+		"allowJs": false,
+		"resolveJsonModule": true,
+		"moduleDetection": "force",
+		"isolatedModules": true,
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"lib": ["ES2022"],
+		"types": ["node"],
+		"noEmit": true,
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"outDir": "./dist",
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"paths": {
+			"@notploy/status": ["./src/index.ts"],
+			"@notploy/status/*": ["./src/*"]
+		}
+	},
+	"include": ["src/**/*.ts", "scripts/**/*.ts", "esbuild.config.ts"],
+	"exclude": ["node_modules", "dist", "tests"]
+}

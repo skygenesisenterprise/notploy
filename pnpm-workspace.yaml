@@ -1,8 +1,6 @@
 packages:
   - apps/*
   - packages/*
-  - packages/server/src/emails
-  - packages/sdk/example
   - web
   - web/apps/*
   - templates/app

@@ -9,10 +9,10 @@ name: Docker Publish
 #
 # Every suffix also publishes a GitHub Release, titled `Notploy {Suffix}
 # v{major}.{minor}.{patch}` (`Notploy App v1.2.3`, `Notploy Cloud v1.2.3`,
-# `Notploy Console v1.2.3`, `Notploy MCP v1.2.3`, ...), so a release always reads
-# the same way whatever
-# image it advertises. The suffix label and the assets a release carries come
-# from the catalog in `select`, which is the single place to add an image.
+# `Notploy Console v1.2.3`, `Notploy Status v1.2.3`, `Notploy MCP v1.2.3`, ...),
+# so a release always reads the same way whatever image it advertises. The
+# suffix label and the assets a release carries come from the catalog in
+# `select`, which is the single place to add an image.
 #
 # Only the self-hosted `-app` release is published as GitHub's `latest`: a
 # running server discovers its updates through the Releases API and pulls the
@@ -22,10 +22,11 @@ name: Docker Publish
 # `-console` additionally ship the install scripts, which install those products.
 #
 # The `select` job filters the catalog down to the images the pushed tag
-# actually publishes, so `v1.0.2-app` shows one job instead of seven (six of
-# them disabled). Adding an image means adding it to the catalog in `select`
-# and adding its suffix to the tag filters above. The build context is always
-# the repository root because the whole monorepo is a single pnpm workspace.
+# actually publishes, so `v1.0.2-app` shows one job instead of the whole
+# catalog (the other entries stay disabled). Adding an image means adding it to
+# the catalog in `select` and adding its suffix to the tag filters above. The
+# build context is always the repository root because the whole monorepo is a
+# single pnpm workspace.
 #
 # Pull requests do not run this workflow at all: ci.yml's `docker` job already
 # builds the images (amd64, no push) so a pull request stays fast and this job
@@ -38,6 +39,7 @@ on:
       - "v*.*.*-app"
       - "v*.*.*-cloud"
       - "v*.*.*-console"
+      - "v*.*.*-status"
       - "v*.*.*-mcp"
       - "v*.*.*-github"
       - "v*.*.*-website"
@@ -80,7 +82,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ ! "$TAG_NAME" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)-(app|cloud|console|mcp|github|website|docs|templates)$ ]]; then
+          if [[ ! "$TAG_NAME" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)-(app|cloud|console|status|mcp|github|website|docs|templates)$ ]]; then
             echo "::error::Unsupported Docker image tag: $TAG_NAME"
             exit 1
           fi
@@ -125,6 +127,15 @@ jobs:
               "description": "Notploy Console (instance and fleet management)",
               "release_name": "Console",
               "release_assets": true
+            },
+            {
+              "image": "notploy-status",
+              "file": "./Dockerfile",
+              "target": "status",
+              "tag_suffix": "-status",
+              "description": "Notploy Status (status page, incidents and uptime history)",
+              "release_name": "Status",
+              "release_assets": false
             },
             {
               "image": "notploy-mcp",

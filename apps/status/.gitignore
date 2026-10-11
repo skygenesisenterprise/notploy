@@ -1,0 +1,8 @@
+# Next.js build output (.next is also ignored by the root .gitignore)
+.next
+out
+
+# Status engine runtime state: SQLite database, snapshot and backups, written
+# under STATUS_DATA_DIR (default ./data). Never committed.
+data/
+.status-data/

@@ -1,0 +1,183 @@
+/*
+ * Notploy Status — visual identity shared with the Notploy console.
+ *
+ * The oklch tokens mirror `apps/notploy/styles/globals.css` so the status
+ * page reads as the same product family, while staying a self-contained
+ * stylesheet: the status platform must render even when the console
+ * frontend stack is unavailable. Dark mode follows the system preference.
+ */
+@import "tailwindcss";
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-border: var(--border);
+	--color-ring: var(--ring);
+	--color-operational: var(--status-operational);
+	--color-degraded: var(--status-degraded);
+	--color-partial: var(--status-partial);
+	--color-critical: var(--status-critical);
+	--color-maintenance: var(--status-maintenance);
+	--font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+		Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+:root {
+	--background: oklch(0.9195 0.0169 88.003);
+	--foreground: oklch(0.235 0 0);
+	--card: oklch(0.953 0.0156 86.4257);
+	--card-foreground: oklch(0.235 0 0);
+	--primary: oklch(0.3012 0 0);
+	--primary-foreground: oklch(0.9169 0.0175 99.616);
+	--secondary: oklch(0.8647 0.0201 87.5232);
+	--secondary-foreground: oklch(0.3012 0 0);
+	--muted: oklch(0.834 0.0232 87.163);
+	--muted-foreground: oklch(0.4688 0.0136 84.5932);
+	--border: oklch(0.8434 0.0231 87.1621);
+	--ring: oklch(0.3012 0 0);
+	--status-operational: oklch(0.627 0.17 149.2);
+	--status-degraded: oklch(0.769 0.155 75);
+	--status-partial: oklch(0.705 0.19 45);
+	--status-critical: oklch(0.5771 0.2152 27.325);
+	--status-maintenance: oklch(0.588 0.158 255);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background: oklch(0.1913 0 0);
+		--foreground: oklch(0.9173 0.0133 82.4015);
+		--card: oklch(0.2264 0 0);
+		--card-foreground: oklch(0.9173 0.0133 82.4015);
+		--primary: oklch(0.852 0.0205 100.6306);
+		--primary-foreground: oklch(0.3329 0 0);
+		--secondary: oklch(0.252 0 0);
+		--secondary-foreground: oklch(0.852 0.0205 100.6306);
+		--muted: oklch(0.285 0 0);
+		--muted-foreground: oklch(0.6348 0.0113 81.7875);
+		--border: oklch(0.2931 0 0);
+		--ring: oklch(0.852 0.0205 100.6306);
+		--status-operational: oklch(0.696 0.17 162.4);
+		--status-degraded: oklch(0.806 0.155 75);
+		--status-partial: oklch(0.752 0.19 45);
+		--status-critical: oklch(0.6368 0.2078 25.3313);
+		--status-maintenance: oklch(0.688 0.158 255);
+	}
+}
+
+@layer base {
+	* {
+		border-color: var(--border);
+	}
+
+	body {
+		background-color: var(--background);
+		color: var(--foreground);
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+	}
+
+	a {
+		color: inherit;
+		text-decoration: none;
+	}
+}
+
+@layer components {
+	.status-card {
+		background-color: var(--card);
+		color: var(--card-foreground);
+		border: 1px solid var(--border);
+		border-radius: 0.75rem;
+	}
+
+	.status-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		border-radius: 9999px;
+		padding: 0.125rem 0.625rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		line-height: 1.25rem;
+		white-space: nowrap;
+	}
+
+	.status-dot {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 9999px;
+		flex: none;
+	}
+
+	.tone-green {
+		background-color: color-mix(in oklab, var(--status-operational) 15%, transparent);
+		color: var(--status-operational);
+	}
+	.tone-green .status-dot,
+	.dot-green {
+		background-color: var(--status-operational);
+	}
+
+	.tone-amber {
+		background-color: color-mix(in oklab, var(--status-degraded) 18%, transparent);
+		color: var(--status-degraded);
+	}
+	.tone-amber .status-dot,
+	.dot-amber {
+		background-color: var(--status-degraded);
+	}
+
+	.tone-orange {
+		background-color: color-mix(in oklab, var(--status-partial) 18%, transparent);
+		color: var(--status-partial);
+	}
+	.tone-orange .status-dot,
+	.dot-orange {
+		background-color: var(--status-partial);
+	}
+
+	.tone-red {
+		background-color: color-mix(in oklab, var(--status-critical) 16%, transparent);
+		color: var(--status-critical);
+	}
+	.tone-red .status-dot,
+	.dot-red {
+		background-color: var(--status-critical);
+	}
+
+	.tone-blue {
+		background-color: color-mix(in oklab, var(--status-maintenance) 18%, transparent);
+		color: var(--status-maintenance);
+	}
+	.tone-blue .status-dot,
+	.dot-blue {
+		background-color: var(--status-maintenance);
+	}
+
+	.tone-neutral {
+		background-color: color-mix(in oklab, var(--muted-foreground) 14%, transparent);
+		color: var(--muted-foreground);
+	}
+	.tone-neutral .status-dot,
+	.dot-neutral {
+		background-color: var(--muted-foreground);
+	}
+
+	.status-banner {
+		border-radius: 0.75rem;
+		padding: 1rem 1.25rem;
+		font-weight: 600;
+		font-size: 1.125rem;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+}

@@ -43,6 +43,33 @@ if [ -n "${NOTPLOY_COMMAND:-}" ]; then
 	exec bash -lc "${NOTPLOY_COMMAND}"
 fi
 
+# --- Status page application -----------------------------------------------
+# `NOTPLOY_APP=status` runs the standalone status page (apps/status) instead of
+# the control plane: no PostgreSQL, no migrations, no instance identity. The
+# engine keeps its state in a SQLite file under STATUS_DATA_DIR.
+if [ "${NOTPLOY_APP:-notploy}" = "status" ]; then
+	STATUS_CONTAINER_PORT="${PORT:-4100}"
+	if [ "$MODE" = "development" ]; then
+		log "app: status (development, port ${STATUS_CONTAINER_PORT})"
+		if [ -d ./apps/status ]; then
+			cd apps/status
+		fi
+		exec pnpm exec next dev -p "${STATUS_CONTAINER_PORT}"
+	fi
+	log "app: status (production, port ${STATUS_CONTAINER_PORT}, dir: $(pwd))"
+	# Production image: the Next standalone server produced at build time.
+	if [ -f ./apps/status/server.js ]; then
+		exec node ./apps/status/server.js
+	fi
+	# Fallback for a production image carrying the workspace sources.
+	if [ -d ./apps/status ]; then
+		cd apps/status
+		exec pnpm exec next start -p "${STATUS_CONTAINER_PORT}"
+	fi
+	log "status application not found in $(pwd)"
+	exit 1
+fi
+
 # --- Locate the application ------------------------------------------------
 if [ -n "${NOTPLOY_APP_DIR:-}" ]; then
 	cd "${NOTPLOY_APP_DIR}"
