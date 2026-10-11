@@ -1,8 +1,10 @@
-import { IS_CLOUD } from "@notploy/server";
+import { getRedis, IS_CLOUD, isRedisEnabled } from "@notploy/server";
+import { db } from "@notploy/server/db";
 import {
 	execAsync,
 	execAsyncRemote,
 } from "@notploy/server/utils/process/execAsync";
+import { BullMqQueue } from "./bullmq-queue";
 import { resolveBuildsConcurrency } from "./concurrency";
 import { processDeploymentJob } from "./deployments-queue";
 import { type InMemoryJob, InMemoryQueue } from "./in-memory-queue";
@@ -11,9 +13,10 @@ import type { DeploymentJob } from "./queue-types";
 /**
  * Deployment queue.
  *
- * Self-hosted uses an in-memory, per-group FIFO queue with configurable
- * concurrency per server. Cloud does not use the queue at all — deployments
- * run directly in the background — so we expose a no-op.
+ * Self-hosted uses the in-memory, per-group FIFO queue by default, or a
+ * Redis/BullMQ backend when `REDIS_URL` is configured (the Compose stack ships
+ * a `redis` service). Cloud runs deployments directly in the background, so it
+ * gets a no-op.
  */
 
 interface DeploymentQueue {
@@ -26,8 +29,10 @@ interface DeploymentQueue {
 	close: () => Promise<void>;
 	on: (...args: unknown[]) => void;
 	run: () => Promise<void>;
-	removeWaiting: (predicate: (data: DeploymentJob) => boolean) => number;
-	clearWaiting: () => number;
+	removeWaiting: (
+		predicate: (data: DeploymentJob) => boolean,
+	) => number | Promise<number>;
+	clearWaiting: () => number | Promise<number>;
 }
 
 const createNoopQueue = (): DeploymentQueue => ({
@@ -57,6 +62,45 @@ const createInMemoryQueue = (): DeploymentQueue => {
 	};
 };
 
+/** Partitions that may still hold jobs when the worker boots (registered servers). */
+const listServerPartitions = async (): Promise<string[]> => {
+	try {
+		const servers = await db.query.server.findMany({
+			columns: { serverId: true },
+		});
+		return servers
+			.map((row) => row.serverId)
+			.filter((serverId): serverId is string => Boolean(serverId));
+	} catch (error) {
+		console.error("[queue] failed to list server partitions", error);
+		return [];
+	}
+};
+
+const createBullMqQueue = (): DeploymentQueue => {
+	const redis = getRedis();
+	if (!redis) {
+		throw new Error("createBullMqQueue requires REDIS_URL to be set");
+	}
+
+	const queue = new BullMqQueue({
+		processor: processDeploymentJob,
+		resolveConcurrency: resolveBuildsConcurrency,
+		redis,
+		listPartitions: listServerPartitions,
+	});
+
+	return {
+		add: (name, data) => queue.add(name, data),
+		getJobs: (states) => queue.getJobs(states),
+		close: () => queue.close(),
+		on: () => {},
+		run: () => queue.run(),
+		removeWaiting: (predicate) => queue.removeWaiting(predicate),
+		clearWaiting: () => queue.clearWaiting(),
+	};
+};
+
 // Use a global singleton so the deployment queue is shared across every module
 // instance. In dev (tsx/Next) the same file can be evaluated more than once
 // (relative import in server.ts vs `@/` alias in the routers); without this the
@@ -67,7 +111,9 @@ const globalForQueue = globalThis as unknown as {
 
 if (!globalForQueue.__notployDeploymentQueue) {
 	globalForQueue.__notployDeploymentQueue = !IS_CLOUD
-		? createInMemoryQueue()
+		? isRedisEnabled()
+			? createBullMqQueue()
+			: createInMemoryQueue()
 		: createNoopQueue();
 }
 
@@ -96,7 +142,7 @@ if (!IS_CLOUD) {
 }
 
 export const cleanQueuesByApplication = async (applicationId: string) => {
-	const removed = myQueue.removeWaiting(
+	const removed = await myQueue.removeWaiting(
 		(data) => (data as any)?.applicationId === applicationId,
 	);
 	if (removed > 0) {
@@ -107,7 +153,7 @@ export const cleanQueuesByApplication = async (applicationId: string) => {
 };
 
 export const cleanQueuesByCompose = async (composeId: string) => {
-	const removed = myQueue.removeWaiting(
+	const removed = await myQueue.removeWaiting(
 		(data) => (data as any)?.composeId === composeId,
 	);
 	if (removed > 0) {
@@ -116,7 +162,7 @@ export const cleanQueuesByCompose = async (composeId: string) => {
 };
 
 export const cleanAllDeploymentQueue = async () => {
-	myQueue.clearWaiting();
+	await myQueue.clearWaiting();
 	return true;
 };
 

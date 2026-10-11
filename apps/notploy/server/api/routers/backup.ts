@@ -16,6 +16,7 @@ import {
 	findPostgresById,
 	findServerById,
 	IS_CLOUD,
+	isExternalJobsEnabled,
 	keepLatestNBackups,
 	removeBackupById,
 	removeScheduleBackup,
@@ -116,7 +117,7 @@ export const backupRouter = createTRPCRouter({
 				const newBackup = await createBackup(input);
 				const backup = await findBackupById(newBackup.backupId);
 
-				if (IS_CLOUD && backup.enabled) {
+				if (isExternalJobsEnabled() && backup.enabled) {
 					const databaseType = backup.databaseType;
 					let serverId = "";
 					if (databaseType === "postgres" && backup.postgres?.serverId) {
@@ -211,7 +212,7 @@ export const backupRouter = createTRPCRouter({
 				await updateBackupById(input.backupId, input);
 				const backup = await findBackupById(input.backupId);
 
-				if (IS_CLOUD) {
+				if (isExternalJobsEnabled()) {
 					if (backup.enabled) {
 						await updateJob({
 							cronSchedule: backup.schedule,
@@ -266,13 +267,13 @@ export const backupRouter = createTRPCRouter({
 				}
 
 				const value = await removeBackupById(input.backupId);
-				if (IS_CLOUD && value) {
+				if (isExternalJobsEnabled() && value) {
 					removeJob({
 						backupId: input.backupId,
 						cronSchedule: value.schedule,
 						type: "backup",
 					});
-				} else if (!IS_CLOUD) {
+				} else if (!isExternalJobsEnabled()) {
 					removeScheduleBackup(input.backupId);
 				}
 				await audit(ctx, {

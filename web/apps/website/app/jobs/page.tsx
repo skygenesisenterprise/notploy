@@ -2,6 +2,7 @@ import { Container } from "@/components/Container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
+import { getJobs } from "@/lib/ghost";
 import { MapPin, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -12,14 +13,14 @@ export const metadata: Metadata = {
 		"Join Notploy and help developers and teams ship faster with open-source and scalable deployment tools built for the modern web.",
 };
 
-const OPEN_POSITIONS: {
-	title: string;
-	region: string;
-	description: string;
-	href: string;
-}[] = [];
-
-export default function JobsPage() {
+export default async function JobsPage() {
+	const jobs = await getJobs();
+	const openPositions = jobs.map((job) => ({
+		title: job.title,
+		region: job.region,
+		description: job.description,
+		href: job.applyUrl,
+	}));
 	return (
 		<div className="relative bg-background">
 			<AnimatedGridPattern
@@ -61,9 +62,9 @@ export default function JobsPage() {
 						Open positions
 					</h2>
 
-					{OPEN_POSITIONS.length > 0 ? (
+					{openPositions.length > 0 ? (
 						<div className="mt-8 flex flex-col gap-4">
-							{OPEN_POSITIONS.map((position) => (
+							{openPositions.map((position) => (
 								<div
 									key={position.title}
 									className="flex flex-col gap-4 rounded-xl border border-border/50 bg-card p-6 sm:flex-row sm:items-center sm:justify-between"

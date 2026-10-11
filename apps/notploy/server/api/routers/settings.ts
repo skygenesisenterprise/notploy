@@ -24,6 +24,8 @@ import {
 	getUpdateStatus,
 	getWebServerSettings,
 	IS_CLOUD,
+	isExternalJobsEnabled,
+	isManagedCloud,
 	isUpdateInstallable,
 	NOTPLOY_IMAGE,
 	normalizeVersion,
@@ -105,7 +107,7 @@ const INSTANCE_PRODUCT = getConfiguredProduct();
 
 export const settingsRouter = createTRPCRouter({
 	getWebServerSettings: protectedProcedure.query(async () => {
-		if (IS_CLOUD) {
+		if (isManagedCloud()) {
 			return null;
 		}
 		const settings = await getWebServerSettings();
@@ -117,7 +119,7 @@ export const settingsRouter = createTRPCRouter({
 	 * on a private network. Private addresses are offered first.
 	 */
 	getWebServerIpCandidates: adminProcedure.query(async () => {
-		if (IS_CLOUD) {
+		if (isManagedCloud()) {
 			return { current: null, addresses: [] };
 		}
 		const [settings, candidates] = await Promise.all([
@@ -314,7 +316,7 @@ export const settingsRouter = createTRPCRouter({
 			return result;
 		}),
 	cleanMonitoring: adminProcedure.mutation(async ({ ctx }) => {
-		if (IS_CLOUD) {
+		if (isManagedCloud()) {
 			return true;
 		}
 		const { MONITORING_PATH } = paths();
@@ -327,7 +329,7 @@ export const settingsRouter = createTRPCRouter({
 		return true;
 	}),
 	getDockerDiskUsage: adminProcedure.query(async () => {
-		if (IS_CLOUD) {
+		if (isManagedCloud()) {
 			return [];
 		}
 		return getDockerDiskUsage();
@@ -423,7 +425,7 @@ export const settingsRouter = createTRPCRouter({
 							message: "Server is inactive",
 						});
 					}
-					if (IS_CLOUD) {
+					if (isExternalJobsEnabled()) {
 						await schedule({
 							cronSchedule: CLEANUP_CRON_JOB,
 							serverId: input.serverId,
@@ -441,7 +443,7 @@ export const settingsRouter = createTRPCRouter({
 						});
 					}
 				} else {
-					if (IS_CLOUD) {
+					if (isExternalJobsEnabled()) {
 						await removeJob({
 							cronSchedule: CLEANUP_CRON_JOB,
 							serverId: input.serverId,

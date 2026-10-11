@@ -1,4 +1,9 @@
-import { IS_CLOUD, removeScheduleJob, scheduleJob } from "@notploy/server";
+import {
+	IS_CLOUD,
+	isExternalJobsEnabled,
+	removeScheduleJob,
+	scheduleJob,
+} from "@notploy/server";
 import { db } from "@notploy/server/db";
 import { deployments } from "@notploy/server/db/schema/deployment";
 import {
@@ -65,7 +70,7 @@ export const scheduleRouter = createTRPCRouter({
 			});
 
 			if (newSchedule?.enabled) {
-				if (IS_CLOUD) {
+				if (isExternalJobsEnabled()) {
 					schedule({
 						scheduleId: newSchedule.scheduleId,
 						type: "schedule",
@@ -128,7 +133,7 @@ export const scheduleRouter = createTRPCRouter({
 			}
 			const updatedSchedule = await updateSchedule(input);
 
-			if (IS_CLOUD) {
+			if (isExternalJobsEnabled()) {
 				if (updatedSchedule?.enabled) {
 					await updateJob({
 						scheduleId: updatedSchedule.scheduleId,
@@ -181,7 +186,7 @@ export const scheduleRouter = createTRPCRouter({
 			}
 			await deleteSchedule(input.scheduleId);
 
-			if (IS_CLOUD) {
+			if (isExternalJobsEnabled()) {
 				await removeJob({
 					cronSchedule: scheduleItem.cronExpression,
 					scheduleId: scheduleItem.scheduleId,

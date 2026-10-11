@@ -17,6 +17,18 @@ const DASHBOARD_PAGE_TITLES: Record<string, string> = {
 	"/dashboard/containers": "Containers",
 	"/dashboard/monitoring": "Monitoring",
 	"/dashboard/requests": "Requests",
+	"/dashboard/incidents": "Incidents",
+	"/dashboard/operations": "Operations",
+	"/dashboard/workspaces": "Workspaces",
+	"/dashboard/applications": "Applications",
+	"/dashboard/usage": "Usage",
+	"/dashboard/capacity": "Capacity",
+	"/dashboard/maintenance": "Maintenance",
+	"/dashboard/domains": "Domains",
+	"/dashboard/storage": "Storage",
+	"/dashboard/platform-services": "Platform Services",
+	"/dashboard/website/traffic": "Traffic",
+	"/dashboard/website/community": "Community",
 	"/dashboard/traefik": "Traefik",
 	"/dashboard/settings/ai": "AI",
 	"/dashboard/settings/api-keys": "API Keys",
@@ -39,6 +51,8 @@ const DASHBOARD_PAGE_TITLES: Record<string, string> = {
 	"/dashboard/settings/tags": "Tags",
 	"/dashboard/settings/users": "Users",
 	"/dashboard/settings/whitelabeling": "Whitelabeling",
+	"/dashboard/website/blog": "Blog",
+	"/dashboard/website/careers": "Careers",
 };
 
 const TAB_TITLES: Record<string, Record<string, string>> = {

@@ -103,6 +103,28 @@ export const getConfiguredProduct = (): NotployProduct =>
 	});
 
 /**
+ * True only for a managed Cloud deployment.
+ *
+ * `IS_CLOUD` is also true for the Console, but the Console is the operator
+ * surface and deliberately keeps the self-hosted feature set (web-server
+ * monitoring, docker disk usage, ...). Use this predicate instead of a bare
+ * `IS_CLOUD` whenever a behaviour must stay Cloud-only.
+ */
+export const isManagedCloud = (): boolean =>
+	IS_CLOUD && getConfiguredProduct() !== "console";
+
+/**
+ * Whether scheduling (backups, volume backups, cron jobs, docker cleanup) is
+ * delegated to the external BullMQ-backed jobs service.
+ *
+ * Cloud and Console always have one. Self-hosted uses it when `JOBS_URL` is
+ * set (the Docker Compose stack ships a `schedules` service); without it,
+ * self-hosted keeps scheduling in-process via node-schedule.
+ */
+export const isExternalJobsEnabled = (): boolean =>
+	IS_CLOUD || Boolean(process.env.JOBS_URL);
+
+/**
  * Builds the installation view. Never throws: invalid identity or entitlement
  * material is reported as diagnostics so the caller can show a precise message.
  */

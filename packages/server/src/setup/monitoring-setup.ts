@@ -1,8 +1,8 @@
 import { findServerById } from "@notploy/server/services/server";
 import { getWebServerSettings } from "@notploy/server/services/web-server-settings";
 import type { CreateServiceOptions } from "dockerode";
-import { IS_CLOUD } from "../constants";
 import { getNotployImageTag } from "../services/settings";
+import { isManagedCloud } from "../services/instance-identity";
 import { pullImage, pullRemoteImage } from "../utils/docker/utils";
 import { execAsync, execAsyncRemote } from "../utils/process/execAsync";
 import { getRemoteDocker } from "../utils/servers/remote-docker";
@@ -13,7 +13,7 @@ const getMonitoringImage = () => {
 	if (
 		(getNotployImageTag() !== "latest" ||
 			process.env.NODE_ENV === "development") &&
-		!IS_CLOUD
+		!isManagedCloud()
 	) {
 		imageName = "notploy/monitoring:canary";
 	}

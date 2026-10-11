@@ -1,6 +1,6 @@
 import {
 	getWebServerSettings,
-	IS_CLOUD,
+	isManagedCloud,
 	setupWebMonitoring,
 	updateWebServerSettings,
 } from "@notploy/server";
@@ -13,7 +13,7 @@ export const adminRouter = createTRPCRouter({
 		.input(apiUpdateWebServerMonitoring)
 		.mutation(async ({ input }) => {
 			try {
-				if (IS_CLOUD) {
+				if (isManagedCloud()) {
 					throw new TRPCError({
 						code: "UNAUTHORIZED",
 						message: "Feature disabled on cloud",

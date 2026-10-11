@@ -262,7 +262,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "Monitoring",
 				href: "/dashboard/monitoring",
 				icon: BarChartHorizontalBigIcon,
-				isEnabled: ({ permissions }) => !!permissions?.monitoring.read,
 			},
 			{
 				// Applications, Compose stacks and managed databases share this view.
@@ -449,7 +448,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "Monitoring",
 				href: "/dashboard/monitoring",
 				icon: BarChartHorizontalBigIcon,
-				isEnabled: ({ permissions }) => !!permissions?.monitoring.read,
 			},
 			{
 				label: "Incidents",
@@ -513,6 +511,21 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				icon: CreditCard,
 				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
 			},
+			{
+				label: "Clusters",
+				href: "/dashboard/swarm",
+				icon: Waypoints,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			{
+				label: "Networking",
+				href: "/dashboard/networks",
+				icon: Network,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			{ label: "Capacity", href: "/dashboard/capacity", icon: Gauge },
+			{ label: "Maintenance", href: "/dashboard/maintenance", icon: Wrench },
+			{ label: "Domains", href: "/dashboard/domains", icon: Link2 },
 		],
 	},
 	{
@@ -533,18 +546,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				icon: Server,
 				isEnabled: ({ permissions }) => !!permissions?.server.read,
 			},
-			{
-				label: "Clusters",
-				href: "/dashboard/swarm",
-				icon: Waypoints,
-				isEnabled: ({ permissions }) => !!permissions?.docker.read,
-			},
-			{
-				label: "Networking",
-				href: "/dashboard/networks",
-				icon: Network,
-				isEnabled: ({ permissions }) => !!permissions?.docker.read,
-			},
 			{ label: "Storage", href: "/dashboard/storage", icon: Database },
 			{
 				label: "Runtime",
@@ -552,13 +553,10 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				icon: Boxes,
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
-			{ label: "Capacity", href: "/dashboard/capacity", icon: Gauge },
-			{ label: "Maintenance", href: "/dashboard/maintenance", icon: Wrench },
 			// Cross-cutting platform resources belong to the Infrastructure pole.
 			{ ...SHARED_ITEMS.gitProviders, label: "Git" },
 			{ ...SHARED_ITEMS.containerRegistries, label: "Registries" },
 			{ ...SHARED_ITEMS.dnsProviders, label: "DNS" },
-			{ label: "Domains", href: "/dashboard/domains", icon: Link2 },
 			SHARED_ITEMS.objectStorage,
 			SHARED_ITEMS.certificates,
 			{ ...SHARED_ITEMS.secretsManager, label: "Secrets" },

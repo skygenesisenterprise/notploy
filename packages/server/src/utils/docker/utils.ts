@@ -15,8 +15,8 @@ import type { PostgresNested } from "../databases/postgres";
 import type { RedisNested } from "../databases/redis";
 import { execAsync, execAsyncRemote } from "../process/execAsync";
 import { spawnAsync } from "../process/spawnAsync";
+import { createRedisTtlCache } from "../redis/cache";
 import { getRemoteDocker } from "../servers/remote-docker";
-import { createTtlCache } from "./disk-usage-cache";
 
 interface RegistryAuth {
 	username: string;
@@ -300,8 +300,11 @@ const parseSizeToBytes = (size: string): number => {
 // `docker system df` is expensive on busy hosts and the monitoring view only
 // needs a periodically refreshed snapshot. Cache it briefly and coalesce
 // concurrent callers so parallel widgets share a single command execution.
+// The cache lives in Redis when configured, so every app process (and a
+// restart) reuses the same snapshot instead of recomputing it.
 const DOCKER_DISK_USAGE_TTL_MS = 60_000;
-const dockerDiskUsageCache = createTtlCache<DockerDiskUsageItem[]>({
+const dockerDiskUsageCache = createRedisTtlCache<DockerDiskUsageItem[]>({
+	namespace: "docker-disk-usage",
 	ttlMs: DOCKER_DISK_USAGE_TTL_MS,
 });
 

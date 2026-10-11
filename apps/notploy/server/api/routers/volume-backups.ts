@@ -2,6 +2,7 @@ import {
 	createVolumeBackup,
 	findVolumeBackupById,
 	IS_CLOUD,
+	isExternalJobsEnabled,
 	removeVolumeBackup,
 	removeVolumeBackupJob,
 	restoreVolume,
@@ -112,7 +113,7 @@ export const volumeBackupsRouter = createTRPCRouter({
 			const newVolumeBackup = await createVolumeBackup(input);
 
 			if (newVolumeBackup?.enabled) {
-				if (IS_CLOUD) {
+				if (isExternalJobsEnabled()) {
 					await schedule({
 						cronSchedule: newVolumeBackup.cronExpression,
 						volumeBackupId: newVolumeBackup.volumeBackupId,
@@ -213,7 +214,7 @@ export const volumeBackupsRouter = createTRPCRouter({
 				});
 			}
 
-			if (IS_CLOUD) {
+			if (isExternalJobsEnabled()) {
 				if (updatedVolumeBackup.enabled) {
 					await updateJob({
 						cronSchedule: updatedVolumeBackup.cronExpression,

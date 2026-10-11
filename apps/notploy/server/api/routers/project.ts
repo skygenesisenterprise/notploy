@@ -27,7 +27,7 @@ import {
 	findProjectById,
 	findRedisById,
 	findUserById,
-	IS_CLOUD,
+	isManagedCloud,
 	updateProjectById,
 	updateUser,
 } from "@notploy/server";
@@ -68,6 +68,14 @@ import {
 } from "@/server/db/schema";
 import { getBillingStatus } from "@/server/utils/billing";
 
+/**
+ * The Console runs on the same managed stack as Cloud (`IS_CLOUD` is true for
+ * both), but as the operator surface it behaves like self-hosted: no workspace
+ * billing, no license-driven server quota, no onboarding redirect. Only Cloud
+ * is subject to the billing gates below.
+ */
+const IS_BILLING_GATED = isManagedCloud();
+
 export const projectRouter = createTRPCRouter({
 	create: protectedProcedure
 		.input(apiCreateProject)
@@ -77,7 +85,7 @@ export const projectRouter = createTRPCRouter({
 
 				const admin = await findUserById(ctx.user.ownerId);
 
-				if (admin.serversQuantity === 0 && IS_CLOUD) {
+				if (admin.serversQuantity === 0 && IS_BILLING_GATED) {
 					throw new TRPCError({
 						code: "NOT_FOUND",
 						message: "No servers available, Please subscribe to a plan",
@@ -667,7 +675,9 @@ export const projectRouter = createTRPCRouter({
 		const currentUser = await findUserById(ctx.user.id);
 
 		const isOwner = ctx.user.role === "owner";
-		const billingGatePassed = IS_CLOUD ? !billingStatus.hasActiveAccess : true;
+		const billingGatePassed = IS_BILLING_GATED
+			? !billingStatus.hasActiveAccess
+			: true;
 
 		return {
 			shouldShowOnboarding:

@@ -14,23 +14,25 @@ import { execAsync, execAsyncRemote } from "../process/execAsync";
 import { redactRcloneCredentials } from "./redact";
 import { getS3Credentials, normalizeS3Path, scheduleBackup } from "./utils";
 
-export const initCronJobs = async () => {
+export const initCronJobs = async (options?: { scheduleJobs?: boolean }) => {
+	const scheduleJobs = options?.scheduleJobs ?? true;
 	console.log("Setting up cron jobs....");
-
-	const admin = await db.query.member.findFirst({
-		where: eq(member.role, "owner"),
-		with: {
-			user: true,
-		},
-	});
-
-	if (!admin) {
-		return;
-	}
 
 	const webServerSettings = await getWebServerSettings();
 
-	if (webServerSettings?.enableDockerCleanup) {
+	if (scheduleJobs) {
+		const admin = await db.query.member.findFirst({
+			where: eq(member.role, "owner"),
+			with: {
+				user: true,
+			},
+		});
+
+		if (!admin) {
+			return;
+		}
+
+		if (webServerSettings?.enableDockerCleanup) {
 		try {
 			scheduleJob("docker-cleanup", CLEANUP_CRON_JOB, async () => {
 				console.log(
@@ -94,6 +96,8 @@ export const initCronJobs = async () => {
 		} catch (error) {
 			console.error(`[Backup] ${backup.databaseType} Error`, error);
 		}
+	}
+
 	}
 
 	if (webServerSettings?.logCleanupCron) {

@@ -1,7 +1,7 @@
 import {
 	CLEANUP_CRON_JOB,
 	cleanupAll,
-	IS_CLOUD,
+	isExternalJobsEnabled,
 	sendDockerCleanupNotifications,
 } from "@notploy/server";
 import { scheduledJobs, scheduleJob } from "node-schedule";
@@ -13,7 +13,7 @@ export const applyDockerCleanupSchedule = async (
 	enable: boolean,
 ) => {
 	if (enable) {
-		if (IS_CLOUD) {
+		if (isExternalJobsEnabled()) {
 			await schedule({
 				cronSchedule: CLEANUP_CRON_JOB,
 				serverId,
@@ -26,7 +26,7 @@ export const applyDockerCleanupSchedule = async (
 			});
 		}
 	} else {
-		if (IS_CLOUD) {
+		if (isExternalJobsEnabled()) {
 			await removeJob({
 				cronSchedule: CLEANUP_CRON_JOB,
 				serverId,

@@ -1,6 +1,6 @@
 import {
 	type BackupScheduleList,
-	IS_CLOUD,
+	isExternalJobsEnabled,
 	removeScheduleBackup,
 } from "@notploy/server/index";
 
@@ -80,7 +80,7 @@ export const updateJob = async (job: QueueJob) => {
 export const cancelJobs = async (backups: BackupScheduleList) => {
 	for (const backup of backups) {
 		if (backup.enabled) {
-			if (IS_CLOUD) {
+			if (isExternalJobsEnabled()) {
 				await removeJob({
 					cronSchedule: backup.schedule,
 					backupId: backup.backupId,

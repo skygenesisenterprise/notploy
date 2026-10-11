@@ -1,4 +1,3 @@
-import { IS_CLOUD } from "@notploy/server/constants";
 import { validateRequest } from "@notploy/server/lib/auth";
 import { hasPermission } from "@notploy/server/services/permission";
 import type { GetServerSidePropsContext } from "next";
@@ -23,14 +22,6 @@ Dashboard.getLayout = (page: ReactElement) => {
 export async function getServerSideProps(
 	ctx: GetServerSidePropsContext<{ serviceId: string }>,
 ) {
-	if (IS_CLOUD) {
-		return {
-			redirect: {
-				permanent: false,
-				destination: "/dashboard/home",
-			},
-		};
-	}
 	const { user, session } = await validateRequest(ctx.req);
 	if (!user) {
 		return {

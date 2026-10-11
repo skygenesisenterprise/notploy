@@ -11,15 +11,16 @@ import {
 	getServicesByServerId,
 	haveActiveServices,
 	IS_CLOUD,
+	isManagedCloud,
 	provisionSshKey,
 	redactServerSshKey,
 	removeDeploymentsByServerId,
 	removeSshKeyWithPassword,
+	SshError,
 	serverAudit,
 	serverSetup,
 	serverValidate,
 	setupMonitoring,
-	SshError,
 	updateServerById,
 	verifySshKeyConnection,
 } from "@notploy/server";
@@ -892,7 +893,7 @@ export const serverRouter = createTRPCRouter({
 			});
 		}),
 	publicIp: protectedProcedure.query(async () => {
-		if (IS_CLOUD) {
+		if (isManagedCloud()) {
 			return "";
 		}
 		const ip = await getPublicIpWithFallback();

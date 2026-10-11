@@ -24,10 +24,10 @@
 # server always runs the sources on disk (and hot-reloads them) while keeping
 # the dependencies resolved from pnpm-lock.yaml.
 #
-# Both `notploy` and `notploy-dev` declare `depends_on: [postgres, traefik]`,
+# Both `notploy` and `notploy-dev` declare `depends_on: [postgres, redis, traefik]`,
 # so a single command (even a service-scoped one such as
 # `docker compose --profile dev up --watch notploy-dev`) always brings up the
-# whole support stack: PostgreSQL, Traefik and Notploy itself.
+# whole support stack: PostgreSQL, Redis, Traefik and Notploy itself.
 #
 # `notploy` (production) and `notploy-dev` (development) both publish the
 # dashboard on ${NOTPLOY_PORT:-3000}, so the app is always reachable at
@@ -77,6 +77,33 @@ services:
       - notploy
 
   # -------------------------------------------------------------------------
+  # Redis 7 — queues and cache for the control plane (deployment queue,
+  # scheduled jobs, background work). Declared here (like `postgres` and
+  # `traefik`) so Compose owns its lifecycle instead of the app creating it on
+  # demand. It is internal only: no host port is published, so only services on
+  # the `notploy` network can reach it at redis://redis:6379. Persistence is
+  # enabled (append-only file) and kept in the `notploy-redis-data` volume.
+  # -------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: notploy-redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+    volumes:
+      - notploy-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - notploy
+
+  # -------------------------------------------------------------------------
   # Traefik — the edge router for every deployed application. Declared here so
   # Compose creates it alongside Notploy (like `postgres`), instead of the app
   # creating its own container on demand: bind sources created from inside a
@@ -115,6 +142,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       # Same support stack in production and in development: the Compose-managed
       # Traefik is always started, never left to be created on demand by the app.
       traefik:
@@ -127,6 +156,8 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       DATABASE_URL: postgres://${POSTGRES_USER:-notploy}:${POSTGRES_PASSWORD:-notploy}@postgres:5432/${POSTGRES_DB:-notploy}
+      # Redis backs the control plane queues and cache (see the `redis` service).
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-notploy-insecure-default-change-me}
       # Cloud flavor (FLAVOR=cloud / NOTPLOY_FLAVOR=cloud) sets this to true.
       IS_CLOUD: ${IS_CLOUD:-false}
@@ -211,6 +242,8 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       DATABASE_URL: postgres://${POSTGRES_USER:-notploy}:${POSTGRES_PASSWORD:-notploy}@postgres:5432/${POSTGRES_DB:-notploy}
+      # Redis backs the control plane queues and cache (see the `redis` service).
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-notploy-insecure-default-change-me}
       # Explicit base URL so better-auth does not warn (and derive origins
       # from the request) in the dev stack, which always runs on localhost.
@@ -263,6 +296,8 @@ services:
       - "${NOTPLOY_DNS_HOST_PORT:-53}:53/tcp"
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       traefik:
         condition: service_started
@@ -320,6 +355,8 @@ networks:
 volumes:
   notploy-postgres-data:
     name: notploy-postgres-data
+  notploy-redis-data:
+    name: notploy-redis-data
   notploy-config:
     name: notploy-config
   notploy-docker:

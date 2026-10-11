@@ -146,6 +146,8 @@ export * from "./utils/providers/github";
 export * from "./utils/providers/github";
 export * from "./utils/providers/gitlab";
 export * from "./utils/providers/raw";
+export * from "./utils/redis/cache";
+export * from "./utils/redis/index";
 export * from "./utils/schedules/index";
 export * from "./utils/schedules/utils";
 export * from "./utils/servers/remote-docker";

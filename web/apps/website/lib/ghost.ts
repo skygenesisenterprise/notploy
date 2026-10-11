@@ -2,7 +2,7 @@ import GhostContentAPI from "@tryghost/content-api";
 
 // Ghost API configuration
 const ghostConfig = {
-	url: process.env.GHOST_URL || "https://site.com",
+	url: process.env.GHOST_URL || "https://notploy.com",
 	key: process.env.GHOST_KEY || "42424242424242424242424242424242",
 	version: "v5.0",
 };
@@ -127,6 +127,56 @@ export async function getPostsByTag(tag: string) {
 		return result;
 	} catch (error) {
 		console.error(`Error fetching posts with tag ${tag}:`, error);
+		return [];
+	}
+}
+
+/**
+ * Job offers are published as Ghost posts marked with the `job` tag by the
+ * Notploy console. The location and application link travel on prefixed tags,
+ * so no separate datastore is needed.
+ */
+const JOBS_TAG = "job";
+const LOCATION_TAG_PREFIX = "location:";
+const APPLY_TAG_PREFIX = "apply:";
+
+export interface JobPosition {
+	id: string;
+	title: string;
+	slug: string;
+	region: string;
+	description: string;
+	applyUrl: string;
+	url: string;
+}
+
+function readTagValue(
+	tags: Post["tags"] | undefined,
+	prefix: string,
+): string {
+	const match = tags?.find((tag) => tag.name.startsWith(prefix));
+	return match ? match.name.slice(prefix.length).trim() : "";
+}
+
+export async function getJobs(): Promise<JobPosition[]> {
+	try {
+		const posts = (await api.posts.browse({
+			limit: "all",
+			filter: `tag:${JOBS_TAG}`,
+			include: ["tags", "authors"],
+		})) as Post[];
+
+		return posts.map((post) => ({
+			id: post.id,
+			title: post.title,
+			slug: post.slug,
+			region: readTagValue(post.tags, LOCATION_TAG_PREFIX),
+			description: post.custom_excerpt || post.excerpt || "",
+			applyUrl: readTagValue(post.tags, APPLY_TAG_PREFIX) || post.url,
+			url: post.url,
+		}));
+	} catch (error) {
+		console.error("Error fetching job offers:", error);
 		return [];
 	}
 }

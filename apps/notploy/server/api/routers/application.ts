@@ -13,6 +13,7 @@ import {
 	getContainerLogs,
 	getWebServerSettings,
 	IS_CLOUD,
+	isManagedCloud,
 	mechanizeDockerContainer,
 	readConfig,
 	readRemoteConfig,
@@ -79,6 +80,13 @@ import {
 	myQueue,
 } from "@/server/queues/queueSetup";
 import { cancelDeployment, deploy } from "@/server/utils/deploy";
+
+/**
+ * Managed Cloud-only behaviour. The Console shares the Cloud runtime
+ * (`IS_CLOUD`) but, as the operator surface, keeps the self-hosted feature set
+ * — container monitoring included.
+ */
+const IS_MANAGED_CLOUD = isManagedCloud();
 
 export const applicationRouter = createTRPCRouter({
 	create: protectedProcedure
@@ -996,7 +1004,7 @@ export const applicationRouter = createTRPCRouter({
 	readAppMonitoring: withPermission("monitoring", "read")
 		.input(apiFindMonitoringStats)
 		.query(async ({ input }) => {
-			if (IS_CLOUD) {
+			if (IS_MANAGED_CLOUD) {
 				throw new TRPCError({
 					code: "UNAUTHORIZED",
 					message: "Functionality not available in cloud version",
