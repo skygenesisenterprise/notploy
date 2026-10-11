@@ -185,8 +185,11 @@ WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-# Produces apps/status/.next/standalone (traced Node dependencies included).
+# Status app bundle: apps/status/.next/standalone (traced dependencies included).
 RUN pnpm --filter=./apps/status run build
+# Engine bundle: packs the seed CLI so the runtime image can bootstrap its
+# catalog without a TypeScript runner.
+RUN pnpm --filter=@notploy/status run build
 
 FROM base AS status
 WORKDIR /app
@@ -199,6 +202,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends tini curl ca-ce
 # Self-contained server: node_modules is the traced subset, not the workspace.
 COPY --from=status-builder /usr/src/app/apps/status/.next/standalone ./
 COPY --from=status-builder /usr/src/app/apps/status/.next/static ./apps/status/.next/static
+# Seed CLI (bundled): resolves `zod`/`hono` from the traced node_modules above.
+COPY --from=status-builder /usr/src/app/packages/status/dist ./engine-dist
 
 ARG NOTPLOY_VERSION=dev
 LABEL org.opencontainers.image.title="notploy-status" \

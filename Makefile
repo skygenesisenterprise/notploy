@@ -298,8 +298,15 @@ docker-config: ## Validate and print the resolved Compose configuration
 # the status services use, e.g.:
 #   STATUS_DATA_DIR=/var/lib/notploy-status make status-seed
 # ---------------------------------------------------------------------------
+ifeq ($(CONTAINER),1)
+status-seed: ## Seed the catalog inside the running status container (add CONTAINER=1)
+	@echo "==> seeding the catalog inside the running status container"
+	$(COMPOSE) --profile status exec status node engine-dist/seed.js $(SEED_ARGS)
+else
 status-seed: ## Create the Notploy status page and its six components (idempotent)
+	@echo "==> seeding the catalog into STATUS_DATA_DIR=$${STATUS_DATA_DIR:-./data}"
 	$(PNPM) --filter @notploy/status run seed -- $(SEED_ARGS)
+endif
 
 docker-dev: ## Run the containerized dev server with hot reload (add: status for the status page)
 	@# Recreate the dev container every run: reusing one whose network endpoint is
