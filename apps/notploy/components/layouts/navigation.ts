@@ -8,6 +8,7 @@ import {
 	BookIcon,
 	BotIcon,
 	Boxes,
+	Briefcase,
 	Building2,
 	ChartPie,
 	CircleHelp,
@@ -21,6 +22,7 @@ import {
 	GitBranch,
 	Globe,
 	HardDrive,
+	HeartHandshake,
 	House,
 	KeyRound,
 	Layers,
@@ -29,6 +31,7 @@ import {
 	LogIn,
 	type LucideIcon,
 	Network,
+	Newspaper,
 	Package,
 	PanelsTopLeft,
 	Rocket,
@@ -36,6 +39,7 @@ import {
 	ShieldCheck,
 	Smartphone,
 	Tags,
+	TrendingUp,
 	TriangleAlert,
 	User,
 	Users,
@@ -426,8 +430,9 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 	},
 	// Platform operator console. A single surface that spans both the
 	// self-hosted control plane and the managed Cloud activity, so it is
-	// organised as four poles: a synthetic Overview, the technical
-	// Infrastructure, the Cloud business, and the cross-cutting Resources.
+	// organised as three poles: a synthetic Overview, the Cloud business, and
+	// the technical Infrastructure (which also carries the cross-cutting
+	// platform resources).
 	//
 	// Reserved: nothing renders these sections until `createNavigation` is
 	// called with `environment: "console"`. Destinations without a page yet
@@ -455,6 +460,58 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "Operations",
 				href: "/dashboard/operations",
 				icon: Activity,
+			},
+			// Website (`web/apps/website`) surfaces. Links only for now: the
+			// management pages land later, like the other reserved destinations.
+			{ label: "Blog", href: "/dashboard/website/blog", icon: Newspaper },
+			{
+				label: "Careers",
+				href: "/dashboard/website/careers",
+				icon: Briefcase,
+			},
+			{
+				label: "Traffic",
+				href: "/dashboard/website/traffic",
+				icon: TrendingUp,
+			},
+			{
+				label: "Community",
+				href: "/dashboard/website/community",
+				icon: HeartHandshake,
+			},
+		],
+	},
+	{
+		id: "console-cloud",
+		label: "Cloud",
+		environments: ["console"],
+		items: [
+			{ label: "Workspaces", href: "/dashboard/workspaces", icon: Building2 },
+			{
+				label: "Applications",
+				href: "/dashboard/applications",
+				icon: AppWindow,
+			},
+			{
+				label: "Deployments",
+				href: "/dashboard/deployments",
+				icon: Rocket,
+				activeTab: null,
+				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
+			},
+			{
+				label: "Services",
+				href: "/dashboard/overview",
+				icon: LayoutGrid,
+				activeTab: null,
+				isEnabled: ({ permissions }) => !!permissions?.service.read,
+			},
+			{ label: "Usage", href: "/dashboard/usage", icon: ChartPie },
+			{
+				label: "Billing",
+				href: "/dashboard/settings/billing",
+				icon: CreditCard,
+				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
 			},
 		],
 	},
@@ -497,47 +554,7 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 			},
 			{ label: "Capacity", href: "/dashboard/capacity", icon: Gauge },
 			{ label: "Maintenance", href: "/dashboard/maintenance", icon: Wrench },
-		],
-	},
-	{
-		id: "console-cloud",
-		label: "Cloud",
-		environments: ["console"],
-		items: [
-			{ label: "Workspaces", href: "/dashboard/workspaces", icon: Building2 },
-			{
-				label: "Applications",
-				href: "/dashboard/applications",
-				icon: AppWindow,
-			},
-			{
-				label: "Deployments",
-				href: "/dashboard/deployments",
-				icon: Rocket,
-				activeTab: null,
-				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
-			},
-			{
-				label: "Services",
-				href: "/dashboard/overview",
-				icon: LayoutGrid,
-				activeTab: null,
-				isEnabled: ({ permissions }) => !!permissions?.service.read,
-			},
-			{ label: "Usage", href: "/dashboard/usage", icon: ChartPie },
-			{
-				label: "Billing",
-				href: "/dashboard/settings/billing",
-				icon: CreditCard,
-				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
-			},
-		],
-	},
-	{
-		id: "console-resources",
-		label: "Resources",
-		environments: ["console"],
-		items: [
+			// Cross-cutting platform resources belong to the Infrastructure pole.
 			{ ...SHARED_ITEMS.gitProviders, label: "Git" },
 			{ ...SHARED_ITEMS.containerRegistries, label: "Registries" },
 			{ ...SHARED_ITEMS.dnsProviders, label: "DNS" },
