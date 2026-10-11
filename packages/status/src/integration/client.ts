@@ -15,6 +15,33 @@
  * rules may go public.
  */
 
+import type {
+	AdminComponentDto,
+	AdminIncidentDto,
+	AdminMaintenanceDto,
+	AdminPageDto,
+	TimelineEventDto,
+} from "../core/dto";
+
+/**
+ * DTO shapes re-exported for consumers (the Notploy Console imports them from
+ * `@notploy/status/client` so it never has to pull the whole engine just for
+ * types).
+ */
+export type {
+	AdminComponentDto,
+	AdminIncidentDto,
+	AdminMaintenanceDto,
+	AdminPageDto,
+	TimelineEventDto,
+} from "../core/dto";
+export type {
+	IncidentSeverity,
+	IncidentState,
+	MaintenanceState,
+	Visibility,
+} from "../core/types";
+
 export interface StatusPublisherOptions {
 	/** Base URL of the status instance, e.g. `https://status.notploy.com`. */
 	baseUrl: string;
@@ -41,11 +68,41 @@ export interface PublisherIncidentInput {
 	title: string;
 	description?: string;
 	severity?: "minor" | "major" | "critical";
+	state?:
+		| "investigating"
+		| "identified"
+		| "monitoring"
+		| "resolved";
 	visibility?: "public" | "private";
 	published?: boolean;
 	componentIds?: string[];
 	correlationKey?: string;
 	updateMessage?: string;
+}
+
+/** Partial edit of an existing incident (`PATCH /admin/incidents/:id`). */
+export interface PublisherIncidentPatch {
+	title?: string;
+	description?: string;
+	severity?: "minor" | "major" | "critical";
+	visibility?: "public" | "private";
+	componentIds?: string[];
+}
+
+/** Partial edit of an existing maintenance (`PATCH /admin/maintenances/:id`). */
+export interface PublisherMaintenancePatch {
+	title?: string;
+	description?: string;
+	componentIds?: string[];
+	startAt?: string;
+	endAt?: string;
+	timeZone?: string;
+	visibility?: "public" | "private";
+}
+
+export interface ListOptions {
+	/** Include drafts and private entries (default `true`). */
+	includeUnpublished?: boolean;
 }
 
 export class StatusPublisherError extends Error {
@@ -76,12 +133,12 @@ export class StatusPublisher {
 		this.options = { retries: 3, retryDelayMs: 500, ...options };
 	}
 
-	private async request(
+	private async request<T = unknown>(
 		method: string,
 		path: string,
 		body?: unknown,
 		idempotencyKey?: string,
-	): Promise<unknown> {
+	): Promise<T> {
 		const doFetch = this.options.fetchImpl ?? fetch;
 		let attempt = 0;
 		let lastError: unknown = null;
@@ -107,7 +164,7 @@ export class StatusPublisher {
 					},
 				);
 				const text = await response.text();
-				const parsed = text ? (JSON.parse(text) as unknown) : null;
+				const parsed = (text ? (JSON.parse(text) as unknown) : null) as T;
 				this.options.onResult?.({
 					method,
 					path,
@@ -137,32 +194,33 @@ export class StatusPublisher {
 	}
 
 	/** Create an incident (optionally published immediately). */
-	createIncident(input: PublisherIncidentInput): Promise<unknown> {
+	createIncident(input: PublisherIncidentInput): Promise<AdminIncidentDto> {
 		return this.request(
 			"POST",
 			`/api/v1/admin/pages/${encodeURIComponent(input.pageRef)}/incidents`,
-			{
-				title: input.title,
-				description: input.description ?? "",
-				severity: input.severity ?? "minor",
-				visibility: input.visibility ?? "private",
-				published: input.published ?? false,
-				componentIds: input.componentIds ?? [],
-				correlationKey: input.correlationKey,
-				update: input.updateMessage
-					? { message: input.updateMessage }
-					: undefined,
-			},
-			randomKey(),
-		);
-	}
+		{
+			title: input.title,
+			description: input.description ?? "",
+			severity: input.severity ?? "minor",
+			state: input.state,
+			visibility: input.visibility ?? "private",
+			published: input.published ?? false,
+			componentIds: input.componentIds ?? [],
+			correlationKey: input.correlationKey,
+			update: input.updateMessage
+				? { message: input.updateMessage }
+				: undefined,
+		},
+		randomKey(),
+	);
+}
 
 	/** Publish (or withdraw) an incident. */
 	publish(
 		incidentId: string,
 		published: boolean,
 		visibility?: "public" | "private",
-	): Promise<unknown> {
+	): Promise<AdminIncidentDto | AdminMaintenanceDto> {
 		return this.request(
 			"POST",
 			`/api/v1/admin/incidents/${encodeURIComponent(incidentId)}/publish`,
@@ -176,7 +234,7 @@ export class StatusPublisher {
 		incidentId: string,
 		message: string,
 		options: { state?: string; visibility?: "public" | "private" } = {},
-	): Promise<unknown> {
+	): Promise<AdminIncidentDto> {
 		return this.request(
 			"POST",
 			`/api/v1/admin/incidents/${encodeURIComponent(incidentId)}/updates`,
@@ -194,7 +252,7 @@ export class StatusPublisher {
 		incidentId: string,
 		state: string,
 		message?: string,
-	): Promise<unknown> {
+	): Promise<AdminIncidentDto> {
 		return this.request(
 			"POST",
 			`/api/v1/admin/incidents/${encodeURIComponent(incidentId)}/state`,
@@ -204,7 +262,7 @@ export class StatusPublisher {
 	}
 
 	/** Resolve an incident with an optional public message. */
-	resolve(incidentId: string, message?: string): Promise<unknown> {
+	resolve(incidentId: string, message?: string): Promise<AdminIncidentDto> {
 		return this.setState(incidentId, "resolved", message);
 	}
 
@@ -219,7 +277,7 @@ export class StatusPublisher {
 		componentIds?: string[];
 		visibility?: "public" | "private";
 		published?: boolean;
-	}): Promise<unknown> {
+	}): Promise<AdminMaintenanceDto> {
 		return this.request(
 			"POST",
 			`/api/v1/admin/pages/${encodeURIComponent(input.pageRef)}/maintenances`,
@@ -277,6 +335,126 @@ export class StatusPublisher {
 		return this.request(
 			"GET",
 			`/api/v1/integration/pages/${encodeURIComponent(pageSlug)}/components/${encodeURIComponent(componentId)}/state`,
+		);
+	}
+
+	/* ---------------------------------------------------------------------- *
+	 * Administration reads — let a control plane (Notploy Console) present a *
+	 * unified view of everything that happened, whoever introduced it: an    *
+	 * incident created here, on the admin UI or by the monitoring agent all  *
+	 * lives in the same platform and answers the same endpoints.             *
+	 * ---------------------------------------------------------------------- */
+
+	/** Every configured status page (including drafts). */
+	listPages(): Promise<{ items: AdminPageDto[] }> {
+		return this.request("GET", "/api/v1/admin/pages");
+	}
+
+	/** Components of a page, private ones included. */
+	listComponents(pageRef: string): Promise<{ items: AdminComponentDto[] }> {
+		return this.request(
+			"GET",
+			`/api/v1/admin/pages/${encodeURIComponent(pageRef)}/components`,
+		);
+	}
+
+	/** Incidents of a page, newest first; drafts included by default. */
+	listIncidents(
+		pageRef: string,
+		options: ListOptions = {},
+	): Promise<{ items: AdminIncidentDto[] }> {
+		const includeUnpublished = options.includeUnpublished !== false;
+		return this.request(
+			"GET",
+			`/api/v1/admin/pages/${encodeURIComponent(pageRef)}/incidents?includeUnpublished=${includeUnpublished}`,
+		);
+	}
+
+	/** Single incident, private fields included. */
+	getIncident(incidentId: string): Promise<AdminIncidentDto> {
+		return this.request(
+			"GET",
+			`/api/v1/admin/incidents/${encodeURIComponent(incidentId)}`,
+		);
+	}
+
+	/** Full timeline of an incident, internal entries included. */
+	getIncidentTimeline(incidentId: string): Promise<{ items: TimelineEventDto[] }> {
+		return this.request(
+			"GET",
+			`/api/v1/admin/incidents/${encodeURIComponent(incidentId)}/timeline`,
+		);
+	}
+
+	/** Edit an existing incident (title, description, severity, …). */
+	updateIncident(
+		incidentId: string,
+		input: PublisherIncidentPatch,
+	): Promise<AdminIncidentDto> {
+		return this.request(
+			"PATCH",
+			`/api/v1/admin/incidents/${encodeURIComponent(incidentId)}`,
+			input,
+			randomKey(),
+		);
+	}
+
+	/** Delete an incident that was never published. */
+	deleteIncident(incidentId: string): Promise<{ deleted: boolean }> {
+		return this.request(
+			"DELETE",
+			`/api/v1/admin/incidents/${encodeURIComponent(incidentId)}`,
+			undefined,
+			randomKey(),
+		);
+	}
+
+	/** Maintenances of a page; drafts included by default. */
+	listMaintenances(
+		pageRef: string,
+		options: ListOptions = {},
+	): Promise<{ items: AdminMaintenanceDto[] }> {
+		const includeUnpublished = options.includeUnpublished !== false;
+		return this.request(
+			"GET",
+			`/api/v1/admin/pages/${encodeURIComponent(pageRef)}/maintenances?includeUnpublished=${includeUnpublished}`,
+		);
+	}
+
+	/** Edit an existing maintenance window. */
+	updateMaintenance(
+		maintenanceId: string,
+		input: PublisherMaintenancePatch,
+	): Promise<AdminMaintenanceDto> {
+		return this.request(
+			"PATCH",
+			`/api/v1/admin/maintenances/${encodeURIComponent(maintenanceId)}`,
+			input,
+			randomKey(),
+		);
+	}
+
+	/** Transition a maintenance (`scheduled`, `in_progress`, `completed`, `cancelled`). */
+	setMaintenanceState(
+		maintenanceId: string,
+		state: string,
+		message?: string,
+	): Promise<AdminMaintenanceDto> {
+		return this.request(
+			"POST",
+			`/api/v1/admin/maintenances/${encodeURIComponent(maintenanceId)}/state`,
+			{ state, message },
+			randomKey(),
+		);
+	}
+
+	/** Delete a maintenance that was never published. */
+	deleteMaintenance(maintenanceId: string): Promise<{ deleted: boolean }> {
+		return this.request(
+			"DELETE",
+			`/api/v1/admin/maintenances/${encodeURIComponent(maintenanceId)}`,
+			undefined,
+			randomKey(),
 		);
 	}
 }

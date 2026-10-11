@@ -147,3 +147,15 @@ export {
 	scopeAllows,
 	parseScopes,
 } from "./auth/tokens";
+
+// Re-export the StatusPublisher client for backwards compatibility
+export {
+	StatusPublisher,
+	StatusPublisherError,
+	createStatusPublisher,
+	type StatusPublisherOptions,
+	type PublisherIncidentInput,
+	type PublisherIncidentPatch,
+	type PublisherMaintenancePatch,
+	type ListOptions,
+} from "./integration/client";

@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Base styles for Notploy Voyager */
+  html {
+    font-family: 'Inter', 'System';
+  }
+  
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
+
+@layer components {
+  /* Custom Notploy components */
+  .btn-primary {
+    @apply bg-primary-600 text-white px-4 py-2 rounded-lg font-medium 
+           hover:bg-primary-700 active:bg-primary-800 
+           transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-100 dark:bg-secondary-800 text-secondary-900 dark:text-secondary-100
+           px-4 py-2 rounded-lg font-medium
+           hover:bg-secondary-200 dark:hover:bg-secondary-700
+           transition-colors duration-200;
+  }
+  
+  .btn-danger {
+    @apply bg-red-600 text-white px-4 py-2 rounded-lg font-medium
+           hover:bg-red-700 active:bg-red-800
+           transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-surface dark:bg-surface-dark rounded-xl p-4 
+           shadow-sm dark:shadow-lg;
+  }
+  
+  .input {
+    @apply bg-surface dark:bg-surface-dark border border-border-light dark:border-border-dark
+           rounded-lg px-3 py-2 text-foreground dark:text-foreground
+           placeholder:text-muted-foreground dark:placeholder:text-muted-foreground;
+  }
+  
+  .badge-success {
+    @apply bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300
+           px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-warning {
+    @apply bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300
+           px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-error {
+    @apply bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300
+           px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-info {
+    @apply bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300
+           px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+}
+
+@layer utilities {
+  /* Custom utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+/* Notploy specific CSS variables */
+:root {
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --foreground: #0f172a;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+}
+
+.dark {
+  --background: #0f172a;
+  --surface: #1e293b;
+  --foreground: #f8fafc;
+  --muted-foreground: #94a3b8;
+  --border: #334155;
+  
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+}

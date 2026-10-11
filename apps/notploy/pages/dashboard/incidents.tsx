@@ -1,21 +1,47 @@
-import { TriangleAlert } from "lucide-react";
+import { validateRequest } from "@notploy/server";
+import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
-import { ConsoleComingSoon } from "@/components/dashboard/console/console-coming-soon";
+import { ShowIncidents } from "@/components/dashboard/incidents/show-incidents";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
-import { consolePageProps } from "@/lib/console-page";
+import { loadStatusOverview, type StatusOverview } from "@/lib/status";
 
-export default function IncidentsPage() {
-	return (
-		<ConsoleComingSoon
-			icon={TriangleAlert}
-			title="Incidents"
-			description="Track and manage platform incidents and their resolution timeline."
-		/>
-	);
+interface IncidentsPageProps {
+	overview: StatusOverview;
 }
 
-IncidentsPage.getLayout = (page: ReactElement) => {
+const Page = ({ overview }: IncidentsPageProps) => {
+	return <ShowIncidents overview={overview} />;
+};
+
+export default Page;
+
+Page.getLayout = (page: ReactElement) => {
 	return <DashboardLayout>{page}</DashboardLayout>;
 };
 
-export const getServerSideProps = consolePageProps;
+/**
+ * The console mirrors the whole status platform, so only platform operators
+ * may see and drive it — same guard as the Blog page of the Website section.
+ * The data itself comes from the status instance over HTTP (see
+ * `@/lib/status`), which also picks up incidents introduced directly from
+ * the status page or by the monitoring agent.
+ */
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+	const { user } = await validateRequest(ctx.req);
+	if (!user || (user.role !== "owner" && user.role !== "admin")) {
+		return {
+			redirect: {
+				permanent: false,
+				destination: "/",
+			},
+		};
+	}
+
+	const overview = await loadStatusOverview();
+
+	return {
+		props: {
+			overview,
+		},
+	};
+}

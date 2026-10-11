@@ -2,6 +2,10 @@
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
  * for Docker builds.
  */
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
@@ -9,7 +13,19 @@ const nextConfig = {
 	typescript: {
 		ignoreBuildErrors: true,
 	},
-	transpilePackages: ["@notploy/server"],
+	transpilePackages: ["@notploy/server", "@notploy/status"],
+	webpack: (config) => {
+		// Resolve monorepo packages for transpilation
+		config.resolve.alias["@notploy/status"] = path.resolve(
+			__dirname,
+			"../../packages/status/src"
+		);
+		config.resolve.alias["@notploy/server"] = path.resolve(
+			__dirname,
+			"../../packages/server/src"
+		);
+		return config;
+	},
 	async headers() {
 		return [
 			{

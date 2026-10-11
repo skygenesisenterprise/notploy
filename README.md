@@ -1,14 +1,21 @@
+<div align="center">
+
 # Notploy
 
 [![License: Apache 2.0](https://img.shields.io/github/license/skygenesisenterprise/notploy)](LICENSE)
 [![Node.js 24](https://img.shields.io/badge/Node.js-24-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![pnpm 10](https://img.shields.io/badge/pnpm-10-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![React Native](https://img.shields.io/badge/React_Native-0.73-61DAFB?logo=react&logoColor=white)](https://reactnative.dev)
+[![Expo](https://img.shields.io/badge/Expo-50-000000?logo=expo&logoColor=white)](https://expo.dev)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/CONTRIBUTING.md)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/qrPgGxRZpW)
 
+</div>
+
 > Deploy and operate applications on infrastructure you own.
 
-**Notploy** is an open-source, self-hostable platform for deploying and operating applications. It provides a web control plane for application and database deployments, Docker Compose projects, servers and clusters. Run it on your own infrastructure, or use [Notploy Cloud](https://app.notploy.com).
+**Notploy** is an open-source, self-hostable platform for deploying and operating applications. It provides a web control plane for application and database deployments, Docker Compose projects, servers and clusters. Run it on your own infrastructure with the full Notploy suite, access it from the **Desktop** client, use the **Voyager** mobile app on the go, or leverage [Notploy Cloud](https://app.notploy.com) for a managed experience.
 
 **Perfect for:** platform and DevOps teams, self-hosting enthusiasts, agencies running client infrastructure, and any team that wants a modern deploy experience without giving up control of the servers.
 
@@ -122,24 +129,55 @@ docker compose down
 
 ## How Notploy is built
 
-Notploy is a pnpm monorepo with a single root lockfile and workspace definition:
+Notploy is a pnpm monorepo with a single root lockfile and workspace definition, organized into applications, shared packages, and web properties:
+
+### Core Applications
 
 | Path | Role |
 | --- | --- |
-| `apps/notploy` | Main web dashboard, API, and application server |
-| `packages/server` | Shared server, deployment, database, and platform logic |
-| `apps/api` | API and background-work service |
-| `apps/schedules` | Scheduled jobs service |
-| `packages/cli` | Notploy command-line client |
-| `packages/sdk` | Generated TypeScript API SDK |
-| `packages/mcp` | Model Context Protocol server |
-| `packages/trpc-openapi`, `packages/github` | Shared API and integration packages |
+| `apps/notploy` | Main web dashboard, API server, and application runtime |
+| `apps/api` | Background work service for async operations |
+| `apps/schedules` | Scheduled jobs and recurring tasks service |
+| `apps/monitoring` | Resource monitoring and metrics collection |
+| `apps/status` | System status and health reporting service |
+
+### Client Applications
+
+| Path | Role |
+| --- | --- |
+| `apps/desktop` | Electron-based desktop client with full feature parity |
+| `apps/voyager` | Expo-based official mobile application for iOS and Android |
+
+### Shared Packages
+
+| Path | Role |
+| --- | --- |
+| `packages/server` | Core server logic, deployment, database, and platform utilities |
+| `packages/sdk` | Generated TypeScript API client for all Notploy services |
+| `packages/cli` | Notploy command-line interface |
+| `packages/mcp` | Model Context Protocol server for AI integrations |
+| `packages/trpc-openapi` | API utilities and OpenAPI integration |
+| `packages/github` | GitHub integration utilities |
+| `packages/vscode` | VS Code extension for Notploy management |
+| `packages/status` | Status page and health check utilities |
+
+### Web Properties
+
+| Path | Role |
+| --- | --- |
 | `web/apps/website` | Official marketing website |
-| `web/apps/docs` | Product documentation |
+| `web/apps/docs` | Product documentation site |
+
+### Templates & Examples
+
+| Path | Role |
+| --- | --- |
 | `templates` | Template gallery, blueprint catalogue, and validation/build scripts |
 | `examples` | Standalone deployment examples; intentionally outside the pnpm workspace |
 
 The root `Dockerfile` has `selfhosted`, `cloud`, and `dev` targets. The default self-hosted image includes deployment tooling; the cloud target uses the same application runtime without that tooling. The root Compose stack runs PostgreSQL and Notploy, while Notploy manages Traefik through the host Docker Engine when needed.
+
+All client applications — Web, Desktop, and Voyager — share the same API contracts through `@notploy/sdk` and consume the same backend services, ensuring consistent behavior across platforms.
 
 ## Development
 
@@ -153,13 +191,39 @@ The root development commands include:
 
 | Command | Purpose |
 | --- | --- |
-| `pnpm dev` | Run the Notploy application |
+| `pnpm dev` | Run the Notploy web application |
 | `pnpm build` | Build workspace packages |
 | `pnpm test` | Run the application test suite |
 | `pnpm typecheck` | Type-check workspace packages |
 | `pnpm lint` | Run Biome checks |
 | `pnpm web:dev` / `pnpm web:build` | Run or build the official website |
 | `pnpm docs:dev` / `pnpm docs:build` | Run or build the documentation site |
+
+### Client Application Development
+
+Each client application has its own development workflow:
+
+**Web Dashboard** (`apps/notploy`):
+```bash
+cd apps/notploy
+pnpm dev
+```
+
+**Desktop Client** (`apps/desktop`):
+```bash
+cd apps/desktop
+pnpm dev
+```
+
+**Mobile App - Voyager** (`apps/voyager`):
+```bash
+cd apps/voyager
+pnpm dev          # Start Expo development server
+pnpm start        # Same as dev
+pnpm android      # Run on Android emulator
+pnpm ios          # Run on iOS simulator
+pnpm build        # Prebuild native projects
+```
 
 The application requires PostgreSQL and its runtime environment configuration. For a ready-to-run local stack with PostgreSQL, use Docker Compose as described above. See `.env.example`, the [installation guide](https://docs.notploy.com/docs/core/installation), and the package scripts for service-specific development commands.
 
@@ -193,6 +257,8 @@ Join the [Notploy Discord](https://discord.gg/2tBnJ3jDJc) for questions, or open
 - Website: [notploy.com](https://notploy.com)
 - Templates: [templates.notploy.com](https://templates.notploy.com)
 - Hosted platform: [app.notploy.com](https://app.notploy.com)
+- Desktop client: See [apps/desktop](apps/desktop)
+- Mobile app (Voyager): See [apps/voyager](apps/voyager)
 
 ### Community
 
