@@ -77,6 +77,7 @@ import {
 	isActiveRoute,
 	type LicenseTier,
 	type Navigation,
+	type NavigationEnvironment,
 	type NavigationItem,
 } from "./navigation";
 import { UpdateServerButton } from "./update-server";
@@ -198,21 +199,24 @@ function LicenseBadge({
 /**
  * Resolves the cloud licence tier of the active workspace.
  *
+ * Licence tiers are a Cloud concept: self-hosted instances are unlicensed and the
+ * Console is an internal operator surface, so both always return `null`. Only the
+ * `cloud` product reports a tier (and only there is the subscription queried).
+ *
  * Local development has no real subscription, so it defaults to the Enterprise
  * licence: that keeps licence gating from blocking developers. The dev stack is
  * the only place NODE_ENV is not "production" (mirrors
  * `allowUnlicensedDevInstance`); production always resolves the real tier.
- * Self-hosted instances are unlicensed and always return `null`.
  */
 function useWorkspaceLicense(): LicenseTier | null {
-	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const { data: product } = api.settings.getProduct.useQuery();
 	const { data: user } = api.user.get.useQuery();
 	const { data: currentPlan } = api.stripe.getCurrentPlan.useQuery(undefined, {
-		enabled: isCloud === true,
+		enabled: product === "cloud",
 		refetchOnWindowFocus: false,
 	});
 
-	if (!isCloud) return null;
+	if (product !== "cloud") return null;
 	if (process.env.NODE_ENV !== "production" || user?.user.isEnterpriseCloud) {
 		return "enterprise";
 	}
@@ -223,9 +227,16 @@ function LogoWrapper() {
 	return <SidebarLogo />;
 }
 
+/**
+ * Default workspace name shown by the operator Console when no organization is
+ * active: the Console is a single-tenant surface run by Sky Genesis Enterprise.
+ */
+const CONSOLE_ORGANIZATION_NAME = "Sky Genesis Enterprise";
+
 function SidebarLogo() {
 	const { state } = useSidebar();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const { data: product } = api.settings.getProduct.useQuery();
 	const { data: user } = api.user.get.useQuery();
 	const { data: session } = api.user.session.useQuery();
 	const {
@@ -240,6 +251,13 @@ function SidebarLogo() {
 	const { isMobile } = useSidebar();
 	const isCollapsed = state === "collapsed" && !isMobile;
 	const { data: activeOrganization } = api.organization.active.useQuery();
+
+	// The Console is the internal operator surface: one workspace, branded after
+	// the company, and no self-service organization creation.
+	const isConsole = product === "console";
+	const organizationDisplayName =
+		activeOrganization?.name ??
+		(isConsole ? CONSOLE_ORGANIZATION_NAME : "Select Organization");
 
 	// Workspace licence, resolved once and shared with the navigation engine.
 	const license = useWorkspaceLicense();
@@ -311,7 +329,7 @@ function SidebarLogo() {
 											)}
 										>
 											<TruncateTooltip
-												text={activeOrganization?.name ?? "Select Organization"}
+												text={organizationDisplayName}
 												className="w-full text-sm font-medium"
 											/>
 											{license && (
@@ -474,13 +492,16 @@ function SidebarLogo() {
 											})}
 										</CommandGroup>
 									</CommandList>
-									{(user?.role === "owner" ||
-										user?.role === "admin" ||
-										isCloud) && (
-										<div className="border-t p-1">
-											<AddOrganization />
-										</div>
-									)}
+									{/* Multi-organization creation belongs to Self-hosted and Cloud; the
+									    Console stays on its single workspace. */}
+									{!isConsole &&
+										(user?.role === "owner" ||
+											user?.role === "admin" ||
+											isCloud) && (
+											<div className="border-t p-1">
+												<AddOrganization />
+											</div>
+										)}
 								</Command>
 							</PopoverContent>
 						</Popover>
@@ -766,13 +787,25 @@ export default function Page({ children }: Props) {
 	});
 
 	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const { data: product } = api.settings.getProduct.useQuery();
 	const license = useWorkspaceLicense();
 
+	// Cloud and Console both report `isCloud`, so only the product tells the two
+	// operator surfaces apart. While the product is still loading, keep the
+	// `isCloud` fallback so a cloud/console instance does not flash the
+	// self-hosted layout before settling.
+	const environment: NavigationEnvironment =
+		product === "console"
+			? "console"
+			: product === "cloud" || (product === undefined && isCloud)
+				? "cloud"
+				: "self";
+
 	const navigation = createNavigation({
-		// Self-hosted Notploy exposes the infrastructure control plane layout,
-		// the hosted product keeps its deployment centric menu untouched. The
-		// `console` environment can be wired later without touching the engine.
-		environment: isCloud ? "cloud" : "self",
+		// Self-hosted exposes the infrastructure control plane, Cloud keeps its
+		// deployment-centric menu, and Console — the internal operator surface —
+		// gets its own four-pole tree.
+		environment,
 		auth,
 		permissions,
 		license,

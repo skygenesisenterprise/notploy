@@ -5,6 +5,7 @@ import {
 	NOTPLOY_ENTITLEMENT_PUBLIC_KEY,
 	NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE,
 	NOTPLOY_FLAVOR,
+	NOTPLOY_PRODUCT,
 	paths,
 } from "../constants/index";
 import {
@@ -83,6 +84,23 @@ const isProtected = (product: NotployProduct) =>
 	protectedProducts.includes(product);
 
 const defaultIdentityDir = () => paths().IDENTITY_PATH;
+
+/**
+ * Product this instance was launched as (`self`, `cloud` or `console`).
+ *
+ * Resolved from the launcher (`NOTPLOY_PRODUCT`, then `NOTPLOY_FLAVOR`, then
+ * `IS_CLOUD`) and used for display decisions such as the UI surface and the
+ * product name. It is deliberately distinct from `getInstallation().product`,
+ * which is authoritative for *authorization* but can differ: the persisted
+ * instance identity is reused while coherent, even when the instance is started
+ * under another product.
+ */
+export const getConfiguredProduct = (): NotployProduct =>
+	resolveProductHint({
+		product: NOTPLOY_PRODUCT,
+		flavor: NOTPLOY_FLAVOR,
+		isCloud: IS_CLOUD,
+	});
 
 /**
  * Builds the installation view. Never throws: invalid identity or entitlement

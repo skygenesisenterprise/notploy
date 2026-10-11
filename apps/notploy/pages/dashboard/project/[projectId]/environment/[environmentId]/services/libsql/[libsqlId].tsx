@@ -40,6 +40,7 @@ import { UseKeyboardNav } from "@/hooks/use-keyboard-nav";
 import { cn } from "@/lib/utils";
 import { appRouter } from "@/server/api/root";
 import { api } from "@/utils/api";
+import { useAppName } from "@/utils/hooks/use-app-name";
 
 type TabState = "projects" | "monitoring" | "settings" | "backups" | "advanced";
 
@@ -57,6 +58,7 @@ const Libsql = (
 
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 	const { data: serverIp } = api.settings.getIp.useQuery();
+	const appName = useAppName();
 
 	return (
 		<div className="pb-10">
@@ -64,7 +66,7 @@ const Libsql = (
 
 			<div className="flex flex-col gap-4">
 				<Head>
-					<title>{`Database: ${data?.name} - ${data?.environment?.project?.name} | Notploy`}</title>
+					<title>{`Database: ${data?.name} - ${data?.environment?.project?.name} | ${appName}`}</title>
 				</Head>
 				<Card className="h-full bg-sidebar  p-2.5 rounded-xl w-full">
 					<div className="rounded-xl bg-background shadow-md ">

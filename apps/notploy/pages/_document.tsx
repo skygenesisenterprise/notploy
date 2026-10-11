@@ -1,4 +1,7 @@
-import { getPublicWhitelabelingConfig, IS_CLOUD } from "@notploy/server";
+import {
+	getConfiguredProduct,
+	getPublicWhitelabelingConfig,
+} from "@notploy/server";
 import NextDocument, {
 	type DocumentContext,
 	type DocumentInitialProps,
@@ -7,6 +10,7 @@ import NextDocument, {
 	Main,
 	NextScript,
 } from "next/document";
+import { productBrandName } from "@/lib/product";
 
 interface WhitelabelingDocumentProps {
 	appName: string | null;
@@ -25,9 +29,9 @@ export default function Document({
 	customCss,
 	baseUrl,
 }: WhitelabelingDocumentProps) {
-	// Cloud is branded as its own product on first paint; a whitelabel app name
-	// (and self-hosted) keep the generic name.
-	const title = appName || (IS_CLOUD ? "Notploy Cloud" : "Notploy");
+	// Brand the product on first paint: Notploy, Notploy Cloud or Notploy
+	// Console. A whitelabel app name overrides the product name.
+	const title = appName || productBrandName(getConfiguredProduct());
 	const description =
 		appDescription || "The Open Source alternative to Netlify, Vercel, Heroku.";
 

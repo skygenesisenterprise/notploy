@@ -1,22 +1,31 @@
 import type { inferRouterOutputs } from "@trpc/server";
 import {
+	Activity,
+	AppWindow,
 	BarChartHorizontalBigIcon,
 	Bell,
 	BlocksIcon,
 	BookIcon,
 	BotIcon,
+	Boxes,
+	Building2,
+	ChartPie,
 	CircleHelp,
 	ClipboardList,
 	Clock,
 	CreditCard,
+	Database,
 	Folder,
 	GalleryVerticalEnd,
+	Gauge,
 	GitBranch,
 	Globe,
 	HardDrive,
 	House,
 	KeyRound,
+	Layers,
 	LayoutGrid,
+	Link2,
 	LogIn,
 	type LucideIcon,
 	Network,
@@ -27,10 +36,12 @@ import {
 	ShieldCheck,
 	Smartphone,
 	Tags,
+	TriangleAlert,
 	User,
 	Users,
 	Vault,
 	Waypoints,
+	Wrench,
 } from "lucide-react";
 import type { AppRouter } from "@/server/api/root";
 
@@ -43,8 +54,11 @@ type PermissionsOutput =
  *
  * - `self`    self-hosted Notploy, exposing the infrastructure control plane.
  * - `cloud`   managed Notploy Cloud, presenting managed services.
- * - `console` platform operator console (reserved). Enabling it only requires
- *             passing `environment: "console"` to `createNavigation`.
+ * - `console` platform operator console (reserved). Spans both the self-hosted
+ *             control plane and the managed Cloud activity, organised as four
+ *             poles (Overview, Infrastructure, Cloud, Resources). Enabling it
+ *             only requires passing `environment: "console"` to
+ *             `createNavigation`.
  */
 export type NavigationEnvironment = "self" | "cloud" | "console";
 
@@ -230,6 +244,9 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 	{
 		id: "home",
 		label: "Overview",
+		// Self-hosted and Cloud share this Overview; the Console declares its own
+		// (see the console-overview section below), so it must not leak here.
+		environments: ["self", "cloud"],
 		items: [
 			{ label: "Home", href: "/dashboard/home", icon: House },
 			{
@@ -404,6 +421,134 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/settings/server",
 				icon: PanelsTopLeft,
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,
+			},
+		],
+	},
+	// Platform operator console. A single surface that spans both the
+	// self-hosted control plane and the managed Cloud activity, so it is
+	// organised as four poles: a synthetic Overview, the technical
+	// Infrastructure, the Cloud business, and the cross-cutting Resources.
+	//
+	// Reserved: nothing renders these sections until `createNavigation` is
+	// called with `environment: "console"`. Destinations without a page yet
+	// are declared with the path they will live at, so the tree stays complete
+	// without duplicating the same decision across several places.
+	{
+		id: "console-overview",
+		label: "Overview",
+		environments: ["console"],
+		items: [
+			{ label: "Home", href: "/dashboard/home", icon: House },
+			{ label: "Projects", href: "/dashboard/projects", icon: Folder },
+			{
+				label: "Monitoring",
+				href: "/dashboard/monitoring",
+				icon: BarChartHorizontalBigIcon,
+				isEnabled: ({ permissions }) => !!permissions?.monitoring.read,
+			},
+			{
+				label: "Incidents",
+				href: "/dashboard/incidents",
+				icon: TriangleAlert,
+			},
+			{
+				label: "Operations",
+				href: "/dashboard/operations",
+				icon: Activity,
+			},
+		],
+	},
+	{
+		id: "console-infrastructure",
+		label: "Infrastructure",
+		environments: ["console"],
+		items: [
+			{
+				label: "Compute",
+				href: "/dashboard/docker",
+				icon: BlocksIcon,
+				activeTab: null,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			{
+				label: "Servers",
+				href: "/dashboard/settings/servers",
+				icon: Server,
+				isEnabled: ({ permissions }) => !!permissions?.server.read,
+			},
+			{
+				label: "Clusters",
+				href: "/dashboard/swarm",
+				icon: Waypoints,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			{
+				label: "Networking",
+				href: "/dashboard/networks",
+				icon: Network,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			{ label: "Storage", href: "/dashboard/storage", icon: Database },
+			{
+				label: "Runtime",
+				href: "/dashboard/containers",
+				icon: Boxes,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			{ label: "Capacity", href: "/dashboard/capacity", icon: Gauge },
+			{ label: "Maintenance", href: "/dashboard/maintenance", icon: Wrench },
+		],
+	},
+	{
+		id: "console-cloud",
+		label: "Cloud",
+		environments: ["console"],
+		items: [
+			{ label: "Workspaces", href: "/dashboard/workspaces", icon: Building2 },
+			{
+				label: "Applications",
+				href: "/dashboard/applications",
+				icon: AppWindow,
+			},
+			{
+				label: "Deployments",
+				href: "/dashboard/deployments",
+				icon: Rocket,
+				activeTab: null,
+				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
+			},
+			{
+				label: "Services",
+				href: "/dashboard/overview",
+				icon: LayoutGrid,
+				activeTab: null,
+				isEnabled: ({ permissions }) => !!permissions?.service.read,
+			},
+			{ label: "Usage", href: "/dashboard/usage", icon: ChartPie },
+			{
+				label: "Billing",
+				href: "/dashboard/settings/billing",
+				icon: CreditCard,
+				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
+			},
+		],
+	},
+	{
+		id: "console-resources",
+		label: "Resources",
+		environments: ["console"],
+		items: [
+			{ ...SHARED_ITEMS.gitProviders, label: "Git" },
+			{ ...SHARED_ITEMS.containerRegistries, label: "Registries" },
+			{ ...SHARED_ITEMS.dnsProviders, label: "DNS" },
+			{ label: "Domains", href: "/dashboard/domains", icon: Link2 },
+			SHARED_ITEMS.objectStorage,
+			SHARED_ITEMS.certificates,
+			{ ...SHARED_ITEMS.secretsManager, label: "Secrets" },
+			{
+				label: "Platform Services",
+				href: "/dashboard/platform-services",
+				icon: Layers,
 			},
 		],
 	},

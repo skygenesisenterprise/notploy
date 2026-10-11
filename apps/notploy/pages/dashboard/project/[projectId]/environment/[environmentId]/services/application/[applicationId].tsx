@@ -51,7 +51,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UseKeyboardNav } from "@/hooks/use-keyboard-nav";
 import { appRouter } from "@/server/api/root";
 import { api } from "@/utils/api";
-import { useWhitelabeling } from "@/utils/hooks/use-whitelabeling";
+import { useAppName } from "@/utils/hooks/use-app-name";
 
 type TabState =
 	| "projects"
@@ -94,8 +94,7 @@ const Service = (
 	const { data: environments } = api.environment.byProjectId.useQuery({
 		projectId: data?.environment?.project?.projectId || "",
 	});
-	const { config: whitelabeling } = useWhitelabeling();
-	const appName = whitelabeling?.appName || "Notploy";
+	const appName = useAppName();
 	const environmentDropdownItems =
 		environments?.map((env) => ({
 			name: env.name,

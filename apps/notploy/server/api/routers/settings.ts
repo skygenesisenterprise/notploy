@@ -14,6 +14,7 @@ import {
 	DEFAULT_UPDATE_DATA,
 	findServerById,
 	getAccessibleServerIds,
+	getConfiguredProduct,
 	getDockerDiskUsage,
 	getLogCleanupStatus,
 	getNotployImageTag,
@@ -90,6 +91,17 @@ import {
 	protectedProcedure,
 	publicProcedure,
 } from "../trpc";
+
+/**
+ * Product this instance was launched as, resolved once per process.
+ *
+ * `IS_CLOUD` is true for both Cloud and Console, so the UI cannot tell the two
+ * operator surfaces apart from that flag alone. The sidebar and page titles
+ * follow how the instance was started (`make docker-dev console`), not the
+ * persisted instance identity — which is authoritative for authorization but may
+ * have been minted for another product.
+ */
+const INSTANCE_PRODUCT = getConfiguredProduct();
 
 export const settingsRouter = createTRPCRouter({
 	getWebServerSettings: protectedProcedure.query(async () => {
@@ -818,7 +830,9 @@ export const settingsRouter = createTRPCRouter({
 					if (!rawMiddleware || typeof rawMiddleware !== "object") continue;
 					middlewares.push({
 						name,
-						type: Object.keys(rawMiddleware as Record<string, unknown>)[0] ?? "unknown",
+						type:
+							Object.keys(rawMiddleware as Record<string, unknown>)[0] ??
+							"unknown",
 					});
 				}
 			}
@@ -852,9 +866,11 @@ export const settingsRouter = createTRPCRouter({
 								.split(",")
 								.map((value) => value.trim())
 								.filter(Boolean),
-							tls: label("tls") === "true" || Object.keys(labels).some(
-								(key) => key.startsWith(`${prefix}tls.`),
-							),
+							tls:
+								label("tls") === "true" ||
+								Object.keys(labels).some((key) =>
+									key.startsWith(`${prefix}tls.`),
+								),
 							provider: "docker",
 						});
 					}
@@ -868,9 +884,7 @@ export const settingsRouter = createTRPCRouter({
 						version = container.Config?.Image ?? null;
 					}
 				} catch {
-					const service = await docker
-						.getService("notploy-traefik")
-						.inspect();
+					const service = await docker.getService("notploy-traefik").inspect();
 					const replicas = service.Spec?.Mode?.Replicated?.Replicas;
 					const tasks = await docker.listTasks({
 						filters: { service: [service.ID], desiredState: ["running"] },
@@ -964,10 +978,11 @@ export const settingsRouter = createTRPCRouter({
 	}),
 	updateServerIp: adminProcedure
 		.input(
-			z.object({					serverIp: z.string().trim().refine(isValidIpAddress, {
-						message:
-							"Enter a valid IPv4 or IPv6 address, e.g. 192.168.1.122 or 2001:db8::10",
-					}),
+			z.object({
+				serverIp: z.string().trim().refine(isValidIpAddress, {
+					message:
+						"Enter a valid IPv4 or IPv6 address, e.g. 192.168.1.122 or 2001:db8::10",
+				}),
 			}),
 		)
 		.mutation(async ({ input, ctx }) => {
@@ -1226,6 +1241,9 @@ export const settingsRouter = createTRPCRouter({
 		}),
 	isCloud: publicProcedure.query(async () => {
 		return IS_CLOUD;
+	}),
+	getProduct: publicProcedure.query(async () => {
+		return INSTANCE_PRODUCT;
 	}),
 	isUserSubscribed: protectedProcedure.query(async ({ ctx }) => {
 		const haveServers = await db.query.server.findMany({

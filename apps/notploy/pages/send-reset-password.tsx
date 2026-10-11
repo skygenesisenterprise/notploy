@@ -1,6 +1,5 @@
-import { IS_CLOUD } from "@notploy/server";
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
-import { generateServerSideHelper } from "@/utils/create-server-helpers";
+import { IS_CLOUD } from "@notploy/server";
 import type { GetServerSidePropsContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -24,6 +23,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { appRouter } from "@/server/api/root";
+import { generateServerSideHelper } from "@/utils/create-server-helpers";
+import { useAppNamePublic } from "@/utils/hooks/use-app-name";
 import { useWhitelabelingPublic } from "@/utils/hooks/use-whitelabeling";
 
 const loginSchema = z.object({
@@ -49,6 +50,7 @@ type AuthResponse = {
 
 export default function Home() {
 	const { config: whitelabeling } = useWhitelabelingPublic();
+	const appName = useAppNamePublic();
 	const [temp, _setTemp] = useState<AuthResponse>({
 		is2FAEnabled: false,
 		authId: "",
@@ -93,9 +95,7 @@ export default function Home() {
 							whitelabeling?.loginLogoUrl || whitelabeling?.logoUrl || undefined
 						}
 					/>
-					<span className="font-medium text-sm">
-						{whitelabeling?.appName || "Notploy"}
-					</span>
+					<span className="font-medium text-sm">{appName}</span>
 				</Link>
 				<CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
 				<CardDescription>

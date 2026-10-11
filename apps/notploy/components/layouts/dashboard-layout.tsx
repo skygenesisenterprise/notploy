@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { api } from "@/utils/api";
-import { useWhitelabeling } from "@/utils/hooks/use-whitelabeling";
+import { useAppName } from "@/utils/hooks/use-app-name";
 import { ImpersonationBar } from "../dashboard/impersonation/impersonation-bar";
 import { HubSpotWidget } from "../shared/HubSpotWidget";
 import Page from "./side";
@@ -121,11 +121,9 @@ export const DashboardLayout = ({ children, metaName }: Props) => {
 	const router = useRouter();
 	const { data: haveRootAccess } = api.user.haveRootAccess.useQuery();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
-	const { config: whitelabeling } = useWhitelabeling();
-	// Cloud is branded as a distinct product in the browser tab; self-hosted
-	// keeps the generic name (unless a whitelabel app name overrides both).
-	const appName =
-		whitelabeling?.appName || (isCloud ? "Notploy Cloud" : "Notploy");
+	// Each environment brands the browser tab: Notploy, Notploy Cloud or
+	// Notploy Console (a whitelabel app name overrides all three).
+	const appName = useAppName();
 	const pageTitle =
 		metaName ?? getDashboardPageTitle(router.pathname, router.query);
 	const { data: currentPlan } = api.stripe.getCurrentPlan.useQuery(undefined, {

@@ -117,9 +117,16 @@ export const hasCapability = (
  * is authoritative.
  */
 export const resolveProductHint = (options: {
+	/** Explicit product override (NOTPLOY_PRODUCT); wins over every hint. */
+	product?: string | null;
 	flavor?: string | null;
 	isCloud?: boolean;
 }): NotployProduct => {
+	const explicit = (options.product ?? "").toLowerCase();
+	if (explicit === "cloud") return "cloud";
+	if (explicit === "console") return "console";
+	if (explicit === "self") return "self";
+
 	const flavor = (options.flavor ?? "").toLowerCase();
 	if (flavor === "cloud") return "cloud";
 	if (flavor === "console") return "console";

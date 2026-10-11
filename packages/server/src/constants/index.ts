@@ -12,6 +12,17 @@ export const IS_CLOUD = process.env.IS_CLOUD === "true";
 export const NOTPLOY_FLAVOR = process.env.NOTPLOY_FLAVOR;
 
 /**
+ * Product the instance was launched as (`self`, `cloud` or `console`).
+ *
+ * This is the launcher's explicit declaration and takes precedence over the
+ * legacy `NOTPLOY_FLAVOR` / `IS_CLOUD` hints. It is *not* an authorization: a
+ * protected product still fails closed without a signed entitlement. It answers
+ * "which surface was started", which is what the console/cloud UI needs even
+ * when a persisted instance identity was minted for another product.
+ */
+export const NOTPLOY_PRODUCT = process.env.NOTPLOY_PRODUCT;
+
+/**
  * Public key Notploy signs cloud/console entitlements with. Only the public half
  * ships here; the signing key is kept offline. Empty by default so a protected
  * product fails closed until a real key is configured.

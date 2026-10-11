@@ -109,7 +109,7 @@ import {
 import { cn } from "@/lib/utils";
 import { appRouter } from "@/server/api/root";
 import { api } from "@/utils/api";
-import { useWhitelabeling } from "@/utils/hooks/use-whitelabeling";
+import { useAppName } from "@/utils/hooks/use-app-name";
 
 export type Services = {
 	serverId?: string | null;
@@ -403,8 +403,7 @@ const EnvironmentPage = (
 			{ projectId: selectedTargetProject },
 			{ enabled: !!selectedTargetProject },
 		);
-	const { config: whitelabeling } = useWhitelabeling();
-	const appName = whitelabeling?.appName || "Notploy";
+	const appName = useAppName();
 
 	const emptyServices =
 		!currentEnvironment ||
