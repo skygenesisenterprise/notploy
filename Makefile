@@ -179,7 +179,7 @@ endif
 # No-op goals that only carry the product flag (see GOAL_PRODUCT above). They
 # exist so `make docker-build cloud` / `make docker-dev -- --self` have a rule
 # to satisfy while the real target reads the product from MAKECMDGOALS.
-self cloud console status --self --cloud --console --status:
+self cloud console --self --cloud --console:
 	@:
 
 # ---------------------------------------------------------------------------

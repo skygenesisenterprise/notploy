@@ -1,5 +1,3 @@
-<div align="center">
-
 # Notploy
 
 [![License: Apache 2.0](https://img.shields.io/github/license/skygenesisenterprise/notploy)](LICENSE)
@@ -7,11 +5,9 @@
 [![pnpm 10](https://img.shields.io/badge/pnpm-10-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![React Native](https://img.shields.io/badge/React_Native-0.73-61DAFB?logo=react&logoColor=white)](https://reactnative.dev)
-[![Expo](https://img.shields.io/badge/Expo-50-000000?logo=expo&logoColor=white)](https://expo.dev)
+[![Expo](https://img.shields.io/badge/Expo-58-000000?logo=expo&logoColor=white)](https://expo.dev)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/CONTRIBUTING.md)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/qrPgGxRZpW)
-
-</div>
 
 > Deploy and operate applications on infrastructure you own.
 
@@ -32,7 +28,13 @@
   - [Quick start](#quick-start)
     - [Self-host with Docker Compose](#self-host-with-docker-compose)
   - [How Notploy is built](#how-notploy-is-built)
+    - [Core Applications](#core-applications)
+    - [Client Applications](#client-applications)
+    - [Shared Packages](#shared-packages)
+    - [Web Properties](#web-properties)
+    - [Templates \& Examples](#templates--examples)
   - [Development](#development)
+    - [Client Application Development](#client-application-development)
   - [FAQ](#faq)
     - [Is Notploy free?](#is-notploy-free)
     - [Do I have to host it myself?](#do-i-have-to-host-it-myself)
