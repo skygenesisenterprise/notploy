@@ -10,6 +10,7 @@ ignoredBuiltDependencies:
   - '@prisma/engines'
   - '@swc/core'
   - '@vscode/vsce-sign'
+  - core-js
   - free-email-domains
   - prisma
 

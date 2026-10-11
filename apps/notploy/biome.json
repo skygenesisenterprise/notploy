@@ -11,9 +11,15 @@
 			"!**/out/**",
 			"!**/coverage/**",
 			"!**/drizzle/**",
+			"!**/release/**",
 			"!__test__/**"
 		],
 		"maxSize": 2097152
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
 	},
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"linter": {
@@ -40,6 +46,7 @@
 			},
 			"suspicious": {
 				"noArrayIndexKey": "off",
+				"noConfusingVoidType": "off",
 				"noExplicitAny": "off",
 				"noRedeclare": "off",
 				"noTsIgnore": "off"

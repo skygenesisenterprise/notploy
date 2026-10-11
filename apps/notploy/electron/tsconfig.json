@@ -1,0 +1,36 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["ES2022"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"types": ["node"],
+		"strict": true,
+		"noUncheckedIndexedAccess": false,
+		"noImplicitOverride": true,
+		"noFallthroughCasesInSwitch": true,
+		"exactOptionalPropertyTypes": false,
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		// TypeScript 7 removed `baseUrl`; without it, `paths` are resolved
+		// relative to this config file, which is what `./` already expressed.
+		"paths": {
+			"@/*": ["./src/*"],
+			// Electron is the shell that runs the app, so the renderer consumes
+			// the app's own shared modules where they already exist — the
+			// ported components keep their `@/lib/...` import paths and resolve
+			// them to the app's `lib/` (TypeScript picks the longest match).
+			"@/lib/*": ["../lib/*"],
+			"@assets/*": ["./assets/*"],
+			// The shared navigation model lives at the root of the workspace
+			// package (`../`), and is imported by both the web app and the
+			// renderer — the one piece of UI logic the two share.
+			"@app/*": ["../*"]
+		}
+	},
+	"include": ["src"],
+	"exclude": ["node_modules", "dist", "out", "release"]
+}
