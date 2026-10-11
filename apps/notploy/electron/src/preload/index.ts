@@ -1,10 +1,24 @@
 /**
  * The IPC bridge.
  *
- * This is the *only* thing the renderer can reach in the main process, and it
- * is deliberately a closed list of operations — no generic `invoke(channel)`,
- * no `ipcRenderer` handle, no Node API. A renderer-side vulnerability therefore
- * has exactly the surface below and nothing more.
+ * This is the *only* thing a page can reach in the main process, and it is a
+ * closed list of operations — no generic `invoke(channel)`, no `ipcRenderer`
+ * handle, no Node API. A renderer-side vulnerability therefore has exactly the
+ * surface below and nothing more.
+ *
+ * **Two surfaces, decided by the document's own origin** (this code runs in the
+ * preload before any page script, and `location` is readable even in a sandboxed
+ * preload):
+ *
+ * - `file://` — the bundled connection gate, the app's own code: the full
+ *   {@link GateBridge} (connections, preferences) plus the native surface.
+ * - anything else — the loaded Notploy instance or dev server: only
+ *   {@link NativeBridge} (info, openExternal, copyText). An instance page must
+ *   not be able to list, switch or mutate the user's other connections.
+ *
+ * This is a belt to the suspenders worn by the main process, which re-checks
+ * the *sender frame's* URL for every gate channel: even a preload that exposed
+ * everything would get `forbidden` when called from remote content.
  *
  * Failures are re-thrown as errors carrying the main process's error `code`, so
  * the UI can branch on `unauthorized` / `forbidden` / `timeout` without parsing
@@ -15,18 +29,16 @@
  */
 
 import { contextBridge, ipcRenderer } from "electron";
-import type { DeepLinkTarget } from "@/shared/deep-link";
-import {
-	IPC_CHANNELS,
-	IPC_EVENTS,
-	type IpcArgs,
-	type IpcChannelName,
-	type IpcResult,
-	type IpcResultOf,
-	type MenuCommand,
-	type NotployBridge,
-	type SerializedError,
+import type {
+	GateBridge,
+	IpcArgs,
+	IpcChannelName,
+	IpcResult,
+	IpcResultOf,
+	NativeBridge,
+	SerializedError,
 } from "@/shared/ipc";
+import { IPC_CHANNELS, IPC_EVENTS } from "@/shared/ipc";
 
 /** An error that crossed the IPC boundary, with its code preserved. */
 export class BridgeError extends Error {
@@ -55,13 +67,37 @@ async function invoke<K extends IpcChannelName>(
 	throw new BridgeError(result.error);
 }
 
-const bridge: NotployBridge = {
+/** The surface every document gets: version info and the two OS round-trips. */
+const native: NativeBridge = {
 	app: {
 		info: () => invoke(IPC_CHANNELS.appInfo),
 		openExternal: (url) => invoke(IPC_CHANNELS.appOpenExternal, url),
 		copyText: (text) => invoke(IPC_CHANNELS.appCopyText, text),
-		getPreferences: () => invoke(IPC_CHANNELS.preferencesGet),
-		updatePreferences: (patch) => invoke(IPC_CHANNELS.preferencesUpdate, patch),
+	},
+};
+
+/**
+ * True when this document is the app's own bundled gate page.
+ *
+ * `location.protocol` is available before any page script runs, and a `file://`
+ * document can only be the gate: the content policy cancels every other local
+ * load, and no navigation to `file://` is ever allowed from http(s) content.
+ */
+function isLocalGate(): boolean {
+	try {
+		return window.location.protocol === "file:";
+	} catch {
+		// A preload that cannot read its own document must assume the worst.
+		return false;
+	}
+}
+
+const gate: GateBridge = {
+	...native,
+
+	preferences: {
+		get: () => invoke(IPC_CHANNELS.preferencesGet),
+		update: (patch) => invoke(IPC_CHANNELS.preferencesUpdate, patch),
 	},
 
 	connections: {
@@ -85,100 +121,9 @@ const bridge: NotployBridge = {
 			};
 		},
 	},
-
-	overview: {
-		summary: (connectionId) =>
-			invoke(IPC_CHANNELS.overviewSummary, connectionId),
-	},
-
-	projects: {
-		list: () => invoke(IPC_CHANNELS.projectsList),
-		environments: (projectId) =>
-			invoke(IPC_CHANNELS.environmentsList, projectId),
-	},
-
-	applications: {
-		list: (query) => invoke(IPC_CHANNELS.applicationsList, query),
-		logs: (applicationId, tail) =>
-			invoke(IPC_CHANNELS.applicationsLogs, applicationId, tail),
-		action: (request) => invoke(IPC_CHANNELS.applicationsAction, request),
-	},
-
-	deployments: {
-		list: (query) => invoke(IPC_CHANNELS.deploymentsList, query),
-		queue: () => invoke(IPC_CHANNELS.deploymentsQueue),
-		logs: (deploymentId, tail) =>
-			invoke(IPC_CHANNELS.deploymentsLogs, deploymentId, tail),
-		action: (request) => invoke(IPC_CHANNELS.deploymentsAction, request),
-	},
-
-	infrastructure: {
-		servers: () => invoke(IPC_CHANNELS.infrastructureServers),
-		containers: (serverId) =>
-			invoke(IPC_CHANNELS.infrastructureContainers, serverId),
-		containerConfig: (containerId, serverId) =>
-			invoke(IPC_CHANNELS.infrastructureContainerConfig, containerId, serverId),
-		containerAction: (request) =>
-			invoke(IPC_CHANNELS.infrastructureContainerAction, request),
-		images: (serverId) => invoke(IPC_CHANNELS.infrastructureImages, serverId),
-		volumes: (serverId) => invoke(IPC_CHANNELS.infrastructureVolumes, serverId),
-		networks: (serverId) =>
-			invoke(IPC_CHANNELS.infrastructureNetworks, serverId),
-		swarmNodes: (serverId) =>
-			invoke(IPC_CHANNELS.infrastructureSwarm, serverId),
-	},
-
-	monitoring: {
-		serverHealth: (serverId) =>
-			invoke(IPC_CHANNELS.monitoringServerHealth, serverId),
-		diskUsage: () => invoke(IPC_CHANNELS.monitoringDiskUsage),
-	},
-
-	databases: {
-		list: (query) => invoke(IPC_CHANNELS.databasesList, query),
-		one: (engine, databaseId) =>
-			invoke(IPC_CHANNELS.databasesOne, engine, databaseId),
-		action: (request) => invoke(IPC_CHANNELS.databasesAction, request),
-		logs: (engine, databaseId, tail) =>
-			invoke(IPC_CHANNELS.databasesLogs, engine, databaseId, tail),
-		changePassword: (engine, databaseId, password) =>
-			invoke(
-				IPC_CHANNELS.databasesChangePassword,
-				engine,
-				databaseId,
-				password,
-			),
-	},
-
-	notifications: {
-		list: () => invoke(IPC_CHANNELS.notificationsList),
-	},
-
-	operations: {
-		tags: () => invoke(IPC_CHANNELS.operationsTags),
-		certificates: () => invoke(IPC_CHANNELS.operationsCertificates),
-		sshKeys: () => invoke(IPC_CHANNELS.operationsSshKeys),
-		registries: () => invoke(IPC_CHANNELS.operationsRegistries),
-		destinations: () => invoke(IPC_CHANNELS.operationsDestinations),
-	},
-
-	onMenuCommand: (listener) => {
-		const handler = (_event: unknown, command: MenuCommand) =>
-			listener(command);
-		ipcRenderer.on(IPC_EVENTS.menuCommand, handler);
-		return () => {
-			ipcRenderer.removeListener(IPC_EVENTS.menuCommand, handler);
-		};
-	},
-
-	onDeepLink: (listener) => {
-		const handler = (_event: unknown, target: DeepLinkTarget) =>
-			listener(target);
-		ipcRenderer.on(IPC_EVENTS.deepLink, handler);
-		return () => {
-			ipcRenderer.removeListener(IPC_EVENTS.deepLink, handler);
-		};
-	},
 };
 
-contextBridge.exposeInMainWorld("notploy", bridge);
+contextBridge.exposeInMainWorld(
+	"notploy",
+	isLocalGate() ? gate : (native satisfies NativeBridge),
+);

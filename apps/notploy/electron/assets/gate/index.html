@@ -1,0 +1,511 @@
+<!doctype html>
+<!--
+	The connection gate: the only page this app bundles itself.
+
+	It is shown when no Notploy instance is configured yet, and it exists
+	because *choosing* an instance is desktop-native configuration (a local
+	URL list plus a credential in the OS keychain), not product UI — every
+	screen after this one is the real Notploy application, loaded from the
+	instance itself.
+
+	No framework and no build step on purpose: the page is a few hundred lines
+	of DOM manipulation over the typed GateBridge, so there is nothing to
+	bundle, nothing to keep in step with the app's toolchain, and no second
+	renderer to maintain. The palette is Notploy's own (`styles/globals.css`),
+	so the gate and the dashboard resolve to the same pixels.
+-->
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' file:; form-action 'none'; frame-ancestors 'none'"
+		/>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Notploy — Connect an instance</title>
+		<style>
+			:root {
+				--background: oklch(0.9195 0.0169 88.003);
+				--foreground: oklch(0.235 0 0);
+				--card: oklch(0.953 0.0156 86.4257);
+				--card-foreground: oklch(0.235 0 0);
+				--muted: oklch(0.834 0.0232 87.163);
+				--muted-foreground: oklch(0.4688 0.0136 84.5932);
+				--border: oklch(0.8434 0.0231 87.1621);
+				--primary: oklch(0.3012 0 0);
+				--primary-foreground: oklch(0.9169 0.0175 99.616);
+				--destructive: oklch(0.5771 0.2152 27.325);
+				--ok: oklch(0.6277 0.1458 149.214);
+				--warn: oklch(0.769 0.1557 70.08);
+				--radius: 0.5rem;
+				--font-sans:
+					var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Segoe UI",
+					sans-serif;
+			}
+			* {
+				box-sizing: border-box;
+			}
+			body {
+				margin: 0;
+				min-height: 100vh;
+				background: var(--background);
+				color: var(--foreground);
+				font-family: var(--font-sans);
+				font-size: 14px;
+				line-height: 1.5;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 2rem;
+			}
+			main {
+				width: 100%;
+				max-width: 34rem;
+			}
+			header {
+				margin-bottom: 1.5rem;
+			}
+			h1 {
+				font-size: 1.25rem;
+				font-weight: 600;
+				margin: 0 0 0.25rem;
+			}
+			p.lede {
+				margin: 0;
+				color: var(--muted-foreground);
+			}
+			section.card {
+				background: var(--card);
+				color: var(--card-foreground);
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				padding: 1rem;
+				margin-bottom: 1rem;
+			}
+			section.card h2 {
+				font-size: 0.8rem;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+				color: var(--muted-foreground);
+				margin: 0 0 0.75rem;
+			}
+			label {
+				display: block;
+				font-size: 0.8rem;
+				font-weight: 500;
+				margin-bottom: 0.25rem;
+			}
+			fieldset {
+				border: 0;
+				padding: 0;
+				margin: 0 0 0.75rem;
+			}
+			input[type="text"],
+			input[type="url"],
+			input[type="password"] {
+				width: 100%;
+				padding: 0.5rem 0.625rem;
+				border: 1px solid var(--border);
+				border-radius: calc(var(--radius) - 2px);
+				background: var(--background);
+				color: var(--foreground);
+				font: inherit;
+			}
+			input:focus-visible,
+			button:focus-visible {
+				outline: 2px solid var(--primary);
+				outline-offset: 1px;
+			}
+			.row {
+				display: flex;
+				gap: 0.5rem;
+				align-items: center;
+			}
+			button {
+				font: inherit;
+				font-weight: 500;
+				padding: 0.5rem 0.875rem;
+				border-radius: calc(var(--radius) - 2px);
+				border: 1px solid var(--border);
+				background: var(--card);
+				color: var(--card-foreground);
+				cursor: pointer;
+			}
+			button:hover {
+				background: var(--muted);
+			}
+			button.primary {
+				background: var(--primary);
+				color: var(--primary-foreground);
+				border-color: var(--primary);
+			}
+			button.primary:hover {
+				filter: brightness(1.15);
+			}
+			button.danger {
+				color: var(--destructive);
+			}
+			button.small {
+				padding: 0.25rem 0.5rem;
+				font-size: 0.8rem;
+			}
+			button:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+			ul.connections {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+			ul.connections li {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				padding: 0.625rem 0.75rem;
+				border: 1px solid var(--border);
+				border-radius: calc(var(--radius) - 2px);
+				background: var(--background);
+			}
+			ul.connections li.active {
+				border-color: var(--primary);
+			}
+			.meta {
+				flex: 1;
+				min-width: 0;
+			}
+			.name {
+				font-weight: 600;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.url {
+				color: var(--muted-foreground);
+				font-size: 0.8rem;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.dot {
+				width: 0.5rem;
+				height: 0.5rem;
+				border-radius: 999px;
+				background: var(--muted-foreground);
+				flex-shrink: 0;
+			}
+			.dot.connected {
+				background: var(--ok);
+			}
+			.dot.checking {
+				background: var(--warn);
+			}
+			.dot.unavailable,
+			.dot.disconnected {
+				background: var(--destructive);
+			}
+			.empty {
+				color: var(--muted-foreground);
+				font-size: 0.9rem;
+				margin: 0;
+			}
+			.prefs {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+			.prefs label {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				font-weight: 400;
+				margin: 0;
+				cursor: pointer;
+			}
+			.status {
+				min-height: 1.25rem;
+				font-size: 0.85rem;
+				color: var(--destructive);
+				margin-top: 0.5rem;
+			}
+			footer {
+				color: var(--muted-foreground);
+				font-size: 0.8rem;
+				display: flex;
+				justify-content: space-between;
+				gap: 1rem;
+			}
+			code {
+				font-size: 0.8em;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<header>
+				<h1>Connect a Notploy instance</h1>
+				<p class="lede">
+					The dashboard of the instance you choose is loaded right here. The
+					API key is stored in your operating system's keychain, never on disk
+					in the clear.
+				</p>
+			</header>
+
+			<section class="card" id="add-card">
+				<h2>Add an instance</h2>
+				<form id="add-form">
+					<fieldset>
+						<label for="name">Name</label>
+						<input
+							type="text"
+							id="name"
+							name="name"
+							placeholder="Production"
+							autocomplete="off"
+							required
+						/>
+					</fieldset>
+					<fieldset>
+						<label for="url">Dashboard URL</label>
+						<input
+							type="url"
+							id="url"
+							name="url"
+							placeholder="https://notploy.example.com"
+							autocomplete="url"
+							required
+						/>
+					</fieldset>
+					<fieldset>
+						<label for="apikey">API key (optional, for background checks)</label>
+						<input
+							type="password"
+							id="apikey"
+							name="apikey"
+							placeholder="npk_…"
+							autocomplete="off"
+						/>
+					</fieldset>
+					<div class="row">
+						<button type="submit" class="primary" id="add-submit">
+							Add and open
+						</button>
+					</div>
+					<p class="status" id="add-status" role="status"></p>
+				</form>
+			</section>
+
+			<section class="card" id="list-card">
+				<h2>Configured instances</h2>
+				<ul class="connections" id="connections"></ul>
+				<p class="empty" id="empty">
+					No instance configured yet.
+				</p>
+			</section>
+
+			<section class="card">
+				<h2>Desktop preferences</h2>
+				<div class="prefs">
+					<label>
+						<input type="checkbox" id="pref-notify" />
+						Notify me when a deployment finishes
+					</label>
+					<label>
+						<input type="checkbox" id="pref-tray" />
+						Keep running in the system tray when the window closes
+					</label>
+				</div>
+			</section>
+
+			<footer>
+				<span id="version">Notploy</span>
+				<span
+					>Press <code>Ctrl/Cmd+N</code> to return here from anywhere</span
+				>
+			</footer>
+		</main>
+
+		<script>
+			(() => {
+				"use strict";
+				// The typed GateBridge, injected by the sandboxed preload. The
+				// bridge's absence means the preload failed to load — the one
+				// failure this page can meaningfully report.
+				const bridge = window.notploy;
+				if (!bridge || !bridge.connections) {
+					document.getElementById("add-status").textContent =
+						"The desktop bridge is unavailable. Restart Notploy.";
+					return;
+				}
+
+				const connectionsEl = document.getElementById("connections");
+				const emptyEl = document.getElementById("empty");
+				const addStatus = document.getElementById("add-status");
+				const form = document.getElementById("add-form");
+				const submit = document.getElementById("add-submit");
+
+				const escape = (value) =>
+					String(value ?? "").replace(
+						/[&<>"']/g,
+						(ch) =>
+							({
+								"&": "&amp;",
+								"<": "&lt;",
+								">": "&gt;",
+								'"': "&quot;",
+								"'": "&#39;",
+							})[ch],
+					);
+
+				const STATUS_LABELS = {
+					connected: "Connected",
+					checking: "Checking…",
+					unavailable: "Unreachable",
+					disconnected: "No API key",
+					unknown: "Not checked",
+				};
+
+				function render(list) {
+					connectionsEl.replaceChildren();
+					emptyEl.hidden = list.length > 0;
+
+					for (const connection of list) {
+						const item = document.createElement("li");
+						if (connection.active) item.classList.add("active");
+
+						const dot = document.createElement("span");
+						dot.className = `dot ${connection.status}`;
+						dot.title = STATUS_LABELS[connection.status] ?? connection.status;
+
+						const meta = document.createElement("div");
+						meta.className = "meta";
+						const name = document.createElement("div");
+						name.className = "name";
+						name.textContent =
+							(connection.active ? "● " : "") + connection.name;
+						const url = document.createElement("div");
+						url.className = "url";
+						url.textContent = connection.url;
+						meta.append(name, url);
+
+						const open = button("Open", "primary small", async () => {
+							setStatus(addStatus, "");
+							try {
+								await bridge.connections.setActive(connection.id);
+								await bridge.connections.test(connection.id);
+							} catch (error) {
+								setStatus(addStatus, error.message);
+							}
+						});
+
+						const check = button("Check", "small", async () => {
+							try {
+								await bridge.connections.test(connection.id);
+							} catch (error) {
+								setStatus(addStatus, error.message);
+							}
+						});
+
+						const remove = button("Remove", "small danger", async () => {
+							const confirmed = window.confirm(
+								`Remove "${connection.name}" from Notploy Desktop? ` +
+									"The instance itself is not touched.",
+							);
+							if (!confirmed) return;
+							try {
+								await bridge.connections.remove(connection.id);
+							} catch (error) {
+								setStatus(addStatus, error.message);
+							}
+						});
+
+						item.append(dot, meta, open, check, remove);
+						connectionsEl.append(item);
+					}
+				}
+
+				function button(label, classes, onClick) {
+					const element = document.createElement("button");
+					element.type = "button";
+					element.className = classes;
+					element.textContent = label;
+					element.addEventListener("click", onClick);
+					return element;
+				}
+
+				function setStatus(element, message) {
+					element.textContent = message;
+				}
+
+				form.addEventListener("submit", async (event) => {
+					event.preventDefault();
+					submit.disabled = true;
+					setStatus(addStatus, "");
+					try {
+						const created = await bridge.connections.add({
+							name: document.getElementById("name").value.trim(),
+							url: document.getElementById("url").value.trim(),
+						});
+						const apiKey = document.getElementById("apikey").value;
+						if (apiKey) {
+							// Stored only after the instance accepts the key: a rejected
+							// key is never written to the keychain.
+							await bridge.connections.login(created.id, apiKey);
+						}
+						await bridge.connections.setActive(created.id);
+						await bridge.connections.test(created.id);
+						form.reset();
+					} catch (error) {
+						setStatus(addStatus, error?.message ?? String(error));
+					} finally {
+						submit.disabled = false;
+					}
+				});
+
+				// Preferences: two toggles that change main-process behaviour.
+				const notify = document.getElementById("pref-notify");
+				const tray = document.getElementById("pref-tray");
+				async function loadPreferences() {
+					try {
+						const prefs = await bridge.preferences.get();
+						notify.checked = prefs.notifyDeploymentOutcomes;
+						tray.checked = prefs.closeToTray;
+					} catch {
+						// Preferences are advisory; the gate still works without them.
+					}
+				}
+				for (const input of [notify, tray]) {
+					input.addEventListener("change", async () => {
+						try {
+							await bridge.preferences.update({
+								notifyDeploymentOutcomes: notify.checked,
+								closeToTray: tray.checked,
+							});
+						} catch (error) {
+							setStatus(addStatus, error?.message ?? String(error));
+						}
+					});
+				}
+
+				bridge.app
+					.info()
+					.then((info) => {
+						document.getElementById("version").textContent =
+							`Notploy ${info.version} · ${info.platform}/${info.arch}`;
+					})
+					.catch(() => {});
+
+				bridge.connections
+					.list()
+					.then(render)
+					.catch((error) => setStatus(addStatus, error.message));
+				bridge.connections.onChanged(render);
+				loadPreferences();
+			})();
+		</script>
+	</body>
+</html>

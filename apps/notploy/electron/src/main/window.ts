@@ -1,6 +1,13 @@
 /**
  * The application window.
  *
+ * The window is a **shell around the real Notploy application**: it loads the
+ * active instance's dashboard (or the bundled connection gate while none is
+ * configured), never a desktop-specific copy of the interface. That is why
+ * there is no renderer bundle in this app any more — the pages, components,
+ * navigation and business logic all belong to `apps/notploy` and are served
+ * by the instance itself.
+ *
  * The `webPreferences` below are the security boundary, and each one is
  * load-bearing:
  *
@@ -10,25 +17,33 @@
  *   the renderer.
  * - `sandbox: true` — the renderer runs in Chromium's sandbox; the preload gets
  *   only the Electron IPC primitives, which is all it uses.
- * - `webSecurity: true` — the same-origin policy applies to the app's own
- *   bundle; `allowRunningInsecureContent` stays off.
+ * - `webSecurity: true` — the same-origin policy applies to the loaded
+ *   instance; `allowRunningInsecureContent` stays off.
  *
- * Navigation and window opening are also locked down: a link in the UI that
- * points at a Notploy dashboard opens in the system browser, and the app window
- * itself can never be navigated away from its bundle.
+ * Navigation and window opening are locked down: a link in the UI that points
+ * outside the configured origins opens in the system browser, and the window
+ * itself can never be navigated away from the gate or a configured instance.
  */
 
 import path from "node:path";
 import { BrowserWindow, shell } from "electron";
-import { isAllowedRendererUrl } from "./security/content-policy";
+import {
+	gateUrlPrefixFor,
+	isAllowedRendererUrl,
+} from "./security/content-policy";
 
 export interface CreateWindowOptions {
 	/** Absolute path of the bundled preload script. */
 	preloadPath: string;
-	/** Absolute path of the renderer's `index.html` (production). */
-	indexHtmlPath: string;
-	/** Vite dev server origin, when running in development. */
+	/** Absolute path of the bundled connection gate page (`file://`). */
+	gatePagePath: string;
+	/** Vite/Next dev server origin, when running in development. */
 	devServerUrl?: string;
+	/**
+	 * The origins the window may load, read fresh on every navigation so a
+	 * connection added at runtime is immediately navigable.
+	 */
+	allowedOrigins: () => readonly string[];
 	/**
 	 * Absolute path of the 1024x1024 app icon, used for the window and the taskbar.
 	 * Ignored on macOS, where the icon comes from the bundle itself.
@@ -38,14 +53,15 @@ export interface CreateWindowOptions {
 	onClosed: () => void;
 }
 
-// The page background, so the window does not flash a different colour between
-// `show: false` and the renderer's first paint. Kept in step with
-// `--color-canvas` in `src/renderer/styles.css`, which in turn is measured from
-// the reference Notploy App capture.
-const BACKGROUND_COLOR = "#0a0a0a";
+/**
+ * The page background, so the window does not flash a different colour between
+ * `show: false` and the first paint. Kept in step with Notploy's light-theme
+ * `--background`; a dark instance repaints immediately after load.
+ */
+const BACKGROUND_COLOR = "#f5efe0";
 
 export function createMainWindow(options: CreateWindowOptions): BrowserWindow {
-	const { preloadPath, indexHtmlPath, devServerUrl } = options;
+	const { preloadPath, gatePagePath, devServerUrl, allowedOrigins } = options;
 
 	const window = new BrowserWindow({
 		width: 1280,
@@ -71,9 +87,9 @@ export function createMainWindow(options: CreateWindowOptions): BrowserWindow {
 			webSecurity: true,
 			allowRunningInsecureContent: false,
 			spellcheck: false,
+			// DevTools are a development affordance; a packaged app never opens them.
 			devTools: Boolean(devServerUrl),
-			// No remote content is ever loaded, so there is nothing to preload
-			// beyond the bridge.
+			// No extra arguments are handed to the preload.
 			additionalArguments: [],
 		},
 	});
@@ -96,11 +112,14 @@ export function createMainWindow(options: CreateWindowOptions): BrowserWindow {
 		return { action: "deny" };
 	});
 
-	// Same rule for a navigation the page initiates itself.
+	// Same rule for a navigation the page initiates itself: only the gate and
+	// the configured instance origins may occupy the window.
 	window.webContents.on("will-navigate", (event, url) => {
-		const allowed = devServerUrl
-			? isAllowedRendererUrl(url, [devServerUrl])
-			: url.startsWith("file://");
+		const allowed = isAllowedRendererUrl(
+			url,
+			allowedOrigins(),
+			gatePagePath ? gateUrlPrefixFor(gatePagePath) : undefined,
+		);
 		if (allowed) return;
 		event.preventDefault();
 		if (url.startsWith("http://") || url.startsWith("https://")) {
@@ -116,21 +135,33 @@ export function createMainWindow(options: CreateWindowOptions): BrowserWindow {
 
 	window.on("closed", options.onClosed);
 
-	if (devServerUrl) {
-		void window.loadURL(devServerUrl);
-	} else {
-		void window.loadFile(indexHtmlPath);
-	}
-
 	return window;
 }
 
-/** Where the bundled renderer entry point lives. */
-export function rendererEntryFor(appPath: string): string {
+/**
+ * Loads the gate page (no configured instance) or the instance URL in a window.
+ *
+ * Kept here rather than inlined at each call site so the startup path, the
+ * "add connection" command and a deep link all resolve through one function.
+ */
+export function loadInitialTarget(
+	window: BrowserWindow,
+	target: { kind: "gate" } | { kind: "url"; url: string },
+	gatePagePath: string,
+): void {
+	if (target.kind === "gate") {
+		void window.loadFile(gatePagePath);
+		return;
+	}
+	void window.loadURL(target.url);
+}
+
+/** Where the bundled connection gate lives. */
+export function gatePageFor(appPath: string): string {
 	// `app.getAppPath()` is the directory holding the workspace package.json,
-	// so the bundle sits under `electron/` — in the unpackaged layout and in
-	// the asar alike, whose paths mirror the source tree.
-	return path.join(appPath, "electron", "dist", "renderer", "index.html");
+	// so the gate sits under `electron/` — in the unpackaged layout and in the
+	// asar alike, whose paths mirror the source tree.
+	return path.join(appPath, "electron", "assets", "gate", "index.html");
 }
 
 /**

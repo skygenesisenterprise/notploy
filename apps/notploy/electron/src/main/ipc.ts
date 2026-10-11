@@ -3,31 +3,29 @@
  *
  * The renderer is treated as untrusted input, in both directions:
  *
- * - **In.** Every argument is validated here (`assertId`, `assertHttpUrl`, …).
+ * - **In.** Every argument is validated here (`requireId`, `requireHttpUrl`, …).
  *   A renderer bug — or a compromised one — must not be able to make the main
  *   process read an arbitrary path or open a `file://` URL.
  * - **Out.** Only `NotployError.toSerialized()` crosses the boundary, so a raw
  *   SDK error body, a stack trace or a token can never reach the renderer.
  *
- * Senders are checked against the window(s) the app created, so a frame that is
- * not ours cannot invoke a channel even if it somehow got a handle to the
- * preload bridge.
+ * **Senders are checked twice, and the second check is the important one.**
+ * `isTrustedSender` confirms the frame belongs to a window this app created.
+ * On top of that, every channel that is not in {@link NATIVE_CHANNELS} —
+ * connections, preferences — additionally requires the sender frame to be the
+ * bundled gate page (`file://`). The loaded Notploy instance is remote content
+ * with a session cookie: it must never be able to list, switch or delete the
+ * user's other connections, or read the local preferences, no matter what the
+ * preload happens to expose.
  */
 
 import type { IpcMain, IpcMainInvokeEvent } from "electron";
 import {
 	type ConnectionKind,
 	type ConnectionUpdate,
-	DATABASE_ENGINES,
-	type DatabaseEngine,
 } from "@/shared/domain";
 import type {
 	AppInfo,
-	ApplicationActionRequest,
-	ContainerActionRequest,
-	DatabaseActionRequest,
-	DatabaseQuery,
-	DeploymentActionRequest,
 	DesktopPreferences,
 	IpcArgs,
 	IpcChannelName,
@@ -35,18 +33,11 @@ import type {
 	IpcResultOf,
 	SerializedError,
 } from "@/shared/ipc";
-import { DEFAULT_PREFERENCES, IPC_CHANNELS } from "@/shared/ipc";
+import { DEFAULT_PREFERENCES, IPC_CHANNELS, NATIVE_CHANNELS } from "@/shared/ipc";
 import { NotployError, toNotployError } from "./client/errors";
 import type { ConnectionManager } from "./connection/connection-manager";
 import type { Logger } from "./logging";
 import type { PreferencesService } from "./preferences";
-import type { DatabaseService } from "./services/database-service";
-import type { DeploymentService } from "./services/deployment-service";
-import type { InfrastructureService } from "./services/infrastructure-service";
-import type { MonitoringService } from "./services/monitoring-service";
-import type { OperationsService } from "./services/operations-service";
-import type { OverviewService } from "./services/overview-service";
-import type { ProjectService } from "./services/project-service";
 
 export interface IpcHandlersOptions {
 	ipcMain: IpcMain;
@@ -54,14 +45,6 @@ export interface IpcHandlersOptions {
 	getAppInfo: () => AppInfo;
 	preferences: PreferencesService;
 	manager: ConnectionManager;
-	overview: OverviewService;
-	projects: ProjectService;
-	deployments: DeploymentService;
-	infrastructure: InfrastructureService;
-	monitoring: MonitoringService;
-	/** Read-only instance configuration: tags, certificates, SSH keys, … */
-	operations: OperationsService;
-	databases: DatabaseService;
 	/** Opens an `http(s)` URL in the system browser. */
 	openExternal: (url: string) => Promise<void>;
 	/** Writes to the OS clipboard. Lives in the main process on purpose: the
@@ -75,6 +58,11 @@ export interface IpcHandlersOptions {
 	onPreferencesChanged?: (preferences: DesktopPreferences) => void;
 	/** True when the invoking frame belongs to one of our windows. */
 	isTrustedSender: (event: IpcMainInvokeEvent) => boolean;
+	/**
+	 * True when the invoking frame is the bundled gate page — the only frame
+	 * allowed to call the channels outside {@link NATIVE_CHANNELS}.
+	 */
+	isTrustedLocalFrame: (event: IpcMainInvokeEvent) => boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -94,11 +82,6 @@ function requireId(value: unknown, name: string): string {
 		throw invalid(`invalid ${name}`);
 	}
 	return value;
-}
-
-function optionalId(value: unknown, name: string): string | undefined {
-	if (value === undefined || value === null || value === "") return undefined;
-	return requireId(value, name);
 }
 
 function optionalNumber(value: unknown, name: string): number | undefined {
@@ -142,34 +125,6 @@ function optionalSecret(value: unknown, name: string): string | undefined {
 	return value.trim();
 }
 
-/**
- * A database engine name. Validated against the known list rather than merely
- * being a string: the value is interpolated into an SDK operation name, so an
- * arbitrary one must not be able to reach it.
- */
-function requireEngine(value: unknown): DatabaseEngine {
-	if (
-		typeof value !== "string" ||
-		!(DATABASE_ENGINES as readonly string[]).includes(value)
-	) {
-		throw invalid("unknown database engine");
-	}
-	return value as DatabaseEngine;
-}
-
-/**
- * A password on its way to the instance.
- *
- * Accepted on the same terms as an API key, and never echoed back: the main
- * process passes it straight through and holds no reference to it.
- */
-function requireNewPassword(value: unknown): string {
-	if (typeof value !== "string" || !value || value.length > 512) {
-		throw invalid("invalid password");
-	}
-	return value;
-}
-
 const CONNECTION_KINDS: ReadonlySet<string> = new Set([
 	"cloud",
 	"self-hosted",
@@ -177,21 +132,16 @@ const CONNECTION_KINDS: ReadonlySet<string> = new Set([
 	"custom",
 ]);
 
-/** The database actions the API defines. Anything else is a renderer bug. */
-const DATABASE_ACTIONS: ReadonlySet<string> = new Set([
-	"start",
-	"stop",
-	"deploy",
-	"reload",
-	"rebuild",
-	"remove",
-]);
-
 /** Only the four known kinds are accepted; anything else is left undefined. */
 function optionalKind(value: unknown): ConnectionKind | undefined {
 	return typeof value === "string" && CONNECTION_KINDS.has(value)
 		? (value as ConnectionKind)
 		: undefined;
+}
+
+/** True when `channel` may be called by any frame of our windows. */
+function isNativeChannel(channel: string): boolean {
+	return (NATIVE_CHANNELS as readonly string[]).includes(channel);
 }
 
 // ---------------------------------------------------------------------------
@@ -210,19 +160,27 @@ export function registerIpcHandlers(options: IpcHandlersOptions): void {
 		return normalized.toSerialized();
 	};
 
+	const forbidden = (message: string): IpcResult<never> => ({
+		ok: false,
+		error: { code: "forbidden", message },
+	});
+
 	const handle = <K extends IpcChannelName>(
 		channel: K,
 		handler: (...args: IpcArgs<K>) => Promise<IpcResultOf<K>> | IpcResultOf<K>,
 	): void => {
 		ipcMain.handle(channel, async (event, ...args) => {
 			if (!options.isTrustedSender(event)) {
-				return {
-					ok: false,
-					error: {
-						code: "forbidden",
-						message: "This window is not allowed to call the Notploy API.",
-					},
-				} satisfies IpcResult<IpcResultOf<K>>;
+				return forbidden(
+					"This window is not allowed to call the Notploy API.",
+				) as IpcResult<IpcResultOf<K>>;
+			}
+			// Gate channels are for the app's own page only: a remote instance
+			// page, however it got a handle to the bridge, stops here.
+			if (!isNativeChannel(channel) && !options.isTrustedLocalFrame(event)) {
+				return forbidden(
+					"Only the local Notploy Desktop gate may manage connections.",
+				) as IpcResult<IpcResultOf<K>>;
 			}
 			try {
 				const data = await handler(...(args as IpcArgs<K>));
@@ -237,7 +195,7 @@ export function registerIpcHandlers(options: IpcHandlersOptions): void {
 	};
 
 	// -------------------------------------------------------------------
-	// App
+	// Native surface (any frame of our windows)
 	// -------------------------------------------------------------------
 
 	handle(IPC_CHANNELS.appInfo, () => options.getAppInfo());
@@ -253,6 +211,10 @@ export function registerIpcHandlers(options: IpcHandlersOptions): void {
 		options.copyText(text);
 	});
 
+	// -------------------------------------------------------------------
+	// Gate surface (the bundled `file://` page only)
+	// -------------------------------------------------------------------
+
 	handle(IPC_CHANNELS.preferencesGet, () => preferences.get());
 
 	handle(IPC_CHANNELS.preferencesUpdate, (patch) => {
@@ -263,21 +225,14 @@ export function registerIpcHandlers(options: IpcHandlersOptions): void {
 		// Only known keys are considered; anything else is dropped by
 		// `normalizePreferences`.
 		const next = preferences.update({
-			confirmDestructiveActions: input.confirmDestructiveActions,
-			autoRefreshSeconds: input.autoRefreshSeconds,
-			logTailLines: input.logTailLines,
-			requestTimeout: input.requestTimeout,
 			notifyDeploymentOutcomes: input.notifyDeploymentOutcomes,
 			deploymentWatchSeconds: input.deploymentWatchSeconds,
 			closeToTray: input.closeToTray,
+			requestTimeout: input.requestTimeout,
 		});
 		options.onPreferencesChanged?.(next);
 		return next;
 	});
-
-	// -------------------------------------------------------------------
-	// Connections
-	// -------------------------------------------------------------------
 
 	handle(IPC_CHANNELS.connectionsList, async () => await manager.summaries());
 
@@ -357,277 +312,6 @@ export function registerIpcHandlers(options: IpcHandlersOptions): void {
 	handle(IPC_CHANNELS.connectionsCapabilities, async (id) => {
 		return await manager.refreshCapabilities(requireId(id, "connection id"));
 	});
-
-	// -------------------------------------------------------------------
-	// Overview
-	// -------------------------------------------------------------------
-
-	handle(IPC_CHANNELS.overviewSummary, async (connectionId) => {
-		const scoped = optionalId(connectionId, "connection id");
-		if (scoped && scoped !== manager.active()?.id) {
-			// Reading another connection's overview would silently use the active
-			// client, so the selection is followed instead of guessed.
-			await manager.setActive(scoped);
-		}
-		return await options.overview.summary();
-	});
-
-	// -------------------------------------------------------------------
-	// Projects and applications
-	// -------------------------------------------------------------------
-
-	handle(
-		IPC_CHANNELS.projectsList,
-		async () => await options.projects.projects(),
-	);
-
-	handle(
-		IPC_CHANNELS.environmentsList,
-		async (projectId) =>
-			await options.projects.environments(requireId(projectId, "project id")),
-	);
-
-	handle(IPC_CHANNELS.applicationsList, async (query) => {
-		const scoped = query
-			? {
-					projectId: optionalId(query.projectId, "project id"),
-					environmentId: optionalId(query.environmentId, "environment id"),
-					q:
-						typeof query.q === "string" && query.q.trim()
-							? query.q.trim().slice(0, 200)
-							: undefined,
-				}
-			: undefined;
-		return await options.projects.applications(scoped);
-	});
-
-	handle(
-		IPC_CHANNELS.applicationsLogs,
-		async (applicationId, tail) =>
-			await options.projects.logs(
-				requireId(applicationId, "application id"),
-				optionalNumber(tail, "tail"),
-			),
-	);
-
-	handle(IPC_CHANNELS.applicationsAction, async (request) => {
-		const input = requireObject<ApplicationActionRequest>(request, "action");
-		return await options.projects.action({
-			action: input.action,
-			applicationId: requireId(input.applicationId, "application id"),
-			appName: optionalId(input.appName, "application name"),
-		});
-	});
-
-	// -------------------------------------------------------------------
-	// Deployments
-	// -------------------------------------------------------------------
-
-	handle(IPC_CHANNELS.deploymentsList, async (query) => {
-		const scoped = query
-			? { applicationId: optionalId(query.applicationId, "application id") }
-			: undefined;
-		return await options.deployments.list(scoped);
-	});
-
-	handle(
-		IPC_CHANNELS.deploymentsQueue,
-		async () => await options.deployments.queue(),
-	);
-
-	handle(
-		IPC_CHANNELS.deploymentsLogs,
-		async (deploymentId, tail) =>
-			await options.deployments.logs(
-				requireId(deploymentId, "deployment id"),
-				optionalNumber(tail, "tail"),
-			),
-	);
-
-	handle(IPC_CHANNELS.deploymentsAction, async (request) => {
-		const input = requireObject<DeploymentActionRequest>(request, "action");
-		return await options.deployments.action({
-			action: input.action,
-			deploymentId: optionalId(input.deploymentId, "deployment id"),
-			applicationId: optionalId(input.applicationId, "application id"),
-			appName: optionalId(input.appName, "application name"),
-		});
-	});
-
-	// -------------------------------------------------------------------
-	// Infrastructure
-	// -------------------------------------------------------------------
-
-	handle(
-		IPC_CHANNELS.infrastructureServers,
-		async () => await options.infrastructure.servers(),
-	);
-
-	handle(
-		IPC_CHANNELS.infrastructureContainers,
-		async (serverId) =>
-			await options.infrastructure.containers(
-				optionalId(serverId, "server id"),
-			),
-	);
-
-	handle(
-		IPC_CHANNELS.infrastructureContainerConfig,
-		async (containerId, serverId) =>
-			await options.infrastructure.containerConfig(
-				requireId(containerId, "container id"),
-				optionalId(serverId, "server id"),
-			),
-	);
-
-	handle(IPC_CHANNELS.infrastructureContainerAction, async (request) => {
-		const input = requireObject<ContainerActionRequest>(request, "action");
-		return await options.infrastructure.containerAction({
-			action: input.action,
-			containerId: requireId(input.containerId, "container id"),
-			serverId: optionalId(input.serverId, "server id"),
-		});
-	});
-
-	handle(
-		IPC_CHANNELS.infrastructureImages,
-		async (serverId) =>
-			await options.infrastructure.images(optionalId(serverId, "server id")),
-	);
-
-	handle(
-		IPC_CHANNELS.infrastructureVolumes,
-		async (serverId) =>
-			await options.infrastructure.volumes(optionalId(serverId, "server id")),
-	);
-
-	handle(
-		IPC_CHANNELS.infrastructureNetworks,
-		async (serverId) =>
-			await options.infrastructure.networks(optionalId(serverId, "server id")),
-	);
-
-	handle(
-		IPC_CHANNELS.infrastructureSwarm,
-		async (serverId) =>
-			await options.infrastructure.swarmNodes(
-				optionalId(serverId, "server id"),
-			),
-	);
-
-	// -------------------------------------------------------------------
-	// Monitoring and notifications
-	// -------------------------------------------------------------------
-
-	handle(
-		IPC_CHANNELS.monitoringServerHealth,
-		async (serverId) =>
-			await options.monitoring.serverHealth(optionalId(serverId, "server id")),
-	);
-
-	handle(
-		IPC_CHANNELS.monitoringDiskUsage,
-		async () => await options.monitoring.diskUsage(),
-	);
-
-	// -------------------------------------------------------------------
-	// Databases
-	// -------------------------------------------------------------------
-
-	handle(IPC_CHANNELS.databasesList, async (query) => {
-		const scoped: DatabaseQuery | undefined = query
-			? {
-					engine: query.engine ? requireEngine(query.engine) : undefined,
-					projectId: optionalId(query.projectId, "project id"),
-					environmentId: optionalId(query.environmentId, "environment id"),
-					q:
-						typeof query.q === "string" && query.q.trim()
-							? query.q.trim().slice(0, 200)
-							: undefined,
-				}
-			: undefined;
-		return await options.databases.list(scoped ?? {});
-	});
-
-	handle(
-		IPC_CHANNELS.databasesOne,
-		async (engine, databaseId) =>
-			await options.databases.one(
-				requireEngine(engine),
-				requireId(databaseId, "database id"),
-			),
-	);
-
-	handle(IPC_CHANNELS.databasesAction, async (request) => {
-		const input = requireObject<DatabaseActionRequest>(request, "action");
-		const action = input.action;
-		if (!DATABASE_ACTIONS.has(action)) throw invalid("unknown database action");
-		return await options.databases.action({
-			action,
-			engine: requireEngine(input.engine),
-			databaseId: requireId(input.databaseId, "database id"),
-			appName: optionalId(input.appName, "service name"),
-		});
-	});
-
-	handle(
-		IPC_CHANNELS.databasesLogs,
-		async (engine, databaseId, tail) =>
-			await options.databases.logs(
-				requireEngine(engine),
-				requireId(databaseId, "database id"),
-				optionalNumber(tail, "tail"),
-			),
-	);
-
-	handle(
-		IPC_CHANNELS.databasesChangePassword,
-		async (engine, databaseId, password) => {
-			await options.databases.changePassword(
-				requireEngine(engine),
-				requireId(databaseId, "database id"),
-				requireNewPassword(password),
-			);
-		},
-	);
-
-	handle(
-		IPC_CHANNELS.notificationsList,
-		async () => await options.monitoring.notifications(),
-	);
-
-	// -------------------------------------------------------------------
-	// Instance configuration
-	// -------------------------------------------------------------------
-	//
-	// No arguments to validate: every one of these is a read of the whole list
-	// for the active connection. What the renderer receives has already had its
-	// credential material removed by the client layer.
-
-	handle(
-		IPC_CHANNELS.operationsTags,
-		async () => await options.operations.tags(),
-	);
-
-	handle(
-		IPC_CHANNELS.operationsCertificates,
-		async () => await options.operations.certificates(),
-	);
-
-	handle(
-		IPC_CHANNELS.operationsSshKeys,
-		async () => await options.operations.sshKeys(),
-	);
-
-	handle(
-		IPC_CHANNELS.operationsRegistries,
-		async () => await options.operations.registries(),
-	);
-
-	handle(
-		IPC_CHANNELS.operationsDestinations,
-		async () => await options.operations.destinations(),
-	);
 
 	logger.debug(
 		`IPC handlers registered (timeout default ${DEFAULT_PREFERENCES.requestTimeout}ms)`,
