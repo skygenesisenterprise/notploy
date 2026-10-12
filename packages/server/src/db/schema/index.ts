@@ -45,6 +45,7 @@ export * from "./shared";
 export * from "./ssh-key";
 export * from "./sso";
 export * from "./tag";
+export * from "./traffic";
 export * from "./transfer";
 export * from "./user";
 export * from "./utils";

@@ -1443,6 +1443,13 @@
       "when": 1791374387648,
       "tag": "0206_hesitant_anthem",
       "breakpoints": true
+    },
+    {
+      "idx": 207,
+      "version": "7",
+      "when": 1791815094748,
+      "tag": "0207_clean_boom_boom",
+      "breakpoints": true
     }
   ]
 }

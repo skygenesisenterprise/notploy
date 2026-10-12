@@ -1,4 +1,4 @@
-import { IS_CLOUD, validateRequest } from "@notploy/server";
+import { isManagedCloud, validateRequest } from "@notploy/server";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
@@ -24,7 +24,7 @@ export async function getServerSideProps(
 	ctx: GetServerSidePropsContext<{ serviceId: string }>,
 ) {
 	const { req, res } = ctx;
-	if (IS_CLOUD) {
+	if (isManagedCloud()) {
 		return {
 			redirect: {
 				permanent: false,

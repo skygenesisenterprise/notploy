@@ -53,6 +53,9 @@ export const statements = {
 	vaultProvider: ["read", "create", "update", "delete"],
 	dnsProvider: ["read", "create", "update", "delete"],
 	networkProvider: ["read", "create", "update", "delete"],
+	// Traffic Manager: reading the traffic/audience reports, and configuring the
+	// watched properties and their collection sources.
+	traffic: ["read", "write"],
 } as const;
 
 export const ac = createAccessControl(statements);
@@ -76,6 +79,7 @@ export const ownerRole = ac.newRole({
 	api: ["read"],
 	billing: ["read", "manage"],
 	networkProvider: ["read", "create", "update", "delete"],
+	traffic: ["read", "write"],
 	volume: ["read", "create", "delete"],
 	deployment: ["read", "create", "cancel"],
 	envVars: ["read", "write"],
@@ -118,6 +122,7 @@ export const adminRole = ac.newRole({
 	api: ["read"],
 	billing: ["read", "manage"],
 	networkProvider: ["read", "create", "update", "delete"],
+	traffic: ["read", "write"],
 	volume: ["read", "create", "delete"],
 	deployment: ["read", "create", "cancel"],
 	envVars: ["read", "write"],
@@ -186,4 +191,6 @@ export const memberRole = ac.newRole({
 	vaultProvider: ["read"],
 	dnsProvider: [],
 	networkProvider: [],
+	// Members may read the traffic reports, never configure collectors.
+	traffic: ["read"],
 });

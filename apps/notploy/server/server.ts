@@ -14,6 +14,7 @@ import {
 	sendNotployRestartNotifications,
 	setupDirectories,
 	startInternalDnsServer,
+	startTrafficCollector,
 	validateInstallation,
 } from "@notploy/server";
 import { config } from "dotenv";
@@ -113,6 +114,9 @@ void app.prepare().then(async () => {
 			await initSchedules();
 			await initCancelDeployments();
 			await initVolumeBackupsCronJobs();
+			// Traffic Manager: incremental Traefik access-log collection plus the
+			// retention job of the traffic aggregates.
+			await startTrafficCollector();
 			await sendNotployRestartNotifications();
 		}
 

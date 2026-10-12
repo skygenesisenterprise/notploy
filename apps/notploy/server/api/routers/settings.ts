@@ -132,7 +132,7 @@ export const settingsRouter = createTRPCRouter({
 		};
 	}),
 	getControlPlaneRuntime: adminProcedure.query(async () => {
-		if (IS_CLOUD) {
+		if (isManagedCloud()) {
 			return null;
 		}
 		const settings = await db.query.webServerSettings.findFirst({

@@ -1,0 +1,120 @@
+---
+title: Traffic Manager
+description: "Measure the traffic and the audience of the websites Notploy operates"
+---
+
+The Traffic Manager (`/dashboard/website/traffic`) answers two different questions about the
+websites an instance operates:
+
+- **HTTP observability** — what the reverse proxy actually received and answered: requests,
+  status classes, most requested routes, failing routes, latency and bandwidth.
+- **Audience analytics** — what the web instrumentation measured in the browsers: page views,
+  sessions, estimated visitors, referrer hosts, device categories and explicitly tracked events.
+
+The two are shown side by side and never merged: a page view is not an HTTP request, and the
+numbers come from different collectors.
+
+## Collection sources
+
+| Source | What it provides | What it cannot provide |
+| --- | --- | --- |
+| **Reverse proxy** (Traefik access log) | requests, status classes, routes, transferred bytes, response time, per-domain breakdown | cache status, geolocation, client identity |
+| **Web instrumentation** (`traffic.js`) | page views, sessions, estimated visitors, referrer hosts, device category, explicit events | server-side errors, traffic from clients that block scripts |
+| **External provider** | declared for future integrations; no collector ships with it yet | — |
+
+Metrics a source cannot produce are reported as unavailable in the interface — they are never
+approximated silently. The p95 latency is the one derived value and it is labelled as such:
+it is read from a fixed-bin histogram stored by the collector, so it is accurate to the bin,
+not to the millisecond.
+
+## Enabling HTTP observability
+
+1. Enable the reverse proxy access log (Settings → Web Server → *Toggle requests*), or point a
+   source's **Access log path** at an existing log in the JSON format produced by Traefik.
+2. Open **Traffic Manager → Platforms & sources → Add domain**, enter the domain and the source.
+3. Press **Collect now**. A source declares the domain; it only becomes *active* once the
+   collector has actually read a request for it.
+
+Aggregates are read incrementally: the collector keeps a byte cursor on each source, so a line is
+read once, a restart never replays the log and a domain declared later starts at the current end
+of file (it does not claim traffic from before it existed).
+
+## Installing the web instrumentation
+
+The instrumentation is a single static script served by the Notploy instance itself
+(`/traffic.js`), so every property shares the same implementation:
+
+```html
+<script defer src="https://<your-notploy-host>/traffic.js"
+        data-property-key="pk_..."
+        data-endpoint="https://<your-notploy-host>"></script>
+```
+
+Explicit events:
+
+```js
+window.notployTraffic.track("signup_completed");
+```
+
+The key shown in the sources panel is the public key of that domain's instrumentation source.
+It is not a secret: the collector enforces the origin allow-list, a per-site and a per-client rate
+limit, a payload size cap and a strict event schema (unknown fields are rejected).
+
+### What is collected, and what is not
+
+Collected: the page path, the referrer **host** (empty for internal navigation), the event name,
+and two random identifiers stored in the browser — a session id (`sessionStorage`, 30 minutes of
+inactivity) and a visitor id (`localStorage`, reset after 180 days). The device category is
+derived server-side from the ingest request.
+
+Not collected: cookies, IP addresses, user agent strings, raw referrer URLs, arbitrary event
+properties, request bodies, request or response headers. There is no fingerprinting: no canvas,
+WebGL, font or screen probing is performed, and no identifier is derived from a device.
+
+Opt-out: `navigator.doNotTrack`, `window.globalPrivacyControl`, or
+`localStorage.setItem("notploy_traffic_optout", "1")` disables the script entirely.
+
+## Configuration
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `TRAFFIC_TRAEFIK_LOG_PATH` | `<traefik dynamic>/access.log` | Default access log read by the collectors |
+| `TRAFFIC_COLLECTOR_CRON` | `*/5 * * * *` | Collection schedule |
+| `TRAFFIC_RETENTION_CRON` | `20 3 * * *` | Retention schedule |
+| `TRAFFIC_HTTP_RETENTION_DAYS` | `30` | Retention of HTTP aggregates |
+| `TRAFFIC_AUDIENCE_RETENTION_DAYS` | `90` | Retention of audience aggregates and sessions |
+| `TRAFFIC_MAX_EVENTS_PER_RUN` | `20000` | Events ingested by one collection run |
+| `TRAFFIC_MAX_LOG_BYTES_PER_RUN` | `5000000` | Bytes read from one log per run |
+| `TRAFFIC_SOURCE_STALE_MINUTES` | `60` | Delay before a silent source is reported as degraded |
+| `TRAFFIC_AUDIENCE_INGEST` | `true` | Set to `false` to refuse audience events entirely |
+
+On the website and documentation applications, the instrumentation is enabled with:
+
+```bash
+NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY=pk_...
+NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT=https://<your-notploy-host>
+```
+
+## Data model and retention
+
+| Table | Key | Resolution |
+| --- | --- | --- |
+| `trafficHttpAggregates` | property × bucket × status class | 5 minutes |
+| `trafficHttpRoutes` | property × day × route × status class | 1 day |
+| `trafficAudienceAggregates` | property × bucket × page × referrer × device | 15 minutes |
+| `trafficAudienceEvents` | property × bucket × event name | 15 minutes |
+| `trafficAudienceSessions` | property × session | 1 row per session |
+
+Raw requests and raw audience events are never stored: the collectors aggregate as they ingest, so
+retention is a `DELETE` per table. The service also enforces a maximum range of 90 days per query
+and a maximum of 50 ranking rows.
+
+Beyond that, a sub-minute resolution, a per-country breakdown or per-request forensics would need a
+different store (columnar or ClickHouse-style). Those thresholds are documented rather than
+anticipated: at the scale of an instance's own websites the aggregate tables stay small.
+
+## Permissions
+
+The page and its API are guarded by the `traffic` resource: `traffic.read` for the reports,
+`traffic.write` for declaring domains, configuring sources and triggering a collection. Owners and
+admins have both; members only have read (and can be granted more through a custom role).

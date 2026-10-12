@@ -6,6 +6,7 @@ import "@/styles/tailwind.css";
 import "react-photo-view/dist/react-photo-view.css";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { NotployTraffic } from "@/components/NotployTraffic";
 
 type Props = {
 	children: ReactNode;
@@ -63,6 +64,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 			)}
 		>
 			<body>
+				{/* Traffic Manager instrumentation (no-op without the env vars). */}
+				<NotployTraffic />
 				<div className="flex h-full flex-col">
 					<Header />
 					{children}

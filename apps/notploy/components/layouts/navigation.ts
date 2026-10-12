@@ -471,6 +471,7 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "Traffic",
 				href: "/dashboard/website/traffic",
 				icon: TrendingUp,
+				isEnabled: ({ permissions }) => !!permissions?.traffic.read,
 			},
 			{
 				label: "Community",
@@ -564,6 +565,12 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "Platform Services",
 				href: "/dashboard/platform-services",
 				icon: Layers,
+			},
+			{
+				label: "Web Server",
+				href: "/dashboard/settings/server",
+				icon: PanelsTopLeft,
+				isEnabled: ({ permissions }) => !!permissions?.organization.update,
 			},
 		],
 	},
