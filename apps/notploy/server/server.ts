@@ -13,6 +13,7 @@ import {
 	initVolumeBackupsCronJobs,
 	sendNotployRestartNotifications,
 	setupDirectories,
+	startCommunitySync,
 	startInternalDnsServer,
 	startTrafficCollector,
 	validateInstallation,
@@ -105,6 +106,11 @@ void app.prepare().then(async () => {
 		// Serves the Notploy Internal DNS zones to the local network and forwards
 		// everything else upstream. Disabled with NOTPLOY_DNS_SERVER=false.
 		startInternalDnsServer();
+		// Community Console: refresh the cached GitHub activity of the followed
+		// repositories. Registered in every environment so the console is never
+		// showing data the scheduler forgot to update; it is a no-op when no
+		// source is configured.
+		await startCommunitySync();
 		if (!IS_CLOUD) {
 			await ensureNotployNetwork();
 		}

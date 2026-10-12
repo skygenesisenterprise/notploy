@@ -56,6 +56,9 @@ export const statements = {
 	// Traffic Manager: reading the traffic/audience reports, and configuring the
 	// watched properties and their collection sources.
 	traffic: ["read", "write"],
+	// Community: reading the open-source activity of the tracked GitHub
+	// repositories, and managing the sources each repository is followed through.
+	community: ["read", "write"],
 } as const;
 
 export const ac = createAccessControl(statements);
@@ -80,6 +83,7 @@ export const ownerRole = ac.newRole({
 	billing: ["read", "manage"],
 	networkProvider: ["read", "create", "update", "delete"],
 	traffic: ["read", "write"],
+	community: ["read", "write"],
 	volume: ["read", "create", "delete"],
 	deployment: ["read", "create", "cancel"],
 	envVars: ["read", "write"],
@@ -123,6 +127,7 @@ export const adminRole = ac.newRole({
 	billing: ["read", "manage"],
 	networkProvider: ["read", "create", "update", "delete"],
 	traffic: ["read", "write"],
+	community: ["read", "write"],
 	volume: ["read", "create", "delete"],
 	deployment: ["read", "create", "cancel"],
 	envVars: ["read", "write"],
@@ -193,4 +198,6 @@ export const memberRole = ac.newRole({
 	networkProvider: [],
 	// Members may read the traffic reports, never configure collectors.
 	traffic: ["read"],
+	// Members may read the community activity, never manage its sources.
+	community: ["read"],
 });

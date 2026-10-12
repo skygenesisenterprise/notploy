@@ -59,10 +59,9 @@ type PermissionsOutput =
  * - `self`    self-hosted Notploy, exposing the infrastructure control plane.
  * - `cloud`   managed Notploy Cloud, presenting managed services.
  * - `console` platform operator console (reserved). Spans both the self-hosted
- *             control plane and the managed Cloud activity, organised as four
- *             poles (Overview, Infrastructure, Cloud, Resources). Enabling it
- *             only requires passing `environment: "console"` to
- *             `createNavigation`.
+ *             control plane and the managed Cloud activity, organised as three
+ *             poles (Overview, Cloud, Infrastructure). Enabling it only requires
+ *             passing `environment: "console"` to `createNavigation`.
  */
 export type NavigationEnvironment = "self" | "cloud" | "console";
 
@@ -477,6 +476,7 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "Community",
 				href: "/dashboard/website/community",
 				icon: HeartHandshake,
+				isEnabled: ({ permissions }) => !!permissions?.community.read,
 			},
 		],
 	},

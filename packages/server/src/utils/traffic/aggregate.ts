@@ -96,8 +96,7 @@ export const percentileFromHistogram = (
 	if (total === 0) {
 		return null;
 	}
-	const overflowBound =
-		LATENCY_BUCKET_BOUNDS_MS[LATENCY_BUCKET_BOUNDS_MS.length - 1];
+	const overflowBound = LATENCY_BUCKET_BOUNDS_MS.at(-1) ?? 0;
 	const target = Math.max(0, Math.min(1, percentile)) * total;
 	let cumulative = 0;
 	for (let index = 0; index < bins.length; index++) {
