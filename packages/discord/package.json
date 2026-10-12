@@ -1,0 +1,62 @@
+{
+	"name": "@notploy/discord",
+	"version": "0.1.0",
+	"description": "Official Notploy Community Discord bot — community-facing slash commands and integrations for the official Notploy Discord server",
+	"type": "module",
+	"private": true,
+	"license": "Apache-2.0",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">=22.5.0"
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsx watch src/main.ts",
+		"start": "node dist/main.js",
+		"start:dev": "tsx src/main.ts",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"commands:register": "tsx scripts/register-commands.ts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/skygenesisenterprise/notploy.git",
+		"directory": "packages/discord"
+	},
+	"homepage": "https://github.com/skygenesisenterprise/notploy/tree/master/packages/discord#readme",
+	"bugs": {
+		"url": "https://github.com/skygenesisenterprise/notploy/issues"
+	},
+	"keywords": [
+		"notploy",
+		"discord",
+		"bot",
+		"community"
+	],
+	"dependencies": {
+		"@notploy/sdk": "workspace:*",
+		"discord.js": "^14.16.3"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.15",
+		"@types/node": "^24.4.0",
+		"tsx": "^4.22.4",
+		"typescript": "^7.0.2",
+		"vitest": "^4.1.6"
+	},
+	"packageManager": "pnpm@10.22.0"
+}

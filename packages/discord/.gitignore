@@ -1,0 +1,18 @@
+# Logs
+logs
+*.log
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Test / tooling caches
+coverage
+*.tsbuildinfo

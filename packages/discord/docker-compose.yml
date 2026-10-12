@@ -1,0 +1,98 @@
+# Notploy Community Discord bot — Docker Compose stack.
+#
+# Standalone from the root stack: the bot is a community integration, not part
+# of the control plane, so it needs no PostgreSQL, Redis, Traefik or Docker
+# socket. It only needs outbound access to Discord (and, optionally, GitHub and
+# a public Notploy API).
+#
+#   cp .env.example .env   # fill in DISCORD_TOKEN and DISCORD_CLIENT_ID
+#   docker compose up -d --build      # production bot
+#   docker compose logs -f
+#   docker compose down
+#
+# Development (hot reload), bind-mounting the package sources:
+#
+#   docker compose --profile dev up --build --watch notploy-discord-dev
+#
+# Or use the Makefile wrappers: `make docker-up`, `make docker-logs`,
+# `make docker-down`.
+
+name: notploy-discord
+
+# Shared environment for both the production and development services. Required
+# credentials fail fast with a clear message; everything else falls back to the
+# same defaults the bot uses when the variable is unset.
+x-discord-env: &discord-env
+  DISCORD_TOKEN: ${DISCORD_TOKEN:?set DISCORD_TOKEN in your .env}
+  DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:?set DISCORD_CLIENT_ID in your .env}
+  DISCORD_GUILD_ID: ${DISCORD_GUILD_ID:-}
+  NOTPLOY_WEBSITE_URL: ${NOTPLOY_WEBSITE_URL:-https://notploy.com}
+  NOTPLOY_DOCS_URL: ${NOTPLOY_DOCS_URL:-https://docs.notploy.com}
+  NOTPLOY_STATUS_URL: ${NOTPLOY_STATUS_URL:-https://status.notploy.com}
+  NOTPLOY_TEMPLATES_URL: ${NOTPLOY_TEMPLATES_URL:-https://templates.notploy.com}
+  NOTPLOY_CLOUD_URL: ${NOTPLOY_CLOUD_URL:-https://app.notploy.com}
+  NOTPLOY_DISCORD_INVITE: ${NOTPLOY_DISCORD_INVITE:-https://discord.gg/2tBnJ3jDJc}
+  GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-skygenesisenterprise/notploy}
+  GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+  DISCORD_WELCOME_CHANNEL_ID: ${DISCORD_WELCOME_CHANNEL_ID:-}
+  DISCORD_MEMBER_ROLE_ID: ${DISCORD_MEMBER_ROLE_ID:-}
+  DISCORD_NOTIFICATION_EVENTS: ${DISCORD_NOTIFICATION_EVENTS:-}
+  DISCORD_RELEASES_CHANNEL_ID: ${DISCORD_RELEASES_CHANNEL_ID:-}
+  DISCORD_ISSUES_CHANNEL_ID: ${DISCORD_ISSUES_CHANNEL_ID:-}
+  DISCORD_PULL_REQUESTS_CHANNEL_ID: ${DISCORD_PULL_REQUESTS_CHANNEL_ID:-}
+  DISCORD_DISCUSSIONS_CHANNEL_ID: ${DISCORD_DISCUSSIONS_CHANNEL_ID:-}
+  DISCORD_SECURITY_CHANNEL_ID: ${DISCORD_SECURITY_CHANNEL_ID:-}
+  NOTPLOY_URL: ${NOTPLOY_URL:-}
+  NOTPLOY_API_KEY: ${NOTPLOY_API_KEY:-}
+  DISCORD_LOG_LEVEL: ${DISCORD_LOG_LEVEL:-info}
+  TZ: ${TZ:-UTC}
+
+services:
+  # -------------------------------------------------------------------------
+  # The bot. Long-running gateway client, no published port.
+  # -------------------------------------------------------------------------
+  notploy-discord:
+    build:
+      context: ../..
+      dockerfile: packages/discord/Dockerfile
+      target: runtime
+    image: ${DISCORD_IMAGE:-ghcr.io/skygenesisenterprise/notploy-discord}:${NOTPLOY_VERSION:-latest}
+    container_name: notploy-discord
+    restart: unless-stopped
+    environment:
+      <<: *discord-env
+      NODE_ENV: production
+
+  # -------------------------------------------------------------------------
+  # Hot-reload development service. Opt-in via the `dev` profile and run
+  # explicitly so it never races the production service for the Discord
+  # gateway connection (two clients, same token):
+  #   docker compose --profile dev up --build --watch notploy-discord-dev
+  # -------------------------------------------------------------------------
+  notploy-discord-dev:
+    profiles:
+      - dev
+    build:
+      context: ../..
+      dockerfile: packages/discord/Dockerfile
+      target: dev
+    image: notploy-discord-dev:local
+    container_name: notploy-discord-dev
+    working_dir: /usr/src/app
+    restart: unless-stopped
+    environment:
+      <<: *discord-env
+      NODE_ENV: development
+      DISCORD_LOG_LEVEL: ${DISCORD_LOG_LEVEL:-debug}
+    volumes:
+      # The sources are bind-mounted from the host so editing a file reloads
+      # the bot. Anonymous volumes restore the node_modules installed in the
+      # image every time the container is created (never stale after a build).
+      - ../../packages/discord:/usr/src/app/packages/discord
+      - ../../packages/sdk:/usr/src/app/packages/sdk
+      - /usr/src/app/packages/discord/node_modules
+      - /usr/src/app/packages/sdk/node_modules
+    develop:
+      watch:
+        - action: rebuild
+          path: ../../pnpm-lock.yaml
