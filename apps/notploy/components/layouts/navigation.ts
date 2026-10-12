@@ -59,9 +59,10 @@ type PermissionsOutput =
  * - `self`    self-hosted Notploy, exposing the infrastructure control plane.
  * - `cloud`   managed Notploy Cloud, presenting managed services.
  * - `console` platform operator console (reserved). Spans both the self-hosted
- *             control plane and the managed Cloud activity, organised as three
- *             poles (Overview, Cloud, Infrastructure). Enabling it only requires
- *             passing `environment: "console"` to `createNavigation`.
+ *             control plane and the managed Cloud activity, organised as four
+ *             poles (Overview, Platform, Cloud, Infrastructure). Enabling it
+ *             only requires passing `environment: "console"` to
+ *             `createNavigation`.
  */
 export type NavigationEnvironment = "self" | "cloud" | "console";
 
@@ -428,9 +429,8 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 	},
 	// Platform operator console. A single surface that spans both the
 	// self-hosted control plane and the managed Cloud activity, so it is
-	// organised as three poles: a synthetic Overview, the Cloud business, and
-	// the technical Infrastructure (which also carries the cross-cutting
-	// platform resources).
+	// organised as four poles: a synthetic Overview, the cross-cutting
+	// Platform, the Cloud business, and the technical Infrastructure.
 	//
 	// Reserved: nothing renders these sections until `createNavigation` is
 	// called with `environment: "console"`. Destinations without a page yet
@@ -442,7 +442,7 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 		environments: ["console"],
 		items: [
 			{ label: "Home", href: "/dashboard/home", icon: House },
-			{ label: "Projects", href: "/dashboard/projects", icon: Folder },
+			// Observability, from proactive watch to reactive response.
 			{
 				label: "Monitoring",
 				href: "/dashboard/monitoring",
@@ -458,39 +458,21 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/operations",
 				icon: Activity,
 			},
-			// Website (`web/apps/website`) surfaces. Links only for now: the
-			// management pages land later, like the other reserved destinations.
-			{ label: "Blog", href: "/dashboard/website/blog", icon: Newspaper },
-			{
-				label: "Careers",
-				href: "/dashboard/website/careers",
-				icon: Briefcase,
-			},
 			{
 				label: "Traffic",
 				href: "/dashboard/website/traffic",
 				icon: TrendingUp,
 				isEnabled: ({ permissions }) => !!permissions?.traffic.read,
 			},
-			{
-				label: "Community",
-				href: "/dashboard/website/community",
-				icon: HeartHandshake,
-				isEnabled: ({ permissions }) => !!permissions?.community.read,
-			},
 		],
 	},
 	{
-		id: "console-cloud",
-		label: "Cloud",
+		id: "console-platform",
+		label: "Platform",
 		environments: ["console"],
 		items: [
-			{ label: "Workspaces", href: "/dashboard/workspaces", icon: Building2 },
-			{
-				label: "Applications",
-				href: "/dashboard/applications",
-				icon: AppWindow,
-			},
+			// Workload lifecycle: from source project to running services.
+			{ label: "Projects", href: "/dashboard/projects", icon: Folder },
 			{
 				label: "Deployments",
 				href: "/dashboard/deployments",
@@ -505,40 +487,11 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				activeTab: null,
 				isEnabled: ({ permissions }) => !!permissions?.service.read,
 			},
-			{ label: "Usage", href: "/dashboard/usage", icon: ChartPie },
+			// Execution: the runtime hosting workloads, on top of the fleet.
 			{
-				label: "Billing",
-				href: "/dashboard/settings/billing",
-				icon: CreditCard,
-				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
-			},
-			{
-				label: "Clusters",
-				href: "/dashboard/swarm",
-				icon: Waypoints,
-				isEnabled: ({ permissions }) => !!permissions?.docker.read,
-			},
-			{
-				label: "Networking",
-				href: "/dashboard/networks",
-				icon: Network,
-				isEnabled: ({ permissions }) => !!permissions?.docker.read,
-			},
-			{ label: "Capacity", href: "/dashboard/capacity", icon: Gauge },
-			{ label: "Maintenance", href: "/dashboard/maintenance", icon: Wrench },
-			{ label: "Domains", href: "/dashboard/domains", icon: Link2 },
-		],
-	},
-	{
-		id: "console-infrastructure",
-		label: "Infrastructure",
-		environments: ["console"],
-		items: [
-			{
-				label: "Compute",
-				href: "/dashboard/docker",
-				icon: BlocksIcon,
-				activeTab: null,
+				label: "Runtime",
+				href: "/dashboard/containers",
+				icon: Boxes,
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
@@ -547,20 +500,17 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				icon: Server,
 				isEnabled: ({ permissions }) => !!permissions?.server.read,
 			},
-			{ label: "Storage", href: "/dashboard/storage", icon: Database },
-			{
-				label: "Runtime",
-				href: "/dashboard/containers",
-				icon: Boxes,
-				isEnabled: ({ permissions }) => !!permissions?.docker.read,
-			},
-			// Cross-cutting platform resources belong to the Infrastructure pole.
+			// Supply chain: where code and images come from.
 			{ ...SHARED_ITEMS.gitProviders, label: "Git" },
 			{ ...SHARED_ITEMS.containerRegistries, label: "Registries" },
+			// Exposure: how traffic reaches the workloads.
 			{ ...SHARED_ITEMS.dnsProviders, label: "DNS" },
-			SHARED_ITEMS.objectStorage,
+			// Trust: the identities workloads run under.
 			SHARED_ITEMS.certificates,
 			{ ...SHARED_ITEMS.secretsManager, label: "Secrets" },
+			// Data: what the workloads persist.
+			SHARED_ITEMS.objectStorage,
+			// Cross-cutting platform resources.
 			{
 				label: "Platform Services",
 				href: "/dashboard/platform-services",
@@ -572,6 +522,75 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				icon: PanelsTopLeft,
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,
 			},
+		],
+	},
+	{
+		id: "console-cloud",
+		label: "Cloud",
+		environments: ["console"],
+		items: [
+			// The business: workspaces and the applications they run.
+			{ label: "Workspaces", href: "/dashboard/workspaces", icon: Building2 },
+			{
+				label: "Applications",
+				href: "/dashboard/applications",
+				icon: AppWindow,
+			},
+			// The economics: consumption and revenue.
+			{ label: "Usage", href: "/dashboard/usage", icon: ChartPie },
+			{
+				label: "Billing",
+				href: "/dashboard/settings/billing",
+				icon: CreditCard,
+				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
+			},
+			// Website (`web/apps/website`) surfaces. Links only for now: the
+			// management pages land later, like the other reserved destinations.
+			{
+				label: "Community",
+				href: "/dashboard/website/community",
+				icon: HeartHandshake,
+				isEnabled: ({ permissions }) => !!permissions?.community.read,
+			},
+			{ label: "Blog", href: "/dashboard/website/blog", icon: Newspaper },
+			{
+				label: "Careers",
+				href: "/dashboard/website/careers",
+				icon: Briefcase,
+			},
+		],
+	},
+	{
+		id: "console-infrastructure",
+		label: "Infrastructure",
+		environments: ["console"],
+		items: [
+			// Topology: the substrate running the workloads.
+			{
+				label: "Clusters",
+				href: "/dashboard/swarm",
+				icon: Waypoints,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			{
+				label: "Compute",
+				href: "/dashboard/docker",
+				icon: BlocksIcon,
+				activeTab: null,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			{ label: "Storage", href: "/dashboard/storage", icon: Database },
+			// Connectivity: how the workloads are reached.
+			{
+				label: "Networking",
+				href: "/dashboard/networks",
+				icon: Network,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			{ label: "Domains", href: "/dashboard/domains", icon: Link2 },
+			// Operations: the activities that sustain the substrate.
+			{ label: "Capacity", href: "/dashboard/capacity", icon: Gauge },
+			{ label: "Maintenance", href: "/dashboard/maintenance", icon: Wrench },
 		],
 	},
 ];
