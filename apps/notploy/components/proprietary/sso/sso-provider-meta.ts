@@ -11,6 +11,7 @@ export type ProviderProtocol =
 	| "saml"
 	| "ldap"
 	| "active-directory"
+	| "oauth2"
 	| "custom";
 
 export const providerProtocolLabels: Record<ProviderProtocol, string> = {
@@ -18,14 +19,65 @@ export const providerProtocolLabels: Record<ProviderProtocol, string> = {
 	saml: "SAML 2.0",
 	ldap: "LDAP",
 	"active-directory": "Active Directory",
+	oauth2: "OAuth 2.0",
 	custom: "Custom",
 };
 
 export const providerCategoryLabels: Record<string, string> = {
 	federated: "Federated identity",
 	directory: "Directory services",
+	social: "Social sign-in",
 	custom: "Custom",
 };
+
+/**
+ * Protocols the Console lets an operator pick, in presentation order. `custom`
+ * is intentionally omitted: it is a derived state, never a chosen protocol.
+ */
+export const providerProtocolOrder: ProviderProtocol[] = [
+	"oidc",
+	"saml",
+	"ldap",
+	"active-directory",
+	"oauth2",
+];
+
+export const providerCategoryOrder = [
+	"federated",
+	"directory",
+	"social",
+] as const;
+
+export const providerProtocolCategory: Record<ProviderProtocol, string> = {
+	oidc: "federated",
+	saml: "federated",
+	ldap: "directory",
+	"active-directory": "directory",
+	oauth2: "social",
+	custom: "custom",
+};
+
+export const providerProtocolDescriptions: Record<ProviderProtocol, string> = {
+	oidc: "Any OIDC-compliant provider, discovered from its issuer URL.",
+	saml: "Federated sign-in through a SAML 2.0 identity provider.",
+	ldap: "Directory-bound authentication against an LDAP server.",
+	"active-directory":
+		"Directory-bound authentication against Active Directory.",
+	oauth2: "Sign-in with an account from a developer platform (GitHub).",
+	custom: "Your own identity infrastructure through the generic adapter.",
+};
+
+/** Protocols with a working adapter. The rest are advertised but not wired yet. */
+export const implementedProviderProtocols: ProviderProtocol[] = [
+	"oidc",
+	"saml",
+	"ldap",
+	"active-directory",
+	"oauth2",
+];
+
+export const isProviderProtocolImplemented = (protocol: string) =>
+	implementedProviderProtocols.includes(protocol as ProviderProtocol);
 
 export const identityCapabilityLabels: Record<string, string> = {
 	singleSignOn: "Single sign-on",
@@ -71,12 +123,28 @@ export const capabilityLabel = (capability: string) =>
 
 /**
  * Which protocol a provider is configured with. A stored provider carries at
- * most one of `oidcConfig` / `samlConfig`; anything else is a custom provider.
+ * most one of `oidcConfig` / `samlConfig` / `ldapConfig`; anything else is a
+ * custom provider. The directory flavor is read from `directoryType`.
  */
 export const resolveProviderProtocol = (provider: {
 	oidcConfig: string | null;
 	samlConfig: string | null;
+	ldapConfig?: string | null;
+	oauthConfig?: string | null;
 }): ProviderProtocol => {
+	if (provider.oauthConfig) return "oauth2";
+	if (provider.ldapConfig) {
+		try {
+			const parsed = JSON.parse(provider.ldapConfig) as {
+				directoryType?: string;
+			};
+			return parsed.directoryType === "active-directory"
+				? "active-directory"
+				: "ldap";
+		} catch {
+			return "ldap";
+		}
+	}
 	if (provider.samlConfig) return "saml";
 	if (provider.oidcConfig) return "oidc";
 	return "custom";

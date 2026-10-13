@@ -1,5 +1,6 @@
 import {
 	Building2,
+	Github,
 	KeyRound,
 	Landmark,
 	type LucideIcon,
@@ -17,6 +18,7 @@ export const identityProviderIcons: Record<ProviderProtocol, LucideIcon> = {
 	saml: Landmark,
 	ldap: Network,
 	"active-directory": Building2,
+	oauth2: Github,
 	custom: ShieldCheck,
 };
 

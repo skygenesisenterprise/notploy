@@ -19,6 +19,7 @@ import {
 	protocolLabel,
 	resolveProviderProtocol,
 } from "./sso-provider-meta";
+import { vendorLabelForProvider } from "./sso-provider-presets";
 
 export interface SsoProviderSummary {
 	id: string | null;
@@ -27,6 +28,8 @@ export interface SsoProviderSummary {
 	domain: string;
 	oidcConfig: string | null;
 	samlConfig: string | null;
+	ldapConfig?: string | null;
+	oauthConfig?: string | null;
 }
 
 interface Props {
@@ -66,10 +69,21 @@ export const SsoProviderDetailsDialog = ({ provider, onOpenChange }: Props) => {
 
 	const protocol = resolveProviderProtocol(provider);
 	const identity = health?.identity;
-	const callbackPath =
-		protocol === "saml"
-			? `/api/auth/sso/saml2/callback/${provider.providerId}`
-			: `/api/auth/sso/callback/${provider.providerId}`;
+	const vendorLabel = vendorLabelForProvider({
+		protocol,
+		issuer: provider.issuer,
+	});
+	const isDirectory = protocol === "ldap" || protocol === "active-directory";
+	// Directories authenticate against the directory itself, so there is no
+	// inbound callback URL to configure on the provider. A social source takes
+	// the provider id in the query instead of the path.
+	const callbackPath = isDirectory
+		? null
+		: protocol === "oauth2"
+			? "/api/auth/sign-in/social-sso/callback"
+			: protocol === "saml"
+				? `/api/auth/sso/saml2/callback/${provider.providerId}`
+				: `/api/auth/sso/callback/${provider.providerId}`;
 
 	return (
 		<Dialog open={!!provider} onOpenChange={onOpenChange}>
@@ -83,7 +97,9 @@ export const SsoProviderDetailsDialog = ({ provider, onOpenChange }: Props) => {
 
 				<div className="grid gap-3 py-2">
 					<div className="flex flex-wrap items-center gap-2">
-						<Badge variant="outline">{protocolLabel(protocol)}</Badge>
+						<Badge variant="outline">
+							{vendorLabel ?? protocolLabel(protocol)}
+						</Badge>
 						{health && (
 							<Badge
 								variant={
@@ -106,12 +122,18 @@ export const SsoProviderDetailsDialog = ({ provider, onOpenChange }: Props) => {
 							.filter(Boolean)
 							.join(", ")}
 					/>
-					<Field
-						label="Callback URL (configure in your IdP)"
-						value={`${baseURL || "{baseURL}"}${callbackPath}`}
-						mono
-					/>
-					{!baseURL && (
+					{callbackPath && (
+						<Field
+							label={
+								protocol === "oauth2"
+									? "Callback URL (configure in GitHub)"
+									: "Callback URL (configure in your IdP)"
+							}
+							value={`${baseURL || "{baseURL}"}${callbackPath}`}
+							mono
+						/>
+					)}
+					{callbackPath && !baseURL && (
 						<p className="text-xs text-muted-foreground">
 							Replace {"{baseURL}"} with your Notploy URL (e.g.
 							https://your-domain.com).

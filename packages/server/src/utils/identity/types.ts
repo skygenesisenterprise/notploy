@@ -13,15 +13,16 @@
 /**
  * Provider types Notploy can describe.
  *
- * `ldap`, `active-directory` and `custom` are part of the target architecture
- * (issue #46) and are already surfaced in the capability catalog; incremental
- * implementations plug into the same contract without a redesign.
+ * `ldap`, `active-directory`, `oauth2` and `custom` are part of the target
+ * architecture (issue #46) and are already surfaced in the capability catalog;
+ * incremental implementations plug into the same contract without a redesign.
  */
 export const identityProviderTypes = [
 	"oidc",
 	"saml",
 	"ldap",
 	"active-directory",
+	"oauth2",
 	"custom",
 ] as const;
 
@@ -32,6 +33,7 @@ export const identityProviderLabels: Record<IdentityProviderType, string> = {
 	saml: "SAML 2.0",
 	ldap: "LDAP",
 	"active-directory": "Active Directory",
+	oauth2: "OAuth 2.0",
 	custom: "Custom provider",
 };
 
@@ -44,12 +46,15 @@ export const identityProviderDescriptions: Record<
 	ldap: "Directory-bound authentication against an LDAP server.",
 	"active-directory":
 		"Directory-bound authentication against Active Directory.",
+	oauth2:
+		"Sign-in with a social account that exposes plain OAuth 2.0 (GitHub).",
 	custom: "Your own identity infrastructure through the generic adapter.",
 };
 
 export const identityProviderCategoryOrder = [
 	"federated",
 	"directory",
+	"social",
 	"custom",
 ] as const;
 
@@ -64,6 +69,7 @@ export const identityProviderCategory: Record<
 	saml: "federated",
 	ldap: "directory",
 	"active-directory": "directory",
+	oauth2: "social",
 	custom: "custom",
 };
 
@@ -73,6 +79,7 @@ export const identityProviderCategoryLabels: Record<
 > = {
 	federated: "Federated identity",
 	directory: "Directory services",
+	social: "Social sign-in",
 	custom: "Custom",
 };
 
@@ -84,6 +91,8 @@ export const identityProviderCategoryDescriptions: Record<
 		"Standards-based federation (OIDC, SAML 2.0) usable by any compatible provider.",
 	directory:
 		"Directory-backed identity with search, bind and group synchronization.",
+	social:
+		"Sign-in with an account from a developer platform that speaks OAuth 2.0.",
 	custom:
 		"A generic adapter for identity infrastructure Notploy does not model yet.",
 };

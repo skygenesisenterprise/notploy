@@ -28,6 +28,7 @@ import type { Project } from "./project";
 import {
 	findRegistryByIdWithCredentials,
 	type Registry,
+	resolveRegistryCredentials,
 	safeDockerLoginCommand,
 } from "./registry";
 
@@ -186,10 +187,13 @@ const dockerLoginForRegistry = async (
 	registry: Registry,
 	serverId?: string | null,
 ) => {
+	// Credentials may live in the Secrets Manager, so they are resolved here
+	// rather than read from the record's inline columns.
+	const credentials = await resolveRegistryCredentials(registry);
 	const loginCommand = safeDockerLoginCommand(
 		registry.registryUrl,
-		registry.username,
-		registry.password,
+		credentials?.username,
+		credentials?.password,
 	);
 
 	if (serverId) {

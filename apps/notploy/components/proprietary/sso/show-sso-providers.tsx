@@ -1,15 +1,6 @@
 "use client";
 
-import {
-	Activity,
-	Eye,
-	KeyRound,
-	Loader2,
-	Pencil,
-	Shield,
-	ShieldCheck,
-	Trash2,
-} from "lucide-react";
+import { Activity, Eye, Loader2, ShieldCheck, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { identityProviderIcon } from "@/components/icons/identity-provider-icons";
@@ -29,17 +20,14 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { api } from "@/utils/api";
-import { AddIdentityProviderDialog } from "./add-identity-provider-dialog";
-import { RegisterOidcDialog } from "./register-oidc-dialog";
-import { RegisterSamlDialog } from "./register-saml-dialog";
-import { ScimDialog } from "./scim-dialog";
+import { HandleIdentityProvider } from "./handle-identity-provider";
 import { SsoHealthBadge } from "./sso-health-badge";
 import {
 	SsoProviderDetailsDialog,
 	type SsoProviderSummary,
 } from "./sso-provider-details-dialog";
 import { protocolLabel, resolveProviderProtocol } from "./sso-provider-meta";
-import { TrustedOriginsDialog } from "./trusted-origins-dialog";
+import { vendorLabelForProvider } from "./sso-provider-presets";
 
 export const ShowSsoProviders = () => {
 	const utils = api.useUtils();
@@ -64,16 +52,16 @@ export const ShowSsoProviders = () => {
 								Identity Providers
 							</CardTitle>
 							<CardDescription>
-								Connect the identity infrastructure you already run. Providers
-								are addressed by protocol (OIDC, SAML 2.0) rather than by
-								vendor, so any compatible system can sign users in.
+								Connect the identity infrastructure you already run. Pick a
+								preset for vendors we know, or configure any compatible system
+								by protocol (OIDC, SAML 2.0, LDAP, Active Directory).
 							</CardDescription>
 						</CardHeader>
 						<div className="flex flex-wrap items-center gap-2">
 							<Badge variant="secondary" className="tabular-nums">
 								{providerCount} {providerCount === 1 ? "provider" : "providers"}
 							</Badge>
-							<AddIdentityProviderDialog />
+							<HandleIdentityProvider />
 						</div>
 					</div>
 
@@ -107,7 +95,7 @@ export const ShowSsoProviders = () => {
 								</span>
 								<span className="max-w-sm text-center text-sm text-muted-foreground">
 									Use <span className="font-medium">Add provider</span> to
-									connect an OIDC or SAML 2.0 identity provider. Users can sign
+									connect an OIDC, SAML 2.0 or directory source. Users can sign
 									in with it once it is registered.
 								</span>
 							</div>
@@ -132,7 +120,10 @@ export const ShowSsoProviders = () => {
 														{provider.providerId}
 													</span>
 													<Badge variant="outline" className="text-xs">
-														{protocolLabel(protocol)}
+														{vendorLabelForProvider({
+															protocol,
+															issuer: provider.issuer,
+														}) ?? protocolLabel(protocol)}
 													</Badge>
 												</div>
 												<span className="truncate text-xs text-muted-foreground">
@@ -170,6 +161,8 @@ export const ShowSsoProviders = () => {
 																	domain: provider.domain,
 																	oidcConfig: provider.oidcConfig,
 																	samlConfig: provider.samlConfig,
+																	ldapConfig: provider.ldapConfig,
+																	oauthConfig: provider.oauthConfig,
 																})
 															}
 														>
@@ -180,30 +173,9 @@ export const ShowSsoProviders = () => {
 													<TooltipContent>View details</TooltipContent>
 												</Tooltip>
 
-												{protocol === "oidc" && (
-													<RegisterOidcDialog providerId={provider.providerId}>
-														<Button
-															variant="ghost"
-															size="icon"
-															className="text-muted-foreground"
-														>
-															<Pencil className="size-4" />
-															<span className="sr-only">Edit provider</span>
-														</Button>
-													</RegisterOidcDialog>
-												)}
-												{protocol === "saml" && (
-													<RegisterSamlDialog providerId={provider.providerId}>
-														<Button
-															variant="ghost"
-															size="icon"
-															className="text-muted-foreground"
-														>
-															<Pencil className="size-4" />
-															<span className="sr-only">Edit provider</span>
-														</Button>
-													</RegisterSamlDialog>
-												)}
+												<HandleIdentityProvider
+													providerId={provider.providerId}
+												/>
 
 												<Tooltip>
 													<DialogAction

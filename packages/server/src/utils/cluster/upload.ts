@@ -2,9 +2,11 @@ import { findAllDeploymentsByApplicationId } from "@notploy/server/services/depl
 import {
 	findRegistryByIdWithCredentials,
 	type Registry,
+	resolveRegistryCredentials,
 	safeDockerLoginCommand,
 } from "@notploy/server/services/registry";
 import { createRollback } from "@notploy/server/services/rollbacks";
+import { registryProviderLabels } from "@notploy/server/utils/registry";
 import { quote } from "shell-quote";
 import type { ApplicationNested } from "../builders";
 
@@ -31,7 +33,7 @@ export const uploadImageRemoteCommand = async (
 		const registryTag = getRegistryTag(r, imageName);
 		if (registryTag) {
 			commands.push(`echo "📦 [Enabled Registry Swarm]"`);
-			commands.push(getRegistryCommands(r, imageName, registryTag));
+			commands.push(await getRegistryCommands(r, imageName, registryTag));
 		}
 	}
 	if (buildRegistry) {
@@ -39,7 +41,7 @@ export const uploadImageRemoteCommand = async (
 		const buildRegistryTag = getRegistryTag(r, imageName);
 		if (buildRegistryTag) {
 			commands.push(`echo "🔑 [Enabled Build Registry]"`);
-			commands.push(getRegistryCommands(r, imageName, buildRegistryTag));
+			commands.push(await getRegistryCommands(r, imageName, buildRegistryTag));
 			commands.push(
 				`echo "⚠️ INFO: After the build is finished, you need to wait a few seconds for the server to download the image and run the container."`,
 			);
@@ -68,7 +70,9 @@ export const uploadImageRemoteCommand = async (
 		const rollbackRegistryTag = getRegistryTag(r, rollback?.image || "");
 		if (rollbackRegistryTag) {
 			commands.push(`echo "🔄 [Enabled Rollback Registry]"`);
-			commands.push(getRegistryCommands(r, imageName, rollbackRegistryTag));
+			commands.push(
+				await getRegistryCommands(r, imageName, rollbackRegistryTag),
+			);
 		}
 	}
 	try {
@@ -106,7 +110,7 @@ export const getRegistryTag = (registry: Registry, imageName: string) => {
 	const repositoryName = extractRepositoryName(imageName);
 
 	// Build the final tag using registry's username/prefix (must be lowercase for valid image refs)
-	const targetPrefix = (imagePrefix || username).toLowerCase();
+	const targetPrefix = (imagePrefix || username || "").toLowerCase();
 	const finalRegistry = registryUrl || "";
 
 	return finalRegistry
@@ -114,23 +118,35 @@ export const getRegistryTag = (registry: Registry, imageName: string) => {
 		: `${targetPrefix}/${repositoryName}`;
 };
 
-const getRegistryCommands = (
+const getRegistryCommands = async (
 	registry: Registry,
 	imageName: string,
 	registryTag: string,
-): string => {
-	const loginCmd = safeDockerLoginCommand(
-		registry.registryUrl,
-		registry.username,
-		registry.password,
-	);
-	return `
-echo ${quote([`📦 [Enabled Registry] Uploading image to '${registry.registryType}' | '${registryTag}'`])} ;
-${loginCmd} || {
-	echo "❌ DockerHub Failed" ;
+): Promise<string> => {
+	// Credentials may live in the Secrets Manager, so resolve them here instead
+	// of reading the record's inline columns.
+	const credentials = await resolveRegistryCredentials(registry);
+	// An anonymous registry has nothing to authenticate with: skipping the login
+	// keeps public pulls working instead of failing on empty credentials.
+	const loginStep =
+		credentials?.username || credentials?.password
+			? `
+${safeDockerLoginCommand(
+	registry.registryUrl,
+	credentials?.username,
+	credentials?.password,
+)} || {
+	echo "❌ Registry Login Failed" ;
 	exit 1;
 }
 echo "✅ Registry Login Success" ;
+`
+			: `
+echo "🔓 [Anonymous Registry] No credentials configured, pulling without authentication" ;
+`;
+	return `
+echo ${quote([`📦 [Enabled Registry] Uploading image to '${registryProviderLabels[registry.providerType]}' | '${registryTag}'`])} ;
+${loginStep}
 docker tag ${quote([imageName])} ${quote([registryTag])} || {
 	echo "❌ Error tagging image" ;
 	exit 1;

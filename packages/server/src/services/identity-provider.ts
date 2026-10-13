@@ -11,6 +11,14 @@ import {
 	identityProviderTypes,
 	noIdentityCapabilities,
 } from "@notploy/server/utils/identity";
+import {
+	parseLdapConfig,
+	testLdapConnection,
+} from "@notploy/server/utils/identity/ldap";
+import {
+	parseOauthConfig,
+	testSocialConnection,
+} from "@notploy/server/utils/identity/oauth";
 
 /**
  * Provider row shape the health probe needs. Kept structural so the tRPC layer
@@ -22,6 +30,8 @@ export interface IdentityProviderRecord {
 	domain: string;
 	oidcConfig: string | null;
 	samlConfig: string | null;
+	ldapConfig?: string | null;
+	oauthConfig?: string | null;
 }
 
 export interface IdentityProviderDescriptor {
@@ -83,6 +93,14 @@ export const getIdentityCapabilities = (
 				"certificateRotation",
 			);
 			break;
+		case "oauth2":
+			enable(
+				"singleSignOn",
+				"userProvisioning",
+				"jitProvisioning",
+				"connectionDiagnostics",
+			);
+			break;
 		case "custom":
 			enable("singleSignOn", "connectionDiagnostics");
 			break;
@@ -103,10 +121,17 @@ export const listIdentityProviderDescriptors =
 		}));
 
 export const resolveIdentityProviderProtocol = (
-	provider: Pick<IdentityProviderRecord, "oidcConfig" | "samlConfig">,
+	provider: Pick<
+		IdentityProviderRecord,
+		"oidcConfig" | "samlConfig" | "ldapConfig" | "oauthConfig"
+	>,
 ): IdentityProviderType => {
+	if (provider.ldapConfig) {
+		return parseLdapConfig(provider.ldapConfig)?.directoryType ?? "ldap";
+	}
 	if (provider.samlConfig) return "saml";
 	if (provider.oidcConfig) return "oidc";
+	if (provider.oauthConfig) return "oauth2";
 	return "custom";
 };
 
@@ -420,6 +445,89 @@ const probeSaml = (
 };
 
 /**
+ * Probes a social provider. Its API is public, so a `connected` status means
+ * the source is reachable from the Notploy server and answered with the shape
+ * the adapter expects; the credentials are exercised by the sign-in round-trip.
+ */
+const probeSocial = async (
+	provider: IdentityProviderRecord,
+	base: HealthBase,
+): Promise<IdentityProviderHealth> => {
+	const oauth = parseOauthConfig(provider.oauthConfig ?? null);
+	if (!oauth) {
+		return notValidated(
+			base,
+			"The stored social sign-in configuration could not be read.",
+		);
+	}
+	if (!oauth.clientId.trim()) {
+		return notValidated(base, "No client ID is configured.");
+	}
+
+	const startedAt = Date.now();
+	const result = await testSocialConnection(oauth);
+	const latencyMs = Date.now() - startedAt;
+
+	if (!result.connected) {
+		return failure(
+			base,
+			classifyIdentityProviderFailure(result.message),
+			result.message,
+			"Verify the client ID and secret, and that the Notploy server can reach the provider.",
+		);
+	}
+
+	return {
+		...base,
+		status: "connected",
+		latencyMs,
+		message: null,
+		remediation: null,
+		identity: { issuer: provider.issuer },
+	};
+};
+
+/**
+ * Probes a directory provider by binding with its service account and reading
+ * the base DN. A `connected` status means the directory accepted the bind and
+ * answered the search.
+ */
+const probeLdap = async (
+	provider: IdentityProviderRecord,
+	base: HealthBase,
+): Promise<IdentityProviderHealth> => {
+	const ldap = parseLdapConfig(provider.ldapConfig ?? null);
+	if (!ldap) {
+		return notValidated(
+			base,
+			"The stored directory configuration could not be read.",
+		);
+	}
+
+	const startedAt = Date.now();
+	const result = await testLdapConnection(ldap);
+	const latencyMs = Date.now() - startedAt;
+
+	if (!result.connected) {
+		return failure(
+			base,
+			classifyIdentityProviderFailure(result.message),
+			`The directory could not be reached: ${result.message}`,
+			"Verify the server URL, bind DN, bind password and base DN, then test the connection again.",
+		);
+	}
+
+	return {
+		...base,
+		status: "connected",
+		latencyMs,
+		message: null,
+		remediation: null,
+		identity: { issuer: ldap.url },
+	};
+};
+
+/**
  * Probes an identity provider and reports structured diagnostics.
  *
  * OIDC performs a real discovery request so a `connected` status means the
@@ -444,10 +552,9 @@ export const getIdentityProviderHealth = async (
 			return probeSaml(provider, base);
 		case "ldap":
 		case "active-directory":
-			return notValidated(
-				base,
-				`The ${protocol === "ldap" ? "LDAP" : "Active Directory"} adapter is not implemented yet.`,
-			);
+			return await probeLdap(provider, base);
+		case "oauth2":
+			return await probeSocial(provider, base);
 		case "custom":
 			return notValidated(base, "No supported protocol is configured.");
 	}

@@ -1,11 +1,10 @@
+import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
 import {
 	getWebServerSettings,
 	IS_CLOUD,
 	isAdminPresent,
 } from "@notploy/server";
 import { validateRequest } from "@notploy/server/lib/auth";
-import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
-import { generateServerSideHelper } from "@/utils/create-server-helpers";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Fingerprint } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
@@ -48,7 +47,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { appRouter } from "@/server/api/root";
-import { api } from "@/utils/api";
+import { generateServerSideHelper } from "@/utils/create-server-helpers";
 import { useWhitelabelingPublic } from "@/utils/hooks/use-whitelabeling";
 
 const LoginSchema = z.object({
@@ -69,7 +68,6 @@ interface Props {
 export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 	const router = useRouter();
 	const { config: whitelabeling } = useWhitelabelingPublic();
-	const { data: showSignInWithSSO } = api.sso.showSignInWithSSO.useQuery();
 	const [isLoginLoading, setIsLoginLoading] = useState(false);
 	const [isPasskeyLoading, setIsPasskeyLoading] = useState(false);
 	const [isTwoFactorLoading, setIsTwoFactorLoading] = useState(false);
@@ -322,10 +320,13 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 			<CardContent className="p-0">
 				{!isTwoFactor ? (
 					<>
-						{enforceSSO ? (
-							<SignInWithSSO enforce />
-						) : showSignInWithSSO ? (
+						{/* Managed cloud keeps the SSO button (an organization may not have a
+						    source); self-hosted shows the source directly once configured and
+						    otherwise keeps the local form. */}
+						{IS_CLOUD ? (
 							<SignInWithSSO>{loginContent}</SignInWithSSO>
+						) : enforceSSO ? (
+							<SignInWithSSO enforce />
 						) : (
 							loginContent
 						)}
@@ -498,7 +499,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 	// Prefetch the public branding so the login/onboarding logo and app name
 	// render correctly on the server (no flash of default branding).
 	await helpers.whitelabeling.getPublic.prefetch();
-	await helpers.sso.showSignInWithSSO.prefetch();
 
 	if (IS_CLOUD) {
 		try {

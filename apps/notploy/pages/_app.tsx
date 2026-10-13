@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { ThemeProvider } from "next-themes";
 import NextTopLoader from "nextjs-toploader";
 import type { ReactElement, ReactNode } from "react";
@@ -12,7 +12,16 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { api } from "@/utils/api";
 
-const inter = Inter({ subsets: ["latin"] });
+// Inter is self-hosted (latin subset, variable weight axis) so the app never
+// contacts Google Fonts at build or run time — an offline install used to fall
+// back to a system font and log a download warning on every compile.
+const inter = localFont({
+	src: "../fonts/Inter-latin-variable.woff2",
+	weight: "100 900",
+	style: "normal",
+	display: "swap",
+	fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
+});
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
 	getLayout?: (page: ReactElement) => ReactNode;

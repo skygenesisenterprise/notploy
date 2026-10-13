@@ -1450,6 +1450,27 @@
       "when": 1791815094748,
       "tag": "0207_clean_boom_boom",
       "breakpoints": true
+    },
+    {
+      "idx": 208,
+      "version": "7",
+      "when": 1791873054269,
+      "tag": "0208_jazzy_anthem",
+      "breakpoints": true
+    },
+    {
+      "idx": 209,
+      "version": "7",
+      "when": 1791875013876,
+      "tag": "0209_brave_alice",
+      "breakpoints": true
+    },
+    {
+      "idx": 210,
+      "version": "7",
+      "when": 1791877740950,
+      "tag": "0210_parallel_baron_strucker",
+      "breakpoints": true
     }
   ]
 }

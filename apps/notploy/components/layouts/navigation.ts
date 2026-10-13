@@ -508,6 +508,7 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 			// Trust: the identities workloads run under.
 			SHARED_ITEMS.certificates,
 			{ ...SHARED_ITEMS.secretsManager, label: "Secrets" },
+			SHARED_ITEMS.sso,
 			// Data: what the workloads persist.
 			SHARED_ITEMS.objectStorage,
 			// Cross-cutting platform resources.

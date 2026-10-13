@@ -31,6 +31,8 @@ import {
 import { getPublicIpWithFallback } from "../wss/utils";
 import { ac, adminRole, memberRole, ownerRole } from "./access-control";
 import { betterAuthSecret } from "./auth-secret";
+import { ldapSso } from "./plugins/ldap-sso";
+import { socialSso } from "./plugins/social-sso";
 
 const resolveTrustedOrigins = async () => {
 	try {
@@ -232,7 +234,8 @@ const createBetterAuth = () =>
 								}
 							} else {
 								const isSSORequest = context?.path.includes("/sso");
-								if (isSSORequest) {
+								const isLdapRequest = context?.path.includes("/ldap");
+								if (isSSORequest || isLdapRequest) {
 									return;
 								}
 								const isAdminPresent = await db.query.member.findFirst({
@@ -249,6 +252,7 @@ const createBetterAuth = () =>
 					after: async (user, context) => {
 						const isSSORequest = context?.path.includes("/sso");
 						const isSCIMRequest = context?.path.includes("/scim");
+						const isLdapRequest = context?.path.includes("/ldap");
 						const isAdminPresent = await db.query.member.findFirst({
 							where: eq(schema.member.role, "owner"),
 						});
@@ -282,6 +286,12 @@ const createBetterAuth = () =>
 							} catch (error) {
 								console.error("Error submitting to HubSpot", error);
 							}
+						}
+
+						// Directory sign-in provisions its own org membership in the
+						// `/sign-in/ldap` endpoint, so skip the SSO org bootstrap here.
+						if (isLdapRequest) {
+							return;
 						}
 
 						if (isSCIMRequest) {
@@ -463,6 +473,8 @@ const createBetterAuth = () =>
 				references: "user",
 			}),
 			sso({ trustEmailVerified: true }),
+			ldapSso(),
+			socialSso(),
 			scim(),
 			twoFactor(),
 			passkey(),
@@ -535,9 +547,7 @@ export interface RequestApiKey {
  * clients (GitHub Actions included) speak `Authorization: Bearer <token>`, so
  * both are accepted rather than forcing every action to build a custom header.
  */
-const extractApiKeyHeader = (
-	request: IncomingMessage,
-): string | undefined => {
+const extractApiKeyHeader = (request: IncomingMessage): string | undefined => {
 	const apiKeyHeader = request.headers["x-api-key"];
 	if (typeof apiKeyHeader === "string" && apiKeyHeader.trim()) {
 		return apiKeyHeader.trim();
@@ -693,8 +703,8 @@ export const validateRequest = async (request: IncomingMessage) => {
 			},
 		});
 
-session.user.role = member?.role || "member";
-			session.session.activeOrganizationId = member?.organization.id || "";
+		session.user.role = member?.role || "member";
+		session.session.activeOrganizationId = member?.organization.id || "";
 		if (member) {
 			session.user.ownerId = member.organization.ownerId;
 		} else {

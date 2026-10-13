@@ -13,9 +13,13 @@ import {
 } from "@notploy/server/index";
 import { auth } from "@notploy/server/lib/auth";
 import { invalidateTrustedOriginsCache } from "@notploy/server/services/admin";
-import { getWebServerSettings } from "@notploy/server/services/web-server-settings";
+import {
+	getWebServerSettings,
+	updateWebServerSettings,
+} from "@notploy/server/services/web-server-settings";
 import { TRPCError } from "@trpc/server";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import { z } from "zod";
 import {
 	adminProcedure,
@@ -87,7 +91,7 @@ function preserveStoredSsoConfig<T>(stored: string | null, updated: T): T {
 			!Array.isArray(newValue) &&
 			!Array.isArray(oldValue)
 		) {
-			const merged = { ...oldValue, ...newValue };
+			const merged: Record<string, unknown> = { ...oldValue, ...newValue };
 			for (const key of Object.keys(oldValue)) {
 				if (!(key in newValue)) {
 					merged[key] = (oldValue as Record<string, unknown>)[key];
@@ -114,6 +118,75 @@ export const ssoRouter = createTRPCRouter({
 	 * endpoint because the public API/SDK/CLI/MCP surface references it.
 	 */
 	showSignInWithSSO: publicProcedure.query(() => true),
+	/**
+	 * Public resolver used by the sign-in page to know whether an email is served
+	 * by a directory provider (which needs a password on this page) or a
+	 * federated one (which redirects to the external IdP).
+	 */
+	providerKind: publicProcedure
+		.input(z.object({ email: z.string().min(1) }))
+		.query(async ({ input }) => {
+			const domain = input.email.split("@")[1]?.trim().toLowerCase() ?? "";
+			if (!domain) return null;
+			const providers = await db.query.ssoProvider.findMany({
+				columns: {
+					domain: true,
+					oidcConfig: true,
+					samlConfig: true,
+					ldapConfig: true,
+					oauthConfig: true,
+				},
+			});
+			const match = providers.find((provider) =>
+				provider.domain
+					.split(",")
+					.map((value) => value.trim().toLowerCase())
+					.filter(Boolean)
+					.some(
+						(providerDomain) =>
+							domain === providerDomain ||
+							domain.endsWith(`.${providerDomain}`),
+					),
+			);
+			if (!match) return null;
+			if (match.ldapConfig) {
+				try {
+					const parsed = JSON.parse(match.ldapConfig) as {
+						directoryType?: string;
+					};
+					return parsed.directoryType === "active-directory"
+						? "active-directory"
+						: "ldap";
+				} catch {
+					return "ldap";
+				}
+			}
+			if (match.samlConfig) return "saml";
+			if (match.oidcConfig) return "oidc";
+			if (match.oauthConfig) return "oauth2";
+			return null;
+		}),
+	/**
+	 * Public resolver used by the sign-in page to offer a social source (GitHub)
+	 * as a one-click sign-in. Returns the provider id and the social source it
+	 * targets; `null` when none is configured.
+	 */
+	socialProvider: publicProcedure.query(async () => {
+		const provider = await db.query.ssoProvider.findFirst({
+			where: isNotNull(ssoProvider.oauthConfig),
+			columns: { providerId: true, oauthConfig: true },
+		});
+		if (!provider?.oauthConfig) return null;
+		try {
+			const parsed = JSON.parse(provider.oauthConfig) as { provider?: string };
+			return {
+				providerId: provider.providerId,
+				provider: parsed.provider ?? "github",
+			};
+		} catch {
+			return null;
+		}
+	}),
 	enforceSSO: publicProcedure.query(async () => {
 		if (IS_CLOUD) {
 			return false;
@@ -131,6 +204,8 @@ export const ssoRouter = createTRPCRouter({
 				domain: true,
 				oidcConfig: true,
 				samlConfig: true,
+				ldapConfig: true,
+				oauthConfig: true,
 				organizationId: true,
 			},
 			orderBy: [asc(ssoProvider.createdAt)],
@@ -139,6 +214,8 @@ export const ssoRouter = createTRPCRouter({
 			...provider,
 			oidcConfig: sanitizeSsoConfig(provider.oidcConfig),
 			samlConfig: sanitizeSsoConfig(provider.samlConfig),
+			ldapConfig: sanitizeSsoConfig(provider.ldapConfig),
+			oauthConfig: sanitizeSsoConfig(provider.oauthConfig),
 		}));
 	}),
 	/**
@@ -165,6 +242,8 @@ export const ssoRouter = createTRPCRouter({
 					domain: true,
 					oidcConfig: true,
 					samlConfig: true,
+					ldapConfig: true,
+					oauthConfig: true,
 				},
 			});
 			if (!provider) {
@@ -175,6 +254,80 @@ export const ssoRouter = createTRPCRouter({
 				});
 			}
 			return await getIdentityProviderHealth(provider);
+		}),
+	/**
+	 * Validates an identity provider configuration before it is saved, used by
+	 * the Add/Edit provider dialog's "Test connection" action. When `providerId`
+	 * is supplied (edit mode) any blank secret/certificate is resolved from the
+	 * stored configuration, mirroring `update`.
+	 */
+	testConnection: adminProcedure
+		.input(
+			z.object({
+				providerId: z.string().optional(),
+				issuer: z.string().min(1, "Issuer URL is required"),
+				oidcConfig: ssoProviderBodySchema.shape.oidcConfig,
+				samlConfig: ssoProviderBodySchema.shape.samlConfig,
+				ldapConfig: ssoProviderBodySchema.shape.ldapConfig,
+				oauthConfig: ssoProviderBodySchema.shape.oauthConfig,
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			let oidcConfig = input.oidcConfig;
+			let samlConfig = input.samlConfig;
+			let ldapConfig = input.ldapConfig;
+			let oauthConfig = input.oauthConfig;
+
+			if (input.providerId) {
+				const existing = await db.query.ssoProvider.findFirst({
+					where: and(
+						eq(ssoProvider.providerId, input.providerId),
+						eq(ssoProvider.organizationId, ctx.session.activeOrganizationId),
+					),
+					columns: {
+						oidcConfig: true,
+						samlConfig: true,
+						ldapConfig: true,
+						oauthConfig: true,
+					},
+				});
+				if (existing) {
+					if (oidcConfig) {
+						oidcConfig = preserveStoredSsoConfig(
+							existing.oidcConfig,
+							oidcConfig,
+						);
+					}
+					if (samlConfig) {
+						samlConfig = preserveStoredSsoConfig(
+							existing.samlConfig,
+							samlConfig,
+						);
+					}
+					if (ldapConfig) {
+						ldapConfig = preserveStoredSsoConfig(
+							existing.ldapConfig,
+							ldapConfig,
+						);
+					}
+					if (oauthConfig) {
+						oauthConfig = preserveStoredSsoConfig(
+							existing.oauthConfig,
+							oauthConfig,
+						);
+					}
+				}
+			}
+
+			return await getIdentityProviderHealth({
+				providerId: input.providerId ?? "pending",
+				issuer: input.issuer,
+				domain: "",
+				oidcConfig: oidcConfig ? JSON.stringify(oidcConfig) : null,
+				samlConfig: samlConfig ? JSON.stringify(samlConfig) : null,
+				ldapConfig: ldapConfig ? JSON.stringify(ldapConfig) : null,
+				oauthConfig: oauthConfig ? JSON.stringify(oauthConfig) : null,
+			});
 		}),
 	getTrustedOrigins: adminProcedure.query(async ({ ctx }) => {
 		const ownerId = await getOrganizationOwnerId(
@@ -202,6 +355,8 @@ export const ssoRouter = createTRPCRouter({
 					domain: true,
 					oidcConfig: true,
 					samlConfig: true,
+					ldapConfig: true,
+					oauthConfig: true,
 					organizationId: true,
 				},
 			});
@@ -216,6 +371,8 @@ export const ssoRouter = createTRPCRouter({
 				...provider,
 				oidcConfig: sanitizeSsoConfig(provider.oidcConfig),
 				samlConfig: sanitizeSsoConfig(provider.samlConfig),
+				ldapConfig: sanitizeSsoConfig(provider.ldapConfig),
+				oauthConfig: sanitizeSsoConfig(provider.oauthConfig),
 			};
 		}),
 	update: adminProcedure
@@ -233,6 +390,8 @@ export const ssoRouter = createTRPCRouter({
 					userId: true,
 					oidcConfig: true,
 					samlConfig: true,
+					ldapConfig: true,
+					oauthConfig: true,
 				},
 			});
 
@@ -271,9 +430,16 @@ export const ssoRouter = createTRPCRouter({
 				}
 			}
 
+			const isLdap = input.ldapConfig != null;
+			const isSocial = input.oauthConfig != null;
+			// Only federated issuers are checked against the trusted-origins list;
+			// a directory or a social source is not an origin the browser is sent to
+			// on its own.
 			const issuerChanged =
+				!isLdap &&
+				!isSocial &&
 				normalizeTrustedOrigin(existing.issuer) !==
-				normalizeTrustedOrigin(input.issuer);
+					normalizeTrustedOrigin(input.issuer);
 			if (issuerChanged) {
 				const ownerId = await getOrganizationOwnerId(
 					ctx.session.activeOrganizationId,
@@ -303,6 +469,77 @@ export const ssoRouter = createTRPCRouter({
 			}
 
 			const domain = input.domains.join(",");
+
+			if (isLdap && input.ldapConfig) {
+				const ldapConfig = preserveStoredSsoConfig(
+					existing.ldapConfig,
+					input.ldapConfig,
+				);
+				if (ldapConfig.bindDn && !ldapConfig.bindPassword?.trim()) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "LDAP bind password is required",
+					});
+				}
+				await db
+					.update(ssoProvider)
+					.set({
+						issuer: input.issuer || ldapConfig.url,
+						domain,
+						providerId: input.providerId,
+						ldapConfig: JSON.stringify(ldapConfig),
+						oidcConfig: null,
+						samlConfig: null,
+					})
+					.where(eq(ssoProvider.id, existing.id));
+				await audit(ctx, {
+					action: "update",
+					resourceType: "settings",
+					resourceId: existing.id,
+					resourceName: `Identity provider ${input.providerId}`,
+					metadata: {
+						protocol:
+							ldapConfig.directoryType === "active-directory"
+								? "Active Directory"
+								: "LDAP",
+					},
+				});
+				return { success: true };
+			}
+
+			if (isSocial && input.oauthConfig) {
+				const oauthConfig = preserveStoredSsoConfig(
+					existing.oauthConfig,
+					input.oauthConfig,
+				);
+				if (!oauthConfig.clientSecret.trim()) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "OAuth 2.0 client secret is required",
+					});
+				}
+				await db
+					.update(ssoProvider)
+					.set({
+						issuer: input.issuer,
+						domain,
+						providerId: input.providerId,
+						oauthConfig: JSON.stringify(oauthConfig),
+						oidcConfig: null,
+						samlConfig: null,
+						ldapConfig: null,
+					})
+					.where(eq(ssoProvider.id, existing.id));
+				await audit(ctx, {
+					action: "update",
+					resourceType: "settings",
+					resourceId: existing.id,
+					resourceName: `Identity provider ${input.providerId}`,
+					metadata: { protocol: "OAuth 2.0" },
+				});
+				return { success: true };
+			}
+
 			const updateBody: {
 				providerId: string;
 				issuer: string;
@@ -399,6 +636,22 @@ export const ssoRouter = createTRPCRouter({
 				});
 			}
 
+			// Removing the last external identity source restores local
+			// authentication, so an operator is never locked out by a dangling
+			// enforcement flag.
+			if (!IS_CLOUD) {
+				const remaining = await db.query.ssoProvider.findMany({
+					where: eq(
+						ssoProvider.organizationId,
+						ctx.session.activeOrganizationId,
+					),
+					columns: { id: true },
+				});
+				if (remaining.length === 0) {
+					await updateWebServerSettings({ enforceSSO: false });
+				}
+			}
+
 			await audit(ctx, {
 				action: "delete",
 				resourceType: "settings",
@@ -420,6 +673,12 @@ export const ssoRouter = createTRPCRouter({
 				throw new TRPCError({
 					code: "BAD_REQUEST",
 					message: "SAML signing certificate is required",
+				});
+			}
+			if (input.oauthConfig && !input.oauthConfig.clientSecret.trim()) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "OAuth 2.0 client secret is required",
 				});
 			}
 			const organizationId = ctx.session.activeOrganizationId;
@@ -445,6 +704,74 @@ export const ssoRouter = createTRPCRouter({
 			}
 			const domain = input.domains.join(",");
 
+			if (input.ldapConfig) {
+				if (input.ldapConfig.bindDn && !input.ldapConfig.bindPassword?.trim()) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "LDAP bind password is required",
+					});
+				}
+				await db.insert(ssoProvider).values({
+					id: nanoid(),
+					issuer: input.issuer || input.ldapConfig.url,
+					oidcConfig: null,
+					samlConfig: null,
+					ldapConfig: JSON.stringify(input.ldapConfig),
+					providerId: input.providerId,
+					userId: ctx.session.userId,
+					organizationId,
+					domain,
+					domainVerified: true,
+					createdAt: new Date(),
+				});
+
+				if (!IS_CLOUD) {
+					await updateWebServerSettings({ enforceSSO: true });
+				}
+
+				await audit(ctx, {
+					action: "create",
+					resourceType: "settings",
+					resourceName: `Identity provider ${input.providerId}`,
+					metadata: {
+						protocol:
+							input.ldapConfig.directoryType === "active-directory"
+								? "Active Directory"
+								: "LDAP",
+					},
+				});
+				return { success: true };
+			}
+
+			if (input.oauthConfig) {
+				await db.insert(ssoProvider).values({
+					id: nanoid(),
+					issuer: input.issuer,
+					oidcConfig: null,
+					samlConfig: null,
+					ldapConfig: null,
+					oauthConfig: JSON.stringify(input.oauthConfig),
+					providerId: input.providerId,
+					userId: ctx.session.userId,
+					organizationId,
+					domain,
+					domainVerified: true,
+					createdAt: new Date(),
+				});
+
+				if (!IS_CLOUD) {
+					await updateWebServerSettings({ enforceSSO: true });
+				}
+
+				await audit(ctx, {
+					action: "create",
+					resourceType: "settings",
+					resourceName: `Identity provider ${input.providerId}`,
+					metadata: { protocol: "OAuth 2.0" },
+				});
+				return { success: true };
+			}
+
 			await auth.registerSSOProvider({
 				body: {
 					...input,
@@ -453,6 +780,14 @@ export const ssoRouter = createTRPCRouter({
 				},
 				headers: requestToHeaders(ctx.req),
 			});
+
+			// Once an external identity source exists it becomes the authority:
+			// local password/social/passkey sign-in and sign-up are turned off so
+			// authentication runs through the provider. Cloud manages this itself.
+			if (!IS_CLOUD) {
+				await updateWebServerSettings({ enforceSSO: true });
+			}
+
 			await audit(ctx, {
 				action: "create",
 				resourceType: "settings",

@@ -10,10 +10,10 @@ import {
 	vaultSecret,
 } from "@notploy/server/db/schema";
 import {
-	type VaultCapabilityMatrix,
 	getVaultCapabilities,
 	getVaultClient,
 	getVaultProviderCategory,
+	type VaultCapabilityMatrix,
 	type VaultProviderCategory,
 	type VaultProviderType,
 	type VaultSecretRecord,
@@ -333,7 +333,12 @@ export const getVaultProviderHealth = async (
 	}
 	try {
 		const secretNames = await client.listSecretNames(config);
-		return { status: "connected", checkedAt, latencyMs, secretCount: secretNames.length };
+		return {
+			status: "connected",
+			checkedAt,
+			latencyMs,
+			secretCount: secretNames.length,
+		};
 	} catch (error) {
 		return {
 			status: "degraded",
@@ -396,6 +401,30 @@ export const listVaultSecretsForProvider = async (vaultProviderId: string) =>
 		.from(vaultSecret)
 		.where(eq(vaultSecret.vaultProviderId, vaultProviderId))
 		.orderBy(asc(vaultSecret.name));
+
+/**
+ * Every managed secret of an organization, with the provider it belongs to.
+ *
+ * Values are never selected: consumers that only need to *reference* a secret —
+ * a container registry, for instance — get its identity and nothing else.
+ */
+export const listOrganizationVaultSecrets = async (organizationId: string) =>
+	await db
+		.select({
+			vaultSecretId: vaultSecret.vaultSecretId,
+			name: vaultSecret.name,
+			description: vaultSecret.description,
+			vaultProviderId: vaultProvider.vaultProviderId,
+			providerName: vaultProvider.name,
+			providerType: vaultProvider.providerType,
+		})
+		.from(vaultSecret)
+		.innerJoin(
+			vaultProvider,
+			eq(vaultSecret.vaultProviderId, vaultProvider.vaultProviderId),
+		)
+		.where(eq(vaultProvider.organizationId, organizationId))
+		.orderBy(asc(vaultProvider.name), asc(vaultSecret.name));
 
 export const createVaultSecret = async (
 	input: z.infer<typeof apiCreateVaultSecret>,

@@ -44,6 +44,7 @@ describe("listIdentityProviderDescriptors", () => {
 			"saml",
 			"ldap",
 			"active-directory",
+			"oauth2",
 			"custom",
 		]);
 
@@ -59,6 +60,18 @@ describe("listIdentityProviderDescriptors", () => {
 		expect(getIdentityCapabilities("ldap").directorySearch).toBe(true);
 		expect(getIdentityCapabilities("saml").directorySearch).toBe(false);
 		expect(getIdentityCapabilities("saml").certificateRotation).toBe(true);
+	});
+
+	it("marks OAuth 2.0 as a social provider", () => {
+		const social = listIdentityProviderDescriptors().find(
+			(d) => d.providerType === "oauth2",
+		);
+		expect(social?.category).toBe("social");
+		expect(social?.capabilities.singleSignOn).toBe(true);
+		expect(social?.capabilities.jitProvisioning).toBe(true);
+		// GitHub OAuth apps support neither PKCE nor refresh tokens.
+		expect(social?.capabilities.pkce).toBe(false);
+		expect(social?.capabilities.refreshTokens).toBe(false);
 	});
 });
 
@@ -202,5 +215,72 @@ describe("getIdentityProviderHealth - SAML", () => {
 			}),
 		);
 		expect(health.status).toBe("misconfigured");
+	});
+});
+
+describe("getIdentityProviderHealth - OAuth 2.0", () => {
+	const socialProvider = (
+		oauthConfig: Record<string, unknown> | null,
+	): IdentityProviderRecord => ({
+		providerId: "github",
+		issuer: "https://github.com",
+		domain: "example.com",
+		oidcConfig: null,
+		samlConfig: null,
+		oauthConfig: oauthConfig ? JSON.stringify(oauthConfig) : null,
+	});
+
+	it("reports connected when the source API is reachable", async () => {
+		mockFetch.mockResolvedValue(jsonResponse({}));
+
+		const health = await getIdentityProviderHealth(
+			socialProvider({
+				provider: "github",
+				clientId: "client-id",
+				clientSecret: "secret",
+			}),
+		);
+
+		expect(health.status).toBe("connected");
+		expect(health.protocol).toBe("oauth2");
+		expect(health.capabilities.jitProvisioning).toBe(true);
+		expect(mockFetch).toHaveBeenCalledWith(
+			"https://api.github.com",
+			expect.anything(),
+		);
+	});
+
+	it("never returns the stored client secret", async () => {
+		mockFetch.mockResolvedValue(jsonResponse({}));
+
+		const health = await getIdentityProviderHealth(
+			socialProvider({
+				provider: "github",
+				clientId: "client-id",
+				clientSecret: "super-secret-value",
+			}),
+		);
+		expect(JSON.stringify(health)).not.toContain("super-secret-value");
+	});
+
+	it("flags an unreadable configuration without probing", async () => {
+		const health = await getIdentityProviderHealth(
+			socialProvider({ provider: "github", clientSecret: "secret" }),
+		);
+		expect(health.status).toBe("misconfigured");
+		expect(mockFetch).not.toHaveBeenCalled();
+	});
+
+	it("reports unreachable when the source cannot be reached", async () => {
+		mockFetch.mockRejectedValue(new Error("fetch failed"));
+
+		const health = await getIdentityProviderHealth(
+			socialProvider({
+				provider: "github",
+				clientId: "client-id",
+				clientSecret: "secret",
+			}),
+		);
+		expect(health.status).toBe("unreachable");
 	});
 });

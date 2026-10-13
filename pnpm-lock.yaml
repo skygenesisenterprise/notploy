@@ -1075,6 +1075,9 @@ importers:
       ioredis:
         specifier: 5.9.2
         version: 5.9.2
+      ldapts:
+        specifier: ^9.2.0
+        version: 9.2.0
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -13464,6 +13467,10 @@ packages:
   lazy-val@1.0.5:
     resolution: {integrity: sha512-0/BnGCCfyUMkBpeDgWihanIAF9JmZhHBgUhEqzvf+adhNGLoP6TaiI5oF8oyb3I45P+PcnrqihSf01M0l0G5+Q==}
 
+  ldapts@9.2.0:
+    resolution: {integrity: sha512-5mDg3OT5fDP9DUXga9dCLW8cMW24OTOKT4pv/Qj+f2zCV3qxb+gkZLCzMAqzVTOANoycidKkYpPvkclUQU2aXw==}
+    engines: {node: '>=22'}
+
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
@@ -16619,6 +16626,9 @@ packages:
 
   stream-slice@0.1.2:
     resolution: {integrity: sha512-QzQxpoacatkreL6jsxnVb7X5R/pGw9OUv2qWTYWnmLpg4NdN31snPy/f3TdQE1ZUXaThRvj1Zw4/OGg0ZkaLMA==}
+
+  strict-event-emitter-types@2.0.0:
+    resolution: {integrity: sha512-Nk/brWYpD85WlOgzw5h173aci0Teyv8YdIAEtV+N88nDB0dLlazZyJMIsN6eo1/AR61l+p6CJTG1JIyFaoNEEA==}
 
   strict-uri-encode@2.0.0:
     resolution: {integrity: sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ==}
@@ -32042,6 +32052,10 @@ snapshots:
 
   lazy-val@1.0.5: {}
 
+  ldapts@9.2.0:
+    dependencies:
+      strict-event-emitter-types: 2.0.0
+
   leac@0.6.0: {}
 
   leven@3.1.0: {}
@@ -36081,6 +36095,8 @@ snapshots:
   stream-buffers@2.2.0: {}
 
   stream-slice@0.1.2: {}
+
+  strict-event-emitter-types@2.0.0: {}
 
   strict-uri-encode@2.0.0: {}
 
