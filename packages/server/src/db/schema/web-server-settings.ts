@@ -195,6 +195,8 @@ export const apiAssignDomain = z
 	})
 	.required()
 	.partial({
+		certificateType: true,
+		customCertResolver: true,
 		letsEncryptEmail: true,
 		https: true,
 	})

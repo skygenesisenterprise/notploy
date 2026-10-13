@@ -19,52 +19,19 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { api } from "@/utils/api";
 
-const addServerDomain = z
-	.object({
-		domain: z
-			.string()
-			.trim()
-			.toLowerCase()
-			// empty clears the server domain and reverts to IP-only access
-			.refine((val) => val === "" || VALID_HOSTNAME_REGEX.test(val), {
-				message: INVALID_HOSTNAME_MESSAGE,
-			}),
-		letsEncryptEmail: z.string(),
-		https: z.boolean().optional(),
-		certificateType: z.enum(["letsencrypt", "none", "custom"]),
-	})
-	.superRefine((data, ctx) => {
-		if (data.domain && data.https && !data.certificateType) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ["certificateType"],
-				message: "Required",
-			});
-		}
-		if (
-			data.domain &&
-			data.https &&
-			data.certificateType === "letsencrypt" &&
-			!data.letsEncryptEmail
-		) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message:
-					"LetsEncrypt email is required when certificate type is letsencrypt",
-				path: ["letsEncryptEmail"],
-			});
-		}
-	});
+const addServerDomain = z.object({
+	domain: z
+		.string()
+		.trim()
+		.toLowerCase()
+		// empty clears the server domain and reverts to IP-only access
+		.refine((val) => val === "" || VALID_HOSTNAME_REGEX.test(val), {
+			message: INVALID_HOSTNAME_MESSAGE,
+		}),
+	letsEncryptEmail: z.string(),
+});
 
 type AddServerDomain = z.infer<typeof addServerDomain>;
 
@@ -76,23 +43,15 @@ export const WebDomain = () => {
 	const form = useForm<AddServerDomain>({
 		defaultValues: {
 			domain: "",
-			certificateType: "none",
 			letsEncryptEmail: "",
-			https: false,
 		},
 		resolver: zodResolver(addServerDomain),
 	});
-	const https = form.watch("https");
-	const domain = form.watch("domain") || "";
-	const host = data?.host || "";
-	const hasChanged = domain !== host;
 	useEffect(() => {
 		if (data) {
 			form.reset({
 				domain: data?.host || "",
-				certificateType: data?.certificateType || "none",
 				letsEncryptEmail: data?.letsEncryptEmail || "",
-				https: data?.https || false,
 			});
 		}
 	}, [form, form.reset, data]);
@@ -101,12 +60,21 @@ export const WebDomain = () => {
 		await mutateAsync({
 			host: data.domain,
 			letsEncryptEmail: data.letsEncryptEmail,
-			certificateType: data.certificateType,
-			https: data.https,
 		})
-			.then(async () => {
+			.then(async (result) => {
 				await refetch();
-				toast.success("Domain Assigned");
+				const internalDns = result?.internalDns;
+				if (internalDns?.status === "no-provider") {
+					toast.warning(
+						"Domain saved, but no Notploy Internal DNS provider is configured",
+					);
+				} else if (internalDns?.status === "no-ip") {
+					toast.warning(
+						"Domain saved, but no server IP could be resolved for the internal DNS record",
+					);
+				} else {
+					toast.success("Domain Assigned");
+				}
 			})
 			.catch(() => {
 				toast.error("Error assigning the domain");
@@ -121,24 +89,10 @@ export const WebDomain = () => {
 					Instance URL
 				</h2>
 				<p className="text-sm text-muted-foreground">
-					Configure the public address and HTTPS routing for the Notploy control
-					plane.
+					Configure the hostname of the Notploy control plane. Use a public
+					hostname or an internal/LAN one (e.g. console.notploy.lan).
 				</p>
 			</header>
-			{hasChanged && (
-				<div
-					role="alert"
-					className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-sm"
-				>
-					<p className="font-medium">
-						Changing the instance URL affects callbacks
-					</p>
-					<p className="mt-1 text-muted-foreground">
-						Update GitHub Apps and other integrations that use this Notploy URL,
-						including preview deployments.
-					</p>
-				</div>
-			)}
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
@@ -150,7 +104,7 @@ export const WebDomain = () => {
 						render={({ field }) => {
 							return (
 								<FormItem>
-									<FormLabel>Canonical hostname</FormLabel>
+									<FormLabel>Hostname</FormLabel>
 									<FormControl>
 										<Input
 											className="w-full"
@@ -159,7 +113,8 @@ export const WebDomain = () => {
 										/>
 									</FormControl>
 									<FormDescription>
-										Used as the public Notploy URL in generated callbacks.
+										Public or internal (LAN) hostname used as the Notploy URL in
+										generated callbacks.
 									</FormDescription>
 									<FormMessage />
 								</FormItem>
@@ -186,54 +141,6 @@ export const WebDomain = () => {
 							);
 						}}
 					/>
-					<FormField
-						control={form.control}
-						name="https"
-						render={({ field }) => (
-							<FormItem className="flex flex-row items-center justify-between rounded-md border p-3 sm:col-span-2">
-								<div className="space-y-0.5">
-									<FormLabel>HTTPS</FormLabel>
-									<FormDescription>
-										Automatically provision SSL Certificate.
-									</FormDescription>
-									<FormMessage />
-								</div>
-								<FormControl>
-									<Switch
-										checked={field.value}
-										onCheckedChange={field.onChange}
-									/>
-								</FormControl>
-							</FormItem>
-						)}
-					/>
-					{https && (
-						<FormField
-							control={form.control}
-							name="certificateType"
-							render={({ field }) => {
-								return (
-									<FormItem className="sm:col-span-2">
-										<FormLabel>Certificate Provider</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value}>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="Select a certificate" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value={"none"}>None</SelectItem>
-												<SelectItem value={"letsencrypt"}>
-													Let's Encrypt
-												</SelectItem>
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								);
-							}}
-						/>
-					)}
 
 					<div className="flex w-full justify-end sm:col-span-2">
 						<Button isLoading={isPending} type="submit">

@@ -47,6 +47,7 @@ import {
 	spawnAsync,
 	startLogCleanup,
 	stopLogCleanup,
+	syncDomainToInternalDns,
 	updateLetsEncryptEmail,
 	updateServerById,
 	updateServerTraefik,
@@ -353,15 +354,28 @@ export const settingsRouter = createTRPCRouter({
 	assignDomainServer: adminProcedure
 		.input(apiAssignDomain)
 		.mutation(async ({ input, ctx }) => {
-			if (IS_CLOUD) {
+			if (isManagedCloud()) {
 				return true;
 			}
-			const settings = await updateWebServerSettings({
+			// Only apply the fields explicitly provided; hostname assignment must
+			// not overwrite the existing HTTPS/certificate configuration.
+			const updates: Parameters<typeof updateWebServerSettings>[0] = {
 				host: input.host,
-				letsEncryptEmail: input.letsEncryptEmail,
-				certificateType: input.certificateType,
-				https: input.https,
-			});
+			};
+			if (input.letsEncryptEmail !== undefined) {
+				updates.letsEncryptEmail = input.letsEncryptEmail;
+			}
+			if (input.certificateType !== undefined) {
+				updates.certificateType = input.certificateType;
+			}
+			if (input.https !== undefined) {
+				updates.https = input.https;
+			}
+			if (input.customCertResolver !== undefined) {
+				updates.customCertResolver = input.customCertResolver;
+			}
+
+			const settings = await updateWebServerSettings(updates);
 
 			if (!settings) {
 				throw new TRPCError({
@@ -375,6 +389,20 @@ export const settingsRouter = createTRPCRouter({
 				updateLetsEncryptEmail(input.letsEncryptEmail);
 			}
 
+			// Register the control-plane hostname in the organization's Notploy
+			// Internal DNS so names like `console.notploy.lan` resolve inside the
+			// LAN, the same way application domains do.
+			const organizationId = ctx.session?.activeOrganizationId;
+			const internalDns =
+				input.host && organizationId
+					? await syncDomainToInternalDns({
+							host: input.host,
+							organizationId,
+						}).catch(() => ({
+							status: "no-provider" as const,
+						}))
+					: null;
+
 			await audit(ctx, {
 				action: "update",
 				resourceType: "settings",
@@ -384,6 +412,7 @@ export const settingsRouter = createTRPCRouter({
 				host: settings.host,
 				https: settings.https,
 				certificateType: settings.certificateType,
+				internalDns,
 			};
 		}),
 	cleanSSHPrivateKey: adminProcedure.mutation(async ({ ctx }) => {
@@ -972,7 +1001,7 @@ export const settingsRouter = createTRPCRouter({
 			}
 		}),
 	getIp: protectedProcedure.query(async () => {
-		if (IS_CLOUD) {
+		if (isManagedCloud()) {
 			return "";
 		}
 		const settings = await getWebServerSettings();
@@ -988,7 +1017,7 @@ export const settingsRouter = createTRPCRouter({
 			}),
 		)
 		.mutation(async ({ input, ctx }) => {
-			if (IS_CLOUD) {
+			if (isManagedCloud()) {
 				return true;
 			}
 			const settings = await updateWebServerSettings({

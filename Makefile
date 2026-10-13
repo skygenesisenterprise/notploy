@@ -114,7 +114,7 @@ NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy-cloud
 override IS_CLOUD := true
 else ifeq ($(NOTPLOY_FLAVOR),console)
 NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy-console
-override IS_CLOUD := true
+override IS_CLOUD := false
 else
 NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy
 override IS_CLOUD := false

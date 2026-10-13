@@ -335,7 +335,12 @@ services:
         - action: rebuild
           path: pnpm-lock.yaml
     networks:
-      - notploy
+      notploy:
+        # The control-plane Traefik router targets `notploy:3000` (the production
+        # service name). In dev that service is `notploy-dev`, so alias it as
+        # `notploy` too and the same generated config routes in both modes.
+        aliases:
+          - notploy
 
   # -------------------------------------------------------------------------
   # Notploy Status — the standalone status page (Notploy Cloud, API, MCP

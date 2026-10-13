@@ -14,9 +14,10 @@ import { api } from "@/utils/api";
 export const Analytics = () => {
 	const router = useRouter();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const enabled = isCloud === true && process.env.NODE_ENV === "production";
 
 	useEffect(() => {
-		if (!isCloud || !router.isReady) {
+		if (!enabled || !router.isReady) {
 			return;
 		}
 		const { signup, subscription, tier, ...rest } = router.query;
@@ -34,9 +35,9 @@ export const Analytics = () => {
 				shallow: true,
 			});
 		}
-	}, [isCloud, router.isReady, router.query, router.pathname, router.replace]);
+	}, [enabled, router.isReady, router.query, router.pathname, router.replace]);
 
-	if (!isCloud) {
+	if (!enabled) {
 		return null;
 	}
 
