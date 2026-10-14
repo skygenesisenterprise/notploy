@@ -65,7 +65,7 @@
     "tailwindcss": "3.4.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
+    "@babel/core": "^8.0.7",
     "@biomejs/biome": "^2.5.15",
     "@testing-library/jest-native": "5.4.3",
     "@testing-library/react-native": "12.5.0",
