@@ -18,7 +18,7 @@
   "bugs": "https://github.com/skygenesisenterprise/notploy/issues",
   "dependencies": {
     "axios": "^1.7.2",
-    "chalk": "^5.3.0",
+    "chalk": "^6.0.1",
     "commander": "^13.1.0"
   },
   "devDependencies": {
