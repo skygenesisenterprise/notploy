@@ -32,7 +32,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 export const config = {
 	api: {
 		bodyParser: {
-			sizeLimit: `${Math.floor(MAX_AUDIENCE_PAYLOAD_BYTES / 1024)}kb`,
+			sizeLimit: "16kb",
 		},
 	},
 } as const;

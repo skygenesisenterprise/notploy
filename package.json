@@ -63,6 +63,7 @@
 	},
 	"dependencies": {
 		"@skygenesisenterprise/react-sds": "^1.0.0",
+		"ldapts": "^9.2.0",
 		"node-forge": "^1.4.0"
 	}
 }
