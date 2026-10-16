@@ -87,6 +87,38 @@ void app.prepare().then(async () => {
 	try {
 		console.log("Running NotployVersion: ", packageInfo.version);
 		const server = http.createServer((req, res) => {
+			if (dev && req.url?.includes("_clientMiddlewareManifest.js")) {
+				const originalSetHeader = res.setHeader.bind(res);
+				res.setHeader = (
+					name: string,
+					value: number | string | readonly string[],
+				) => {
+					if (name.toLowerCase() === "content-type") {
+						return originalSetHeader(
+							"Content-Type",
+							"application/javascript; charset=utf-8",
+						);
+					}
+					return originalSetHeader(name, value);
+				};
+				const originalWriteHead = res.writeHead.bind(res);
+				(res as any).writeHead = (
+					statusCode: number,
+					...args: any[]
+				) => {
+					for (const arg of args) {
+						if (arg && typeof arg === "object" && "content-type" in Object.fromEntries(
+							Object.entries(arg).map(([k, v]) => [k.toLowerCase(), v]),
+						)) {
+							(arg as Record<string, string>)["content-type"] =
+								"application/javascript; charset=utf-8";
+							(arg as Record<string, string>)["Content-Type"] =
+								"application/javascript; charset=utf-8";
+						}
+					}
+					return originalWriteHead(statusCode, ...args);
+				};
+			}
 			handle(req, res);
 		});
 

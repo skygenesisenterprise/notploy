@@ -34,7 +34,7 @@ import { betterAuthSecret } from "./auth-secret";
 import { ldapSso } from "./plugins/ldap-sso";
 import { socialSso } from "./plugins/social-sso";
 
-const resolveTrustedOrigins = async () => {
+const resolveTrustedOrigins = async (opts?: { request?: Request }) => {
 	try {
 		if (IS_CLOUD) {
 			return await getTrustedOrigins();
@@ -44,21 +44,67 @@ const resolveTrustedOrigins = async () => {
 			getWebServerSettings(),
 		]);
 
-		if (!settings) return [];
+		const dynamicOrigins: string[] = [];
+		const request = opts?.request;
+		if (request) {
+			const origin = request.headers.get("origin");
+			const host = request.headers.get("host");
+			const forwardedHost = request.headers.get("x-forwarded-host");
+			const forwardedProto = request.headers.get("x-forwarded-proto");
+			if (origin) {
+				dynamicOrigins.push(origin);
+				try {
+					const url = new URL(origin);
+					dynamicOrigins.push(`${url.protocol}//${url.hostname}`);
+					dynamicOrigins.push(`${url.protocol}//${url.hostname}:3000`);
+				} catch {}
+			}
+			if (host) {
+				dynamicOrigins.push(`http://${host}`);
+				dynamicOrigins.push(`https://${host}`);
+				dynamicOrigins.push(`http://${host.split(":")[0]}`);
+				dynamicOrigins.push(`https://${host.split(":")[0]}`);
+				dynamicOrigins.push(`http://${host.split(":")[0]}:3000`);
+			}
+			if (forwardedHost) {
+				const proto = forwardedProto || "http";
+				dynamicOrigins.push(`${proto}://${forwardedHost}`);
+				dynamicOrigins.push(`http://${forwardedHost.split(":")[0]}`);
+				dynamicOrigins.push(`http://${forwardedHost.split(":")[0]}:3000`);
+			}
+		}
 
 		const devOrigins =
 			process.env.NODE_ENV === "development"
 				? [
 						"http://localhost:3000",
+						"http://127.0.0.1:3000",
+						"http://0.0.0.0:3000",
 						"https://absolutely-handy-falcon.ngrok-free.app",
 					]
 				: [];
-		return [
-			...(settings?.serverIp ? [`http://${settings?.serverIp}:3000`] : []),
-			...(settings?.host ? [`https://${settings?.host}`] : []),
-			...devOrigins,
-			...trustedOrigins,
-		];
+		return Array.from(
+			new Set([
+				...dynamicOrigins,
+				...(settings?.serverIp
+					? [
+							`http://${settings.serverIp}:3000`,
+							`http://${settings.serverIp}`,
+							`https://${settings.serverIp}`,
+						]
+					: []),
+				...(settings?.host
+					? [
+							`https://${settings.host}`,
+							`http://${settings.host}`,
+							`http://${settings.host}:3000`,
+							`https://${settings.host}:3000`,
+						]
+					: []),
+				...devOrigins,
+				...trustedOrigins,
+			]),
+		);
 	} catch (error) {
 		console.error("Failed to resolve trusted origins:", error);
 		return [];
@@ -131,13 +177,17 @@ const createBetterAuth = () =>
 		logger: {
 			disabled: process.env.NODE_ENV === "production",
 		},
-		trustedOrigins: resolveTrustedOrigins,
+		trustedOrigins: async (opts: any) => {
+			return resolveTrustedOrigins(opts);
+		},
 		hooks: {
 			before: createAuthMiddleware(async (ctx) => {
+				const request =
+					(ctx as any).request || (ctx.context as any)?.request || null;
 				ctx.context.trustedOrigins = [
 					...(ctx.context.baseURL ? [new URL(ctx.context.baseURL).origin] : []),
-					...(await resolveTrustedOrigins()),
-				].filter(Boolean);
+					...(await resolveTrustedOrigins(request ? { request } : undefined)),
+				].filter(Boolean as any);
 
 				const isBlockedAuthPath =
 					ctx.path.startsWith("/sign-in/email") ||
