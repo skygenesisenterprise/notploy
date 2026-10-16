@@ -1471,6 +1471,13 @@
       "when": 1791877740950,
       "tag": "0210_parallel_baron_strucker",
       "breakpoints": true
+    },
+    {
+      "idx": 211,
+      "version": "7",
+      "when": 1792143136615,
+      "tag": "0211_lucky_scarecrow",
+      "breakpoints": true
     }
   ]
 }

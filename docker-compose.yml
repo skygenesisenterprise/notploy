@@ -291,9 +291,14 @@ services:
       # Same host port as production: the app is always on
       # http://localhost:${NOTPLOY_PORT:-3000}.
       - "${NOTPLOY_PORT:-3000}:3000"
-      # DNS for LAN clients (see the production service above).
-      - "${NOTPLOY_DNS_HOST_PORT:-53}:53/udp"
-      - "${NOTPLOY_DNS_HOST_PORT:-53}:53/tcp"
+      # DNS for LAN clients, but on 5300 in development instead of 53: port 53
+      # is taken on most developer machines (systemd-resolved, dnsmasq/libvirt,
+      # Pi-hole) and publishing it aborts the whole dev stack with "Error
+      # starting userland proxy: listen tcp4 0.0.0.0:53: bind: address already
+      # in use" before a single container starts. Test the dev DNS server with
+      # `dig @127.0.0.1 -p 5300`; production keeps 53 (see the service above).
+      - "${NOTPLOY_DNS_DEV_HOST_PORT:-5300}:53/udp"
+      - "${NOTPLOY_DNS_DEV_HOST_PORT:-5300}:53/tcp"
     depends_on:
       postgres:
         condition: service_healthy

@@ -905,7 +905,7 @@ export default function Page({ children }: Props) {
 							</SidebarMenuItem>
 						)}
 						<SidebarMenuItem>
-							<UserNav />
+							<UserNav environment={environment} />
 						</SidebarMenuItem>
 						{whitelabeling?.footerText && (
 							<div className="px-3 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden">

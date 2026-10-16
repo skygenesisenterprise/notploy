@@ -123,6 +123,37 @@ endif
 PNPM ?= pnpm
 COMPOSE ?= docker compose
 
+# --- Host ports the stack publishes -----------------------------------------
+# The container always listens on 53; only the host side differs per mode:
+#   production (`notploy`)      -> NOTPLOY_DNS_HOST_PORT,     default 53
+#   development (`notploy-dev`) -> NOTPLOY_DNS_DEV_HOST_PORT, default 5300
+# Port 53 is taken on most developer machines (systemd-resolved, dnsmasq or
+# libvirt, Pi-hole) and publishing it aborts the whole stack before a single
+# container starts: "Error starting userland proxy: listen tcp4 0.0.0.0:53:
+# bind: address already in use". Hence 5300 for the dev stack.
+#
+# Make does not read .env (compose does): it only resolves the ports here to be
+# able to warn *before* compose dies on a bind error. Precedence is the usual
+# one — command line / environment, then .env, then the mode's default.
+env-file-default = $(or $($(1)),$(shell sed -n 's/^[[:space:]]*$(1)[[:space:]]*=[[:space:]]*\([^#]*\).*/\1/p' .env 2>/dev/null | tail -n 1),$(2))
+
+# Host ports of the control plane (Traefik, app, LAN DNS) for `up` and for
+# `dev`. The status page is another application with its own single port.
+ifeq ($(SELECTED_PRODUCT),status)
+CHECK_PORTS_UP := $(call env-file-default,STATUS_PORT,4100)
+CHECK_PORTS_DEV := $(call env-file-default,STATUS_PORT,4100)
+else
+CHECK_PORTS_UP := $(call env-file-default,NOTPLOY_DNS_HOST_PORT,53) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080
+CHECK_PORTS_DEV := $(call env-file-default,NOTPLOY_DNS_DEV_HOST_PORT,5300) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080
+endif
+
+# One recipe line: report every port about to be published that something else
+# already holds, with its owner — docker's own error does not say which port it
+# was. Ports already published by a running container are ours (a stack being
+# restarted) and stay silent. Every statement ends with `;` so the snippet stays
+# valid whether $(shell)/recipe expansion keeps or joins its lines.
+dns-ports-check = busy() { command -v ss >/dev/null 2>&1 && ss -lntu "sport = :$$1" 2>/dev/null | grep -Eq 'LISTEN|UNCONN'; }; for p in $(1); do if busy "$$p" && [ -z "$$(docker ps -q --filter publish=$$p 2>/dev/null)" ]; then echo "==> WARNING: host port $$p is already in use so the stack cannot start (owner: sudo ss -lntup | grep ':$$p')"; echo "    stop that service or override the port in .env — see the ports section of docker-compose.yml"; fi; done
+
 # Exported to every compose invocation so build target and image tag stay in
 # sync with the selected flavor.
 COMPOSE_ENV = NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE) NOTPLOY_VERSION=$(NOTPLOY_VERSION) IS_CLOUD=$(IS_CLOUD) \
@@ -259,6 +290,7 @@ docker-build: ## Build one image only (add: self | cloud | console | status, NOT
 docker-up: ## Start the stack (add: self | cloud | console | status to build a fresh image first)
 	@echo "==> starting product=$(PRODUCT_WORD) flavor=$(NOTPLOY_FLAVOR) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
 	@$(STACK_PREPARE)
+	@$(call dns-ports-check,$(CHECK_PORTS_UP))
 	$(COMPOSE_ENV) $(COMPOSE) $(COMPOSE_UP_PROFILES) up -d $(COMPOSE_UP_SERVICES)
 
 ifneq ($(GOAL_PRODUCT),)
@@ -313,6 +345,7 @@ docker-dev: ## Run the containerized dev server with hot reload (add: status for
 	@# stale makes the daemon fail with "Could not attach to network ... not found".
 	@$(COMPOSE) $(COMPOSE_DEV_PROFILES) rm -sf $(COMPOSE_DEV_SERVICE) >/dev/null 2>&1 || true
 	@$(STACK_PREPARE)
+	@$(call dns-ports-check,$(CHECK_PORTS_DEV))
 	$(COMPOSE_ENV) $(COMPOSE) $(COMPOSE_DEV_PROFILES) up --build --watch $(COMPOSE_DEV_SERVICE)
 
 # ---------------------------------------------------------------------------

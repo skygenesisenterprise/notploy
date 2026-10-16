@@ -56,7 +56,9 @@ type PermissionsOutput =
 /**
  * Deployment environments a navigation node can target.
  *
- * - `self`    self-hosted Notploy, exposing the infrastructure control plane.
+ * - `self`    self-hosted Notploy, organised as three poles (Overview,
+ *             Infrastructure, Organization) around the instance's own
+ *             projects, substrate and organisation.
  * - `cloud`   managed Notploy Cloud, presenting managed services.
  * - `console` platform operator console (reserved). Spans both the self-hosted
  *             control plane and the managed Cloud activity, organised as four
@@ -286,61 +288,55 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 		id: "infrastructure",
 		label: "Infrastructure",
 		environments: ["self"],
-		items: [],
-		groups: [
+		items: [
+			// Fleet: the machines the workloads run on.
 			{
-				id: "fleet",
-				label: "Fleet",
-				items: [
-					{
-						label: "Servers",
-						href: "/dashboard/settings/servers",
-						icon: Server,
-						isEnabled: ({ permissions }) => !!permissions?.server.read,
-					},
-				],
+				label: "Servers",
+				href: "/dashboard/settings/servers",
+				icon: Server,
+				isEnabled: ({ permissions }) => !!permissions?.server.read,
+			},
+			// Compute: the container runtime.
+			{
+				label: "Docker",
+				href: "/dashboard/docker",
+				icon: BlocksIcon,
+				activeTab: null,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
-				id: "compute",
-				label: "Compute",
-				items: [
-					{
-						label: "Docker",
-						href: "/dashboard/docker",
-						icon: BlocksIcon,
-						activeTab: null,
-						isEnabled: ({ permissions }) => !!permissions?.docker.read,
-					},
-					{
-						label: "Swarm",
-						href: "/dashboard/swarm",
-						icon: Waypoints,
-						isEnabled: ({ permissions }) => !!permissions?.docker.read,
-					},
-				],
+				label: "Swarm",
+				href: "/dashboard/swarm",
+				icon: Waypoints,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			// Networking: how the workloads are exposed.
+			{
+				label: "Networks",
+				href: "/dashboard/networks",
+				icon: Network,
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
-				id: "networking",
-				label: "Networking",
-				items: [
-					{
-						label: "Networks",
-						href: "/dashboard/networks",
-						icon: Network,
-						isEnabled: ({ permissions }) => !!permissions?.docker.read,
-					},
-					{
-						label: "Traefik Manager",
-						href: "/dashboard/traefik",
-						icon: GalleryVerticalEnd,
-						isEnabled: ({ permissions }) => !!permissions?.traefikFiles.read,
-					},
-				],
+				label: "Traefik Manager",
+				href: "/dashboard/traefik",
+				icon: GalleryVerticalEnd,
+				isEnabled: ({ permissions }) => !!permissions?.traefikFiles.read,
 			},
+			// Trust: the certificates terminating TLS at the edge.
+			SHARED_ITEMS.certificates,
+			SHARED_ITEMS.sso,
+			SHARED_ITEMS.secretsManager,
+			// Connected providers: the external services the instance relies on.
+			SHARED_ITEMS.gitProviders,
+			SHARED_ITEMS.containerRegistries,
+			SHARED_ITEMS.dnsProviders,
+			SHARED_ITEMS.objectStorage,
 			{
-				id: "platform-security",
-				label: "Platform security",
-				items: [SHARED_ITEMS.certificates],
+				label: "AI Providers",
+				href: "/dashboard/settings/ai",
+				icon: BotIcon,
+				isEnabled: ({ permissions }) => !!permissions?.organization.update,
 			},
 		],
 	},
@@ -381,34 +377,18 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 			SHARED_ITEMS.sessions,
 		],
 	},
-	// Self-hosted keeps a full Integrations section; cloud distributes these
-	// providers across its Infrastructure and Settings poles.
+	// Self-hosted groups everything that belongs to the instance's own
+	// organisation: its members and access control, plus the instance-level
+	// governance and settings. The connected providers (git, registries, DNS,
+	// object storage, AI) live under Infrastructure instead, next to the
+	// substrate they plug into. Cloud spreads the same destinations across its
+	// Infrastructure and Settings poles.
 	{
-		id: "integrations",
-		label: "Integrations",
+		id: "organization",
+		label: "Organization",
 		environments: ["self"],
 		items: [
-			SHARED_ITEMS.gitProviders,
-			SHARED_ITEMS.containerRegistries,
-			SHARED_ITEMS.dnsProviders,
-			// Self-hosted keeps SSO under Integrations, cloud surfaces it under
-			// Infrastructure, so the shared item is scoped to `self` here.
-			SHARED_ITEMS.sso,
-			SHARED_ITEMS.objectStorage,
-			SHARED_ITEMS.notifications,
-			{
-				label: "AI Providers",
-				href: "/dashboard/settings/ai",
-				icon: BotIcon,
-				isEnabled: ({ permissions }) => !!permissions?.organization.update,
-			},
-		],
-	},
-	{
-		id: "administration",
-		label: "Administration",
-		environments: ["self"],
-		items: [
+			// Members and access control.
 			{
 				label: "Users",
 				href: "/dashboard/settings/users",
@@ -416,9 +396,11 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.member.read,
 			},
 			SHARED_ITEMS.sessions,
-			SHARED_ITEMS.secretsManager,
+			// Governance.
 			SHARED_ITEMS.auditLogs,
 			SHARED_ITEMS.tags,
+			SHARED_ITEMS.notifications,
+			// Instance-level settings.
 			{
 				label: "Web Server",
 				href: "/dashboard/settings/server",

@@ -1,4 +1,4 @@
-import { LogOut, Moon, Sun } from "lucide-react";
+import { LogOut, Moon, Sun, User } from "lucide-react";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,19 +14,24 @@ import { authClient } from "@/lib/auth-client";
 import { cn, getFallbackAvatarInitials } from "@/lib/utils";
 import { api } from "@/utils/api";
 import { SidebarMenuButton } from "../ui/sidebar";
+import type { NavigationEnvironment } from "./navigation";
 
 const _AUTO_CHECK_UPDATES_INTERVAL_MINUTES = 7;
 
 /**
  * Personal space of the signed in user.
  *
- * This menu intentionally only carries what belongs to *the user* (identity,
- * appearance, sign out). Platform areas (workloads,
- * infrastructure, integrations, administration) are owned by the sidebar
- * sections, so they are not duplicated here: two places to look for the same
- * page is how a navigation stops being trustworthy.
+ * This menu only carries what belongs to *the user* (identity, profile,
+ * appearance, sign out). Platform areas (workloads, infrastructure,
+ * organization) are owned by the sidebar sections, so they are not duplicated
+ * here: two places to look for the same page is how a navigation stops being
+ * trustworthy.
  */
-export const UserNav = () => {
+export const UserNav = ({
+	environment,
+}: {
+	environment?: NavigationEnvironment;
+}) => {
 	const router = useRouter();
 	const { data } = api.user.get.useQuery();
 	const { theme, setTheme } = useTheme();
@@ -97,6 +102,18 @@ export const UserNav = () => {
 				<DropdownMenuLabel className="px-2 py-1 text-[11px] font-semibold tracking-wider text-muted-foreground/70 uppercase">
 					Account
 				</DropdownMenuLabel>
+				{/* Self-hosted keeps Profile here: its Organization pole exposes the
+				    member pages, and the signed-in user has nowhere else to edit their
+				    own account. Cloud surfaces Profile in its Settings section. */}
+				{environment === "self" && (
+					<DropdownMenuItem
+						className="cursor-pointer gap-2"
+						onSelect={() => router.push("/dashboard/settings/profile")}
+					>
+						<User className="size-4 text-muted-foreground" />
+						Profile
+					</DropdownMenuItem>
+				)}
 				<DropdownMenuItem
 					className="cursor-pointer gap-2"
 					onSelect={(event) => {
