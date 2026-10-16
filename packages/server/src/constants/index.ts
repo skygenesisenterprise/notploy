@@ -50,6 +50,16 @@ export const allowUnlicensedDevInstance = (): boolean =>
 		(process.env.NOTPLOY_ALLOW_UNLICENSED_DEV ?? "").toLowerCase(),
 	);
 
+/**
+ * Image used to run managed Tor Onion Services. Kept in one place so a
+ * self-hosted instance runs a documented, replaceable image instead of an
+ * implicit `latest` pulled from a hardcoded call site. The image must read a
+ * `torrc` from `/etc/tor/torrc` and keep its Tor data directory in
+ * `/var/lib/tor`.
+ */
+export const NOTPLOY_TOR_IMAGE =
+	process.env.NOTPLOY_TOR_IMAGE ?? "docker.io/dockurr/tor:latest";
+
 export const NOTPLOY_DOCKER_API_VERSION =
 	process.env.NOTPLOY_DOCKER_API_VERSION;
 export const NOTPLOY_DOCKER_HOST = process.env.NOTPLOY_DOCKER_HOST;
@@ -184,6 +194,7 @@ export const paths = (isServer = false) => {
 		CERTIFICATES_PATH: `${DYNAMIC_TRAEFIK_PATH}/certificates`,
 		MONITORING_PATH: `${BASE_PATH}/monitoring`,
 		IDENTITY_PATH: `${BASE_PATH}/identity`,
+		ONION_PATH: `${BASE_PATH}/onion`,
 		REGISTRY_PATH: `${BASE_PATH}/registry`,
 		SCHEDULES_PATH: `${BASE_PATH}/schedules`,
 		VOLUME_BACKUPS_PATH: `${BASE_PATH}/volume-backups`,

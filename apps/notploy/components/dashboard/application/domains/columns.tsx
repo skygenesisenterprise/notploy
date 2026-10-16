@@ -12,6 +12,11 @@ import {
 	XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { OnionRowActions } from "@/components/dashboard/compose/onion/onion-row-actions";
+import {
+	type OnionServiceListItem,
+	OnionStatusBadge,
+} from "@/components/dashboard/compose/onion/onion-status";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,6 +35,52 @@ import type { ValidationStates } from "./show-domains";
 export type Domain =
 	| RouterOutputs["domain"]["byApplicationId"][0]
 	| RouterOutputs["domain"]["byComposeId"][0];
+
+/**
+ * A row of the domains list. A managed Tor Onion Service is not a DNS domain,
+ * but it is another address the application can be reached at, so it shares the
+ * same list. `onion` carries the resource itself; the borrowed `Domain` fields
+ * only feed the sortable/filterable columns.
+ */
+export type DomainRow = Domain & {
+	kind: "domain" | "onion";
+	onion?: OnionServiceListItem;
+};
+
+export const toDomainRow = (domain: Domain): DomainRow => ({
+	...domain,
+	kind: "domain",
+});
+
+export const toOnionDomainRow = (
+	onion: OnionServiceListItem & { createdAt?: string | Date },
+): DomainRow => ({
+	domainId: `onion-${onion.onionServiceId}`,
+	host: onion.onionAddress ?? "",
+	https: false,
+	port: onion.targetPort,
+	customEntrypoint: null,
+	path: "/",
+	serviceName: onion.serviceName,
+	domainType: "compose",
+	uniqueConfigKey: 0,
+	createdAt: onion.createdAt
+		? new Date(onion.createdAt).toISOString()
+		: new Date().toISOString(),
+	composeId: onion.composeId,
+	compose: null,
+	customCertResolver: null,
+	applicationId: null,
+	previewDeploymentId: null,
+	certificateType: "none",
+	internalPath: "/",
+	stripPath: false,
+	middlewares: [],
+	forwardAuthEnabled: false,
+	enabled: true,
+	kind: "onion",
+	onion,
+});
 
 interface ColumnsProps {
 	id: string;
@@ -57,7 +108,7 @@ export const createColumns = ({
 	serverIp,
 	canCreateDomain,
 	canDeleteDomain,
-}: ColumnsProps): ColumnDef<Domain>[] => [
+}: ColumnsProps): ColumnDef<DomainRow>[] => [
 	...(type === "compose"
 		? [
 				{
@@ -72,8 +123,7 @@ export const createColumns = ({
 								{serviceName}
 							</Badge>
 						);
-					},
-				} satisfies ColumnDef<Domain>,
+					},					} satisfies ColumnDef<DomainRow>,
 			]
 		: []),
 	{
@@ -91,6 +141,18 @@ export const createColumns = ({
 		},
 		cell: ({ row }) => {
 			const domain = row.original;
+
+			if (domain.kind === "onion") {
+				return (
+					<div className="flex items-center gap-2 font-medium">
+						<span className="truncate font-mono text-sm">
+							{domain.onion?.onionAddress ?? domain.host}
+						</span>
+						<Badge variant="outline">Tor</Badge>
+					</div>
+				);
+			}
+
 			const requirements = getDomainRequirements(domain.host);
 			return (
 				<Link
@@ -121,6 +183,10 @@ export const createColumns = ({
 			);
 		},
 		cell: ({ row }) => {
+			if (row.original.kind === "onion") {
+				return <span className="text-muted-foreground">-</span>;
+			}
+
 			const path = row.getValue("path") as string;
 			return <div className="font-mono text-sm">{path || "/"}</div>;
 		},
@@ -156,6 +222,10 @@ export const createColumns = ({
 		accessorKey: "https",
 		header: "Protocol",
 		cell: ({ row }) => {
+			if (row.original.kind === "onion") {
+				return <Badge variant="outline">Tor</Badge>;
+			}
+
 			const https = row.getValue("https") as boolean;
 			return (
 				<Badge variant={https ? "outline" : "secondary"}>
@@ -169,6 +239,16 @@ export const createColumns = ({
 		header: "Certificate",
 		cell: ({ row }) => {
 			const domain = row.original;
+
+			// An onion address is its own certificate: there is no ACME here.
+			if (domain.kind === "onion") {
+				return (
+					<Badge variant="outline" className="capitalize">
+						Self-authenticated
+					</Badge>
+				);
+			}
+
 			const validationState = validationStates[domain.host];
 			const requiresPublicDns = getDomainRequirements(
 				domain.host,
@@ -267,6 +347,11 @@ export const createColumns = ({
 		header: "Status",
 		cell: ({ row }) => {
 			const domain = row.original;
+
+			if (domain.kind === "onion" && domain.onion) {
+				return <OnionStatusBadge status={domain.onion.status} />;
+			}
+
 			if (!canCreateDomain) {
 				return (
 					<Badge variant={domain.enabled ? "outline" : "secondary"}>
@@ -304,6 +389,11 @@ export const createColumns = ({
 		enableHiding: false,
 		cell: ({ row }) => {
 			const domain = row.original;
+
+			if (domain.kind === "onion" && domain.onion) {
+				return <OnionRowActions onionService={domain.onion} />;
+			}
+
 			const { requiresPublicDns } = getDomainRequirements(domain.host);
 
 			return (

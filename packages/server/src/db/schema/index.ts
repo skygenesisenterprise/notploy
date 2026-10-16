@@ -27,6 +27,7 @@ export * from "./network";
 export * from "./network-provider";
 export * from "./notification";
 export * from "./object-storage";
+export * from "./onion";
 export * from "./operational-event";
 export * from "./patch";
 export * from "./port";

@@ -34,6 +34,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { OnionServicesManager } from "@/components/dashboard/compose/onion/onion-services-manager";
 import { Input, NumberInput } from "@/components/ui/input";
 import {
 	Select,
@@ -43,6 +44,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	Tooltip,
 	TooltipContent,
@@ -53,6 +55,13 @@ import { api } from "@/utils/api";
 import { COMPOSE_REDEPLOY_TOAST, ComposeRedeployAlert } from "./redeploy-hint";
 
 export type CacheType = "fetch" | "cache";
+
+/**
+ * A Compose service can be published twice: on a DNS domain (Traefik) or on a
+ * Tor Onion Service. Both are managed from the same dialog, because an operator
+ * looks for "where do I expose this service" in one place.
+ */
+export type AddressKind = "domain" | "onion";
 
 export const domain = z
 	.object({
@@ -166,6 +175,10 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [cacheType, setCacheType] = useState<CacheType>("cache");
 	const [isManualInput, setIsManualInput] = useState(false);
+	const [addressKind, setAddressKind] = useState<AddressKind>("domain");
+	// An existing DNS domain cannot become an onion address (and the reverse),
+	// so the choice is only offered while creating a new address.
+	const isOnionService = type === "compose" && !domainId && addressKind === "onion";
 
 	const utils = api.useUtils();
 	const { data, refetch } = api.domain.one.useQuery(
@@ -365,14 +378,38 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
-					<DialogTitle>Domain</DialogTitle>
-					<DialogDescription>{dictionary.dialogDescription}</DialogDescription>
+					<DialogTitle>
+						{isOnionService ? "Onion Service" : "Domain"}
+					</DialogTitle>
+					<DialogDescription>
+						{isOnionService
+							? "Publish a Compose service on a v3 .onion address, or operate the Onion Services already created for this project"
+							: dictionary.dialogDescription}
+					</DialogDescription>
 				</DialogHeader>
 				{isError && <AlertBlock type="error">{error?.message}</AlertBlock>}
 
-				{type === "compose" && <ComposeRedeployAlert className="mb-4" />}
+				{type === "compose" && !domainId && (
+					<Tabs
+						value={addressKind}
+						onValueChange={(value) => setAddressKind(value as AddressKind)}
+						className="w-full"
+					>
+						<TabsList className="grid w-full grid-cols-2">
+							<TabsTrigger value="domain">DNS domain</TabsTrigger>
+							<TabsTrigger value="onion">Tor Onion Service</TabsTrigger>
+						</TabsList>
+					</Tabs>
+				)}
 
-				<Form {...form}>
+				{type === "compose" && !isOnionService && (
+					<ComposeRedeployAlert className="mb-4" />
+				)}
+
+				{isOnionService ? (
+					<OnionServicesManager composeId={id} />
+				) : (
+					<Form {...form}>
 					<form
 						id="hook-form"
 						onSubmit={form.handleSubmit(onSubmit)}
@@ -1006,7 +1043,8 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 							{dictionary.submit}
 						</Button>
 					</DialogFooter>
-				</Form>
+					</Form>
+				)}
 			</DialogContent>
 		</Dialog>
 	);

@@ -59,9 +59,15 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { OnionServiceCard } from "@/components/dashboard/compose/onion/onion-service-card";
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
-import { createColumns } from "./columns";
+import {
+	createColumns,
+	type DomainRow,
+	toDomainRow,
+	toOnionDomainRow,
+} from "./columns";
 import { DnsHelperModal } from "./dns-helper-modal";
 import { AddDomain } from "./handle-domain";
 import { HandleForwardAuth } from "./handle-forward-auth";
@@ -144,6 +150,18 @@ export const ShowDomains = ({ id, type }: Props) => {
 					enabled: !!id,
 				},
 			);
+	// A Tor Onion Service is another address the application answers on, so it is
+	// listed with the DNS domains instead of living in its own section.
+	const { data: onionServices, isLoading: isLoadingOnionServices } =
+		api.onion.list.useQuery(
+			{ composeId: id },
+			{ enabled: type === "compose" && !!id },
+		);
+
+	const rows: DomainRow[] = [
+		...(data?.map(toDomainRow) ?? []),
+		...(onionServices?.map(toOnionDomainRow) ?? []),
+	];
 
 	const { mutateAsync: validateDomain } =
 		api.domain.validateDomain.useMutation();
@@ -233,7 +251,7 @@ export const ShowDomains = ({ id, type }: Props) => {
 	});
 
 	const table = useReactTable({
-		data: data ?? [],
+		data: rows,
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -263,7 +281,7 @@ export const ShowDomains = ({ id, type }: Props) => {
 					</div>
 
 					<div className="flex flex-row gap-2 flex-wrap">
-						{data && data?.length > 0 && (
+						{rows.length > 0 && (
 							<>
 								<Button
 									variant="outline"
@@ -291,25 +309,25 @@ export const ShowDomains = ({ id, type }: Props) => {
 						)}
 					</div>
 				</CardHeader>
-				{type === "compose" && data && data.length > 0 && (
+				{type === "compose" && rows.length > 0 && (
 					<div className="px-6 pb-4">
 						<ComposeRedeployAlert />
 					</div>
 				)}
 				<CardContent className="flex w-full flex-row gap-4">
-					{isLoadingDomains ? (
+					{isLoadingDomains || isLoadingOnionServices ? (
 						<div className="flex w-full flex-row gap-4 min-h-[40vh] justify-center items-center">
 							<Loader2 className="size-5 animate-spin text-muted-foreground" />
 							<span className="text-base text-muted-foreground">
 								Loading domains...
 							</span>
 						</div>
-					) : data?.length === 0 ? (
+					) : rows.length === 0 ? (
 						<div className="flex w-full flex-col items-center justify-center gap-3 min-h-[40vh]">
 							<GlobeIcon className="size-8 text-muted-foreground" />
 							<span className="text-base text-muted-foreground">
 								To access the application it is required to set at least 1
-								domain
+								domain or Tor Onion Service
 							</span>
 							{canCreateDomain && (
 								<div className="flex flex-row gap-4 flex-wrap">
@@ -414,7 +432,7 @@ export const ShowDomains = ({ id, type }: Props) => {
 									</TableBody>
 								</Table>
 							</div>
-							{data && data?.length > 0 && (
+							{rows.length > 0 && (
 								<div className="flex items-center justify-end space-x-2 py-4">
 									<div className="space-x-2 flex flex-wrap">
 										<Button
@@ -439,7 +457,16 @@ export const ShowDomains = ({ id, type }: Props) => {
 						</div>
 					) : (
 						<div className="grid grid-cols-1 gap-4 xl:grid-cols-2 w-full min-h-[40vh] ">
-							{data?.map((item) => {
+							{rows.map((item) => {
+								if (item.kind === "onion" && item.onion) {
+									return (
+										<OnionServiceCard
+											key={item.domainId}
+											onionService={item.onion}
+										/>
+									);
+								}
+
 								const validationState = validationStates[item.host];
 								return (
 									<Card

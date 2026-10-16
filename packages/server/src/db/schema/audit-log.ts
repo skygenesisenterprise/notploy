@@ -95,6 +95,7 @@ export type AuditResourceType =
 	| "compose"
 	| "network"
 	| "networkProvider"
+	| "onionService"
 	| "vaultProvider"
 	| "dnsProvider"
 	| "objectStorage"
