@@ -874,10 +874,14 @@ write_migration_report() {
 check_system_preflight() {
     echo "Checking system..."
 
-    if [ "$(uname -s)" = "Linux" ]; then
-        echo "✓ Linux"
+    if is_linux_like; then
+        if is_wsl; then
+            echo "✓ Linux (WSL)"
+        else
+            echo "✓ Linux"
+        fi
     else
-        echo "✗ Linux"
+        echo "✗ Linux/WSL (Notploy requires Linux or WSL2 on Windows Server)"
     fi
 
     if command -v docker >/dev/null 2>&1; then
@@ -977,6 +981,36 @@ is_proxmox_lxc() {
     
     return 1
 }
+# Function to detect if running in Windows Subsystem for Linux (WSL)
+is_wsl() {
+    if [ -n "$WSL_DISTRO_NAME" ]; then
+        return 0
+    fi
+    if [ -n "$WSLENV" ]; then
+        return 0
+    fi
+    if [ -r /proc/version ] && grep -qi microsoft /proc/version 2>/dev/null; then
+        return 0
+    fi
+    if [ -r /proc/sys/kernel/osrelease ] && grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
+        return 0
+    fi
+    return 1
+}
+
+# Function to detect if running in a Linux-like environment (Linux or WSL)
+is_linux_like() {
+    case "$(uname -s)" in
+        Linux) return 0 ;;
+        *) 
+            if is_wsl; then
+                return 0
+            fi
+            return 1
+            ;;
+    esac
+}
+
 
 # ---------------------------------------------------------------------------
 # Host state detection: Docker Swarm and existing Notploy.
