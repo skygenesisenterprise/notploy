@@ -198,7 +198,7 @@ jobs:
             exit 1
           fi
 
-          if lookup="$(npm view "$PACKAGE@$VERSION" version --registry "$NPMJS_REGISTRY" 2>&1)"; then
+          if lookup="$(npm view "$PACKAGE@$VERSION" version --registry "$NPMJS_REGISTRY" --prefer-online 2>&1)"; then
             echo "::notice::$PACKAGE@$VERSION is already on npmjs"
             exit 0
           elif [[ "$lookup" == *E404* || "$lookup" == *"404 Not Found"* || "$lookup" == *"Not Found - GET"* ]]; then
@@ -220,10 +220,24 @@ jobs:
           fi
 
           # Verify the exact version on npmjs, not just the exit status of
-          # `npm publish`. This catches a publish that was diverted to another
-          # registry and keeps a CLI patch from being reported as released when
-          # npmjs does not serve it.
-          if npm view "$PACKAGE@$VERSION" version --registry "$NPMJS_REGISTRY" > /dev/null 2>&1; then
+          # `npm publish`. npm accepts a publish before the version is served
+          # by the registry ("being processed and may take a few minutes"), so
+          # poll for a bounded time instead of failing on the first lookup.
+          published=false
+          for attempt in $(seq 1 30); do
+            if npm view "$PACKAGE@$VERSION" version \
+              --registry "$NPMJS_REGISTRY" \
+              --prefer-online > /dev/null 2>&1; then
+              published=true
+              break
+            fi
+            if [[ "$attempt" -lt 30 ]]; then
+              echo "Waiting for npmjs to serve $PACKAGE@$VERSION (attempt $attempt/30)..."
+              sleep 10
+            fi
+          done
+
+          if [[ "$published" == "true" ]]; then
             if [[ "$publish_status" -eq 0 ]]; then
               echo "::notice::$PACKAGE@$VERSION is published on npmjs"
             else
@@ -233,7 +247,7 @@ jobs:
           fi
 
           if [[ "$publish_status" -eq 0 ]]; then
-            echo "::error::$PACKAGE@$VERSION was not found on npmjs after a successful publish"
+            echo "::error::$PACKAGE@$VERSION was not found on npmjs after a successful publish (waited up to 5 minutes)"
             exit 1
           fi
 
