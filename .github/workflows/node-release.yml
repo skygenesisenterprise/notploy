@@ -52,6 +52,7 @@ jobs:
 
           case "$suffix" in
             cli)
+              # CLI patch releases (`vX.Y.Z-cli`) go to npmjs only.
               matrix="$(jq -cn '{include:[{package:"@notploy/cli",dir:"packages/cli"}]}')"
               ;;
             sdk)
@@ -96,6 +97,25 @@ jobs:
 
       - name: Enable npm trusted publishing
         run: npm install --global npm@^11.5.1
+
+      - name: Pin the @notploy scope to npmjs
+        env:
+          NPMJS_REGISTRY: ${{ env.NPMJS_REGISTRY }}
+        run: |
+          set -euo pipefail
+
+          # `npm publish --registry` changes only the default registry: a scoped
+          # `@notploy:registry` entry takes precedence. Pin the scope explicitly
+          # so a CLI patch cannot be redirected to GitHub Packages by an
+          # inherited npm configuration.
+          npmrc="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
+          registry="${NPMJS_REGISTRY%/}"
+          touch "$npmrc"
+          if grep -q '^@notploy:registry=' "$npmrc"; then
+            sed -i "s|^@notploy:registry=.*|@notploy:registry=${registry}/|" "$npmrc"
+          else
+            printf '\n@notploy:registry=%s/\n' "$registry" >> "$npmrc"
+          fi
 
       - name: Install dependencies
         env:
@@ -189,18 +209,32 @@ jobs:
             exit 1
           fi
 
+          publish_status=0
           if npm publish "$TARBALL" \
             --registry "$NPMJS_REGISTRY" \
             --access public \
             --tag "$DIST_TAG"; then
-            exit 0
+            publish_status=0
           else
             publish_status=$?
           fi
 
+          # Verify the exact version on npmjs, not just the exit status of
+          # `npm publish`. This catches a publish that was diverted to another
+          # registry and keeps a CLI patch from being reported as released when
+          # npmjs does not serve it.
           if npm view "$PACKAGE@$VERSION" version --registry "$NPMJS_REGISTRY" > /dev/null 2>&1; then
-            echo "::notice::$PACKAGE@$VERSION is now on npmjs; treating the publish as already completed"
+            if [[ "$publish_status" -eq 0 ]]; then
+              echo "::notice::$PACKAGE@$VERSION is published on npmjs"
+            else
+              echo "::notice::$PACKAGE@$VERSION is now on npmjs; treating the publish as already completed"
+            fi
             exit 0
+          fi
+
+          if [[ "$publish_status" -eq 0 ]]; then
+            echo "::error::$PACKAGE@$VERSION was not found on npmjs after a successful publish"
+            exit 1
           fi
 
           exit "$publish_status"
