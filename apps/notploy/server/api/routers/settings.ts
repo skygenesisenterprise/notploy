@@ -1298,7 +1298,12 @@ export const settingsRouter = createTRPCRouter({
 		}
 	}),
 	checkInfrastructureHealth: adminProcedure.query(async () => {
-		if (IS_CLOUD) {
+		// Managed Cloud does not run this control plane, so there is nothing to
+		// probe there. The Console runs the self-hosted stack (`isManagedCloud()`
+		// is false for it) and must therefore probe for real: returning a
+		// hardcoded "healthy" would turn a collection failure into a green state
+		// on the operator homepage.
+		if (isManagedCloud()) {
 			return {
 				postgres: { status: "healthy" as const },
 				traefik: { status: "healthy" as const },

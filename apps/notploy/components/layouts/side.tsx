@@ -60,6 +60,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { resolveAppEnvironment } from "@/lib/product";
 import { cn } from "@/lib/utils";
 import { api, type RouterOutputs } from "@/utils/api";
 import { TrialBanner } from "../dashboard/billing/trial-banner";
@@ -791,15 +792,12 @@ export default function Page({ children }: Props) {
 	const license = useWorkspaceLicense();
 
 	// Cloud and Console both report `isCloud`, so only the product tells the two
-	// operator surfaces apart. While the product is still loading, keep the
-	// `isCloud` fallback so a cloud/console instance does not flash the
-	// self-hosted layout before settling.
-	const environment: NavigationEnvironment =
-		product === "console"
-			? "console"
-			: product === "cloud" || (product === undefined && isCloud)
-				? "cloud"
-				: "self";
+	// operator surfaces apart. Shared with the homepage so both surfaces always
+	// resolve the same environment.
+	const environment: NavigationEnvironment = resolveAppEnvironment({
+		product,
+		isCloud,
+	});
 
 	const navigation = createNavigation({
 		// Self-hosted exposes the infrastructure control plane, Cloud keeps its

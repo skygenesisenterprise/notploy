@@ -1,10 +1,11 @@
+import { getConfiguredProduct } from "@notploy/server";
 import { validateRequest } from "@notploy/server/lib/auth";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 import superjson from "superjson";
-import { OperationsCenter } from "@/components/dashboard/home/operations-center";
+import { HomePage } from "@/components/dashboard/home/home-page";
 import {
 	clearOnboardingActive,
 	isOnboardingActive,
@@ -12,10 +13,16 @@ import {
 } from "@/components/dashboard/onboarding/onboarding-lock";
 import { OnboardingWizard } from "@/components/dashboard/onboarding/onboarding-wizard";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+import type { AppProduct } from "@/lib/product";
 import { appRouter } from "@/server/api/root";
 import { api } from "@/utils/api";
 
-const Home = () => {
+interface HomeProps {
+	/** Environment the instance was launched as, resolved server-side. */
+	environment: AppProduct;
+}
+
+const Home = ({ environment }: HomeProps) => {
 	const { data } = api.project.onboardingStatus.useQuery();
 	const utils = api.useUtils();
 	const { mutateAsync: completeOnboarding } =
@@ -43,7 +50,7 @@ const Home = () => {
 		);
 	}
 
-	return <OperationsCenter />;
+	return <HomePage environment={environment} />;
 };
 
 export default Home;
@@ -65,6 +72,10 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 		};
 	}
 
+	// Which homepage is composed follows the product the instance was launched
+	// as (`self`, `cloud`, `console`) — never a URL parameter.
+	const environment = getConfiguredProduct();
+
 	const helpers = createServerSideHelpers({
 		router: appRouter,
 		ctx: {
@@ -81,20 +92,33 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 	await helpers.user.get.prefetch();
 	await helpers.project.onboardingStatus.prefetch();
 
-	// Hydrate the operational panels on the first render. The home dashboard
-	// deliberately sources every panel from Notploy's own authenticated API,
-	// rather than showing example observability data while the client loads.
+	// The home dashboard deliberately sources every panel from Notploy's own
+	// authenticated API, rather than showing example observability data while the
+	// client loads. Only the sources the caller may read are hydrated: a gated
+	// source is composed as `restricted` instead of being fetched and failing.
+	const permissions = await helpers.user.getPermissions.fetch();
+
 	await Promise.all([
-		helpers.user.getPermissions.prefetch(),
 		helpers.project.homeStats.prefetch(),
-		helpers.overview.services.prefetch(),
-		helpers.deployment.homeActivity.prefetch(),
-		helpers.server.all.prefetch(),
+		helpers.operationalEvent.list.prefetch(),
+		permissions.service.read
+			? helpers.overview.services.prefetch()
+			: Promise.resolve(),
+		permissions.deployment.read
+			? helpers.deployment.homeActivity.prefetch()
+			: Promise.resolve(),
+		permissions.server.read ? helpers.server.all.prefetch() : Promise.resolve(),
 	]);
+
+	// The console's platform sources (`status.overview`, the control plane
+	// runtime and the infrastructure probes) are read from external systems:
+	// they stay client-side so a slow status instance cannot delay every console
+	// page load. Their states are rendered explicitly while they resolve.
 
 	return {
 		props: {
 			trpcState: helpers.dehydrate(),
+			environment,
 		},
 	};
 }
