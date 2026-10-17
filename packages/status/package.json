@@ -28,7 +28,9 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "tsx esbuild.config.ts",
+		"build": "pnpm run switch:dist && tsx esbuild.config.ts",
+		"switch:dist": "node scripts/switchToDist.js",
+		"switch:src": "node scripts/switchToSrc.js",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",

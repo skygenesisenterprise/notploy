@@ -99,6 +99,7 @@ COPY apps/notploy/.env.production.example ./.env.production
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter=@notploy/server build
+RUN pnpm --filter=@notploy/status build
 RUN pnpm --filter=./apps/notploy run build
 
 RUN pnpm --filter=./apps/notploy --prod deploy --legacy /prod/notploy
