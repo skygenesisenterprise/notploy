@@ -1,11573 +1,7145 @@
-// Auto-generated from openapi.json — do not edit manually.
-// Run: npx tsx scripts/generate.ts
+// Auto-generated from openapi.json (sha256:55d43e0b327aa6c5) — do not edit manually.
+// Run: pnpm run generate
+//
+// 604 commands in 57 groups.
 
 import type { Command } from "commander";
-import chalk from "chalk";
-import { apiPost, apiGet } from "../client.js";
-
-function printOutput(data: unknown) {
-	if (data === null || data === undefined) {
-		console.log(chalk.green("OK"));
-		return;
-	}
-	if (typeof data === "string") {
-		console.log(data);
-		return;
-	}
-	console.log(JSON.stringify(data, null, 2));
-}
+import { runApiCommand } from "../commands/run.js";
 
 export function registerGeneratedCommands(program: Command) {
-	const g_admin = program.command('admin').description('admin commands');
-
+	const g_admin = program.command("admin").description("admin commands");
 	g_admin
-		.command('setup-monitoring')
-		.description('admin setupMonitoring')
-		.requiredOption('--metricsConfig <value>', 'metricsConfig')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("admin.setupMonitoring", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_ai = program.command('ai').description('ai commands');
-
+		.command("setup-monitoring")
+		.description("Setup Monitoring")
+		.option("--metricsConfig <json>", "Metrics Config [required] (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "admin.setupMonitoring", "post", options, { required: ["metricsConfig"], types: {"metricsConfig":"object"} }),
+		);
+	const g_ai = program.command("ai").description("ai commands");
 	g_ai
-		.command('analyze-logs')
-		.description('ai analyzeLogs')
-		.requiredOption('--aiId <value>', 'aiId')
-		.requiredOption('--logs <value>', 'logs')
-		.requiredOption('--context <value>', 'context (build, runtime)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("ai.analyzeLogs", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("analyze-logs")
+		.description("Analyze Logs")
+		.option("--aiId <value>", "Ai Id [required]")
+		.option("--logs <value>", "Logs [required]")
+		.option("--context <value>", "Context [required] (one of: build, runtime)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.analyzeLogs", "post", options, { required: ["aiId","logs","context"], enums: {"context":["build","runtime"]} }),
+		);
 	g_ai
-		.command('create')
-		.description('ai create')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--apiUrl <value>', 'apiUrl')
-		.requiredOption('--apiKey <value>', 'apiKey')
-		.requiredOption('--model <value>', 'model')
-		.requiredOption('--isEnabled', 'isEnabled')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["isEnabled"] != null) opts["isEnabled"] = opts["isEnabled"] === true || opts["isEnabled"] === "true";
-			const data = await apiPost("ai.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--apiUrl <value>", "Api Url [required]")
+		.option("--apiKey <value>", "Api Key [required]")
+		.option("--model <value>", "Model [required]")
+		.option("--isEnabled [boolean]", "Is Enabled [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.create", "post", options, { required: ["name","apiUrl","apiKey","model","isEnabled"], types: {"isEnabled":"boolean"} }),
+		);
 	g_ai
-		.command('delete')
-		.description('ai delete')
-		.requiredOption('--aiId <value>', 'aiId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("ai.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--aiId <value>", "Ai Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.delete", "post", options, { required: ["aiId"] }),
+		);
 	g_ai
-		.command('deploy')
-		.description('ai deploy')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--dockerCompose <value>', 'dockerCompose')
-		.requiredOption('--envVariables <value>', 'envVariables')
-		.option('--serverId <value>', 'serverId')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--description <value>', 'description')
-		.option('--domains <value>', 'domains')
-		.option('--configFiles <value>', 'configFiles')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("ai.deploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy")
+		.description("Deploy")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--id <value>", "Id [required]")
+		.option("--dockerCompose <value>", "Docker Compose [required]")
+		.option("--envVariables <value>", "Env Variables [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description [required]")
+		.option("--domains <json>", "Domains (JSON array)")
+		.option("--configFiles <json>", "Config Files (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.deploy", "post", options, { required: ["environmentId","id","dockerCompose","envVariables","name","description"], types: {"configFiles":"array","domains":"array"} }),
+		);
 	g_ai
-		.command('get')
-		.description('ai get')
-		.requiredOption('--aiId <value>', 'aiId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("ai.get", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get")
+		.description("Get")
+		.option("--aiId <value>", "Ai Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.get", "get", options, { required: ["aiId"] }),
+		);
 	g_ai
-		.command('get-all')
-		.description('ai getAll')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("ai.getAll", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-all")
+		.description("Get All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.getAll", "get", options),
+		);
 	g_ai
-		.command('get-custom-providers')
-		.description('ai getCustomProviders')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("ai.getCustomProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-custom-providers")
+		.description("Get Custom Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.getCustomProviders", "get", options),
+		);
 	g_ai
-		.command('get-enabled-providers')
-		.description('ai getEnabledProviders')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("ai.getEnabledProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-enabled-providers")
+		.description("Get Enabled Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.getEnabledProviders", "get", options),
+		);
 	g_ai
-		.command('get-models')
-		.description('ai getModels')
-		.requiredOption('--apiUrl <value>', 'apiUrl')
-		.requiredOption('--apiKey <value>', 'apiKey')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("ai.getModels", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-models")
+		.description("Get Models")
+		.option("--apiUrl <value>", "Api Url [required]")
+		.option("--apiKey <value>", "Api Key [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.getModels", "get", options, { required: ["apiUrl","apiKey"] }),
+		);
 	g_ai
-		.command('one')
-		.description('ai one')
-		.requiredOption('--aiId <value>', 'aiId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("ai.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--aiId <value>", "Ai Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.one", "get", options, { required: ["aiId"] }),
+		);
 	g_ai
-		.command('save-custom-providers')
-		.description('ai saveCustomProviders')
-		.requiredOption('--providers <value>', 'providers')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("ai.saveCustomProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-custom-providers")
+		.description("Save Custom Providers")
+		.option("--providers <json>", "Providers [required] (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.saveCustomProviders", "post", options, { required: ["providers"], types: {"providers":"array"} }),
+		);
 	g_ai
-		.command('suggest')
-		.description('ai suggest')
-		.requiredOption('--aiId <value>', 'aiId')
-		.requiredOption('--input <value>', 'input')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("ai.suggest", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("suggest")
+		.description("Suggest")
+		.option("--aiId <value>", "Ai Id [required]")
+		.option("--input <value>", "Input [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.suggest", "post", options, { required: ["aiId","input"] }),
+		);
 	g_ai
-		.command('test-connection')
-		.description('ai testConnection')
-		.requiredOption('--apiUrl <value>', 'apiUrl')
-		.requiredOption('--apiKey <value>', 'apiKey')
-		.requiredOption('--model <value>', 'model')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("ai.testConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--apiUrl <value>", "Api Url [required]")
+		.option("--apiKey <value>", "Api Key [required]")
+		.option("--model <value>", "Model [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.testConnection", "post", options, { required: ["apiUrl","apiKey","model"] }),
+		);
 	g_ai
-		.command('update')
-		.description('ai update')
-		.requiredOption('--aiId <value>', 'aiId')
-		.option('--name <value>', 'name')
-		.option('--apiUrl <value>', 'apiUrl')
-		.option('--apiKey <value>', 'apiKey')
-		.option('--model <value>', 'model')
-		.option('--isEnabled', 'isEnabled')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["isEnabled"] != null) opts["isEnabled"] = opts["isEnabled"] === true || opts["isEnabled"] === "true";
-			const data = await apiPost("ai.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_application = program.command('application').description('application commands');
-
+		.command("update")
+		.description("Update")
+		.option("--aiId <value>", "Ai Id [required]")
+		.option("--name <value>", "Name")
+		.option("--apiUrl <value>", "Api Url")
+		.option("--apiKey <value>", "Api Key")
+		.option("--model <value>", "Model")
+		.option("--isEnabled [boolean]", "Is Enabled")
+		.option("--no-isEnabled", "Set isEnabled to false")
+		.option("--createdAt <value>", "Created At")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "ai.update", "post", options, { required: ["aiId"], types: {"isEnabled":"boolean"} }),
+		);
+	const g_application = program.command("application").description("application commands");
 	g_application
-		.command('cancel-deployment')
-		.description('application cancelDeployment')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.cancelDeployment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("cancel-deployment")
+		.description("Cancel Deployment")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.cancelDeployment", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('clean-queues')
-		.description('application cleanQueues')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.cleanQueues", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-queues")
+		.description("Clean Queues")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.cleanQueues", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('clear-deployments')
-		.description('application clearDeployments')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.clearDeployments", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clear-deployments")
+		.description("Clear Deployments")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.clearDeployments", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('create')
-		.description('application create')
-		.requiredOption('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--serverId <value>', 'serverId')
-		.option('--sourceType <value>', 'sourceType (github, docker, git, gitlab, bitbucket, gitea, drop)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--sourceType <value>", "Source Type (one of: github, docker, git, gitlab, bitbucket, gitea, drop)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.create", "post", options, { required: ["name","environmentId"], types: {"description":"string?","serverId":"string?"}, enums: {"sourceType":["github","docker","git","gitlab","bitbucket","gitea","drop"]} }),
+		);
 	g_application
-		.command('delete')
-		.description('application delete')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.delete", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('deploy')
-		.description('application deploy')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--title <value>', 'title')
-		.option('--description <value>', 'description')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.deploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy")
+		.description("Deploy")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--title <value>", "Title")
+		.option("--description <value>", "Description")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.deploy", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('deploy-nginx-quickstart')
-		.description('application deployNginxQuickstart')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.deployNginxQuickstart", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy-nginx-quickstart")
+		.description("Deploy Nginx Quickstart")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.deployNginxQuickstart", "post", options, { required: ["environmentId"] }),
+		);
 	g_application
-		.command('disconnect-git-provider')
-		.description('application disconnectGitProvider')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.disconnectGitProvider", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("disconnect-git-provider")
+		.description("Disconnect Git Provider")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.disconnectGitProvider", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('drop-deployment')
-		.description('application dropDeployment')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.dropDeployment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("drop-deployment")
+		.description("Drop Deployment")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.dropDeployment", "post", options),
+		);
 	g_application
-		.command('kill-build')
-		.description('application killBuild')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.killBuild", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("kill-build")
+		.description("Kill Build")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.killBuild", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('mark-running')
-		.description('application markRunning')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.markRunning", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("mark-running")
+		.description("Mark Running")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.markRunning", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('move')
-		.description('application move')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--targetEnvironmentId <value>', 'targetEnvironmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.move", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("move")
+		.description("Move")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--targetEnvironmentId <value>", "Target Environment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.move", "post", options, { required: ["applicationId","targetEnvironmentId"] }),
+		);
 	g_application
-		.command('one')
-		.description('application one')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("application.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.one", "get", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('read-app-monitoring')
-		.description('application readAppMonitoring')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("application.readAppMonitoring", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-app-monitoring")
+		.description("Read App Monitoring")
+		.option("--appName <value>", "App Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.readAppMonitoring", "get", options, { required: ["appName"] }),
+		);
 	g_application
-		.command('read-logs')
-		.description('application readLogs')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--tail <value>', 'tail')
-		.option('--since <value>', 'since')
-		.option('--search <value>', 'search')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["tail"] != null) opts["tail"] = Number(opts["tail"]);
-			const data = await apiGet("application.readLogs", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-logs")
+		.description("Read Logs")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--tail <value>", "Tail (default: 100)")
+		.option("--since <value>", "Since (default: \"all\")")
+		.option("--search <value>", "Search")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.readLogs", "get", options, { required: ["applicationId"], types: {"tail":"number"} }),
+		);
 	g_application
-		.command('read-traefik-config')
-		.description('application readTraefikConfig')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("application.readTraefikConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-traefik-config")
+		.description("Read Traefik Config")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.readTraefikConfig", "get", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('redeploy')
-		.description('application redeploy')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--title <value>', 'title')
-		.option('--description <value>', 'description')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.redeploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("redeploy")
+		.description("Redeploy")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--title <value>", "Title")
+		.option("--description <value>", "Description")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.redeploy", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('refresh-token')
-		.description('application refreshToken')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.refreshToken", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("refresh-token")
+		.description("Refresh Token")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.refreshToken", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('reload')
-		.description('application reload')
-		.requiredOption('--appName <value>', 'appName')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.reload", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("reload")
+		.description("Reload")
+		.option("--appName <value>", "App Name [required]")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.reload", "post", options, { required: ["appName","applicationId"] }),
+		);
 	g_application
-		.command('save-bitbucket-provider')
-		.description('application saveBitbucketProvider')
-		.requiredOption('--bitbucketBuildPath <value>', 'bitbucketBuildPath')
-		.requiredOption('--bitbucketOwner <value>', 'bitbucketOwner')
-		.requiredOption('--bitbucketRepository <value>', 'bitbucketRepository')
-		.requiredOption('--bitbucketRepositorySlug <value>', 'bitbucketRepositorySlug')
-		.requiredOption('--bitbucketId <value>', 'bitbucketId')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--bitbucketBranch <value>', 'bitbucketBranch')
-		.option('--enableSubmodules', 'enableSubmodules')
-		.option('--watchPaths <value>', 'watchPaths')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enableSubmodules"] != null) opts["enableSubmodules"] = opts["enableSubmodules"] === true || opts["enableSubmodules"] === "true";
-			const data = await apiPost("application.saveBitbucketProvider", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-bitbucket-provider")
+		.description("Save Bitbucket Provider")
+		.option("--bitbucketBuildPath <value>", "Bitbucket Build Path [required] (nullable: pass \"null\")")
+		.option("--bitbucketOwner <value>", "Bitbucket Owner [required] (nullable: pass \"null\")")
+		.option("--bitbucketRepository <value>", "Bitbucket Repository [required] (nullable: pass \"null\")")
+		.option("--bitbucketRepositorySlug <value>", "Bitbucket Repository Slug [required] (nullable: pass \"null\")")
+		.option("--bitbucketId <value>", "Bitbucket Id [required] (nullable: pass \"null\")")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--bitbucketBranch <value>", "Bitbucket Branch [required]")
+		.option("--enableSubmodules [boolean]", "Enable Submodules")
+		.option("--no-enableSubmodules", "Set enableSubmodules to false")
+		.option("--watchPaths <json>", "Watch Paths (nullable: pass \"null\") (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.saveBitbucketProvider", "post", options, { required: ["bitbucketBuildPath","bitbucketOwner","bitbucketRepository","bitbucketRepositorySlug","bitbucketId","applicationId","bitbucketBranch"], types: {"bitbucketBuildPath":"string?","bitbucketId":"string?","bitbucketOwner":"string?","bitbucketRepository":"string?","bitbucketRepositorySlug":"string?","enableSubmodules":"boolean","watchPaths":"array?"} }),
+		);
 	g_application
-		.command('save-build-type')
-		.description('application saveBuildType')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--buildType <value>', 'buildType (dockerfile, heroku_buildpacks, paketo_buildpacks, nixpacks, static, railpack)')
-		.requiredOption('--dockerfile <value>', 'dockerfile')
-		.requiredOption('--dockerContextPath <value>', 'dockerContextPath')
-		.requiredOption('--dockerBuildStage <value>', 'dockerBuildStage')
-		.requiredOption('--herokuVersion <value>', 'herokuVersion')
-		.requiredOption('--railpackVersion <value>', 'railpackVersion')
-		.option('--publishDirectory <value>', 'publishDirectory')
-		.option('--isStaticSpa', 'isStaticSpa')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["isStaticSpa"] != null) opts["isStaticSpa"] = opts["isStaticSpa"] === true || opts["isStaticSpa"] === "true";
-			const data = await apiPost("application.saveBuildType", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-build-type")
+		.description("Save Build Type")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--buildType <value>", "Build Type [required] (one of: dockerfile, heroku_buildpacks, paketo_buildpacks, nixpacks, static, railpack)")
+		.option("--dockerfile <value>", "Dockerfile [required] (nullable: pass \"null\")")
+		.option("--dockerContextPath <value>", "Docker Context Path [required] (nullable: pass \"null\")")
+		.option("--dockerBuildStage <value>", "Docker Build Stage [required] (nullable: pass \"null\")")
+		.option("--herokuVersion <value>", "Heroku Version [required] (nullable: pass \"null\")")
+		.option("--railpackVersion <value>", "Railpack Version [required] (nullable: pass \"null\")")
+		.option("--publishDirectory <value>", "Publish Directory (nullable: pass \"null\")")
+		.option("--isStaticSpa [boolean]", "Is Static Spa (nullable: pass \"null\")")
+		.option("--no-isStaticSpa", "Set isStaticSpa to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.saveBuildType", "post", options, { required: ["applicationId","buildType","dockerfile","dockerContextPath","dockerBuildStage","herokuVersion","railpackVersion"], types: {"dockerBuildStage":"string?","dockerContextPath":"string?","dockerfile":"string?","herokuVersion":"string?","isStaticSpa":"boolean?","publishDirectory":"string?","railpackVersion":"string?"}, enums: {"buildType":["dockerfile","heroku_buildpacks","paketo_buildpacks","nixpacks","static","railpack"]} }),
+		);
 	g_application
-		.command('save-docker-provider')
-		.description('application saveDockerProvider')
-		.requiredOption('--dockerImage <value>', 'dockerImage')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--username <value>', 'username')
-		.requiredOption('--password <value>', 'password')
-		.requiredOption('--registryUrl <value>', 'registryUrl')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.saveDockerProvider", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-docker-provider")
+		.description("Save Docker Provider")
+		.option("--dockerImage <value>", "Docker Image [required] (nullable: pass \"null\")")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--username <value>", "Username [required] (nullable: pass \"null\")")
+		.option("--password <value>", "Password [required] (nullable: pass \"null\")")
+		.option("--registryUrl <value>", "Registry Url [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.saveDockerProvider", "post", options, { required: ["dockerImage","applicationId","username","password","registryUrl"], types: {"dockerImage":"string?","password":"string?","registryUrl":"string?","username":"string?"} }),
+		);
 	g_application
-		.command('save-environment')
-		.description('application saveEnvironment')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--env <value>', 'env')
-		.requiredOption('--buildArgs <value>', 'buildArgs')
-		.requiredOption('--buildSecrets <value>', 'buildSecrets')
-		.requiredOption('--createEnvFile', 'createEnvFile')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["createEnvFile"] != null) opts["createEnvFile"] = opts["createEnvFile"] === true || opts["createEnvFile"] === "true";
-			const data = await apiPost("application.saveEnvironment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-environment")
+		.description("Save Environment")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--env <value>", "Env [required] (nullable: pass \"null\")")
+		.option("--buildArgs <value>", "Build Args [required] (nullable: pass \"null\")")
+		.option("--buildSecrets <value>", "Build Secrets [required] (nullable: pass \"null\")")
+		.option("--createEnvFile [boolean]", "Create Env File [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.saveEnvironment", "post", options, { required: ["applicationId","env","buildArgs","buildSecrets","createEnvFile"], types: {"buildArgs":"string?","buildSecrets":"string?","createEnvFile":"boolean","env":"string?"} }),
+		);
 	g_application
-		.command('save-gitea-provider')
-		.description('application saveGiteaProvider')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--giteaBuildPath <value>', 'giteaBuildPath')
-		.requiredOption('--giteaOwner <value>', 'giteaOwner')
-		.requiredOption('--giteaRepository <value>', 'giteaRepository')
-		.requiredOption('--giteaId <value>', 'giteaId')
-		.requiredOption('--giteaBranch <value>', 'giteaBranch')
-		.option('--enableSubmodules', 'enableSubmodules')
-		.option('--watchPaths <value>', 'watchPaths')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enableSubmodules"] != null) opts["enableSubmodules"] = opts["enableSubmodules"] === true || opts["enableSubmodules"] === "true";
-			const data = await apiPost("application.saveGiteaProvider", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-gitea-provider")
+		.description("Save Gitea Provider")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--giteaBuildPath <value>", "Gitea Build Path [required] (nullable: pass \"null\")")
+		.option("--giteaOwner <value>", "Gitea Owner [required] (nullable: pass \"null\")")
+		.option("--giteaRepository <value>", "Gitea Repository [required] (nullable: pass \"null\")")
+		.option("--giteaId <value>", "Gitea Id [required] (nullable: pass \"null\")")
+		.option("--giteaBranch <value>", "Gitea Branch [required]")
+		.option("--enableSubmodules [boolean]", "Enable Submodules")
+		.option("--no-enableSubmodules", "Set enableSubmodules to false")
+		.option("--watchPaths <json>", "Watch Paths (nullable: pass \"null\") (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.saveGiteaProvider", "post", options, { required: ["applicationId","giteaBuildPath","giteaOwner","giteaRepository","giteaId","giteaBranch"], types: {"enableSubmodules":"boolean","giteaBuildPath":"string?","giteaId":"string?","giteaOwner":"string?","giteaRepository":"string?","watchPaths":"array?"} }),
+		);
 	g_application
-		.command('save-github-provider')
-		.description('application saveGithubProvider')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--repository <value>', 'repository')
-		.requiredOption('--owner <value>', 'owner')
-		.requiredOption('--buildPath <value>', 'buildPath')
-		.requiredOption('--githubId <value>', 'githubId')
-		.requiredOption('--branch <value>', 'branch')
-		.requiredOption('--triggerType <value>', 'triggerType (push, tag)')
-		.option('--enableSubmodules', 'enableSubmodules')
-		.option('--watchPaths <value>', 'watchPaths')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enableSubmodules"] != null) opts["enableSubmodules"] = opts["enableSubmodules"] === true || opts["enableSubmodules"] === "true";
-			const data = await apiPost("application.saveGithubProvider", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-github-provider")
+		.description("Save Github Provider")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--repository <value>", "Repository [required] (nullable: pass \"null\")")
+		.option("--owner <value>", "Owner [required] (nullable: pass \"null\")")
+		.option("--buildPath <value>", "Build Path [required] (nullable: pass \"null\")")
+		.option("--githubId <value>", "Github Id [required] (nullable: pass \"null\")")
+		.option("--branch <value>", "Branch [required]")
+		.option("--triggerType <value>", "Trigger Type [required] (one of: push, tag) (default: \"push\")")
+		.option("--enableSubmodules [boolean]", "Enable Submodules")
+		.option("--no-enableSubmodules", "Set enableSubmodules to false")
+		.option("--watchPaths <json>", "Watch Paths (nullable: pass \"null\") (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.saveGithubProvider", "post", options, { required: ["applicationId","repository","owner","buildPath","githubId","branch","triggerType"], types: {"buildPath":"string?","enableSubmodules":"boolean","githubId":"string?","owner":"string?","repository":"string?","watchPaths":"array?"}, enums: {"triggerType":["push","tag"]} }),
+		);
 	g_application
-		.command('save-gitlab-provider')
-		.description('application saveGitlabProvider')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--gitlabBuildPath <value>', 'gitlabBuildPath')
-		.requiredOption('--gitlabOwner <value>', 'gitlabOwner')
-		.requiredOption('--gitlabRepository <value>', 'gitlabRepository')
-		.requiredOption('--gitlabId <value>', 'gitlabId')
-		.requiredOption('--gitlabProjectId <value>', 'gitlabProjectId')
-		.requiredOption('--gitlabPathNamespace <value>', 'gitlabPathNamespace')
-		.requiredOption('--gitlabBranch <value>', 'gitlabBranch')
-		.option('--enableSubmodules', 'enableSubmodules')
-		.option('--watchPaths <value>', 'watchPaths')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["gitlabProjectId"] != null) opts["gitlabProjectId"] = Number(opts["gitlabProjectId"]);
-			if (opts["enableSubmodules"] != null) opts["enableSubmodules"] = opts["enableSubmodules"] === true || opts["enableSubmodules"] === "true";
-			const data = await apiPost("application.saveGitlabProvider", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-gitlab-provider")
+		.description("Save Gitlab Provider")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--gitlabBuildPath <value>", "Gitlab Build Path [required] (nullable: pass \"null\")")
+		.option("--gitlabOwner <value>", "Gitlab Owner [required] (nullable: pass \"null\")")
+		.option("--gitlabRepository <value>", "Gitlab Repository [required] (nullable: pass \"null\")")
+		.option("--gitlabId <value>", "Gitlab Id [required] (nullable: pass \"null\")")
+		.option("--gitlabProjectId <value>", "Gitlab Project Id [required] (nullable: pass \"null\")")
+		.option("--gitlabPathNamespace <value>", "Gitlab Path Namespace [required] (nullable: pass \"null\")")
+		.option("--gitlabBranch <value>", "Gitlab Branch [required]")
+		.option("--enableSubmodules [boolean]", "Enable Submodules")
+		.option("--no-enableSubmodules", "Set enableSubmodules to false")
+		.option("--watchPaths <json>", "Watch Paths (nullable: pass \"null\") (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.saveGitlabProvider", "post", options, { required: ["applicationId","gitlabBuildPath","gitlabOwner","gitlabRepository","gitlabId","gitlabProjectId","gitlabPathNamespace","gitlabBranch"], types: {"enableSubmodules":"boolean","gitlabBuildPath":"string?","gitlabId":"string?","gitlabOwner":"string?","gitlabPathNamespace":"string?","gitlabProjectId":"number?","gitlabRepository":"string?","watchPaths":"array?"} }),
+		);
 	g_application
-		.command('save-git-provider')
-		.description('application saveGitProvider')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--customGitBuildPath <value>', 'customGitBuildPath')
-		.requiredOption('--customGitUrl <value>', 'customGitUrl')
-		.requiredOption('--watchPaths <value>', 'watchPaths')
-		.option('--enableSubmodules', 'enableSubmodules')
-		.requiredOption('--customGitBranch <value>', 'customGitBranch')
-		.option('--customGitSSHKeyId <value>', 'customGitSSHKeyId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enableSubmodules"] != null) opts["enableSubmodules"] = opts["enableSubmodules"] === true || opts["enableSubmodules"] === "true";
-			const data = await apiPost("application.saveGitProvider", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-git-provider")
+		.description("Save Git Provider")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--customGitBuildPath <value>", "Custom Git Build Path [required] (nullable: pass \"null\")")
+		.option("--customGitUrl <value>", "Custom Git Url [required] (nullable: pass \"null\")")
+		.option("--watchPaths <json>", "Watch Paths [required] (nullable: pass \"null\") (JSON array)")
+		.option("--enableSubmodules [boolean]", "Enable Submodules")
+		.option("--no-enableSubmodules", "Set enableSubmodules to false")
+		.option("--customGitBranch <value>", "Custom Git Branch [required]")
+		.option("--customGitSSHKeyId <value>", "Custom Git SSHKey Id (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.saveGitProvider", "post", options, { required: ["applicationId","customGitBuildPath","customGitUrl","watchPaths","customGitBranch"], types: {"customGitBuildPath":"string?","customGitSSHKeyId":"string?","customGitUrl":"string?","enableSubmodules":"boolean","watchPaths":"array?"} }),
+		);
 	g_application
-		.command('search')
-		.description('application search')
-		.option('--q <value>', 'q')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--repository <value>', 'repository')
-		.option('--owner <value>', 'owner')
-		.option('--dockerImage <value>', 'dockerImage')
-		.option('--projectId <value>', 'projectId')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--limit <value>', 'limit')
-		.option('--offset <value>', 'offset')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["limit"] != null) opts["limit"] = Number(opts["limit"]);
-			if (opts["offset"] != null) opts["offset"] = Number(opts["offset"]);
-			const data = await apiGet("application.search", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("search")
+		.description("Search")
+		.option("--q <value>", "Q")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description")
+		.option("--repository <value>", "Repository")
+		.option("--owner <value>", "Owner")
+		.option("--dockerImage <value>", "Docker Image")
+		.option("--projectId <value>", "Project Id")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--limit <value>", "Limit (default: 20)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.search", "get", options, { types: {"limit":"number","offset":"number"} }),
+		);
 	g_application
-		.command('start')
-		.description('application start')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.start", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("start")
+		.description("Start")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.start", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('stop')
-		.description('application stop')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.stop", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("stop")
+		.description("Stop")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.stop", "post", options, { required: ["applicationId"] }),
+		);
 	g_application
-		.command('update')
-		.description('application update')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--env <value>', 'env')
-		.option('--previewEnv <value>', 'previewEnv')
-		.option('--watchPaths <value>', 'watchPaths')
-		.option('--previewBuildArgs <value>', 'previewBuildArgs')
-		.option('--previewBuildSecrets <value>', 'previewBuildSecrets')
-		.option('--previewLabels <value>', 'previewLabels')
-		.option('--previewWildcard <value>', 'previewWildcard')
-		.option('--previewPort <value>', 'previewPort')
-		.option('--previewHttps', 'previewHttps')
-		.option('--previewPath <value>', 'previewPath')
-		.option('--previewCertificateType <value>', 'previewCertificateType (letsencrypt, none, custom)')
-		.option('--previewCustomCertResolver <value>', 'previewCustomCertResolver')
-		.option('--previewLimit <value>', 'previewLimit')
-		.option('--isPreviewDeploymentsActive', 'isPreviewDeploymentsActive')
-		.option('--previewRequireCollaboratorPermissions', 'previewRequireCollaboratorPermissions')
-		.option('--rollbackActive', 'rollbackActive')
-		.option('--buildArgs <value>', 'buildArgs')
-		.option('--buildSecrets <value>', 'buildSecrets')
-		.option('--memoryReservation <value>', 'memoryReservation')
-		.option('--memoryLimit <value>', 'memoryLimit')
-		.option('--cpuReservation <value>', 'cpuReservation')
-		.option('--cpuLimit <value>', 'cpuLimit')
-		.option('--title <value>', 'title')
-		.option('--enabled', 'enabled')
-		.option('--subtitle <value>', 'subtitle')
-		.option('--command <value>', 'command')
-		.option('--args <value>', 'args')
-		.option('--icon <value>', 'icon')
-		.option('--refreshToken <value>', 'refreshToken')
-		.option('--sourceType <value>', 'sourceType (github, docker, git, gitlab, bitbucket, gitea, drop)')
-		.option('--cleanCache', 'cleanCache')
-		.option('--repository <value>', 'repository')
-		.option('--owner <value>', 'owner')
-		.option('--branch <value>', 'branch')
-		.option('--buildPath <value>', 'buildPath')
-		.option('--triggerType <value>', 'triggerType (push, tag)')
-		.option('--autoDeploy', 'autoDeploy')
-		.option('--gitlabProjectId <value>', 'gitlabProjectId')
-		.option('--gitlabRepository <value>', 'gitlabRepository')
-		.option('--gitlabOwner <value>', 'gitlabOwner')
-		.option('--gitlabBranch <value>', 'gitlabBranch')
-		.option('--gitlabBuildPath <value>', 'gitlabBuildPath')
-		.option('--gitlabPathNamespace <value>', 'gitlabPathNamespace')
-		.option('--giteaRepository <value>', 'giteaRepository')
-		.option('--giteaOwner <value>', 'giteaOwner')
-		.option('--giteaBranch <value>', 'giteaBranch')
-		.option('--giteaBuildPath <value>', 'giteaBuildPath')
-		.option('--bitbucketRepository <value>', 'bitbucketRepository')
-		.option('--bitbucketRepositorySlug <value>', 'bitbucketRepositorySlug')
-		.option('--bitbucketOwner <value>', 'bitbucketOwner')
-		.option('--bitbucketBranch <value>', 'bitbucketBranch')
-		.option('--bitbucketBuildPath <value>', 'bitbucketBuildPath')
-		.option('--username <value>', 'username')
-		.option('--password <value>', 'password')
-		.option('--dockerImage <value>', 'dockerImage')
-		.option('--registryUrl <value>', 'registryUrl')
-		.option('--customGitUrl <value>', 'customGitUrl')
-		.option('--customGitBranch <value>', 'customGitBranch')
-		.option('--customGitBuildPath <value>', 'customGitBuildPath')
-		.option('--customGitSSHKeyId <value>', 'customGitSSHKeyId')
-		.option('--enableSubmodules', 'enableSubmodules')
-		.option('--dockerfile <value>', 'dockerfile')
-		.option('--dockerContextPath <value>', 'dockerContextPath')
-		.option('--dockerBuildStage <value>', 'dockerBuildStage')
-		.option('--dropBuildPath <value>', 'dropBuildPath')
-		.option('--healthCheckSwarm <value>', 'healthCheckSwarm')
-		.option('--restartPolicySwarm <value>', 'restartPolicySwarm')
-		.option('--placementSwarm <value>', 'placementSwarm')
-		.option('--updateConfigSwarm <value>', 'updateConfigSwarm')
-		.option('--rollbackConfigSwarm <value>', 'rollbackConfigSwarm')
-		.option('--modeSwarm <value>', 'modeSwarm')
-		.option('--labelsSwarm <value>', 'labelsSwarm')
-		.option('--networkSwarm <value>', 'networkSwarm')
-		.option('--stopGracePeriodSwarm <value>', 'stopGracePeriodSwarm')
-		.option('--endpointSpecSwarm <value>', 'endpointSpecSwarm')
-		.option('--ulimitsSwarm <value>', 'ulimitsSwarm')
-		.option('--replicas <value>', 'replicas')
-		.option('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--buildType <value>', 'buildType (dockerfile, heroku_buildpacks, paketo_buildpacks, nixpacks, static, railpack)')
-		.option('--railpackVersion <value>', 'railpackVersion')
-		.option('--herokuVersion <value>', 'herokuVersion')
-		.option('--publishDirectory <value>', 'publishDirectory')
-		.option('--isStaticSpa', 'isStaticSpa')
-		.option('--createEnvFile', 'createEnvFile')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--registryId <value>', 'registryId')
-		.option('--rollbackRegistryId <value>', 'rollbackRegistryId')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--githubId <value>', 'githubId')
-		.option('--gitlabId <value>', 'gitlabId')
-		.option('--giteaId <value>', 'giteaId')
-		.option('--bitbucketId <value>', 'bitbucketId')
-		.option('--buildServerId <value>', 'buildServerId')
-		.option('--buildRegistryId <value>', 'buildRegistryId')
-		.option('--networkIds <value>', 'networkIds')
-		.option('--detachNotployNetwork', 'detachNotployNetwork')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["previewPort"] != null) opts["previewPort"] = Number(opts["previewPort"]);
-			if (opts["previewHttps"] != null) opts["previewHttps"] = opts["previewHttps"] === true || opts["previewHttps"] === "true";
-			if (opts["previewLimit"] != null) opts["previewLimit"] = Number(opts["previewLimit"]);
-			if (opts["isPreviewDeploymentsActive"] != null) opts["isPreviewDeploymentsActive"] = opts["isPreviewDeploymentsActive"] === true || opts["isPreviewDeploymentsActive"] === "true";
-			if (opts["previewRequireCollaboratorPermissions"] != null) opts["previewRequireCollaboratorPermissions"] = opts["previewRequireCollaboratorPermissions"] === true || opts["previewRequireCollaboratorPermissions"] === "true";
-			if (opts["rollbackActive"] != null) opts["rollbackActive"] = opts["rollbackActive"] === true || opts["rollbackActive"] === "true";
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			if (opts["cleanCache"] != null) opts["cleanCache"] = opts["cleanCache"] === true || opts["cleanCache"] === "true";
-			if (opts["autoDeploy"] != null) opts["autoDeploy"] = opts["autoDeploy"] === true || opts["autoDeploy"] === "true";
-			if (opts["gitlabProjectId"] != null) opts["gitlabProjectId"] = Number(opts["gitlabProjectId"]);
-			if (opts["enableSubmodules"] != null) opts["enableSubmodules"] = opts["enableSubmodules"] === true || opts["enableSubmodules"] === "true";
-			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["isStaticSpa"] != null) opts["isStaticSpa"] = opts["isStaticSpa"] === true || opts["isStaticSpa"] === "true";
-			if (opts["createEnvFile"] != null) opts["createEnvFile"] = opts["createEnvFile"] === true || opts["createEnvFile"] === "true";
-			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
-			const data = await apiPost("application.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update")
+		.description("Update")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--env <value>", "Env (nullable: pass \"null\")")
+		.option("--previewEnv <value>", "Preview Env (nullable: pass \"null\")")
+		.option("--watchPaths <json>", "Watch Paths (nullable: pass \"null\") (JSON array)")
+		.option("--previewBuildArgs <value>", "Preview Build Args (nullable: pass \"null\")")
+		.option("--previewBuildSecrets <value>", "Preview Build Secrets (nullable: pass \"null\")")
+		.option("--previewLabels <json>", "Preview Labels (nullable: pass \"null\") (JSON array)")
+		.option("--previewWildcard <value>", "Preview Wildcard (nullable: pass \"null\")")
+		.option("--previewPort <value>", "Preview Port (nullable: pass \"null\")")
+		.option("--previewHttps [boolean]", "Preview Https")
+		.option("--no-previewHttps", "Set previewHttps to false")
+		.option("--previewPath <value>", "Preview Path (nullable: pass \"null\")")
+		.option("--previewCertificateType <value>", "Preview Certificate Type (one of: letsencrypt, none, custom)")
+		.option("--previewCustomCertResolver <value>", "Preview Custom Cert Resolver (nullable: pass \"null\")")
+		.option("--previewLimit <value>", "Preview Limit (nullable: pass \"null\")")
+		.option("--isPreviewDeploymentsActive [boolean]", "Is Preview Deployments Active (nullable: pass \"null\")")
+		.option("--no-isPreviewDeploymentsActive", "Set isPreviewDeploymentsActive to false")
+		.option("--previewRequireCollaboratorPermissions [boolean]", "Preview Require Collaborator Permissions (nullable: pass \"null\")")
+		.option("--no-previewRequireCollaboratorPermissions", "Set previewRequireCollaboratorPermissions to false")
+		.option("--rollbackActive [boolean]", "Rollback Active (nullable: pass \"null\")")
+		.option("--no-rollbackActive", "Set rollbackActive to false")
+		.option("--buildArgs <value>", "Build Args (nullable: pass \"null\")")
+		.option("--buildSecrets <value>", "Build Secrets (nullable: pass \"null\")")
+		.option("--memoryReservation <value>", "Memory Reservation (nullable: pass \"null\")")
+		.option("--memoryLimit <value>", "Memory Limit (nullable: pass \"null\")")
+		.option("--cpuReservation <value>", "Cpu Reservation (nullable: pass \"null\")")
+		.option("--cpuLimit <value>", "Cpu Limit (nullable: pass \"null\")")
+		.option("--title <value>", "Title (nullable: pass \"null\")")
+		.option("--enabled [boolean]", "Enabled (nullable: pass \"null\")")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--subtitle <value>", "Subtitle (nullable: pass \"null\")")
+		.option("--command <value>", "Command (nullable: pass \"null\")")
+		.option("--args <json>", "Args (nullable: pass \"null\") (JSON array)")
+		.option("--icon <value>", "Icon (nullable: pass \"null\")")
+		.option("--refreshToken <value>", "Refresh Token (nullable: pass \"null\")")
+		.option("--sourceType <value>", "Source Type (one of: github, docker, git, gitlab, bitbucket, gitea, drop)")
+		.option("--cleanCache [boolean]", "Clean Cache (nullable: pass \"null\")")
+		.option("--no-cleanCache", "Set cleanCache to false")
+		.option("--repository <value>", "Repository (nullable: pass \"null\")")
+		.option("--owner <value>", "Owner (nullable: pass \"null\")")
+		.option("--branch <value>", "Branch (nullable: pass \"null\")")
+		.option("--buildPath <value>", "Build Path (nullable: pass \"null\")")
+		.option("--triggerType <value>", "Trigger Type (one of: push, tag) (nullable: pass \"null\")")
+		.option("--autoDeploy [boolean]", "Auto Deploy (nullable: pass \"null\")")
+		.option("--no-autoDeploy", "Set autoDeploy to false")
+		.option("--gitlabProjectId <value>", "Gitlab Project Id (nullable: pass \"null\")")
+		.option("--gitlabRepository <value>", "Gitlab Repository (nullable: pass \"null\")")
+		.option("--gitlabOwner <value>", "Gitlab Owner (nullable: pass \"null\")")
+		.option("--gitlabBranch <value>", "Gitlab Branch (nullable: pass \"null\")")
+		.option("--gitlabBuildPath <value>", "Gitlab Build Path (nullable: pass \"null\")")
+		.option("--gitlabPathNamespace <value>", "Gitlab Path Namespace (nullable: pass \"null\")")
+		.option("--giteaRepository <value>", "Gitea Repository (nullable: pass \"null\")")
+		.option("--giteaOwner <value>", "Gitea Owner (nullable: pass \"null\")")
+		.option("--giteaBranch <value>", "Gitea Branch (nullable: pass \"null\")")
+		.option("--giteaBuildPath <value>", "Gitea Build Path (nullable: pass \"null\")")
+		.option("--bitbucketRepository <value>", "Bitbucket Repository (nullable: pass \"null\")")
+		.option("--bitbucketRepositorySlug <value>", "Bitbucket Repository Slug (nullable: pass \"null\")")
+		.option("--bitbucketOwner <value>", "Bitbucket Owner (nullable: pass \"null\")")
+		.option("--bitbucketBranch <value>", "Bitbucket Branch (nullable: pass \"null\")")
+		.option("--bitbucketBuildPath <value>", "Bitbucket Build Path (nullable: pass \"null\")")
+		.option("--username <value>", "Username (nullable: pass \"null\")")
+		.option("--password <value>", "Password (nullable: pass \"null\")")
+		.option("--dockerImage <value>", "Docker Image (nullable: pass \"null\")")
+		.option("--registryUrl <value>", "Registry Url (nullable: pass \"null\")")
+		.option("--customGitUrl <value>", "Custom Git Url (nullable: pass \"null\")")
+		.option("--customGitBranch <value>", "Custom Git Branch (nullable: pass \"null\")")
+		.option("--customGitBuildPath <value>", "Custom Git Build Path (nullable: pass \"null\")")
+		.option("--customGitSSHKeyId <value>", "Custom Git SSHKey Id (nullable: pass \"null\")")
+		.option("--enableSubmodules [boolean]", "Enable Submodules")
+		.option("--no-enableSubmodules", "Set enableSubmodules to false")
+		.option("--dockerfile <value>", "Dockerfile (nullable: pass \"null\")")
+		.option("--dockerContextPath <value>", "Docker Context Path (nullable: pass \"null\")")
+		.option("--dockerBuildStage <value>", "Docker Build Stage (nullable: pass \"null\")")
+		.option("--dropBuildPath <value>", "Drop Build Path (nullable: pass \"null\")")
+		.option("--healthCheckSwarm <json>", "Health Check Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--restartPolicySwarm <json>", "Restart Policy Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--placementSwarm <json>", "Placement Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--updateConfigSwarm <json>", "Update Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--rollbackConfigSwarm <json>", "Rollback Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--modeSwarm <json>", "Mode Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--labelsSwarm <json>", "Labels Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--networkSwarm <json>", "Network Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--stopGracePeriodSwarm <value>", "Stop Grace Period Swarm (nullable: pass \"null\")")
+		.option("--endpointSpecSwarm <json>", "Endpoint Spec Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--ulimitsSwarm <json>", "Ulimits Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--replicas <value>", "Replicas")
+		.option("--applicationStatus <value>", "Application Status (one of: idle, running, done, error)")
+		.option("--buildType <value>", "Build Type (one of: dockerfile, heroku_buildpacks, paketo_buildpacks, nixpacks, static, railpack)")
+		.option("--railpackVersion <value>", "Railpack Version (nullable: pass \"null\")")
+		.option("--herokuVersion <value>", "Heroku Version (nullable: pass \"null\")")
+		.option("--publishDirectory <value>", "Publish Directory (nullable: pass \"null\")")
+		.option("--isStaticSpa [boolean]", "Is Static Spa (nullable: pass \"null\")")
+		.option("--no-isStaticSpa", "Set isStaticSpa to false")
+		.option("--createEnvFile [boolean]", "Create Env File")
+		.option("--no-createEnvFile", "Set createEnvFile to false")
+		.option("--createdAt <value>", "Created At")
+		.option("--registryId <value>", "Registry Id (nullable: pass \"null\")")
+		.option("--rollbackRegistryId <value>", "Rollback Registry Id (nullable: pass \"null\")")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--githubId <value>", "Github Id (nullable: pass \"null\")")
+		.option("--gitlabId <value>", "Gitlab Id (nullable: pass \"null\")")
+		.option("--giteaId <value>", "Gitea Id (nullable: pass \"null\")")
+		.option("--bitbucketId <value>", "Bitbucket Id (nullable: pass \"null\")")
+		.option("--buildServerId <value>", "Build Server Id (nullable: pass \"null\")")
+		.option("--buildRegistryId <value>", "Build Registry Id (nullable: pass \"null\")")
+		.option("--networkIds <json>", "Network Ids (nullable: pass \"null\") (JSON array)")
+		.option("--detachNotployNetwork [boolean]", "Detach Notploy Network")
+		.option("--no-detachNotployNetwork", "Set detachNotployNetwork to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.update", "post", options, { required: ["applicationId"], types: {"args":"array?","autoDeploy":"boolean?","bitbucketBranch":"string?","bitbucketBuildPath":"string?","bitbucketId":"string?","bitbucketOwner":"string?","bitbucketRepository":"string?","bitbucketRepositorySlug":"string?","branch":"string?","buildArgs":"string?","buildPath":"string?","buildRegistryId":"string?","buildSecrets":"string?","buildServerId":"string?","cleanCache":"boolean?","command":"string?","cpuLimit":"string?","cpuReservation":"string?","createEnvFile":"boolean","customGitBranch":"string?","customGitBuildPath":"string?","customGitSSHKeyId":"string?","customGitUrl":"string?","description":"string?","detachNotployNetwork":"boolean","dockerBuildStage":"string?","dockerContextPath":"string?","dockerfile":"string?","dockerImage":"string?","dropBuildPath":"string?","enabled":"boolean?","enableSubmodules":"boolean","endpointSpecSwarm":"object?","env":"string?","giteaBranch":"string?","giteaBuildPath":"string?","giteaId":"string?","giteaOwner":"string?","giteaRepository":"string?","githubId":"string?","gitlabBranch":"string?","gitlabBuildPath":"string?","gitlabId":"string?","gitlabOwner":"string?","gitlabPathNamespace":"string?","gitlabProjectId":"number?","gitlabRepository":"string?","healthCheckSwarm":"object?","herokuVersion":"string?","icon":"string?","isPreviewDeploymentsActive":"boolean?","isStaticSpa":"boolean?","labelsSwarm":"object?","memoryLimit":"string?","memoryReservation":"string?","modeSwarm":"object?","networkIds":"array?","networkSwarm":"array?","owner":"string?","password":"string?","placementSwarm":"object?","previewBuildArgs":"string?","previewBuildSecrets":"string?","previewCustomCertResolver":"string?","previewEnv":"string?","previewHttps":"boolean","previewLabels":"array?","previewLimit":"number?","previewPath":"string?","previewPort":"number?","previewRequireCollaboratorPermissions":"boolean?","previewWildcard":"string?","publishDirectory":"string?","railpackVersion":"string?","refreshToken":"string?","registryId":"string?","registryUrl":"string?","replicas":"number","repository":"string?","restartPolicySwarm":"object?","rollbackActive":"boolean?","rollbackConfigSwarm":"object?","rollbackRegistryId":"string?","stopGracePeriodSwarm":"number?","subtitle":"string?","title":"string?","triggerType":"string?","ulimitsSwarm":"array?","updateConfigSwarm":"object?","username":"string?","watchPaths":"array?"}, enums: {"applicationStatus":["idle","running","done","error"],"buildType":["dockerfile","heroku_buildpacks","paketo_buildpacks","nixpacks","static","railpack"],"previewCertificateType":["letsencrypt","none","custom"],"sourceType":["github","docker","git","gitlab","bitbucket","gitea","drop"],"triggerType":["push","tag"]} }),
+		);
 	g_application
-		.command('update-traefik-config')
-		.description('application updateTraefikConfig')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--traefikConfig <value>', 'traefikConfig')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("application.updateTraefikConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_auditLog = program.command('audit-log').description('audit-log commands');
-
+		.command("update-traefik-config")
+		.description("Update Traefik Config")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--traefikConfig <value>", "Traefik Config [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "application.updateTraefikConfig", "post", options, { required: ["applicationId","traefikConfig"] }),
+		);
+	const g_auditLog = program.command("audit-log").description("auditLog commands");
 	g_auditLog
-		.command('all')
-		.description('auditLog all')
-		.option('--userId <value>', 'userId')
-		.option('--userEmail <value>', 'userEmail')
-		.option('--resourceName <value>', 'resourceName')
-		.option('--action <value>', 'action (create, update, delete, deploy, cancel, redeploy, login, logout)')
-		.option('--resourceType <value>', 'resourceType (project, service, environment, deployment, user, customRole, domain, certificate, registry, server, sshKey, gitProvider, notification, settings, session)')
-		.option('--from <value>', 'from')
-		.option('--to <value>', 'to')
-		.option('--limit <value>', 'limit')
-		.option('--offset <value>', 'offset')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["limit"] != null) opts["limit"] = Number(opts["limit"]);
-			if (opts["offset"] != null) opts["offset"] = Number(opts["offset"]);
-			const data = await apiGet("auditLog.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_backup = program.command('backup').description('backup commands');
-
+		.command("all")
+		.description("All")
+		.option("--userId <value>", "User Id")
+		.option("--userEmail <value>", "User Email")
+		.option("--resourceName <value>", "Resource Name")
+		.option("--action <value>", "Action (one of: create, update, delete, deploy, cancel, redeploy, login, logout)")
+		.option("--resourceType <value>", "Resource Type (one of: project, service, environment, deployment, user, customRole, domain, certificate, registry, server, sshKey, gitProvider, notification, settings, session)")
+		.option("--from <value>", "From")
+		.option("--to <value>", "To")
+		.option("--limit <value>", "Limit (default: 50)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "auditLog.all", "get", options, { types: {"limit":"number","offset":"number"}, enums: {"action":["create","update","delete","deploy","cancel","redeploy","login","logout"],"resourceType":["project","service","environment","deployment","user","customRole","domain","certificate","registry","server","sshKey","gitProvider","notification","settings","session"]} }),
+		);
+	const g_backup = program.command("backup").description("backup commands");
 	g_backup
-		.command('create')
-		.description('backup create')
-		.requiredOption('--schedule <value>', 'schedule')
-		.option('--enabled', 'enabled')
-		.requiredOption('--prefix <value>', 'prefix')
-		.requiredOption('--destinationId <value>', 'destinationId')
-		.option('--keepLatestCount <value>', 'keepLatestCount')
-		.requiredOption('--database <value>', 'database')
-		.option('--mariadbId <value>', 'mariadbId')
-		.option('--mysqlId <value>', 'mysqlId')
-		.option('--postgresId <value>', 'postgresId')
-		.option('--mongoId <value>', 'mongoId')
-		.option('--libsqlId <value>', 'libsqlId')
-		.requiredOption('--databaseType <value>', 'databaseType (postgres, mariadb, mysql, mongo, web-server, libsql)')
-		.option('--userId <value>', 'userId')
-		.option('--backupType <value>', 'backupType (database, compose)')
-		.option('--composeId <value>', 'composeId')
-		.option('--serviceName <value>', 'serviceName')
-		.option('--includeEncryptionKey', 'includeEncryptionKey')
-		.option('--metadata <value>', 'metadata')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			if (opts["keepLatestCount"] != null) opts["keepLatestCount"] = Number(opts["keepLatestCount"]);
-			if (opts["includeEncryptionKey"] != null) opts["includeEncryptionKey"] = opts["includeEncryptionKey"] === true || opts["includeEncryptionKey"] === "true";
-			const data = await apiPost("backup.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--schedule <value>", "Schedule [required]")
+		.option("--enabled [boolean]", "Enabled (nullable: pass \"null\")")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--prefix <value>", "Prefix [required]")
+		.option("--destinationId <value>", "Destination Id [required]")
+		.option("--keepLatestCount <value>", "Keep Latest Count (nullable: pass \"null\")")
+		.option("--database <value>", "Database [required]")
+		.option("--mariadbId <value>", "Mariadb Id (nullable: pass \"null\")")
+		.option("--mysqlId <value>", "Mysql Id (nullable: pass \"null\")")
+		.option("--postgresId <value>", "Postgres Id (nullable: pass \"null\")")
+		.option("--mongoId <value>", "Mongo Id (nullable: pass \"null\")")
+		.option("--libsqlId <value>", "Libsql Id (nullable: pass \"null\")")
+		.option("--databaseType <value>", "Database Type [required] (one of: postgres, mariadb, mysql, mongo, web-server, libsql)")
+		.option("--userId <value>", "User Id (nullable: pass \"null\")")
+		.option("--backupType <value>", "Backup Type (one of: database, compose)")
+		.option("--composeId <value>", "Compose Id (nullable: pass \"null\")")
+		.option("--serviceName <value>", "Service Name (nullable: pass \"null\")")
+		.option("--includeEncryptionKey [boolean]", "Include Encryption Key")
+		.option("--no-includeEncryptionKey", "Set includeEncryptionKey to false")
+		.option("--metadata <json>", "Metadata (nullable: pass \"null\") (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.create", "post", options, { required: ["schedule","prefix","destinationId","database","databaseType"], types: {"composeId":"string?","enabled":"boolean?","includeEncryptionKey":"boolean","keepLatestCount":"number?","libsqlId":"string?","mariadbId":"string?","metadata":"object?","mongoId":"string?","mysqlId":"string?","postgresId":"string?","serviceName":"string?","userId":"string?"}, enums: {"backupType":["database","compose"],"databaseType":["postgres","mariadb","mysql","mongo","web-server","libsql"]} }),
+		);
 	g_backup
-		.command('list-backup-files')
-		.description('backup listBackupFiles')
-		.requiredOption('--destinationId <value>', 'destinationId')
-		.requiredOption('--search <value>', 'search')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("backup.listBackupFiles", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-backup-files")
+		.description("List Backup Files")
+		.option("--destinationId <value>", "Destination Id [required]")
+		.option("--search <value>", "Search [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.listBackupFiles", "get", options, { required: ["destinationId","search"] }),
+		);
 	g_backup
-		.command('manual-backup-compose')
-		.description('backup manualBackupCompose')
-		.requiredOption('--backupId <value>', 'backupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("backup.manualBackupCompose", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("manual-backup-compose")
+		.description("Manual Backup Compose")
+		.option("--backupId <value>", "Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.manualBackupCompose", "post", options, { required: ["backupId"] }),
+		);
 	g_backup
-		.command('manual-backup-libsql')
-		.description('backup manualBackupLibsql')
-		.requiredOption('--backupId <value>', 'backupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("backup.manualBackupLibsql", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("manual-backup-libsql")
+		.description("Manual Backup Libsql")
+		.option("--backupId <value>", "Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.manualBackupLibsql", "post", options, { required: ["backupId"] }),
+		);
 	g_backup
-		.command('manual-backup-mariadb')
-		.description('backup manualBackupMariadb')
-		.requiredOption('--backupId <value>', 'backupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("backup.manualBackupMariadb", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("manual-backup-mariadb")
+		.description("Manual Backup Mariadb")
+		.option("--backupId <value>", "Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.manualBackupMariadb", "post", options, { required: ["backupId"] }),
+		);
 	g_backup
-		.command('manual-backup-mongo')
-		.description('backup manualBackupMongo')
-		.requiredOption('--backupId <value>', 'backupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("backup.manualBackupMongo", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("manual-backup-mongo")
+		.description("Manual Backup Mongo")
+		.option("--backupId <value>", "Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.manualBackupMongo", "post", options, { required: ["backupId"] }),
+		);
 	g_backup
-		.command('manual-backup-my-sql')
-		.description('backup manualBackupMySql')
-		.requiredOption('--backupId <value>', 'backupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("backup.manualBackupMySql", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("manual-backup-my-sql")
+		.description("Manual Backup My Sql")
+		.option("--backupId <value>", "Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.manualBackupMySql", "post", options, { required: ["backupId"] }),
+		);
 	g_backup
-		.command('manual-backup-postgres')
-		.description('backup manualBackupPostgres')
-		.requiredOption('--backupId <value>', 'backupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("backup.manualBackupPostgres", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("manual-backup-postgres")
+		.description("Manual Backup Postgres")
+		.option("--backupId <value>", "Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.manualBackupPostgres", "post", options, { required: ["backupId"] }),
+		);
 	g_backup
-		.command('manual-backup-web-server')
-		.description('backup manualBackupWebServer')
-		.requiredOption('--backupId <value>', 'backupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("backup.manualBackupWebServer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("manual-backup-web-server")
+		.description("Manual Backup Web Server")
+		.option("--backupId <value>", "Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.manualBackupWebServer", "post", options, { required: ["backupId"] }),
+		);
 	g_backup
-		.command('one')
-		.description('backup one')
-		.requiredOption('--backupId <value>', 'backupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("backup.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--backupId <value>", "Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.one", "get", options, { required: ["backupId"] }),
+		);
 	g_backup
-		.command('remove')
-		.description('backup remove')
-		.requiredOption('--backupId <value>', 'backupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("backup.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--backupId <value>", "Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.remove", "post", options, { required: ["backupId"] }),
+		);
 	g_backup
-		.command('update')
-		.description('backup update')
-		.requiredOption('--schedule <value>', 'schedule')
-		.requiredOption('--enabled', 'enabled')
-		.requiredOption('--prefix <value>', 'prefix')
-		.requiredOption('--backupId <value>', 'backupId')
-		.requiredOption('--destinationId <value>', 'destinationId')
-		.requiredOption('--database <value>', 'database')
-		.requiredOption('--keepLatestCount <value>', 'keepLatestCount')
-		.requiredOption('--serviceName <value>', 'serviceName')
-		.requiredOption('--metadata <value>', 'metadata')
-		.requiredOption('--databaseType <value>', 'databaseType (postgres, mariadb, mysql, mongo, web-server, libsql)')
-		.option('--includeEncryptionKey', 'includeEncryptionKey')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			if (opts["keepLatestCount"] != null) opts["keepLatestCount"] = Number(opts["keepLatestCount"]);
-			if (opts["includeEncryptionKey"] != null) opts["includeEncryptionKey"] = opts["includeEncryptionKey"] === true || opts["includeEncryptionKey"] === "true";
-			const data = await apiPost("backup.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_bitbucket = program.command('bitbucket').description('bitbucket commands');
-
+		.command("update")
+		.description("Update")
+		.option("--schedule <value>", "Schedule [required]")
+		.option("--enabled [boolean]", "Enabled [required] (nullable: pass \"null\")")
+		.option("--prefix <value>", "Prefix [required]")
+		.option("--backupId <value>", "Backup Id [required]")
+		.option("--destinationId <value>", "Destination Id [required]")
+		.option("--database <value>", "Database [required]")
+		.option("--keepLatestCount <value>", "Keep Latest Count [required] (nullable: pass \"null\")")
+		.option("--serviceName <value>", "Service Name [required] (nullable: pass \"null\")")
+		.option("--metadata <json>", "Metadata [required] (nullable: pass \"null\") (JSON object)")
+		.option("--databaseType <value>", "Database Type [required] (one of: postgres, mariadb, mysql, mongo, web-server, libsql)")
+		.option("--includeEncryptionKey [boolean]", "Include Encryption Key")
+		.option("--no-includeEncryptionKey", "Set includeEncryptionKey to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "backup.update", "post", options, { required: ["schedule","enabled","prefix","backupId","destinationId","database","keepLatestCount","serviceName","metadata","databaseType"], types: {"enabled":"boolean?","includeEncryptionKey":"boolean","keepLatestCount":"number?","metadata":"object?","serviceName":"string?"}, enums: {"databaseType":["postgres","mariadb","mysql","mongo","web-server","libsql"]} }),
+		);
+	const g_bitbucket = program.command("bitbucket").description("bitbucket commands");
 	g_bitbucket
-		.command('bitbucket-providers')
-		.description('bitbucket bitbucketProviders')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("bitbucket.bitbucketProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("bitbucket-providers")
+		.description("Bitbucket Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "bitbucket.bitbucketProviders", "get", options),
+		);
 	g_bitbucket
-		.command('create')
-		.description('bitbucket create')
-		.option('--bitbucketId <value>', 'bitbucketId')
-		.option('--bitbucketUsername <value>', 'bitbucketUsername')
-		.option('--bitbucketEmail <value>', 'bitbucketEmail')
-		.option('--appPassword <value>', 'appPassword')
-		.option('--apiToken <value>', 'apiToken')
-		.option('--bitbucketWorkspaceName <value>', 'bitbucketWorkspaceName')
-		.option('--gitProviderId <value>', 'gitProviderId')
-		.requiredOption('--authId <value>', 'authId')
-		.requiredOption('--name <value>', 'name')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("bitbucket.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--bitbucketId <value>", "Bitbucket Id")
+		.option("--bitbucketUsername <value>", "Bitbucket Username")
+		.option("--bitbucketEmail <value>", "Bitbucket Email")
+		.option("--appPassword <value>", "App Password")
+		.option("--apiToken <value>", "Api Token")
+		.option("--bitbucketWorkspaceName <value>", "Bitbucket Workspace Name")
+		.option("--gitProviderId <value>", "Git Provider Id")
+		.option("--authId <value>", "Auth Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "bitbucket.create", "post", options, { required: ["authId","name"] }),
+		);
 	g_bitbucket
-		.command('get-bitbucket-branches')
-		.description('bitbucket getBitbucketBranches')
-		.requiredOption('--owner <value>', 'owner')
-		.requiredOption('--repo <value>', 'repo')
-		.option('--bitbucketId <value>', 'bitbucketId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("bitbucket.getBitbucketBranches", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-bitbucket-branches")
+		.description("Get Bitbucket Branches")
+		.option("--owner <value>", "Owner [required]")
+		.option("--repo <value>", "Repo [required]")
+		.option("--bitbucketId <value>", "Bitbucket Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "bitbucket.getBitbucketBranches", "get", options, { required: ["owner","repo"] }),
+		);
 	g_bitbucket
-		.command('get-bitbucket-repositories')
-		.description('bitbucket getBitbucketRepositories')
-		.requiredOption('--bitbucketId <value>', 'bitbucketId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("bitbucket.getBitbucketRepositories", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-bitbucket-repositories")
+		.description("Get Bitbucket Repositories")
+		.option("--bitbucketId <value>", "Bitbucket Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "bitbucket.getBitbucketRepositories", "get", options, { required: ["bitbucketId"] }),
+		);
 	g_bitbucket
-		.command('one')
-		.description('bitbucket one')
-		.requiredOption('--bitbucketId <value>', 'bitbucketId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("bitbucket.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--bitbucketId <value>", "Bitbucket Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "bitbucket.one", "get", options, { required: ["bitbucketId"] }),
+		);
 	g_bitbucket
-		.command('test-connection')
-		.description('bitbucket testConnection')
-		.requiredOption('--bitbucketId <value>', 'bitbucketId')
-		.option('--bitbucketUsername <value>', 'bitbucketUsername')
-		.option('--bitbucketEmail <value>', 'bitbucketEmail')
-		.option('--workspaceName <value>', 'workspaceName')
-		.option('--apiToken <value>', 'apiToken')
-		.option('--appPassword <value>', 'appPassword')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("bitbucket.testConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--bitbucketId <value>", "Bitbucket Id [required]")
+		.option("--bitbucketUsername <value>", "Bitbucket Username")
+		.option("--bitbucketEmail <value>", "Bitbucket Email")
+		.option("--workspaceName <value>", "Workspace Name")
+		.option("--apiToken <value>", "Api Token")
+		.option("--appPassword <value>", "App Password")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "bitbucket.testConnection", "post", options, { required: ["bitbucketId"] }),
+		);
 	g_bitbucket
-		.command('update')
-		.description('bitbucket update')
-		.requiredOption('--bitbucketId <value>', 'bitbucketId')
-		.option('--bitbucketUsername <value>', 'bitbucketUsername')
-		.option('--bitbucketEmail <value>', 'bitbucketEmail')
-		.option('--appPassword <value>', 'appPassword')
-		.option('--apiToken <value>', 'apiToken')
-		.option('--bitbucketWorkspaceName <value>', 'bitbucketWorkspaceName')
-		.requiredOption('--gitProviderId <value>', 'gitProviderId')
-		.requiredOption('--name <value>', 'name')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("bitbucket.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_certificates = program.command('certificates').description('certificates commands');
-
+		.command("update")
+		.description("Update")
+		.option("--bitbucketId <value>", "Bitbucket Id [required]")
+		.option("--bitbucketUsername <value>", "Bitbucket Username")
+		.option("--bitbucketEmail <value>", "Bitbucket Email")
+		.option("--appPassword <value>", "App Password")
+		.option("--apiToken <value>", "Api Token")
+		.option("--bitbucketWorkspaceName <value>", "Bitbucket Workspace Name")
+		.option("--gitProviderId <value>", "Git Provider Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "bitbucket.update", "post", options, { required: ["bitbucketId","gitProviderId","name"] }),
+		);
+	const g_certificates = program.command("certificates").description("certificates commands");
 	g_certificates
-		.command('all')
-		.description('certificates all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("certificates.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "certificates.all", "get", options),
+		);
 	g_certificates
-		.command('create')
-		.description('certificates create')
-		.option('--certificateId <value>', 'certificateId')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--certificateData <value>', 'certificateData')
-		.requiredOption('--privateKey <value>', 'privateKey')
-		.option('--certificatePath <value>', 'certificatePath')
-		.option('--autoRenew', 'autoRenew')
-		.requiredOption('--organizationId <value>', 'organizationId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["autoRenew"] != null) opts["autoRenew"] = opts["autoRenew"] === true || opts["autoRenew"] === "true";
-			const data = await apiPost("certificates.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--certificateId <value>", "Certificate Id")
+		.option("--name <value>", "Name [required]")
+		.option("--certificateData <value>", "Certificate Data [required]")
+		.option("--privateKey <value>", "Private Key [required]")
+		.option("--certificatePath <value>", "Certificate Path")
+		.option("--autoRenew [boolean]", "Auto Renew (nullable: pass \"null\")")
+		.option("--no-autoRenew", "Set autoRenew to false")
+		.option("--organizationId <value>", "Organization Id [required]")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "certificates.create", "post", options, { required: ["name","certificateData","privateKey","organizationId"], types: {"autoRenew":"boolean?","serverId":"string?"} }),
+		);
 	g_certificates
-		.command('one')
-		.description('certificates one')
-		.requiredOption('--certificateId <value>', 'certificateId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("certificates.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--certificateId <value>", "Certificate Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "certificates.one", "get", options, { required: ["certificateId"] }),
+		);
 	g_certificates
-		.command('remove')
-		.description('certificates remove')
-		.requiredOption('--certificateId <value>', 'certificateId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("certificates.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--certificateId <value>", "Certificate Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "certificates.remove", "post", options, { required: ["certificateId"] }),
+		);
 	g_certificates
-		.command('update')
-		.description('certificates update')
-		.requiredOption('--certificateId <value>', 'certificateId')
-		.option('--name <value>', 'name')
-		.option('--certificateData <value>', 'certificateData')
-		.option('--privateKey <value>', 'privateKey')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("certificates.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_cluster = program.command('cluster').description('cluster commands');
-
+		.command("update")
+		.description("Update")
+		.option("--certificateId <value>", "Certificate Id [required]")
+		.option("--name <value>", "Name")
+		.option("--certificateData <value>", "Certificate Data")
+		.option("--privateKey <value>", "Private Key")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "certificates.update", "post", options, { required: ["certificateId"] }),
+		);
+	const g_cluster = program.command("cluster").description("cluster commands");
 	g_cluster
-		.command('add-manager')
-		.description('cluster addManager')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("cluster.addManager", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("add-manager")
+		.description("Add Manager")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "cluster.addManager", "get", options),
+		);
 	g_cluster
-		.command('add-worker')
-		.description('cluster addWorker')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("cluster.addWorker", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("add-worker")
+		.description("Add Worker")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "cluster.addWorker", "get", options),
+		);
 	g_cluster
-		.command('get-nodes')
-		.description('cluster getNodes')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("cluster.getNodes", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-nodes")
+		.description("Get Nodes")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "cluster.getNodes", "get", options),
+		);
 	g_cluster
-		.command('remove-worker')
-		.description('cluster removeWorker')
-		.requiredOption('--nodeId <value>', 'nodeId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("cluster.removeWorker", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_compose = program.command('compose').description('compose commands');
-
+		.command("remove-worker")
+		.description("Remove Worker")
+		.option("--nodeId <value>", "Node Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "cluster.removeWorker", "post", options, { required: ["nodeId"] }),
+		);
+	const g_compose = program.command("compose").description("compose commands");
 	g_compose
-		.command('cancel-deployment')
-		.description('compose cancelDeployment')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.cancelDeployment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("cancel-deployment")
+		.description("Cancel Deployment")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.cancelDeployment", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('clean-queues')
-		.description('compose cleanQueues')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.cleanQueues", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-queues")
+		.description("Clean Queues")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.cleanQueues", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('clear-deployments')
-		.description('compose clearDeployments')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.clearDeployments", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clear-deployments")
+		.description("Clear Deployments")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.clearDeployments", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('create')
-		.description('compose create')
-		.requiredOption('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--composeType <value>', 'composeType (docker-compose, stack)')
-		.option('--appName <value>', 'appName')
-		.option('--serverId <value>', 'serverId')
-		.option('--composeFile <value>', 'composeFile')
-		.option('--sourceType <value>', 'sourceType (git, github, gitlab, bitbucket, gitea, raw)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--composeType <value>", "Compose Type (one of: docker-compose, stack)")
+		.option("--appName <value>", "App Name")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--composeFile <value>", "Compose File")
+		.option("--sourceType <value>", "Source Type (one of: git, github, gitlab, bitbucket, gitea, raw)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.create", "post", options, { required: ["name","environmentId"], types: {"description":"string?","serverId":"string?"}, enums: {"composeType":["docker-compose","stack"],"sourceType":["git","github","gitlab","bitbucket","gitea","raw"]} }),
+		);
 	g_compose
-		.command('delete')
-		.description('compose delete')
-		.requiredOption('--composeId <value>', 'composeId')
-		.requiredOption('--deleteVolumes', 'deleteVolumes')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["deleteVolumes"] != null) opts["deleteVolumes"] = opts["deleteVolumes"] === true || opts["deleteVolumes"] === "true";
-			const data = await apiPost("compose.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--deleteVolumes [boolean]", "Delete Volumes [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.delete", "post", options, { required: ["composeId","deleteVolumes"], types: {"deleteVolumes":"boolean"} }),
+		);
 	g_compose
-		.command('deploy')
-		.description('compose deploy')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--title <value>', 'title')
-		.option('--description <value>', 'description')
-		.option('--freshVolumes', 'freshVolumes')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["freshVolumes"] != null) opts["freshVolumes"] = opts["freshVolumes"] === true || opts["freshVolumes"] === "true";
-			const data = await apiPost("compose.deploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy")
+		.description("Deploy")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--title <value>", "Title")
+		.option("--description <value>", "Description")
+		.option("--freshVolumes [boolean]", "Fresh Volumes")
+		.option("--no-freshVolumes", "Set freshVolumes to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.deploy", "post", options, { required: ["composeId"], types: {"freshVolumes":"boolean"} }),
+		);
 	g_compose
-		.command('deploy-template')
-		.description('compose deployTemplate')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--serverId <value>', 'serverId')
-		.requiredOption('--id <value>', 'id')
-		.option('--baseUrl <value>', 'baseUrl')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.deployTemplate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy-template")
+		.description("Deploy Template")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--id <value>", "Id [required]")
+		.option("--baseUrl <value>", "Base Url")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.deployTemplate", "post", options, { required: ["environmentId","id"] }),
+		);
 	g_compose
-		.command('disconnect-git-provider')
-		.description('compose disconnectGitProvider')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.disconnectGitProvider", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("disconnect-git-provider")
+		.description("Disconnect Git Provider")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.disconnectGitProvider", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('fetch-source-type')
-		.description('compose fetchSourceType')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.fetchSourceType", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("fetch-source-type")
+		.description("Fetch Source Type")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.fetchSourceType", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('get-converted-compose')
-		.description('compose getConvertedCompose')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("compose.getConvertedCompose", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-converted-compose")
+		.description("Get Converted Compose")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.getConvertedCompose", "get", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('get-default-command')
-		.description('compose getDefaultCommand')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("compose.getDefaultCommand", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-default-command")
+		.description("Get Default Command")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.getDefaultCommand", "get", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('get-tags')
-		.description('compose getTags')
-		.option('--baseUrl <value>', 'baseUrl')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("compose.getTags", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-tags")
+		.description("Get Tags")
+		.option("--baseUrl <value>", "Base Url")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.getTags", "get", options),
+		);
 	g_compose
-		.command('import')
-		.description('compose import')
-		.requiredOption('--base64 <value>', 'base64')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.import", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("import")
+		.description("Import")
+		.option("--base64 <value>", "Base64 [required]")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.import", "post", options, { required: ["base64","composeId"] }),
+		);
 	g_compose
-		.command('isolated-deployment')
-		.description('compose isolatedDeployment')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--suffix <value>', 'suffix')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.isolatedDeployment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("isolated-deployment")
+		.description("Isolated Deployment")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--suffix <value>", "Suffix")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.isolatedDeployment", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('kill-build')
-		.description('compose killBuild')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.killBuild", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("kill-build")
+		.description("Kill Build")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.killBuild", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('load-mounts-by-service')
-		.description('compose loadMountsByService')
-		.requiredOption('--composeId <value>', 'composeId')
-		.requiredOption('--serviceName <value>', 'serviceName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("compose.loadMountsByService", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("load-mounts-by-service")
+		.description("Load Mounts By Service")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--serviceName <value>", "Service Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.loadMountsByService", "get", options, { required: ["composeId","serviceName"] }),
+		);
 	g_compose
-		.command('load-services')
-		.description('compose loadServices')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--type <value>', 'type (fetch, cache)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("compose.loadServices", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("load-services")
+		.description("Load Services")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--type <value>", "Type (one of: fetch, cache) (default: \"cache\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.loadServices", "get", options, { required: ["composeId"], enums: {"type":["fetch","cache"]} }),
+		);
 	g_compose
-		.command('move')
-		.description('compose move')
-		.requiredOption('--composeId <value>', 'composeId')
-		.requiredOption('--targetEnvironmentId <value>', 'targetEnvironmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.move", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("move")
+		.description("Move")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--targetEnvironmentId <value>", "Target Environment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.move", "post", options, { required: ["composeId","targetEnvironmentId"] }),
+		);
 	g_compose
-		.command('one')
-		.description('compose one')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("compose.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.one", "get", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('preview-template')
-		.description('compose previewTemplate')
-		.requiredOption('--base64 <value>', 'base64')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.previewTemplate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("preview-template")
+		.description("Preview Template")
+		.option("--base64 <value>", "Base64 [required]")
+		.option("--appName <value>", "App Name [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.previewTemplate", "post", options, { required: ["base64","appName"] }),
+		);
 	g_compose
-		.command('process-template')
-		.description('compose processTemplate')
-		.requiredOption('--base64 <value>', 'base64')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.processTemplate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("process-template")
+		.description("Process Template")
+		.option("--base64 <value>", "Base64 [required]")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.processTemplate", "post", options, { required: ["base64","composeId"] }),
+		);
 	g_compose
-		.command('randomize-compose')
-		.description('compose randomizeCompose')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--suffix <value>', 'suffix')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.randomizeCompose", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("randomize-compose")
+		.description("Randomize Compose")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--suffix <value>", "Suffix")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.randomizeCompose", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('read-logs')
-		.description('compose readLogs')
-		.requiredOption('--composeId <value>', 'composeId')
-		.requiredOption('--containerId <value>', 'containerId')
-		.option('--tail <value>', 'tail')
-		.option('--since <value>', 'since')
-		.option('--search <value>', 'search')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["tail"] != null) opts["tail"] = Number(opts["tail"]);
-			const data = await apiGet("compose.readLogs", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-logs")
+		.description("Read Logs")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--tail <value>", "Tail (default: 100)")
+		.option("--since <value>", "Since (default: \"all\")")
+		.option("--search <value>", "Search")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.readLogs", "get", options, { required: ["composeId","containerId"], types: {"tail":"number"} }),
+		);
 	g_compose
-		.command('redeploy')
-		.description('compose redeploy')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--title <value>', 'title')
-		.option('--description <value>', 'description')
-		.option('--freshVolumes', 'freshVolumes')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["freshVolumes"] != null) opts["freshVolumes"] = opts["freshVolumes"] === true || opts["freshVolumes"] === "true";
-			const data = await apiPost("compose.redeploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("redeploy")
+		.description("Redeploy")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--title <value>", "Title")
+		.option("--description <value>", "Description")
+		.option("--freshVolumes [boolean]", "Fresh Volumes")
+		.option("--no-freshVolumes", "Set freshVolumes to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.redeploy", "post", options, { required: ["composeId"], types: {"freshVolumes":"boolean"} }),
+		);
 	g_compose
-		.command('refresh-token')
-		.description('compose refreshToken')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.refreshToken", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("refresh-token")
+		.description("Refresh Token")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.refreshToken", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('save-environment')
-		.description('compose saveEnvironment')
-		.requiredOption('--composeId <value>', 'composeId')
-		.requiredOption('--env <value>', 'env')
-		.option('--createEnvFile', 'createEnvFile')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["createEnvFile"] != null) opts["createEnvFile"] = opts["createEnvFile"] === true || opts["createEnvFile"] === "true";
-			const data = await apiPost("compose.saveEnvironment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-environment")
+		.description("Save Environment")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--env <value>", "Env [required] (nullable: pass \"null\")")
+		.option("--createEnvFile [boolean]", "Create Env File")
+		.option("--no-createEnvFile", "Set createEnvFile to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.saveEnvironment", "post", options, { required: ["composeId","env"], types: {"createEnvFile":"boolean","env":"string?"} }),
+		);
 	g_compose
-		.command('search')
-		.description('compose search')
-		.option('--q <value>', 'q')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--projectId <value>', 'projectId')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--limit <value>', 'limit')
-		.option('--offset <value>', 'offset')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["limit"] != null) opts["limit"] = Number(opts["limit"]);
-			if (opts["offset"] != null) opts["offset"] = Number(opts["offset"]);
-			const data = await apiGet("compose.search", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("search")
+		.description("Search")
+		.option("--q <value>", "Q")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description")
+		.option("--projectId <value>", "Project Id")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--limit <value>", "Limit (default: 20)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.search", "get", options, { types: {"limit":"number","offset":"number"} }),
+		);
 	g_compose
-		.command('start')
-		.description('compose start')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.start", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("start")
+		.description("Start")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.start", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('stop')
-		.description('compose stop')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("compose.stop", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("stop")
+		.description("Stop")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.stop", "post", options, { required: ["composeId"] }),
+		);
 	g_compose
-		.command('templates')
-		.description('compose templates')
-		.option('--baseUrl <value>', 'baseUrl')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("compose.templates", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("templates")
+		.description("Templates")
+		.option("--baseUrl <value>", "Base Url")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.templates", "get", options),
+		);
 	g_compose
-		.command('update')
-		.description('compose update')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--env <value>', 'env')
-		.option('--composeFile <value>', 'composeFile')
-		.option('--refreshToken <value>', 'refreshToken')
-		.option('--sourceType <value>', 'sourceType (git, github, gitlab, bitbucket, gitea, raw)')
-		.option('--composeType <value>', 'composeType (docker-compose, stack)')
-		.option('--repository <value>', 'repository')
-		.option('--owner <value>', 'owner')
-		.option('--branch <value>', 'branch')
-		.option('--autoDeploy', 'autoDeploy')
-		.option('--gitlabProjectId <value>', 'gitlabProjectId')
-		.option('--gitlabRepository <value>', 'gitlabRepository')
-		.option('--gitlabOwner <value>', 'gitlabOwner')
-		.option('--gitlabBranch <value>', 'gitlabBranch')
-		.option('--gitlabPathNamespace <value>', 'gitlabPathNamespace')
-		.option('--bitbucketRepository <value>', 'bitbucketRepository')
-		.option('--bitbucketRepositorySlug <value>', 'bitbucketRepositorySlug')
-		.option('--bitbucketOwner <value>', 'bitbucketOwner')
-		.option('--bitbucketBranch <value>', 'bitbucketBranch')
-		.option('--giteaRepository <value>', 'giteaRepository')
-		.option('--giteaOwner <value>', 'giteaOwner')
-		.option('--giteaBranch <value>', 'giteaBranch')
-		.option('--customGitUrl <value>', 'customGitUrl')
-		.option('--customGitBranch <value>', 'customGitBranch')
-		.option('--customGitSSHKeyId <value>', 'customGitSSHKeyId')
-		.option('--command <value>', 'command')
-		.option('--createEnvFile', 'createEnvFile')
-		.option('--enableSubmodules', 'enableSubmodules')
-		.option('--composePath <value>', 'composePath')
-		.option('--suffix <value>', 'suffix')
-		.option('--randomize', 'randomize')
-		.option('--isolatedDeployment', 'isolatedDeployment')
-		.option('--isolatedDeploymentsVolume', 'isolatedDeploymentsVolume')
-		.option('--triggerType <value>', 'triggerType (push, tag)')
-		.option('--composeStatus <value>', 'composeStatus (idle, running, done, error)')
-		.option('--icon <value>', 'icon')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--watchPaths <value>', 'watchPaths')
-		.option('--githubId <value>', 'githubId')
-		.option('--gitlabId <value>', 'gitlabId')
-		.option('--bitbucketId <value>', 'bitbucketId')
-		.option('--giteaId <value>', 'giteaId')
-		.option('--serviceNetworks <value>', 'serviceNetworks')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["autoDeploy"] != null) opts["autoDeploy"] = opts["autoDeploy"] === true || opts["autoDeploy"] === "true";
-			if (opts["gitlabProjectId"] != null) opts["gitlabProjectId"] = Number(opts["gitlabProjectId"]);
-			if (opts["createEnvFile"] != null) opts["createEnvFile"] = opts["createEnvFile"] === true || opts["createEnvFile"] === "true";
-			if (opts["enableSubmodules"] != null) opts["enableSubmodules"] = opts["enableSubmodules"] === true || opts["enableSubmodules"] === "true";
-			if (opts["randomize"] != null) opts["randomize"] = opts["randomize"] === true || opts["randomize"] === "true";
-			if (opts["isolatedDeployment"] != null) opts["isolatedDeployment"] = opts["isolatedDeployment"] === true || opts["isolatedDeployment"] === "true";
-			if (opts["isolatedDeploymentsVolume"] != null) opts["isolatedDeploymentsVolume"] = opts["isolatedDeploymentsVolume"] === true || opts["isolatedDeploymentsVolume"] === "true";
-			const data = await apiPost("compose.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_customRole = program.command('custom-role').description('custom-role commands');
-
+		.command("update")
+		.description("Update")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--env <value>", "Env (nullable: pass \"null\")")
+		.option("--composeFile <value>", "Compose File")
+		.option("--refreshToken <value>", "Refresh Token (nullable: pass \"null\")")
+		.option("--sourceType <value>", "Source Type (one of: git, github, gitlab, bitbucket, gitea, raw)")
+		.option("--composeType <value>", "Compose Type (one of: docker-compose, stack)")
+		.option("--repository <value>", "Repository (nullable: pass \"null\")")
+		.option("--owner <value>", "Owner (nullable: pass \"null\")")
+		.option("--branch <value>", "Branch (nullable: pass \"null\")")
+		.option("--autoDeploy [boolean]", "Auto Deploy (nullable: pass \"null\")")
+		.option("--no-autoDeploy", "Set autoDeploy to false")
+		.option("--gitlabProjectId <value>", "Gitlab Project Id (nullable: pass \"null\")")
+		.option("--gitlabRepository <value>", "Gitlab Repository (nullable: pass \"null\")")
+		.option("--gitlabOwner <value>", "Gitlab Owner (nullable: pass \"null\")")
+		.option("--gitlabBranch <value>", "Gitlab Branch (nullable: pass \"null\")")
+		.option("--gitlabPathNamespace <value>", "Gitlab Path Namespace (nullable: pass \"null\")")
+		.option("--bitbucketRepository <value>", "Bitbucket Repository (nullable: pass \"null\")")
+		.option("--bitbucketRepositorySlug <value>", "Bitbucket Repository Slug (nullable: pass \"null\")")
+		.option("--bitbucketOwner <value>", "Bitbucket Owner (nullable: pass \"null\")")
+		.option("--bitbucketBranch <value>", "Bitbucket Branch (nullable: pass \"null\")")
+		.option("--giteaRepository <value>", "Gitea Repository (nullable: pass \"null\")")
+		.option("--giteaOwner <value>", "Gitea Owner (nullable: pass \"null\")")
+		.option("--giteaBranch <value>", "Gitea Branch (nullable: pass \"null\")")
+		.option("--customGitUrl <value>", "Custom Git Url (nullable: pass \"null\")")
+		.option("--customGitBranch <value>", "Custom Git Branch (nullable: pass \"null\")")
+		.option("--customGitSSHKeyId <value>", "Custom Git SSHKey Id (nullable: pass \"null\")")
+		.option("--command <value>", "Command")
+		.option("--createEnvFile [boolean]", "Create Env File")
+		.option("--no-createEnvFile", "Set createEnvFile to false")
+		.option("--enableSubmodules [boolean]", "Enable Submodules")
+		.option("--no-enableSubmodules", "Set enableSubmodules to false")
+		.option("--composePath <value>", "Compose Path")
+		.option("--suffix <value>", "Suffix")
+		.option("--randomize [boolean]", "Randomize")
+		.option("--no-randomize", "Set randomize to false")
+		.option("--isolatedDeployment [boolean]", "Isolated Deployment")
+		.option("--no-isolatedDeployment", "Set isolatedDeployment to false")
+		.option("--isolatedDeploymentsVolume [boolean]", "Isolated Deployments Volume")
+		.option("--no-isolatedDeploymentsVolume", "Set isolatedDeploymentsVolume to false")
+		.option("--pullImages [boolean]", "Pull Images")
+		.option("--no-pullImages", "Set pullImages to false")
+		.option("--triggerType <value>", "Trigger Type (one of: push, tag) (nullable: pass \"null\")")
+		.option("--composeStatus <value>", "Compose Status (one of: idle, running, done, error)")
+		.option("--icon <value>", "Icon (nullable: pass \"null\")")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--createdAt <value>", "Created At")
+		.option("--watchPaths <json>", "Watch Paths (nullable: pass \"null\") (JSON array)")
+		.option("--githubId <value>", "Github Id (nullable: pass \"null\")")
+		.option("--gitlabId <value>", "Gitlab Id (nullable: pass \"null\")")
+		.option("--bitbucketId <value>", "Bitbucket Id (nullable: pass \"null\")")
+		.option("--giteaId <value>", "Gitea Id (nullable: pass \"null\")")
+		.option("--serviceNetworks <json>", "Service Networks (nullable: pass \"null\") (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "compose.update", "post", options, { required: ["composeId"], types: {"autoDeploy":"boolean?","bitbucketBranch":"string?","bitbucketId":"string?","bitbucketOwner":"string?","bitbucketRepository":"string?","bitbucketRepositorySlug":"string?","branch":"string?","createEnvFile":"boolean","customGitBranch":"string?","customGitSSHKeyId":"string?","customGitUrl":"string?","description":"string?","enableSubmodules":"boolean","env":"string?","giteaBranch":"string?","giteaId":"string?","giteaOwner":"string?","giteaRepository":"string?","githubId":"string?","gitlabBranch":"string?","gitlabId":"string?","gitlabOwner":"string?","gitlabPathNamespace":"string?","gitlabProjectId":"number?","gitlabRepository":"string?","icon":"string?","isolatedDeployment":"boolean","isolatedDeploymentsVolume":"boolean","owner":"string?","pullImages":"boolean","randomize":"boolean","refreshToken":"string?","repository":"string?","serviceNetworks":"array?","triggerType":"string?","watchPaths":"array?"}, enums: {"composeStatus":["idle","running","done","error"],"composeType":["docker-compose","stack"],"sourceType":["git","github","gitlab","bitbucket","gitea","raw"],"triggerType":["push","tag"]} }),
+		);
+	const g_customRole = program.command("custom-role").description("customRole commands");
 	g_customRole
-		.command('all')
-		.description('customRole all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("customRole.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "customRole.all", "get", options),
+		);
 	g_customRole
-		.command('create')
-		.description('customRole create')
-		.requiredOption('--roleName <value>', 'roleName')
-		.requiredOption('--permissions <value>', 'permissions')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("customRole.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--roleName <value>", "Role Name [required]")
+		.option("--permissions <json>", "Permissions [required] (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "customRole.create", "post", options, { required: ["roleName","permissions"], types: {"permissions":"object"} }),
+		);
 	g_customRole
-		.command('get-statements')
-		.description('customRole getStatements')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("customRole.getStatements", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-statements")
+		.description("Get Statements")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "customRole.getStatements", "get", options),
+		);
 	g_customRole
-		.command('members-by-role')
-		.description('customRole membersByRole')
-		.requiredOption('--roleName <value>', 'roleName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("customRole.membersByRole", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("members-by-role")
+		.description("Members By Role")
+		.option("--roleName <value>", "Role Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "customRole.membersByRole", "get", options, { required: ["roleName"] }),
+		);
 	g_customRole
-		.command('remove')
-		.description('customRole remove')
-		.requiredOption('--roleName <value>', 'roleName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("customRole.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--roleName <value>", "Role Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "customRole.remove", "post", options, { required: ["roleName"] }),
+		);
 	g_customRole
-		.command('update')
-		.description('customRole update')
-		.requiredOption('--roleName <value>', 'roleName')
-		.option('--newRoleName <value>', 'newRoleName')
-		.requiredOption('--permissions <value>', 'permissions')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("customRole.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_deployment = program.command('deployment').description('deployment commands');
-
+		.command("update")
+		.description("Update")
+		.option("--roleName <value>", "Role Name [required]")
+		.option("--newRoleName <value>", "New Role Name")
+		.option("--permissions <json>", "Permissions [required] (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "customRole.update", "post", options, { required: ["roleName","permissions"], types: {"permissions":"object"} }),
+		);
+	const g_deployment = program.command("deployment").description("deployment commands");
 	g_deployment
-		.command('all')
-		.description('deployment all')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("deployment.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.all", "get", options, { required: ["applicationId"] }),
+		);
 	g_deployment
-		.command('all-by-compose')
-		.description('deployment allByCompose')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("deployment.allByCompose", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all-by-compose")
+		.description("All By Compose")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.allByCompose", "get", options, { required: ["composeId"] }),
+		);
 	g_deployment
-		.command('all-by-server')
-		.description('deployment allByServer')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("deployment.allByServer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all-by-server")
+		.description("All By Server")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.allByServer", "get", options, { required: ["serverId"] }),
+		);
 	g_deployment
-		.command('all-by-type')
-		.description('deployment allByType')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--type <value>', 'type (application, compose, server, schedule, previewDeployment, backup, volumeBackup)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("deployment.allByType", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all-by-type")
+		.description("All By Type")
+		.option("--id <value>", "Id [required]")
+		.option("--type <value>", "Type [required] (one of: application, compose, server, schedule, previewDeployment, backup, volumeBackup)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.allByType", "get", options, { required: ["id","type"], enums: {"type":["application","compose","server","schedule","previewDeployment","backup","volumeBackup"]} }),
+		);
 	g_deployment
-		.command('all-centralized')
-		.description('deployment allCentralized')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("deployment.allCentralized", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all-centralized")
+		.description("All Centralized")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.allCentralized", "get", options),
+		);
 	g_deployment
-		.command('kill-process')
-		.description('deployment killProcess')
-		.requiredOption('--deploymentId <value>', 'deploymentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("deployment.killProcess", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("kill-process")
+		.description("Kill Process")
+		.option("--deploymentId <value>", "Deployment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.killProcess", "post", options, { required: ["deploymentId"] }),
+		);
 	g_deployment
-		.command('queue-list')
-		.description('deployment queueList')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("deployment.queueList", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("queue-list")
+		.description("Queue List")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.queueList", "get", options),
+		);
 	g_deployment
-		.command('read-logs')
-		.description('deployment readLogs')
-		.requiredOption('--deploymentId <value>', 'deploymentId')
-		.option('--tail <value>', 'tail')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["tail"] != null) opts["tail"] = Number(opts["tail"]);
-			const data = await apiGet("deployment.readLogs", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-logs")
+		.description("Read Logs")
+		.option("--deploymentId <value>", "Deployment Id [required]")
+		.option("--tail <value>", "Tail (default: 100)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.readLogs", "get", options, { required: ["deploymentId"], types: {"tail":"number"} }),
+		);
 	g_deployment
-		.command('remove-deployment')
-		.description('deployment removeDeployment')
-		.requiredOption('--deploymentId <value>', 'deploymentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("deployment.removeDeployment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_destination = program.command('destination').description('destination commands');
-
+		.command("remove-deployment")
+		.description("Remove Deployment")
+		.option("--deploymentId <value>", "Deployment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.removeDeployment", "post", options, { required: ["deploymentId"] }),
+		);
+	const g_destination = program.command("destination").description("destination commands");
 	g_destination
-		.command('all')
-		.description('destination all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("destination.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "destination.all", "get", options),
+		);
 	g_destination
-		.command('create')
-		.description('destination create')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--provider <value>', 'provider')
-		.requiredOption('--accessKey <value>', 'accessKey')
-		.requiredOption('--bucket <value>', 'bucket')
-		.requiredOption('--region <value>', 'region')
-		.requiredOption('--endpoint <value>', 'endpoint')
-		.requiredOption('--secretAccessKey <value>', 'secretAccessKey')
-		.requiredOption('--additionalFlags <value>', 'additionalFlags')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("destination.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--provider <value>", "Provider [required] (nullable: pass \"null\")")
+		.option("--accessKey <value>", "Access Key [required]")
+		.option("--bucket <value>", "Bucket [required]")
+		.option("--region <value>", "Region [required]")
+		.option("--endpoint <value>", "Endpoint [required]")
+		.option("--secretAccessKey <value>", "Secret Access Key [required]")
+		.option("--additionalFlags <json>", "Additional Flags [required] (default: []) (nullable: pass \"null\") (JSON array)")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "destination.create", "post", options, { required: ["name","provider","accessKey","bucket","region","endpoint","secretAccessKey","additionalFlags"], types: {"additionalFlags":"array?","provider":"string?"} }),
+		);
 	g_destination
-		.command('one')
-		.description('destination one')
-		.requiredOption('--destinationId <value>', 'destinationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("destination.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--destinationId <value>", "Destination Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "destination.one", "get", options, { required: ["destinationId"] }),
+		);
 	g_destination
-		.command('remove')
-		.description('destination remove')
-		.requiredOption('--destinationId <value>', 'destinationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("destination.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--destinationId <value>", "Destination Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "destination.remove", "post", options, { required: ["destinationId"] }),
+		);
 	g_destination
-		.command('test-connection')
-		.description('destination testConnection')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--provider <value>', 'provider')
-		.requiredOption('--accessKey <value>', 'accessKey')
-		.requiredOption('--bucket <value>', 'bucket')
-		.requiredOption('--region <value>', 'region')
-		.requiredOption('--endpoint <value>', 'endpoint')
-		.requiredOption('--secretAccessKey <value>', 'secretAccessKey')
-		.requiredOption('--additionalFlags <value>', 'additionalFlags')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("destination.testConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--name <value>", "Name [required]")
+		.option("--provider <value>", "Provider [required] (nullable: pass \"null\")")
+		.option("--accessKey <value>", "Access Key [required]")
+		.option("--bucket <value>", "Bucket [required]")
+		.option("--region <value>", "Region [required]")
+		.option("--endpoint <value>", "Endpoint [required]")
+		.option("--secretAccessKey <value>", "Secret Access Key [required]")
+		.option("--additionalFlags <json>", "Additional Flags [required] (default: []) (nullable: pass \"null\") (JSON array)")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "destination.testConnection", "post", options, { required: ["name","provider","accessKey","bucket","region","endpoint","secretAccessKey","additionalFlags"], types: {"additionalFlags":"array?","provider":"string?"} }),
+		);
 	g_destination
-		.command('update')
-		.description('destination update')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--accessKey <value>', 'accessKey')
-		.requiredOption('--bucket <value>', 'bucket')
-		.requiredOption('--region <value>', 'region')
-		.requiredOption('--endpoint <value>', 'endpoint')
-		.requiredOption('--secretAccessKey <value>', 'secretAccessKey')
-		.requiredOption('--destinationId <value>', 'destinationId')
-		.requiredOption('--provider <value>', 'provider')
-		.requiredOption('--additionalFlags <value>', 'additionalFlags')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("destination.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_dnsProvider = program.command('dns-provider').description('dns-provider commands');
-
+		.command("update")
+		.description("Update")
+		.option("--name <value>", "Name [required]")
+		.option("--accessKey <value>", "Access Key [required]")
+		.option("--bucket <value>", "Bucket [required]")
+		.option("--region <value>", "Region [required]")
+		.option("--endpoint <value>", "Endpoint [required]")
+		.option("--secretAccessKey <value>", "Secret Access Key [required]")
+		.option("--destinationId <value>", "Destination Id [required]")
+		.option("--provider <value>", "Provider [required] (nullable: pass \"null\")")
+		.option("--additionalFlags <json>", "Additional Flags [required] (default: []) (nullable: pass \"null\") (JSON array)")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "destination.update", "post", options, { required: ["name","accessKey","bucket","region","endpoint","secretAccessKey","destinationId","provider","additionalFlags"], types: {"additionalFlags":"array?","provider":"string?"} }),
+		);
+	const g_dnsProvider = program.command("dns-provider").description("dnsProvider commands");
 	g_dnsProvider
-		.command('all')
-		.description('dnsProvider all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dnsProvider.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.all", "get", options),
+		);
 	g_dnsProvider
-		.command('create')
-		.description('dnsProvider create')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--config <value>', 'config')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("dnsProvider.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--config <json>", "Config [required] (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.create", "post", options, { required: ["name","config"], types: {"config":"object"} }),
+		);
 	g_dnsProvider
-		.command('create-record')
-		.description('dnsProvider createRecord')
-		.requiredOption('--type <value>', 'type (A, AAAA, CNAME, MX, TXT, NS, SRV, CAA, PTR)')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--content <value>', 'content')
-		.option('--ttl <value>', 'ttl')
-		.option('--proxied', 'proxied')
-		.requiredOption('--dnsProviderId <value>', 'dnsProviderId')
-		.requiredOption('--zoneId <value>', 'zoneId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["ttl"] != null) opts["ttl"] = Number(opts["ttl"]);
-			if (opts["proxied"] != null) opts["proxied"] = opts["proxied"] === true || opts["proxied"] === "true";
-			const data = await apiPost("dnsProvider.createRecord", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-record")
+		.description("Create Record")
+		.option("--type <value>", "Type [required] (one of: A, AAAA, CNAME, MX, TXT, NS, SRV, CAA, PTR)")
+		.option("--name <value>", "Name [required]")
+		.option("--content <value>", "Content [required]")
+		.option("--ttl <value>", "Ttl")
+		.option("--proxied [boolean]", "Proxied")
+		.option("--no-proxied", "Set proxied to false")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--zoneId <value>", "Zone Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.createRecord", "post", options, { required: ["type","name","content","dnsProviderId","zoneId"], types: {"proxied":"boolean","ttl":"number"}, enums: {"type":["A","AAAA","CNAME","MX","TXT","NS","SRV","CAA","PTR"]} }),
+		);
 	g_dnsProvider
-		.command('delete-record')
-		.description('dnsProvider deleteRecord')
-		.requiredOption('--dnsProviderId <value>', 'dnsProviderId')
-		.requiredOption('--zoneId <value>', 'zoneId')
-		.requiredOption('--recordId <value>', 'recordId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("dnsProvider.deleteRecord", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete-record")
+		.description("Delete Record")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--zoneId <value>", "Zone Id [required]")
+		.option("--recordId <value>", "Record Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.deleteRecord", "post", options, { required: ["dnsProviderId","zoneId","recordId"] }),
+		);
 	g_dnsProvider
-		.command('list-records')
-		.description('dnsProvider listRecords')
-		.requiredOption('--dnsProviderId <value>', 'dnsProviderId')
-		.requiredOption('--zoneId <value>', 'zoneId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dnsProvider.listRecords", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-records")
+		.description("List Records")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--zoneId <value>", "Zone Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.listRecords", "get", options, { required: ["dnsProviderId","zoneId"] }),
+		);
 	g_dnsProvider
-		.command('list-zones')
-		.description('dnsProvider listZones')
-		.requiredOption('--dnsProviderId <value>', 'dnsProviderId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dnsProvider.listZones", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-zones")
+		.description("List Zones")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.listZones", "get", options, { required: ["dnsProviderId"] }),
+		);
 	g_dnsProvider
-		.command('one')
-		.description('dnsProvider one')
-		.requiredOption('--dnsProviderId <value>', 'dnsProviderId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dnsProvider.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.one", "get", options, { required: ["dnsProviderId"] }),
+		);
 	g_dnsProvider
-		.command('remove')
-		.description('dnsProvider remove')
-		.requiredOption('--dnsProviderId <value>', 'dnsProviderId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("dnsProvider.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.remove", "post", options, { required: ["dnsProviderId"] }),
+		);
 	g_dnsProvider
-		.command('test-connection')
-		.description('dnsProvider testConnection')
-		.option('--dnsProviderId <value>', 'dnsProviderId')
-		.option('--config <value>', 'config')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("dnsProvider.testConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--dnsProviderId <value>", "Dns Provider Id")
+		.option("--config <json>", "Config (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.testConnection", "post", options, { types: {"config":"object"} }),
+		);
 	g_dnsProvider
-		.command('update')
-		.description('dnsProvider update')
-		.requiredOption('--dnsProviderId <value>', 'dnsProviderId')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--config <value>', 'config')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("dnsProvider.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update")
+		.description("Update")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--config <json>", "Config [required] (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.update", "post", options, { required: ["dnsProviderId","name","config"], types: {"config":"object"} }),
+		);
 	g_dnsProvider
-		.command('update-record')
-		.description('dnsProvider updateRecord')
-		.requiredOption('--type <value>', 'type (A, AAAA, CNAME, MX, TXT, NS, SRV, CAA, PTR)')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--content <value>', 'content')
-		.option('--ttl <value>', 'ttl')
-		.option('--proxied', 'proxied')
-		.requiredOption('--dnsProviderId <value>', 'dnsProviderId')
-		.requiredOption('--zoneId <value>', 'zoneId')
-		.requiredOption('--recordId <value>', 'recordId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["ttl"] != null) opts["ttl"] = Number(opts["ttl"]);
-			if (opts["proxied"] != null) opts["proxied"] = opts["proxied"] === true || opts["proxied"] === "true";
-			const data = await apiPost("dnsProvider.updateRecord", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_docker = program.command('docker').description('docker commands');
-
+		.command("update-record")
+		.description("Update Record")
+		.option("--type <value>", "Type [required] (one of: A, AAAA, CNAME, MX, TXT, NS, SRV, CAA, PTR)")
+		.option("--name <value>", "Name [required]")
+		.option("--content <value>", "Content [required]")
+		.option("--ttl <value>", "Ttl")
+		.option("--proxied [boolean]", "Proxied")
+		.option("--no-proxied", "Set proxied to false")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--zoneId <value>", "Zone Id [required]")
+		.option("--recordId <value>", "Record Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.updateRecord", "post", options, { required: ["type","name","content","dnsProviderId","zoneId","recordId"], types: {"proxied":"boolean","ttl":"number"}, enums: {"type":["A","AAAA","CNAME","MX","TXT","NS","SRV","CAA","PTR"]} }),
+		);
+	const g_docker = program.command("docker").description("docker commands");
 	g_docker
-		.command('delete-container-file')
-		.description('docker deleteContainerFile')
-		.requiredOption('--containerId <value>', 'containerId')
-		.requiredOption('--path <value>', 'path')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("docker.deleteContainerFile", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete-container-file")
+		.description("Delete Container File")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--path <value>", "Path [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.deleteContainerFile", "post", options, { required: ["containerId","path"] }),
+		);
 	g_docker
-		.command('get-config')
-		.description('docker getConfig')
-		.requiredOption('--containerId <value>', 'containerId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("docker.getConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-config")
+		.description("Get Config")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.getConfig", "get", options, { required: ["containerId"] }),
+		);
 	g_docker
-		.command('get-containers')
-		.description('docker getContainers')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("docker.getContainers", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-containers")
+		.description("Get Containers")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.getContainers", "get", options),
+		);
 	g_docker
-		.command('get-containers-by-app-label')
-		.description('docker getContainersByAppLabel')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--serverId <value>', 'serverId')
-		.requiredOption('--type <value>', 'type (standalone, swarm)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("docker.getContainersByAppLabel", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-containers-by-app-label")
+		.description("Get Containers By App Label")
+		.option("--appName <value>", "App Name [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--type <value>", "Type [required] (one of: standalone, swarm)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.getContainersByAppLabel", "get", options, { required: ["appName","type"], enums: {"type":["standalone","swarm"]} }),
+		);
 	g_docker
-		.command('get-containers-by-app-name-match')
-		.description('docker getContainersByAppNameMatch')
-		.option('--appType <value>', 'appType (stack, docker-compose)')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("docker.getContainersByAppNameMatch", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-containers-by-app-name-match")
+		.description("Get Containers By App Name Match")
+		.option("--appType <value>", "App Type (one of: stack, docker-compose)")
+		.option("--appName <value>", "App Name [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.getContainersByAppNameMatch", "get", options, { required: ["appName"], enums: {"appType":["stack","docker-compose"]} }),
+		);
 	g_docker
-		.command('get-events')
-		.description('docker getEvents')
-		.option('--serverId <value>', 'serverId')
-		.option('--minutes <value>', 'minutes')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["minutes"] != null) opts["minutes"] = Number(opts["minutes"]);
-			const data = await apiGet("docker.getEvents", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-events")
+		.description("Get Events")
+		.option("--serverId <value>", "Server Id")
+		.option("--minutes <value>", "Minutes (default: 15)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.getEvents", "get", options, { types: {"minutes":"number"} }),
+		);
 	g_docker
-		.command('get-server-health')
-		.description('docker getServerHealth')
-		.option('--serverId <value>', 'serverId')
-		.option('--sinceHours <value>', 'sinceHours')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["sinceHours"] != null) opts["sinceHours"] = Number(opts["sinceHours"]);
-			const data = await apiGet("docker.getServerHealth", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-server-health")
+		.description("Get Server Health")
+		.option("--serverId <value>", "Server Id")
+		.option("--sinceHours <value>", "Since Hours")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.getServerHealth", "get", options, { types: {"sinceHours":"number"} }),
+		);
 	g_docker
-		.command('get-service-containers-by-app-name')
-		.description('docker getServiceContainersByAppName')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("docker.getServiceContainersByAppName", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-service-containers-by-app-name")
+		.description("Get Service Containers By App Name")
+		.option("--appName <value>", "App Name [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.getServiceContainersByAppName", "get", options, { required: ["appName"] }),
+		);
 	g_docker
-		.command('get-stack-containers-by-app-name')
-		.description('docker getStackContainersByAppName')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("docker.getStackContainersByAppName", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-stack-containers-by-app-name")
+		.description("Get Stack Containers By App Name")
+		.option("--appName <value>", "App Name [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.getStackContainersByAppName", "get", options, { required: ["appName"] }),
+		);
 	g_docker
-		.command('kill-container')
-		.description('docker killContainer')
-		.requiredOption('--containerId <value>', 'containerId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("docker.killContainer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("kill-container")
+		.description("Kill Container")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.killContainer", "post", options, { required: ["containerId"] }),
+		);
 	g_docker
-		.command('list-container-files')
-		.description('docker listContainerFiles')
-		.requiredOption('--containerId <value>', 'containerId')
-		.requiredOption('--path <value>', 'path')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("docker.listContainerFiles", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-container-files")
+		.description("List Container Files")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--path <value>", "Path [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.listContainerFiles", "get", options, { required: ["containerId","path"] }),
+		);
 	g_docker
-		.command('read-container-file')
-		.description('docker readContainerFile')
-		.requiredOption('--containerId <value>', 'containerId')
-		.requiredOption('--path <value>', 'path')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("docker.readContainerFile", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-container-file")
+		.description("Read Container File")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--path <value>", "Path [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.readContainerFile", "get", options, { required: ["containerId","path"] }),
+		);
 	g_docker
-		.command('remove-container')
-		.description('docker removeContainer')
-		.requiredOption('--containerId <value>', 'containerId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("docker.removeContainer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove-container")
+		.description("Remove Container")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.removeContainer", "post", options, { required: ["containerId"] }),
+		);
 	g_docker
-		.command('restart-container')
-		.description('docker restartContainer')
-		.requiredOption('--containerId <value>', 'containerId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("docker.restartContainer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("restart-container")
+		.description("Restart Container")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.restartContainer", "post", options, { required: ["containerId"] }),
+		);
 	g_docker
-		.command('start-container')
-		.description('docker startContainer')
-		.requiredOption('--containerId <value>', 'containerId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("docker.startContainer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("start-container")
+		.description("Start Container")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.startContainer", "post", options, { required: ["containerId"] }),
+		);
 	g_docker
-		.command('stop-container')
-		.description('docker stopContainer')
-		.requiredOption('--containerId <value>', 'containerId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("docker.stopContainer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("stop-container")
+		.description("Stop Container")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.stopContainer", "post", options, { required: ["containerId"] }),
+		);
 	g_docker
-		.command('upload-file-to-container')
-		.description('docker uploadFileToContainer')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("docker.uploadFileToContainer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("upload-file-to-container")
+		.description("Upload File To Container")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.uploadFileToContainer", "post", options),
+		);
 	g_docker
-		.command('write-container-file')
-		.description('docker writeContainerFile')
-		.requiredOption('--containerId <value>', 'containerId')
-		.requiredOption('--path <value>', 'path')
-		.requiredOption('--content <value>', 'content')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("docker.writeContainerFile", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_dockerDiskUsage = program.command('docker-disk-usage').description('docker-disk-usage commands');
-
+		.command("write-container-file")
+		.description("Write Container File")
+		.option("--containerId <value>", "Container Id [required]")
+		.option("--path <value>", "Path [required]")
+		.option("--content <value>", "Content [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.writeContainerFile", "post", options, { required: ["containerId","path","content"] }),
+		);
+	const g_dockerDiskUsage = program.command("docker-disk-usage").description("dockerDiskUsage commands");
 	g_dockerDiskUsage
-		.command('get-build-cache')
-		.description('dockerDiskUsage getBuildCache')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dockerDiskUsage.getBuildCache", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-build-cache")
+		.description("Get Build Cache")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerDiskUsage.getBuildCache", "get", options),
+		);
 	g_dockerDiskUsage
-		.command('get-disk-usage')
-		.description('dockerDiskUsage getDiskUsage')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dockerDiskUsage.getDiskUsage", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-disk-usage")
+		.description("Get Disk Usage")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerDiskUsage.getDiskUsage", "get", options),
+		);
 	g_dockerDiskUsage
-		.command('prune-build-cache')
-		.description('dockerDiskUsage pruneBuildCache')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("dockerDiskUsage.pruneBuildCache", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_dockerImage = program.command('docker-image').description('docker-image commands');
-
+		.command("prune-build-cache")
+		.description("Prune Build Cache")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerDiskUsage.pruneBuildCache", "post", options),
+		);
+	const g_dockerImage = program.command("docker-image").description("dockerImage commands");
 	g_dockerImage
-		.command('get-image-config')
-		.description('dockerImage getImageConfig')
-		.requiredOption('--imageRef <value>', 'imageRef')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dockerImage.getImageConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-image-config")
+		.description("Get Image Config")
+		.option("--imageRef <value>", "Image Ref [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerImage.getImageConfig", "get", options, { required: ["imageRef"] }),
+		);
 	g_dockerImage
-		.command('get-images')
-		.description('dockerImage getImages')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dockerImage.getImages", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-images")
+		.description("Get Images")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerImage.getImages", "get", options),
+		);
 	g_dockerImage
-		.command('remove-image')
-		.description('dockerImage removeImage')
-		.requiredOption('--repository <value>', 'repository')
-		.requiredOption('--tag <value>', 'tag')
-		.requiredOption('--id <value>', 'id')
-		.option('--force', 'force')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["force"] != null) opts["force"] = opts["force"] === true || opts["force"] === "true";
-			const data = await apiPost("dockerImage.removeImage", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_dockerVolume = program.command('docker-volume').description('docker-volume commands');
-
+		.command("remove-image")
+		.description("Remove Image")
+		.option("--repository <value>", "Repository [required]")
+		.option("--tag <value>", "Tag [required]")
+		.option("--id <value>", "Id [required]")
+		.option("--force [boolean]", "Force")
+		.option("--no-force", "Set force to false")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerImage.removeImage", "post", options, { required: ["repository","tag","id"], types: {"force":"boolean"} }),
+		);
+	const g_dockerVolume = program.command("docker-volume").description("dockerVolume commands");
 	g_dockerVolume
-		.command('delete-volume-file')
-		.description('dockerVolume deleteVolumeFile')
-		.requiredOption('--volumeName <value>', 'volumeName')
-		.requiredOption('--path <value>', 'path')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("dockerVolume.deleteVolumeFile", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete-volume-file")
+		.description("Delete Volume File")
+		.option("--volumeName <value>", "Volume Name [required]")
+		.option("--path <value>", "Path [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerVolume.deleteVolumeFile", "post", options, { required: ["volumeName","path"] }),
+		);
 	g_dockerVolume
-		.command('get-volume-config')
-		.description('dockerVolume getVolumeConfig')
-		.requiredOption('--volumeName <value>', 'volumeName')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dockerVolume.getVolumeConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-volume-config")
+		.description("Get Volume Config")
+		.option("--volumeName <value>", "Volume Name [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerVolume.getVolumeConfig", "get", options, { required: ["volumeName"] }),
+		);
 	g_dockerVolume
-		.command('get-volumes')
-		.description('dockerVolume getVolumes')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dockerVolume.getVolumes", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-volumes")
+		.description("Get Volumes")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerVolume.getVolumes", "get", options),
+		);
 	g_dockerVolume
-		.command('get-volumes-size')
-		.description('dockerVolume getVolumesSize')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dockerVolume.getVolumesSize", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-volumes-size")
+		.description("Get Volumes Size")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerVolume.getVolumesSize", "get", options),
+		);
 	g_dockerVolume
-		.command('list-volume-files')
-		.description('dockerVolume listVolumeFiles')
-		.requiredOption('--volumeName <value>', 'volumeName')
-		.requiredOption('--path <value>', 'path')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dockerVolume.listVolumeFiles", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-volume-files")
+		.description("List Volume Files")
+		.option("--volumeName <value>", "Volume Name [required]")
+		.option("--path <value>", "Path [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerVolume.listVolumeFiles", "get", options, { required: ["volumeName","path"] }),
+		);
 	g_dockerVolume
-		.command('read-volume-file')
-		.description('dockerVolume readVolumeFile')
-		.requiredOption('--volumeName <value>', 'volumeName')
-		.requiredOption('--path <value>', 'path')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("dockerVolume.readVolumeFile", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-volume-file")
+		.description("Read Volume File")
+		.option("--volumeName <value>", "Volume Name [required]")
+		.option("--path <value>", "Path [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerVolume.readVolumeFile", "get", options, { required: ["volumeName","path"] }),
+		);
 	g_dockerVolume
-		.command('remove-volume')
-		.description('dockerVolume removeVolume')
-		.requiredOption('--volumeName <value>', 'volumeName')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("dockerVolume.removeVolume", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove-volume")
+		.description("Remove Volume")
+		.option("--volumeName <value>", "Volume Name [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerVolume.removeVolume", "post", options, { required: ["volumeName"] }),
+		);
 	g_dockerVolume
-		.command('write-volume-file')
-		.description('dockerVolume writeVolumeFile')
-		.requiredOption('--volumeName <value>', 'volumeName')
-		.requiredOption('--path <value>', 'path')
-		.requiredOption('--content <value>', 'content')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("dockerVolume.writeVolumeFile", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_domain = program.command('domain').description('domain commands');
-
+		.command("write-volume-file")
+		.description("Write Volume File")
+		.option("--volumeName <value>", "Volume Name [required]")
+		.option("--path <value>", "Path [required]")
+		.option("--content <value>", "Content [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dockerVolume.writeVolumeFile", "post", options, { required: ["volumeName","path","content"] }),
+		);
+	const g_domain = program.command("domain").description("domain commands");
 	g_domain
-		.command('by-application-id')
-		.description('domain byApplicationId')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("domain.byApplicationId", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("by-application-id")
+		.description("By Application Id")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.byApplicationId", "get", options, { required: ["applicationId"] }),
+		);
 	g_domain
-		.command('by-compose-id')
-		.description('domain byComposeId')
-		.requiredOption('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("domain.byComposeId", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("by-compose-id")
+		.description("By Compose Id")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.byComposeId", "get", options, { required: ["composeId"] }),
+		);
 	g_domain
-		.command('can-generate-traefik-me-domains')
-		.description('domain canGenerateTraefikMeDomains')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("domain.canGenerateTraefikMeDomains", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("can-generate-traefik-me-domains")
+		.description("Can Generate Traefik Me Domains")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.canGenerateTraefikMeDomains", "get", options, { required: ["serverId"] }),
+		);
 	g_domain
-		.command('create')
-		.description('domain create')
-		.requiredOption('--host <value>', 'host')
-		.option('--path <value>', 'path')
-		.option('--port <value>', 'port')
-		.option('--customEntrypoint <value>', 'customEntrypoint')
-		.option('--https', 'https')
-		.option('--applicationId <value>', 'applicationId')
-		.option('--certificateType <value>', 'certificateType (letsencrypt, none, custom)')
-		.option('--customCertResolver <value>', 'customCertResolver')
-		.option('--composeId <value>', 'composeId')
-		.option('--serviceName <value>', 'serviceName')
-		.option('--domainType <value>', 'domainType (compose, application, preview)')
-		.option('--previewDeploymentId <value>', 'previewDeploymentId')
-		.option('--internalPath <value>', 'internalPath')
-		.option('--stripPath', 'stripPath')
-		.option('--middlewares <value>', 'middlewares')
-		.option('--forwardAuthEnabled', 'forwardAuthEnabled')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["port"] != null) opts["port"] = Number(opts["port"]);
-			if (opts["https"] != null) opts["https"] = opts["https"] === true || opts["https"] === "true";
-			if (opts["stripPath"] != null) opts["stripPath"] = opts["stripPath"] === true || opts["stripPath"] === "true";
-			if (opts["forwardAuthEnabled"] != null) opts["forwardAuthEnabled"] = opts["forwardAuthEnabled"] === true || opts["forwardAuthEnabled"] === "true";
-			const data = await apiPost("domain.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--host <value>", "Host [required]")
+		.option("--path <value>", "Path (nullable: pass \"null\")")
+		.option("--port <value>", "Port (nullable: pass \"null\")")
+		.option("--customEntrypoint <value>", "Custom Entrypoint (nullable: pass \"null\")")
+		.option("--https [boolean]", "Https")
+		.option("--no-https", "Set https to false")
+		.option("--applicationId <value>", "Application Id (nullable: pass \"null\")")
+		.option("--certificateType <value>", "Certificate Type (one of: letsencrypt, none, custom)")
+		.option("--customCertResolver <value>", "Custom Cert Resolver (nullable: pass \"null\")")
+		.option("--composeId <value>", "Compose Id (nullable: pass \"null\")")
+		.option("--serviceName <value>", "Service Name (nullable: pass \"null\")")
+		.option("--domainType <value>", "Domain Type (one of: compose, application, preview) (nullable: pass \"null\")")
+		.option("--previewDeploymentId <value>", "Preview Deployment Id (nullable: pass \"null\")")
+		.option("--internalPath <value>", "Internal Path (nullable: pass \"null\")")
+		.option("--stripPath [boolean]", "Strip Path")
+		.option("--no-stripPath", "Set stripPath to false")
+		.option("--middlewares <json>", "Middlewares (nullable: pass \"null\") (JSON array)")
+		.option("--forwardAuthEnabled [boolean]", "Forward Auth Enabled")
+		.option("--no-forwardAuthEnabled", "Set forwardAuthEnabled to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.create", "post", options, { required: ["host"], types: {"applicationId":"string?","composeId":"string?","customCertResolver":"string?","customEntrypoint":"string?","domainType":"string?","forwardAuthEnabled":"boolean","https":"boolean","internalPath":"string?","middlewares":"array?","path":"string?","port":"number?","previewDeploymentId":"string?","serviceName":"string?","stripPath":"boolean"}, enums: {"certificateType":["letsencrypt","none","custom"],"domainType":["compose","application","preview"]} }),
+		);
 	g_domain
-		.command('delete')
-		.description('domain delete')
-		.requiredOption('--domainId <value>', 'domainId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("domain.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--domainId <value>", "Domain Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.delete", "post", options, { required: ["domainId"] }),
+		);
 	g_domain
-		.command('generate-domain')
-		.description('domain generateDomain')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("domain.generateDomain", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("generate-domain")
+		.description("Generate Domain")
+		.option("--appName <value>", "App Name [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.generateDomain", "post", options, { required: ["appName"] }),
+		);
 	g_domain
-		.command('one')
-		.description('domain one')
-		.requiredOption('--domainId <value>', 'domainId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("domain.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--domainId <value>", "Domain Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.one", "get", options, { required: ["domainId"] }),
+		);
 	g_domain
-		.command('toggle-enable')
-		.description('domain toggleEnable')
-		.requiredOption('--domainId <value>', 'domainId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("domain.toggleEnable", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("toggle-enable")
+		.description("Toggle Enable")
+		.option("--domainId <value>", "Domain Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.toggleEnable", "post", options, { required: ["domainId"] }),
+		);
 	g_domain
-		.command('update')
-		.description('domain update')
-		.requiredOption('--host <value>', 'host')
-		.option('--path <value>', 'path')
-		.option('--port <value>', 'port')
-		.option('--customEntrypoint <value>', 'customEntrypoint')
-		.option('--https', 'https')
-		.option('--certificateType <value>', 'certificateType (letsencrypt, none, custom)')
-		.option('--customCertResolver <value>', 'customCertResolver')
-		.option('--serviceName <value>', 'serviceName')
-		.option('--domainType <value>', 'domainType (compose, application, preview)')
-		.option('--internalPath <value>', 'internalPath')
-		.option('--stripPath', 'stripPath')
-		.option('--middlewares <value>', 'middlewares')
-		.option('--forwardAuthEnabled', 'forwardAuthEnabled')
-		.option('--enabled', 'enabled')
-		.requiredOption('--domainId <value>', 'domainId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["port"] != null) opts["port"] = Number(opts["port"]);
-			if (opts["https"] != null) opts["https"] = opts["https"] === true || opts["https"] === "true";
-			if (opts["stripPath"] != null) opts["stripPath"] = opts["stripPath"] === true || opts["stripPath"] === "true";
-			if (opts["forwardAuthEnabled"] != null) opts["forwardAuthEnabled"] = opts["forwardAuthEnabled"] === true || opts["forwardAuthEnabled"] === "true";
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			const data = await apiPost("domain.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update")
+		.description("Update")
+		.option("--host <value>", "Host [required]")
+		.option("--path <value>", "Path (nullable: pass \"null\")")
+		.option("--port <value>", "Port (nullable: pass \"null\")")
+		.option("--customEntrypoint <value>", "Custom Entrypoint (nullable: pass \"null\")")
+		.option("--https [boolean]", "Https")
+		.option("--no-https", "Set https to false")
+		.option("--certificateType <value>", "Certificate Type (one of: letsencrypt, none, custom)")
+		.option("--customCertResolver <value>", "Custom Cert Resolver (nullable: pass \"null\")")
+		.option("--serviceName <value>", "Service Name (nullable: pass \"null\")")
+		.option("--domainType <value>", "Domain Type (one of: compose, application, preview) (nullable: pass \"null\")")
+		.option("--internalPath <value>", "Internal Path (nullable: pass \"null\")")
+		.option("--stripPath [boolean]", "Strip Path")
+		.option("--no-stripPath", "Set stripPath to false")
+		.option("--middlewares <json>", "Middlewares (nullable: pass \"null\") (JSON array)")
+		.option("--forwardAuthEnabled [boolean]", "Forward Auth Enabled")
+		.option("--no-forwardAuthEnabled", "Set forwardAuthEnabled to false")
+		.option("--enabled [boolean]", "Enabled")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--domainId <value>", "Domain Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.update", "post", options, { required: ["host","domainId"], types: {"customCertResolver":"string?","customEntrypoint":"string?","domainType":"string?","enabled":"boolean","forwardAuthEnabled":"boolean","https":"boolean","internalPath":"string?","middlewares":"array?","path":"string?","port":"number?","serviceName":"string?","stripPath":"boolean"}, enums: {"certificateType":["letsencrypt","none","custom"],"domainType":["compose","application","preview"]} }),
+		);
 	g_domain
-		.command('validate-domain')
-		.description('domain validateDomain')
-		.requiredOption('--domain <value>', 'domain')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("domain.validateDomain", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_environment = program.command('environment').description('environment commands');
-
+		.command("validate-domain")
+		.description("Validate Domain")
+		.option("--domain <value>", "Domain [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.validateDomain", "post", options, { required: ["domain"] }),
+		);
+	const g_environment = program.command("environment").description("environment commands");
 	g_environment
-		.command('by-project-id')
-		.description('environment byProjectId')
-		.requiredOption('--projectId <value>', 'projectId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("environment.byProjectId", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("by-project-id")
+		.description("By Project Id")
+		.option("--projectId <value>", "Project Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "environment.byProjectId", "get", options, { required: ["projectId"] }),
+		);
 	g_environment
-		.command('create')
-		.description('environment create')
-		.requiredOption('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.requiredOption('--projectId <value>', 'projectId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("environment.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description")
+		.option("--projectId <value>", "Project Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "environment.create", "post", options, { required: ["name","projectId"] }),
+		);
 	g_environment
-		.command('duplicate')
-		.description('environment duplicate')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.requiredOption('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("environment.duplicate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("duplicate")
+		.description("Duplicate")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "environment.duplicate", "post", options, { required: ["environmentId","name"] }),
+		);
 	g_environment
-		.command('one')
-		.description('environment one')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("environment.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "environment.one", "get", options, { required: ["environmentId"] }),
+		);
 	g_environment
-		.command('remove')
-		.description('environment remove')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("environment.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "environment.remove", "post", options, { required: ["environmentId"] }),
+		);
 	g_environment
-		.command('search')
-		.description('environment search')
-		.option('--q <value>', 'q')
-		.option('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.option('--projectId <value>', 'projectId')
-		.option('--limit <value>', 'limit')
-		.option('--offset <value>', 'offset')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["limit"] != null) opts["limit"] = Number(opts["limit"]);
-			if (opts["offset"] != null) opts["offset"] = Number(opts["offset"]);
-			const data = await apiGet("environment.search", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("search")
+		.description("Search")
+		.option("--q <value>", "Q")
+		.option("--name <value>", "Name")
+		.option("--description <value>", "Description")
+		.option("--projectId <value>", "Project Id")
+		.option("--limit <value>", "Limit (default: 20)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "environment.search", "get", options, { types: {"limit":"number","offset":"number"} }),
+		);
 	g_environment
-		.command('update')
-		.description('environment update')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.option('--projectId <value>', 'projectId')
-		.option('--env <value>', 'env')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("environment.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_forwardAuth = program.command('forward-auth').description('forward-auth commands');
-
+		.command("update")
+		.description("Update")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--name <value>", "Name")
+		.option("--description <value>", "Description")
+		.option("--projectId <value>", "Project Id")
+		.option("--env <value>", "Env")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "environment.update", "post", options, { required: ["environmentId"] }),
+		);
+	const g_forwardAuth = program.command("forward-auth").description("forwardAuth commands");
 	g_forwardAuth
-		.command('deploy-on-server')
-		.description('forwardAuth deployOnServer')
-		.requiredOption('--serverId <value>', 'serverId')
-		.requiredOption('--providerId <value>', 'providerId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("forwardAuth.deployOnServer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy-on-server")
+		.description("Deploy On Server")
+		.option("--serverId <value>", "Server Id [required] (nullable: pass \"null\")")
+		.option("--providerId <value>", "Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "forwardAuth.deployOnServer", "post", options, { required: ["serverId","providerId"], types: {"serverId":"string?"} }),
+		);
 	g_forwardAuth
-		.command('disable')
-		.description('forwardAuth disable')
-		.requiredOption('--domainId <value>', 'domainId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("forwardAuth.disable", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("disable")
+		.description("Disable")
+		.option("--domainId <value>", "Domain Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "forwardAuth.disable", "post", options, { required: ["domainId"] }),
+		);
 	g_forwardAuth
-		.command('enable')
-		.description('forwardAuth enable')
-		.requiredOption('--domainId <value>', 'domainId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("forwardAuth.enable", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("enable")
+		.description("Enable")
+		.option("--domainId <value>", "Domain Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "forwardAuth.enable", "post", options, { required: ["domainId"] }),
+		);
 	g_forwardAuth
-		.command('get-auth-domain')
-		.description('forwardAuth getAuthDomain')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("forwardAuth.getAuthDomain", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-auth-domain")
+		.description("Get Auth Domain")
+		.option("--serverId <value>", "Server Id [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "forwardAuth.getAuthDomain", "get", options, { required: ["serverId"], types: {"serverId":"string?"} }),
+		);
 	g_forwardAuth
-		.command('list-providers')
-		.description('forwardAuth listProviders')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("forwardAuth.listProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-providers")
+		.description("List Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "forwardAuth.listProviders", "get", options),
+		);
 	g_forwardAuth
-		.command('remove-auth-domain')
-		.description('forwardAuth removeAuthDomain')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("forwardAuth.removeAuthDomain", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove-auth-domain")
+		.description("Remove Auth Domain")
+		.option("--serverId <value>", "Server Id [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "forwardAuth.removeAuthDomain", "post", options, { required: ["serverId"], types: {"serverId":"string?"} }),
+		);
 	g_forwardAuth
-		.command('remove-on-server')
-		.description('forwardAuth removeOnServer')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("forwardAuth.removeOnServer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove-on-server")
+		.description("Remove On Server")
+		.option("--serverId <value>", "Server Id [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "forwardAuth.removeOnServer", "post", options, { required: ["serverId"], types: {"serverId":"string?"} }),
+		);
 	g_forwardAuth
-		.command('server-status')
-		.description('forwardAuth serverStatus')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("forwardAuth.serverStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("server-status")
+		.description("Server Status")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "forwardAuth.serverStatus", "get", options),
+		);
 	g_forwardAuth
-		.command('set-auth-domain')
-		.description('forwardAuth setAuthDomain')
-		.requiredOption('--serverId <value>', 'serverId')
-		.requiredOption('--authDomain <value>', 'authDomain')
-		.option('--https', 'https')
-		.option('--certificateType <value>', 'certificateType (none, letsencrypt, custom)')
-		.option('--customCertResolver <value>', 'customCertResolver')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["https"] != null) opts["https"] = opts["https"] === true || opts["https"] === "true";
-			const data = await apiPost("forwardAuth.setAuthDomain", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("set-auth-domain")
+		.description("Set Auth Domain")
+		.option("--serverId <value>", "Server Id [required] (nullable: pass \"null\")")
+		.option("--authDomain <value>", "Auth Domain [required]")
+		.option("--https [boolean]", "Https (default: true)")
+		.option("--no-https", "Set https to false")
+		.option("--certificateType <value>", "Certificate Type (one of: none, letsencrypt, custom) (default: \"letsencrypt\")")
+		.option("--customCertResolver <value>", "Custom Cert Resolver")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "forwardAuth.setAuthDomain", "post", options, { required: ["serverId","authDomain"], types: {"https":"boolean","serverId":"string?"}, enums: {"certificateType":["none","letsencrypt","custom"]} }),
+		);
 	g_forwardAuth
-		.command('status')
-		.description('forwardAuth status')
-		.requiredOption('--domainId <value>', 'domainId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("forwardAuth.status", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_gitea = program.command('gitea').description('gitea commands');
-
+		.command("status")
+		.description("Status")
+		.option("--domainId <value>", "Domain Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "forwardAuth.status", "get", options, { required: ["domainId"] }),
+		);
+	const g_gitea = program.command("gitea").description("gitea commands");
 	g_gitea
-		.command('create')
-		.description('gitea create')
-		.option('--giteaId <value>', 'giteaId')
-		.requiredOption('--giteaUrl <value>', 'giteaUrl')
-		.option('--giteaInternalUrl <value>', 'giteaInternalUrl')
-		.option('--redirectUri <value>', 'redirectUri')
-		.option('--clientId <value>', 'clientId')
-		.option('--clientSecret <value>', 'clientSecret')
-		.option('--gitProviderId <value>', 'gitProviderId')
-		.option('--accessToken <value>', 'accessToken')
-		.option('--refreshToken <value>', 'refreshToken')
-		.option('--expiresAt <value>', 'expiresAt')
-		.option('--scopes <value>', 'scopes')
-		.option('--lastAuthenticatedAt <value>', 'lastAuthenticatedAt')
-		.requiredOption('--name <value>', 'name')
-		.option('--giteaUsername <value>', 'giteaUsername')
-		.option('--organizationName <value>', 'organizationName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["expiresAt"] != null) opts["expiresAt"] = Number(opts["expiresAt"]);
-			if (opts["lastAuthenticatedAt"] != null) opts["lastAuthenticatedAt"] = Number(opts["lastAuthenticatedAt"]);
-			const data = await apiPost("gitea.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--giteaId <value>", "Gitea Id")
+		.option("--giteaUrl <value>", "Gitea Url [required]")
+		.option("--giteaInternalUrl <value>", "Gitea Internal Url (nullable: pass \"null\")")
+		.option("--redirectUri <value>", "Redirect Uri")
+		.option("--clientId <value>", "Client Id")
+		.option("--clientSecret <value>", "Client Secret")
+		.option("--gitProviderId <value>", "Git Provider Id")
+		.option("--accessToken <value>", "Access Token")
+		.option("--refreshToken <value>", "Refresh Token")
+		.option("--expiresAt <value>", "Expires At")
+		.option("--scopes <value>", "Scopes")
+		.option("--lastAuthenticatedAt <value>", "Last Authenticated At")
+		.option("--name <value>", "Name [required]")
+		.option("--giteaUsername <value>", "Gitea Username")
+		.option("--organizationName <value>", "Organization Name")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitea.create", "post", options, { required: ["giteaUrl","name"], types: {"expiresAt":"number","giteaInternalUrl":"string?","lastAuthenticatedAt":"number"} }),
+		);
 	g_gitea
-		.command('get-gitea-branches')
-		.description('gitea getGiteaBranches')
-		.requiredOption('--owner <value>', 'owner')
-		.requiredOption('--repositoryName <value>', 'repositoryName')
-		.option('--giteaId <value>', 'giteaId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("gitea.getGiteaBranches", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-gitea-branches")
+		.description("Get Gitea Branches")
+		.option("--owner <value>", "Owner [required]")
+		.option("--repositoryName <value>", "Repository Name [required]")
+		.option("--giteaId <value>", "Gitea Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitea.getGiteaBranches", "get", options, { required: ["owner","repositoryName"] }),
+		);
 	g_gitea
-		.command('get-gitea-repositories')
-		.description('gitea getGiteaRepositories')
-		.requiredOption('--giteaId <value>', 'giteaId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("gitea.getGiteaRepositories", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-gitea-repositories")
+		.description("Get Gitea Repositories")
+		.option("--giteaId <value>", "Gitea Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitea.getGiteaRepositories", "get", options, { required: ["giteaId"] }),
+		);
 	g_gitea
-		.command('get-gitea-url')
-		.description('gitea getGiteaUrl')
-		.requiredOption('--giteaId <value>', 'giteaId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("gitea.getGiteaUrl", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-gitea-url")
+		.description("Get Gitea Url")
+		.option("--giteaId <value>", "Gitea Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitea.getGiteaUrl", "get", options, { required: ["giteaId"] }),
+		);
 	g_gitea
-		.command('gitea-providers')
-		.description('gitea giteaProviders')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("gitea.giteaProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("gitea-providers")
+		.description("Gitea Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitea.giteaProviders", "get", options),
+		);
 	g_gitea
-		.command('one')
-		.description('gitea one')
-		.requiredOption('--giteaId <value>', 'giteaId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("gitea.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--giteaId <value>", "Gitea Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitea.one", "get", options, { required: ["giteaId"] }),
+		);
 	g_gitea
-		.command('test-connection')
-		.description('gitea testConnection')
-		.option('--giteaId <value>', 'giteaId')
-		.option('--organizationName <value>', 'organizationName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("gitea.testConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--giteaId <value>", "Gitea Id")
+		.option("--organizationName <value>", "Organization Name")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitea.testConnection", "post", options),
+		);
 	g_gitea
-		.command('update')
-		.description('gitea update')
-		.requiredOption('--giteaId <value>', 'giteaId')
-		.requiredOption('--giteaUrl <value>', 'giteaUrl')
-		.option('--giteaInternalUrl <value>', 'giteaInternalUrl')
-		.option('--redirectUri <value>', 'redirectUri')
-		.option('--clientId <value>', 'clientId')
-		.option('--clientSecret <value>', 'clientSecret')
-		.requiredOption('--gitProviderId <value>', 'gitProviderId')
-		.option('--accessToken <value>', 'accessToken')
-		.option('--refreshToken <value>', 'refreshToken')
-		.option('--expiresAt <value>', 'expiresAt')
-		.option('--scopes <value>', 'scopes')
-		.option('--lastAuthenticatedAt <value>', 'lastAuthenticatedAt')
-		.requiredOption('--name <value>', 'name')
-		.option('--giteaUsername <value>', 'giteaUsername')
-		.option('--organizationName <value>', 'organizationName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["expiresAt"] != null) opts["expiresAt"] = Number(opts["expiresAt"]);
-			if (opts["lastAuthenticatedAt"] != null) opts["lastAuthenticatedAt"] = Number(opts["lastAuthenticatedAt"]);
-			const data = await apiPost("gitea.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_github = program.command('github').description('github commands');
-
+		.command("update")
+		.description("Update")
+		.option("--giteaId <value>", "Gitea Id [required]")
+		.option("--giteaUrl <value>", "Gitea Url [required]")
+		.option("--giteaInternalUrl <value>", "Gitea Internal Url (nullable: pass \"null\")")
+		.option("--redirectUri <value>", "Redirect Uri")
+		.option("--clientId <value>", "Client Id")
+		.option("--clientSecret <value>", "Client Secret")
+		.option("--gitProviderId <value>", "Git Provider Id [required]")
+		.option("--accessToken <value>", "Access Token")
+		.option("--refreshToken <value>", "Refresh Token")
+		.option("--expiresAt <value>", "Expires At")
+		.option("--scopes <value>", "Scopes")
+		.option("--lastAuthenticatedAt <value>", "Last Authenticated At")
+		.option("--name <value>", "Name [required]")
+		.option("--giteaUsername <value>", "Gitea Username")
+		.option("--organizationName <value>", "Organization Name")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitea.update", "post", options, { required: ["giteaId","giteaUrl","gitProviderId","name"], types: {"expiresAt":"number","giteaInternalUrl":"string?","lastAuthenticatedAt":"number"} }),
+		);
+	const g_github = program.command("github").description("github commands");
 	g_github
-		.command('get-github-branches')
-		.description('github getGithubBranches')
-		.requiredOption('--repo <value>', 'repo')
-		.requiredOption('--owner <value>', 'owner')
-		.option('--githubId <value>', 'githubId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("github.getGithubBranches", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-github-branches")
+		.description("Get Github Branches")
+		.option("--repo <value>", "Repo [required]")
+		.option("--owner <value>", "Owner [required]")
+		.option("--githubId <value>", "Github Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "github.getGithubBranches", "get", options, { required: ["repo","owner"] }),
+		);
 	g_github
-		.command('get-github-repositories')
-		.description('github getGithubRepositories')
-		.requiredOption('--githubId <value>', 'githubId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("github.getGithubRepositories", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-github-repositories")
+		.description("Get Github Repositories")
+		.option("--githubId <value>", "Github Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "github.getGithubRepositories", "get", options, { required: ["githubId"] }),
+		);
 	g_github
-		.command('github-providers')
-		.description('github githubProviders')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("github.githubProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("github-providers")
+		.description("Github Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "github.githubProviders", "get", options),
+		);
 	g_github
-		.command('one')
-		.description('github one')
-		.requiredOption('--githubId <value>', 'githubId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("github.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--githubId <value>", "Github Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "github.one", "get", options, { required: ["githubId"] }),
+		);
 	g_github
-		.command('test-connection')
-		.description('github testConnection')
-		.requiredOption('--githubId <value>', 'githubId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("github.testConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--githubId <value>", "Github Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "github.testConnection", "post", options, { required: ["githubId"] }),
+		);
 	g_github
-		.command('update')
-		.description('github update')
-		.requiredOption('--githubId <value>', 'githubId')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--gitProviderId <value>', 'gitProviderId')
-		.requiredOption('--githubAppName <value>', 'githubAppName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("github.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_gitlab = program.command('gitlab').description('gitlab commands');
-
+		.command("update")
+		.description("Update")
+		.option("--githubId <value>", "Github Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--gitProviderId <value>", "Git Provider Id [required]")
+		.option("--githubAppName <value>", "Github App Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "github.update", "post", options, { required: ["githubId","name","gitProviderId","githubAppName"] }),
+		);
+	const g_gitlab = program.command("gitlab").description("gitlab commands");
 	g_gitlab
-		.command('create')
-		.description('gitlab create')
-		.option('--applicationId <value>', 'applicationId')
-		.option('--secret <value>', 'secret')
-		.option('--groupName <value>', 'groupName')
-		.option('--gitProviderId <value>', 'gitProviderId')
-		.option('--redirectUri <value>', 'redirectUri')
-		.requiredOption('--authId <value>', 'authId')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--gitlabUrl <value>', 'gitlabUrl')
-		.option('--gitlabInternalUrl <value>', 'gitlabInternalUrl')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("gitlab.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--applicationId <value>", "Application Id")
+		.option("--secret <value>", "Secret")
+		.option("--groupName <value>", "Group Name")
+		.option("--gitProviderId <value>", "Git Provider Id")
+		.option("--redirectUri <value>", "Redirect Uri")
+		.option("--authId <value>", "Auth Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--gitlabUrl <value>", "Gitlab Url [required]")
+		.option("--gitlabInternalUrl <value>", "Gitlab Internal Url (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitlab.create", "post", options, { required: ["authId","name","gitlabUrl"], types: {"gitlabInternalUrl":"string?"} }),
+		);
 	g_gitlab
-		.command('get-gitlab-branches')
-		.description('gitlab getGitlabBranches')
-		.option('--id <value>', 'id')
-		.requiredOption('--owner <value>', 'owner')
-		.requiredOption('--repo <value>', 'repo')
-		.option('--gitlabId <value>', 'gitlabId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["id"] != null) opts["id"] = Number(opts["id"]);
-			const data = await apiGet("gitlab.getGitlabBranches", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-gitlab-branches")
+		.description("Get Gitlab Branches")
+		.option("--id <value>", "Id")
+		.option("--owner <value>", "Owner [required]")
+		.option("--repo <value>", "Repo [required]")
+		.option("--gitlabId <value>", "Gitlab Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitlab.getGitlabBranches", "get", options, { required: ["owner","repo"], types: {"id":"number"} }),
+		);
 	g_gitlab
-		.command('get-gitlab-repositories')
-		.description('gitlab getGitlabRepositories')
-		.requiredOption('--gitlabId <value>', 'gitlabId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("gitlab.getGitlabRepositories", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-gitlab-repositories")
+		.description("Get Gitlab Repositories")
+		.option("--gitlabId <value>", "Gitlab Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitlab.getGitlabRepositories", "get", options, { required: ["gitlabId"] }),
+		);
 	g_gitlab
-		.command('gitlab-providers')
-		.description('gitlab gitlabProviders')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("gitlab.gitlabProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("gitlab-providers")
+		.description("Gitlab Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitlab.gitlabProviders", "get", options),
+		);
 	g_gitlab
-		.command('one')
-		.description('gitlab one')
-		.requiredOption('--gitlabId <value>', 'gitlabId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("gitlab.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--gitlabId <value>", "Gitlab Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitlab.one", "get", options, { required: ["gitlabId"] }),
+		);
 	g_gitlab
-		.command('test-connection')
-		.description('gitlab testConnection')
-		.requiredOption('--gitlabId <value>', 'gitlabId')
-		.option('--groupName <value>', 'groupName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("gitlab.testConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--gitlabId <value>", "Gitlab Id [required]")
+		.option("--groupName <value>", "Group Name")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitlab.testConnection", "post", options, { required: ["gitlabId"] }),
+		);
 	g_gitlab
-		.command('update')
-		.description('gitlab update')
-		.option('--applicationId <value>', 'applicationId')
-		.option('--secret <value>', 'secret')
-		.option('--groupName <value>', 'groupName')
-		.option('--redirectUri <value>', 'redirectUri')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--gitlabId <value>', 'gitlabId')
-		.requiredOption('--gitlabUrl <value>', 'gitlabUrl')
-		.requiredOption('--gitProviderId <value>', 'gitProviderId')
-		.option('--gitlabInternalUrl <value>', 'gitlabInternalUrl')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("gitlab.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_gitProvider = program.command('git-provider').description('git-provider commands');
-
+		.command("update")
+		.description("Update")
+		.option("--applicationId <value>", "Application Id")
+		.option("--secret <value>", "Secret")
+		.option("--groupName <value>", "Group Name")
+		.option("--redirectUri <value>", "Redirect Uri")
+		.option("--name <value>", "Name [required]")
+		.option("--gitlabId <value>", "Gitlab Id [required]")
+		.option("--gitlabUrl <value>", "Gitlab Url [required]")
+		.option("--gitProviderId <value>", "Git Provider Id [required]")
+		.option("--gitlabInternalUrl <value>", "Gitlab Internal Url (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitlab.update", "post", options, { required: ["name","gitlabId","gitlabUrl","gitProviderId"], types: {"gitlabInternalUrl":"string?"} }),
+		);
+	const g_gitProvider = program.command("git-provider").description("gitProvider commands");
 	g_gitProvider
-		.command('all-for-permissions')
-		.description('gitProvider allForPermissions')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("gitProvider.allForPermissions", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all-for-permissions")
+		.description("All For Permissions")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitProvider.allForPermissions", "get", options),
+		);
 	g_gitProvider
-		.command('get-all')
-		.description('gitProvider getAll')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("gitProvider.getAll", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-all")
+		.description("Get All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitProvider.getAll", "get", options),
+		);
 	g_gitProvider
-		.command('remove')
-		.description('gitProvider remove')
-		.requiredOption('--gitProviderId <value>', 'gitProviderId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("gitProvider.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--gitProviderId <value>", "Git Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitProvider.remove", "post", options, { required: ["gitProviderId"] }),
+		);
 	g_gitProvider
-		.command('toggle-share')
-		.description('gitProvider toggleShare')
-		.requiredOption('--gitProviderId <value>', 'gitProviderId')
-		.requiredOption('--sharedWithOrganization', 'sharedWithOrganization')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["sharedWithOrganization"] != null) opts["sharedWithOrganization"] = opts["sharedWithOrganization"] === true || opts["sharedWithOrganization"] === "true";
-			const data = await apiPost("gitProvider.toggleShare", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_libsql = program.command('libsql').description('libsql commands');
-
+		.command("toggle-share")
+		.description("Toggle Share")
+		.option("--gitProviderId <value>", "Git Provider Id [required]")
+		.option("--sharedWithOrganization [boolean]", "Shared With Organization [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "gitProvider.toggleShare", "post", options, { required: ["gitProviderId","sharedWithOrganization"], types: {"sharedWithOrganization":"boolean"} }),
+		);
+	const g_libsql = program.command("libsql").description("libsql commands");
 	g_libsql
-		.command('change-status')
-		.description('libsql changeStatus')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.requiredOption('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("libsql.changeStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-status")
+		.description("Change Status")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--applicationStatus <value>", "Application Status [required] (one of: idle, running, done, error)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.changeStatus", "post", options, { required: ["libsqlId","applicationStatus"], enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
 	g_libsql
-		.command('create')
-		.description('libsql create')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appName <value>', 'appName')
-		.requiredOption('--dockerImage <value>', 'dockerImage')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.requiredOption('--description <value>', 'description')
-		.requiredOption('--databaseUser <value>', 'databaseUser')
-		.requiredOption('--databasePassword <value>', 'databasePassword')
-		.requiredOption('--sqldNode <value>', 'sqldNode (primary, replica)')
-		.requiredOption('--sqldPrimaryUrl <value>', 'sqldPrimaryUrl')
-		.requiredOption('--enableNamespaces', 'enableNamespaces')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enableNamespaces"] != null) opts["enableNamespaces"] = opts["enableNamespaces"] === true || opts["enableNamespaces"] === "true";
-			const data = await apiPost("libsql.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--appName <value>", "App Name [required]")
+		.option("--dockerImage <value>", "Docker Image [required] (default: \"ghcr.io/tursodatabase/libsql-server:v0.24.32\")")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--description <value>", "Description [required] (nullable: pass \"null\")")
+		.option("--databaseUser <value>", "Database User [required]")
+		.option("--databasePassword <value>", "Database Password [required]")
+		.option("--sqldNode <value>", "Sqld Node [required] (one of: primary, replica)")
+		.option("--sqldPrimaryUrl <value>", "Sqld Primary Url [required] (nullable: pass \"null\")")
+		.option("--enableNamespaces [boolean]", "Enable Namespaces [required] (default: false)")
+		.option("--serverId <value>", "Server Id [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.create", "post", options, { required: ["name","appName","dockerImage","environmentId","description","databaseUser","databasePassword","sqldNode","sqldPrimaryUrl","enableNamespaces","serverId"], types: {"description":"string?","enableNamespaces":"boolean","serverId":"string?","sqldPrimaryUrl":"string?"}, enums: {"sqldNode":["primary","replica"]} }),
+		);
 	g_libsql
-		.command('deploy')
-		.description('libsql deploy')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("libsql.deploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy")
+		.description("Deploy")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.deploy", "post", options, { required: ["libsqlId"] }),
+		);
 	g_libsql
-		.command('move')
-		.description('libsql move')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.requiredOption('--targetEnvironmentId <value>', 'targetEnvironmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("libsql.move", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("move")
+		.description("Move")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--targetEnvironmentId <value>", "Target Environment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.move", "post", options, { required: ["libsqlId","targetEnvironmentId"] }),
+		);
 	g_libsql
-		.command('one')
-		.description('libsql one')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("libsql.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.one", "get", options, { required: ["libsqlId"] }),
+		);
 	g_libsql
-		.command('read-logs')
-		.description('libsql readLogs')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.option('--tail <value>', 'tail')
-		.option('--since <value>', 'since')
-		.option('--search <value>', 'search')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["tail"] != null) opts["tail"] = Number(opts["tail"]);
-			const data = await apiGet("libsql.readLogs", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-logs")
+		.description("Read Logs")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--tail <value>", "Tail (default: 100)")
+		.option("--since <value>", "Since (default: \"all\")")
+		.option("--search <value>", "Search")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.readLogs", "get", options, { required: ["libsqlId"], types: {"tail":"number"} }),
+		);
 	g_libsql
-		.command('rebuild')
-		.description('libsql rebuild')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("libsql.rebuild", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("rebuild")
+		.description("Rebuild")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.rebuild", "post", options, { required: ["libsqlId"] }),
+		);
 	g_libsql
-		.command('reload')
-		.description('libsql reload')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("libsql.reload", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("reload")
+		.description("Reload")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--appName <value>", "App Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.reload", "post", options, { required: ["libsqlId","appName"] }),
+		);
 	g_libsql
-		.command('remove')
-		.description('libsql remove')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("libsql.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.remove", "post", options, { required: ["libsqlId"] }),
+		);
 	g_libsql
-		.command('save-environment')
-		.description('libsql saveEnvironment')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.requiredOption('--env <value>', 'env')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("libsql.saveEnvironment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-environment")
+		.description("Save Environment")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--env <value>", "Env [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.saveEnvironment", "post", options, { required: ["libsqlId","env"], types: {"env":"string?"} }),
+		);
 	g_libsql
-		.command('save-external-ports')
-		.description('libsql saveExternalPorts')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.option('--externalPort <value>', 'externalPort')
-		.option('--externalGRPCPort <value>', 'externalGRPCPort')
-		.option('--externalAdminPort <value>', 'externalAdminPort')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			if (opts["externalGRPCPort"] != null) opts["externalGRPCPort"] = Number(opts["externalGRPCPort"]);
-			if (opts["externalAdminPort"] != null) opts["externalAdminPort"] = Number(opts["externalAdminPort"]);
-			const data = await apiPost("libsql.saveExternalPorts", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-external-ports")
+		.description("Save External Ports")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--externalPort <value>", "External Port (nullable: pass \"null\")")
+		.option("--externalGRPCPort <value>", "External GRPCPort (nullable: pass \"null\")")
+		.option("--externalAdminPort <value>", "External Admin Port (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.saveExternalPorts", "post", options, { required: ["libsqlId"], types: {"externalAdminPort":"number?","externalGRPCPort":"number?","externalPort":"number?"} }),
+		);
 	g_libsql
-		.command('start')
-		.description('libsql start')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("libsql.start", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("start")
+		.description("Start")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.start", "post", options, { required: ["libsqlId"] }),
+		);
 	g_libsql
-		.command('stop')
-		.description('libsql stop')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("libsql.stop", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("stop")
+		.description("Stop")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.stop", "post", options, { required: ["libsqlId"] }),
+		);
 	g_libsql
-		.command('update')
-		.description('libsql update')
-		.requiredOption('--libsqlId <value>', 'libsqlId')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--databaseUser <value>', 'databaseUser')
-		.option('--databasePassword <value>', 'databasePassword')
-		.option('--sqldNode <value>', 'sqldNode (primary, replica)')
-		.option('--sqldPrimaryUrl <value>', 'sqldPrimaryUrl')
-		.option('--enableNamespaces', 'enableNamespaces')
-		.option('--dockerImage <value>', 'dockerImage')
-		.option('--command <value>', 'command')
-		.option('--env <value>', 'env')
-		.option('--memoryReservation <value>', 'memoryReservation')
-		.option('--memoryLimit <value>', 'memoryLimit')
-		.option('--cpuReservation <value>', 'cpuReservation')
-		.option('--cpuLimit <value>', 'cpuLimit')
-		.option('--externalPort <value>', 'externalPort')
-		.option('--externalGRPCPort <value>', 'externalGRPCPort')
-		.option('--externalAdminPort <value>', 'externalAdminPort')
-		.option('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--healthCheckSwarm <value>', 'healthCheckSwarm')
-		.option('--restartPolicySwarm <value>', 'restartPolicySwarm')
-		.option('--placementSwarm <value>', 'placementSwarm')
-		.option('--updateConfigSwarm <value>', 'updateConfigSwarm')
-		.option('--rollbackConfigSwarm <value>', 'rollbackConfigSwarm')
-		.option('--modeSwarm <value>', 'modeSwarm')
-		.option('--labelsSwarm <value>', 'labelsSwarm')
-		.option('--networkSwarm <value>', 'networkSwarm')
-		.option('--stopGracePeriodSwarm <value>', 'stopGracePeriodSwarm')
-		.option('--endpointSpecSwarm <value>', 'endpointSpecSwarm')
-		.option('--replicas <value>', 'replicas')
-		.option('--networkIds <value>', 'networkIds')
-		.option('--detachNotployNetwork', 'detachNotployNetwork')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enableNamespaces"] != null) opts["enableNamespaces"] = opts["enableNamespaces"] === true || opts["enableNamespaces"] === "true";
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			if (opts["externalGRPCPort"] != null) opts["externalGRPCPort"] = Number(opts["externalGRPCPort"]);
-			if (opts["externalAdminPort"] != null) opts["externalAdminPort"] = Number(opts["externalAdminPort"]);
-			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
-			const data = await apiPost("libsql.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_licenseKey = program.command('license-key').description('license-key commands');
-
+		.command("update")
+		.description("Update")
+		.option("--libsqlId <value>", "Libsql Id [required]")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--databaseUser <value>", "Database User")
+		.option("--databasePassword <value>", "Database Password")
+		.option("--sqldNode <value>", "Sqld Node (one of: primary, replica)")
+		.option("--sqldPrimaryUrl <value>", "Sqld Primary Url (nullable: pass \"null\")")
+		.option("--enableNamespaces [boolean]", "Enable Namespaces (default: false)")
+		.option("--no-enableNamespaces", "Set enableNamespaces to false")
+		.option("--dockerImage <value>", "Docker Image (default: \"ghcr.io/tursodatabase/libsql-server:v0.24.32\")")
+		.option("--command <value>", "Command (nullable: pass \"null\")")
+		.option("--env <value>", "Env (nullable: pass \"null\")")
+		.option("--memoryReservation <value>", "Memory Reservation (nullable: pass \"null\")")
+		.option("--memoryLimit <value>", "Memory Limit (nullable: pass \"null\")")
+		.option("--cpuReservation <value>", "Cpu Reservation (nullable: pass \"null\")")
+		.option("--cpuLimit <value>", "Cpu Limit (nullable: pass \"null\")")
+		.option("--externalPort <value>", "External Port (nullable: pass \"null\")")
+		.option("--externalGRPCPort <value>", "External GRPCPort (nullable: pass \"null\")")
+		.option("--externalAdminPort <value>", "External Admin Port (nullable: pass \"null\")")
+		.option("--applicationStatus <value>", "Application Status (one of: idle, running, done, error)")
+		.option("--healthCheckSwarm <json>", "Health Check Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--restartPolicySwarm <json>", "Restart Policy Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--placementSwarm <json>", "Placement Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--updateConfigSwarm <json>", "Update Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--rollbackConfigSwarm <json>", "Rollback Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--modeSwarm <json>", "Mode Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--labelsSwarm <json>", "Labels Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--networkSwarm <json>", "Network Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--stopGracePeriodSwarm <value>", "Stop Grace Period Swarm (nullable: pass \"null\")")
+		.option("--endpointSpecSwarm <json>", "Endpoint Spec Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--replicas <value>", "Replicas")
+		.option("--networkIds <json>", "Network Ids (nullable: pass \"null\") (JSON array)")
+		.option("--detachNotployNetwork [boolean]", "Detach Notploy Network")
+		.option("--no-detachNotployNetwork", "Set detachNotployNetwork to false")
+		.option("--createdAt <value>", "Created At")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "libsql.update", "post", options, { required: ["libsqlId"], types: {"command":"string?","cpuLimit":"string?","cpuReservation":"string?","description":"string?","detachNotployNetwork":"boolean","enableNamespaces":"boolean","endpointSpecSwarm":"object?","env":"string?","externalAdminPort":"number?","externalGRPCPort":"number?","externalPort":"number?","healthCheckSwarm":"object?","labelsSwarm":"object?","memoryLimit":"string?","memoryReservation":"string?","modeSwarm":"object?","networkIds":"array?","networkSwarm":"array?","placementSwarm":"object?","replicas":"number","restartPolicySwarm":"object?","rollbackConfigSwarm":"object?","sqldPrimaryUrl":"string?","stopGracePeriodSwarm":"number?","updateConfigSwarm":"object?"}, enums: {"applicationStatus":["idle","running","done","error"],"sqldNode":["primary","replica"]} }),
+		);
+	const g_licenseKey = program.command("license-key").description("licenseKey commands");
 	g_licenseKey
-		.command('activate')
-		.description('licenseKey activate')
-		.requiredOption('--licenseKey <value>', 'licenseKey')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("licenseKey.activate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("activate")
+		.description("Activate")
+		.option("--licenseKey <value>", "License Key [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "licenseKey.activate", "post", options, { required: ["licenseKey"] }),
+		);
 	g_licenseKey
-		.command('deactivate')
-		.description('licenseKey deactivate')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("licenseKey.deactivate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deactivate")
+		.description("Deactivate")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "licenseKey.deactivate", "post", options),
+		);
 	g_licenseKey
-		.command('get-enterprise-settings')
-		.description('licenseKey getEnterpriseSettings')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("licenseKey.getEnterpriseSettings", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-enterprise-settings")
+		.description("Get Enterprise Settings")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "licenseKey.getEnterpriseSettings", "get", options),
+		);
 	g_licenseKey
-		.command('have-valid-license-key')
-		.description('licenseKey haveValidLicenseKey')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("licenseKey.haveValidLicenseKey", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("have-valid-license-key")
+		.description("Have Valid License Key")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "licenseKey.haveValidLicenseKey", "get", options),
+		);
 	g_licenseKey
-		.command('update-enterprise-settings')
-		.description('licenseKey updateEnterpriseSettings')
-		.option('--enableEnterpriseFeatures', 'enableEnterpriseFeatures')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enableEnterpriseFeatures"] != null) opts["enableEnterpriseFeatures"] = opts["enableEnterpriseFeatures"] === true || opts["enableEnterpriseFeatures"] === "true";
-			const data = await apiPost("licenseKey.updateEnterpriseSettings", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-enterprise-settings")
+		.description("Update Enterprise Settings")
+		.option("--enableEnterpriseFeatures [boolean]", "Enable Enterprise Features")
+		.option("--no-enableEnterpriseFeatures", "Set enableEnterpriseFeatures to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "licenseKey.updateEnterpriseSettings", "post", options, { types: {"enableEnterpriseFeatures":"boolean"} }),
+		);
 	g_licenseKey
-		.command('validate')
-		.description('licenseKey validate')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("licenseKey.validate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_mariadb = program.command('mariadb').description('mariadb commands');
-
+		.command("validate")
+		.description("Validate")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "licenseKey.validate", "post", options),
+		);
+	const g_mariadb = program.command("mariadb").description("mariadb commands");
 	g_mariadb
-		.command('change-password')
-		.description('mariadb changePassword')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.requiredOption('--password <value>', 'password')
-		.option('--type <value>', 'type (user, root)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.changePassword", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-password")
+		.description("Change Password")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--type <value>", "Type (one of: user, root) (default: \"user\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.changePassword", "post", options, { required: ["mariadbId","password"], enums: {"type":["user","root"]} }),
+		);
 	g_mariadb
-		.command('change-status')
-		.description('mariadb changeStatus')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.requiredOption('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.changeStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-status")
+		.description("Change Status")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--applicationStatus <value>", "Application Status [required] (one of: idle, running, done, error)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.changeStatus", "post", options, { required: ["mariadbId","applicationStatus"], enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
 	g_mariadb
-		.command('create')
-		.description('mariadb create')
-		.requiredOption('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--dockerImage <value>', 'dockerImage')
-		.option('--databaseRootPassword <value>', 'databaseRootPassword')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--description <value>', 'description')
-		.requiredOption('--databaseName <value>', 'databaseName')
-		.requiredOption('--databaseUser <value>', 'databaseUser')
-		.requiredOption('--databasePassword <value>', 'databasePassword')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--appName <value>", "App Name")
+		.option("--dockerImage <value>", "Docker Image (default: \"mariadb:6\")")
+		.option("--databaseRootPassword <value>", "Database Root Password")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--databaseName <value>", "Database Name [required]")
+		.option("--databaseUser <value>", "Database User [required]")
+		.option("--databasePassword <value>", "Database Password [required]")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.create", "post", options, { required: ["name","environmentId","databaseName","databaseUser","databasePassword"], types: {"description":"string?","serverId":"string?"} }),
+		);
 	g_mariadb
-		.command('deploy')
-		.description('mariadb deploy')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.deploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy")
+		.description("Deploy")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.deploy", "post", options, { required: ["mariadbId"] }),
+		);
 	g_mariadb
-		.command('move')
-		.description('mariadb move')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.requiredOption('--targetEnvironmentId <value>', 'targetEnvironmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.move", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("move")
+		.description("Move")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--targetEnvironmentId <value>", "Target Environment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.move", "post", options, { required: ["mariadbId","targetEnvironmentId"] }),
+		);
 	g_mariadb
-		.command('one')
-		.description('mariadb one')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("mariadb.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.one", "get", options, { required: ["mariadbId"] }),
+		);
 	g_mariadb
-		.command('read-logs')
-		.description('mariadb readLogs')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.option('--tail <value>', 'tail')
-		.option('--since <value>', 'since')
-		.option('--search <value>', 'search')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["tail"] != null) opts["tail"] = Number(opts["tail"]);
-			const data = await apiGet("mariadb.readLogs", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-logs")
+		.description("Read Logs")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--tail <value>", "Tail (default: 100)")
+		.option("--since <value>", "Since (default: \"all\")")
+		.option("--search <value>", "Search")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.readLogs", "get", options, { required: ["mariadbId"], types: {"tail":"number"} }),
+		);
 	g_mariadb
-		.command('rebuild')
-		.description('mariadb rebuild')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.rebuild", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("rebuild")
+		.description("Rebuild")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.rebuild", "post", options, { required: ["mariadbId"] }),
+		);
 	g_mariadb
-		.command('reload')
-		.description('mariadb reload')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.reload", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("reload")
+		.description("Reload")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--appName <value>", "App Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.reload", "post", options, { required: ["mariadbId","appName"] }),
+		);
 	g_mariadb
-		.command('remove')
-		.description('mariadb remove')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.remove", "post", options, { required: ["mariadbId"] }),
+		);
 	g_mariadb
-		.command('save-environment')
-		.description('mariadb saveEnvironment')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.requiredOption('--env <value>', 'env')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.saveEnvironment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-environment")
+		.description("Save Environment")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--env <value>", "Env [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.saveEnvironment", "post", options, { required: ["mariadbId","env"], types: {"env":"string?"} }),
+		);
 	g_mariadb
-		.command('save-external-port')
-		.description('mariadb saveExternalPort')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.requiredOption('--externalPort <value>', 'externalPort')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			const data = await apiPost("mariadb.saveExternalPort", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-external-port")
+		.description("Save External Port")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--externalPort <value>", "External Port [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.saveExternalPort", "post", options, { required: ["mariadbId","externalPort"], types: {"externalPort":"number?"} }),
+		);
 	g_mariadb
-		.command('search')
-		.description('mariadb search')
-		.option('--q <value>', 'q')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--projectId <value>', 'projectId')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--limit <value>', 'limit')
-		.option('--offset <value>', 'offset')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["limit"] != null) opts["limit"] = Number(opts["limit"]);
-			if (opts["offset"] != null) opts["offset"] = Number(opts["offset"]);
-			const data = await apiGet("mariadb.search", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("search")
+		.description("Search")
+		.option("--q <value>", "Q")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description")
+		.option("--projectId <value>", "Project Id")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--limit <value>", "Limit (default: 20)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.search", "get", options, { types: {"limit":"number","offset":"number"} }),
+		);
 	g_mariadb
-		.command('start')
-		.description('mariadb start')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.start", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("start")
+		.description("Start")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.start", "post", options, { required: ["mariadbId"] }),
+		);
 	g_mariadb
-		.command('stop')
-		.description('mariadb stop')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mariadb.stop", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("stop")
+		.description("Stop")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.stop", "post", options, { required: ["mariadbId"] }),
+		);
 	g_mariadb
-		.command('update')
-		.description('mariadb update')
-		.requiredOption('--mariadbId <value>', 'mariadbId')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--databaseName <value>', 'databaseName')
-		.option('--databaseUser <value>', 'databaseUser')
-		.option('--databasePassword <value>', 'databasePassword')
-		.option('--databaseRootPassword <value>', 'databaseRootPassword')
-		.option('--dockerImage <value>', 'dockerImage')
-		.option('--command <value>', 'command')
-		.option('--args <value>', 'args')
-		.option('--env <value>', 'env')
-		.option('--memoryReservation <value>', 'memoryReservation')
-		.option('--memoryLimit <value>', 'memoryLimit')
-		.option('--cpuReservation <value>', 'cpuReservation')
-		.option('--cpuLimit <value>', 'cpuLimit')
-		.option('--externalPort <value>', 'externalPort')
-		.option('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--healthCheckSwarm <value>', 'healthCheckSwarm')
-		.option('--restartPolicySwarm <value>', 'restartPolicySwarm')
-		.option('--placementSwarm <value>', 'placementSwarm')
-		.option('--updateConfigSwarm <value>', 'updateConfigSwarm')
-		.option('--rollbackConfigSwarm <value>', 'rollbackConfigSwarm')
-		.option('--modeSwarm <value>', 'modeSwarm')
-		.option('--labelsSwarm <value>', 'labelsSwarm')
-		.option('--networkSwarm <value>', 'networkSwarm')
-		.option('--stopGracePeriodSwarm <value>', 'stopGracePeriodSwarm')
-		.option('--endpointSpecSwarm <value>', 'endpointSpecSwarm')
-		.option('--ulimitsSwarm <value>', 'ulimitsSwarm')
-		.option('--replicas <value>', 'replicas')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--networkIds <value>', 'networkIds')
-		.option('--detachNotployNetwork', 'detachNotployNetwork')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
-			const data = await apiPost("mariadb.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_mongo = program.command('mongo').description('mongo commands');
-
+		.command("update")
+		.description("Update")
+		.option("--mariadbId <value>", "Mariadb Id [required]")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--databaseName <value>", "Database Name")
+		.option("--databaseUser <value>", "Database User")
+		.option("--databasePassword <value>", "Database Password")
+		.option("--databaseRootPassword <value>", "Database Root Password")
+		.option("--dockerImage <value>", "Docker Image")
+		.option("--command <value>", "Command (nullable: pass \"null\")")
+		.option("--args <json>", "Args (nullable: pass \"null\") (JSON array)")
+		.option("--env <value>", "Env (nullable: pass \"null\")")
+		.option("--memoryReservation <value>", "Memory Reservation (nullable: pass \"null\")")
+		.option("--memoryLimit <value>", "Memory Limit (nullable: pass \"null\")")
+		.option("--cpuReservation <value>", "Cpu Reservation (nullable: pass \"null\")")
+		.option("--cpuLimit <value>", "Cpu Limit (nullable: pass \"null\")")
+		.option("--externalPort <value>", "External Port (nullable: pass \"null\")")
+		.option("--applicationStatus <value>", "Application Status (one of: idle, running, done, error)")
+		.option("--healthCheckSwarm <json>", "Health Check Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--restartPolicySwarm <json>", "Restart Policy Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--placementSwarm <json>", "Placement Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--updateConfigSwarm <json>", "Update Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--rollbackConfigSwarm <json>", "Rollback Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--modeSwarm <json>", "Mode Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--labelsSwarm <json>", "Labels Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--networkSwarm <json>", "Network Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--stopGracePeriodSwarm <value>", "Stop Grace Period Swarm (nullable: pass \"null\")")
+		.option("--endpointSpecSwarm <json>", "Endpoint Spec Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--ulimitsSwarm <json>", "Ulimits Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--replicas <value>", "Replicas")
+		.option("--createdAt <value>", "Created At")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--networkIds <json>", "Network Ids (nullable: pass \"null\") (JSON array)")
+		.option("--detachNotployNetwork [boolean]", "Detach Notploy Network")
+		.option("--no-detachNotployNetwork", "Set detachNotployNetwork to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mariadb.update", "post", options, { required: ["mariadbId"], types: {"args":"array?","command":"string?","cpuLimit":"string?","cpuReservation":"string?","description":"string?","detachNotployNetwork":"boolean","endpointSpecSwarm":"object?","env":"string?","externalPort":"number?","healthCheckSwarm":"object?","labelsSwarm":"object?","memoryLimit":"string?","memoryReservation":"string?","modeSwarm":"object?","networkIds":"array?","networkSwarm":"array?","placementSwarm":"object?","replicas":"number","restartPolicySwarm":"object?","rollbackConfigSwarm":"object?","stopGracePeriodSwarm":"number?","ulimitsSwarm":"array?","updateConfigSwarm":"object?"}, enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
+	const g_mongo = program.command("mongo").description("mongo commands");
 	g_mongo
-		.command('change-password')
-		.description('mongo changePassword')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.requiredOption('--password <value>', 'password')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mongo.changePassword", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-password")
+		.description("Change Password")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.changePassword", "post", options, { required: ["mongoId","password"] }),
+		);
 	g_mongo
-		.command('change-status')
-		.description('mongo changeStatus')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.requiredOption('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mongo.changeStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-status")
+		.description("Change Status")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--applicationStatus <value>", "Application Status [required] (one of: idle, running, done, error)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.changeStatus", "post", options, { required: ["mongoId","applicationStatus"], enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
 	g_mongo
-		.command('create')
-		.description('mongo create')
-		.requiredOption('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--dockerImage <value>', 'dockerImage')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--description <value>', 'description')
-		.requiredOption('--databaseUser <value>', 'databaseUser')
-		.requiredOption('--databasePassword <value>', 'databasePassword')
-		.option('--serverId <value>', 'serverId')
-		.option('--replicaSets', 'replicaSets')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["replicaSets"] != null) opts["replicaSets"] = opts["replicaSets"] === true || opts["replicaSets"] === "true";
-			const data = await apiPost("mongo.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--appName <value>", "App Name")
+		.option("--dockerImage <value>", "Docker Image (default: \"mongo:15\")")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--databaseUser <value>", "Database User [required]")
+		.option("--databasePassword <value>", "Database Password [required]")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--replicaSets [boolean]", "Replica Sets (default: false) (nullable: pass \"null\")")
+		.option("--no-replicaSets", "Set replicaSets to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.create", "post", options, { required: ["name","environmentId","databaseUser","databasePassword"], types: {"description":"string?","replicaSets":"boolean?","serverId":"string?"} }),
+		);
 	g_mongo
-		.command('deploy')
-		.description('mongo deploy')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mongo.deploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy")
+		.description("Deploy")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.deploy", "post", options, { required: ["mongoId"] }),
+		);
 	g_mongo
-		.command('move')
-		.description('mongo move')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.requiredOption('--targetEnvironmentId <value>', 'targetEnvironmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mongo.move", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("move")
+		.description("Move")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--targetEnvironmentId <value>", "Target Environment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.move", "post", options, { required: ["mongoId","targetEnvironmentId"] }),
+		);
 	g_mongo
-		.command('one')
-		.description('mongo one')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("mongo.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.one", "get", options, { required: ["mongoId"] }),
+		);
 	g_mongo
-		.command('read-logs')
-		.description('mongo readLogs')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.option('--tail <value>', 'tail')
-		.option('--since <value>', 'since')
-		.option('--search <value>', 'search')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["tail"] != null) opts["tail"] = Number(opts["tail"]);
-			const data = await apiGet("mongo.readLogs", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-logs")
+		.description("Read Logs")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--tail <value>", "Tail (default: 100)")
+		.option("--since <value>", "Since (default: \"all\")")
+		.option("--search <value>", "Search")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.readLogs", "get", options, { required: ["mongoId"], types: {"tail":"number"} }),
+		);
 	g_mongo
-		.command('rebuild')
-		.description('mongo rebuild')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mongo.rebuild", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("rebuild")
+		.description("Rebuild")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.rebuild", "post", options, { required: ["mongoId"] }),
+		);
 	g_mongo
-		.command('reload')
-		.description('mongo reload')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mongo.reload", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("reload")
+		.description("Reload")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--appName <value>", "App Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.reload", "post", options, { required: ["mongoId","appName"] }),
+		);
 	g_mongo
-		.command('remove')
-		.description('mongo remove')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mongo.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.remove", "post", options, { required: ["mongoId"] }),
+		);
 	g_mongo
-		.command('save-environment')
-		.description('mongo saveEnvironment')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.requiredOption('--env <value>', 'env')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mongo.saveEnvironment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-environment")
+		.description("Save Environment")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--env <value>", "Env [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.saveEnvironment", "post", options, { required: ["mongoId","env"], types: {"env":"string?"} }),
+		);
 	g_mongo
-		.command('save-external-port')
-		.description('mongo saveExternalPort')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.requiredOption('--externalPort <value>', 'externalPort')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			const data = await apiPost("mongo.saveExternalPort", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-external-port")
+		.description("Save External Port")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--externalPort <value>", "External Port [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.saveExternalPort", "post", options, { required: ["mongoId","externalPort"], types: {"externalPort":"number?"} }),
+		);
 	g_mongo
-		.command('search')
-		.description('mongo search')
-		.option('--q <value>', 'q')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--projectId <value>', 'projectId')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--limit <value>', 'limit')
-		.option('--offset <value>', 'offset')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["limit"] != null) opts["limit"] = Number(opts["limit"]);
-			if (opts["offset"] != null) opts["offset"] = Number(opts["offset"]);
-			const data = await apiGet("mongo.search", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("search")
+		.description("Search")
+		.option("--q <value>", "Q")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description")
+		.option("--projectId <value>", "Project Id")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--limit <value>", "Limit (default: 20)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.search", "get", options, { types: {"limit":"number","offset":"number"} }),
+		);
 	g_mongo
-		.command('start')
-		.description('mongo start')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mongo.start", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("start")
+		.description("Start")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.start", "post", options, { required: ["mongoId"] }),
+		);
 	g_mongo
-		.command('stop')
-		.description('mongo stop')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mongo.stop", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("stop")
+		.description("Stop")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.stop", "post", options, { required: ["mongoId"] }),
+		);
 	g_mongo
-		.command('update')
-		.description('mongo update')
-		.requiredOption('--mongoId <value>', 'mongoId')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--databaseUser <value>', 'databaseUser')
-		.option('--databasePassword <value>', 'databasePassword')
-		.option('--dockerImage <value>', 'dockerImage')
-		.option('--command <value>', 'command')
-		.option('--args <value>', 'args')
-		.option('--env <value>', 'env')
-		.option('--memoryReservation <value>', 'memoryReservation')
-		.option('--memoryLimit <value>', 'memoryLimit')
-		.option('--cpuReservation <value>', 'cpuReservation')
-		.option('--cpuLimit <value>', 'cpuLimit')
-		.option('--externalPort <value>', 'externalPort')
-		.option('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--healthCheckSwarm <value>', 'healthCheckSwarm')
-		.option('--restartPolicySwarm <value>', 'restartPolicySwarm')
-		.option('--placementSwarm <value>', 'placementSwarm')
-		.option('--updateConfigSwarm <value>', 'updateConfigSwarm')
-		.option('--rollbackConfigSwarm <value>', 'rollbackConfigSwarm')
-		.option('--modeSwarm <value>', 'modeSwarm')
-		.option('--labelsSwarm <value>', 'labelsSwarm')
-		.option('--networkSwarm <value>', 'networkSwarm')
-		.option('--stopGracePeriodSwarm <value>', 'stopGracePeriodSwarm')
-		.option('--endpointSpecSwarm <value>', 'endpointSpecSwarm')
-		.option('--ulimitsSwarm <value>', 'ulimitsSwarm')
-		.option('--replicas <value>', 'replicas')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--replicaSets', 'replicaSets')
-		.option('--networkIds <value>', 'networkIds')
-		.option('--detachNotployNetwork', 'detachNotployNetwork')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["replicaSets"] != null) opts["replicaSets"] = opts["replicaSets"] === true || opts["replicaSets"] === "true";
-			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
-			const data = await apiPost("mongo.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_mounts = program.command('mounts').description('mounts commands');
-
+		.command("update")
+		.description("Update")
+		.option("--mongoId <value>", "Mongo Id [required]")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--databaseUser <value>", "Database User")
+		.option("--databasePassword <value>", "Database Password")
+		.option("--dockerImage <value>", "Docker Image")
+		.option("--command <value>", "Command (nullable: pass \"null\")")
+		.option("--args <json>", "Args (nullable: pass \"null\") (JSON array)")
+		.option("--env <value>", "Env (nullable: pass \"null\")")
+		.option("--memoryReservation <value>", "Memory Reservation (nullable: pass \"null\")")
+		.option("--memoryLimit <value>", "Memory Limit (nullable: pass \"null\")")
+		.option("--cpuReservation <value>", "Cpu Reservation (nullable: pass \"null\")")
+		.option("--cpuLimit <value>", "Cpu Limit (nullable: pass \"null\")")
+		.option("--externalPort <value>", "External Port (nullable: pass \"null\")")
+		.option("--applicationStatus <value>", "Application Status (one of: idle, running, done, error)")
+		.option("--healthCheckSwarm <json>", "Health Check Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--restartPolicySwarm <json>", "Restart Policy Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--placementSwarm <json>", "Placement Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--updateConfigSwarm <json>", "Update Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--rollbackConfigSwarm <json>", "Rollback Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--modeSwarm <json>", "Mode Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--labelsSwarm <json>", "Labels Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--networkSwarm <json>", "Network Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--stopGracePeriodSwarm <value>", "Stop Grace Period Swarm (nullable: pass \"null\")")
+		.option("--endpointSpecSwarm <json>", "Endpoint Spec Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--ulimitsSwarm <json>", "Ulimits Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--replicas <value>", "Replicas")
+		.option("--createdAt <value>", "Created At")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--replicaSets [boolean]", "Replica Sets")
+		.option("--no-replicaSets", "Set replicaSets to false")
+		.option("--networkIds <json>", "Network Ids (nullable: pass \"null\") (JSON array)")
+		.option("--detachNotployNetwork [boolean]", "Detach Notploy Network")
+		.option("--no-detachNotployNetwork", "Set detachNotployNetwork to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mongo.update", "post", options, { required: ["mongoId"], types: {"args":"array?","command":"string?","cpuLimit":"string?","cpuReservation":"string?","description":"string?","detachNotployNetwork":"boolean","endpointSpecSwarm":"object?","env":"string?","externalPort":"number?","healthCheckSwarm":"object?","labelsSwarm":"object?","memoryLimit":"string?","memoryReservation":"string?","modeSwarm":"object?","networkIds":"array?","networkSwarm":"array?","placementSwarm":"object?","replicas":"number","replicaSets":"boolean","restartPolicySwarm":"object?","rollbackConfigSwarm":"object?","stopGracePeriodSwarm":"number?","ulimitsSwarm":"array?","updateConfigSwarm":"object?"}, enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
+	const g_mounts = program.command("mounts").description("mounts commands");
 	g_mounts
-		.command('all-named-by-application-id')
-		.description('mounts allNamedByApplicationId')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("mounts.allNamedByApplicationId", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all-named-by-application-id")
+		.description("All Named By Application Id")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mounts.allNamedByApplicationId", "get", options, { required: ["applicationId"] }),
+		);
 	g_mounts
-		.command('create')
-		.description('mounts create')
-		.requiredOption('--type <value>', 'type (bind, volume, file)')
-		.option('--hostPath <value>', 'hostPath')
-		.option('--volumeName <value>', 'volumeName')
-		.option('--content <value>', 'content')
-		.requiredOption('--mountPath <value>', 'mountPath')
-		.option('--filePath <value>', 'filePath')
-		.option('--serviceType <value>', 'serviceType (application, postgres, mysql, mariadb, mongo, redis, compose, libsql)')
-		.requiredOption('--serviceId <value>', 'serviceId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mounts.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--type <value>", "Type [required] (one of: bind, volume, file)")
+		.option("--hostPath <value>", "Host Path (nullable: pass \"null\")")
+		.option("--volumeName <value>", "Volume Name (nullable: pass \"null\")")
+		.option("--content <value>", "Content (nullable: pass \"null\")")
+		.option("--mountPath <value>", "Mount Path [required]")
+		.option("--filePath <value>", "File Path (nullable: pass \"null\")")
+		.option("--serviceType <value>", "Service Type (one of: application, postgres, mysql, mariadb, mongo, redis, compose, libsql)")
+		.option("--serviceId <value>", "Service Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mounts.create", "post", options, { required: ["type","mountPath","serviceId"], types: {"content":"string?","filePath":"string?","hostPath":"string?","volumeName":"string?"}, enums: {"serviceType":["application","postgres","mysql","mariadb","mongo","redis","compose","libsql"],"type":["bind","volume","file"]} }),
+		);
 	g_mounts
-		.command('list-by-service-id')
-		.description('mounts listByServiceId')
-		.requiredOption('--serviceType <value>', 'serviceType')
-		.requiredOption('--serviceId <value>', 'serviceId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("mounts.listByServiceId", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-by-service-id")
+		.description("List By Service Id")
+		.option("--serviceType <value>", "Service Type [required]")
+		.option("--serviceId <value>", "Service Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mounts.listByServiceId", "get", options, { required: ["serviceType","serviceId"] }),
+		);
 	g_mounts
-		.command('one')
-		.description('mounts one')
-		.requiredOption('--mountId <value>', 'mountId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("mounts.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--mountId <value>", "Mount Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mounts.one", "get", options, { required: ["mountId"] }),
+		);
 	g_mounts
-		.command('remove')
-		.description('mounts remove')
-		.requiredOption('--mountId <value>', 'mountId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mounts.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--mountId <value>", "Mount Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mounts.remove", "post", options, { required: ["mountId"] }),
+		);
 	g_mounts
-		.command('update')
-		.description('mounts update')
-		.requiredOption('--mountId <value>', 'mountId')
-		.option('--type <value>', 'type (bind, volume, file)')
-		.option('--hostPath <value>', 'hostPath')
-		.option('--volumeName <value>', 'volumeName')
-		.option('--filePath <value>', 'filePath')
-		.option('--content <value>', 'content')
-		.option('--serviceType <value>', 'serviceType (application, postgres, mysql, mariadb, mongo, redis, compose, libsql)')
-		.option('--mountPath <value>', 'mountPath')
-		.option('--applicationId <value>', 'applicationId')
-		.option('--composeId <value>', 'composeId')
-		.option('--libsqlId <value>', 'libsqlId')
-		.option('--mariadbId <value>', 'mariadbId')
-		.option('--mongoId <value>', 'mongoId')
-		.option('--mysqlId <value>', 'mysqlId')
-		.option('--postgresId <value>', 'postgresId')
-		.option('--redisId <value>', 'redisId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mounts.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_mysql = program.command('mysql').description('mysql commands');
-
+		.command("update")
+		.description("Update")
+		.option("--mountId <value>", "Mount Id [required]")
+		.option("--type <value>", "Type (one of: bind, volume, file)")
+		.option("--hostPath <value>", "Host Path (nullable: pass \"null\")")
+		.option("--volumeName <value>", "Volume Name (nullable: pass \"null\")")
+		.option("--filePath <value>", "File Path (nullable: pass \"null\")")
+		.option("--content <value>", "Content (nullable: pass \"null\")")
+		.option("--serviceType <value>", "Service Type (one of: application, postgres, mysql, mariadb, mongo, redis, compose, libsql)")
+		.option("--mountPath <value>", "Mount Path")
+		.option("--applicationId <value>", "Application Id (nullable: pass \"null\")")
+		.option("--composeId <value>", "Compose Id (nullable: pass \"null\")")
+		.option("--libsqlId <value>", "Libsql Id (nullable: pass \"null\")")
+		.option("--mariadbId <value>", "Mariadb Id (nullable: pass \"null\")")
+		.option("--mongoId <value>", "Mongo Id (nullable: pass \"null\")")
+		.option("--mysqlId <value>", "Mysql Id (nullable: pass \"null\")")
+		.option("--postgresId <value>", "Postgres Id (nullable: pass \"null\")")
+		.option("--redisId <value>", "Redis Id (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mounts.update", "post", options, { required: ["mountId"], types: {"applicationId":"string?","composeId":"string?","content":"string?","filePath":"string?","hostPath":"string?","libsqlId":"string?","mariadbId":"string?","mongoId":"string?","mysqlId":"string?","postgresId":"string?","redisId":"string?","volumeName":"string?"}, enums: {"serviceType":["application","postgres","mysql","mariadb","mongo","redis","compose","libsql"],"type":["bind","volume","file"]} }),
+		);
+	const g_mysql = program.command("mysql").description("mysql commands");
 	g_mysql
-		.command('change-password')
-		.description('mysql changePassword')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.requiredOption('--password <value>', 'password')
-		.option('--type <value>', 'type (user, root)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.changePassword", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-password")
+		.description("Change Password")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--type <value>", "Type (one of: user, root) (default: \"user\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.changePassword", "post", options, { required: ["mysqlId","password"], enums: {"type":["user","root"]} }),
+		);
 	g_mysql
-		.command('change-status')
-		.description('mysql changeStatus')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.requiredOption('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.changeStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-status")
+		.description("Change Status")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--applicationStatus <value>", "Application Status [required] (one of: idle, running, done, error)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.changeStatus", "post", options, { required: ["mysqlId","applicationStatus"], enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
 	g_mysql
-		.command('create')
-		.description('mysql create')
-		.requiredOption('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--dockerImage <value>', 'dockerImage')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--description <value>', 'description')
-		.requiredOption('--databaseName <value>', 'databaseName')
-		.requiredOption('--databaseUser <value>', 'databaseUser')
-		.requiredOption('--databasePassword <value>', 'databasePassword')
-		.option('--databaseRootPassword <value>', 'databaseRootPassword')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--appName <value>", "App Name")
+		.option("--dockerImage <value>", "Docker Image (default: \"mysql:8\")")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--databaseName <value>", "Database Name [required]")
+		.option("--databaseUser <value>", "Database User [required]")
+		.option("--databasePassword <value>", "Database Password [required]")
+		.option("--databaseRootPassword <value>", "Database Root Password")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.create", "post", options, { required: ["name","environmentId","databaseName","databaseUser","databasePassword"], types: {"description":"string?","serverId":"string?"} }),
+		);
 	g_mysql
-		.command('deploy')
-		.description('mysql deploy')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.deploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy")
+		.description("Deploy")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.deploy", "post", options, { required: ["mysqlId"] }),
+		);
 	g_mysql
-		.command('move')
-		.description('mysql move')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.requiredOption('--targetEnvironmentId <value>', 'targetEnvironmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.move", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("move")
+		.description("Move")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--targetEnvironmentId <value>", "Target Environment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.move", "post", options, { required: ["mysqlId","targetEnvironmentId"] }),
+		);
 	g_mysql
-		.command('one')
-		.description('mysql one')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("mysql.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.one", "get", options, { required: ["mysqlId"] }),
+		);
 	g_mysql
-		.command('read-logs')
-		.description('mysql readLogs')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.option('--tail <value>', 'tail')
-		.option('--since <value>', 'since')
-		.option('--search <value>', 'search')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["tail"] != null) opts["tail"] = Number(opts["tail"]);
-			const data = await apiGet("mysql.readLogs", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-logs")
+		.description("Read Logs")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--tail <value>", "Tail (default: 100)")
+		.option("--since <value>", "Since (default: \"all\")")
+		.option("--search <value>", "Search")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.readLogs", "get", options, { required: ["mysqlId"], types: {"tail":"number"} }),
+		);
 	g_mysql
-		.command('rebuild')
-		.description('mysql rebuild')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.rebuild", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("rebuild")
+		.description("Rebuild")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.rebuild", "post", options, { required: ["mysqlId"] }),
+		);
 	g_mysql
-		.command('reload')
-		.description('mysql reload')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.reload", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("reload")
+		.description("Reload")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--appName <value>", "App Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.reload", "post", options, { required: ["mysqlId","appName"] }),
+		);
 	g_mysql
-		.command('remove')
-		.description('mysql remove')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.remove", "post", options, { required: ["mysqlId"] }),
+		);
 	g_mysql
-		.command('save-environment')
-		.description('mysql saveEnvironment')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.requiredOption('--env <value>', 'env')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.saveEnvironment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-environment")
+		.description("Save Environment")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--env <value>", "Env [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.saveEnvironment", "post", options, { required: ["mysqlId","env"], types: {"env":"string?"} }),
+		);
 	g_mysql
-		.command('save-external-port')
-		.description('mysql saveExternalPort')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.requiredOption('--externalPort <value>', 'externalPort')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			const data = await apiPost("mysql.saveExternalPort", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-external-port")
+		.description("Save External Port")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--externalPort <value>", "External Port [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.saveExternalPort", "post", options, { required: ["mysqlId","externalPort"], types: {"externalPort":"number?"} }),
+		);
 	g_mysql
-		.command('search')
-		.description('mysql search')
-		.option('--q <value>', 'q')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--projectId <value>', 'projectId')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--limit <value>', 'limit')
-		.option('--offset <value>', 'offset')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["limit"] != null) opts["limit"] = Number(opts["limit"]);
-			if (opts["offset"] != null) opts["offset"] = Number(opts["offset"]);
-			const data = await apiGet("mysql.search", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("search")
+		.description("Search")
+		.option("--q <value>", "Q")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description")
+		.option("--projectId <value>", "Project Id")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--limit <value>", "Limit (default: 20)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.search", "get", options, { types: {"limit":"number","offset":"number"} }),
+		);
 	g_mysql
-		.command('start')
-		.description('mysql start')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.start", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("start")
+		.description("Start")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.start", "post", options, { required: ["mysqlId"] }),
+		);
 	g_mysql
-		.command('stop')
-		.description('mysql stop')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("mysql.stop", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("stop")
+		.description("Stop")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.stop", "post", options, { required: ["mysqlId"] }),
+		);
 	g_mysql
-		.command('update')
-		.description('mysql update')
-		.requiredOption('--mysqlId <value>', 'mysqlId')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--databaseName <value>', 'databaseName')
-		.option('--databaseUser <value>', 'databaseUser')
-		.option('--databasePassword <value>', 'databasePassword')
-		.option('--databaseRootPassword <value>', 'databaseRootPassword')
-		.option('--dockerImage <value>', 'dockerImage')
-		.option('--command <value>', 'command')
-		.option('--args <value>', 'args')
-		.option('--env <value>', 'env')
-		.option('--memoryReservation <value>', 'memoryReservation')
-		.option('--memoryLimit <value>', 'memoryLimit')
-		.option('--cpuReservation <value>', 'cpuReservation')
-		.option('--cpuLimit <value>', 'cpuLimit')
-		.option('--externalPort <value>', 'externalPort')
-		.option('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--healthCheckSwarm <value>', 'healthCheckSwarm')
-		.option('--restartPolicySwarm <value>', 'restartPolicySwarm')
-		.option('--placementSwarm <value>', 'placementSwarm')
-		.option('--updateConfigSwarm <value>', 'updateConfigSwarm')
-		.option('--rollbackConfigSwarm <value>', 'rollbackConfigSwarm')
-		.option('--modeSwarm <value>', 'modeSwarm')
-		.option('--labelsSwarm <value>', 'labelsSwarm')
-		.option('--networkSwarm <value>', 'networkSwarm')
-		.option('--stopGracePeriodSwarm <value>', 'stopGracePeriodSwarm')
-		.option('--endpointSpecSwarm <value>', 'endpointSpecSwarm')
-		.option('--ulimitsSwarm <value>', 'ulimitsSwarm')
-		.option('--replicas <value>', 'replicas')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--networkIds <value>', 'networkIds')
-		.option('--detachNotployNetwork', 'detachNotployNetwork')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
-			const data = await apiPost("mysql.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_network = program.command('network').description('network commands');
-
+		.command("update")
+		.description("Update")
+		.option("--mysqlId <value>", "Mysql Id [required]")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--databaseName <value>", "Database Name")
+		.option("--databaseUser <value>", "Database User")
+		.option("--databasePassword <value>", "Database Password")
+		.option("--databaseRootPassword <value>", "Database Root Password")
+		.option("--dockerImage <value>", "Docker Image")
+		.option("--command <value>", "Command (nullable: pass \"null\")")
+		.option("--args <json>", "Args (nullable: pass \"null\") (JSON array)")
+		.option("--env <value>", "Env (nullable: pass \"null\")")
+		.option("--memoryReservation <value>", "Memory Reservation (nullable: pass \"null\")")
+		.option("--memoryLimit <value>", "Memory Limit (nullable: pass \"null\")")
+		.option("--cpuReservation <value>", "Cpu Reservation (nullable: pass \"null\")")
+		.option("--cpuLimit <value>", "Cpu Limit (nullable: pass \"null\")")
+		.option("--externalPort <value>", "External Port (nullable: pass \"null\")")
+		.option("--applicationStatus <value>", "Application Status (one of: idle, running, done, error)")
+		.option("--healthCheckSwarm <json>", "Health Check Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--restartPolicySwarm <json>", "Restart Policy Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--placementSwarm <json>", "Placement Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--updateConfigSwarm <json>", "Update Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--rollbackConfigSwarm <json>", "Rollback Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--modeSwarm <json>", "Mode Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--labelsSwarm <json>", "Labels Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--networkSwarm <json>", "Network Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--stopGracePeriodSwarm <value>", "Stop Grace Period Swarm (nullable: pass \"null\")")
+		.option("--endpointSpecSwarm <json>", "Endpoint Spec Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--ulimitsSwarm <json>", "Ulimits Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--replicas <value>", "Replicas")
+		.option("--createdAt <value>", "Created At")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--networkIds <json>", "Network Ids (nullable: pass \"null\") (JSON array)")
+		.option("--detachNotployNetwork [boolean]", "Detach Notploy Network")
+		.option("--no-detachNotployNetwork", "Set detachNotployNetwork to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "mysql.update", "post", options, { required: ["mysqlId"], types: {"args":"array?","command":"string?","cpuLimit":"string?","cpuReservation":"string?","description":"string?","detachNotployNetwork":"boolean","endpointSpecSwarm":"object?","env":"string?","externalPort":"number?","healthCheckSwarm":"object?","labelsSwarm":"object?","memoryLimit":"string?","memoryReservation":"string?","modeSwarm":"object?","networkIds":"array?","networkSwarm":"array?","placementSwarm":"object?","replicas":"number","restartPolicySwarm":"object?","rollbackConfigSwarm":"object?","stopGracePeriodSwarm":"number?","ulimitsSwarm":"array?","updateConfigSwarm":"object?"}, enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
+	const g_network = program.command("network").description("network commands");
 	g_network
-		.command('all')
-		.description('network all')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("network.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "network.all", "get", options),
+		);
 	g_network
-		.command('create')
-		.description('network create')
-		.requiredOption('--name <value>', 'name')
-		.option('--driver <value>', 'driver (bridge, overlay)')
-		.option('--internal', 'internal')
-		.option('--attachable', 'attachable')
-		.option('--enableIPv4', 'enableIPv4')
-		.option('--enableIPv6', 'enableIPv6')
-		.option('--mtu <value>', 'mtu')
-		.option('--ipam <value>', 'ipam')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["internal"] != null) opts["internal"] = opts["internal"] === true || opts["internal"] === "true";
-			if (opts["attachable"] != null) opts["attachable"] = opts["attachable"] === true || opts["attachable"] === "true";
-			if (opts["enableIPv4"] != null) opts["enableIPv4"] = opts["enableIPv4"] === true || opts["enableIPv4"] === "true";
-			if (opts["enableIPv6"] != null) opts["enableIPv6"] = opts["enableIPv6"] === true || opts["enableIPv6"] === "true";
-			const data = await apiPost("network.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--driver <value>", "Driver (one of: bridge, overlay)")
+		.option("--internal [boolean]", "Internal")
+		.option("--no-internal", "Set internal to false")
+		.option("--attachable [boolean]", "Attachable")
+		.option("--no-attachable", "Set attachable to false")
+		.option("--enableIPv4 [boolean]", "Enable IPv4")
+		.option("--no-enableIPv4", "Set enableIPv4 to false")
+		.option("--enableIPv6 [boolean]", "Enable IPv6")
+		.option("--no-enableIPv6", "Set enableIPv6 to false")
+		.option("--mtu <value>", "Mtu (nullable: pass \"null\")")
+		.option("--ipam <json>", "Ipam (nullable: pass \"null\") (JSON object)")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "network.create", "post", options, { required: ["name"], types: {"attachable":"boolean","enableIPv4":"boolean","enableIPv6":"boolean","internal":"boolean","ipam":"object?","mtu":"number?","serverId":"string?"}, enums: {"driver":["bridge","overlay"]} }),
+		);
 	g_network
-		.command('import')
-		.description('network import')
-		.option('--serverId <value>', 'serverId')
-		.requiredOption('--names <value>', 'names')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("network.import", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("import")
+		.description("Import")
+		.option("--serverId <value>", "Server Id")
+		.option("--names <json>", "Names [required] (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "network.import", "post", options, { required: ["names"], types: {"names":"array"} }),
+		);
 	g_network
-		.command('inspect')
-		.description('network inspect')
-		.requiredOption('--networkId <value>', 'networkId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("network.inspect", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("inspect")
+		.description("Inspect")
+		.option("--networkId <value>", "Network Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "network.inspect", "get", options, { required: ["networkId"] }),
+		);
 	g_network
-		.command('networks-to-sync')
-		.description('network networksToSync')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("network.networksToSync", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("networks-to-sync")
+		.description("Networks To Sync")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "network.networksToSync", "get", options),
+		);
 	g_network
-		.command('one')
-		.description('network one')
-		.requiredOption('--networkId <value>', 'networkId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("network.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--networkId <value>", "Network Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "network.one", "get", options, { required: ["networkId"] }),
+		);
 	g_network
-		.command('recreate')
-		.description('network recreate')
-		.requiredOption('--networkId <value>', 'networkId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("network.recreate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("recreate")
+		.description("Recreate")
+		.option("--networkId <value>", "Network Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "network.recreate", "post", options, { required: ["networkId"] }),
+		);
 	g_network
-		.command('remove')
-		.description('network remove')
-		.requiredOption('--networkId <value>', 'networkId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("network.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--networkId <value>", "Network Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "network.remove", "post", options, { required: ["networkId"] }),
+		);
 	g_network
-		.command('resync')
-		.description('network resync')
-		.requiredOption('--networkId <value>', 'networkId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("network.resync", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_notification = program.command('notification').description('notification commands');
-
+		.command("resync")
+		.description("Resync")
+		.option("--networkId <value>", "Network Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "network.resync", "post", options, { required: ["networkId"] }),
+		);
+	const g_notification = program.command("notification").description("notification commands");
 	g_notification
-		.command('all')
-		.description('notification all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("notification.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.all", "get", options),
+		);
 	g_notification
-		.command('create-custom')
-		.description('notification createCustom')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.requiredOption('--endpoint <value>', 'endpoint')
-		.option('--headers <value>', 'headers')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.createCustom", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-custom")
+		.description("Create Custom")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--endpoint <value>", "Endpoint [required]")
+		.option("--headers <json>", "Headers (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createCustom", "post", options, { required: ["name","endpoint"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","headers":"object","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-discord')
-		.description('notification createDiscord')
-		.requiredOption('--appBuildError', 'appBuildError')
-		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--notployBackup', 'notployBackup')
-		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appDeploy', 'appDeploy')
-		.requiredOption('--dockerCleanup', 'dockerCleanup')
-		.requiredOption('--serverThreshold', 'serverThreshold')
-		.requiredOption('--webhookUrl <value>', 'webhookUrl')
-		.requiredOption('--decoration', 'decoration')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			if (opts["decoration"] != null) opts["decoration"] = opts["decoration"] === true || opts["decoration"] === "true";
-			const data = await apiPost("notification.createDiscord", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-discord")
+		.description("Create Discord")
+		.option("--appBuildError [boolean]", "App Build Error [required]")
+		.option("--databaseBackup [boolean]", "Database Backup [required]")
+		.option("--notployBackup [boolean]", "Notploy Backup [required]")
+		.option("--volumeBackup [boolean]", "Volume Backup [required]")
+		.option("--notployRestart [boolean]", "Notploy Restart [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy [required]")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup [required]")
+		.option("--serverThreshold [boolean]", "Server Threshold [required]")
+		.option("--webhookUrl <value>", "Webhook Url [required]")
+		.option("--decoration [boolean]", "Decoration [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createDiscord", "post", options, { required: ["appBuildError","databaseBackup","notployBackup","volumeBackup","notployRestart","name","appDeploy","dockerCleanup","serverThreshold","webhookUrl","decoration"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","decoration":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-email')
-		.description('notification createEmail')
-		.requiredOption('--appBuildError', 'appBuildError')
-		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--notployBackup', 'notployBackup')
-		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appDeploy', 'appDeploy')
-		.requiredOption('--dockerCleanup', 'dockerCleanup')
-		.requiredOption('--serverThreshold', 'serverThreshold')
-		.requiredOption('--smtpServer <value>', 'smtpServer')
-		.requiredOption('--smtpPort <value>', 'smtpPort')
-		.requiredOption('--username <value>', 'username')
-		.requiredOption('--password <value>', 'password')
-		.requiredOption('--fromAddress <value>', 'fromAddress')
-		.requiredOption('--toAddresses <value>', 'toAddresses')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			if (opts["smtpPort"] != null) opts["smtpPort"] = Number(opts["smtpPort"]);
-			const data = await apiPost("notification.createEmail", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-email")
+		.description("Create Email")
+		.option("--appBuildError [boolean]", "App Build Error [required]")
+		.option("--databaseBackup [boolean]", "Database Backup [required]")
+		.option("--notployBackup [boolean]", "Notploy Backup [required]")
+		.option("--volumeBackup [boolean]", "Volume Backup [required]")
+		.option("--notployRestart [boolean]", "Notploy Restart [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy [required]")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup [required]")
+		.option("--serverThreshold [boolean]", "Server Threshold [required]")
+		.option("--smtpServer <value>", "Smtp Server [required]")
+		.option("--smtpPort <value>", "Smtp Port [required]")
+		.option("--username <value>", "Username [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--fromAddress <value>", "From Address [required]")
+		.option("--toAddresses <json>", "To Addresses [required] (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createEmail", "post", options, { required: ["appBuildError","databaseBackup","notployBackup","volumeBackup","notployRestart","name","appDeploy","dockerCleanup","serverThreshold","smtpServer","smtpPort","username","password","fromAddress","toAddresses"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","smtpPort":"number","toAddresses":"array","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-gotify')
-		.description('notification createGotify')
-		.requiredOption('--appBuildError', 'appBuildError')
-		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--notployBackup', 'notployBackup')
-		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appDeploy', 'appDeploy')
-		.requiredOption('--dockerCleanup', 'dockerCleanup')
-		.requiredOption('--serverThreshold', 'serverThreshold')
-		.requiredOption('--serverUrl <value>', 'serverUrl')
-		.requiredOption('--appToken <value>', 'appToken')
-		.requiredOption('--priority <value>', 'priority')
-		.requiredOption('--decoration', 'decoration')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			if (opts["priority"] != null) opts["priority"] = Number(opts["priority"]);
-			if (opts["decoration"] != null) opts["decoration"] = opts["decoration"] === true || opts["decoration"] === "true";
-			const data = await apiPost("notification.createGotify", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-gotify")
+		.description("Create Gotify")
+		.option("--appBuildError [boolean]", "App Build Error [required]")
+		.option("--databaseBackup [boolean]", "Database Backup [required]")
+		.option("--notployBackup [boolean]", "Notploy Backup [required]")
+		.option("--volumeBackup [boolean]", "Volume Backup [required]")
+		.option("--notployRestart [boolean]", "Notploy Restart [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy [required]")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup [required]")
+		.option("--serverThreshold [boolean]", "Server Threshold [required]")
+		.option("--serverUrl <value>", "Server Url [required]")
+		.option("--appToken <value>", "App Token [required]")
+		.option("--priority <value>", "Priority [required]")
+		.option("--decoration [boolean]", "Decoration [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createGotify", "post", options, { required: ["appBuildError","databaseBackup","notployBackup","volumeBackup","notployRestart","name","appDeploy","dockerCleanup","serverThreshold","serverUrl","appToken","priority","decoration"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","decoration":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","priority":"number","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-lark')
-		.description('notification createLark')
-		.requiredOption('--appBuildError', 'appBuildError')
-		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--notployBackup', 'notployBackup')
-		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appDeploy', 'appDeploy')
-		.requiredOption('--dockerCleanup', 'dockerCleanup')
-		.requiredOption('--serverThreshold', 'serverThreshold')
-		.requiredOption('--webhookUrl <value>', 'webhookUrl')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.createLark", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-lark")
+		.description("Create Lark")
+		.option("--appBuildError [boolean]", "App Build Error [required]")
+		.option("--databaseBackup [boolean]", "Database Backup [required]")
+		.option("--notployBackup [boolean]", "Notploy Backup [required]")
+		.option("--volumeBackup [boolean]", "Volume Backup [required]")
+		.option("--notployRestart [boolean]", "Notploy Restart [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy [required]")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup [required]")
+		.option("--serverThreshold [boolean]", "Server Threshold [required]")
+		.option("--webhookUrl <value>", "Webhook Url [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createLark", "post", options, { required: ["appBuildError","databaseBackup","notployBackup","volumeBackup","notployRestart","name","appDeploy","dockerCleanup","serverThreshold","webhookUrl"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-mattermost')
-		.description('notification createMattermost')
-		.requiredOption('--appBuildError', 'appBuildError')
-		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--notployBackup', 'notployBackup')
-		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appDeploy', 'appDeploy')
-		.requiredOption('--dockerCleanup', 'dockerCleanup')
-		.requiredOption('--serverThreshold', 'serverThreshold')
-		.requiredOption('--webhookUrl <value>', 'webhookUrl')
-		.option('--channel <value>', 'channel')
-		.option('--username <value>', 'username')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.createMattermost", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-mattermost")
+		.description("Create Mattermost")
+		.option("--appBuildError [boolean]", "App Build Error [required]")
+		.option("--databaseBackup [boolean]", "Database Backup [required]")
+		.option("--notployBackup [boolean]", "Notploy Backup [required]")
+		.option("--volumeBackup [boolean]", "Volume Backup [required]")
+		.option("--notployRestart [boolean]", "Notploy Restart [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy [required]")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup [required]")
+		.option("--serverThreshold [boolean]", "Server Threshold [required]")
+		.option("--webhookUrl <value>", "Webhook Url [required]")
+		.option("--channel <value>", "Channel")
+		.option("--username <value>", "Username")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createMattermost", "post", options, { required: ["appBuildError","databaseBackup","notployBackup","volumeBackup","notployRestart","name","appDeploy","dockerCleanup","serverThreshold","webhookUrl"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-ntfy')
-		.description('notification createNtfy')
-		.requiredOption('--appBuildError', 'appBuildError')
-		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--notployBackup', 'notployBackup')
-		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appDeploy', 'appDeploy')
-		.requiredOption('--dockerCleanup', 'dockerCleanup')
-		.requiredOption('--serverThreshold', 'serverThreshold')
-		.requiredOption('--serverUrl <value>', 'serverUrl')
-		.requiredOption('--topic <value>', 'topic')
-		.requiredOption('--accessToken <value>', 'accessToken')
-		.requiredOption('--priority <value>', 'priority')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			if (opts["priority"] != null) opts["priority"] = Number(opts["priority"]);
-			const data = await apiPost("notification.createNtfy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-ntfy")
+		.description("Create Ntfy")
+		.option("--appBuildError [boolean]", "App Build Error [required]")
+		.option("--databaseBackup [boolean]", "Database Backup [required]")
+		.option("--notployBackup [boolean]", "Notploy Backup [required]")
+		.option("--volumeBackup [boolean]", "Volume Backup [required]")
+		.option("--notployRestart [boolean]", "Notploy Restart [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy [required]")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup [required]")
+		.option("--serverThreshold [boolean]", "Server Threshold [required]")
+		.option("--serverUrl <value>", "Server Url [required]")
+		.option("--topic <value>", "Topic [required]")
+		.option("--accessToken <value>", "Access Token [required]")
+		.option("--priority <value>", "Priority [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createNtfy", "post", options, { required: ["appBuildError","databaseBackup","notployBackup","volumeBackup","notployRestart","name","appDeploy","dockerCleanup","serverThreshold","serverUrl","topic","accessToken","priority"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","priority":"number","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-pushover')
-		.description('notification createPushover')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.requiredOption('--userKey <value>', 'userKey')
-		.requiredOption('--apiToken <value>', 'apiToken')
-		.option('--priority <value>', 'priority')
-		.option('--retry <value>', 'retry')
-		.option('--expire <value>', 'expire')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			if (opts["priority"] != null) opts["priority"] = Number(opts["priority"]);
-			if (opts["retry"] != null) opts["retry"] = Number(opts["retry"]);
-			if (opts["expire"] != null) opts["expire"] = Number(opts["expire"]);
-			const data = await apiPost("notification.createPushover", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-pushover")
+		.description("Create Pushover")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--userKey <value>", "User Key [required]")
+		.option("--apiToken <value>", "Api Token [required]")
+		.option("--priority <value>", "Priority (default: 0)")
+		.option("--retry <value>", "Retry (nullable: pass \"null\")")
+		.option("--expire <value>", "Expire (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createPushover", "post", options, { required: ["name","userKey","apiToken"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","expire":"number?","notployBackup":"boolean","notployRestart":"boolean","priority":"number","retry":"number?","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-resend')
-		.description('notification createResend')
-		.requiredOption('--appBuildError', 'appBuildError')
-		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--notployBackup', 'notployBackup')
-		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appDeploy', 'appDeploy')
-		.requiredOption('--dockerCleanup', 'dockerCleanup')
-		.requiredOption('--serverThreshold', 'serverThreshold')
-		.requiredOption('--apiKey <value>', 'apiKey')
-		.requiredOption('--fromAddress <value>', 'fromAddress')
-		.requiredOption('--toAddresses <value>', 'toAddresses')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.createResend", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-resend")
+		.description("Create Resend")
+		.option("--appBuildError [boolean]", "App Build Error [required]")
+		.option("--databaseBackup [boolean]", "Database Backup [required]")
+		.option("--notployBackup [boolean]", "Notploy Backup [required]")
+		.option("--volumeBackup [boolean]", "Volume Backup [required]")
+		.option("--notployRestart [boolean]", "Notploy Restart [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy [required]")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup [required]")
+		.option("--serverThreshold [boolean]", "Server Threshold [required]")
+		.option("--apiKey <value>", "Api Key [required]")
+		.option("--fromAddress <value>", "From Address [required]")
+		.option("--toAddresses <json>", "To Addresses [required] (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createResend", "post", options, { required: ["appBuildError","databaseBackup","notployBackup","volumeBackup","notployRestart","name","appDeploy","dockerCleanup","serverThreshold","apiKey","fromAddress","toAddresses"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","toAddresses":"array","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-slack')
-		.description('notification createSlack')
-		.requiredOption('--appBuildError', 'appBuildError')
-		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--notployBackup', 'notployBackup')
-		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appDeploy', 'appDeploy')
-		.requiredOption('--dockerCleanup', 'dockerCleanup')
-		.requiredOption('--serverThreshold', 'serverThreshold')
-		.requiredOption('--webhookUrl <value>', 'webhookUrl')
-		.requiredOption('--channel <value>', 'channel')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.createSlack", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-slack")
+		.description("Create Slack")
+		.option("--appBuildError [boolean]", "App Build Error [required]")
+		.option("--databaseBackup [boolean]", "Database Backup [required]")
+		.option("--notployBackup [boolean]", "Notploy Backup [required]")
+		.option("--volumeBackup [boolean]", "Volume Backup [required]")
+		.option("--notployRestart [boolean]", "Notploy Restart [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy [required]")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup [required]")
+		.option("--serverThreshold [boolean]", "Server Threshold [required]")
+		.option("--webhookUrl <value>", "Webhook Url [required]")
+		.option("--channel <value>", "Channel [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createSlack", "post", options, { required: ["appBuildError","databaseBackup","notployBackup","volumeBackup","notployRestart","name","appDeploy","dockerCleanup","serverThreshold","webhookUrl","channel"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-teams')
-		.description('notification createTeams')
-		.requiredOption('--appBuildError', 'appBuildError')
-		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--notployBackup', 'notployBackup')
-		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appDeploy', 'appDeploy')
-		.requiredOption('--dockerCleanup', 'dockerCleanup')
-		.requiredOption('--serverThreshold', 'serverThreshold')
-		.requiredOption('--webhookUrl <value>', 'webhookUrl')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.createTeams", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-teams")
+		.description("Create Teams")
+		.option("--appBuildError [boolean]", "App Build Error [required]")
+		.option("--databaseBackup [boolean]", "Database Backup [required]")
+		.option("--notployBackup [boolean]", "Notploy Backup [required]")
+		.option("--volumeBackup [boolean]", "Volume Backup [required]")
+		.option("--notployRestart [boolean]", "Notploy Restart [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy [required]")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup [required]")
+		.option("--serverThreshold [boolean]", "Server Threshold [required]")
+		.option("--webhookUrl <value>", "Webhook Url [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createTeams", "post", options, { required: ["appBuildError","databaseBackup","notployBackup","volumeBackup","notployRestart","name","appDeploy","dockerCleanup","serverThreshold","webhookUrl"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('create-telegram')
-		.description('notification createTelegram')
-		.requiredOption('--appBuildError', 'appBuildError')
-		.requiredOption('--databaseBackup', 'databaseBackup')
-		.requiredOption('--notployBackup', 'notployBackup')
-		.requiredOption('--volumeBackup', 'volumeBackup')
-		.requiredOption('--notployRestart', 'notployRestart')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--appDeploy', 'appDeploy')
-		.requiredOption('--dockerCleanup', 'dockerCleanup')
-		.requiredOption('--serverThreshold', 'serverThreshold')
-		.requiredOption('--botToken <value>', 'botToken')
-		.requiredOption('--chatId <value>', 'chatId')
-		.requiredOption('--messageThreadId <value>', 'messageThreadId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.createTelegram", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-telegram")
+		.description("Create Telegram")
+		.option("--appBuildError [boolean]", "App Build Error [required]")
+		.option("--databaseBackup [boolean]", "Database Backup [required]")
+		.option("--notployBackup [boolean]", "Notploy Backup [required]")
+		.option("--volumeBackup [boolean]", "Volume Backup [required]")
+		.option("--notployRestart [boolean]", "Notploy Restart [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--appDeploy [boolean]", "App Deploy [required]")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup [required]")
+		.option("--serverThreshold [boolean]", "Server Threshold [required]")
+		.option("--botToken <value>", "Bot Token [required]")
+		.option("--chatId <value>", "Chat Id [required]")
+		.option("--messageThreadId <value>", "Message Thread Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.createTelegram", "post", options, { required: ["appBuildError","databaseBackup","notployBackup","volumeBackup","notployRestart","name","appDeploy","dockerCleanup","serverThreshold","botToken","chatId","messageThreadId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('get-email-providers')
-		.description('notification getEmailProviders')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("notification.getEmailProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-email-providers")
+		.description("Get Email Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.getEmailProviders", "get", options),
+		);
 	g_notification
-		.command('one')
-		.description('notification one')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("notification.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.one", "get", options, { required: ["notificationId"] }),
+		);
 	g_notification
-		.command('receive-notification')
-		.description('notification receiveNotification')
-		.option('--ServerType <value>', 'ServerType (Notploy, Remote)')
-		.requiredOption('--Type <value>', 'Type (Memory, CPU)')
-		.requiredOption('--Value <value>', 'Value')
-		.requiredOption('--Threshold <value>', 'Threshold')
-		.requiredOption('--Message <value>', 'Message')
-		.requiredOption('--Timestamp <value>', 'Timestamp')
-		.requiredOption('--Token <value>', 'Token')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["Value"] != null) opts["Value"] = Number(opts["Value"]);
-			if (opts["Threshold"] != null) opts["Threshold"] = Number(opts["Threshold"]);
-			const data = await apiPost("notification.receiveNotification", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("receive-notification")
+		.description("Receive Notification")
+		.option("--ServerType <value>", "Server Type (one of: Notploy, Remote) (default: \"Notploy\")")
+		.option("--Type <value>", "Type [required] (one of: Memory, CPU)")
+		.option("--Value <value>", "Value [required]")
+		.option("--Threshold <value>", "Threshold [required]")
+		.option("--Message <value>", "Message [required]")
+		.option("--Timestamp <value>", "Timestamp [required]")
+		.option("--Token <value>", "Token [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.receiveNotification", "post", options, { required: ["Type","Value","Threshold","Message","Timestamp","Token"], types: {"Threshold":"number","Value":"number"}, enums: {"ServerType":["Notploy","Remote"],"Type":["Memory","CPU"]} }),
+		);
 	g_notification
-		.command('remove')
-		.description('notification remove')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("notification.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.remove", "post", options, { required: ["notificationId"] }),
+		);
 	g_notification
-		.command('test-custom-connection')
-		.description('notification testCustomConnection')
-		.requiredOption('--endpoint <value>', 'endpoint')
-		.option('--headers <value>', 'headers')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("notification.testCustomConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-custom-connection")
+		.description("Test Custom Connection")
+		.option("--endpoint <value>", "Endpoint [required]")
+		.option("--headers <json>", "Headers (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testCustomConnection", "post", options, { required: ["endpoint"], types: {"headers":"object"} }),
+		);
 	g_notification
-		.command('test-discord-connection')
-		.description('notification testDiscordConnection')
-		.requiredOption('--webhookUrl <value>', 'webhookUrl')
-		.option('--decoration', 'decoration')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["decoration"] != null) opts["decoration"] = opts["decoration"] === true || opts["decoration"] === "true";
-			const data = await apiPost("notification.testDiscordConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-discord-connection")
+		.description("Test Discord Connection")
+		.option("--webhookUrl <value>", "Webhook Url [required]")
+		.option("--decoration [boolean]", "Decoration")
+		.option("--no-decoration", "Set decoration to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testDiscordConnection", "post", options, { required: ["webhookUrl"], types: {"decoration":"boolean"} }),
+		);
 	g_notification
-		.command('test-email-connection')
-		.description('notification testEmailConnection')
-		.requiredOption('--smtpServer <value>', 'smtpServer')
-		.requiredOption('--smtpPort <value>', 'smtpPort')
-		.requiredOption('--username <value>', 'username')
-		.requiredOption('--password <value>', 'password')
-		.requiredOption('--toAddresses <value>', 'toAddresses')
-		.requiredOption('--fromAddress <value>', 'fromAddress')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["smtpPort"] != null) opts["smtpPort"] = Number(opts["smtpPort"]);
-			const data = await apiPost("notification.testEmailConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-email-connection")
+		.description("Test Email Connection")
+		.option("--smtpServer <value>", "Smtp Server [required]")
+		.option("--smtpPort <value>", "Smtp Port [required]")
+		.option("--username <value>", "Username [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--toAddresses <json>", "To Addresses [required] (JSON array)")
+		.option("--fromAddress <value>", "From Address [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testEmailConnection", "post", options, { required: ["smtpServer","smtpPort","username","password","toAddresses","fromAddress"], types: {"smtpPort":"number","toAddresses":"array"} }),
+		);
 	g_notification
-		.command('test-gotify-connection')
-		.description('notification testGotifyConnection')
-		.requiredOption('--serverUrl <value>', 'serverUrl')
-		.requiredOption('--appToken <value>', 'appToken')
-		.requiredOption('--priority <value>', 'priority')
-		.option('--decoration', 'decoration')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["priority"] != null) opts["priority"] = Number(opts["priority"]);
-			if (opts["decoration"] != null) opts["decoration"] = opts["decoration"] === true || opts["decoration"] === "true";
-			const data = await apiPost("notification.testGotifyConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-gotify-connection")
+		.description("Test Gotify Connection")
+		.option("--serverUrl <value>", "Server Url [required]")
+		.option("--appToken <value>", "App Token [required]")
+		.option("--priority <value>", "Priority [required]")
+		.option("--decoration [boolean]", "Decoration")
+		.option("--no-decoration", "Set decoration to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testGotifyConnection", "post", options, { required: ["serverUrl","appToken","priority"], types: {"decoration":"boolean","priority":"number"} }),
+		);
 	g_notification
-		.command('test-lark-connection')
-		.description('notification testLarkConnection')
-		.requiredOption('--webhookUrl <value>', 'webhookUrl')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("notification.testLarkConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-lark-connection")
+		.description("Test Lark Connection")
+		.option("--webhookUrl <value>", "Webhook Url [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testLarkConnection", "post", options, { required: ["webhookUrl"] }),
+		);
 	g_notification
-		.command('test-mattermost-connection')
-		.description('notification testMattermostConnection')
-		.requiredOption('--webhookUrl <value>', 'webhookUrl')
-		.option('--channel <value>', 'channel')
-		.option('--username <value>', 'username')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("notification.testMattermostConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-mattermost-connection")
+		.description("Test Mattermost Connection")
+		.option("--webhookUrl <value>", "Webhook Url [required]")
+		.option("--channel <value>", "Channel")
+		.option("--username <value>", "Username")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testMattermostConnection", "post", options, { required: ["webhookUrl"] }),
+		);
 	g_notification
-		.command('test-ntfy-connection')
-		.description('notification testNtfyConnection')
-		.requiredOption('--serverUrl <value>', 'serverUrl')
-		.requiredOption('--topic <value>', 'topic')
-		.requiredOption('--accessToken <value>', 'accessToken')
-		.requiredOption('--priority <value>', 'priority')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["priority"] != null) opts["priority"] = Number(opts["priority"]);
-			const data = await apiPost("notification.testNtfyConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-ntfy-connection")
+		.description("Test Ntfy Connection")
+		.option("--serverUrl <value>", "Server Url [required]")
+		.option("--topic <value>", "Topic [required]")
+		.option("--accessToken <value>", "Access Token [required]")
+		.option("--priority <value>", "Priority [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testNtfyConnection", "post", options, { required: ["serverUrl","topic","accessToken","priority"], types: {"priority":"number"} }),
+		);
 	g_notification
-		.command('test-pushover-connection')
-		.description('notification testPushoverConnection')
-		.requiredOption('--userKey <value>', 'userKey')
-		.requiredOption('--apiToken <value>', 'apiToken')
-		.requiredOption('--priority <value>', 'priority')
-		.option('--retry <value>', 'retry')
-		.option('--expire <value>', 'expire')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["priority"] != null) opts["priority"] = Number(opts["priority"]);
-			if (opts["retry"] != null) opts["retry"] = Number(opts["retry"]);
-			if (opts["expire"] != null) opts["expire"] = Number(opts["expire"]);
-			const data = await apiPost("notification.testPushoverConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-pushover-connection")
+		.description("Test Pushover Connection")
+		.option("--userKey <value>", "User Key [required]")
+		.option("--apiToken <value>", "Api Token [required]")
+		.option("--priority <value>", "Priority [required]")
+		.option("--retry <value>", "Retry (nullable: pass \"null\")")
+		.option("--expire <value>", "Expire (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testPushoverConnection", "post", options, { required: ["userKey","apiToken","priority"], types: {"expire":"number?","priority":"number","retry":"number?"} }),
+		);
 	g_notification
-		.command('test-resend-connection')
-		.description('notification testResendConnection')
-		.requiredOption('--apiKey <value>', 'apiKey')
-		.requiredOption('--fromAddress <value>', 'fromAddress')
-		.requiredOption('--toAddresses <value>', 'toAddresses')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("notification.testResendConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-resend-connection")
+		.description("Test Resend Connection")
+		.option("--apiKey <value>", "Api Key [required]")
+		.option("--fromAddress <value>", "From Address [required]")
+		.option("--toAddresses <json>", "To Addresses [required] (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testResendConnection", "post", options, { required: ["apiKey","fromAddress","toAddresses"], types: {"toAddresses":"array"} }),
+		);
 	g_notification
-		.command('test-slack-connection')
-		.description('notification testSlackConnection')
-		.requiredOption('--webhookUrl <value>', 'webhookUrl')
-		.requiredOption('--channel <value>', 'channel')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("notification.testSlackConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-slack-connection")
+		.description("Test Slack Connection")
+		.option("--webhookUrl <value>", "Webhook Url [required]")
+		.option("--channel <value>", "Channel [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testSlackConnection", "post", options, { required: ["webhookUrl","channel"] }),
+		);
 	g_notification
-		.command('test-teams-connection')
-		.description('notification testTeamsConnection')
-		.requiredOption('--webhookUrl <value>', 'webhookUrl')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("notification.testTeamsConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-teams-connection")
+		.description("Test Teams Connection")
+		.option("--webhookUrl <value>", "Webhook Url [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testTeamsConnection", "post", options, { required: ["webhookUrl"] }),
+		);
 	g_notification
-		.command('test-telegram-connection')
-		.description('notification testTelegramConnection')
-		.requiredOption('--botToken <value>', 'botToken')
-		.requiredOption('--chatId <value>', 'chatId')
-		.requiredOption('--messageThreadId <value>', 'messageThreadId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("notification.testTelegramConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-telegram-connection")
+		.description("Test Telegram Connection")
+		.option("--botToken <value>", "Bot Token [required]")
+		.option("--chatId <value>", "Chat Id [required]")
+		.option("--messageThreadId <value>", "Message Thread Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.testTelegramConnection", "post", options, { required: ["botToken","chatId","messageThreadId"] }),
+		);
 	g_notification
-		.command('update-custom')
-		.description('notification updateCustom')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--endpoint <value>', 'endpoint')
-		.option('--headers <value>', 'headers')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--customId <value>', 'customId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.updateCustom", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-custom")
+		.description("Update Custom")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--endpoint <value>", "Endpoint")
+		.option("--headers <json>", "Headers (JSON object)")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--customId <value>", "Custom Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateCustom", "post", options, { required: ["notificationId","customId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","headers":"object","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-discord')
-		.description('notification updateDiscord')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--webhookUrl <value>', 'webhookUrl')
-		.option('--decoration', 'decoration')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--discordId <value>', 'discordId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			if (opts["decoration"] != null) opts["decoration"] = opts["decoration"] === true || opts["decoration"] === "true";
-			const data = await apiPost("notification.updateDiscord", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-discord")
+		.description("Update Discord")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--webhookUrl <value>", "Webhook Url")
+		.option("--decoration [boolean]", "Decoration")
+		.option("--no-decoration", "Set decoration to false")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--discordId <value>", "Discord Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateDiscord", "post", options, { required: ["notificationId","discordId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","decoration":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-email')
-		.description('notification updateEmail')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--smtpServer <value>', 'smtpServer')
-		.option('--smtpPort <value>', 'smtpPort')
-		.option('--username <value>', 'username')
-		.option('--password <value>', 'password')
-		.option('--fromAddress <value>', 'fromAddress')
-		.option('--toAddresses <value>', 'toAddresses')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--emailId <value>', 'emailId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			if (opts["smtpPort"] != null) opts["smtpPort"] = Number(opts["smtpPort"]);
-			const data = await apiPost("notification.updateEmail", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-email")
+		.description("Update Email")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--smtpServer <value>", "Smtp Server")
+		.option("--smtpPort <value>", "Smtp Port")
+		.option("--username <value>", "Username")
+		.option("--password <value>", "Password")
+		.option("--fromAddress <value>", "From Address")
+		.option("--toAddresses <json>", "To Addresses (JSON array)")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--emailId <value>", "Email Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateEmail", "post", options, { required: ["notificationId","emailId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","smtpPort":"number","toAddresses":"array","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-gotify')
-		.description('notification updateGotify')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--serverUrl <value>', 'serverUrl')
-		.option('--appToken <value>', 'appToken')
-		.option('--priority <value>', 'priority')
-		.option('--decoration', 'decoration')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--gotifyId <value>', 'gotifyId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			if (opts["priority"] != null) opts["priority"] = Number(opts["priority"]);
-			if (opts["decoration"] != null) opts["decoration"] = opts["decoration"] === true || opts["decoration"] === "true";
-			const data = await apiPost("notification.updateGotify", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-gotify")
+		.description("Update Gotify")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--serverUrl <value>", "Server Url")
+		.option("--appToken <value>", "App Token")
+		.option("--priority <value>", "Priority")
+		.option("--decoration [boolean]", "Decoration")
+		.option("--no-decoration", "Set decoration to false")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--gotifyId <value>", "Gotify Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateGotify", "post", options, { required: ["notificationId","gotifyId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","decoration":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","priority":"number","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-lark')
-		.description('notification updateLark')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--webhookUrl <value>', 'webhookUrl')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--larkId <value>', 'larkId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.updateLark", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-lark")
+		.description("Update Lark")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--webhookUrl <value>", "Webhook Url")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--larkId <value>", "Lark Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateLark", "post", options, { required: ["notificationId","larkId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-mattermost')
-		.description('notification updateMattermost')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--webhookUrl <value>', 'webhookUrl')
-		.option('--channel <value>', 'channel')
-		.option('--username <value>', 'username')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--mattermostId <value>', 'mattermostId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.updateMattermost", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-mattermost")
+		.description("Update Mattermost")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--webhookUrl <value>", "Webhook Url")
+		.option("--channel <value>", "Channel")
+		.option("--username <value>", "Username")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--mattermostId <value>", "Mattermost Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateMattermost", "post", options, { required: ["notificationId","mattermostId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-ntfy')
-		.description('notification updateNtfy')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--serverUrl <value>', 'serverUrl')
-		.option('--topic <value>', 'topic')
-		.option('--accessToken <value>', 'accessToken')
-		.option('--priority <value>', 'priority')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--ntfyId <value>', 'ntfyId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			if (opts["priority"] != null) opts["priority"] = Number(opts["priority"]);
-			const data = await apiPost("notification.updateNtfy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-ntfy")
+		.description("Update Ntfy")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--serverUrl <value>", "Server Url")
+		.option("--topic <value>", "Topic")
+		.option("--accessToken <value>", "Access Token")
+		.option("--priority <value>", "Priority")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--ntfyId <value>", "Ntfy Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateNtfy", "post", options, { required: ["notificationId","ntfyId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","priority":"number","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-pushover')
-		.description('notification updatePushover')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--pushoverId <value>', 'pushoverId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--userKey <value>', 'userKey')
-		.option('--apiToken <value>', 'apiToken')
-		.option('--priority <value>', 'priority')
-		.option('--retry <value>', 'retry')
-		.option('--expire <value>', 'expire')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["priority"] != null) opts["priority"] = Number(opts["priority"]);
-			if (opts["retry"] != null) opts["retry"] = Number(opts["retry"]);
-			if (opts["expire"] != null) opts["expire"] = Number(opts["expire"]);
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.updatePushover", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-pushover")
+		.description("Update Pushover")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--pushoverId <value>", "Pushover Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--userKey <value>", "User Key")
+		.option("--apiToken <value>", "Api Token")
+		.option("--priority <value>", "Priority")
+		.option("--retry <value>", "Retry (nullable: pass \"null\")")
+		.option("--expire <value>", "Expire (nullable: pass \"null\")")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updatePushover", "post", options, { required: ["notificationId","pushoverId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","expire":"number?","notployBackup":"boolean","notployRestart":"boolean","priority":"number","retry":"number?","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-resend')
-		.description('notification updateResend')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--apiKey <value>', 'apiKey')
-		.option('--fromAddress <value>', 'fromAddress')
-		.option('--toAddresses <value>', 'toAddresses')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--resendId <value>', 'resendId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.updateResend", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-resend")
+		.description("Update Resend")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--apiKey <value>", "Api Key")
+		.option("--fromAddress <value>", "From Address")
+		.option("--toAddresses <json>", "To Addresses (JSON array)")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--resendId <value>", "Resend Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateResend", "post", options, { required: ["notificationId","resendId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","toAddresses":"array","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-slack')
-		.description('notification updateSlack')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--webhookUrl <value>', 'webhookUrl')
-		.option('--channel <value>', 'channel')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--slackId <value>', 'slackId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.updateSlack", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-slack")
+		.description("Update Slack")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--webhookUrl <value>", "Webhook Url")
+		.option("--channel <value>", "Channel")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--slackId <value>", "Slack Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateSlack", "post", options, { required: ["notificationId","slackId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-teams')
-		.description('notification updateTeams')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--webhookUrl <value>', 'webhookUrl')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--teamsId <value>', 'teamsId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.updateTeams", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-teams")
+		.description("Update Teams")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--webhookUrl <value>", "Webhook Url")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--teamsId <value>", "Teams Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateTeams", "post", options, { required: ["notificationId","teamsId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
 	g_notification
-		.command('update-telegram')
-		.description('notification updateTelegram')
-		.option('--appBuildError', 'appBuildError')
-		.option('--databaseBackup', 'databaseBackup')
-		.option('--notployBackup', 'notployBackup')
-		.option('--volumeBackup', 'volumeBackup')
-		.option('--notployRestart', 'notployRestart')
-		.option('--name <value>', 'name')
-		.option('--appDeploy', 'appDeploy')
-		.option('--dockerCleanup', 'dockerCleanup')
-		.option('--serverThreshold', 'serverThreshold')
-		.option('--botToken <value>', 'botToken')
-		.option('--chatId <value>', 'chatId')
-		.option('--messageThreadId <value>', 'messageThreadId')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.requiredOption('--telegramId <value>', 'telegramId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["appBuildError"] != null) opts["appBuildError"] = opts["appBuildError"] === true || opts["appBuildError"] === "true";
-			if (opts["databaseBackup"] != null) opts["databaseBackup"] = opts["databaseBackup"] === true || opts["databaseBackup"] === "true";
-			if (opts["notployBackup"] != null) opts["notployBackup"] = opts["notployBackup"] === true || opts["notployBackup"] === "true";
-			if (opts["volumeBackup"] != null) opts["volumeBackup"] = opts["volumeBackup"] === true || opts["volumeBackup"] === "true";
-			if (opts["notployRestart"] != null) opts["notployRestart"] = opts["notployRestart"] === true || opts["notployRestart"] === "true";
-			if (opts["appDeploy"] != null) opts["appDeploy"] = opts["appDeploy"] === true || opts["appDeploy"] === "true";
-			if (opts["dockerCleanup"] != null) opts["dockerCleanup"] = opts["dockerCleanup"] === true || opts["dockerCleanup"] === "true";
-			if (opts["serverThreshold"] != null) opts["serverThreshold"] = opts["serverThreshold"] === true || opts["serverThreshold"] === "true";
-			const data = await apiPost("notification.updateTelegram", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_organization = program.command('organization').description('organization commands');
-
+		.command("update-telegram")
+		.description("Update Telegram")
+		.option("--appBuildError [boolean]", "App Build Error")
+		.option("--no-appBuildError", "Set appBuildError to false")
+		.option("--databaseBackup [boolean]", "Database Backup")
+		.option("--no-databaseBackup", "Set databaseBackup to false")
+		.option("--notployBackup [boolean]", "Notploy Backup")
+		.option("--no-notployBackup", "Set notployBackup to false")
+		.option("--volumeBackup [boolean]", "Volume Backup")
+		.option("--no-volumeBackup", "Set volumeBackup to false")
+		.option("--notployRestart [boolean]", "Notploy Restart")
+		.option("--no-notployRestart", "Set notployRestart to false")
+		.option("--name <value>", "Name")
+		.option("--appDeploy [boolean]", "App Deploy")
+		.option("--no-appDeploy", "Set appDeploy to false")
+		.option("--dockerCleanup [boolean]", "Docker Cleanup")
+		.option("--no-dockerCleanup", "Set dockerCleanup to false")
+		.option("--serverThreshold [boolean]", "Server Threshold")
+		.option("--no-serverThreshold", "Set serverThreshold to false")
+		.option("--botToken <value>", "Bot Token")
+		.option("--chatId <value>", "Chat Id")
+		.option("--messageThreadId <value>", "Message Thread Id")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--telegramId <value>", "Telegram Id [required]")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "notification.updateTelegram", "post", options, { required: ["notificationId","telegramId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
+	const g_organization = program.command("organization").description("organization commands");
 	g_organization
-		.command('active')
-		.description('organization active')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("organization.active", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("active")
+		.description("Active")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.active", "get", options),
+		);
 	g_organization
-		.command('all')
-		.description('organization all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("organization.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.all", "get", options),
+		);
 	g_organization
-		.command('all-invitations')
-		.description('organization allInvitations')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("organization.allInvitations", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all-invitations")
+		.description("All Invitations")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.allInvitations", "get", options),
+		);
 	g_organization
-		.command('create')
-		.description('organization create')
-		.requiredOption('--name <value>', 'name')
-		.option('--logo <value>', 'logo')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("organization.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--logo <value>", "Logo")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.create", "post", options, { required: ["name"] }),
+		);
 	g_organization
-		.command('delete')
-		.description('organization delete')
-		.requiredOption('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("organization.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--organizationId <value>", "Organization Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.delete", "post", options, { required: ["organizationId"] }),
+		);
 	g_organization
-		.command('invite-member')
-		.description('organization inviteMember')
-		.requiredOption('--email <value>', 'email')
-		.requiredOption('--role <value>', 'role')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("organization.inviteMember", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("invite-member")
+		.description("Invite Member")
+		.option("--email <value>", "Email [required]")
+		.option("--role <value>", "Role [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.inviteMember", "post", options, { required: ["email","role"] }),
+		);
 	g_organization
-		.command('one')
-		.description('organization one')
-		.requiredOption('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("organization.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--organizationId <value>", "Organization Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.one", "get", options, { required: ["organizationId"] }),
+		);
 	g_organization
-		.command('remove-invitation')
-		.description('organization removeInvitation')
-		.requiredOption('--invitationId <value>', 'invitationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("organization.removeInvitation", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove-invitation")
+		.description("Remove Invitation")
+		.option("--invitationId <value>", "Invitation Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.removeInvitation", "post", options, { required: ["invitationId"] }),
+		);
 	g_organization
-		.command('set-default')
-		.description('organization setDefault')
-		.requiredOption('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("organization.setDefault", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("set-default")
+		.description("Set Default")
+		.option("--organizationId <value>", "Organization Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.setDefault", "post", options, { required: ["organizationId"] }),
+		);
 	g_organization
-		.command('update')
-		.description('organization update')
-		.requiredOption('--organizationId <value>', 'organizationId')
-		.requiredOption('--name <value>', 'name')
-		.option('--logo <value>', 'logo')
-		.option('--defaultRole <value>', 'defaultRole')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("organization.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update")
+		.description("Update")
+		.option("--organizationId <value>", "Organization Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--logo <value>", "Logo")
+		.option("--defaultRole <value>", "Default Role (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.update", "post", options, { required: ["organizationId","name"], types: {"defaultRole":"string?"} }),
+		);
 	g_organization
-		.command('update-member-role')
-		.description('organization updateMemberRole')
-		.requiredOption('--memberId <value>', 'memberId')
-		.requiredOption('--role <value>', 'role')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("organization.updateMemberRole", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_overview = program.command('overview').description('overview commands');
-
+		.command("update-member-role")
+		.description("Update Member Role")
+		.option("--memberId <value>", "Member Id [required]")
+		.option("--role <value>", "Role [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "organization.updateMemberRole", "post", options, { required: ["memberId","role"] }),
+		);
+	const g_overview = program.command("overview").description("overview commands");
 	g_overview
-		.command('backups')
-		.description('overview backups')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("overview.backups", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("backups")
+		.description("Backups")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "overview.backups", "get", options),
+		);
 	g_overview
-		.command('domains')
-		.description('overview domains')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("overview.domains", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("domains")
+		.description("Domains")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "overview.domains", "get", options),
+		);
 	g_overview
-		.command('services')
-		.description('overview services')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("overview.services", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_patch = program.command('patch').description('patch commands');
-
+		.command("services")
+		.description("Services")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "overview.services", "get", options),
+		);
+	const g_patch = program.command("patch").description("patch commands");
 	g_patch
-		.command('by-entity-id')
-		.description('patch byEntityId')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--type <value>', 'type (application, compose)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("patch.byEntityId", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("by-entity-id")
+		.description("By Entity Id")
+		.option("--id <value>", "Id [required]")
+		.option("--type <value>", "Type [required] (one of: application, compose)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.byEntityId", "get", options, { required: ["id","type"], enums: {"type":["application","compose"]} }),
+		);
 	g_patch
-		.command('clean-patch-repos')
-		.description('patch cleanPatchRepos')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("patch.cleanPatchRepos", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-patch-repos")
+		.description("Clean Patch Repos")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.cleanPatchRepos", "post", options),
+		);
 	g_patch
-		.command('create')
-		.description('patch create')
-		.requiredOption('--filePath <value>', 'filePath')
-		.requiredOption('--content <value>', 'content')
-		.option('--type <value>', 'type (create, update, delete)')
-		.option('--enabled', 'enabled')
-		.option('--applicationId <value>', 'applicationId')
-		.option('--composeId <value>', 'composeId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			const data = await apiPost("patch.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--filePath <value>", "File Path [required]")
+		.option("--content <value>", "Content [required]")
+		.option("--type <value>", "Type (one of: create, update, delete)")
+		.option("--enabled [boolean]", "Enabled")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--applicationId <value>", "Application Id (nullable: pass \"null\")")
+		.option("--composeId <value>", "Compose Id (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.create", "post", options, { required: ["filePath","content"], types: {"applicationId":"string?","composeId":"string?","enabled":"boolean"}, enums: {"type":["create","update","delete"]} }),
+		);
 	g_patch
-		.command('delete')
-		.description('patch delete')
-		.requiredOption('--patchId <value>', 'patchId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("patch.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--patchId <value>", "Patch Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.delete", "post", options, { required: ["patchId"] }),
+		);
 	g_patch
-		.command('ensure-repo')
-		.description('patch ensureRepo')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--type <value>', 'type (application, compose)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("patch.ensureRepo", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("ensure-repo")
+		.description("Ensure Repo")
+		.option("--id <value>", "Id [required]")
+		.option("--type <value>", "Type [required] (one of: application, compose)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.ensureRepo", "post", options, { required: ["id","type"], enums: {"type":["application","compose"]} }),
+		);
 	g_patch
-		.command('mark-file-for-deletion')
-		.description('patch markFileForDeletion')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--type <value>', 'type (application, compose)')
-		.requiredOption('--filePath <value>', 'filePath')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("patch.markFileForDeletion", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("mark-file-for-deletion")
+		.description("Mark File For Deletion")
+		.option("--id <value>", "Id [required]")
+		.option("--type <value>", "Type [required] (one of: application, compose)")
+		.option("--filePath <value>", "File Path [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.markFileForDeletion", "post", options, { required: ["id","type","filePath"], enums: {"type":["application","compose"]} }),
+		);
 	g_patch
-		.command('one')
-		.description('patch one')
-		.requiredOption('--patchId <value>', 'patchId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("patch.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--patchId <value>", "Patch Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.one", "get", options, { required: ["patchId"] }),
+		);
 	g_patch
-		.command('read-repo-directories')
-		.description('patch readRepoDirectories')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--type <value>', 'type (application, compose)')
-		.requiredOption('--repoPath <value>', 'repoPath')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("patch.readRepoDirectories", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-repo-directories")
+		.description("Read Repo Directories")
+		.option("--id <value>", "Id [required]")
+		.option("--type <value>", "Type [required] (one of: application, compose)")
+		.option("--repoPath <value>", "Repo Path [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.readRepoDirectories", "get", options, { required: ["id","type","repoPath"], enums: {"type":["application","compose"]} }),
+		);
 	g_patch
-		.command('read-repo-file')
-		.description('patch readRepoFile')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--type <value>', 'type (application, compose)')
-		.requiredOption('--filePath <value>', 'filePath')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("patch.readRepoFile", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-repo-file")
+		.description("Read Repo File")
+		.option("--id <value>", "Id [required]")
+		.option("--type <value>", "Type [required] (one of: application, compose)")
+		.option("--filePath <value>", "File Path [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.readRepoFile", "get", options, { required: ["id","type","filePath"], enums: {"type":["application","compose"]} }),
+		);
 	g_patch
-		.command('save-file-as-patch')
-		.description('patch saveFileAsPatch')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--type <value>', 'type (application, compose)')
-		.requiredOption('--filePath <value>', 'filePath')
-		.requiredOption('--content <value>', 'content')
-		.option('--patchType <value>', 'patchType (create, update)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("patch.saveFileAsPatch", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-file-as-patch")
+		.description("Save File As Patch")
+		.option("--id <value>", "Id [required]")
+		.option("--type <value>", "Type [required] (one of: application, compose)")
+		.option("--filePath <value>", "File Path [required]")
+		.option("--content <value>", "Content [required]")
+		.option("--patchType <value>", "Patch Type (one of: create, update) (default: \"update\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.saveFileAsPatch", "post", options, { required: ["id","type","filePath","content"], enums: {"patchType":["create","update"],"type":["application","compose"]} }),
+		);
 	g_patch
-		.command('toggle-enabled')
-		.description('patch toggleEnabled')
-		.requiredOption('--patchId <value>', 'patchId')
-		.requiredOption('--enabled', 'enabled')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			const data = await apiPost("patch.toggleEnabled", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("toggle-enabled")
+		.description("Toggle Enabled")
+		.option("--patchId <value>", "Patch Id [required]")
+		.option("--enabled [boolean]", "Enabled [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.toggleEnabled", "post", options, { required: ["patchId","enabled"], types: {"enabled":"boolean"} }),
+		);
 	g_patch
-		.command('update')
-		.description('patch update')
-		.requiredOption('--patchId <value>', 'patchId')
-		.option('--type <value>', 'type (create, update, delete)')
-		.option('--filePath <value>', 'filePath')
-		.option('--enabled', 'enabled')
-		.option('--content <value>', 'content')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--updatedAt <value>', 'updatedAt')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			const data = await apiPost("patch.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_port = program.command('port').description('port commands');
-
+		.command("update")
+		.description("Update")
+		.option("--patchId <value>", "Patch Id [required]")
+		.option("--type <value>", "Type (one of: create, update, delete)")
+		.option("--filePath <value>", "File Path")
+		.option("--enabled [boolean]", "Enabled")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--content <value>", "Content")
+		.option("--createdAt <value>", "Created At")
+		.option("--updatedAt <value>", "Updated At (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "patch.update", "post", options, { required: ["patchId"], types: {"enabled":"boolean","updatedAt":"string?"}, enums: {"type":["create","update","delete"]} }),
+		);
+	const g_port = program.command("port").description("port commands");
 	g_port
-		.command('create')
-		.description('port create')
-		.requiredOption('--publishedPort <value>', 'publishedPort')
-		.requiredOption('--publishMode <value>', 'publishMode (ingress, host)')
-		.requiredOption('--targetPort <value>', 'targetPort')
-		.requiredOption('--protocol <value>', 'protocol (tcp, udp)')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["publishedPort"] != null) opts["publishedPort"] = Number(opts["publishedPort"]);
-			if (opts["targetPort"] != null) opts["targetPort"] = Number(opts["targetPort"]);
-			const data = await apiPost("port.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--publishedPort <value>", "Published Port [required]")
+		.option("--publishMode <value>", "Publish Mode [required] (one of: ingress, host) (default: \"ingress\")")
+		.option("--targetPort <value>", "Target Port [required]")
+		.option("--protocol <value>", "Protocol [required] (one of: tcp, udp) (default: \"tcp\")")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "port.create", "post", options, { required: ["publishedPort","publishMode","targetPort","protocol","applicationId"], types: {"publishedPort":"number","targetPort":"number"}, enums: {"protocol":["tcp","udp"],"publishMode":["ingress","host"]} }),
+		);
 	g_port
-		.command('delete')
-		.description('port delete')
-		.requiredOption('--portId <value>', 'portId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("port.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--portId <value>", "Port Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "port.delete", "post", options, { required: ["portId"] }),
+		);
 	g_port
-		.command('one')
-		.description('port one')
-		.requiredOption('--portId <value>', 'portId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("port.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--portId <value>", "Port Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "port.one", "get", options, { required: ["portId"] }),
+		);
 	g_port
-		.command('update')
-		.description('port update')
-		.requiredOption('--portId <value>', 'portId')
-		.requiredOption('--publishedPort <value>', 'publishedPort')
-		.requiredOption('--publishMode <value>', 'publishMode (ingress, host)')
-		.requiredOption('--targetPort <value>', 'targetPort')
-		.requiredOption('--protocol <value>', 'protocol (tcp, udp)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["publishedPort"] != null) opts["publishedPort"] = Number(opts["publishedPort"]);
-			if (opts["targetPort"] != null) opts["targetPort"] = Number(opts["targetPort"]);
-			const data = await apiPost("port.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_postgres = program.command('postgres').description('postgres commands');
-
+		.command("update")
+		.description("Update")
+		.option("--portId <value>", "Port Id [required]")
+		.option("--publishedPort <value>", "Published Port [required]")
+		.option("--publishMode <value>", "Publish Mode [required] (one of: ingress, host) (default: \"ingress\")")
+		.option("--targetPort <value>", "Target Port [required]")
+		.option("--protocol <value>", "Protocol [required] (one of: tcp, udp) (default: \"tcp\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "port.update", "post", options, { required: ["portId","publishedPort","publishMode","targetPort","protocol"], types: {"publishedPort":"number","targetPort":"number"}, enums: {"protocol":["tcp","udp"],"publishMode":["ingress","host"]} }),
+		);
+	const g_postgres = program.command("postgres").description("postgres commands");
 	g_postgres
-		.command('change-password')
-		.description('postgres changePassword')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.requiredOption('--password <value>', 'password')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.changePassword", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-password")
+		.description("Change Password")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.changePassword", "post", options, { required: ["postgresId","password"] }),
+		);
 	g_postgres
-		.command('change-status')
-		.description('postgres changeStatus')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.requiredOption('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.changeStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-status")
+		.description("Change Status")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--applicationStatus <value>", "Application Status [required] (one of: idle, running, done, error)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.changeStatus", "post", options, { required: ["postgresId","applicationStatus"], enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
 	g_postgres
-		.command('create')
-		.description('postgres create')
-		.requiredOption('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.requiredOption('--databaseName <value>', 'databaseName')
-		.requiredOption('--databaseUser <value>', 'databaseUser')
-		.requiredOption('--databasePassword <value>', 'databasePassword')
-		.option('--dockerImage <value>', 'dockerImage')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--description <value>', 'description')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--appName <value>", "App Name")
+		.option("--databaseName <value>", "Database Name [required]")
+		.option("--databaseUser <value>", "Database User [required]")
+		.option("--databasePassword <value>", "Database Password [required]")
+		.option("--dockerImage <value>", "Docker Image (default: \"postgres:18\")")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.create", "post", options, { required: ["name","databaseName","databaseUser","databasePassword","environmentId"], types: {"description":"string?","serverId":"string?"} }),
+		);
 	g_postgres
-		.command('deploy')
-		.description('postgres deploy')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.deploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy")
+		.description("Deploy")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.deploy", "post", options, { required: ["postgresId"] }),
+		);
 	g_postgres
-		.command('move')
-		.description('postgres move')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.requiredOption('--targetEnvironmentId <value>', 'targetEnvironmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.move", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("move")
+		.description("Move")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--targetEnvironmentId <value>", "Target Environment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.move", "post", options, { required: ["postgresId","targetEnvironmentId"] }),
+		);
 	g_postgres
-		.command('one')
-		.description('postgres one')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("postgres.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.one", "get", options, { required: ["postgresId"] }),
+		);
 	g_postgres
-		.command('read-logs')
-		.description('postgres readLogs')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.option('--tail <value>', 'tail')
-		.option('--since <value>', 'since')
-		.option('--search <value>', 'search')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["tail"] != null) opts["tail"] = Number(opts["tail"]);
-			const data = await apiGet("postgres.readLogs", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-logs")
+		.description("Read Logs")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--tail <value>", "Tail (default: 100)")
+		.option("--since <value>", "Since (default: \"all\")")
+		.option("--search <value>", "Search")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.readLogs", "get", options, { required: ["postgresId"], types: {"tail":"number"} }),
+		);
 	g_postgres
-		.command('rebuild')
-		.description('postgres rebuild')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.rebuild", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("rebuild")
+		.description("Rebuild")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.rebuild", "post", options, { required: ["postgresId"] }),
+		);
 	g_postgres
-		.command('reload')
-		.description('postgres reload')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.reload", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("reload")
+		.description("Reload")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--appName <value>", "App Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.reload", "post", options, { required: ["postgresId","appName"] }),
+		);
 	g_postgres
-		.command('remove')
-		.description('postgres remove')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.remove", "post", options, { required: ["postgresId"] }),
+		);
 	g_postgres
-		.command('save-environment')
-		.description('postgres saveEnvironment')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.requiredOption('--env <value>', 'env')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.saveEnvironment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-environment")
+		.description("Save Environment")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--env <value>", "Env [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.saveEnvironment", "post", options, { required: ["postgresId","env"], types: {"env":"string?"} }),
+		);
 	g_postgres
-		.command('save-external-port')
-		.description('postgres saveExternalPort')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.requiredOption('--externalPort <value>', 'externalPort')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			const data = await apiPost("postgres.saveExternalPort", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-external-port")
+		.description("Save External Port")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--externalPort <value>", "External Port [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.saveExternalPort", "post", options, { required: ["postgresId","externalPort"], types: {"externalPort":"number?"} }),
+		);
 	g_postgres
-		.command('search')
-		.description('postgres search')
-		.option('--q <value>', 'q')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--projectId <value>', 'projectId')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--limit <value>', 'limit')
-		.option('--offset <value>', 'offset')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["limit"] != null) opts["limit"] = Number(opts["limit"]);
-			if (opts["offset"] != null) opts["offset"] = Number(opts["offset"]);
-			const data = await apiGet("postgres.search", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("search")
+		.description("Search")
+		.option("--q <value>", "Q")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description")
+		.option("--projectId <value>", "Project Id")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--limit <value>", "Limit (default: 20)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.search", "get", options, { types: {"limit":"number","offset":"number"} }),
+		);
 	g_postgres
-		.command('start')
-		.description('postgres start')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.start", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("start")
+		.description("Start")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.start", "post", options, { required: ["postgresId"] }),
+		);
 	g_postgres
-		.command('stop')
-		.description('postgres stop')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("postgres.stop", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("stop")
+		.description("Stop")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.stop", "post", options, { required: ["postgresId"] }),
+		);
 	g_postgres
-		.command('update')
-		.description('postgres update')
-		.requiredOption('--postgresId <value>', 'postgresId')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--databaseName <value>', 'databaseName')
-		.option('--databaseUser <value>', 'databaseUser')
-		.option('--databasePassword <value>', 'databasePassword')
-		.option('--description <value>', 'description')
-		.option('--dockerImage <value>', 'dockerImage')
-		.option('--command <value>', 'command')
-		.option('--args <value>', 'args')
-		.option('--env <value>', 'env')
-		.option('--memoryReservation <value>', 'memoryReservation')
-		.option('--externalPort <value>', 'externalPort')
-		.option('--memoryLimit <value>', 'memoryLimit')
-		.option('--cpuReservation <value>', 'cpuReservation')
-		.option('--cpuLimit <value>', 'cpuLimit')
-		.option('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--healthCheckSwarm <value>', 'healthCheckSwarm')
-		.option('--restartPolicySwarm <value>', 'restartPolicySwarm')
-		.option('--placementSwarm <value>', 'placementSwarm')
-		.option('--updateConfigSwarm <value>', 'updateConfigSwarm')
-		.option('--rollbackConfigSwarm <value>', 'rollbackConfigSwarm')
-		.option('--modeSwarm <value>', 'modeSwarm')
-		.option('--labelsSwarm <value>', 'labelsSwarm')
-		.option('--networkSwarm <value>', 'networkSwarm')
-		.option('--stopGracePeriodSwarm <value>', 'stopGracePeriodSwarm')
-		.option('--endpointSpecSwarm <value>', 'endpointSpecSwarm')
-		.option('--ulimitsSwarm <value>', 'ulimitsSwarm')
-		.option('--replicas <value>', 'replicas')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--networkIds <value>', 'networkIds')
-		.option('--detachNotployNetwork', 'detachNotployNetwork')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
-			const data = await apiPost("postgres.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_previewDeployment = program.command('preview-deployment').description('preview-deployment commands');
-
+		.command("update")
+		.description("Update")
+		.option("--postgresId <value>", "Postgres Id [required]")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--databaseName <value>", "Database Name")
+		.option("--databaseUser <value>", "Database User")
+		.option("--databasePassword <value>", "Database Password")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--dockerImage <value>", "Docker Image")
+		.option("--command <value>", "Command (nullable: pass \"null\")")
+		.option("--args <json>", "Args (nullable: pass \"null\") (JSON array)")
+		.option("--env <value>", "Env (nullable: pass \"null\")")
+		.option("--memoryReservation <value>", "Memory Reservation (nullable: pass \"null\")")
+		.option("--externalPort <value>", "External Port (nullable: pass \"null\")")
+		.option("--memoryLimit <value>", "Memory Limit (nullable: pass \"null\")")
+		.option("--cpuReservation <value>", "Cpu Reservation (nullable: pass \"null\")")
+		.option("--cpuLimit <value>", "Cpu Limit (nullable: pass \"null\")")
+		.option("--applicationStatus <value>", "Application Status (one of: idle, running, done, error)")
+		.option("--healthCheckSwarm <json>", "Health Check Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--restartPolicySwarm <json>", "Restart Policy Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--placementSwarm <json>", "Placement Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--updateConfigSwarm <json>", "Update Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--rollbackConfigSwarm <json>", "Rollback Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--modeSwarm <json>", "Mode Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--labelsSwarm <json>", "Labels Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--networkSwarm <json>", "Network Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--stopGracePeriodSwarm <value>", "Stop Grace Period Swarm (nullable: pass \"null\")")
+		.option("--endpointSpecSwarm <json>", "Endpoint Spec Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--ulimitsSwarm <json>", "Ulimits Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--replicas <value>", "Replicas")
+		.option("--createdAt <value>", "Created At")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--networkIds <json>", "Network Ids (nullable: pass \"null\") (JSON array)")
+		.option("--detachNotployNetwork [boolean]", "Detach Notploy Network")
+		.option("--no-detachNotployNetwork", "Set detachNotployNetwork to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "postgres.update", "post", options, { required: ["postgresId"], types: {"args":"array?","command":"string?","cpuLimit":"string?","cpuReservation":"string?","description":"string?","detachNotployNetwork":"boolean","endpointSpecSwarm":"object?","env":"string?","externalPort":"number?","healthCheckSwarm":"object?","labelsSwarm":"object?","memoryLimit":"string?","memoryReservation":"string?","modeSwarm":"object?","networkIds":"array?","networkSwarm":"array?","placementSwarm":"object?","replicas":"number","restartPolicySwarm":"object?","rollbackConfigSwarm":"object?","stopGracePeriodSwarm":"number?","ulimitsSwarm":"array?","updateConfigSwarm":"object?"}, enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
+	const g_previewDeployment = program.command("preview-deployment").description("previewDeployment commands");
 	g_previewDeployment
-		.command('all')
-		.description('previewDeployment all')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("previewDeployment.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "previewDeployment.all", "get", options, { required: ["applicationId"] }),
+		);
 	g_previewDeployment
-		.command('delete')
-		.description('previewDeployment delete')
-		.requiredOption('--previewDeploymentId <value>', 'previewDeploymentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("previewDeployment.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--previewDeploymentId <value>", "Preview Deployment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "previewDeployment.delete", "post", options, { required: ["previewDeploymentId"] }),
+		);
 	g_previewDeployment
-		.command('one')
-		.description('previewDeployment one')
-		.requiredOption('--previewDeploymentId <value>', 'previewDeploymentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("previewDeployment.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--previewDeploymentId <value>", "Preview Deployment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "previewDeployment.one", "get", options, { required: ["previewDeploymentId"] }),
+		);
 	g_previewDeployment
-		.command('redeploy')
-		.description('previewDeployment redeploy')
-		.requiredOption('--previewDeploymentId <value>', 'previewDeploymentId')
-		.option('--title <value>', 'title')
-		.option('--description <value>', 'description')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("previewDeployment.redeploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_project = program.command('project').description('project commands');
-
+		.command("redeploy")
+		.description("Redeploy")
+		.option("--previewDeploymentId <value>", "Preview Deployment Id [required]")
+		.option("--title <value>", "Title")
+		.option("--description <value>", "Description")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "previewDeployment.redeploy", "post", options, { required: ["previewDeploymentId"] }),
+		);
+	const g_project = program.command("project").description("project commands");
 	g_project
-		.command('all')
-		.description('project all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("project.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.all", "get", options),
+		);
 	g_project
-		.command('all-for-permissions')
-		.description('project allForPermissions')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("project.allForPermissions", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all-for-permissions")
+		.description("All For Permissions")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.allForPermissions", "get", options),
+		);
 	g_project
-		.command('complete-onboarding')
-		.description('project completeOnboarding')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("project.completeOnboarding", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("complete-onboarding")
+		.description("Complete Onboarding")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.completeOnboarding", "post", options),
+		);
 	g_project
-		.command('create')
-		.description('project create')
-		.requiredOption('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.option('--env <value>', 'env')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("project.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--env <value>", "Env")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.create", "post", options, { required: ["name"], types: {"description":"string?"} }),
+		);
 	g_project
-		.command('duplicate')
-		.description('project duplicate')
-		.requiredOption('--sourceEnvironmentId <value>', 'sourceEnvironmentId')
-		.requiredOption('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.option('--includeServices', 'includeServices')
-		.option('--selectedServices <value>', 'selectedServices')
-		.option('--duplicateInSameProject', 'duplicateInSameProject')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["includeServices"] != null) opts["includeServices"] = opts["includeServices"] === true || opts["includeServices"] === "true";
-			if (opts["duplicateInSameProject"] != null) opts["duplicateInSameProject"] = opts["duplicateInSameProject"] === true || opts["duplicateInSameProject"] === "true";
-			const data = await apiPost("project.duplicate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("duplicate")
+		.description("Duplicate")
+		.option("--sourceEnvironmentId <value>", "Source Environment Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description")
+		.option("--includeServices [boolean]", "Include Services (default: true)")
+		.option("--no-includeServices", "Set includeServices to false")
+		.option("--selectedServices <json>", "Selected Services (JSON array)")
+		.option("--duplicateInSameProject [boolean]", "Duplicate In Same Project (default: false)")
+		.option("--no-duplicateInSameProject", "Set duplicateInSameProject to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.duplicate", "post", options, { required: ["sourceEnvironmentId","name"], types: {"duplicateInSameProject":"boolean","includeServices":"boolean","selectedServices":"array"} }),
+		);
 	g_project
-		.command('home-stats')
-		.description('project homeStats')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("project.homeStats", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("home-stats")
+		.description("Home Stats")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.homeStats", "get", options),
+		);
 	g_project
-		.command('onboarding-status')
-		.description('project onboardingStatus')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("project.onboardingStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("onboarding-status")
+		.description("Onboarding Status")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.onboardingStatus", "get", options),
+		);
 	g_project
-		.command('one')
-		.description('project one')
-		.requiredOption('--projectId <value>', 'projectId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("project.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--projectId <value>", "Project Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.one", "get", options, { required: ["projectId"] }),
+		);
 	g_project
-		.command('remove')
-		.description('project remove')
-		.requiredOption('--projectId <value>', 'projectId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("project.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--projectId <value>", "Project Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.remove", "post", options, { required: ["projectId"] }),
+		);
 	g_project
-		.command('search')
-		.description('project search')
-		.option('--q <value>', 'q')
-		.option('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.option('--limit <value>', 'limit')
-		.option('--offset <value>', 'offset')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["limit"] != null) opts["limit"] = Number(opts["limit"]);
-			if (opts["offset"] != null) opts["offset"] = Number(opts["offset"]);
-			const data = await apiGet("project.search", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("search")
+		.description("Search")
+		.option("--q <value>", "Q")
+		.option("--name <value>", "Name")
+		.option("--description <value>", "Description")
+		.option("--limit <value>", "Limit (default: 20)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.search", "get", options, { types: {"limit":"number","offset":"number"} }),
+		);
 	g_project
-		.command('update')
-		.description('project update')
-		.requiredOption('--projectId <value>', 'projectId')
-		.option('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--env <value>', 'env')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("project.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_redirects = program.command('redirects').description('redirects commands');
-
+		.command("update")
+		.description("Update")
+		.option("--projectId <value>", "Project Id [required]")
+		.option("--name <value>", "Name")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--createdAt <value>", "Created At")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--env <value>", "Env")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "project.update", "post", options, { required: ["projectId"], types: {"description":"string?"} }),
+		);
+	const g_redirects = program.command("redirects").description("redirects commands");
 	g_redirects
-		.command('create')
-		.description('redirects create')
-		.requiredOption('--regex <value>', 'regex')
-		.requiredOption('--replacement <value>', 'replacement')
-		.requiredOption('--permanent', 'permanent')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["permanent"] != null) opts["permanent"] = opts["permanent"] === true || opts["permanent"] === "true";
-			const data = await apiPost("redirects.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--regex <value>", "Regex [required]")
+		.option("--replacement <value>", "Replacement [required]")
+		.option("--permanent [boolean]", "Permanent [required]")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redirects.create", "post", options, { required: ["regex","replacement","permanent","applicationId"], types: {"permanent":"boolean"} }),
+		);
 	g_redirects
-		.command('delete')
-		.description('redirects delete')
-		.requiredOption('--redirectId <value>', 'redirectId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redirects.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--redirectId <value>", "Redirect Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redirects.delete", "post", options, { required: ["redirectId"] }),
+		);
 	g_redirects
-		.command('one')
-		.description('redirects one')
-		.requiredOption('--redirectId <value>', 'redirectId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("redirects.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--redirectId <value>", "Redirect Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redirects.one", "get", options, { required: ["redirectId"] }),
+		);
 	g_redirects
-		.command('update')
-		.description('redirects update')
-		.requiredOption('--redirectId <value>', 'redirectId')
-		.requiredOption('--regex <value>', 'regex')
-		.requiredOption('--replacement <value>', 'replacement')
-		.requiredOption('--permanent', 'permanent')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["permanent"] != null) opts["permanent"] = opts["permanent"] === true || opts["permanent"] === "true";
-			const data = await apiPost("redirects.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_redis = program.command('redis').description('redis commands');
-
+		.command("update")
+		.description("Update")
+		.option("--redirectId <value>", "Redirect Id [required]")
+		.option("--regex <value>", "Regex [required]")
+		.option("--replacement <value>", "Replacement [required]")
+		.option("--permanent [boolean]", "Permanent [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redirects.update", "post", options, { required: ["redirectId","regex","replacement","permanent"], types: {"permanent":"boolean"} }),
+		);
+	const g_redis = program.command("redis").description("redis commands");
 	g_redis
-		.command('change-password')
-		.description('redis changePassword')
-		.requiredOption('--redisId <value>', 'redisId')
-		.requiredOption('--password <value>', 'password')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.changePassword", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-password")
+		.description("Change Password")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.changePassword", "post", options, { required: ["redisId","password"] }),
+		);
 	g_redis
-		.command('change-status')
-		.description('redis changeStatus')
-		.requiredOption('--redisId <value>', 'redisId')
-		.requiredOption('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.changeStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("change-status")
+		.description("Change Status")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--applicationStatus <value>", "Application Status [required] (one of: idle, running, done, error)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.changeStatus", "post", options, { required: ["redisId","applicationStatus"], enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
 	g_redis
-		.command('create')
-		.description('redis create')
-		.requiredOption('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.requiredOption('--databasePassword <value>', 'databasePassword')
-		.option('--dockerImage <value>', 'dockerImage')
-		.requiredOption('--environmentId <value>', 'environmentId')
-		.option('--description <value>', 'description')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--appName <value>", "App Name")
+		.option("--databasePassword <value>", "Database Password [required]")
+		.option("--dockerImage <value>", "Docker Image (default: \"redis:8\")")
+		.option("--environmentId <value>", "Environment Id [required]")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.create", "post", options, { required: ["name","databasePassword","environmentId"], types: {"description":"string?","serverId":"string?"} }),
+		);
 	g_redis
-		.command('deploy')
-		.description('redis deploy')
-		.requiredOption('--redisId <value>', 'redisId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.deploy", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("deploy")
+		.description("Deploy")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.deploy", "post", options, { required: ["redisId"] }),
+		);
 	g_redis
-		.command('move')
-		.description('redis move')
-		.requiredOption('--redisId <value>', 'redisId')
-		.requiredOption('--targetEnvironmentId <value>', 'targetEnvironmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.move", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("move")
+		.description("Move")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--targetEnvironmentId <value>", "Target Environment Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.move", "post", options, { required: ["redisId","targetEnvironmentId"] }),
+		);
 	g_redis
-		.command('one')
-		.description('redis one')
-		.requiredOption('--redisId <value>', 'redisId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("redis.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.one", "get", options, { required: ["redisId"] }),
+		);
 	g_redis
-		.command('read-logs')
-		.description('redis readLogs')
-		.requiredOption('--redisId <value>', 'redisId')
-		.option('--tail <value>', 'tail')
-		.option('--since <value>', 'since')
-		.option('--search <value>', 'search')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["tail"] != null) opts["tail"] = Number(opts["tail"]);
-			const data = await apiGet("redis.readLogs", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-logs")
+		.description("Read Logs")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--tail <value>", "Tail (default: 100)")
+		.option("--since <value>", "Since (default: \"all\")")
+		.option("--search <value>", "Search")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.readLogs", "get", options, { required: ["redisId"], types: {"tail":"number"} }),
+		);
 	g_redis
-		.command('rebuild')
-		.description('redis rebuild')
-		.requiredOption('--redisId <value>', 'redisId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.rebuild", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("rebuild")
+		.description("Rebuild")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.rebuild", "post", options, { required: ["redisId"] }),
+		);
 	g_redis
-		.command('reload')
-		.description('redis reload')
-		.requiredOption('--redisId <value>', 'redisId')
-		.requiredOption('--appName <value>', 'appName')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.reload", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("reload")
+		.description("Reload")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--appName <value>", "App Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.reload", "post", options, { required: ["redisId","appName"] }),
+		);
 	g_redis
-		.command('remove')
-		.description('redis remove')
-		.requiredOption('--redisId <value>', 'redisId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.remove", "post", options, { required: ["redisId"] }),
+		);
 	g_redis
-		.command('save-environment')
-		.description('redis saveEnvironment')
-		.requiredOption('--redisId <value>', 'redisId')
-		.requiredOption('--env <value>', 'env')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.saveEnvironment", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-environment")
+		.description("Save Environment")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--env <value>", "Env [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.saveEnvironment", "post", options, { required: ["redisId","env"], types: {"env":"string?"} }),
+		);
 	g_redis
-		.command('save-external-port')
-		.description('redis saveExternalPort')
-		.requiredOption('--redisId <value>', 'redisId')
-		.requiredOption('--externalPort <value>', 'externalPort')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			const data = await apiPost("redis.saveExternalPort", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-external-port")
+		.description("Save External Port")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--externalPort <value>", "External Port [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.saveExternalPort", "post", options, { required: ["redisId","externalPort"], types: {"externalPort":"number?"} }),
+		);
 	g_redis
-		.command('search')
-		.description('redis search')
-		.option('--q <value>', 'q')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--projectId <value>', 'projectId')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--limit <value>', 'limit')
-		.option('--offset <value>', 'offset')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["limit"] != null) opts["limit"] = Number(opts["limit"]);
-			if (opts["offset"] != null) opts["offset"] = Number(opts["offset"]);
-			const data = await apiGet("redis.search", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("search")
+		.description("Search")
+		.option("--q <value>", "Q")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description")
+		.option("--projectId <value>", "Project Id")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--limit <value>", "Limit (default: 20)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.search", "get", options, { types: {"limit":"number","offset":"number"} }),
+		);
 	g_redis
-		.command('start')
-		.description('redis start')
-		.requiredOption('--redisId <value>', 'redisId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.start", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("start")
+		.description("Start")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.start", "post", options, { required: ["redisId"] }),
+		);
 	g_redis
-		.command('stop')
-		.description('redis stop')
-		.requiredOption('--redisId <value>', 'redisId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("redis.stop", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("stop")
+		.description("Stop")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.stop", "post", options, { required: ["redisId"] }),
+		);
 	g_redis
-		.command('update')
-		.description('redis update')
-		.requiredOption('--redisId <value>', 'redisId')
-		.option('--name <value>', 'name')
-		.option('--appName <value>', 'appName')
-		.option('--description <value>', 'description')
-		.option('--databasePassword <value>', 'databasePassword')
-		.option('--dockerImage <value>', 'dockerImage')
-		.option('--command <value>', 'command')
-		.option('--args <value>', 'args')
-		.option('--env <value>', 'env')
-		.option('--memoryReservation <value>', 'memoryReservation')
-		.option('--memoryLimit <value>', 'memoryLimit')
-		.option('--cpuReservation <value>', 'cpuReservation')
-		.option('--cpuLimit <value>', 'cpuLimit')
-		.option('--externalPort <value>', 'externalPort')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--applicationStatus <value>', 'applicationStatus (idle, running, done, error)')
-		.option('--healthCheckSwarm <value>', 'healthCheckSwarm')
-		.option('--restartPolicySwarm <value>', 'restartPolicySwarm')
-		.option('--placementSwarm <value>', 'placementSwarm')
-		.option('--updateConfigSwarm <value>', 'updateConfigSwarm')
-		.option('--rollbackConfigSwarm <value>', 'rollbackConfigSwarm')
-		.option('--modeSwarm <value>', 'modeSwarm')
-		.option('--labelsSwarm <value>', 'labelsSwarm')
-		.option('--networkSwarm <value>', 'networkSwarm')
-		.option('--stopGracePeriodSwarm <value>', 'stopGracePeriodSwarm')
-		.option('--endpointSpecSwarm <value>', 'endpointSpecSwarm')
-		.option('--ulimitsSwarm <value>', 'ulimitsSwarm')
-		.option('--replicas <value>', 'replicas')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--networkIds <value>', 'networkIds')
-		.option('--detachNotployNetwork', 'detachNotployNetwork')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["externalPort"] != null) opts["externalPort"] = Number(opts["externalPort"]);
-			if (opts["replicas"] != null) opts["replicas"] = Number(opts["replicas"]);
-			if (opts["detachNotployNetwork"] != null) opts["detachNotployNetwork"] = opts["detachNotployNetwork"] === true || opts["detachNotployNetwork"] === "true";
-			const data = await apiPost("redis.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_registry = program.command('registry').description('registry commands');
-
+		.command("update")
+		.description("Update")
+		.option("--redisId <value>", "Redis Id [required]")
+		.option("--name <value>", "Name")
+		.option("--appName <value>", "App Name")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--databasePassword <value>", "Database Password")
+		.option("--dockerImage <value>", "Docker Image")
+		.option("--command <value>", "Command (nullable: pass \"null\")")
+		.option("--args <json>", "Args (nullable: pass \"null\") (JSON array)")
+		.option("--env <value>", "Env (nullable: pass \"null\")")
+		.option("--memoryReservation <value>", "Memory Reservation (nullable: pass \"null\")")
+		.option("--memoryLimit <value>", "Memory Limit (nullable: pass \"null\")")
+		.option("--cpuReservation <value>", "Cpu Reservation (nullable: pass \"null\")")
+		.option("--cpuLimit <value>", "Cpu Limit (nullable: pass \"null\")")
+		.option("--externalPort <value>", "External Port (nullable: pass \"null\")")
+		.option("--createdAt <value>", "Created At")
+		.option("--applicationStatus <value>", "Application Status (one of: idle, running, done, error)")
+		.option("--healthCheckSwarm <json>", "Health Check Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--restartPolicySwarm <json>", "Restart Policy Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--placementSwarm <json>", "Placement Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--updateConfigSwarm <json>", "Update Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--rollbackConfigSwarm <json>", "Rollback Config Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--modeSwarm <json>", "Mode Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--labelsSwarm <json>", "Labels Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--networkSwarm <json>", "Network Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--stopGracePeriodSwarm <value>", "Stop Grace Period Swarm (nullable: pass \"null\")")
+		.option("--endpointSpecSwarm <json>", "Endpoint Spec Swarm (nullable: pass \"null\") (JSON object)")
+		.option("--ulimitsSwarm <json>", "Ulimits Swarm (nullable: pass \"null\") (JSON array)")
+		.option("--replicas <value>", "Replicas")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--networkIds <json>", "Network Ids (nullable: pass \"null\") (JSON array)")
+		.option("--detachNotployNetwork [boolean]", "Detach Notploy Network")
+		.option("--no-detachNotployNetwork", "Set detachNotployNetwork to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "redis.update", "post", options, { required: ["redisId"], types: {"args":"array?","command":"string?","cpuLimit":"string?","cpuReservation":"string?","description":"string?","detachNotployNetwork":"boolean","endpointSpecSwarm":"object?","env":"string?","externalPort":"number?","healthCheckSwarm":"object?","labelsSwarm":"object?","memoryLimit":"string?","memoryReservation":"string?","modeSwarm":"object?","networkIds":"array?","networkSwarm":"array?","placementSwarm":"object?","replicas":"number","restartPolicySwarm":"object?","rollbackConfigSwarm":"object?","stopGracePeriodSwarm":"number?","ulimitsSwarm":"array?","updateConfigSwarm":"object?"}, enums: {"applicationStatus":["idle","running","done","error"]} }),
+		);
+	const g_registry = program.command("registry").description("registry commands");
 	g_registry
-		.command('all')
-		.description('registry all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("registry.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.all", "get", options),
+		);
 	g_registry
-		.command('create')
-		.description('registry create')
-		.requiredOption('--registryName <value>', 'registryName')
-		.requiredOption('--username <value>', 'username')
-		.requiredOption('--password <value>', 'password')
-		.requiredOption('--registryUrl <value>', 'registryUrl')
-		.requiredOption('--registryType <value>', 'registryType (cloud)')
-		.requiredOption('--imagePrefix <value>', 'imagePrefix')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("registry.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--registryName <value>", "Registry Name [required]")
+		.option("--username <value>", "Username [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--registryUrl <value>", "Registry Url [required]")
+		.option("--registryType <value>", "Registry Type [required] (one of: cloud)")
+		.option("--imagePrefix <value>", "Image Prefix [required] (nullable: pass \"null\")")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.create", "post", options, { required: ["registryName","username","password","registryUrl","registryType","imagePrefix"], types: {"imagePrefix":"string?"}, enums: {"registryType":["cloud"]} }),
+		);
 	g_registry
-		.command('one')
-		.description('registry one')
-		.requiredOption('--registryId <value>', 'registryId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("registry.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--registryId <value>", "Registry Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.one", "get", options, { required: ["registryId"] }),
+		);
 	g_registry
-		.command('remove')
-		.description('registry remove')
-		.requiredOption('--registryId <value>', 'registryId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("registry.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--registryId <value>", "Registry Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.remove", "post", options, { required: ["registryId"] }),
+		);
 	g_registry
-		.command('test-registry')
-		.description('registry testRegistry')
-		.option('--registryName <value>', 'registryName')
-		.requiredOption('--username <value>', 'username')
-		.requiredOption('--password <value>', 'password')
-		.requiredOption('--registryUrl <value>', 'registryUrl')
-		.requiredOption('--registryType <value>', 'registryType (cloud)')
-		.option('--imagePrefix <value>', 'imagePrefix')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("registry.testRegistry", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-registry")
+		.description("Test Registry")
+		.option("--registryName <value>", "Registry Name")
+		.option("--username <value>", "Username [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--registryUrl <value>", "Registry Url [required]")
+		.option("--registryType <value>", "Registry Type [required] (one of: cloud)")
+		.option("--imagePrefix <value>", "Image Prefix (nullable: pass \"null\")")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.testRegistry", "post", options, { required: ["username","password","registryUrl","registryType"], types: {"imagePrefix":"string?"}, enums: {"registryType":["cloud"]} }),
+		);
 	g_registry
-		.command('test-registry-by-id')
-		.description('registry testRegistryById')
-		.option('--registryId <value>', 'registryId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("registry.testRegistryById", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-registry-by-id")
+		.description("Test Registry By Id")
+		.option("--registryId <value>", "Registry Id")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.testRegistryById", "post", options),
+		);
 	g_registry
-		.command('update')
-		.description('registry update')
-		.requiredOption('--registryId <value>', 'registryId')
-		.option('--registryName <value>', 'registryName')
-		.option('--imagePrefix <value>', 'imagePrefix')
-		.option('--username <value>', 'username')
-		.option('--password <value>', 'password')
-		.option('--registryUrl <value>', 'registryUrl')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--registryType <value>', 'registryType (cloud)')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("registry.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_rollback = program.command('rollback').description('rollback commands');
-
+		.command("update")
+		.description("Update")
+		.option("--registryId <value>", "Registry Id [required]")
+		.option("--registryName <value>", "Registry Name")
+		.option("--imagePrefix <value>", "Image Prefix (nullable: pass \"null\")")
+		.option("--username <value>", "Username")
+		.option("--password <value>", "Password")
+		.option("--registryUrl <value>", "Registry Url")
+		.option("--createdAt <value>", "Created At")
+		.option("--registryType <value>", "Registry Type (one of: cloud)")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.update", "post", options, { required: ["registryId"], types: {"imagePrefix":"string?"}, enums: {"registryType":["cloud"]} }),
+		);
+	const g_rollback = program.command("rollback").description("rollback commands");
 	g_rollback
-		.command('delete')
-		.description('rollback delete')
-		.requiredOption('--rollbackId <value>', 'rollbackId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("rollback.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--rollbackId <value>", "Rollback Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "rollback.delete", "post", options, { required: ["rollbackId"] }),
+		);
 	g_rollback
-		.command('rollback')
-		.description('rollback rollback')
-		.requiredOption('--rollbackId <value>', 'rollbackId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("rollback.rollback", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_schedule = program.command('schedule').description('schedule commands');
-
+		.command("rollback")
+		.description("Rollback")
+		.option("--rollbackId <value>", "Rollback Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "rollback.rollback", "post", options, { required: ["rollbackId"] }),
+		);
+	const g_schedule = program.command("schedule").description("schedule commands");
 	g_schedule
-		.command('create')
-		.description('schedule create')
-		.option('--scheduleId <value>', 'scheduleId')
-		.requiredOption('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.requiredOption('--cronExpression <value>', 'cronExpression')
-		.option('--appName <value>', 'appName')
-		.option('--serviceName <value>', 'serviceName')
-		.option('--shellType <value>', 'shellType (bash, sh)')
-		.option('--scheduleType <value>', 'scheduleType (application, compose, server, notploy-server)')
-		.requiredOption('--command <value>', 'command')
-		.option('--script <value>', 'script')
-		.option('--applicationId <value>', 'applicationId')
-		.option('--composeId <value>', 'composeId')
-		.option('--serverId <value>', 'serverId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--enabled', 'enabled')
-		.option('--timezone <value>', 'timezone')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			const data = await apiPost("schedule.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--scheduleId <value>", "Schedule Id")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--cronExpression <value>", "Cron Expression [required]")
+		.option("--appName <value>", "App Name")
+		.option("--serviceName <value>", "Service Name (nullable: pass \"null\")")
+		.option("--shellType <value>", "Shell Type (one of: bash, sh)")
+		.option("--scheduleType <value>", "Schedule Type (one of: application, compose, server, notploy-server)")
+		.option("--command <value>", "Command [required]")
+		.option("--script <value>", "Script (nullable: pass \"null\")")
+		.option("--applicationId <value>", "Application Id (nullable: pass \"null\")")
+		.option("--composeId <value>", "Compose Id (nullable: pass \"null\")")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--organizationId <value>", "Organization Id (nullable: pass \"null\")")
+		.option("--enabled [boolean]", "Enabled")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--timezone <value>", "Timezone (nullable: pass \"null\")")
+		.option("--createdAt <value>", "Created At")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "schedule.create", "post", options, { required: ["name","cronExpression","command"], types: {"applicationId":"string?","composeId":"string?","description":"string?","enabled":"boolean","organizationId":"string?","script":"string?","serverId":"string?","serviceName":"string?","timezone":"string?"}, enums: {"scheduleType":["application","compose","server","notploy-server"],"shellType":["bash","sh"]} }),
+		);
 	g_schedule
-		.command('delete')
-		.description('schedule delete')
-		.requiredOption('--scheduleId <value>', 'scheduleId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("schedule.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--scheduleId <value>", "Schedule Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "schedule.delete", "post", options, { required: ["scheduleId"] }),
+		);
 	g_schedule
-		.command('list')
-		.description('schedule list')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--scheduleType <value>', 'scheduleType (application, compose, server, notploy-server)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("schedule.list", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list")
+		.description("List")
+		.option("--id <value>", "Id [required]")
+		.option("--scheduleType <value>", "Schedule Type [required] (one of: application, compose, server, notploy-server)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "schedule.list", "get", options, { required: ["id","scheduleType"], enums: {"scheduleType":["application","compose","server","notploy-server"]} }),
+		);
 	g_schedule
-		.command('one')
-		.description('schedule one')
-		.requiredOption('--scheduleId <value>', 'scheduleId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("schedule.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--scheduleId <value>", "Schedule Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "schedule.one", "get", options, { required: ["scheduleId"] }),
+		);
 	g_schedule
-		.command('run-manually')
-		.description('schedule runManually')
-		.requiredOption('--scheduleId <value>', 'scheduleId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("schedule.runManually", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("run-manually")
+		.description("Run Manually")
+		.option("--scheduleId <value>", "Schedule Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "schedule.runManually", "post", options, { required: ["scheduleId"] }),
+		);
 	g_schedule
-		.command('update')
-		.description('schedule update')
-		.requiredOption('--scheduleId <value>', 'scheduleId')
-		.requiredOption('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.requiredOption('--cronExpression <value>', 'cronExpression')
-		.option('--appName <value>', 'appName')
-		.option('--serviceName <value>', 'serviceName')
-		.option('--shellType <value>', 'shellType (bash, sh)')
-		.option('--scheduleType <value>', 'scheduleType (application, compose, server, notploy-server)')
-		.requiredOption('--command <value>', 'command')
-		.option('--script <value>', 'script')
-		.option('--applicationId <value>', 'applicationId')
-		.option('--composeId <value>', 'composeId')
-		.option('--serverId <value>', 'serverId')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--enabled', 'enabled')
-		.option('--timezone <value>', 'timezone')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			const data = await apiPost("schedule.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_scim = program.command('scim').description('scim commands');
-
+		.command("update")
+		.description("Update")
+		.option("--scheduleId <value>", "Schedule Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--cronExpression <value>", "Cron Expression [required]")
+		.option("--appName <value>", "App Name")
+		.option("--serviceName <value>", "Service Name (nullable: pass \"null\")")
+		.option("--shellType <value>", "Shell Type (one of: bash, sh)")
+		.option("--scheduleType <value>", "Schedule Type (one of: application, compose, server, notploy-server)")
+		.option("--command <value>", "Command [required]")
+		.option("--script <value>", "Script (nullable: pass \"null\")")
+		.option("--applicationId <value>", "Application Id (nullable: pass \"null\")")
+		.option("--composeId <value>", "Compose Id (nullable: pass \"null\")")
+		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--organizationId <value>", "Organization Id (nullable: pass \"null\")")
+		.option("--enabled [boolean]", "Enabled")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--timezone <value>", "Timezone (nullable: pass \"null\")")
+		.option("--createdAt <value>", "Created At")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "schedule.update", "post", options, { required: ["scheduleId","name","cronExpression","command"], types: {"applicationId":"string?","composeId":"string?","description":"string?","enabled":"boolean","organizationId":"string?","script":"string?","serverId":"string?","serviceName":"string?","timezone":"string?"}, enums: {"scheduleType":["application","compose","server","notploy-server"],"shellType":["bash","sh"]} }),
+		);
+	const g_scim = program.command("scim").description("scim commands");
 	g_scim
-		.command('delete-provider')
-		.description('scim deleteProvider')
-		.requiredOption('--providerId <value>', 'providerId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("scim.deleteProvider", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete-provider")
+		.description("Delete Provider")
+		.option("--providerId <value>", "Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "scim.deleteProvider", "post", options, { required: ["providerId"] }),
+		);
 	g_scim
-		.command('generate-token')
-		.description('scim generateToken')
-		.requiredOption('--providerId <value>', 'providerId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("scim.generateToken", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("generate-token")
+		.description("Generate Token")
+		.option("--providerId <value>", "Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "scim.generateToken", "post", options, { required: ["providerId"] }),
+		);
 	g_scim
-		.command('list-providers')
-		.description('scim listProviders')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("scim.listProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_security = program.command('security').description('security commands');
-
+		.command("list-providers")
+		.description("List Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "scim.listProviders", "get", options),
+		);
+	const g_security = program.command("security").description("security commands");
 	g_security
-		.command('create')
-		.description('security create')
-		.requiredOption('--applicationId <value>', 'applicationId')
-		.requiredOption('--username <value>', 'username')
-		.requiredOption('--password <value>', 'password')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("security.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--applicationId <value>", "Application Id [required]")
+		.option("--username <value>", "Username [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "security.create", "post", options, { required: ["applicationId","username","password"] }),
+		);
 	g_security
-		.command('delete')
-		.description('security delete')
-		.requiredOption('--securityId <value>', 'securityId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("security.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--securityId <value>", "Security Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "security.delete", "post", options, { required: ["securityId"] }),
+		);
 	g_security
-		.command('one')
-		.description('security one')
-		.requiredOption('--securityId <value>', 'securityId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("security.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--securityId <value>", "Security Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "security.one", "get", options, { required: ["securityId"] }),
+		);
 	g_security
-		.command('update')
-		.description('security update')
-		.requiredOption('--securityId <value>', 'securityId')
-		.requiredOption('--username <value>', 'username')
-		.requiredOption('--password <value>', 'password')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("security.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_server = program.command('server').description('server commands');
-
+		.command("update")
+		.description("Update")
+		.option("--securityId <value>", "Security Id [required]")
+		.option("--username <value>", "Username [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "security.update", "post", options, { required: ["securityId","username","password"] }),
+		);
+	const g_server = program.command("server").description("server commands");
 	g_server
-		.command('all')
-		.description('server all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.all", "get", options),
+		);
 	g_server
-		.command('all-for-permissions')
-		.description('server allForPermissions')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.allForPermissions", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all-for-permissions")
+		.description("All For Permissions")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.allForPermissions", "get", options),
+		);
 	g_server
-		.command('build-servers')
-		.description('server buildServers')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.buildServers", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("build-servers")
+		.description("Build Servers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.buildServers", "get", options),
+		);
 	g_server
-		.command('count')
-		.description('server count')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.count", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("count")
+		.description("Count")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.count", "get", options),
+		);
 	g_server
-		.command('create')
-		.description('server create')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--description <value>', 'description')
-		.requiredOption('--ipAddress <value>', 'ipAddress')
-		.requiredOption('--port <value>', 'port')
-		.requiredOption('--username <value>', 'username')
-		.requiredOption('--sshKeyId <value>', 'sshKeyId')
-		.requiredOption('--serverType <value>', 'serverType (deploy, build)')
-		.option('--enableDockerCleanup', 'enableDockerCleanup')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["port"] != null) opts["port"] = Number(opts["port"]);
-			if (opts["enableDockerCleanup"] != null) opts["enableDockerCleanup"] = opts["enableDockerCleanup"] === true || opts["enableDockerCleanup"] === "true";
-			const data = await apiPost("server.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description [required] (nullable: pass \"null\")")
+		.option("--ipAddress <value>", "Ip Address [required]")
+		.option("--port <value>", "Port [required]")
+		.option("--username <value>", "Username [required]")
+		.option("--sshKeyId <value>", "Ssh Key Id [required] (nullable: pass \"null\")")
+		.option("--serverType <value>", "Server Type [required] (one of: deploy, build)")
+		.option("--enableDockerCleanup [boolean]", "Enable Docker Cleanup (default: true)")
+		.option("--no-enableDockerCleanup", "Set enableDockerCleanup to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.create", "post", options, { required: ["name","description","ipAddress","port","username","sshKeyId","serverType"], types: {"description":"string?","enableDockerCleanup":"boolean","port":"number","sshKeyId":"string?"}, enums: {"serverType":["deploy","build"]} }),
+		);
 	g_server
-		.command('get-default-command')
-		.description('server getDefaultCommand')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.getDefaultCommand", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-default-command")
+		.description("Get Default Command")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.getDefaultCommand", "get", options, { required: ["serverId"] }),
+		);
 	g_server
-		.command('get-server-metrics')
-		.description('server getServerMetrics')
-		.requiredOption('--url <value>', 'url')
-		.requiredOption('--token <value>', 'token')
-		.requiredOption('--dataPoints <value>', 'dataPoints')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.getServerMetrics", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-server-metrics")
+		.description("Get Server Metrics")
+		.option("--url <value>", "Url [required]")
+		.option("--token <value>", "Token [required]")
+		.option("--dataPoints <value>", "Data Points [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.getServerMetrics", "get", options, { required: ["url","token","dataPoints"] }),
+		);
 	g_server
-		.command('get-server-time')
-		.description('server getServerTime')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.getServerTime", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-server-time")
+		.description("Get Server Time")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.getServerTime", "get", options),
+		);
 	g_server
-		.command('get-services')
-		.description('server getServices')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.getServices", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-services")
+		.description("Get Services")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.getServices", "get", options, { required: ["serverId"] }),
+		);
 	g_server
-		.command('one')
-		.description('server one')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.one", "get", options, { required: ["serverId"] }),
+		);
 	g_server
-		.command('public-ip')
-		.description('server publicIp')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.publicIp", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("public-ip")
+		.description("Public Ip")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.publicIp", "get", options),
+		);
 	g_server
-		.command('remove')
-		.description('server remove')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("server.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.remove", "post", options, { required: ["serverId"] }),
+		);
 	g_server
-		.command('security')
-		.description('server security')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.security", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("security")
+		.description("Security")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.security", "get", options, { required: ["serverId"] }),
+		);
 	g_server
-		.command('setup')
-		.description('server setup')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("server.setup", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("setup")
+		.description("Setup")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.setup", "post", options, { required: ["serverId"] }),
+		);
 	g_server
-		.command('setup-monitoring')
-		.description('server setupMonitoring')
-		.requiredOption('--serverId <value>', 'serverId')
-		.requiredOption('--metricsConfig <value>', 'metricsConfig')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("server.setupMonitoring", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("setup-monitoring")
+		.description("Setup Monitoring")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--metricsConfig <json>", "Metrics Config [required] (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.setupMonitoring", "post", options, { required: ["serverId","metricsConfig"], types: {"metricsConfig":"object"} }),
+		);
 	g_server
-		.command('update')
-		.description('server update')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--description <value>', 'description')
-		.requiredOption('--serverId <value>', 'serverId')
-		.requiredOption('--ipAddress <value>', 'ipAddress')
-		.requiredOption('--port <value>', 'port')
-		.requiredOption('--username <value>', 'username')
-		.requiredOption('--sshKeyId <value>', 'sshKeyId')
-		.requiredOption('--serverType <value>', 'serverType (deploy, build)')
-		.option('--enableDockerCleanup', 'enableDockerCleanup')
-		.option('--command <value>', 'command')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["port"] != null) opts["port"] = Number(opts["port"]);
-			if (opts["enableDockerCleanup"] != null) opts["enableDockerCleanup"] = opts["enableDockerCleanup"] === true || opts["enableDockerCleanup"] === "true";
-			const data = await apiPost("server.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update")
+		.description("Update")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description [required] (nullable: pass \"null\")")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--ipAddress <value>", "Ip Address [required]")
+		.option("--port <value>", "Port [required]")
+		.option("--username <value>", "Username [required]")
+		.option("--sshKeyId <value>", "Ssh Key Id [required] (nullable: pass \"null\")")
+		.option("--serverType <value>", "Server Type [required] (one of: deploy, build)")
+		.option("--enableDockerCleanup [boolean]", "Enable Docker Cleanup (default: true)")
+		.option("--no-enableDockerCleanup", "Set enableDockerCleanup to false")
+		.option("--command <value>", "Command")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.update", "post", options, { required: ["name","description","serverId","ipAddress","port","username","sshKeyId","serverType"], types: {"description":"string?","enableDockerCleanup":"boolean","port":"number","sshKeyId":"string?"}, enums: {"serverType":["deploy","build"]} }),
+		);
 	g_server
-		.command('update-builds-concurrency')
-		.description('server updateBuildsConcurrency')
-		.requiredOption('--serverId <value>', 'serverId')
-		.requiredOption('--buildsConcurrency <value>', 'buildsConcurrency')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["buildsConcurrency"] != null) opts["buildsConcurrency"] = Number(opts["buildsConcurrency"]);
-			const data = await apiPost("server.updateBuildsConcurrency", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-builds-concurrency")
+		.description("Update Builds Concurrency")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--buildsConcurrency <value>", "Builds Concurrency [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.updateBuildsConcurrency", "post", options, { required: ["serverId","buildsConcurrency"], types: {"buildsConcurrency":"number"} }),
+		);
 	g_server
-		.command('validate')
-		.description('server validate')
-		.requiredOption('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.validate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("validate")
+		.description("Validate")
+		.option("--serverId <value>", "Server Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.validate", "get", options, { required: ["serverId"] }),
+		);
 	g_server
-		.command('with-sshkey')
-		.description('server withSSHKey')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("server.withSSHKey", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_settings = program.command('settings').description('settings commands');
-
+		.command("with-sshkey")
+		.description("With SSHKey")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.withSSHKey", "get", options),
+		);
+	const g_settings = program.command("settings").description("settings commands");
 	g_settings
-		.command('assign-domain-server')
-		.description('settings assignDomainServer')
-		.requiredOption('--host <value>', 'host')
-		.requiredOption('--certificateType <value>', 'certificateType (letsencrypt, none, custom)')
-		.option('--letsEncryptEmail <value>', 'letsEncryptEmail')
-		.option('--https', 'https')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["https"] != null) opts["https"] = opts["https"] === true || opts["https"] === "true";
-			const data = await apiPost("settings.assignDomainServer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("assign-domain-server")
+		.description("Assign Domain Server")
+		.option("--host <value>", "Host [required]")
+		.option("--certificateType <value>", "Certificate Type [required] (one of: letsencrypt, none, custom)")
+		.option("--letsEncryptEmail <value>", "Lets Encrypt Email (one of: )")
+		.option("--https [boolean]", "Https")
+		.option("--no-https", "Set https to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.assignDomainServer", "post", options, { required: ["host","certificateType"], types: {"https":"boolean"}, enums: {"certificateType":["letsencrypt","none","custom"],"letsEncryptEmail":[""]} }),
+		);
 	g_settings
-		.command('check-gpustatus')
-		.description('settings checkGPUStatus')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.checkGPUStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("check-gpustatus")
+		.description("Check GPUStatus")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.checkGPUStatus", "get", options),
+		);
 	g_settings
-		.command('check-infrastructure-health')
-		.description('settings checkInfrastructureHealth')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.checkInfrastructureHealth", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("check-infrastructure-health")
+		.description("Check Infrastructure Health")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.checkInfrastructureHealth", "get", options),
+		);
 	g_settings
-		.command('clean-all')
-		.description('settings cleanAll')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.cleanAll", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-all")
+		.description("Clean All")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.cleanAll", "post", options),
+		);
 	g_settings
-		.command('clean-all-deployment-queue')
-		.description('settings cleanAllDeploymentQueue')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.cleanAllDeploymentQueue", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-all-deployment-queue")
+		.description("Clean All Deployment Queue")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.cleanAllDeploymentQueue", "post", options),
+		);
 	g_settings
-		.command('clean-docker-builder')
-		.description('settings cleanDockerBuilder')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.cleanDockerBuilder", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-docker-builder")
+		.description("Clean Docker Builder")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.cleanDockerBuilder", "post", options),
+		);
 	g_settings
-		.command('clean-docker-prune')
-		.description('settings cleanDockerPrune')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.cleanDockerPrune", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-docker-prune")
+		.description("Clean Docker Prune")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.cleanDockerPrune", "post", options),
+		);
 	g_settings
-		.command('clean-monitoring')
-		.description('settings cleanMonitoring')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.cleanMonitoring", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-monitoring")
+		.description("Clean Monitoring")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.cleanMonitoring", "post", options),
+		);
 	g_settings
-		.command('clean-sshprivate-key')
-		.description('settings cleanSSHPrivateKey')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.cleanSSHPrivateKey", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-sshprivate-key")
+		.description("Clean SSHPrivate Key")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.cleanSSHPrivateKey", "post", options),
+		);
 	g_settings
-		.command('clean-stopped-containers')
-		.description('settings cleanStoppedContainers')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.cleanStoppedContainers", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-stopped-containers")
+		.description("Clean Stopped Containers")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.cleanStoppedContainers", "post", options),
+		);
 	g_settings
-		.command('clean-unused-images')
-		.description('settings cleanUnusedImages')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.cleanUnusedImages", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-unused-images")
+		.description("Clean Unused Images")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.cleanUnusedImages", "post", options),
+		);
 	g_settings
-		.command('clean-unused-volumes')
-		.description('settings cleanUnusedVolumes')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.cleanUnusedVolumes", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("clean-unused-volumes")
+		.description("Clean Unused Volumes")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.cleanUnusedVolumes", "post", options),
+		);
 	g_settings
-		.command('get-docker-disk-usage')
-		.description('settings getDockerDiskUsage')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.getDockerDiskUsage", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-docker-disk-usage")
+		.description("Get Docker Disk Usage")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getDockerDiskUsage", "get", options),
+		);
 	g_settings
-		.command('get-notploy-cloud-ips')
-		.description('settings getNotployCloudIps')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.getNotployCloudIps", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-ip")
+		.description("Get Ip")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getIp", "get", options),
+		);
 	g_settings
-		.command('get-notploy-version')
-		.description('settings getNotployVersion')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.getNotployVersion", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-log-cleanup-status")
+		.description("Get Log Cleanup Status")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getLogCleanupStatus", "get", options),
+		);
 	g_settings
-		.command('get-ip')
-		.description('settings getIp')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.getIp", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-notploy-cloud-ips")
+		.description("Get Notploy Cloud Ips")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getNotployCloudIps", "get", options),
+		);
 	g_settings
-		.command('get-log-cleanup-status')
-		.description('settings getLogCleanupStatus')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.getLogCleanupStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-notploy-version")
+		.description("Get Notploy Version")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getNotployVersion", "get", options),
+		);
 	g_settings
-		.command('get-open-api-document')
-		.description('settings getOpenApiDocument')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.getOpenApiDocument", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-open-api-document")
+		.description("Get Open Api Document")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getOpenApiDocument", "get", options),
+		);
 	g_settings
-		.command('get-release-tag')
-		.description('settings getReleaseTag')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.getReleaseTag", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-release-tag")
+		.description("Get Release Tag")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getReleaseTag", "get", options),
+		);
 	g_settings
-		.command('get-traefik-ports')
-		.description('settings getTraefikPorts')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.getTraefikPorts", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-traefik-ports")
+		.description("Get Traefik Ports")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getTraefikPorts", "get", options),
+		);
 	g_settings
-		.command('get-update-data')
-		.description('settings getUpdateData')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.getUpdateData", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-update-data")
+		.description("Get Update Data")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getUpdateData", "post", options),
+		);
 	g_settings
-		.command('get-web-server-settings')
-		.description('settings getWebServerSettings')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.getWebServerSettings", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-web-server-settings")
+		.description("Get Web Server Settings")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getWebServerSettings", "get", options),
+		);
 	g_settings
-		.command('have-activate-requests')
-		.description('settings haveActivateRequests')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.haveActivateRequests", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("have-activate-requests")
+		.description("Have Activate Requests")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.haveActivateRequests", "get", options),
+		);
 	g_settings
-		.command('have-traefik-dashboard-port-enabled')
-		.description('settings haveTraefikDashboardPortEnabled')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.haveTraefikDashboardPortEnabled", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("have-traefik-dashboard-port-enabled")
+		.description("Have Traefik Dashboard Port Enabled")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.haveTraefikDashboardPortEnabled", "get", options),
+		);
 	g_settings
-		.command('health')
-		.description('settings health')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.health", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("health")
+		.description("Health")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.health", "get", options),
+		);
 	g_settings
-		.command('is-cloud')
-		.description('settings isCloud')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.isCloud", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("is-cloud")
+		.description("Is Cloud")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.isCloud", "get", options),
+		);
 	g_settings
-		.command('is-user-subscribed')
-		.description('settings isUserSubscribed')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.isUserSubscribed", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("is-user-subscribed")
+		.description("Is User Subscribed")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.isUserSubscribed", "get", options),
+		);
 	g_settings
-		.command('read-directories')
-		.description('settings readDirectories')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.readDirectories", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-directories")
+		.description("Read Directories")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.readDirectories", "get", options),
+		);
 	g_settings
-		.command('read-middleware-traefik-config')
-		.description('settings readMiddlewareTraefikConfig')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.readMiddlewareTraefikConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-middleware-traefik-config")
+		.description("Read Middleware Traefik Config")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.readMiddlewareTraefikConfig", "get", options),
+		);
 	g_settings
-		.command('read-traefik-config')
-		.description('settings readTraefikConfig')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.readTraefikConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-traefik-config")
+		.description("Read Traefik Config")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.readTraefikConfig", "get", options),
+		);
 	g_settings
-		.command('read-traefik-env')
-		.description('settings readTraefikEnv')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.readTraefikEnv", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-traefik-env")
+		.description("Read Traefik Env")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.readTraefikEnv", "get", options),
+		);
 	g_settings
-		.command('read-traefik-file')
-		.description('settings readTraefikFile')
-		.requiredOption('--path <value>', 'path')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.readTraefikFile", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-traefik-file")
+		.description("Read Traefik File")
+		.option("--path <value>", "Path [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.readTraefikFile", "get", options, { required: ["path"] }),
+		);
 	g_settings
-		.command('read-web-server-traefik-config')
-		.description('settings readWebServerTraefikConfig')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("settings.readWebServerTraefikConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("read-web-server-traefik-config")
+		.description("Read Web Server Traefik Config")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.readWebServerTraefikConfig", "get", options),
+		);
 	g_settings
-		.command('reload-server')
-		.description('settings reloadServer')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.reloadServer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("reload-server")
+		.description("Reload Server")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.reloadServer", "post", options),
+		);
 	g_settings
-		.command('reload-traefik')
-		.description('settings reloadTraefik')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.reloadTraefik", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("reload-traefik")
+		.description("Reload Traefik")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.reloadTraefik", "post", options),
+		);
 	g_settings
-		.command('save-sshprivate-key')
-		.description('settings saveSSHPrivateKey')
-		.requiredOption('--sshPrivateKey <value>', 'sshPrivateKey')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.saveSSHPrivateKey", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("save-sshprivate-key")
+		.description("Save SSHPrivate Key")
+		.option("--sshPrivateKey <value>", "Ssh Private Key [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.saveSSHPrivateKey", "post", options, { required: ["sshPrivateKey"] }),
+		);
 	g_settings
-		.command('setup-gpu')
-		.description('settings setupGPU')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.setupGPU", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("setup-gpu")
+		.description("Setup GPU")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.setupGPU", "post", options),
+		);
 	g_settings
-		.command('toggle-dashboard')
-		.description('settings toggleDashboard')
-		.option('--enableDashboard', 'enableDashboard')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enableDashboard"] != null) opts["enableDashboard"] = opts["enableDashboard"] === true || opts["enableDashboard"] === "true";
-			const data = await apiPost("settings.toggleDashboard", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("toggle-dashboard")
+		.description("Toggle Dashboard")
+		.option("--enableDashboard [boolean]", "Enable Dashboard")
+		.option("--no-enableDashboard", "Set enableDashboard to false")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.toggleDashboard", "post", options, { types: {"enableDashboard":"boolean"} }),
+		);
 	g_settings
-		.command('toggle-requests')
-		.description('settings toggleRequests')
-		.requiredOption('--enable', 'enable')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enable"] != null) opts["enable"] = opts["enable"] === true || opts["enable"] === "true";
-			const data = await apiPost("settings.toggleRequests", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("toggle-requests")
+		.description("Toggle Requests")
+		.option("--enable [boolean]", "Enable [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.toggleRequests", "post", options, { required: ["enable"], types: {"enable":"boolean"} }),
+		);
 	g_settings
-		.command('update-builds-concurrency')
-		.description('settings updateBuildsConcurrency')
-		.requiredOption('--buildsConcurrency <value>', 'buildsConcurrency')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["buildsConcurrency"] != null) opts["buildsConcurrency"] = Number(opts["buildsConcurrency"]);
-			const data = await apiPost("settings.updateBuildsConcurrency", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-builds-concurrency")
+		.description("Update Builds Concurrency")
+		.option("--buildsConcurrency <value>", "Builds Concurrency [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateBuildsConcurrency", "post", options, { required: ["buildsConcurrency"], types: {"buildsConcurrency":"number"} }),
+		);
 	g_settings
-		.command('update-docker-cleanup')
-		.description('settings updateDockerCleanup')
-		.requiredOption('--enableDockerCleanup', 'enableDockerCleanup')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enableDockerCleanup"] != null) opts["enableDockerCleanup"] = opts["enableDockerCleanup"] === true || opts["enableDockerCleanup"] === "true";
-			const data = await apiPost("settings.updateDockerCleanup", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-docker-cleanup")
+		.description("Update Docker Cleanup")
+		.option("--enableDockerCleanup [boolean]", "Enable Docker Cleanup [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateDockerCleanup", "post", options, { required: ["enableDockerCleanup"], types: {"enableDockerCleanup":"boolean"} }),
+		);
 	g_settings
-		.command('update-enforce-sso')
-		.description('settings updateEnforceSSO')
-		.requiredOption('--enforceSSO', 'enforceSSO')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enforceSSO"] != null) opts["enforceSSO"] = opts["enforceSSO"] === true || opts["enforceSSO"] === "true";
-			const data = await apiPost("settings.updateEnforceSSO", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-enforce-sso")
+		.description("Update Enforce SSO")
+		.option("--enforceSSO [boolean]", "Enforce SSO [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateEnforceSSO", "post", options, { required: ["enforceSSO"], types: {"enforceSSO":"boolean"} }),
+		);
 	g_settings
-		.command('update-log-cleanup')
-		.description('settings updateLogCleanup')
-		.requiredOption('--cronExpression <value>', 'cronExpression')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.updateLogCleanup", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-log-cleanup")
+		.description("Update Log Cleanup")
+		.option("--cronExpression <value>", "Cron Expression [required] (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateLogCleanup", "post", options, { required: ["cronExpression"], types: {"cronExpression":"string?"} }),
+		);
 	g_settings
-		.command('update-middleware-traefik-config')
-		.description('settings updateMiddlewareTraefikConfig')
-		.requiredOption('--traefikConfig <value>', 'traefikConfig')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.updateMiddlewareTraefikConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-middleware-traefik-config")
+		.description("Update Middleware Traefik Config")
+		.option("--traefikConfig <value>", "Traefik Config [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateMiddlewareTraefikConfig", "post", options, { required: ["traefikConfig"] }),
+		);
 	g_settings
-		.command('update-remote-servers-only')
-		.description('settings updateRemoteServersOnly')
-		.requiredOption('--remoteServersOnly', 'remoteServersOnly')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["remoteServersOnly"] != null) opts["remoteServersOnly"] = opts["remoteServersOnly"] === true || opts["remoteServersOnly"] === "true";
-			const data = await apiPost("settings.updateRemoteServersOnly", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-remote-servers-only")
+		.description("Update Remote Servers Only")
+		.option("--remoteServersOnly [boolean]", "Remote Servers Only [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateRemoteServersOnly", "post", options, { required: ["remoteServersOnly"], types: {"remoteServersOnly":"boolean"} }),
+		);
 	g_settings
-		.command('update-server')
-		.description('settings updateServer')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.updateServer", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-server")
+		.description("Update Server")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateServer", "post", options),
+		);
 	g_settings
-		.command('update-server-ip')
-		.description('settings updateServerIp')
-		.requiredOption('--serverIp <value>', 'serverIp')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.updateServerIp", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-server-ip")
+		.description("Update Server Ip")
+		.option("--serverIp <value>", "Server Ip [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateServerIp", "post", options, { required: ["serverIp"] }),
+		);
 	g_settings
-		.command('update-traefik-config')
-		.description('settings updateTraefikConfig')
-		.requiredOption('--traefikConfig <value>', 'traefikConfig')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.updateTraefikConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-traefik-config")
+		.description("Update Traefik Config")
+		.option("--traefikConfig <value>", "Traefik Config [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateTraefikConfig", "post", options, { required: ["traefikConfig"] }),
+		);
 	g_settings
-		.command('update-traefik-file')
-		.description('settings updateTraefikFile')
-		.requiredOption('--path <value>', 'path')
-		.requiredOption('--traefikConfig <value>', 'traefikConfig')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.updateTraefikFile", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-traefik-file")
+		.description("Update Traefik File")
+		.option("--path <value>", "Path [required]")
+		.option("--traefikConfig <value>", "Traefik Config [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateTraefikFile", "post", options, { required: ["path","traefikConfig"] }),
+		);
 	g_settings
-		.command('update-traefik-ports')
-		.description('settings updateTraefikPorts')
-		.option('--serverId <value>', 'serverId')
-		.requiredOption('--additionalPorts <value>', 'additionalPorts')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.updateTraefikPorts", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-traefik-ports")
+		.description("Update Traefik Ports")
+		.option("--serverId <value>", "Server Id")
+		.option("--additionalPorts <json>", "Additional Ports [required] (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateTraefikPorts", "post", options, { required: ["additionalPorts"], types: {"additionalPorts":"array"} }),
+		);
 	g_settings
-		.command('update-web-server-traefik-config')
-		.description('settings updateWebServerTraefikConfig')
-		.requiredOption('--traefikConfig <value>', 'traefikConfig')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.updateWebServerTraefikConfig", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-web-server-traefik-config")
+		.description("Update Web Server Traefik Config")
+		.option("--traefikConfig <value>", "Traefik Config [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.updateWebServerTraefikConfig", "post", options, { required: ["traefikConfig"] }),
+		);
 	g_settings
-		.command('write-traefik-env')
-		.description('settings writeTraefikEnv')
-		.requiredOption('--env <value>', 'env')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("settings.writeTraefikEnv", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_sshKey = program.command('ssh-key').description('ssh-key commands');
-
+		.command("write-traefik-env")
+		.description("Write Traefik Env")
+		.option("--env <value>", "Env [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.writeTraefikEnv", "post", options, { required: ["env"] }),
+		);
+	const g_sshKey = program.command("ssh-key").description("sshKey commands");
 	g_sshKey
-		.command('all')
-		.description('sshKey all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("sshKey.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sshKey.all", "get", options),
+		);
 	g_sshKey
-		.command('all-for-apps')
-		.description('sshKey allForApps')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("sshKey.allForApps", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all-for-apps")
+		.description("All For Apps")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sshKey.allForApps", "get", options),
+		);
 	g_sshKey
-		.command('create')
-		.description('sshKey create')
-		.requiredOption('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.requiredOption('--privateKey <value>', 'privateKey')
-		.requiredOption('--publicKey <value>', 'publicKey')
-		.requiredOption('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("sshKey.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--privateKey <value>", "Private Key [required]")
+		.option("--publicKey <value>", "Public Key [required]")
+		.option("--organizationId <value>", "Organization Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sshKey.create", "post", options, { required: ["name","privateKey","publicKey","organizationId"], types: {"description":"string?"} }),
+		);
 	g_sshKey
-		.command('generate')
-		.description('sshKey generate')
-		.option('--type <value>', 'type (rsa, ed25519)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("sshKey.generate", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("generate")
+		.description("Generate")
+		.option("--type <value>", "Type (one of: rsa, ed25519)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sshKey.generate", "post", options, { enums: {"type":["rsa","ed25519"]} }),
+		);
 	g_sshKey
-		.command('one')
-		.description('sshKey one')
-		.requiredOption('--sshKeyId <value>', 'sshKeyId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("sshKey.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--sshKeyId <value>", "Ssh Key Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sshKey.one", "get", options, { required: ["sshKeyId"] }),
+		);
 	g_sshKey
-		.command('remove')
-		.description('sshKey remove')
-		.requiredOption('--sshKeyId <value>', 'sshKeyId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("sshKey.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--sshKeyId <value>", "Ssh Key Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sshKey.remove", "post", options, { required: ["sshKeyId"] }),
+		);
 	g_sshKey
-		.command('update')
-		.description('sshKey update')
-		.option('--name <value>', 'name')
-		.option('--description <value>', 'description')
-		.option('--lastUsedAt <value>', 'lastUsedAt')
-		.requiredOption('--sshKeyId <value>', 'sshKeyId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("sshKey.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_sso = program.command('sso').description('sso commands');
-
+		.command("update")
+		.description("Update")
+		.option("--name <value>", "Name")
+		.option("--description <value>", "Description (nullable: pass \"null\")")
+		.option("--lastUsedAt <value>", "Last Used At (nullable: pass \"null\")")
+		.option("--sshKeyId <value>", "Ssh Key Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sshKey.update", "post", options, { required: ["sshKeyId"], types: {"description":"string?","lastUsedAt":"string?"} }),
+		);
+	const g_sso = program.command("sso").description("sso commands");
 	g_sso
-		.command('add-trusted-origin')
-		.description('sso addTrustedOrigin')
-		.requiredOption('--origin <value>', 'origin')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("sso.addTrustedOrigin", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("add-trusted-origin")
+		.description("Add Trusted Origin")
+		.option("--origin <value>", "Origin [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.addTrustedOrigin", "post", options, { required: ["origin"] }),
+		);
 	g_sso
-		.command('delete-provider')
-		.description('sso deleteProvider')
-		.requiredOption('--providerId <value>', 'providerId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("sso.deleteProvider", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete-provider")
+		.description("Delete Provider")
+		.option("--providerId <value>", "Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.deleteProvider", "post", options, { required: ["providerId"] }),
+		);
 	g_sso
-		.command('enforce-sso')
-		.description('sso enforceSSO')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("sso.enforceSSO", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("enforce-sso")
+		.description("Enforce SSO")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.enforceSSO", "get", options),
+		);
 	g_sso
-		.command('get-trusted-origins')
-		.description('sso getTrustedOrigins')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("sso.getTrustedOrigins", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-trusted-origins")
+		.description("Get Trusted Origins")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.getTrustedOrigins", "get", options),
+		);
 	g_sso
-		.command('list-providers')
-		.description('sso listProviders')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("sso.listProviders", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-providers")
+		.description("List Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.listProviders", "get", options),
+		);
 	g_sso
-		.command('one')
-		.description('sso one')
-		.requiredOption('--providerId <value>', 'providerId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("sso.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--providerId <value>", "Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.one", "get", options, { required: ["providerId"] }),
+		);
 	g_sso
-		.command('register')
-		.description('sso register')
-		.requiredOption('--providerId <value>', 'providerId')
-		.requiredOption('--issuer <value>', 'issuer')
-		.requiredOption('--domains <value>', 'domains')
-		.option('--oidcConfig <value>', 'oidcConfig')
-		.option('--samlConfig <value>', 'samlConfig')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--overrideUserInfo', 'overrideUserInfo')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["overrideUserInfo"] != null) opts["overrideUserInfo"] = opts["overrideUserInfo"] === true || opts["overrideUserInfo"] === "true";
-			const data = await apiPost("sso.register", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("register")
+		.description("Register")
+		.option("--providerId <value>", "Provider Id [required]")
+		.option("--issuer <value>", "Issuer [required]")
+		.option("--domains <json>", "Domains [required] (JSON array)")
+		.option("--oidcConfig <json>", "Oidc Config (JSON object)")
+		.option("--samlConfig <json>", "Saml Config (JSON object)")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--overrideUserInfo [boolean]", "Override User Info (default: false)")
+		.option("--no-overrideUserInfo", "Set overrideUserInfo to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.register", "post", options, { required: ["providerId","issuer","domains"], types: {"domains":"array","oidcConfig":"object","overrideUserInfo":"boolean","samlConfig":"object"} }),
+		);
 	g_sso
-		.command('remove-trusted-origin')
-		.description('sso removeTrustedOrigin')
-		.requiredOption('--origin <value>', 'origin')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("sso.removeTrustedOrigin", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove-trusted-origin")
+		.description("Remove Trusted Origin")
+		.option("--origin <value>", "Origin [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.removeTrustedOrigin", "post", options, { required: ["origin"] }),
+		);
 	g_sso
-		.command('show-sign-in-with-sso')
-		.description('sso showSignInWithSSO')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("sso.showSignInWithSSO", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("show-sign-in-with-sso")
+		.description("Show Sign In With SSO")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.showSignInWithSSO", "get", options),
+		);
 	g_sso
-		.command('update')
-		.description('sso update')
-		.requiredOption('--providerId <value>', 'providerId')
-		.requiredOption('--issuer <value>', 'issuer')
-		.requiredOption('--domains <value>', 'domains')
-		.option('--oidcConfig <value>', 'oidcConfig')
-		.option('--samlConfig <value>', 'samlConfig')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--overrideUserInfo', 'overrideUserInfo')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["overrideUserInfo"] != null) opts["overrideUserInfo"] = opts["overrideUserInfo"] === true || opts["overrideUserInfo"] === "true";
-			const data = await apiPost("sso.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update")
+		.description("Update")
+		.option("--providerId <value>", "Provider Id [required]")
+		.option("--issuer <value>", "Issuer [required]")
+		.option("--domains <json>", "Domains [required] (JSON array)")
+		.option("--oidcConfig <json>", "Oidc Config (JSON object)")
+		.option("--samlConfig <json>", "Saml Config (JSON object)")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--overrideUserInfo [boolean]", "Override User Info (default: false)")
+		.option("--no-overrideUserInfo", "Set overrideUserInfo to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.update", "post", options, { required: ["providerId","issuer","domains"], types: {"domains":"array","oidcConfig":"object","overrideUserInfo":"boolean","samlConfig":"object"} }),
+		);
 	g_sso
-		.command('update-trusted-origin')
-		.description('sso updateTrustedOrigin')
-		.requiredOption('--oldOrigin <value>', 'oldOrigin')
-		.requiredOption('--newOrigin <value>', 'newOrigin')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("sso.updateTrustedOrigin", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_stripe = program.command('stripe').description('stripe commands');
-
+		.command("update-trusted-origin")
+		.description("Update Trusted Origin")
+		.option("--oldOrigin <value>", "Old Origin [required]")
+		.option("--newOrigin <value>", "New Origin [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.updateTrustedOrigin", "post", options, { required: ["oldOrigin","newOrigin"] }),
+		);
+	const g_stripe = program.command("stripe").description("stripe commands");
 	g_stripe
-		.command('can-create-more-servers')
-		.description('stripe canCreateMoreServers')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("stripe.canCreateMoreServers", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("can-create-more-servers")
+		.description("Can Create More Servers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.canCreateMoreServers", "get", options),
+		);
 	g_stripe
-		.command('create-checkout-session')
-		.description('stripe createCheckoutSession')
-		.requiredOption('--tier <value>', 'tier (legacy, hobby, startup)')
-		.requiredOption('--productId <value>', 'productId')
-		.requiredOption('--serverQuantity <value>', 'serverQuantity')
-		.requiredOption('--isAnnual', 'isAnnual')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["serverQuantity"] != null) opts["serverQuantity"] = Number(opts["serverQuantity"]);
-			if (opts["isAnnual"] != null) opts["isAnnual"] = opts["isAnnual"] === true || opts["isAnnual"] === "true";
-			const data = await apiPost("stripe.createCheckoutSession", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-checkout-session")
+		.description("Create Checkout Session")
+		.option("--tier <value>", "Tier [required] (one of: legacy, hobby, startup)")
+		.option("--productId <value>", "Product Id [required]")
+		.option("--serverQuantity <value>", "Server Quantity [required]")
+		.option("--isAnnual [boolean]", "Is Annual [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.createCheckoutSession", "post", options, { required: ["tier","productId","serverQuantity","isAnnual"], types: {"isAnnual":"boolean","serverQuantity":"number"}, enums: {"tier":["legacy","hobby","startup"]} }),
+		);
 	g_stripe
-		.command('create-customer-portal-session')
-		.description('stripe createCustomerPortalSession')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("stripe.createCustomerPortalSession", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-customer-portal-session")
+		.description("Create Customer Portal Session")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.createCustomerPortalSession", "post", options),
+		);
 	g_stripe
-		.command('get-billing-status')
-		.description('stripe getBillingStatus')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("stripe.getBillingStatus", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-billing-status")
+		.description("Get Billing Status")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.getBillingStatus", "get", options),
+		);
 	g_stripe
-		.command('get-current-plan')
-		.description('stripe getCurrentPlan')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("stripe.getCurrentPlan", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-current-plan")
+		.description("Get Current Plan")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.getCurrentPlan", "get", options),
+		);
 	g_stripe
-		.command('get-invoices')
-		.description('stripe getInvoices')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("stripe.getInvoices", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-invoices")
+		.description("Get Invoices")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.getInvoices", "get", options),
+		);
 	g_stripe
-		.command('get-products')
-		.description('stripe getProducts')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("stripe.getProducts", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-products")
+		.description("Get Products")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.getProducts", "get", options),
+		);
 	g_stripe
-		.command('start-free-trial')
-		.description('stripe startFreeTrial')
-		.requiredOption('--tier <value>', 'tier (hobby, startup)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("stripe.startFreeTrial", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("start-free-trial")
+		.description("Start Free Trial")
+		.option("--tier <value>", "Tier [required] (one of: hobby, startup)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.startFreeTrial", "post", options, { required: ["tier"], enums: {"tier":["hobby","startup"]} }),
+		);
 	g_stripe
-		.command('update-invoice-notifications')
-		.description('stripe updateInvoiceNotifications')
-		.requiredOption('--enabled', 'enabled')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			const data = await apiPost("stripe.updateInvoiceNotifications", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("update-invoice-notifications")
+		.description("Update Invoice Notifications")
+		.option("--enabled [boolean]", "Enabled [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.updateInvoiceNotifications", "post", options, { required: ["enabled"], types: {"enabled":"boolean"} }),
+		);
 	g_stripe
-		.command('upgrade-subscription')
-		.description('stripe upgradeSubscription')
-		.requiredOption('--tier <value>', 'tier (hobby, startup)')
-		.requiredOption('--serverQuantity <value>', 'serverQuantity')
-		.requiredOption('--isAnnual', 'isAnnual')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["serverQuantity"] != null) opts["serverQuantity"] = Number(opts["serverQuantity"]);
-			if (opts["isAnnual"] != null) opts["isAnnual"] = opts["isAnnual"] === true || opts["isAnnual"] === "true";
-			const data = await apiPost("stripe.upgradeSubscription", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_swarm = program.command('swarm').description('swarm commands');
-
+		.command("upgrade-subscription")
+		.description("Upgrade Subscription")
+		.option("--tier <value>", "Tier [required] (one of: hobby, startup)")
+		.option("--serverQuantity <value>", "Server Quantity [required]")
+		.option("--isAnnual [boolean]", "Is Annual [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.upgradeSubscription", "post", options, { required: ["tier","serverQuantity","isAnnual"], types: {"isAnnual":"boolean","serverQuantity":"number"}, enums: {"tier":["hobby","startup"]} }),
+		);
+	const g_swarm = program.command("swarm").description("swarm commands");
 	g_swarm
-		.command('get-container-stats')
-		.description('swarm getContainerStats')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("swarm.getContainerStats", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-container-stats")
+		.description("Get Container Stats")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "swarm.getContainerStats", "get", options),
+		);
 	g_swarm
-		.command('get-node-apps')
-		.description('swarm getNodeApps')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("swarm.getNodeApps", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-node-apps")
+		.description("Get Node Apps")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "swarm.getNodeApps", "get", options),
+		);
 	g_swarm
-		.command('get-node-info')
-		.description('swarm getNodeInfo')
-		.requiredOption('--nodeId <value>', 'nodeId')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("swarm.getNodeInfo", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-node-info")
+		.description("Get Node Info")
+		.option("--nodeId <value>", "Node Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "swarm.getNodeInfo", "get", options, { required: ["nodeId"] }),
+		);
 	g_swarm
-		.command('get-nodes')
-		.description('swarm getNodes')
-		.option('--serverId <value>', 'serverId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("swarm.getNodes", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_tag = program.command('tag').description('tag commands');
-
+		.command("get-nodes")
+		.description("Get Nodes")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "swarm.getNodes", "get", options),
+		);
+	const g_tag = program.command("tag").description("tag commands");
 	g_tag
-		.command('all')
-		.description('tag all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("tag.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "tag.all", "get", options),
+		);
 	g_tag
-		.command('assign-to-project')
-		.description('tag assignToProject')
-		.requiredOption('--projectId <value>', 'projectId')
-		.requiredOption('--tagId <value>', 'tagId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("tag.assignToProject", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("assign-to-project")
+		.description("Assign To Project")
+		.option("--projectId <value>", "Project Id [required]")
+		.option("--tagId <value>", "Tag Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "tag.assignToProject", "post", options, { required: ["projectId","tagId"] }),
+		);
 	g_tag
-		.command('bulk-assign')
-		.description('tag bulkAssign')
-		.requiredOption('--projectId <value>', 'projectId')
-		.requiredOption('--tagIds <value>', 'tagIds')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("tag.bulkAssign", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("bulk-assign")
+		.description("Bulk Assign")
+		.option("--projectId <value>", "Project Id [required]")
+		.option("--tagIds <json>", "Tag Ids [required] (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "tag.bulkAssign", "post", options, { required: ["projectId","tagIds"], types: {"tagIds":"array"} }),
+		);
 	g_tag
-		.command('create')
-		.description('tag create')
-		.requiredOption('--name <value>', 'name')
-		.option('--color <value>', 'color')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("tag.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--color <value>", "Color (nullable: pass \"null\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "tag.create", "post", options, { required: ["name"], types: {"color":"string?"} }),
+		);
 	g_tag
-		.command('one')
-		.description('tag one')
-		.requiredOption('--tagId <value>', 'tagId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("tag.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--tagId <value>", "Tag Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "tag.one", "get", options, { required: ["tagId"] }),
+		);
 	g_tag
-		.command('remove')
-		.description('tag remove')
-		.requiredOption('--tagId <value>', 'tagId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("tag.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--tagId <value>", "Tag Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "tag.remove", "post", options, { required: ["tagId"] }),
+		);
 	g_tag
-		.command('remove-from-project')
-		.description('tag removeFromProject')
-		.requiredOption('--projectId <value>', 'projectId')
-		.requiredOption('--tagId <value>', 'tagId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("tag.removeFromProject", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove-from-project")
+		.description("Remove From Project")
+		.option("--projectId <value>", "Project Id [required]")
+		.option("--tagId <value>", "Tag Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "tag.removeFromProject", "post", options, { required: ["projectId","tagId"] }),
+		);
 	g_tag
-		.command('update')
-		.description('tag update')
-		.requiredOption('--tagId <value>', 'tagId')
-		.option('--name <value>', 'name')
-		.option('--color <value>', 'color')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--organizationId <value>', 'organizationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("tag.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_user = program.command('user').description('user commands');
-
+		.command("update")
+		.description("Update")
+		.option("--tagId <value>", "Tag Id [required]")
+		.option("--name <value>", "Name")
+		.option("--color <value>", "Color (nullable: pass \"null\")")
+		.option("--createdAt <value>", "Created At")
+		.option("--organizationId <value>", "Organization Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "tag.update", "post", options, { required: ["tagId"], types: {"color":"string?"} }),
+		);
+	const g_user = program.command("user").description("user commands");
 	g_user
-		.command('all')
-		.description('user all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.all", "get", options),
+		);
 	g_user
-		.command('assign-permissions')
-		.description('user assignPermissions')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--accessedProjects <value>', 'accessedProjects')
-		.requiredOption('--accessedEnvironments <value>', 'accessedEnvironments')
-		.requiredOption('--accessedServices <value>', 'accessedServices')
-		.requiredOption('--accessedGitProviders <value>', 'accessedGitProviders')
-		.requiredOption('--accessedServers <value>', 'accessedServers')
-		.requiredOption('--canCreateProjects', 'canCreateProjects')
-		.requiredOption('--canCreateServices', 'canCreateServices')
-		.requiredOption('--canDeleteProjects', 'canDeleteProjects')
-		.requiredOption('--canDeleteServices', 'canDeleteServices')
-		.requiredOption('--canAccessToDocker', 'canAccessToDocker')
-		.requiredOption('--canAccessToTraefikFiles', 'canAccessToTraefikFiles')
-		.requiredOption('--canAccessToAPI', 'canAccessToAPI')
-		.requiredOption('--canAccessToSSHKeys', 'canAccessToSSHKeys')
-		.requiredOption('--canAccessToGitProviders', 'canAccessToGitProviders')
-		.requiredOption('--canDeleteEnvironments', 'canDeleteEnvironments')
-		.requiredOption('--canCreateEnvironments', 'canCreateEnvironments')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["canCreateProjects"] != null) opts["canCreateProjects"] = opts["canCreateProjects"] === true || opts["canCreateProjects"] === "true";
-			if (opts["canCreateServices"] != null) opts["canCreateServices"] = opts["canCreateServices"] === true || opts["canCreateServices"] === "true";
-			if (opts["canDeleteProjects"] != null) opts["canDeleteProjects"] = opts["canDeleteProjects"] === true || opts["canDeleteProjects"] === "true";
-			if (opts["canDeleteServices"] != null) opts["canDeleteServices"] = opts["canDeleteServices"] === true || opts["canDeleteServices"] === "true";
-			if (opts["canAccessToDocker"] != null) opts["canAccessToDocker"] = opts["canAccessToDocker"] === true || opts["canAccessToDocker"] === "true";
-			if (opts["canAccessToTraefikFiles"] != null) opts["canAccessToTraefikFiles"] = opts["canAccessToTraefikFiles"] === true || opts["canAccessToTraefikFiles"] === "true";
-			if (opts["canAccessToAPI"] != null) opts["canAccessToAPI"] = opts["canAccessToAPI"] === true || opts["canAccessToAPI"] === "true";
-			if (opts["canAccessToSSHKeys"] != null) opts["canAccessToSSHKeys"] = opts["canAccessToSSHKeys"] === true || opts["canAccessToSSHKeys"] === "true";
-			if (opts["canAccessToGitProviders"] != null) opts["canAccessToGitProviders"] = opts["canAccessToGitProviders"] === true || opts["canAccessToGitProviders"] === "true";
-			if (opts["canDeleteEnvironments"] != null) opts["canDeleteEnvironments"] = opts["canDeleteEnvironments"] === true || opts["canDeleteEnvironments"] === "true";
-			if (opts["canCreateEnvironments"] != null) opts["canCreateEnvironments"] = opts["canCreateEnvironments"] === true || opts["canCreateEnvironments"] === "true";
-			const data = await apiPost("user.assignPermissions", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("assign-permissions")
+		.description("Assign Permissions")
+		.option("--id <value>", "Id [required]")
+		.option("--accessedProjects <json>", "Accessed Projects [required] (JSON array)")
+		.option("--accessedEnvironments <json>", "Accessed Environments [required] (JSON array)")
+		.option("--accessedServices <json>", "Accessed Services [required] (JSON array)")
+		.option("--accessedGitProviders <json>", "Accessed Git Providers [required] (JSON array)")
+		.option("--accessedServers <json>", "Accessed Servers [required] (JSON array)")
+		.option("--canCreateProjects [boolean]", "Can Create Projects [required]")
+		.option("--canCreateServices [boolean]", "Can Create Services [required]")
+		.option("--canDeleteProjects [boolean]", "Can Delete Projects [required]")
+		.option("--canDeleteServices [boolean]", "Can Delete Services [required]")
+		.option("--canAccessToDocker [boolean]", "Can Access To Docker [required]")
+		.option("--canAccessToTraefikFiles [boolean]", "Can Access To Traefik Files [required]")
+		.option("--canAccessToAPI [boolean]", "Can Access To API [required]")
+		.option("--canAccessToSSHKeys [boolean]", "Can Access To SSHKeys [required]")
+		.option("--canAccessToGitProviders [boolean]", "Can Access To Git Providers [required]")
+		.option("--canDeleteEnvironments [boolean]", "Can Delete Environments [required]")
+		.option("--canCreateEnvironments [boolean]", "Can Create Environments [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.assignPermissions", "post", options, { required: ["id","accessedProjects","accessedEnvironments","accessedServices","accessedGitProviders","accessedServers","canCreateProjects","canCreateServices","canDeleteProjects","canDeleteServices","canAccessToDocker","canAccessToTraefikFiles","canAccessToAPI","canAccessToSSHKeys","canAccessToGitProviders","canDeleteEnvironments","canCreateEnvironments"], types: {"accessedEnvironments":"array","accessedGitProviders":"array","accessedProjects":"array","accessedServers":"array","accessedServices":"array","canAccessToAPI":"boolean","canAccessToDocker":"boolean","canAccessToGitProviders":"boolean","canAccessToSSHKeys":"boolean","canAccessToTraefikFiles":"boolean","canCreateEnvironments":"boolean","canCreateProjects":"boolean","canCreateServices":"boolean","canDeleteEnvironments":"boolean","canDeleteProjects":"boolean","canDeleteServices":"boolean"} }),
+		);
 	g_user
-		.command('check-user-organizations')
-		.description('user checkUserOrganizations')
-		.requiredOption('--userId <value>', 'userId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.checkUserOrganizations", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("check-user-organizations")
+		.description("Check User Organizations")
+		.option("--userId <value>", "User Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.checkUserOrganizations", "get", options, { required: ["userId"] }),
+		);
 	g_user
-		.command('create-api-key')
-		.description('user createApiKey')
-		.requiredOption('--name <value>', 'name')
-		.option('--prefix <value>', 'prefix')
-		.option('--expiresIn <value>', 'expiresIn')
-		.requiredOption('--metadata <value>', 'metadata')
-		.option('--rateLimitEnabled', 'rateLimitEnabled')
-		.option('--rateLimitTimeWindow <value>', 'rateLimitTimeWindow')
-		.option('--rateLimitMax <value>', 'rateLimitMax')
-		.option('--remaining <value>', 'remaining')
-		.option('--refillAmount <value>', 'refillAmount')
-		.option('--refillInterval <value>', 'refillInterval')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["expiresIn"] != null) opts["expiresIn"] = Number(opts["expiresIn"]);
-			if (opts["rateLimitEnabled"] != null) opts["rateLimitEnabled"] = opts["rateLimitEnabled"] === true || opts["rateLimitEnabled"] === "true";
-			if (opts["rateLimitTimeWindow"] != null) opts["rateLimitTimeWindow"] = Number(opts["rateLimitTimeWindow"]);
-			if (opts["rateLimitMax"] != null) opts["rateLimitMax"] = Number(opts["rateLimitMax"]);
-			if (opts["remaining"] != null) opts["remaining"] = Number(opts["remaining"]);
-			if (opts["refillAmount"] != null) opts["refillAmount"] = Number(opts["refillAmount"]);
-			if (opts["refillInterval"] != null) opts["refillInterval"] = Number(opts["refillInterval"]);
-			const data = await apiPost("user.createApiKey", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-api-key")
+		.description("Create Api Key")
+		.option("--name <value>", "Name [required]")
+		.option("--prefix <value>", "Prefix")
+		.option("--expiresIn <value>", "Expires In")
+		.option("--metadata <json>", "Metadata [required] (JSON object)")
+		.option("--rateLimitEnabled [boolean]", "Rate Limit Enabled")
+		.option("--no-rateLimitEnabled", "Set rateLimitEnabled to false")
+		.option("--rateLimitTimeWindow <value>", "Rate Limit Time Window")
+		.option("--rateLimitMax <value>", "Rate Limit Max")
+		.option("--remaining <value>", "Remaining")
+		.option("--refillAmount <value>", "Refill Amount")
+		.option("--refillInterval <value>", "Refill Interval")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.createApiKey", "post", options, { required: ["name","metadata"], types: {"expiresIn":"number","metadata":"object","rateLimitEnabled":"boolean","rateLimitMax":"number","rateLimitTimeWindow":"number","refillAmount":"number","refillInterval":"number","remaining":"number"} }),
+		);
 	g_user
-		.command('create-user-with-credentials')
-		.description('user createUserWithCredentials')
-		.requiredOption('--email <value>', 'email')
-		.requiredOption('--password <value>', 'password')
-		.requiredOption('--role <value>', 'role')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("user.createUserWithCredentials", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create-user-with-credentials")
+		.description("Create User With Credentials")
+		.option("--email <value>", "Email [required]")
+		.option("--password <value>", "Password [required]")
+		.option("--role <value>", "Role [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.createUserWithCredentials", "post", options, { required: ["email","password","role"] }),
+		);
 	g_user
-		.command('delete-api-key')
-		.description('user deleteApiKey')
-		.requiredOption('--apiKeyId <value>', 'apiKeyId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("user.deleteApiKey", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete-api-key")
+		.description("Delete Api Key")
+		.option("--apiKeyId <value>", "Api Key Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.deleteApiKey", "post", options, { required: ["apiKeyId"] }),
+		);
 	g_user
-		.command('generate-token')
-		.description('user generateToken')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("user.generateToken", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("generate-token")
+		.description("Generate Token")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.generateToken", "post", options),
+		);
 	g_user
-		.command('get')
-		.description('user get')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.get", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get")
+		.description("Get")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.get", "get", options),
+		);
 	g_user
-		.command('get-backups')
-		.description('user getBackups')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.getBackups", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-backups")
+		.description("Get Backups")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.getBackups", "get", options),
+		);
 	g_user
-		.command('get-bookmarked-templates')
-		.description('user getBookmarkedTemplates')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.getBookmarkedTemplates", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-bookmarked-templates")
+		.description("Get Bookmarked Templates")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.getBookmarkedTemplates", "get", options),
+		);
 	g_user
-		.command('get-container-metrics')
-		.description('user getContainerMetrics')
-		.requiredOption('--url <value>', 'url')
-		.requiredOption('--token <value>', 'token')
-		.requiredOption('--appName <value>', 'appName')
-		.requiredOption('--dataPoints <value>', 'dataPoints')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.getContainerMetrics", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-container-metrics")
+		.description("Get Container Metrics")
+		.option("--url <value>", "Url [required]")
+		.option("--token <value>", "Token [required]")
+		.option("--appName <value>", "App Name [required]")
+		.option("--dataPoints <value>", "Data Points [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.getContainerMetrics", "get", options, { required: ["url","token","appName","dataPoints"] }),
+		);
 	g_user
-		.command('get-invitations')
-		.description('user getInvitations')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.getInvitations", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-invitations")
+		.description("Get Invitations")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.getInvitations", "get", options),
+		);
 	g_user
-		.command('get-metrics-token')
-		.description('user getMetricsToken')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.getMetricsToken", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-metrics-token")
+		.description("Get Metrics Token")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.getMetricsToken", "get", options),
+		);
 	g_user
-		.command('get-permissions')
-		.description('user getPermissions')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.getPermissions", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-permissions")
+		.description("Get Permissions")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.getPermissions", "get", options),
+		);
 	g_user
-		.command('get-server-metrics')
-		.description('user getServerMetrics')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.getServerMetrics", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-server-metrics")
+		.description("Get Server Metrics")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.getServerMetrics", "get", options),
+		);
 	g_user
-		.command('get-user-by-token')
-		.description('user getUserByToken')
-		.requiredOption('--token <value>', 'token')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.getUserByToken", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-user-by-token")
+		.description("Get User By Token")
+		.option("--token <value>", "Token [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.getUserByToken", "get", options, { required: ["token"] }),
+		);
 	g_user
-		.command('have-root-access')
-		.description('user haveRootAccess')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.haveRootAccess", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("have-root-access")
+		.description("Have Root Access")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.haveRootAccess", "get", options),
+		);
 	g_user
-		.command('list-passkeys')
-		.description('user listPasskeys')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.listPasskeys", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-passkeys")
+		.description("List Passkeys")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.listPasskeys", "get", options),
+		);
 	g_user
-		.command('list-sessions')
-		.description('user listSessions')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.listSessions", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-sessions")
+		.description("List Sessions")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.listSessions", "get", options),
+		);
 	g_user
-		.command('one')
-		.description('user one')
-		.requiredOption('--userId <value>', 'userId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--userId <value>", "User Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.one", "get", options, { required: ["userId"] }),
+		);
 	g_user
-		.command('remove')
-		.description('user remove')
-		.requiredOption('--userId <value>', 'userId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("user.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--userId <value>", "User Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.remove", "post", options, { required: ["userId"] }),
+		);
 	g_user
-		.command('revoke-session')
-		.description('user revokeSession')
-		.requiredOption('--sessionId <value>', 'sessionId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("user.revokeSession", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("revoke-session")
+		.description("Revoke Session")
+		.option("--sessionId <value>", "Session Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.revokeSession", "post", options, { required: ["sessionId"] }),
+		);
 	g_user
-		.command('send-invitation')
-		.description('user sendInvitation')
-		.requiredOption('--invitationId <value>', 'invitationId')
-		.requiredOption('--notificationId <value>', 'notificationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("user.sendInvitation", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("send-invitation")
+		.description("Send Invitation")
+		.option("--invitationId <value>", "Invitation Id [required]")
+		.option("--notificationId <value>", "Notification Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.sendInvitation", "post", options, { required: ["invitationId","notificationId"] }),
+		);
 	g_user
-		.command('session')
-		.description('user session')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("user.session", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("session")
+		.description("Session")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.session", "get", options),
+		);
 	g_user
-		.command('toggle-template-bookmark')
-		.description('user toggleTemplateBookmark')
-		.requiredOption('--templateId <value>', 'templateId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("user.toggleTemplateBookmark", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("toggle-template-bookmark")
+		.description("Toggle Template Bookmark")
+		.option("--templateId <value>", "Template Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.toggleTemplateBookmark", "post", options, { required: ["templateId"] }),
+		);
 	g_user
-		.command('update')
-		.description('user update')
-		.option('--id <value>', 'id')
-		.option('--firstName <value>', 'firstName')
-		.option('--lastName <value>', 'lastName')
-		.option('--isRegistered', 'isRegistered')
-		.option('--expirationDate <value>', 'expirationDate')
-		.option('--createdAt2 <value>', 'createdAt2')
-		.option('--createdAt <value>', 'createdAt')
-		.option('--twoFactorEnabled', 'twoFactorEnabled')
-		.option('--email <value>', 'email')
-		.option('--emailVerified', 'emailVerified')
-		.option('--image <value>', 'image')
-		.option('--banned', 'banned')
-		.option('--banReason <value>', 'banReason')
-		.option('--banExpires <value>', 'banExpires')
-		.option('--updatedAt <value>', 'updatedAt')
-		.option('--enablePaidFeatures', 'enablePaidFeatures')
-		.option('--allowImpersonation', 'allowImpersonation')
-		.option('--enableEnterpriseFeatures', 'enableEnterpriseFeatures')
-		.option('--licenseKey <value>', 'licenseKey')
-		.option('--stripeCustomerId <value>', 'stripeCustomerId')
-		.option('--stripeSubscriptionId <value>', 'stripeSubscriptionId')
-		.option('--serversQuantity <value>', 'serversQuantity')
-		.option('--sendInvoiceNotifications', 'sendInvoiceNotifications')
-		.option('--password <value>', 'password')
-		.option('--currentPassword <value>', 'currentPassword')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["isRegistered"] != null) opts["isRegistered"] = opts["isRegistered"] === true || opts["isRegistered"] === "true";
-			if (opts["twoFactorEnabled"] != null) opts["twoFactorEnabled"] = opts["twoFactorEnabled"] === true || opts["twoFactorEnabled"] === "true";
-			if (opts["emailVerified"] != null) opts["emailVerified"] = opts["emailVerified"] === true || opts["emailVerified"] === "true";
-			if (opts["banned"] != null) opts["banned"] = opts["banned"] === true || opts["banned"] === "true";
-			if (opts["enablePaidFeatures"] != null) opts["enablePaidFeatures"] = opts["enablePaidFeatures"] === true || opts["enablePaidFeatures"] === "true";
-			if (opts["allowImpersonation"] != null) opts["allowImpersonation"] = opts["allowImpersonation"] === true || opts["allowImpersonation"] === "true";
-			if (opts["enableEnterpriseFeatures"] != null) opts["enableEnterpriseFeatures"] = opts["enableEnterpriseFeatures"] === true || opts["enableEnterpriseFeatures"] === "true";
-			if (opts["serversQuantity"] != null) opts["serversQuantity"] = Number(opts["serversQuantity"]);
-			if (opts["sendInvoiceNotifications"] != null) opts["sendInvoiceNotifications"] = opts["sendInvoiceNotifications"] === true || opts["sendInvoiceNotifications"] === "true";
-			const data = await apiPost("user.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_vaultProvider = program.command('vault-provider').description('vault-provider commands');
-
+		.command("update")
+		.description("Update")
+		.option("--id <value>", "Id")
+		.option("--firstName <value>", "First Name")
+		.option("--lastName <value>", "Last Name")
+		.option("--isRegistered [boolean]", "Is Registered")
+		.option("--no-isRegistered", "Set isRegistered to false")
+		.option("--expirationDate <value>", "Expiration Date")
+		.option("--createdAt2 <value>", "Created At2")
+		.option("--createdAt <value>", "Created At (nullable: pass \"null\")")
+		.option("--twoFactorEnabled [boolean]", "Two Factor Enabled (nullable: pass \"null\")")
+		.option("--no-twoFactorEnabled", "Set twoFactorEnabled to false")
+		.option("--email <value>", "Email")
+		.option("--emailVerified [boolean]", "Email Verified")
+		.option("--no-emailVerified", "Set emailVerified to false")
+		.option("--image <value>", "Image (nullable: pass \"null\")")
+		.option("--banned [boolean]", "Banned (nullable: pass \"null\")")
+		.option("--no-banned", "Set banned to false")
+		.option("--banReason <value>", "Ban Reason (nullable: pass \"null\")")
+		.option("--banExpires <value>", "Ban Expires (nullable: pass \"null\")")
+		.option("--updatedAt <value>", "Updated At")
+		.option("--enablePaidFeatures [boolean]", "Enable Paid Features")
+		.option("--no-enablePaidFeatures", "Set enablePaidFeatures to false")
+		.option("--allowImpersonation [boolean]", "Allow Impersonation")
+		.option("--no-allowImpersonation", "Set allowImpersonation to false")
+		.option("--enableEnterpriseFeatures [boolean]", "Enable Enterprise Features")
+		.option("--no-enableEnterpriseFeatures", "Set enableEnterpriseFeatures to false")
+		.option("--licenseKey <value>", "License Key (nullable: pass \"null\")")
+		.option("--stripeCustomerId <value>", "Stripe Customer Id (nullable: pass \"null\")")
+		.option("--stripeSubscriptionId <value>", "Stripe Subscription Id (nullable: pass \"null\")")
+		.option("--serversQuantity <value>", "Servers Quantity")
+		.option("--sendInvoiceNotifications [boolean]", "Send Invoice Notifications")
+		.option("--no-sendInvoiceNotifications", "Set sendInvoiceNotifications to false")
+		.option("--password <value>", "Password")
+		.option("--currentPassword <value>", "Current Password")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "user.update", "post", options, { types: {"allowImpersonation":"boolean","banExpires":"string?","banned":"boolean?","banReason":"string?","createdAt":"string?","emailVerified":"boolean","enableEnterpriseFeatures":"boolean","enablePaidFeatures":"boolean","image":"string?","isRegistered":"boolean","licenseKey":"string?","sendInvoiceNotifications":"boolean","serversQuantity":"number","stripeCustomerId":"string?","stripeSubscriptionId":"string?","twoFactorEnabled":"boolean?"} }),
+		);
+	const g_vaultProvider = program.command("vault-provider").description("vaultProvider commands");
 	g_vaultProvider
-		.command('all')
-		.description('vaultProvider all')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("vaultProvider.all", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.all", "get", options),
+		);
 	g_vaultProvider
-		.command('create')
-		.description('vaultProvider create')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--config <value>', 'config')
-		.requiredOption('--assignments <value>', 'assignments')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("vaultProvider.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--config <json>", "Config [required] (JSON object)")
+		.option("--assignments <json>", "Assignments [required] (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.create", "post", options, { required: ["name","config","assignments"], types: {"assignments":"array","config":"object"} }),
+		);
 	g_vaultProvider
-		.command('list-secret-names')
-		.description('vaultProvider listSecretNames')
-		.requiredOption('--vaultProviderId <value>', 'vaultProviderId')
-		.requiredOption('--projectId <value>', 'projectId')
-		.option('--environmentId <value>', 'environmentId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("vaultProvider.listSecretNames", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list-secret-names")
+		.description("List Secret Names")
+		.option("--vaultProviderId <value>", "Vault Provider Id [required]")
+		.option("--projectId <value>", "Project Id [required]")
+		.option("--environmentId <value>", "Environment Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.listSecretNames", "get", options, { required: ["vaultProviderId","projectId"] }),
+		);
 	g_vaultProvider
-		.command('one')
-		.description('vaultProvider one')
-		.requiredOption('--vaultProviderId <value>', 'vaultProviderId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("vaultProvider.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--vaultProviderId <value>", "Vault Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.one", "get", options, { required: ["vaultProviderId"] }),
+		);
 	g_vaultProvider
-		.command('remove')
-		.description('vaultProvider remove')
-		.requiredOption('--vaultProviderId <value>', 'vaultProviderId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("vaultProvider.remove", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("remove")
+		.description("Remove")
+		.option("--vaultProviderId <value>", "Vault Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.remove", "post", options, { required: ["vaultProviderId"] }),
+		);
 	g_vaultProvider
-		.command('test-connection')
-		.description('vaultProvider testConnection')
-		.option('--vaultProviderId <value>', 'vaultProviderId')
-		.option('--config <value>', 'config')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("vaultProvider.testConnection", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--vaultProviderId <value>", "Vault Provider Id")
+		.option("--config <json>", "Config (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.testConnection", "post", options, { types: {"config":"object"} }),
+		);
 	g_vaultProvider
-		.command('update')
-		.description('vaultProvider update')
-		.requiredOption('--vaultProviderId <value>', 'vaultProviderId')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--config <value>', 'config')
-		.requiredOption('--assignments <value>', 'assignments')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("vaultProvider.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_volumeBackups = program.command('volume-backups').description('volume-backups commands');
-
+		.command("update")
+		.description("Update")
+		.option("--vaultProviderId <value>", "Vault Provider Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--config <json>", "Config [required] (JSON object)")
+		.option("--assignments <json>", "Assignments [required] (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.update", "post", options, { required: ["vaultProviderId","name","config","assignments"], types: {"assignments":"array","config":"object"} }),
+		);
+	const g_volumeBackups = program.command("volume-backups").description("volumeBackups commands");
 	g_volumeBackups
-		.command('create')
-		.description('volumeBackups create')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--volumeName <value>', 'volumeName')
-		.requiredOption('--prefix <value>', 'prefix')
-		.option('--serviceType <value>', 'serviceType (application, postgres, mysql, mariadb, mongo, redis, compose, libsql)')
-		.option('--appName <value>', 'appName')
-		.option('--serviceName <value>', 'serviceName')
-		.option('--turnOff', 'turnOff')
-		.requiredOption('--cronExpression <value>', 'cronExpression')
-		.option('--keepLatestCount <value>', 'keepLatestCount')
-		.option('--enabled', 'enabled')
-		.option('--applicationId <value>', 'applicationId')
-		.option('--postgresId <value>', 'postgresId')
-		.option('--mariadbId <value>', 'mariadbId')
-		.option('--mongoId <value>', 'mongoId')
-		.option('--mysqlId <value>', 'mysqlId')
-		.option('--redisId <value>', 'redisId')
-		.option('--libsqlId <value>', 'libsqlId')
-		.option('--composeId <value>', 'composeId')
-		.option('--createdAt <value>', 'createdAt')
-		.requiredOption('--destinationId <value>', 'destinationId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["turnOff"] != null) opts["turnOff"] = opts["turnOff"] === true || opts["turnOff"] === "true";
-			if (opts["keepLatestCount"] != null) opts["keepLatestCount"] = Number(opts["keepLatestCount"]);
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			const data = await apiPost("volumeBackups.create", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--volumeName <value>", "Volume Name [required]")
+		.option("--prefix <value>", "Prefix [required]")
+		.option("--serviceType <value>", "Service Type (one of: application, postgres, mysql, mariadb, mongo, redis, compose, libsql)")
+		.option("--appName <value>", "App Name")
+		.option("--serviceName <value>", "Service Name (nullable: pass \"null\")")
+		.option("--turnOff [boolean]", "Turn Off")
+		.option("--no-turnOff", "Set turnOff to false")
+		.option("--cronExpression <value>", "Cron Expression [required]")
+		.option("--keepLatestCount <value>", "Keep Latest Count (nullable: pass \"null\")")
+		.option("--enabled [boolean]", "Enabled (nullable: pass \"null\")")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--applicationId <value>", "Application Id (nullable: pass \"null\")")
+		.option("--postgresId <value>", "Postgres Id (nullable: pass \"null\")")
+		.option("--mariadbId <value>", "Mariadb Id (nullable: pass \"null\")")
+		.option("--mongoId <value>", "Mongo Id (nullable: pass \"null\")")
+		.option("--mysqlId <value>", "Mysql Id (nullable: pass \"null\")")
+		.option("--redisId <value>", "Redis Id (nullable: pass \"null\")")
+		.option("--libsqlId <value>", "Libsql Id (nullable: pass \"null\")")
+		.option("--composeId <value>", "Compose Id (nullable: pass \"null\")")
+		.option("--createdAt <value>", "Created At")
+		.option("--destinationId <value>", "Destination Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "volumeBackups.create", "post", options, { required: ["name","volumeName","prefix","cronExpression","destinationId"], types: {"applicationId":"string?","composeId":"string?","enabled":"boolean?","keepLatestCount":"number?","libsqlId":"string?","mariadbId":"string?","mongoId":"string?","mysqlId":"string?","postgresId":"string?","redisId":"string?","serviceName":"string?","turnOff":"boolean"}, enums: {"serviceType":["application","postgres","mysql","mariadb","mongo","redis","compose","libsql"]} }),
+		);
 	g_volumeBackups
-		.command('delete')
-		.description('volumeBackups delete')
-		.requiredOption('--volumeBackupId <value>', 'volumeBackupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("volumeBackups.delete", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("delete")
+		.description("Delete")
+		.option("--volumeBackupId <value>", "Volume Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "volumeBackups.delete", "post", options, { required: ["volumeBackupId"] }),
+		);
 	g_volumeBackups
-		.command('list')
-		.description('volumeBackups list')
-		.requiredOption('--id <value>', 'id')
-		.requiredOption('--volumeBackupType <value>', 'volumeBackupType (application, postgres, mysql, mariadb, mongo, redis, compose, libsql)')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("volumeBackups.list", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("list")
+		.description("List")
+		.option("--id <value>", "Id [required]")
+		.option("--volumeBackupType <value>", "Volume Backup Type [required] (one of: application, postgres, mysql, mariadb, mongo, redis, compose, libsql)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "volumeBackups.list", "get", options, { required: ["id","volumeBackupType"], enums: {"volumeBackupType":["application","postgres","mysql","mariadb","mongo","redis","compose","libsql"]} }),
+		);
 	g_volumeBackups
-		.command('one')
-		.description('volumeBackups one')
-		.requiredOption('--volumeBackupId <value>', 'volumeBackupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("volumeBackups.one", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("one")
+		.description("One")
+		.option("--volumeBackupId <value>", "Volume Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "volumeBackups.one", "get", options, { required: ["volumeBackupId"] }),
+		);
 	g_volumeBackups
-		.command('run-manually')
-		.description('volumeBackups runManually')
-		.requiredOption('--volumeBackupId <value>', 'volumeBackupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("volumeBackups.runManually", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("run-manually")
+		.description("Run Manually")
+		.option("--volumeBackupId <value>", "Volume Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "volumeBackups.runManually", "post", options, { required: ["volumeBackupId"] }),
+		);
 	g_volumeBackups
-		.command('update')
-		.description('volumeBackups update')
-		.requiredOption('--name <value>', 'name')
-		.requiredOption('--volumeName <value>', 'volumeName')
-		.requiredOption('--prefix <value>', 'prefix')
-		.option('--serviceType <value>', 'serviceType (application, postgres, mysql, mariadb, mongo, redis, compose, libsql)')
-		.option('--appName <value>', 'appName')
-		.option('--serviceName <value>', 'serviceName')
-		.option('--turnOff', 'turnOff')
-		.requiredOption('--cronExpression <value>', 'cronExpression')
-		.option('--keepLatestCount <value>', 'keepLatestCount')
-		.option('--enabled', 'enabled')
-		.option('--applicationId <value>', 'applicationId')
-		.option('--postgresId <value>', 'postgresId')
-		.option('--mariadbId <value>', 'mariadbId')
-		.option('--mongoId <value>', 'mongoId')
-		.option('--mysqlId <value>', 'mysqlId')
-		.option('--redisId <value>', 'redisId')
-		.option('--libsqlId <value>', 'libsqlId')
-		.option('--composeId <value>', 'composeId')
-		.option('--createdAt <value>', 'createdAt')
-		.requiredOption('--destinationId <value>', 'destinationId')
-		.requiredOption('--volumeBackupId <value>', 'volumeBackupId')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-			if (opts["turnOff"] != null) opts["turnOff"] = opts["turnOff"] === true || opts["turnOff"] === "true";
-			if (opts["keepLatestCount"] != null) opts["keepLatestCount"] = Number(opts["keepLatestCount"]);
-			if (opts["enabled"] != null) opts["enabled"] = opts["enabled"] === true || opts["enabled"] === "true";
-			const data = await apiPost("volumeBackups.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-	const g_whitelabeling = program.command('whitelabeling').description('whitelabeling commands');
-
+		.command("update")
+		.description("Update")
+		.option("--name <value>", "Name [required]")
+		.option("--volumeName <value>", "Volume Name [required]")
+		.option("--prefix <value>", "Prefix [required]")
+		.option("--serviceType <value>", "Service Type (one of: application, postgres, mysql, mariadb, mongo, redis, compose, libsql)")
+		.option("--appName <value>", "App Name")
+		.option("--serviceName <value>", "Service Name (nullable: pass \"null\")")
+		.option("--turnOff [boolean]", "Turn Off")
+		.option("--no-turnOff", "Set turnOff to false")
+		.option("--cronExpression <value>", "Cron Expression [required]")
+		.option("--keepLatestCount <value>", "Keep Latest Count (nullable: pass \"null\")")
+		.option("--enabled [boolean]", "Enabled (nullable: pass \"null\")")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--applicationId <value>", "Application Id (nullable: pass \"null\")")
+		.option("--postgresId <value>", "Postgres Id (nullable: pass \"null\")")
+		.option("--mariadbId <value>", "Mariadb Id (nullable: pass \"null\")")
+		.option("--mongoId <value>", "Mongo Id (nullable: pass \"null\")")
+		.option("--mysqlId <value>", "Mysql Id (nullable: pass \"null\")")
+		.option("--redisId <value>", "Redis Id (nullable: pass \"null\")")
+		.option("--libsqlId <value>", "Libsql Id (nullable: pass \"null\")")
+		.option("--composeId <value>", "Compose Id (nullable: pass \"null\")")
+		.option("--createdAt <value>", "Created At")
+		.option("--destinationId <value>", "Destination Id [required]")
+		.option("--volumeBackupId <value>", "Volume Backup Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "volumeBackups.update", "post", options, { required: ["name","volumeName","prefix","cronExpression","destinationId","volumeBackupId"], types: {"applicationId":"string?","composeId":"string?","enabled":"boolean?","keepLatestCount":"number?","libsqlId":"string?","mariadbId":"string?","mongoId":"string?","mysqlId":"string?","postgresId":"string?","redisId":"string?","serviceName":"string?","turnOff":"boolean"}, enums: {"serviceType":["application","postgres","mysql","mariadb","mongo","redis","compose","libsql"]} }),
+		);
+	const g_whitelabeling = program.command("whitelabeling").description("whitelabeling commands");
 	g_whitelabeling
-		.command('get')
-		.description('whitelabeling get')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("whitelabeling.get", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get")
+		.description("Get")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "whitelabeling.get", "get", options),
+		);
 	g_whitelabeling
-		.command('get-public')
-		.description('whitelabeling getPublic')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiGet("whitelabeling.getPublic", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("get-public")
+		.description("Get Public")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "whitelabeling.getPublic", "get", options),
+		);
 	g_whitelabeling
-		.command('reset')
-		.description('whitelabeling reset')
-		
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("whitelabeling.reset", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
-
+		.command("reset")
+		.description("Reset")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "whitelabeling.reset", "post", options),
+		);
 	g_whitelabeling
-		.command('update')
-		.description('whitelabeling update')
-		.requiredOption('--whitelabelingConfig <value>', 'whitelabelingConfig')
-		.option('--json', 'Output raw JSON')
-		.action(async (opts: Record<string, any>) => {
-			const jsonOutput = opts.json; delete opts.json;
-
-			const data = await apiPost("whitelabeling.update", opts);
-			if (jsonOutput) {
-				console.log(JSON.stringify(data, null, 2));
-			} else {
-				printOutput(data);
-			}
-		});
+		.command("update")
+		.description("Update")
+		.option("--whitelabelingConfig <json>", "Whitelabeling Config [required] (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "whitelabeling.update", "post", options, { required: ["whitelabelingConfig"], types: {"whitelabelingConfig":"object"} }),
+		);
 }

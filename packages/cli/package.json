@@ -1,59 +1,64 @@
 {
-  "name": "@notploy/cli",
-  "description": "A CLI to manage notploy server remotely",
-  "version": "1.0.0",
-  "author": "Sky Genesis Enterprise",
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/skygenesisenterprise/notploy/blob/master/packages/cli/LICENSE.md"
-    }
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "bin": {
-    "notploy": "./dist/index.js"
-  },
-  "bugs": "https://github.com/skygenesisenterprise/notploy/issues",
-  "dependencies": {
-    "axios": "^1.7.2",
-    "chalk": "^5.3.0",
-    "commander": "^13.1.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.5.15",
-    "@types/node": "^18",
-    "tsx": "^4.21.0",
-    "typescript": "^7",
-    "vitest": "^4.1.4"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "files": [
-    "/dist"
-  ],
-  "homepage": "https://github.com/skygenesisenterprise/notploy/tree/master/packages/cli",
-  "keywords": [
-    "notploy",
-    "cli"
-  ],
-  "license": "MIT",
-  "main": "dist/index.js",
-  "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/skygenesisenterprise/notploy.git",
-    "directory": "packages/cli"
-  },
-  "scripts": {
-    "build": "tsc -b",
-    "generate": "tsx scripts/generate.ts",
-    "prebuild": "pnpm run generate",
-    "dev": "tsx src/index.ts",
-    "lint": "biome check --write .",
-    "test": "vitest run"
-  },
-  "types": "dist/index.d.ts"
+	"name": "@notploy/cli",
+	"description": "A CLI to manage notploy server remotely",
+	"version": "1.0.1",
+	"author": "Sky Genesis Enterprise",
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/skygenesisenterprise/notploy/blob/master/packages/cli/LICENSE.md"
+		}
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"bin": {
+		"notploy": "./dist/index.js"
+	},
+	"bugs": "https://github.com/skygenesisenterprise/notploy/issues",
+	"dependencies": {
+		"axios": "^1.7.2",
+		"chalk": "^5.3.0",
+		"commander": "^13.1.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.15",
+		"@types/node": "^18",
+		"tsx": "^4.21.0",
+		"typescript": "^7",
+		"vitest": "^4.1.4"
+	},
+	"engines": {
+		"node": ">=20.19.0"
+	},
+	"files": [
+		"/dist"
+	],
+	"homepage": "https://github.com/skygenesisenterprise/notploy/tree/master/packages/cli",
+	"keywords": [
+		"notploy",
+		"cli"
+	],
+	"license": "MIT",
+	"main": "dist/index.js",
+	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/skygenesisenterprise/notploy.git",
+		"directory": "packages/cli"
+	},
+	"scripts": {
+		"build": "tsc -b",
+		"generate": "tsx scripts/generate.ts",
+		"generate:check": "tsx scripts/generate.ts --check",
+		"prebuild": "pnpm run generate",
+		"dev": "tsx src/index.ts",
+		"lint": "biome check --write .",
+		"lint:ci": "biome check .",
+		"typecheck": "tsc --noEmit",
+		"pretest": "pnpm run build",
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"types": "dist/index.d.ts"
 }

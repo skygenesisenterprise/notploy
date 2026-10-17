@@ -7,7 +7,13 @@
 	},
 	"files": {
 		"ignoreUnknown": true,
-		"includes": ["**", "!**/dist", "!node_modules/**", "!src/generated/**"],
+		"includes": [
+			"**",
+			"!dist",
+			"!node_modules",
+			"!src/generated",
+			"!openapi.json"
+		],
 		"maxSize": 2097152
 	},
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },

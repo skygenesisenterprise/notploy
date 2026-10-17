@@ -1,0 +1,60 @@
+name: CLI
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "packages/cli/**"
+      - ".github/workflows/cli.yml"
+  pull_request:
+    paths:
+      - "packages/cli/**"
+      - ".github/workflows/cli.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: cli-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24.4.0"
+  PNPM_VERSION: "10.22.0"
+
+jobs:
+  check:
+    name: Generate, lint, typecheck and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install CLI dependencies
+        run: pnpm install --frozen-lockfile --filter "@notploy/cli..."
+
+      - name: Check generated output is current
+        run: pnpm --filter @notploy/cli run generate:check
+
+      - name: Lint and format check
+        run: pnpm --filter @notploy/cli run lint:ci
+
+      - name: Type-check
+        run: pnpm --filter @notploy/cli run typecheck
+
+      - name: Test
+        run: pnpm --filter @notploy/cli run test
