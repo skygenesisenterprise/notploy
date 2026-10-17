@@ -1,6 +1,6 @@
 {
   "name": "@notploy/mcp",
-  "version": "0.30.7",
+  "version": "1.0.0",
   "description": "MCP Server for Notploy API",
   "main": "build/index.js",
   "bin": {
@@ -19,15 +19,19 @@
     "dev:sse": "pnpm run build && pnpm run start:sse",
     "fetch-openapi": "tsx scripts/fetch-openapi.ts",
     "generate": "tsx scripts/generate-tools.ts",
+    "generate:check": "tsx scripts/generate-tools.ts --check",
     "generate:all": "pnpm fetch-openapi && pnpm generate",
-    "lint": "biome check",
-    "lint:fix": "biome check --fix",
+    "lint": "biome check --write .",
+    "lint:ci": "biome check .",
+    "lint:fix": "biome check --write .",
     "format": "biome format --write",
     "format:check": "biome format",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf build",
     "precommit": "biome check && pnpm run type-check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -39,12 +43,12 @@
     "mcp",
     "notploy"
   ],
-  "author": "Henrique Andrade <developer@henriqueandrade.dev>",
+  "author": "Sky Genesis Enterprise <developer@skygenesisenterprise.com>",
   "bugs": {
     "url": "https://github.com/skygenesisenterprise/notploy/issues"
   },
   "homepage": "https://github.com/skygenesisenterprise/notploy/tree/master/packages/mcp#readme",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "@hono/node-server": "^1.19.13",

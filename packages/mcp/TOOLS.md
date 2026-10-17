@@ -1,964 +1,821 @@
-# Notploy MCP Server - Tools Documentation
-
-> Auto-generated from the [Notploy OpenAPI spec](https://docs.notploy.com/openapi.json). Run `pnpm generate` to update.
-
-- **Total Tools**: 604
-- **Categories**: 57
-
-## Categories
-
-- [admin](#admin) (1 tools)
-- [ai](#ai) (14 tools)
-- [application](#application) (32 tools)
-- [auditLog](#auditLog) (1 tools)
-- [backup](#backup) (12 tools)
-- [bitbucket](#bitbucket) (7 tools)
-- [certificates](#certificates) (5 tools)
-- [cluster](#cluster) (4 tools)
-- [compose](#compose) (31 tools)
-- [customRole](#customRole) (6 tools)
-- [deployment](#deployment) (9 tools)
-- [destination](#destination) (6 tools)
-- [dnsProvider](#dnsProvider) (11 tools)
-- [docker](#docker) (18 tools)
-- [dockerDiskUsage](#dockerDiskUsage) (3 tools)
-- [dockerImage](#dockerImage) (3 tools)
-- [dockerVolume](#dockerVolume) (8 tools)
-- [domain](#domain) (10 tools)
-- [environment](#environment) (7 tools)
-- [forwardAuth](#forwardAuth) (10 tools)
-- [gitea](#gitea) (8 tools)
-- [github](#github) (6 tools)
-- [gitlab](#gitlab) (7 tools)
-- [gitProvider](#gitProvider) (4 tools)
-- [libsql](#libsql) (14 tools)
-- [licenseKey](#licenseKey) (6 tools)
-- [mariadb](#mariadb) (16 tools)
-- [mongo](#mongo) (16 tools)
-- [mounts](#mounts) (6 tools)
-- [mysql](#mysql) (16 tools)
-- [network](#network) (9 tools)
-- [notification](#notification) (41 tools)
-- [organization](#organization) (11 tools)
-- [overview](#overview) (3 tools)
-- [patch](#patch) (12 tools)
-- [port](#port) (4 tools)
-- [postgres](#postgres) (16 tools)
-- [previewDeployment](#previewDeployment) (4 tools)
-- [project](#project) (11 tools)
-- [redirects](#redirects) (4 tools)
-- [redis](#redis) (16 tools)
-- [registry](#registry) (7 tools)
-- [rollback](#rollback) (2 tools)
-- [schedule](#schedule) (6 tools)
-- [scim](#scim) (3 tools)
-- [security](#security) (4 tools)
-- [server](#server) (19 tools)
-- [settings](#settings) (52 tools)
-- [sshKey](#sshKey) (7 tools)
-- [sso](#sso) (11 tools)
-- [stripe](#stripe) (10 tools)
-- [swarm](#swarm) (4 tools)
-- [tag](#tag) (8 tools)
-- [user](#user) (26 tools)
-- [vaultProvider](#vaultProvider) (7 tools)
-- [volumeBackups](#volumeBackups) (6 tools)
-- [whitelabeling](#whitelabeling) (4 tools)
-
-## admin
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `admin-setupMonitoring` | POST | `metricsConfig` (object) |
-
-## ai
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `ai-one` | GET | `aiId` (string) |
-| `ai-getModels` | GET | `apiUrl` (string), `apiKey` (string) |
-| `ai-create` | POST | `name` (string), `apiUrl` (string), `apiKey` (string), `model` (string), `isEnabled` (boolean) |
-| `ai-update` | POST | `aiId` (string), +6 optional |
-| `ai-getAll` | GET | None |
-| `ai-get` | GET | `aiId` (string) |
-| `ai-delete` | POST | `aiId` (string) |
-| `ai-getCustomProviders` | GET | None |
-| `ai-saveCustomProviders` | POST | `providers` (object[]) |
-| `ai-getEnabledProviders` | GET | None |
-| `ai-analyzeLogs` | POST | `aiId` (string), `logs` (string), `context` ("build" | "runtime") |
-| `ai-testConnection` | POST | `apiUrl` (string), `apiKey` (string), `model` (string) |
-| `ai-suggest` | POST | `aiId` (string), `input` (string), `serverId`? |
-| `ai-deploy` | POST | `environmentId` (string), `id` (string), `dockerCompose` (string), `envVariables` (string), `name` (string), `description` (string), `serverId`?, `domains`?, `configFiles`? |
-
-## application
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `application-create` | POST | `name` (string), `environmentId` (string), +4 optional |
-| `application-deployNginxQuickstart` | POST | `environmentId` (string), `serverId`? |
-| `application-one` | GET | `applicationId` (string) |
-| `application-reload` | POST | `appName` (string), `applicationId` (string) |
-| `application-delete` | POST | `applicationId` (string) |
-| `application-stop` | POST | `applicationId` (string) |
-| `application-start` | POST | `applicationId` (string) |
-| `application-redeploy` | POST | `applicationId` (string), `title`?, `description`? |
-| `application-saveEnvironment` | POST | `applicationId` (string), `env` (string | null), `buildArgs` (string | null), `buildSecrets` (string | null), `createEnvFile` (boolean) |
-| `application-saveBuildType` | POST | `applicationId` (string), `buildType` ("dockerfile" | "heroku_buildpacks" | "paketo_buildpacks" | "nixpacks" | "static" | "railpack"), `dockerfile` (string | null), `dockerContextPath` (string | null), `dockerBuildStage` (string | null), `herokuVersion` (string | null), `railpackVersion` (string | null), `publishDirectory`?, `isStaticSpa`? |
-| `application-saveGithubProvider` | POST | `applicationId` (string), `repository` (string | null), `owner` (string | null), `buildPath` (string | null), `githubId` (string | null), `branch` (string), `triggerType` ("push" | "tag"), `enableSubmodules`?, `watchPaths`? |
-| `application-saveGitlabProvider` | POST | `applicationId` (string), `gitlabBuildPath` (string | null), `gitlabOwner` (string | null), `gitlabRepository` (string | null), `gitlabId` (string | null), `gitlabProjectId` (number | null), `gitlabPathNamespace` (string | null), `gitlabBranch` (string), `enableSubmodules`?, `watchPaths`? |
-| `application-saveBitbucketProvider` | POST | `bitbucketBuildPath` (string | null), `bitbucketOwner` (string | null), `bitbucketRepository` (string | null), `bitbucketRepositorySlug` (string | null), `bitbucketId` (string | null), `applicationId` (string), `bitbucketBranch` (string), `enableSubmodules`?, `watchPaths`? |
-| `application-saveGiteaProvider` | POST | `applicationId` (string), `giteaBuildPath` (string | null), `giteaOwner` (string | null), `giteaRepository` (string | null), `giteaId` (string | null), `giteaBranch` (string), `enableSubmodules`?, `watchPaths`? |
-| `application-saveDockerProvider` | POST | `dockerImage` (string | null), `applicationId` (string), `username` (string | null), `password` (string | null), `registryUrl` (string | null) |
-| `application-saveGitProvider` | POST | `applicationId` (string), `customGitBuildPath` (string | null), `customGitUrl` (string | null), `watchPaths` (array | null), `customGitBranch` (string), `enableSubmodules`?, `customGitSSHKeyId`? |
-| `application-disconnectGitProvider` | POST | `applicationId` (string) |
-| `application-markRunning` | POST | `applicationId` (string) |
-| `application-update` | POST | `applicationId` (string), +99 optional |
-| `application-refreshToken` | POST | `applicationId` (string) |
-| `application-deploy` | POST | `applicationId` (string), `title`?, `description`? |
-| `application-cleanQueues` | POST | `applicationId` (string) |
-| `application-clearDeployments` | POST | `applicationId` (string) |
-| `application-killBuild` | POST | `applicationId` (string) |
-| `application-readTraefikConfig` | GET | `applicationId` (string) |
-| `application-dropDeployment` | POST | None |
-| `application-updateTraefikConfig` | POST | `applicationId` (string), `traefikConfig` (string) |
-| `application-readAppMonitoring` | GET | `appName` (string) |
-| `application-move` | POST | `applicationId` (string), `targetEnvironmentId` (string) |
-| `application-cancelDeployment` | POST | `applicationId` (string) |
-| `application-search` | GET | +11 optional |
-| `application-readLogs` | GET | `applicationId` (string), `tail`?, `since`?, `search`? |
-
-## auditLog
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `auditLog-all` | GET | +9 optional |
-
-## backup
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `backup-create` | POST | `schedule` (string), `prefix` (string), `destinationId` (string), `database` (string), `databaseType` ("postgres" | "mariadb" | "mysql" | "mongo" | "web-server" | "libsql"), +13 optional |
-| `backup-one` | GET | `backupId` (string) |
-| `backup-update` | POST | `schedule` (string), `enabled` (boolean | null), `prefix` (string), `backupId` (string), `destinationId` (string), `database` (string), `keepLatestCount` (number | null), `serviceName` (string | null), `metadata` (unknown | null), `databaseType` ("postgres" | "mariadb" | "mysql" | "mongo" | "web-server" | "libsql"), `includeEncryptionKey`? |
-| `backup-remove` | POST | `backupId` (string) |
-| `backup-manualBackupPostgres` | POST | `backupId` (string) |
-| `backup-manualBackupMySql` | POST | `backupId` (string) |
-| `backup-manualBackupMariadb` | POST | `backupId` (string) |
-| `backup-manualBackupCompose` | POST | `backupId` (string) |
-| `backup-manualBackupMongo` | POST | `backupId` (string) |
-| `backup-manualBackupLibsql` | POST | `backupId` (string) |
-| `backup-manualBackupWebServer` | POST | `backupId` (string) |
-| `backup-listBackupFiles` | GET | `destinationId` (string), `search` (string), `serverId`? |
-
-## bitbucket
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `bitbucket-create` | POST | `authId` (string), `name` (string), +7 optional |
-| `bitbucket-one` | GET | `bitbucketId` (string) |
-| `bitbucket-bitbucketProviders` | GET | None |
-| `bitbucket-getBitbucketRepositories` | GET | `bitbucketId` (string) |
-| `bitbucket-getBitbucketBranches` | GET | `owner` (string), `repo` (string), `bitbucketId`? |
-| `bitbucket-testConnection` | POST | `bitbucketId` (string), +5 optional |
-| `bitbucket-update` | POST | `bitbucketId` (string), `gitProviderId` (string), `name` (string), +6 optional |
-
-## certificates
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `certificates-create` | POST | `name` (string), `certificateData` (string), `privateKey` (string), `organizationId` (string), +4 optional |
-| `certificates-one` | GET | `certificateId` (string) |
-| `certificates-remove` | POST | `certificateId` (string) |
-| `certificates-all` | GET | None |
-| `certificates-update` | POST | `certificateId` (string), `name`?, `certificateData`?, `privateKey`? |
-
-## cluster
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `cluster-getNodes` | GET | `serverId`? |
-| `cluster-removeWorker` | POST | `nodeId` (string), `serverId`? |
-| `cluster-addWorker` | GET | `serverId`? |
-| `cluster-addManager` | GET | `serverId`? |
-
-## compose
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `compose-create` | POST | `name` (string), `environmentId` (string), +6 optional |
-| `compose-one` | GET | `composeId` (string) |
-| `compose-update` | POST | `composeId` (string), +46 optional |
-| `compose-saveEnvironment` | POST | `composeId` (string), `env` (string | null), `createEnvFile`? |
-| `compose-delete` | POST | `composeId` (string), `deleteVolumes` (boolean) |
-| `compose-cleanQueues` | POST | `composeId` (string) |
-| `compose-clearDeployments` | POST | `composeId` (string) |
-| `compose-killBuild` | POST | `composeId` (string) |
-| `compose-loadServices` | GET | `composeId` (string), `type`? |
-| `compose-loadMountsByService` | GET | `composeId` (string), `serviceName` (string) |
-| `compose-fetchSourceType` | POST | `composeId` (string) |
-| `compose-randomizeCompose` | POST | `composeId` (string), `suffix`? |
-| `compose-isolatedDeployment` | POST | `composeId` (string), `suffix`? |
-| `compose-getConvertedCompose` | GET | `composeId` (string) |
-| `compose-deploy` | POST | `composeId` (string), `title`?, `description`?, `freshVolumes`? |
-| `compose-redeploy` | POST | `composeId` (string), `title`?, `description`?, `freshVolumes`? |
-| `compose-stop` | POST | `composeId` (string) |
-| `compose-start` | POST | `composeId` (string) |
-| `compose-getDefaultCommand` | GET | `composeId` (string) |
-| `compose-refreshToken` | POST | `composeId` (string) |
-| `compose-deployTemplate` | POST | `environmentId` (string), `id` (string), `serverId`?, `baseUrl`? |
-| `compose-templates` | GET | `baseUrl`? |
-| `compose-getTags` | GET | `baseUrl`? |
-| `compose-disconnectGitProvider` | POST | `composeId` (string) |
-| `compose-move` | POST | `composeId` (string), `targetEnvironmentId` (string) |
-| `compose-processTemplate` | POST | `base64` (string), `composeId` (string) |
-| `compose-previewTemplate` | POST | `base64` (string), `appName` (string), `serverId`? |
-| `compose-import` | POST | `base64` (string), `composeId` (string) |
-| `compose-cancelDeployment` | POST | `composeId` (string) |
-| `compose-search` | GET | +8 optional |
-| `compose-readLogs` | GET | `composeId` (string), `containerId` (string), `tail`?, `since`?, `search`? |
-
-## customRole
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `customRole-all` | GET | None |
-| `customRole-create` | POST | `roleName` (string), `permissions` (object) |
-| `customRole-update` | POST | `roleName` (string), `permissions` (object), `newRoleName`? |
-| `customRole-remove` | POST | `roleName` (string) |
-| `customRole-membersByRole` | GET | `roleName` (string) |
-| `customRole-getStatements` | GET | None |
-
-## deployment
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `deployment-all` | GET | `applicationId` (string) |
-| `deployment-allByCompose` | GET | `composeId` (string) |
-| `deployment-allByServer` | GET | `serverId` (string) |
-| `deployment-allCentralized` | GET | None |
-| `deployment-queueList` | GET | None |
-| `deployment-allByType` | GET | `id` (string), `type` ("application" | "compose" | "server" | "schedule" | "previewDeployment" | "backup" | "volumeBackup") |
-| `deployment-killProcess` | POST | `deploymentId` (string) |
-| `deployment-removeDeployment` | POST | `deploymentId` (string) |
-| `deployment-readLogs` | GET | `deploymentId` (string), `tail`? |
-
-## destination
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `destination-create` | POST | `name` (string), `provider` (string | null), `accessKey` (string), `bucket` (string), `region` (string), `endpoint` (string), `secretAccessKey` (string), `additionalFlags` (array | null), `serverId`? |
-| `destination-testConnection` | POST | `name` (string), `provider` (string | null), `accessKey` (string), `bucket` (string), `region` (string), `endpoint` (string), `secretAccessKey` (string), `additionalFlags` (array | null), `serverId`? |
-| `destination-one` | GET | `destinationId` (string) |
-| `destination-all` | GET | None |
-| `destination-remove` | POST | `destinationId` (string) |
-| `destination-update` | POST | `name` (string), `accessKey` (string), `bucket` (string), `region` (string), `endpoint` (string), `secretAccessKey` (string), `destinationId` (string), `provider` (string | null), `additionalFlags` (array | null), `serverId`? |
-
-## dnsProvider
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `dnsProvider-create` | POST | `name` (string), `config` (object) |
-| `dnsProvider-update` | POST | `dnsProviderId` (string), `name` (string), `config` (object) |
-| `dnsProvider-remove` | POST | `dnsProviderId` (string) |
-| `dnsProvider-all` | GET | None |
-| `dnsProvider-one` | GET | `dnsProviderId` (string) |
-| `dnsProvider-testConnection` | POST | `dnsProviderId`?, `config`? |
-| `dnsProvider-listZones` | GET | `dnsProviderId` (string) |
-| `dnsProvider-listRecords` | GET | `dnsProviderId` (string), `zoneId` (string) |
-| `dnsProvider-createRecord` | POST | `type` ("A" | "AAAA" | "CNAME" | "MX" | "TXT" | "NS" | "SRV" | "CAA" | "PTR"), `name` (string), `content` (string), `dnsProviderId` (string), `zoneId` (string), `ttl`?, `proxied`? |
-| `dnsProvider-updateRecord` | POST | `type` ("A" | "AAAA" | "CNAME" | "MX" | "TXT" | "NS" | "SRV" | "CAA" | "PTR"), `name` (string), `content` (string), `dnsProviderId` (string), `zoneId` (string), `recordId` (string), `ttl`?, `proxied`? |
-| `dnsProvider-deleteRecord` | POST | `dnsProviderId` (string), `zoneId` (string), `recordId` (string) |
-
-## docker
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `docker-getContainers` | GET | `serverId`? |
-| `docker-getServerHealth` | GET | `serverId`?, `sinceHours`? |
-| `docker-restartContainer` | POST | `containerId` (string), `serverId`? |
-| `docker-startContainer` | POST | `containerId` (string), `serverId`? |
-| `docker-stopContainer` | POST | `containerId` (string), `serverId`? |
-| `docker-killContainer` | POST | `containerId` (string), `serverId`? |
-| `docker-removeContainer` | POST | `containerId` (string), `serverId`? |
-| `docker-getConfig` | GET | `containerId` (string), `serverId`? |
-| `docker-getContainersByAppNameMatch` | GET | `appName` (string), `appType`?, `serverId`? |
-| `docker-getContainersByAppLabel` | GET | `appName` (string), `type` ("standalone" | "swarm"), `serverId`? |
-| `docker-getStackContainersByAppName` | GET | `appName` (string), `serverId`? |
-| `docker-getServiceContainersByAppName` | GET | `appName` (string), `serverId`? |
-| `docker-uploadFileToContainer` | POST | None |
-| `docker-listContainerFiles` | GET | `containerId` (string), `path` (string), `serverId`? |
-| `docker-readContainerFile` | GET | `containerId` (string), `path` (string), `serverId`? |
-| `docker-writeContainerFile` | POST | `containerId` (string), `path` (string), `content` (string), `serverId`? |
-| `docker-deleteContainerFile` | POST | `containerId` (string), `path` (string), `serverId`? |
-| `docker-getEvents` | GET | `serverId`?, `minutes`? |
-
-## dockerDiskUsage
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `dockerDiskUsage-getDiskUsage` | GET | `serverId`? |
-| `dockerDiskUsage-getBuildCache` | GET | `serverId`? |
-| `dockerDiskUsage-pruneBuildCache` | POST | `serverId`? |
-
-## dockerImage
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `dockerImage-getImages` | GET | `serverId`? |
-| `dockerImage-getImageConfig` | GET | `imageRef` (string), `serverId`? |
-| `dockerImage-removeImage` | POST | `repository` (string), `tag` (string), `id` (string), `force`?, `serverId`? |
-
-## dockerVolume
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `dockerVolume-getVolumes` | GET | `serverId`? |
-| `dockerVolume-getVolumesSize` | GET | `serverId`? |
-| `dockerVolume-listVolumeFiles` | GET | `volumeName` (string), `path` (string), `serverId`? |
-| `dockerVolume-readVolumeFile` | GET | `volumeName` (string), `path` (string), `serverId`? |
-| `dockerVolume-writeVolumeFile` | POST | `volumeName` (string), `path` (string), `content` (string), `serverId`? |
-| `dockerVolume-deleteVolumeFile` | POST | `volumeName` (string), `path` (string), `serverId`? |
-| `dockerVolume-getVolumeConfig` | GET | `volumeName` (string), `serverId`? |
-| `dockerVolume-removeVolume` | POST | `volumeName` (string), `serverId`? |
-
-## domain
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `domain-create` | POST | `host` (string), +15 optional |
-| `domain-byApplicationId` | GET | `applicationId` (string) |
-| `domain-byComposeId` | GET | `composeId` (string) |
-| `domain-generateDomain` | POST | `appName` (string), `serverId`? |
-| `domain-canGenerateTraefikMeDomains` | GET | `serverId` (string) |
-| `domain-update` | POST | `host` (string), `domainId` (string), +13 optional |
-| `domain-toggleEnable` | POST | `domainId` (string) |
-| `domain-one` | GET | `domainId` (string) |
-| `domain-delete` | POST | `domainId` (string) |
-| `domain-validateDomain` | POST | `domain` (string), `serverId`? |
-
-## environment
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `environment-create` | POST | `name` (string), `projectId` (string), `description`? |
-| `environment-one` | GET | `environmentId` (string) |
-| `environment-byProjectId` | GET | `projectId` (string) |
-| `environment-remove` | POST | `environmentId` (string) |
-| `environment-update` | POST | `environmentId` (string), +4 optional |
-| `environment-duplicate` | POST | `environmentId` (string), `name` (string), `description`? |
-| `environment-search` | GET | +6 optional |
-
-## forwardAuth
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `forwardAuth-getAuthDomain` | GET | `serverId` (string | null) |
-| `forwardAuth-setAuthDomain` | POST | `serverId` (string | null), `authDomain` (string), `https`?, `certificateType`?, `customCertResolver`? |
-| `forwardAuth-removeAuthDomain` | POST | `serverId` (string | null) |
-| `forwardAuth-listProviders` | GET | None |
-| `forwardAuth-serverStatus` | GET | None |
-| `forwardAuth-deployOnServer` | POST | `serverId` (string | null), `providerId` (string) |
-| `forwardAuth-removeOnServer` | POST | `serverId` (string | null) |
-| `forwardAuth-status` | GET | `domainId` (string) |
-| `forwardAuth-enable` | POST | `domainId` (string) |
-| `forwardAuth-disable` | POST | `domainId` (string) |
-
-## gitea
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `gitea-create` | POST | `giteaUrl` (string), `name` (string), +13 optional |
-| `gitea-one` | GET | `giteaId` (string) |
-| `gitea-giteaProviders` | GET | None |
-| `gitea-getGiteaRepositories` | GET | `giteaId` (string) |
-| `gitea-getGiteaBranches` | GET | `owner` (string), `repositoryName` (string), `giteaId`? |
-| `gitea-testConnection` | POST | `giteaId`?, `organizationName`? |
-| `gitea-update` | POST | `giteaId` (string), `giteaUrl` (string), `gitProviderId` (string), `name` (string), +11 optional |
-| `gitea-getGiteaUrl` | GET | `giteaId` (string) |
-
-## github
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `github-one` | GET | `githubId` (string) |
-| `github-getGithubRepositories` | GET | `githubId` (string) |
-| `github-getGithubBranches` | GET | `repo` (string), `owner` (string), `githubId`? |
-| `github-githubProviders` | GET | None |
-| `github-testConnection` | POST | `githubId` (string) |
-| `github-update` | POST | `githubId` (string), `name` (string), `gitProviderId` (string), `githubAppName` (string) |
-
-## gitlab
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `gitlab-create` | POST | `authId` (string), `name` (string), `gitlabUrl` (string), +6 optional |
-| `gitlab-one` | GET | `gitlabId` (string) |
-| `gitlab-gitlabProviders` | GET | None |
-| `gitlab-getGitlabRepositories` | GET | `gitlabId` (string) |
-| `gitlab-getGitlabBranches` | GET | `owner` (string), `repo` (string), `id`?, `gitlabId`? |
-| `gitlab-testConnection` | POST | `gitlabId` (string), `groupName`? |
-| `gitlab-update` | POST | `name` (string), `gitlabId` (string), `gitlabUrl` (string), `gitProviderId` (string), +5 optional |
-
-## gitProvider
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `gitProvider-getAll` | GET | None |
-| `gitProvider-toggleShare` | POST | `gitProviderId` (string), `sharedWithOrganization` (boolean) |
-| `gitProvider-allForPermissions` | GET | None |
-| `gitProvider-remove` | POST | `gitProviderId` (string) |
-
-## libsql
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `libsql-create` | POST | `name` (string), `appName` (string), `dockerImage` (string), `environmentId` (string), `description` (string | null), `databaseUser` (string), `databasePassword` (string), `sqldNode` ("primary" | "replica"), `sqldPrimaryUrl` (unknown | null), `enableNamespaces` (boolean), `serverId` (string | null) |
-| `libsql-one` | GET | `libsqlId` (string) |
-| `libsql-start` | POST | `libsqlId` (string) |
-| `libsql-stop` | POST | `libsqlId` (string) |
-| `libsql-saveExternalPorts` | POST | `libsqlId` (string), `externalPort`?, `externalGRPCPort`?, `externalAdminPort`? |
-| `libsql-deploy` | POST | `libsqlId` (string) |
-| `libsql-changeStatus` | POST | `libsqlId` (string), `applicationStatus` ("idle" | "running" | "done" | "error") |
-| `libsql-remove` | POST | `libsqlId` (string) |
-| `libsql-saveEnvironment` | POST | `libsqlId` (string), `env` (string | null) |
-| `libsql-reload` | POST | `libsqlId` (string), `appName` (string) |
-| `libsql-update` | POST | `libsqlId` (string), +34 optional |
-| `libsql-move` | POST | `libsqlId` (string), `targetEnvironmentId` (string) |
-| `libsql-rebuild` | POST | `libsqlId` (string) |
-| `libsql-readLogs` | GET | `libsqlId` (string), `tail`?, `since`?, `search`? |
-
-## licenseKey
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `licenseKey-activate` | POST | `licenseKey` (string) |
-| `licenseKey-validate` | POST | None |
-| `licenseKey-deactivate` | POST | None |
-| `licenseKey-getEnterpriseSettings` | GET | None |
-| `licenseKey-haveValidLicenseKey` | GET | None |
-| `licenseKey-updateEnterpriseSettings` | POST | `enableEnterpriseFeatures`? |
-
-## mariadb
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `mariadb-create` | POST | `name` (string), `environmentId` (string), `databaseName` (string), `databaseUser` (string), `databasePassword` (string), +5 optional |
-| `mariadb-one` | GET | `mariadbId` (string) |
-| `mariadb-start` | POST | `mariadbId` (string) |
-| `mariadb-stop` | POST | `mariadbId` (string) |
-| `mariadb-saveExternalPort` | POST | `mariadbId` (string), `externalPort` (number | null) |
-| `mariadb-deploy` | POST | `mariadbId` (string) |
-| `mariadb-changeStatus` | POST | `mariadbId` (string), `applicationStatus` ("idle" | "running" | "done" | "error") |
-| `mariadb-remove` | POST | `mariadbId` (string) |
-| `mariadb-saveEnvironment` | POST | `mariadbId` (string), `env` (string | null) |
-| `mariadb-reload` | POST | `mariadbId` (string), `appName` (string) |
-| `mariadb-update` | POST | `mariadbId` (string), +33 optional |
-| `mariadb-changePassword` | POST | `mariadbId` (string), `password` (string), `type`? |
-| `mariadb-move` | POST | `mariadbId` (string), `targetEnvironmentId` (string) |
-| `mariadb-rebuild` | POST | `mariadbId` (string) |
-| `mariadb-search` | GET | +8 optional |
-| `mariadb-readLogs` | GET | `mariadbId` (string), `tail`?, `since`?, `search`? |
-
-## mongo
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `mongo-create` | POST | `name` (string), `environmentId` (string), `databaseUser` (string), `databasePassword` (string), +5 optional |
-| `mongo-one` | GET | `mongoId` (string) |
-| `mongo-start` | POST | `mongoId` (string) |
-| `mongo-stop` | POST | `mongoId` (string) |
-| `mongo-saveExternalPort` | POST | `mongoId` (string), `externalPort` (number | null) |
-| `mongo-deploy` | POST | `mongoId` (string) |
-| `mongo-changeStatus` | POST | `mongoId` (string), `applicationStatus` ("idle" | "running" | "done" | "error") |
-| `mongo-reload` | POST | `mongoId` (string), `appName` (string) |
-| `mongo-remove` | POST | `mongoId` (string) |
-| `mongo-saveEnvironment` | POST | `mongoId` (string), `env` (string | null) |
-| `mongo-update` | POST | `mongoId` (string), +32 optional |
-| `mongo-changePassword` | POST | `mongoId` (string), `password` (string) |
-| `mongo-move` | POST | `mongoId` (string), `targetEnvironmentId` (string) |
-| `mongo-rebuild` | POST | `mongoId` (string) |
-| `mongo-search` | GET | +8 optional |
-| `mongo-readLogs` | GET | `mongoId` (string), `tail`?, `since`?, `search`? |
-
-## mounts
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `mounts-create` | POST | `type` ("bind" | "volume" | "file"), `mountPath` (string), `serviceId` (string), +5 optional |
-| `mounts-remove` | POST | `mountId` (string) |
-| `mounts-one` | GET | `mountId` (string) |
-| `mounts-update` | POST | `mountId` (string), +15 optional |
-| `mounts-allNamedByApplicationId` | GET | `applicationId` (string) |
-| `mounts-listByServiceId` | GET | `serviceType` (string), `serviceId` (string) |
-
-## mysql
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `mysql-create` | POST | `name` (string), `environmentId` (string), `databaseName` (string), `databaseUser` (string), `databasePassword` (string), +5 optional |
-| `mysql-one` | GET | `mysqlId` (string) |
-| `mysql-start` | POST | `mysqlId` (string) |
-| `mysql-stop` | POST | `mysqlId` (string) |
-| `mysql-saveExternalPort` | POST | `mysqlId` (string), `externalPort` (number | null) |
-| `mysql-deploy` | POST | `mysqlId` (string) |
-| `mysql-changeStatus` | POST | `mysqlId` (string), `applicationStatus` ("idle" | "running" | "done" | "error") |
-| `mysql-reload` | POST | `mysqlId` (string), `appName` (string) |
-| `mysql-remove` | POST | `mysqlId` (string) |
-| `mysql-saveEnvironment` | POST | `mysqlId` (string), `env` (string | null) |
-| `mysql-update` | POST | `mysqlId` (string), +33 optional |
-| `mysql-changePassword` | POST | `mysqlId` (string), `password` (string), `type`? |
-| `mysql-move` | POST | `mysqlId` (string), `targetEnvironmentId` (string) |
-| `mysql-rebuild` | POST | `mysqlId` (string) |
-| `mysql-search` | GET | +8 optional |
-| `mysql-readLogs` | GET | `mysqlId` (string), `tail`?, `since`?, `search`? |
-
-## network
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `network-all` | GET | `serverId`? |
-| `network-one` | GET | `networkId` (string) |
-| `network-create` | POST | `name` (string), +8 optional |
-| `network-networksToSync` | GET | `serverId`? |
-| `network-import` | POST | `names` (string[]), `serverId`? |
-| `network-inspect` | GET | `networkId` (string) |
-| `network-recreate` | POST | `networkId` (string) |
-| `network-resync` | POST | `networkId` (string) |
-| `network-remove` | POST | `networkId` (string) |
-
-## notification
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `notification-createSlack` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string), `channel` (string) |
-| `notification-updateSlack` | POST | `notificationId` (string), `slackId` (string), +12 optional |
-| `notification-testSlackConnection` | POST | `webhookUrl` (string), `channel` (string) |
-| `notification-createTelegram` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `botToken` (string), `chatId` (string), `messageThreadId` (string) |
-| `notification-updateTelegram` | POST | `notificationId` (string), `telegramId` (string), +13 optional |
-| `notification-testTelegramConnection` | POST | `botToken` (string), `chatId` (string), `messageThreadId` (string) |
-| `notification-createDiscord` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string), `decoration` (boolean) |
-| `notification-updateDiscord` | POST | `notificationId` (string), `discordId` (string), +12 optional |
-| `notification-testDiscordConnection` | POST | `webhookUrl` (string), `decoration`? |
-| `notification-createEmail` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `smtpServer` (string), `smtpPort` (number), `username` (string), `password` (string), `fromAddress` (string), `toAddresses` (string[]) |
-| `notification-updateEmail` | POST | `notificationId` (string), `emailId` (string), +16 optional |
-| `notification-testEmailConnection` | POST | `smtpServer` (string), `smtpPort` (number), `username` (string), `password` (string), `toAddresses` (string[]), `fromAddress` (string) |
-| `notification-createResend` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `apiKey` (string), `fromAddress` (string), `toAddresses` (string[]) |
-| `notification-updateResend` | POST | `notificationId` (string), `resendId` (string), +13 optional |
-| `notification-testResendConnection` | POST | `apiKey` (string), `fromAddress` (string), `toAddresses` (string[]) |
-| `notification-remove` | POST | `notificationId` (string) |
-| `notification-one` | GET | `notificationId` (string) |
-| `notification-all` | GET | None |
-| `notification-receiveNotification` | POST | `Type` ("Memory" | "CPU"), `Value` (number), `Threshold` (number), `Message` (string), `Timestamp` (string), `Token` (string), `ServerType`? |
-| `notification-createGotify` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `serverUrl` (string), `appToken` (string), `priority` (number), `decoration` (boolean) |
-| `notification-updateGotify` | POST | `notificationId` (string), `gotifyId` (string), +14 optional |
-| `notification-testGotifyConnection` | POST | `serverUrl` (string), `appToken` (string), `priority` (number), `decoration`? |
-| `notification-createNtfy` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `serverUrl` (string), `topic` (string), `accessToken` (string), `priority` (number) |
-| `notification-updateNtfy` | POST | `notificationId` (string), `ntfyId` (string), +14 optional |
-| `notification-testNtfyConnection` | POST | `serverUrl` (string), `topic` (string), `accessToken` (string), `priority` (number) |
-| `notification-createMattermost` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string), `channel`?, `username`? |
-| `notification-updateMattermost` | POST | `notificationId` (string), `mattermostId` (string), +13 optional |
-| `notification-testMattermostConnection` | POST | `webhookUrl` (string), `channel`?, `username`? |
-| `notification-createCustom` | POST | `name` (string), `endpoint` (string), +9 optional |
-| `notification-updateCustom` | POST | `notificationId` (string), `customId` (string), +12 optional |
-| `notification-testCustomConnection` | POST | `endpoint` (string), `headers`? |
-| `notification-createLark` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string) |
-| `notification-updateLark` | POST | `notificationId` (string), `larkId` (string), +11 optional |
-| `notification-testLarkConnection` | POST | `webhookUrl` (string) |
-| `notification-createTeams` | POST | `appBuildError` (boolean), `databaseBackup` (boolean), `notployBackup` (boolean), `volumeBackup` (boolean), `notployRestart` (boolean), `name` (string), `appDeploy` (boolean), `dockerCleanup` (boolean), `serverThreshold` (boolean), `webhookUrl` (string) |
-| `notification-updateTeams` | POST | `notificationId` (string), `teamsId` (string), +11 optional |
-| `notification-testTeamsConnection` | POST | `webhookUrl` (string) |
-| `notification-createPushover` | POST | `name` (string), `userKey` (string), `apiToken` (string), +11 optional |
-| `notification-updatePushover` | POST | `notificationId` (string), `pushoverId` (string), +15 optional |
-| `notification-testPushoverConnection` | POST | `userKey` (string), `apiToken` (string), `priority` (number), `retry`?, `expire`? |
-| `notification-getEmailProviders` | GET | None |
-
-## organization
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `organization-create` | POST | `name` (string), `logo`? |
-| `organization-all` | GET | None |
-| `organization-one` | GET | `organizationId` (string) |
-| `organization-update` | POST | `organizationId` (string), `name` (string), `logo`?, `defaultRole`? |
-| `organization-delete` | POST | `organizationId` (string) |
-| `organization-inviteMember` | POST | `email` (string), `role` (string) |
-| `organization-allInvitations` | GET | None |
-| `organization-removeInvitation` | POST | `invitationId` (string) |
-| `organization-updateMemberRole` | POST | `memberId` (string), `role` (string) |
-| `organization-setDefault` | POST | `organizationId` (string) |
-| `organization-active` | GET | None |
-
-## overview
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `overview-services` | GET | None |
-| `overview-backups` | GET | None |
-| `overview-domains` | GET | None |
-
-## patch
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `patch-create` | POST | `filePath` (string), `content` (string), +4 optional |
-| `patch-one` | GET | `patchId` (string) |
-| `patch-byEntityId` | GET | `id` (string), `type` ("application" | "compose") |
-| `patch-update` | POST | `patchId` (string), +6 optional |
-| `patch-delete` | POST | `patchId` (string) |
-| `patch-toggleEnabled` | POST | `patchId` (string), `enabled` (boolean) |
-| `patch-ensureRepo` | POST | `id` (string), `type` ("application" | "compose") |
-| `patch-readRepoDirectories` | GET | `id` (string), `type` ("application" | "compose"), `repoPath` (string) |
-| `patch-readRepoFile` | GET | `id` (string), `type` ("application" | "compose"), `filePath` (string) |
-| `patch-saveFileAsPatch` | POST | `id` (string), `type` ("application" | "compose"), `filePath` (string), `content` (string), `patchType`? |
-| `patch-markFileForDeletion` | POST | `id` (string), `type` ("application" | "compose"), `filePath` (string) |
-| `patch-cleanPatchRepos` | POST | `serverId`? |
-
-## port
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `port-create` | POST | `publishedPort` (number), `publishMode` ("ingress" | "host"), `targetPort` (number), `protocol` ("tcp" | "udp"), `applicationId` (string) |
-| `port-one` | GET | `portId` (string) |
-| `port-delete` | POST | `portId` (string) |
-| `port-update` | POST | `portId` (string), `publishedPort` (number), `publishMode` ("ingress" | "host"), `targetPort` (number), `protocol` ("tcp" | "udp") |
-
-## postgres
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `postgres-create` | POST | `name` (string), `databaseName` (string), `databaseUser` (string), `databasePassword` (string), `environmentId` (string), +4 optional |
-| `postgres-one` | GET | `postgresId` (string) |
-| `postgres-start` | POST | `postgresId` (string) |
-| `postgres-stop` | POST | `postgresId` (string) |
-| `postgres-saveExternalPort` | POST | `postgresId` (string), `externalPort` (number | null) |
-| `postgres-deploy` | POST | `postgresId` (string) |
-| `postgres-changeStatus` | POST | `postgresId` (string), `applicationStatus` ("idle" | "running" | "done" | "error") |
-| `postgres-remove` | POST | `postgresId` (string) |
-| `postgres-saveEnvironment` | POST | `postgresId` (string), `env` (string | null) |
-| `postgres-reload` | POST | `postgresId` (string), `appName` (string) |
-| `postgres-update` | POST | `postgresId` (string), +32 optional |
-| `postgres-changePassword` | POST | `postgresId` (string), `password` (string) |
-| `postgres-move` | POST | `postgresId` (string), `targetEnvironmentId` (string) |
-| `postgres-rebuild` | POST | `postgresId` (string) |
-| `postgres-search` | GET | +8 optional |
-| `postgres-readLogs` | GET | `postgresId` (string), `tail`?, `since`?, `search`? |
-
-## previewDeployment
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `previewDeployment-all` | GET | `applicationId` (string) |
-| `previewDeployment-one` | GET | `previewDeploymentId` (string) |
-| `previewDeployment-delete` | POST | `previewDeploymentId` (string) |
-| `previewDeployment-redeploy` | POST | `previewDeploymentId` (string), `title`?, `description`? |
-
-## project
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `project-create` | POST | `name` (string), `description`?, `env`? |
-| `project-one` | GET | `projectId` (string) |
-| `project-all` | GET | None |
-| `project-allForPermissions` | GET | None |
-| `project-homeStats` | GET | None |
-| `project-onboardingStatus` | GET | None |
-| `project-completeOnboarding` | POST | None |
-| `project-search` | GET | +5 optional |
-| `project-remove` | POST | `projectId` (string) |
-| `project-update` | POST | `projectId` (string), +5 optional |
-| `project-duplicate` | POST | `sourceEnvironmentId` (string), `name` (string), +4 optional |
-
-## redirects
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `redirects-create` | POST | `regex` (string), `replacement` (string), `permanent` (boolean), `applicationId` (string) |
-| `redirects-one` | GET | `redirectId` (string) |
-| `redirects-delete` | POST | `redirectId` (string) |
-| `redirects-update` | POST | `redirectId` (string), `regex` (string), `replacement` (string), `permanent` (boolean) |
-
-## redis
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `redis-create` | POST | `name` (string), `databasePassword` (string), `environmentId` (string), +4 optional |
-| `redis-one` | GET | `redisId` (string) |
-| `redis-start` | POST | `redisId` (string) |
-| `redis-reload` | POST | `redisId` (string), `appName` (string) |
-| `redis-stop` | POST | `redisId` (string) |
-| `redis-saveExternalPort` | POST | `redisId` (string), `externalPort` (number | null) |
-| `redis-deploy` | POST | `redisId` (string) |
-| `redis-changeStatus` | POST | `redisId` (string), `applicationStatus` ("idle" | "running" | "done" | "error") |
-| `redis-remove` | POST | `redisId` (string) |
-| `redis-saveEnvironment` | POST | `redisId` (string), `env` (string | null) |
-| `redis-update` | POST | `redisId` (string), +30 optional |
-| `redis-changePassword` | POST | `redisId` (string), `password` (string) |
-| `redis-move` | POST | `redisId` (string), `targetEnvironmentId` (string) |
-| `redis-rebuild` | POST | `redisId` (string) |
-| `redis-search` | GET | +8 optional |
-| `redis-readLogs` | GET | `redisId` (string), `tail`?, `since`?, `search`? |
-
-## registry
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `registry-create` | POST | `registryName` (string), `username` (string), `password` (string), `registryUrl` (string), `registryType` ("cloud"), `imagePrefix` (string | null), `serverId`? |
-| `registry-remove` | POST | `registryId` (string) |
-| `registry-update` | POST | `registryId` (string), +9 optional |
-| `registry-all` | GET | None |
-| `registry-one` | GET | `registryId` (string) |
-| `registry-testRegistry` | POST | `username` (string), `password` (string), `registryUrl` (string), `registryType` ("cloud"), `registryName`?, `imagePrefix`?, `serverId`? |
-| `registry-testRegistryById` | POST | `registryId`?, `serverId`? |
-
-## rollback
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `rollback-delete` | POST | `rollbackId` (string) |
-| `rollback-rollback` | POST | `rollbackId` (string) |
-
-## schedule
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `schedule-create` | POST | `name` (string), `cronExpression` (string), `command` (string), +14 optional |
-| `schedule-update` | POST | `scheduleId` (string), `name` (string), `cronExpression` (string), `command` (string), +13 optional |
-| `schedule-delete` | POST | `scheduleId` (string) |
-| `schedule-list` | GET | `id` (string), `scheduleType` ("application" | "compose" | "server" | "notploy-server") |
-| `schedule-one` | GET | `scheduleId` (string) |
-| `schedule-runManually` | POST | `scheduleId` (string) |
-
-## scim
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `scim-listProviders` | GET | None |
-| `scim-generateToken` | POST | `providerId` (string) |
-| `scim-deleteProvider` | POST | `providerId` (string) |
-
-## security
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `security-create` | POST | `applicationId` (string), `username` (string), `password` (string) |
-| `security-one` | GET | `securityId` (string) |
-| `security-delete` | POST | `securityId` (string) |
-| `security-update` | POST | `securityId` (string), `username` (string), `password` (string) |
-
-## server
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `server-create` | POST | `name` (string), `description` (string | null), `ipAddress` (string), `port` (number), `username` (string), `sshKeyId` (string | null), `serverType` ("deploy" | "build"), `enableDockerCleanup`? |
-| `server-one` | GET | `serverId` (string) |
-| `server-getDefaultCommand` | GET | `serverId` (string) |
-| `server-getServices` | GET | `serverId` (string) |
-| `server-all` | GET | None |
-| `server-allForPermissions` | GET | None |
-| `server-count` | GET | None |
-| `server-withSSHKey` | GET | None |
-| `server-buildServers` | GET | None |
-| `server-setup` | POST | `serverId` (string) |
-| `server-validate` | GET | `serverId` (string) |
-| `server-security` | GET | `serverId` (string) |
-| `server-setupMonitoring` | POST | `serverId` (string), `metricsConfig` (object) |
-| `server-remove` | POST | `serverId` (string) |
-| `server-update` | POST | `name` (string), `description` (string | null), `serverId` (string), `ipAddress` (string), `port` (number), `username` (string), `sshKeyId` (string | null), `serverType` ("deploy" | "build"), `enableDockerCleanup`?, `command`? |
-| `server-updateBuildsConcurrency` | POST | `serverId` (string), `buildsConcurrency` (integer) |
-| `server-publicIp` | GET | None |
-| `server-getServerTime` | GET | None |
-| `server-getServerMetrics` | GET | `url` (string), `token` (string), `dataPoints` (string) |
-
-## settings
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `settings-getWebServerSettings` | GET | None |
-| `settings-reloadServer` | POST | None |
-| `settings-cleanAllDeploymentQueue` | POST | None |
-| `settings-reloadTraefik` | POST | `serverId`? |
-| `settings-toggleDashboard` | POST | `enableDashboard`?, `serverId`? |
-| `settings-cleanUnusedImages` | POST | `serverId`? |
-| `settings-cleanUnusedVolumes` | POST | `serverId`? |
-| `settings-cleanStoppedContainers` | POST | `serverId`? |
-| `settings-cleanDockerBuilder` | POST | `serverId`? |
-| `settings-cleanDockerPrune` | POST | `serverId`? |
-| `settings-cleanAll` | POST | `serverId`? |
-| `settings-cleanMonitoring` | POST | None |
-| `settings-getDockerDiskUsage` | GET | None |
-| `settings-saveSSHPrivateKey` | POST | `sshPrivateKey` (string) |
-| `settings-assignDomainServer` | POST | `host` (string), `certificateType` ("letsencrypt" | "none" | "custom"), `letsEncryptEmail`?, `https`? |
-| `settings-cleanSSHPrivateKey` | POST | None |
-| `settings-updateDockerCleanup` | POST | `enableDockerCleanup` (boolean), `serverId`? |
-| `settings-updateRemoteServersOnly` | POST | `remoteServersOnly` (boolean) |
-| `settings-updateBuildsConcurrency` | POST | `buildsConcurrency` (integer) |
-| `settings-updateEnforceSSO` | POST | `enforceSSO` (boolean) |
-| `settings-readTraefikConfig` | GET | None |
-| `settings-updateTraefikConfig` | POST | `traefikConfig` (string) |
-| `settings-readWebServerTraefikConfig` | GET | None |
-| `settings-updateWebServerTraefikConfig` | POST | `traefikConfig` (string) |
-| `settings-readMiddlewareTraefikConfig` | GET | None |
-| `settings-updateMiddlewareTraefikConfig` | POST | `traefikConfig` (string) |
-| `settings-getUpdateData` | POST | None |
-| `settings-updateServer` | POST | None |
-| `settings-getNotployVersion` | GET | None |
-| `settings-getReleaseTag` | GET | None |
-| `settings-readDirectories` | GET | `serverId`? |
-| `settings-updateTraefikFile` | POST | `path` (string), `traefikConfig` (string), `serverId`? |
-| `settings-readTraefikFile` | GET | `path` (string), `serverId`? |
-| `settings-getIp` | GET | None |
-| `settings-updateServerIp` | POST | `serverIp` (string) |
-| `settings-getOpenApiDocument` | GET | None |
-| `settings-readTraefikEnv` | GET | `serverId`? |
-| `settings-writeTraefikEnv` | POST | `env` (string), `serverId`? |
-| `settings-haveTraefikDashboardPortEnabled` | GET | `serverId`? |
-| `settings-haveActivateRequests` | GET | None |
-| `settings-toggleRequests` | POST | `enable` (boolean) |
-| `settings-isCloud` | GET | None |
-| `settings-isUserSubscribed` | GET | None |
-| `settings-health` | GET | None |
-| `settings-checkInfrastructureHealth` | GET | None |
-| `settings-setupGPU` | POST | `serverId`? |
-| `settings-checkGPUStatus` | GET | `serverId`? |
-| `settings-updateTraefikPorts` | POST | `additionalPorts` (object[]), `serverId`? |
-| `settings-getTraefikPorts` | GET | `serverId`? |
-| `settings-updateLogCleanup` | POST | `cronExpression` (string | null) |
-| `settings-getLogCleanupStatus` | GET | None |
-| `settings-getNotployCloudIps` | GET | None |
-
-## sshKey
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `sshKey-create` | POST | `name` (string), `privateKey` (string), `publicKey` (string), `organizationId` (string), `description`? |
-| `sshKey-remove` | POST | `sshKeyId` (string) |
-| `sshKey-one` | GET | `sshKeyId` (string) |
-| `sshKey-all` | GET | None |
-| `sshKey-allForApps` | GET | None |
-| `sshKey-generate` | POST | `type`? |
-| `sshKey-update` | POST | `sshKeyId` (string), `name`?, `description`?, `lastUsedAt`? |
-
-## sso
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `sso-showSignInWithSSO` | GET | None |
-| `sso-enforceSSO` | GET | None |
-| `sso-listProviders` | GET | None |
-| `sso-getTrustedOrigins` | GET | None |
-| `sso-one` | GET | `providerId` (string) |
-| `sso-update` | POST | `providerId` (string), `issuer` (string), `domains` (string[]), +4 optional |
-| `sso-deleteProvider` | POST | `providerId` (string) |
-| `sso-register` | POST | `providerId` (string), `issuer` (string), `domains` (string[]), +4 optional |
-| `sso-addTrustedOrigin` | POST | `origin` (string) |
-| `sso-removeTrustedOrigin` | POST | `origin` (string) |
-| `sso-updateTrustedOrigin` | POST | `oldOrigin` (string), `newOrigin` (string) |
-
-## stripe
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `stripe-getCurrentPlan` | GET | None |
-| `stripe-getBillingStatus` | GET | None |
-| `stripe-startFreeTrial` | POST | `tier` ("hobby" | "startup") |
-| `stripe-getProducts` | GET | None |
-| `stripe-createCheckoutSession` | POST | `tier` ("legacy" | "hobby" | "startup"), `productId` (string), `serverQuantity` (number), `isAnnual` (boolean) |
-| `stripe-createCustomerPortalSession` | POST | None |
-| `stripe-upgradeSubscription` | POST | `tier` ("hobby" | "startup"), `serverQuantity` (number), `isAnnual` (boolean) |
-| `stripe-canCreateMoreServers` | GET | None |
-| `stripe-updateInvoiceNotifications` | POST | `enabled` (boolean) |
-| `stripe-getInvoices` | GET | None |
-
-## swarm
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `swarm-getNodes` | GET | `serverId`? |
-| `swarm-getNodeInfo` | GET | `nodeId` (string), `serverId`? |
-| `swarm-getNodeApps` | GET | `serverId`? |
-| `swarm-getContainerStats` | GET | `serverId`? |
-
-## tag
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `tag-create` | POST | `name` (string), `color`? |
-| `tag-all` | GET | None |
-| `tag-one` | GET | `tagId` (string) |
-| `tag-update` | POST | `tagId` (string), +4 optional |
-| `tag-remove` | POST | `tagId` (string) |
-| `tag-assignToProject` | POST | `projectId` (string), `tagId` (string) |
-| `tag-removeFromProject` | POST | `projectId` (string), `tagId` (string) |
-| `tag-bulkAssign` | POST | `projectId` (string), `tagIds` (string[]) |
-
-## user
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `user-all` | GET | None |
-| `user-one` | GET | `userId` (string) |
-| `user-session` | GET | None |
-| `user-get` | GET | None |
-| `user-getPermissions` | GET | None |
-| `user-listPasskeys` | GET | None |
-| `user-haveRootAccess` | GET | None |
-| `user-getBackups` | GET | None |
-| `user-getServerMetrics` | GET | None |
-| `user-update` | POST | +25 optional |
-| `user-listSessions` | GET | None |
-| `user-revokeSession` | POST | `sessionId` (string) |
-| `user-getUserByToken` | GET | `token` (string) |
-| `user-getMetricsToken` | GET | None |
-| `user-remove` | POST | `userId` (string) |
-| `user-assignPermissions` | POST | `id` (string), `accessedProjects` (string[]), `accessedEnvironments` (string[]), `accessedServices` (string[]), `accessedGitProviders` (string[]), `accessedServers` (string[]), `canCreateProjects` (boolean), `canCreateServices` (boolean), `canDeleteProjects` (boolean), `canDeleteServices` (boolean), `canAccessToDocker` (boolean), `canAccessToTraefikFiles` (boolean), `canAccessToAPI` (boolean), `canAccessToSSHKeys` (boolean), `canAccessToGitProviders` (boolean), `canDeleteEnvironments` (boolean), `canCreateEnvironments` (boolean) |
-| `user-getInvitations` | GET | None |
-| `user-getContainerMetrics` | GET | `url` (string), `token` (string), `appName` (string), `dataPoints` (string) |
-| `user-generateToken` | POST | None |
-| `user-deleteApiKey` | POST | `apiKeyId` (string) |
-| `user-createApiKey` | POST | `name` (string), `metadata` (object), +8 optional |
-| `user-checkUserOrganizations` | GET | `userId` (string) |
-| `user-createUserWithCredentials` | POST | `email` (string), `password` (string), `role` (string) |
-| `user-sendInvitation` | POST | `invitationId` (string), `notificationId` (string) |
-| `user-getBookmarkedTemplates` | GET | None |
-| `user-toggleTemplateBookmark` | POST | `templateId` (string) |
-
-## vaultProvider
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `vaultProvider-create` | POST | `name` (string), `config` (object), `assignments` (object[]) |
-| `vaultProvider-update` | POST | `vaultProviderId` (string), `name` (string), `config` (object), `assignments` (object[]) |
-| `vaultProvider-remove` | POST | `vaultProviderId` (string) |
-| `vaultProvider-all` | GET | None |
-| `vaultProvider-one` | GET | `vaultProviderId` (string) |
-| `vaultProvider-testConnection` | POST | `vaultProviderId`?, `config`? |
-| `vaultProvider-listSecretNames` | GET | `vaultProviderId` (string), `projectId` (string), `environmentId`? |
-
-## volumeBackups
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `volumeBackups-list` | GET | `id` (string), `volumeBackupType` ("application" | "postgres" | "mysql" | "mariadb" | "mongo" | "redis" | "compose" | "libsql") |
-| `volumeBackups-create` | POST | `name` (string), `volumeName` (string), `prefix` (string), `cronExpression` (string), `destinationId` (string), +15 optional |
-| `volumeBackups-one` | GET | `volumeBackupId` (string) |
-| `volumeBackups-delete` | POST | `volumeBackupId` (string) |
-| `volumeBackups-update` | POST | `name` (string), `volumeName` (string), `prefix` (string), `cronExpression` (string), `destinationId` (string), `volumeBackupId` (string), +15 optional |
-| `volumeBackups-runManually` | POST | `volumeBackupId` (string) |
-
-## whitelabeling
-
-| Tool | Method | Parameters |
-|------|--------|------------|
-| `whitelabeling-get` | GET | None |
-| `whitelabeling-update` | POST | `whitelabelingConfig` (object) |
-| `whitelabeling-reset` | POST | None |
-| `whitelabeling-getPublic` | GET | None |
-
-## Annotations
-
-All tools include semantic annotations to help MCP clients understand their behavior:
-
-- **readOnlyHint**: GET endpoints that only retrieve data
-- **destructiveHint**: Operations that delete or remove resources
-- **idempotentHint**: Safe to repeat without side effects
-- **openWorldHint**: All tools interact with the external Notploy API
+# Notploy MCP catalog
+
+> Generated from [`openapi.json`](openapi.json) (version 1.0.0) and the business capability declarations. Run `pnpm generate` to update; CI runs `pnpm generate:check` and fails on drift. Do not edit this file manually.
+
+- **Business capabilities (default mode)**: 18
+- **Generated API operations (advanced mode)**: 604
+
+## Modes
+
+- `business` (default): workflow-oriented capabilities listed below. Use it for discovery, diagnostics and controlled deployments.
+- `advanced`: generated OpenAPI operations, filtered by `NOTPLOY_MCP_ADVANCED_PROFILE` and optional tags. It is opt-in and never enabled by default.
+- `all`: both catalogs.
+
+Catalog filters are a usability feature. Every call is re-authorized at execution time against the credential's effective permissions and the configured risk/approval policy.
+
+## Business capabilities
+
+| Tool | Category | Risk | Permissions | Long-running |
+| --- | --- | --- | --- | --- |
+| `list_projects` | discovery | 0 | API-enforced | no |
+| `get_project` | discovery | 0 | API-enforced | no |
+| `get_application` | discovery | 0 | service:read | no |
+| `get_environment_overview` | discovery | 0 | API-enforced | no |
+| `list_servers` | discovery | 0 | server:read | no |
+| `list_application_domains` | discovery | 0 | domain:read | no |
+| `get_deployment_status` | diagnostics | 0 | deployment:read | no |
+| `get_deployment_history` | diagnostics | 0 | deployment:read | no |
+| `get_application_logs` | diagnostics | 0 | service:read | no |
+| `inspect_application_health` | diagnostics | 0 | service:read, deployment:read | no |
+| `diagnose_deployment` | diagnostics | 0 | deployment:read, service:read | no |
+| `analyze_recent_failures` | diagnostics | 0 | deployment:read | no |
+| `verify_deployment` | diagnostics | 0 | deployment:read | no |
+| `prepare_deployment` | deployment | 0 | service:read, deployment:read | no |
+| `execute_deployment` | deployment | 2 | deployment:create | yes |
+| `restart_application` | deployment | 1 | deployment:create | no |
+| `delete_application` | administration | 2 | service:delete | no |
+| `get_operation_status` | operations | 0 | API-enforced | no |
+
+### Capability details
+
+#### `list_projects` — List projects
+
+Lists the Notploy projects visible to the authenticated identity in the active organization. Use this first to discover project and environment identifiers. Returns a count and the project records; the API already filters projects the identity cannot access.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+- Limitation: Only projects the API key's user can access in the active organization are returned.
+
+#### `get_project` — Get project
+
+Returns one Notploy project by identifier, including its environments and services when the API provides them. Use list_projects first when the identifier is unknown.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `get_application` — Get application
+
+Returns one Notploy application with a stable summary (environment, project, source type, status) and the raw application record. Requires service read access; the API also enforces the identity's per-service access list.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `get_environment_overview` — Get environment overview
+
+Summarizes a project and every environment it contains. Use it to pick the environment that holds the application to inspect or deploy before calling deployment tools.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `list_servers` — List servers
+
+Lists the Notploy servers the authenticated identity can read, with their status and connection details useful for deployment diagnostics. Requires server read permission.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `list_application_domains` — List application domains
+
+Lists the domains attached to an application, including certificate and HTTPS state when available. Requires domain read permission and access to the application.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `get_deployment_status` — Get deployment status
+
+Returns the status of one deployment (by id) or the most recent deployment of an application, including terminal state, timing and error message. Use it to follow a deployment started by execute_deployment.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `get_deployment_history` — Get deployment history
+
+Lists recent deployments for an application, newest first, with counts by status. Optionally filters by deployment status. Use it before diagnosing a failure or deciding whether a deployment is already queued.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `get_application_logs` — Get application logs
+
+Returns recent runtime or build logs for an application, with bounded tail size and optional text filter. Use it with diagnose_deployment when a deployment failed. Logs are returned as stored by Notploy; known credentials are redacted but application secrets may appear in application output.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `inspect_application_health` — Inspect application health
+
+Combines the application record, its domains and its latest deployment into a health verdict with concrete findings. Read-only: it never restarts or redeploys anything. Use get_deployment_status or get_application_logs to go deeper.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `diagnose_deployment` — Diagnose deployment
+
+Explains a failed (or in-progress) deployment using its status, error message and a bounded log excerpt. Returns deterministic signals and next steps; it does not invent a root cause. Use analyze_recent_failures to detect recurring patterns.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `analyze_recent_failures` — Analyze recent failures
+
+Aggregates the most recent deployments of an application, reports the failure rate and groups failures by normalized error signature. Use it to spot recurring deployment problems before changing anything.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `verify_deployment` — Verify deployment
+
+Checks whether a deployment reached a terminal state and whether it succeeded. Read-only and safe to poll. Returns `verified`, `failed`, `pending` or `unknown` with the deployment summary.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+
+#### `prepare_deployment` — Prepare deployment
+
+Runs a read-only preflight for a deployment: resolves the application, checks that no deployment is already running and returns an ordered plan with blockers and warnings. Call it before execute_deployment; it never mutates anything.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+- Precondition: The identity needs service read and deployment read permissions.
+
+#### `execute_deployment` — Execute deployment
+
+Queues a deployment for an application after permission, policy and approval checks. Returns immediately with an operationId; poll get_operation_status for the verified outcome. This is a high-impact capability: it requires deployment create permission, a valid approval token (NOTPLOY_MCP_APPROVAL_TOKEN) and, when retried, an idempotencyKey.
+
+- Risk: **2** (mutation)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: no; idempotency key: supported; long-running: yes
+- Precondition: The identity needs deployment create permission and access to the application.
+- Precondition: A valid approval token must be configured by the Notploy operator.
+- Precondition: No other deployment should be running; run prepare_deployment first.
+
+#### `restart_application` — Restart application
+
+Reloads an application container in place without rebuilding it. Reversible but briefly interrupts the service, so it is classified as a limited-impact write and audited. The API requires deployment create permission and access to the application.
+
+- Risk: **1** (mutation)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: no; idempotency key: not supported; long-running: no
+
+#### `delete_application` — Delete application
+
+Permanently deletes an application and its deployments from Notploy. Destructive and irreversible: it requires service delete permission, explicit confirmation (confirm=true), an operator approval token and NOTPLOY_MCP_ALLOW_DESTRUCTIVE=true. Prefer stopping or restarting an application when the goal is only to interrupt it.
+
+- Risk: **2** (destructive)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+- Precondition: NOTPLOY_MCP_ALLOW_DESTRUCTIVE must be true and an approval token must be configured.
+- Precondition: The identity needs service delete permission and access to the application.
+- Limitation: The deletion cannot be undone from the MCP server.
+
+#### `get_operation_status` — Get operation status
+
+Returns the state, structured result and verification outcome of a long-running operation started by this MCP server (for example execute_deployment). Operation identifiers are scoped to the authenticated identity and organization and expire after the retention window.
+
+- Risk: **0** (read-only)
+- Environments: self, cloud, console
+- Status: available (contract version 1.0.0)
+- Idempotent: yes; idempotency key: not supported; long-running: no
+- Limitation: Operations are stored per MCP server process; they are shared across instances only when NOTPLOY_MCP_OPERATION_STORE is configured on a shared volume.
+
+## Advanced API operations
+
+The table lists every operation generated from the OpenAPI document, its risk classification and the profiles that expose it. Risk is metadata: the Notploy API still enforces the credential's permissions, and high-risk operations require an approval token.
+
+| Tool | Method | Tag | Risk | Destructive | read-only | deploy | full |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `admin-setupMonitoring` | POST | admin | 2 | no | no | no | yes |
+| `ai-analyzeLogs` | POST | ai | 1 | no | no | no | yes |
+| `ai-create` | POST | ai | 1 | no | no | no | yes |
+| `ai-delete` | POST | ai | 2 | yes | no | no | yes |
+| `ai-deploy` | POST | ai | 2 | no | no | no | yes |
+| `ai-get` | GET | ai | 0 | no | yes | yes | yes |
+| `ai-getAll` | GET | ai | 0 | no | yes | yes | yes |
+| `ai-getCustomProviders` | GET | ai | 0 | no | yes | yes | yes |
+| `ai-getEnabledProviders` | GET | ai | 0 | no | yes | yes | yes |
+| `ai-getModels` | GET | ai | 0 | no | yes | yes | yes |
+| `ai-one` | GET | ai | 0 | no | yes | yes | yes |
+| `ai-saveCustomProviders` | POST | ai | 1 | no | no | no | yes |
+| `ai-suggest` | POST | ai | 1 | no | no | no | yes |
+| `ai-testConnection` | POST | ai | 1 | no | no | no | yes |
+| `ai-update` | POST | ai | 1 | no | no | no | yes |
+| `application-cancelDeployment` | POST | application | 2 | no | no | yes | yes |
+| `application-cleanQueues` | POST | application | 2 | yes | no | no | yes |
+| `application-clearDeployments` | POST | application | 2 | yes | no | no | yes |
+| `application-create` | POST | application | 1 | no | no | yes | yes |
+| `application-delete` | POST | application | 2 | yes | no | no | yes |
+| `application-deploy` | POST | application | 2 | no | no | yes | yes |
+| `application-deployNginxQuickstart` | POST | application | 2 | no | no | yes | yes |
+| `application-disconnectGitProvider` | POST | application | 1 | no | no | yes | yes |
+| `application-dropDeployment` | POST | application | 2 | yes | no | no | yes |
+| `application-killBuild` | POST | application | 2 | yes | no | no | yes |
+| `application-markRunning` | POST | application | 1 | no | no | yes | yes |
+| `application-move` | POST | application | 1 | no | no | yes | yes |
+| `application-one` | GET | application | 0 | no | yes | yes | yes |
+| `application-readAppMonitoring` | GET | application | 0 | no | yes | yes | yes |
+| `application-readLogs` | GET | application | 0 | no | yes | yes | yes |
+| `application-readTraefikConfig` | GET | application | 0 | no | yes | yes | yes |
+| `application-redeploy` | POST | application | 2 | no | no | yes | yes |
+| `application-refreshToken` | POST | application | 1 | no | no | yes | yes |
+| `application-reload` | POST | application | 1 | no | no | yes | yes |
+| `application-saveBitbucketProvider` | POST | application | 1 | no | no | yes | yes |
+| `application-saveBuildType` | POST | application | 1 | no | no | yes | yes |
+| `application-saveDockerProvider` | POST | application | 1 | no | no | yes | yes |
+| `application-saveEnvironment` | POST | application | 1 | no | no | yes | yes |
+| `application-saveGiteaProvider` | POST | application | 1 | no | no | yes | yes |
+| `application-saveGithubProvider` | POST | application | 1 | no | no | yes | yes |
+| `application-saveGitlabProvider` | POST | application | 1 | no | no | yes | yes |
+| `application-saveGitProvider` | POST | application | 1 | no | no | yes | yes |
+| `application-search` | GET | application | 0 | no | yes | yes | yes |
+| `application-start` | POST | application | 1 | no | no | yes | yes |
+| `application-stop` | POST | application | 1 | no | no | yes | yes |
+| `application-update` | POST | application | 1 | no | no | yes | yes |
+| `application-updateTraefikConfig` | POST | application | 2 | no | no | yes | yes |
+| `auditLog-all` | GET | auditLog | 0 | no | yes | yes | yes |
+| `backup-create` | POST | backup | 2 | no | no | no | yes |
+| `backup-listBackupFiles` | GET | backup | 0 | no | yes | yes | yes |
+| `backup-manualBackupCompose` | POST | backup | 2 | no | no | no | yes |
+| `backup-manualBackupLibsql` | POST | backup | 2 | no | no | no | yes |
+| `backup-manualBackupMariadb` | POST | backup | 2 | no | no | no | yes |
+| `backup-manualBackupMongo` | POST | backup | 2 | no | no | no | yes |
+| `backup-manualBackupMySql` | POST | backup | 2 | no | no | no | yes |
+| `backup-manualBackupPostgres` | POST | backup | 2 | no | no | no | yes |
+| `backup-manualBackupWebServer` | POST | backup | 2 | no | no | no | yes |
+| `backup-one` | GET | backup | 0 | no | yes | yes | yes |
+| `backup-remove` | POST | backup | 2 | yes | no | no | yes |
+| `backup-update` | POST | backup | 2 | no | no | no | yes |
+| `bitbucket-bitbucketProviders` | GET | bitbucket | 0 | no | yes | yes | yes |
+| `bitbucket-create` | POST | bitbucket | 1 | no | no | yes | yes |
+| `bitbucket-getBitbucketBranches` | GET | bitbucket | 0 | no | yes | yes | yes |
+| `bitbucket-getBitbucketRepositories` | GET | bitbucket | 0 | no | yes | yes | yes |
+| `bitbucket-one` | GET | bitbucket | 0 | no | yes | yes | yes |
+| `bitbucket-testConnection` | POST | bitbucket | 1 | no | no | yes | yes |
+| `bitbucket-update` | POST | bitbucket | 1 | no | no | yes | yes |
+| `certificates-all` | GET | certificates | 0 | no | yes | yes | yes |
+| `certificates-create` | POST | certificates | 1 | no | no | no | yes |
+| `certificates-one` | GET | certificates | 0 | no | yes | yes | yes |
+| `certificates-remove` | POST | certificates | 2 | yes | no | no | yes |
+| `certificates-update` | POST | certificates | 1 | no | no | no | yes |
+| `cluster-addManager` | GET | cluster | 0 | no | yes | yes | yes |
+| `cluster-addWorker` | GET | cluster | 0 | no | yes | yes | yes |
+| `cluster-getNodes` | GET | cluster | 0 | no | yes | yes | yes |
+| `cluster-removeWorker` | POST | cluster | 2 | yes | no | no | yes |
+| `compose-cancelDeployment` | POST | compose | 2 | no | no | yes | yes |
+| `compose-cleanQueues` | POST | compose | 2 | yes | no | no | yes |
+| `compose-clearDeployments` | POST | compose | 2 | yes | no | no | yes |
+| `compose-create` | POST | compose | 1 | no | no | yes | yes |
+| `compose-delete` | POST | compose | 2 | yes | no | no | yes |
+| `compose-deploy` | POST | compose | 2 | no | no | yes | yes |
+| `compose-deployTemplate` | POST | compose | 2 | no | no | yes | yes |
+| `compose-disconnectGitProvider` | POST | compose | 1 | no | no | yes | yes |
+| `compose-fetchSourceType` | POST | compose | 1 | no | no | yes | yes |
+| `compose-getConvertedCompose` | GET | compose | 0 | no | yes | yes | yes |
+| `compose-getDefaultCommand` | GET | compose | 0 | no | yes | yes | yes |
+| `compose-getTags` | GET | compose | 0 | no | yes | yes | yes |
+| `compose-import` | POST | compose | 1 | no | no | yes | yes |
+| `compose-isolatedDeployment` | POST | compose | 2 | no | no | yes | yes |
+| `compose-killBuild` | POST | compose | 2 | yes | no | no | yes |
+| `compose-loadMountsByService` | GET | compose | 0 | no | yes | yes | yes |
+| `compose-loadServices` | GET | compose | 0 | no | yes | yes | yes |
+| `compose-move` | POST | compose | 1 | no | no | yes | yes |
+| `compose-one` | GET | compose | 0 | no | yes | yes | yes |
+| `compose-previewTemplate` | POST | compose | 1 | no | no | yes | yes |
+| `compose-processTemplate` | POST | compose | 1 | no | no | yes | yes |
+| `compose-randomizeCompose` | POST | compose | 1 | no | no | yes | yes |
+| `compose-readLogs` | GET | compose | 0 | no | yes | yes | yes |
+| `compose-redeploy` | POST | compose | 2 | no | no | yes | yes |
+| `compose-refreshToken` | POST | compose | 1 | no | no | yes | yes |
+| `compose-saveEnvironment` | POST | compose | 1 | no | no | yes | yes |
+| `compose-search` | GET | compose | 0 | no | yes | yes | yes |
+| `compose-start` | POST | compose | 1 | no | no | yes | yes |
+| `compose-stop` | POST | compose | 1 | no | no | yes | yes |
+| `compose-templates` | GET | compose | 0 | no | yes | yes | yes |
+| `compose-update` | POST | compose | 1 | no | no | yes | yes |
+| `customRole-all` | GET | customRole | 0 | no | yes | yes | yes |
+| `customRole-create` | POST | customRole | 2 | no | no | no | yes |
+| `customRole-getStatements` | GET | customRole | 0 | no | yes | yes | yes |
+| `customRole-membersByRole` | GET | customRole | 0 | no | yes | yes | yes |
+| `customRole-remove` | POST | customRole | 2 | yes | no | no | yes |
+| `customRole-update` | POST | customRole | 2 | no | no | no | yes |
+| `deployment-all` | GET | deployment | 0 | no | yes | yes | yes |
+| `deployment-allByCompose` | GET | deployment | 0 | no | yes | yes | yes |
+| `deployment-allByServer` | GET | deployment | 0 | no | yes | yes | yes |
+| `deployment-allByType` | GET | deployment | 0 | no | yes | yes | yes |
+| `deployment-allCentralized` | GET | deployment | 0 | no | yes | yes | yes |
+| `deployment-killProcess` | POST | deployment | 2 | yes | no | no | yes |
+| `deployment-queueList` | GET | deployment | 0 | no | yes | yes | yes |
+| `deployment-readLogs` | GET | deployment | 0 | no | yes | yes | yes |
+| `deployment-removeDeployment` | POST | deployment | 2 | yes | no | no | yes |
+| `destination-all` | GET | destination | 0 | no | yes | yes | yes |
+| `destination-create` | POST | destination | 2 | no | no | no | yes |
+| `destination-one` | GET | destination | 0 | no | yes | yes | yes |
+| `destination-remove` | POST | destination | 2 | yes | no | no | yes |
+| `destination-testConnection` | POST | destination | 2 | no | no | no | yes |
+| `destination-update` | POST | destination | 2 | no | no | no | yes |
+| `dnsProvider-all` | GET | dnsProvider | 0 | no | yes | yes | yes |
+| `dnsProvider-create` | POST | dnsProvider | 2 | no | no | no | yes |
+| `dnsProvider-createRecord` | POST | dnsProvider | 2 | no | no | no | yes |
+| `dnsProvider-deleteRecord` | POST | dnsProvider | 2 | yes | no | no | yes |
+| `dnsProvider-listRecords` | GET | dnsProvider | 0 | no | yes | yes | yes |
+| `dnsProvider-listZones` | GET | dnsProvider | 0 | no | yes | yes | yes |
+| `dnsProvider-one` | GET | dnsProvider | 0 | no | yes | yes | yes |
+| `dnsProvider-remove` | POST | dnsProvider | 2 | yes | no | no | yes |
+| `dnsProvider-testConnection` | POST | dnsProvider | 2 | no | no | no | yes |
+| `dnsProvider-update` | POST | dnsProvider | 2 | no | no | no | yes |
+| `dnsProvider-updateRecord` | POST | dnsProvider | 2 | no | no | no | yes |
+| `docker-deleteContainerFile` | POST | docker | 2 | yes | no | no | yes |
+| `docker-getConfig` | GET | docker | 0 | no | yes | yes | yes |
+| `docker-getContainers` | GET | docker | 0 | no | yes | yes | yes |
+| `docker-getContainersByAppLabel` | GET | docker | 0 | no | yes | yes | yes |
+| `docker-getContainersByAppNameMatch` | GET | docker | 0 | no | yes | yes | yes |
+| `docker-getEvents` | GET | docker | 0 | no | yes | yes | yes |
+| `docker-getServerHealth` | GET | docker | 0 | no | yes | yes | yes |
+| `docker-getServiceContainersByAppName` | GET | docker | 0 | no | yes | yes | yes |
+| `docker-getStackContainersByAppName` | GET | docker | 0 | no | yes | yes | yes |
+| `docker-killContainer` | POST | docker | 2 | yes | no | no | yes |
+| `docker-listContainerFiles` | GET | docker | 0 | no | yes | yes | yes |
+| `docker-readContainerFile` | GET | docker | 0 | no | yes | yes | yes |
+| `docker-removeContainer` | POST | docker | 2 | yes | no | no | yes |
+| `docker-restartContainer` | POST | docker | 1 | no | no | no | yes |
+| `docker-startContainer` | POST | docker | 1 | no | no | no | yes |
+| `docker-stopContainer` | POST | docker | 1 | no | no | no | yes |
+| `docker-uploadFileToContainer` | POST | docker | 1 | no | no | no | yes |
+| `docker-writeContainerFile` | POST | docker | 1 | no | no | no | yes |
+| `dockerDiskUsage-getBuildCache` | GET | dockerDiskUsage | 0 | no | yes | yes | yes |
+| `dockerDiskUsage-getDiskUsage` | GET | dockerDiskUsage | 0 | no | yes | yes | yes |
+| `dockerDiskUsage-pruneBuildCache` | POST | dockerDiskUsage | 2 | yes | no | no | yes |
+| `dockerImage-getImageConfig` | GET | dockerImage | 0 | no | yes | yes | yes |
+| `dockerImage-getImages` | GET | dockerImage | 0 | no | yes | yes | yes |
+| `dockerImage-removeImage` | POST | dockerImage | 2 | yes | no | no | yes |
+| `dockerVolume-deleteVolumeFile` | POST | dockerVolume | 2 | yes | no | no | yes |
+| `dockerVolume-getVolumeConfig` | GET | dockerVolume | 0 | no | yes | yes | yes |
+| `dockerVolume-getVolumes` | GET | dockerVolume | 0 | no | yes | yes | yes |
+| `dockerVolume-getVolumesSize` | GET | dockerVolume | 0 | no | yes | yes | yes |
+| `dockerVolume-listVolumeFiles` | GET | dockerVolume | 0 | no | yes | yes | yes |
+| `dockerVolume-readVolumeFile` | GET | dockerVolume | 0 | no | yes | yes | yes |
+| `dockerVolume-removeVolume` | POST | dockerVolume | 2 | yes | no | no | yes |
+| `dockerVolume-writeVolumeFile` | POST | dockerVolume | 1 | no | no | no | yes |
+| `domain-byApplicationId` | GET | domain | 0 | no | yes | yes | yes |
+| `domain-byComposeId` | GET | domain | 0 | no | yes | yes | yes |
+| `domain-canGenerateTraefikMeDomains` | GET | domain | 0 | no | yes | yes | yes |
+| `domain-create` | POST | domain | 1 | no | no | yes | yes |
+| `domain-delete` | POST | domain | 2 | yes | no | no | yes |
+| `domain-generateDomain` | POST | domain | 1 | no | no | yes | yes |
+| `domain-one` | GET | domain | 0 | no | yes | yes | yes |
+| `domain-toggleEnable` | POST | domain | 2 | no | no | yes | yes |
+| `domain-update` | POST | domain | 1 | no | no | yes | yes |
+| `domain-validateDomain` | POST | domain | 1 | no | no | yes | yes |
+| `environment-byProjectId` | GET | environment | 0 | no | yes | yes | yes |
+| `environment-create` | POST | environment | 1 | no | no | yes | yes |
+| `environment-duplicate` | POST | environment | 1 | no | no | yes | yes |
+| `environment-one` | GET | environment | 0 | no | yes | yes | yes |
+| `environment-remove` | POST | environment | 2 | yes | no | no | yes |
+| `environment-search` | GET | environment | 0 | no | yes | yes | yes |
+| `environment-update` | POST | environment | 1 | no | no | yes | yes |
+| `forwardAuth-deployOnServer` | POST | forwardAuth | 2 | no | no | no | yes |
+| `forwardAuth-disable` | POST | forwardAuth | 1 | no | no | no | yes |
+| `forwardAuth-enable` | POST | forwardAuth | 1 | no | no | no | yes |
+| `forwardAuth-getAuthDomain` | GET | forwardAuth | 0 | no | yes | yes | yes |
+| `forwardAuth-listProviders` | GET | forwardAuth | 0 | no | yes | yes | yes |
+| `forwardAuth-removeAuthDomain` | POST | forwardAuth | 2 | yes | no | no | yes |
+| `forwardAuth-removeOnServer` | POST | forwardAuth | 2 | yes | no | no | yes |
+| `forwardAuth-serverStatus` | GET | forwardAuth | 0 | no | yes | yes | yes |
+| `forwardAuth-setAuthDomain` | POST | forwardAuth | 1 | no | no | no | yes |
+| `forwardAuth-status` | GET | forwardAuth | 0 | no | yes | yes | yes |
+| `gitea-create` | POST | gitea | 1 | no | no | yes | yes |
+| `gitea-getGiteaBranches` | GET | gitea | 0 | no | yes | yes | yes |
+| `gitea-getGiteaRepositories` | GET | gitea | 0 | no | yes | yes | yes |
+| `gitea-getGiteaUrl` | GET | gitea | 0 | no | yes | yes | yes |
+| `gitea-giteaProviders` | GET | gitea | 0 | no | yes | yes | yes |
+| `gitea-one` | GET | gitea | 0 | no | yes | yes | yes |
+| `gitea-testConnection` | POST | gitea | 1 | no | no | yes | yes |
+| `gitea-update` | POST | gitea | 1 | no | no | yes | yes |
+| `github-getGithubBranches` | GET | github | 0 | no | yes | yes | yes |
+| `github-getGithubRepositories` | GET | github | 0 | no | yes | yes | yes |
+| `github-githubProviders` | GET | github | 0 | no | yes | yes | yes |
+| `github-one` | GET | github | 0 | no | yes | yes | yes |
+| `github-testConnection` | POST | github | 1 | no | no | yes | yes |
+| `github-update` | POST | github | 1 | no | no | yes | yes |
+| `gitlab-create` | POST | gitlab | 1 | no | no | yes | yes |
+| `gitlab-getGitlabBranches` | GET | gitlab | 0 | no | yes | yes | yes |
+| `gitlab-getGitlabRepositories` | GET | gitlab | 0 | no | yes | yes | yes |
+| `gitlab-gitlabProviders` | GET | gitlab | 0 | no | yes | yes | yes |
+| `gitlab-one` | GET | gitlab | 0 | no | yes | yes | yes |
+| `gitlab-testConnection` | POST | gitlab | 1 | no | no | yes | yes |
+| `gitlab-update` | POST | gitlab | 1 | no | no | yes | yes |
+| `gitProvider-allForPermissions` | GET | gitProvider | 0 | no | yes | yes | yes |
+| `gitProvider-getAll` | GET | gitProvider | 0 | no | yes | yes | yes |
+| `gitProvider-remove` | POST | gitProvider | 2 | yes | no | no | yes |
+| `gitProvider-toggleShare` | POST | gitProvider | 2 | no | no | yes | yes |
+| `libsql-changeStatus` | POST | libsql | 1 | no | no | no | yes |
+| `libsql-create` | POST | libsql | 1 | no | no | no | yes |
+| `libsql-deploy` | POST | libsql | 2 | no | no | no | yes |
+| `libsql-move` | POST | libsql | 1 | no | no | no | yes |
+| `libsql-one` | GET | libsql | 0 | no | yes | yes | yes |
+| `libsql-readLogs` | GET | libsql | 0 | no | yes | yes | yes |
+| `libsql-rebuild` | POST | libsql | 1 | no | no | no | yes |
+| `libsql-reload` | POST | libsql | 2 | no | no | no | yes |
+| `libsql-remove` | POST | libsql | 2 | yes | no | no | yes |
+| `libsql-saveEnvironment` | POST | libsql | 1 | no | no | no | yes |
+| `libsql-saveExternalPorts` | POST | libsql | 1 | no | no | no | yes |
+| `libsql-start` | POST | libsql | 1 | no | no | no | yes |
+| `libsql-stop` | POST | libsql | 1 | no | no | no | yes |
+| `libsql-update` | POST | libsql | 1 | no | no | no | yes |
+| `licenseKey-activate` | POST | licenseKey | 2 | no | no | no | yes |
+| `licenseKey-deactivate` | POST | licenseKey | 2 | no | no | no | yes |
+| `licenseKey-getEnterpriseSettings` | GET | licenseKey | 0 | no | yes | yes | yes |
+| `licenseKey-haveValidLicenseKey` | GET | licenseKey | 0 | no | yes | yes | yes |
+| `licenseKey-updateEnterpriseSettings` | POST | licenseKey | 2 | no | no | no | yes |
+| `licenseKey-validate` | POST | licenseKey | 2 | no | no | no | yes |
+| `mariadb-changePassword` | POST | mariadb | 1 | no | no | no | yes |
+| `mariadb-changeStatus` | POST | mariadb | 1 | no | no | no | yes |
+| `mariadb-create` | POST | mariadb | 1 | no | no | no | yes |
+| `mariadb-deploy` | POST | mariadb | 2 | no | no | no | yes |
+| `mariadb-move` | POST | mariadb | 1 | no | no | no | yes |
+| `mariadb-one` | GET | mariadb | 0 | no | yes | yes | yes |
+| `mariadb-readLogs` | GET | mariadb | 0 | no | yes | yes | yes |
+| `mariadb-rebuild` | POST | mariadb | 1 | no | no | no | yes |
+| `mariadb-reload` | POST | mariadb | 2 | no | no | no | yes |
+| `mariadb-remove` | POST | mariadb | 2 | yes | no | no | yes |
+| `mariadb-saveEnvironment` | POST | mariadb | 1 | no | no | no | yes |
+| `mariadb-saveExternalPort` | POST | mariadb | 1 | no | no | no | yes |
+| `mariadb-search` | GET | mariadb | 0 | no | yes | yes | yes |
+| `mariadb-start` | POST | mariadb | 1 | no | no | no | yes |
+| `mariadb-stop` | POST | mariadb | 1 | no | no | no | yes |
+| `mariadb-update` | POST | mariadb | 1 | no | no | no | yes |
+| `mongo-changePassword` | POST | mongo | 1 | no | no | no | yes |
+| `mongo-changeStatus` | POST | mongo | 1 | no | no | no | yes |
+| `mongo-create` | POST | mongo | 1 | no | no | no | yes |
+| `mongo-deploy` | POST | mongo | 2 | no | no | no | yes |
+| `mongo-move` | POST | mongo | 1 | no | no | no | yes |
+| `mongo-one` | GET | mongo | 0 | no | yes | yes | yes |
+| `mongo-readLogs` | GET | mongo | 0 | no | yes | yes | yes |
+| `mongo-rebuild` | POST | mongo | 1 | no | no | no | yes |
+| `mongo-reload` | POST | mongo | 2 | no | no | no | yes |
+| `mongo-remove` | POST | mongo | 2 | yes | no | no | yes |
+| `mongo-saveEnvironment` | POST | mongo | 1 | no | no | no | yes |
+| `mongo-saveExternalPort` | POST | mongo | 1 | no | no | no | yes |
+| `mongo-search` | GET | mongo | 0 | no | yes | yes | yes |
+| `mongo-start` | POST | mongo | 1 | no | no | no | yes |
+| `mongo-stop` | POST | mongo | 1 | no | no | no | yes |
+| `mongo-update` | POST | mongo | 1 | no | no | no | yes |
+| `mounts-allNamedByApplicationId` | GET | mounts | 0 | no | yes | yes | yes |
+| `mounts-create` | POST | mounts | 1 | no | no | no | yes |
+| `mounts-listByServiceId` | GET | mounts | 0 | no | yes | yes | yes |
+| `mounts-one` | GET | mounts | 0 | no | yes | yes | yes |
+| `mounts-remove` | POST | mounts | 2 | yes | no | no | yes |
+| `mounts-update` | POST | mounts | 1 | no | no | no | yes |
+| `mysql-changePassword` | POST | mysql | 1 | no | no | no | yes |
+| `mysql-changeStatus` | POST | mysql | 1 | no | no | no | yes |
+| `mysql-create` | POST | mysql | 1 | no | no | no | yes |
+| `mysql-deploy` | POST | mysql | 2 | no | no | no | yes |
+| `mysql-move` | POST | mysql | 1 | no | no | no | yes |
+| `mysql-one` | GET | mysql | 0 | no | yes | yes | yes |
+| `mysql-readLogs` | GET | mysql | 0 | no | yes | yes | yes |
+| `mysql-rebuild` | POST | mysql | 1 | no | no | no | yes |
+| `mysql-reload` | POST | mysql | 2 | no | no | no | yes |
+| `mysql-remove` | POST | mysql | 2 | yes | no | no | yes |
+| `mysql-saveEnvironment` | POST | mysql | 1 | no | no | no | yes |
+| `mysql-saveExternalPort` | POST | mysql | 1 | no | no | no | yes |
+| `mysql-search` | GET | mysql | 0 | no | yes | yes | yes |
+| `mysql-start` | POST | mysql | 1 | no | no | no | yes |
+| `mysql-stop` | POST | mysql | 1 | no | no | no | yes |
+| `mysql-update` | POST | mysql | 1 | no | no | no | yes |
+| `network-all` | GET | network | 0 | no | yes | yes | yes |
+| `network-create` | POST | network | 1 | no | no | no | yes |
+| `network-import` | POST | network | 1 | no | no | no | yes |
+| `network-inspect` | GET | network | 0 | no | yes | yes | yes |
+| `network-networksToSync` | GET | network | 0 | no | yes | yes | yes |
+| `network-one` | GET | network | 0 | no | yes | yes | yes |
+| `network-recreate` | POST | network | 1 | no | no | no | yes |
+| `network-remove` | POST | network | 2 | yes | no | no | yes |
+| `network-resync` | POST | network | 1 | no | no | no | yes |
+| `notification-all` | GET | notification | 0 | no | yes | yes | yes |
+| `notification-createCustom` | POST | notification | 1 | no | no | no | yes |
+| `notification-createDiscord` | POST | notification | 1 | no | no | no | yes |
+| `notification-createEmail` | POST | notification | 1 | no | no | no | yes |
+| `notification-createGotify` | POST | notification | 1 | no | no | no | yes |
+| `notification-createLark` | POST | notification | 1 | no | no | no | yes |
+| `notification-createMattermost` | POST | notification | 1 | no | no | no | yes |
+| `notification-createNtfy` | POST | notification | 1 | no | no | no | yes |
+| `notification-createPushover` | POST | notification | 1 | no | no | no | yes |
+| `notification-createResend` | POST | notification | 1 | no | no | no | yes |
+| `notification-createSlack` | POST | notification | 1 | no | no | no | yes |
+| `notification-createTeams` | POST | notification | 1 | no | no | no | yes |
+| `notification-createTelegram` | POST | notification | 1 | no | no | no | yes |
+| `notification-getEmailProviders` | GET | notification | 0 | no | yes | yes | yes |
+| `notification-one` | GET | notification | 0 | no | yes | yes | yes |
+| `notification-receiveNotification` | POST | notification | 1 | no | no | no | yes |
+| `notification-remove` | POST | notification | 2 | yes | no | no | yes |
+| `notification-testCustomConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testDiscordConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testEmailConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testGotifyConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testLarkConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testMattermostConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testNtfyConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testPushoverConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testResendConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testSlackConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testTeamsConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-testTelegramConnection` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateCustom` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateDiscord` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateEmail` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateGotify` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateLark` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateMattermost` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateNtfy` | POST | notification | 1 | no | no | no | yes |
+| `notification-updatePushover` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateResend` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateSlack` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateTeams` | POST | notification | 1 | no | no | no | yes |
+| `notification-updateTelegram` | POST | notification | 1 | no | no | no | yes |
+| `organization-active` | GET | organization | 0 | no | yes | yes | yes |
+| `organization-all` | GET | organization | 0 | no | yes | yes | yes |
+| `organization-allInvitations` | GET | organization | 0 | no | yes | yes | yes |
+| `organization-create` | POST | organization | 1 | no | no | no | yes |
+| `organization-delete` | POST | organization | 2 | yes | no | no | yes |
+| `organization-inviteMember` | POST | organization | 1 | no | no | no | yes |
+| `organization-one` | GET | organization | 0 | no | yes | yes | yes |
+| `organization-removeInvitation` | POST | organization | 2 | yes | no | no | yes |
+| `organization-setDefault` | POST | organization | 1 | no | no | no | yes |
+| `organization-update` | POST | organization | 1 | no | no | no | yes |
+| `organization-updateMemberRole` | POST | organization | 1 | no | no | no | yes |
+| `overview-backups` | GET | overview | 0 | no | yes | yes | yes |
+| `overview-domains` | GET | overview | 0 | no | yes | yes | yes |
+| `overview-services` | GET | overview | 0 | no | yes | yes | yes |
+| `patch-byEntityId` | GET | patch | 0 | no | yes | yes | yes |
+| `patch-cleanPatchRepos` | POST | patch | 2 | yes | no | no | yes |
+| `patch-create` | POST | patch | 1 | no | no | no | yes |
+| `patch-delete` | POST | patch | 2 | yes | no | no | yes |
+| `patch-ensureRepo` | POST | patch | 1 | no | no | no | yes |
+| `patch-markFileForDeletion` | POST | patch | 1 | no | no | no | yes |
+| `patch-one` | GET | patch | 0 | no | yes | yes | yes |
+| `patch-readRepoDirectories` | GET | patch | 0 | no | yes | yes | yes |
+| `patch-readRepoFile` | GET | patch | 0 | no | yes | yes | yes |
+| `patch-saveFileAsPatch` | POST | patch | 1 | no | no | no | yes |
+| `patch-toggleEnabled` | POST | patch | 2 | no | no | no | yes |
+| `patch-update` | POST | patch | 1 | no | no | no | yes |
+| `port-create` | POST | port | 1 | no | no | no | yes |
+| `port-delete` | POST | port | 2 | yes | no | no | yes |
+| `port-one` | GET | port | 0 | no | yes | yes | yes |
+| `port-update` | POST | port | 1 | no | no | no | yes |
+| `postgres-changePassword` | POST | postgres | 1 | no | no | no | yes |
+| `postgres-changeStatus` | POST | postgres | 1 | no | no | no | yes |
+| `postgres-create` | POST | postgres | 1 | no | no | no | yes |
+| `postgres-deploy` | POST | postgres | 2 | no | no | no | yes |
+| `postgres-move` | POST | postgres | 1 | no | no | no | yes |
+| `postgres-one` | GET | postgres | 0 | no | yes | yes | yes |
+| `postgres-readLogs` | GET | postgres | 0 | no | yes | yes | yes |
+| `postgres-rebuild` | POST | postgres | 1 | no | no | no | yes |
+| `postgres-reload` | POST | postgres | 2 | no | no | no | yes |
+| `postgres-remove` | POST | postgres | 2 | yes | no | no | yes |
+| `postgres-saveEnvironment` | POST | postgres | 1 | no | no | no | yes |
+| `postgres-saveExternalPort` | POST | postgres | 1 | no | no | no | yes |
+| `postgres-search` | GET | postgres | 0 | no | yes | yes | yes |
+| `postgres-start` | POST | postgres | 1 | no | no | no | yes |
+| `postgres-stop` | POST | postgres | 1 | no | no | no | yes |
+| `postgres-update` | POST | postgres | 1 | no | no | no | yes |
+| `previewDeployment-all` | GET | previewDeployment | 0 | no | yes | yes | yes |
+| `previewDeployment-delete` | POST | previewDeployment | 2 | yes | no | no | yes |
+| `previewDeployment-one` | GET | previewDeployment | 0 | no | yes | yes | yes |
+| `previewDeployment-redeploy` | POST | previewDeployment | 2 | no | no | yes | yes |
+| `project-all` | GET | project | 0 | no | yes | yes | yes |
+| `project-allForPermissions` | GET | project | 0 | no | yes | yes | yes |
+| `project-completeOnboarding` | POST | project | 1 | no | no | yes | yes |
+| `project-create` | POST | project | 1 | no | no | yes | yes |
+| `project-duplicate` | POST | project | 1 | no | no | yes | yes |
+| `project-homeStats` | GET | project | 0 | no | yes | yes | yes |
+| `project-onboardingStatus` | GET | project | 0 | no | yes | yes | yes |
+| `project-one` | GET | project | 0 | no | yes | yes | yes |
+| `project-remove` | POST | project | 2 | yes | no | no | yes |
+| `project-search` | GET | project | 0 | no | yes | yes | yes |
+| `project-update` | POST | project | 1 | no | no | yes | yes |
+| `redirects-create` | POST | redirects | 1 | no | no | no | yes |
+| `redirects-delete` | POST | redirects | 2 | yes | no | no | yes |
+| `redirects-one` | GET | redirects | 0 | no | yes | yes | yes |
+| `redirects-update` | POST | redirects | 1 | no | no | no | yes |
+| `redis-changePassword` | POST | redis | 1 | no | no | no | yes |
+| `redis-changeStatus` | POST | redis | 1 | no | no | no | yes |
+| `redis-create` | POST | redis | 1 | no | no | no | yes |
+| `redis-deploy` | POST | redis | 2 | no | no | no | yes |
+| `redis-move` | POST | redis | 1 | no | no | no | yes |
+| `redis-one` | GET | redis | 0 | no | yes | yes | yes |
+| `redis-readLogs` | GET | redis | 0 | no | yes | yes | yes |
+| `redis-rebuild` | POST | redis | 1 | no | no | no | yes |
+| `redis-reload` | POST | redis | 2 | no | no | no | yes |
+| `redis-remove` | POST | redis | 2 | yes | no | no | yes |
+| `redis-saveEnvironment` | POST | redis | 1 | no | no | no | yes |
+| `redis-saveExternalPort` | POST | redis | 1 | no | no | no | yes |
+| `redis-search` | GET | redis | 0 | no | yes | yes | yes |
+| `redis-start` | POST | redis | 1 | no | no | no | yes |
+| `redis-stop` | POST | redis | 1 | no | no | no | yes |
+| `redis-update` | POST | redis | 1 | no | no | no | yes |
+| `registry-all` | GET | registry | 0 | no | yes | yes | yes |
+| `registry-create` | POST | registry | 2 | no | no | yes | yes |
+| `registry-one` | GET | registry | 0 | no | yes | yes | yes |
+| `registry-remove` | POST | registry | 2 | yes | no | no | yes |
+| `registry-testRegistry` | POST | registry | 2 | no | no | yes | yes |
+| `registry-testRegistryById` | POST | registry | 2 | no | no | yes | yes |
+| `registry-update` | POST | registry | 2 | no | no | yes | yes |
+| `rollback-delete` | POST | rollback | 2 | yes | no | no | yes |
+| `rollback-rollback` | POST | rollback | 2 | no | no | no | yes |
+| `schedule-create` | POST | schedule | 1 | no | no | no | yes |
+| `schedule-delete` | POST | schedule | 2 | yes | no | no | yes |
+| `schedule-list` | GET | schedule | 0 | no | yes | yes | yes |
+| `schedule-one` | GET | schedule | 0 | no | yes | yes | yes |
+| `schedule-runManually` | POST | schedule | 1 | no | no | no | yes |
+| `schedule-update` | POST | schedule | 1 | no | no | no | yes |
+| `scim-deleteProvider` | POST | scim | 2 | yes | no | no | yes |
+| `scim-generateToken` | POST | scim | 2 | no | no | no | yes |
+| `scim-listProviders` | GET | scim | 0 | no | yes | yes | yes |
+| `security-create` | POST | security | 2 | no | no | no | yes |
+| `security-delete` | POST | security | 2 | yes | no | no | yes |
+| `security-one` | GET | security | 0 | no | yes | yes | yes |
+| `security-update` | POST | security | 2 | no | no | no | yes |
+| `server-all` | GET | server | 0 | no | yes | yes | yes |
+| `server-allForPermissions` | GET | server | 0 | no | yes | yes | yes |
+| `server-buildServers` | GET | server | 0 | no | yes | yes | yes |
+| `server-count` | GET | server | 0 | no | yes | yes | yes |
+| `server-create` | POST | server | 2 | no | no | yes | yes |
+| `server-getDefaultCommand` | GET | server | 0 | no | yes | yes | yes |
+| `server-getServerMetrics` | GET | server | 0 | no | yes | yes | yes |
+| `server-getServerTime` | GET | server | 0 | no | yes | yes | yes |
+| `server-getServices` | GET | server | 0 | no | yes | yes | yes |
+| `server-one` | GET | server | 0 | no | yes | yes | yes |
+| `server-publicIp` | GET | server | 0 | no | yes | yes | yes |
+| `server-remove` | POST | server | 2 | yes | no | no | yes |
+| `server-security` | GET | server | 0 | no | yes | yes | yes |
+| `server-setup` | POST | server | 2 | no | no | yes | yes |
+| `server-setupMonitoring` | POST | server | 2 | no | no | yes | yes |
+| `server-update` | POST | server | 2 | no | no | yes | yes |
+| `server-updateBuildsConcurrency` | POST | server | 2 | no | no | yes | yes |
+| `server-validate` | GET | server | 0 | no | yes | yes | yes |
+| `server-withSSHKey` | GET | server | 0 | no | yes | yes | yes |
+| `settings-assignDomainServer` | POST | settings | 2 | no | no | no | yes |
+| `settings-checkGPUStatus` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-checkInfrastructureHealth` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-cleanAll` | POST | settings | 2 | yes | no | no | yes |
+| `settings-cleanAllDeploymentQueue` | POST | settings | 2 | yes | no | no | yes |
+| `settings-cleanDockerBuilder` | POST | settings | 2 | yes | no | no | yes |
+| `settings-cleanDockerPrune` | POST | settings | 2 | yes | no | no | yes |
+| `settings-cleanMonitoring` | POST | settings | 2 | yes | no | no | yes |
+| `settings-cleanSSHPrivateKey` | POST | settings | 2 | yes | no | no | yes |
+| `settings-cleanStoppedContainers` | POST | settings | 2 | yes | no | no | yes |
+| `settings-cleanUnusedImages` | POST | settings | 2 | yes | no | no | yes |
+| `settings-cleanUnusedVolumes` | POST | settings | 2 | yes | no | no | yes |
+| `settings-getDockerDiskUsage` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-getIp` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-getLogCleanupStatus` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-getNotployCloudIps` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-getNotployVersion` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-getOpenApiDocument` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-getReleaseTag` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-getTraefikPorts` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-getUpdateData` | POST | settings | 2 | no | no | no | yes |
+| `settings-getWebServerSettings` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-haveActivateRequests` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-haveTraefikDashboardPortEnabled` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-health` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-isCloud` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-isUserSubscribed` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-readDirectories` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-readMiddlewareTraefikConfig` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-readTraefikConfig` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-readTraefikEnv` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-readTraefikFile` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-readWebServerTraefikConfig` | GET | settings | 0 | no | yes | yes | yes |
+| `settings-reloadServer` | POST | settings | 2 | no | no | no | yes |
+| `settings-reloadTraefik` | POST | settings | 2 | no | no | no | yes |
+| `settings-saveSSHPrivateKey` | POST | settings | 2 | no | no | no | yes |
+| `settings-setupGPU` | POST | settings | 2 | no | no | no | yes |
+| `settings-toggleDashboard` | POST | settings | 2 | no | no | no | yes |
+| `settings-toggleRequests` | POST | settings | 2 | no | no | no | yes |
+| `settings-updateBuildsConcurrency` | POST | settings | 2 | no | no | no | yes |
+| `settings-updateDockerCleanup` | POST | settings | 2 | yes | no | no | yes |
+| `settings-updateEnforceSSO` | POST | settings | 2 | no | no | no | yes |
+| `settings-updateLogCleanup` | POST | settings | 2 | yes | no | no | yes |
+| `settings-updateMiddlewareTraefikConfig` | POST | settings | 2 | no | no | no | yes |
+| `settings-updateRemoteServersOnly` | POST | settings | 2 | no | no | no | yes |
+| `settings-updateServer` | POST | settings | 2 | no | no | no | yes |
+| `settings-updateServerIp` | POST | settings | 2 | no | no | no | yes |
+| `settings-updateTraefikConfig` | POST | settings | 2 | no | no | no | yes |
+| `settings-updateTraefikFile` | POST | settings | 2 | no | no | no | yes |
+| `settings-updateTraefikPorts` | POST | settings | 2 | no | no | no | yes |
+| `settings-updateWebServerTraefikConfig` | POST | settings | 2 | no | no | no | yes |
+| `settings-writeTraefikEnv` | POST | settings | 2 | no | no | no | yes |
+| `sshKey-all` | GET | sshKey | 0 | no | yes | yes | yes |
+| `sshKey-allForApps` | GET | sshKey | 0 | no | yes | yes | yes |
+| `sshKey-create` | POST | sshKey | 2 | no | no | yes | yes |
+| `sshKey-generate` | POST | sshKey | 2 | no | no | yes | yes |
+| `sshKey-one` | GET | sshKey | 0 | no | yes | yes | yes |
+| `sshKey-remove` | POST | sshKey | 2 | yes | no | no | yes |
+| `sshKey-update` | POST | sshKey | 2 | no | no | yes | yes |
+| `sso-addTrustedOrigin` | POST | sso | 1 | no | no | no | yes |
+| `sso-deleteProvider` | POST | sso | 2 | yes | no | no | yes |
+| `sso-enforceSSO` | GET | sso | 0 | no | yes | yes | yes |
+| `sso-getTrustedOrigins` | GET | sso | 0 | no | yes | yes | yes |
+| `sso-listProviders` | GET | sso | 0 | no | yes | yes | yes |
+| `sso-one` | GET | sso | 0 | no | yes | yes | yes |
+| `sso-register` | POST | sso | 1 | no | no | no | yes |
+| `sso-removeTrustedOrigin` | POST | sso | 2 | yes | no | no | yes |
+| `sso-showSignInWithSSO` | GET | sso | 0 | no | yes | yes | yes |
+| `sso-update` | POST | sso | 1 | no | no | no | yes |
+| `sso-updateTrustedOrigin` | POST | sso | 1 | no | no | no | yes |
+| `stripe-canCreateMoreServers` | GET | stripe | 0 | no | yes | yes | yes |
+| `stripe-createCheckoutSession` | POST | stripe | 1 | no | no | no | yes |
+| `stripe-createCustomerPortalSession` | POST | stripe | 1 | no | no | no | yes |
+| `stripe-getBillingStatus` | GET | stripe | 0 | no | yes | yes | yes |
+| `stripe-getCurrentPlan` | GET | stripe | 0 | no | yes | yes | yes |
+| `stripe-getInvoices` | GET | stripe | 0 | no | yes | yes | yes |
+| `stripe-getProducts` | GET | stripe | 0 | no | yes | yes | yes |
+| `stripe-startFreeTrial` | POST | stripe | 1 | no | no | no | yes |
+| `stripe-updateInvoiceNotifications` | POST | stripe | 1 | no | no | no | yes |
+| `stripe-upgradeSubscription` | POST | stripe | 1 | no | no | no | yes |
+| `swarm-getContainerStats` | GET | swarm | 0 | no | yes | yes | yes |
+| `swarm-getNodeApps` | GET | swarm | 0 | no | yes | yes | yes |
+| `swarm-getNodeInfo` | GET | swarm | 0 | no | yes | yes | yes |
+| `swarm-getNodes` | GET | swarm | 0 | no | yes | yes | yes |
+| `tag-all` | GET | tag | 0 | no | yes | yes | yes |
+| `tag-assignToProject` | POST | tag | 1 | no | no | no | yes |
+| `tag-bulkAssign` | POST | tag | 1 | no | no | no | yes |
+| `tag-create` | POST | tag | 1 | no | no | no | yes |
+| `tag-one` | GET | tag | 0 | no | yes | yes | yes |
+| `tag-remove` | POST | tag | 2 | yes | no | no | yes |
+| `tag-removeFromProject` | POST | tag | 2 | yes | no | no | yes |
+| `tag-update` | POST | tag | 1 | no | no | no | yes |
+| `user-all` | GET | user | 0 | no | yes | yes | yes |
+| `user-assignPermissions` | POST | user | 2 | no | no | no | yes |
+| `user-checkUserOrganizations` | GET | user | 0 | no | yes | yes | yes |
+| `user-createApiKey` | POST | user | 2 | no | no | no | yes |
+| `user-createUserWithCredentials` | POST | user | 2 | no | no | no | yes |
+| `user-deleteApiKey` | POST | user | 2 | yes | no | no | yes |
+| `user-generateToken` | POST | user | 2 | no | no | no | yes |
+| `user-get` | GET | user | 0 | no | yes | yes | yes |
+| `user-getBackups` | GET | user | 0 | no | yes | yes | yes |
+| `user-getBookmarkedTemplates` | GET | user | 0 | no | yes | yes | yes |
+| `user-getContainerMetrics` | GET | user | 0 | no | yes | yes | yes |
+| `user-getInvitations` | GET | user | 0 | no | yes | yes | yes |
+| `user-getMetricsToken` | GET | user | 0 | no | yes | yes | yes |
+| `user-getPermissions` | GET | user | 0 | no | yes | yes | yes |
+| `user-getServerMetrics` | GET | user | 0 | no | yes | yes | yes |
+| `user-getUserByToken` | GET | user | 0 | no | yes | yes | yes |
+| `user-haveRootAccess` | GET | user | 0 | no | yes | yes | yes |
+| `user-listPasskeys` | GET | user | 0 | no | yes | yes | yes |
+| `user-listSessions` | GET | user | 0 | no | yes | yes | yes |
+| `user-one` | GET | user | 0 | no | yes | yes | yes |
+| `user-remove` | POST | user | 2 | yes | no | no | yes |
+| `user-revokeSession` | POST | user | 2 | no | no | no | yes |
+| `user-sendInvitation` | POST | user | 2 | no | no | no | yes |
+| `user-session` | GET | user | 0 | no | yes | yes | yes |
+| `user-toggleTemplateBookmark` | POST | user | 2 | no | no | no | yes |
+| `user-update` | POST | user | 2 | no | no | no | yes |
+| `vaultProvider-all` | GET | vaultProvider | 0 | no | yes | yes | yes |
+| `vaultProvider-create` | POST | vaultProvider | 2 | no | no | no | yes |
+| `vaultProvider-listSecretNames` | GET | vaultProvider | 0 | no | yes | yes | yes |
+| `vaultProvider-one` | GET | vaultProvider | 0 | no | yes | yes | yes |
+| `vaultProvider-remove` | POST | vaultProvider | 2 | yes | no | no | yes |
+| `vaultProvider-testConnection` | POST | vaultProvider | 2 | no | no | no | yes |
+| `vaultProvider-update` | POST | vaultProvider | 2 | no | no | no | yes |
+| `volumeBackups-create` | POST | volumeBackups | 2 | no | no | no | yes |
+| `volumeBackups-delete` | POST | volumeBackups | 2 | yes | no | no | yes |
+| `volumeBackups-list` | GET | volumeBackups | 0 | no | yes | yes | yes |
+| `volumeBackups-one` | GET | volumeBackups | 0 | no | yes | yes | yes |
+| `volumeBackups-runManually` | POST | volumeBackups | 2 | no | no | no | yes |
+| `volumeBackups-update` | POST | volumeBackups | 2 | no | no | no | yes |
+| `whitelabeling-get` | GET | whitelabeling | 0 | no | yes | yes | yes |
+| `whitelabeling-getPublic` | GET | whitelabeling | 0 | no | yes | yes | yes |
+| `whitelabeling-reset` | POST | whitelabeling | 1 | no | no | no | yes |
+| `whitelabeling-update` | POST | whitelabeling | 1 | no | no | no | yes |

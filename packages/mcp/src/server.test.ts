@@ -1,216 +1,258 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { loadConfig, type McpConfig } from "./config.js";
+import type { ApiPort, ApiRequest } from "./contracts/api.js";
+import type { ResolvedPermissions } from "./contracts/core.js";
+import type { AuditEvent, AuditPort } from "./observability/audit.js";
+import type { ToolListEntry } from "./protocol/schemas.js";
+import { createRuntime, type McpRuntime } from "./protocol/server.js";
 
-// Mock apiClient before server.ts is imported — it calls getClientConfig() at
-// module level which requires NOTPLOY_URL/NOTPLOY_API_KEY env vars.
-vi.mock("./utils/apiClient.js", () => ({
-  default: { get: vi.fn(), post: vi.fn() },
-  setAuthToken: vi.fn(),
-  clearAuthToken: vi.fn(),
-}));
+const API_KEY = "test-api-key-12345678";
+const APPROVAL_TOKEN = "approval-token-0123456789";
 
-const { createServer } = await import("./server.js");
-const { generatedTools } = await import("./generated/tools.js");
+const FULL_PERMISSIONS: ResolvedPermissions = {
+  service: { read: true, create: true, delete: true },
+  deployment: { read: true, create: true, cancel: true },
+  domain: { read: true },
+  server: { read: true },
+  project: { create: true, delete: true },
+};
 
-function countByTags(tags: string[]): number {
-  const wanted = new Set(tags.map((tag) => tag.toLowerCase()));
-  return generatedTools.filter((tool) => wanted.has(tool.tag.toLowerCase())).length;
+class FakeApi implements ApiPort {
+  readonly calls: ApiRequest[] = [];
+
+  constructor(
+    private readonly handler: (request: ApiRequest) => unknown = () => ({}),
+    public permissions: ResolvedPermissions = FULL_PERMISSIONS,
+  ) {}
+
+  async request<T>(request: ApiRequest): Promise<T> {
+    this.calls.push(request);
+    if (request.path === "/user.session") {
+      return {
+        user: { id: "user-1" },
+        session: { activeOrganizationId: "org-1" },
+      } as T;
+    }
+    if (request.path === "/user.getPermissions") {
+      return this.permissions as T;
+    }
+    return this.handler(request) as T;
+  }
 }
 
-describe("MCP server tools/list", () => {
-  const toolsetEnvVars = ["NOTPLOY_ENABLED_TAGS", "NOTPLOY_DISABLED_TAGS", "NOTPLOY_TOOL_PRESET"];
+class MemoryAudit implements AuditPort {
+  readonly events: AuditEvent[] = [];
 
-  afterEach(() => {
-    for (const envVar of toolsetEnvVars) {
-      delete process.env[envVar];
-    }
+  async record(event: AuditEvent): Promise<void> {
+    this.events.push(structuredClone(event));
+  }
+}
+
+function testConfig(overrides: Partial<McpConfig> = {}): McpConfig {
+  const base = loadConfig({
+    NOTPLOY_URL: "https://notploy.example.com",
+    NOTPLOY_API_KEY: API_KEY,
+  } as NodeJS.ProcessEnv);
+  return {
+    ...base,
+    ...overrides,
+    policy: { ...base.policy, ...(overrides.policy ?? {}) },
+    limits: { ...base.limits, ...(overrides.limits ?? {}) },
+    advanced: { ...base.advanced, ...(overrides.advanced ?? {}) },
+    legacySelection: { ...base.legacySelection, ...(overrides.legacySelection ?? {}) },
+  };
+}
+
+interface Connected {
+  client: Client;
+  runtime: McpRuntime;
+  api: FakeApi;
+  audit: MemoryAudit;
+}
+
+describe("MCP server", () => {
+  const runtimes: McpRuntime[] = [];
+  const clients: Client[] = [];
+
+  afterEach(async () => {
+    for (const client of clients.splice(0)) await client.close().catch(() => undefined);
+    for (const runtime of runtimes.splice(0)) await runtime.server.close().catch(() => undefined);
   });
 
-  async function getToolList() {
-    const server = createServer();
+  async function connect(config: McpConfig, api: FakeApi): Promise<Connected> {
+    const audit = new MemoryAudit();
+    const runtime = await createRuntime({ config, api, audit });
+    runtimes.push(runtime);
     const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-    await server.connect(serverTransport);
+    await runtime.server.connect(serverTransport);
     const client = new Client({ name: "test-client", version: "1.0.0" });
     await client.connect(clientTransport);
-    const { tools } = await client.listTools();
-    await client.close();
-    return tools;
+    clients.push(client);
+    return { client, runtime, api, audit };
   }
 
-  it("returns tools", async () => {
-    const tools = await getToolList();
-    expect(tools.length).toBeGreaterThan(0);
+  it("exposes the business catalog by default", async () => {
+    const api = new FakeApi();
+    const { client, runtime } = await connect(testConfig(), api);
+    const { tools } = await client.listTools();
+
+    expect(tools).toHaveLength(18);
+    expect(tools.map((tool) => tool.name)).toContain("list_projects");
+    expect(tools.map((tool) => tool.name)).toContain("execute_deployment");
+    expect(tools.map((tool) => tool.name)).not.toContain("application-create");
+    expect(runtime.catalog.summary.advancedCount).toBe(0);
   });
 
-  it("returns all tools by default", async () => {
-    const tools = await getToolList();
-    expect(tools).toHaveLength(generatedTools.length);
-  });
+  it("serves JSON Schema draft 2020-12 without nested $schema keys", async () => {
+    const api = new FakeApi();
+    const { client } = await connect(testConfig(), api);
+    const { tools } = await client.listTools();
 
-  it("supports NOTPLOY_TOOL_PRESET=minimal for clients sensitive to large toolsets", async () => {
-    process.env.NOTPLOY_TOOL_PRESET = "minimal";
+    function nestedSchemaKeys(value: unknown, path = ""): string[] {
+      if (value === null || typeof value !== "object") return [];
+      if (Array.isArray(value)) {
+        return value.flatMap((item, index) => nestedSchemaKeys(item, `${path}[${index}]`));
+      }
+      const record = value as Record<string, unknown>;
+      const found: string[] = [];
+      for (const [key, child] of Object.entries(record)) {
+        const current = path ? `${path}.${key}` : key;
+        if (key === "$schema" && path !== "") found.push(current);
+        found.push(...nestedSchemaKeys(child, current));
+      }
+      return found;
+    }
 
-    const tools = await getToolList();
-    const tags = new Set(tools.map((tool) => tool.name.split("-")[0]));
-
-    expect(tools).toHaveLength(countByTags(["project", "application"]));
-    expect(tags).toEqual(new Set(["application", "project"]));
-  });
-
-  it("supports NOTPLOY_TOOL_PRESET=core for common application workflows", async () => {
-    process.env.NOTPLOY_TOOL_PRESET = "core";
-
-    const tools = await getToolList();
-    const tags = new Set(tools.map((tool) => tool.name.split("-")[0]));
-
-    expect(tools).toHaveLength(countByTags(["project", "server", "application"]));
-    expect(tags).toEqual(new Set(["application", "project", "server"]));
-  });
-
-  it("lets NOTPLOY_ENABLED_TAGS override presets", async () => {
-    process.env.NOTPLOY_TOOL_PRESET = "core";
-    process.env.NOTPLOY_ENABLED_TAGS = "project,application";
-
-    const tools = await getToolList();
-    const tags = new Set(tools.map((tool) => tool.name.split("-")[0]));
-
-    expect(tools).toHaveLength(countByTags(["project", "application"]));
-    expect(tags).toEqual(new Set(["application", "project"]));
-  });
-
-  it("excludes NOTPLOY_DISABLED_TAGS after selecting tools", async () => {
-    process.env.NOTPLOY_TOOL_PRESET = "deploy";
-    process.env.NOTPLOY_DISABLED_TAGS = "domain,deployment";
-
-    const tools = await getToolList();
-    const tags = new Set(tools.map((tool) => tool.name.split("-")[0]));
-
-    expect(tools).toHaveLength(
-      countByTags(["project", "environment", "server", "application", "compose"]),
-    );
-    expect(tags.has("domain")).toBe(false);
-    expect(tags.has("deployment")).toBe(false);
-  });
-
-  it("falls back to all tools for an unknown preset", async () => {
-    process.env.NOTPLOY_TOOL_PRESET = "unknown";
-
-    const tools = await getToolList();
-
-    expect(tools).toHaveLength(generatedTools.length);
-  });
-
-  it("every tool inputSchema has $schema set to draft 2020-12", async () => {
-    const tools = await getToolList();
     for (const tool of tools) {
       const schema = tool.inputSchema as Record<string, unknown>;
-      expect(schema.$schema, `Tool "${tool.name}" is missing $schema or has wrong draft`).toBe(
+      expect(schema.$schema, `${tool.name} $schema`).toBe(
         "https://json-schema.org/draft/2020-12/schema",
       );
+      expect(schema.type, `${tool.name} type`).toBe("object");
+      expect(nestedSchemaKeys(schema), `${tool.name} nested $schema`).toHaveLength(0);
+      expect(tool.description?.length ?? 0, `${tool.name} description`).toBeGreaterThan(20);
     }
   });
 
-  it("no tool inputSchema contains any $schema key at nested levels", async () => {
-    const tools = await getToolList();
+  it("only exposes provider-compatible regex patterns", async () => {
+    const api = new FakeApi();
+    const { client } = await connect(testConfig(), api);
+    const { tools } = await client.listTools();
 
-    function findNestedSchemaKeys(obj: unknown, path = ""): string[] {
-      if (obj === null || typeof obj !== "object") return [];
-      if (Array.isArray(obj)) {
-        return obj.flatMap((item, i) => findNestedSchemaKeys(item, `${path}[${i}]`));
-      }
-      const record = obj as Record<string, unknown>;
-      const found: string[] = [];
-      for (const [key, value] of Object.entries(record)) {
-        const currentPath = path ? `${path}.${key}` : key;
-        if (key === "$schema" && path !== "") found.push(currentPath);
-        found.push(...findNestedSchemaKeys(value, currentPath));
-      }
-      return found;
+    function patterns(value: unknown): string[] {
+      if (value === null || typeof value !== "object") return [];
+      if (Array.isArray(value)) return value.flatMap(patterns);
+      const record = value as Record<string, unknown>;
+      const found = typeof record.pattern === "string" ? [record.pattern] : [];
+      return [...found, ...Object.values(record).flatMap(patterns)];
     }
 
     for (const tool of tools) {
-      const found = findNestedSchemaKeys(tool.inputSchema);
-      expect(
-        found,
-        `Tool "${tool.name}" has nested $schema keys at: ${found.join(", ")}`,
-      ).toHaveLength(0);
+      for (const pattern of patterns(tool.inputSchema)) {
+        expect(() => new RegExp(pattern, "v"), `${tool.name}: ${pattern}`).not.toThrow();
+        expect(pattern, `${tool.name} lookaround`).not.toMatch(/\(\?<?[=!]/);
+      }
     }
   });
 
-  it("no tool inputSchema exposes regex lookaround patterns", async () => {
-    const tools = await getToolList();
-
-    function findLookaroundPatterns(obj: unknown, path = ""): string[] {
-      if (obj === null || typeof obj !== "object") return [];
-      if (Array.isArray(obj)) {
-        return obj.flatMap((item, i) => findLookaroundPatterns(item, `${path}[${i}]`));
+  it("returns structured content for a successful call", async () => {
+    const api = new FakeApi((request) => {
+      if (request.path === "/project.all") {
+        return [{ projectId: "p1", name: "Demo" }];
       }
+      return {};
+    });
+    const { client, audit } = await connect(testConfig(), api);
 
-      const record = obj as Record<string, unknown>;
-      const found: string[] = [];
-      for (const [key, value] of Object.entries(record)) {
-        const currentPath = path ? `${path}.${key}` : key;
-        if (key === "pattern" && typeof value === "string" && /\(\?<?[=!]/.test(value)) {
-          found.push(currentPath);
-        }
-        found.push(...findLookaroundPatterns(value, currentPath));
-      }
-      return found;
-    }
+    const response = await client.callTool({ name: "list_projects", arguments: {} });
+    const structured = response.structuredContent as {
+      ok: boolean;
+      status: string;
+      capability: string;
+      data: { count: number; projects: unknown[] };
+      meta: { environment: string; risk: number; requestId: string };
+    };
 
+    expect(response.isError).toBeFalsy();
+    expect(structured.ok).toBe(true);
+    expect(structured.status).toBe("succeeded");
+    expect(structured.capability).toBe("list_projects");
+    expect(structured.data.count).toBe(1);
+    expect(structured.meta.environment).toBe("self");
+    expect(structured.meta.risk).toBe(0);
+    expect(response.content[0]?.type).toBe("text");
+    expect(audit.events.at(-1)?.code).toBe("ok");
+  });
+
+  it("enforces effective permissions at execution time", async () => {
+    const api = new FakeApi(() => ({ applicationId: "app-1" }), {
+      deployment: { read: true },
+    });
+    const { client } = await connect(testConfig(), api);
+
+    const response = await client.callTool({
+      name: "get_application",
+      arguments: { applicationId: "app-1" },
+    });
+    const structured = response.structuredContent as {
+      error?: { code?: string };
+    };
+
+    expect(response.isError).toBe(true);
+    expect(structured.error?.code).toBe("permission_denied");
+    expect(api.calls.some((call) => call.path === "/application.one")).toBe(false);
+  });
+
+  it("refuses high-impact deployment without approval", async () => {
+    const config = testConfig();
+    config.policy.approvalToken = APPROVAL_TOKEN;
+    const api = new FakeApi();
+    const { client } = await connect(config, api);
+
+    const response = await client.callTool({
+      name: "execute_deployment",
+      arguments: { applicationId: "app-1" },
+    });
+    const structured = response.structuredContent as { error?: { code?: string } };
+
+    expect(response.isError).toBe(true);
+    expect(structured.error?.code).toBe("approval_required");
+    expect(api.calls.some((call) => call.path === "/application.deploy")).toBe(false);
+  });
+
+  it("exposes the advanced catalog only when explicitly configured", async () => {
+    const api = new FakeApi();
+    const { client } = await connect(
+      testConfig({
+        mode: "advanced",
+        advanced: { ...testConfig().advanced, profile: "read-only" },
+      }),
+      api,
+    );
+    const { tools } = await client.listTools();
+
+    expect(tools.length).toBeGreaterThan(0);
+    expect(tools.map((tool) => tool.name)).not.toContain("list_projects");
     for (const tool of tools) {
-      const found = findLookaroundPatterns(tool.inputSchema);
-      expect(
-        found,
-        `Tool "${tool.name}" exposes provider-incompatible lookaround patterns at: ${found.join(", ")}`,
-      ).toHaveLength(0);
+      const meta = (tool as ToolListEntry & { _meta?: Record<string, unknown> })._meta;
+      expect(meta?.["notploy/mode"]).toBe("advanced");
+      expect(meta?.["notploy/risk"]).toBe(0);
+      expect(tool.annotations?.readOnlyHint).toBe(true);
     }
   });
 
-  it("no tool inputSchema exposes patterns invalid under strict regex syntax", async () => {
-    const tools = await getToolList();
+  it("returns a stable error for an unknown tool", async () => {
+    const api = new FakeApi();
+    const { client } = await connect(testConfig(), api);
 
-    function findStrictInvalidPatterns(obj: unknown, path = ""): string[] {
-      if (obj === null || typeof obj !== "object") return [];
-      if (Array.isArray(obj)) {
-        return obj.flatMap((item, i) => findStrictInvalidPatterns(item, `${path}[${i}]`));
-      }
+    const response = await client.callTool({ name: "does_not_exist", arguments: {} });
+    const text = response.content
+      .map((block) => (block.type === "text" ? block.text : ""))
+      .join(" ");
 
-      const record = obj as Record<string, unknown>;
-      const found: string[] = [];
-      for (const [key, value] of Object.entries(record)) {
-        const currentPath = path ? `${path}.${key}` : key;
-        if (key === "pattern" && typeof value === "string") {
-          try {
-            new RegExp(value, "v");
-          } catch {
-            found.push(`${currentPath}: ${value}`);
-          }
-        }
-        found.push(...findStrictInvalidPatterns(value, currentPath));
-      }
-      return found;
-    }
-
-    for (const tool of tools) {
-      const found = findStrictInvalidPatterns(tool.inputSchema);
-      expect(
-        found,
-        `Tool "${tool.name}" exposes provider-incompatible patterns at: ${found.join(", ")}`,
-      ).toHaveLength(0);
-    }
-  });
-
-  it("all tools have name, inputSchema with type=object", async () => {
-    const tools = await getToolList();
-    for (const tool of tools) {
-      expect(tool.name, "tool is missing name").toBeTruthy();
-      expect(tool.inputSchema, `tool "${tool.name}" is missing inputSchema`).toBeDefined();
-      expect(
-        (tool.inputSchema as Record<string, unknown>).type,
-        `tool "${tool.name}" inputSchema is missing type`,
-      ).toBe("object");
-    }
+    expect(response.isError).toBe(true);
+    expect(text).toMatch(/not found|unknown/i);
   });
 });

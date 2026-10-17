@@ -1,18 +1,28 @@
-import { DEFAULT_REDACTED_FIELDS } from "./redactSensitive.js";
+const RESERVED_CUSTOM_HEADER_NAMES = new Set([
+  "x-api-key",
+  "authorization",
+  "content-type",
+  "accept",
+  "content-length",
+  "host",
+  "connection",
+  "cookie",
+  "set-cookie",
+  "transfer-encoding",
+  "mcp-session-id",
+]);
 
-export interface Config {
-  notployUrl: string;
-  authToken: string;
-  customHeaders: Record<string, string>;
-  timeout: number;
-  retryAttempts: number;
-  retryDelay: number;
-  redactEnv: boolean;
-  redactFields: string[];
-}
+// RFC 7230 token characters. Rejecting anything else prevents header injection
+// through configuration and mirrors what fetch/undici accepts.
+const HEADER_NAME_PATTERN = /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/;
 
-const RESERVED_CUSTOM_HEADER_NAMES = new Set(["x-api-key", "content-type", "accept"]);
-
+/**
+ * Parses NOTPLOY_CUSTOM_HEADERS.
+ *
+ * Authentication, content and transport headers are reserved: the API key must
+ * come from NOTPLOY_API_KEY, and a custom header must not be able to replace
+ * the credential, the session id or the request encoding.
+ */
 export function parseCustomHeaders(rawHeaders: string | undefined): Record<string, string> {
   if (rawHeaders === undefined) {
     return {};
@@ -40,9 +50,15 @@ export function parseCustomHeaders(rawHeaders: string | undefined): Record<strin
       throw new Error("Environment variable NOTPLOY_CUSTOM_HEADERS contains an empty header name");
     }
 
+    if (!HEADER_NAME_PATTERN.test(name)) {
+      throw new Error(
+        `Environment variable NOTPLOY_CUSTOM_HEADERS contains an invalid header name: ${JSON.stringify(name)}`,
+      );
+    }
+
     if (RESERVED_CUSTOM_HEADER_NAMES.has(name.toLowerCase())) {
       throw new Error(
-        "Environment variable NOTPLOY_CUSTOM_HEADERS cannot override reserved headers x-api-key, content-type, or accept; configure Notploy authentication with NOTPLOY_API_KEY",
+        "Environment variable NOTPLOY_CUSTOM_HEADERS cannot override reserved headers (authentication, transport or content); configure Notploy authentication with NOTPLOY_API_KEY",
       );
     }
 
@@ -52,71 +68,14 @@ export function parseCustomHeaders(rawHeaders: string | undefined): Record<strin
       );
     }
 
+    if (/[\r\n\u0000]/.test(value)) {
+      throw new Error(
+        "Environment variable NOTPLOY_CUSTOM_HEADERS must not contain control characters in header values",
+      );
+    }
+
     customHeaders[name] = value;
   }
 
   return customHeaders;
-}
-
-class ConfigManager {
-  private static instance: ConfigManager;
-  private config: Config | null = null;
-
-  private constructor() {}
-
-  static getInstance(): ConfigManager {
-    if (!ConfigManager.instance) {
-      ConfigManager.instance = new ConfigManager();
-    }
-    return ConfigManager.instance;
-  }
-
-  getConfig(): Config {
-    if (!this.config) {
-      this.config = this.loadConfig();
-    }
-    return this.config;
-  }
-
-  private loadConfig(): Config {
-    const notployUrl = process.env.NOTPLOY_URL;
-    const authToken = process.env.NOTPLOY_API_KEY;
-
-    if (!notployUrl) {
-      throw new Error("Environment variable NOTPLOY_URL is not defined");
-    }
-    if (!authToken) {
-      throw new Error("Environment variable NOTPLOY_API_KEY is not defined");
-    }
-
-    const redactEnv = parseBoolean(process.env.NOTPLOY_REDACT_ENV, true);
-    const parsedFields =
-      process.env.NOTPLOY_REDACT_FIELDS?.split(",")
-        .map((f) => f.trim())
-        .filter((f) => f.length > 0) ?? [];
-    const redactFields = parsedFields.length > 0 ? parsedFields : DEFAULT_REDACTED_FIELDS;
-
-    return {
-      notployUrl,
-      authToken,
-      customHeaders: parseCustomHeaders(process.env.NOTPLOY_CUSTOM_HEADERS),
-      timeout: parseInt(process.env.NOTPLOY_TIMEOUT || "30000", 10),
-      retryAttempts: parseInt(process.env.NOTPLOY_RETRY_ATTEMPTS || "3", 10),
-      retryDelay: parseInt(process.env.NOTPLOY_RETRY_DELAY || "1000", 10),
-      redactEnv,
-      redactFields,
-    };
-  }
-}
-
-export function getClientConfig(): Config {
-  return ConfigManager.getInstance().getConfig();
-}
-
-function parseBoolean(value: string | undefined, fallback: boolean): boolean {
-  if (value === undefined) return fallback;
-  const normalized = value.trim().toLowerCase();
-  if (["true", "1", "yes", "on"].includes(normalized)) return true;
-  if (["false", "0", "no", "off", ""].includes(normalized)) return false;
-  return fallback;
 }

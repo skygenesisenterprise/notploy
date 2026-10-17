@@ -1,28 +1,48 @@
 services:
   notploy-mcp-http:
-    build: .
+    build:
+      context: ../..
+      dockerfile: packages/mcp/Dockerfile
     container_name: notploy-mcp-http
     ports:
       - "${EXTERNAL_PORT:-3000}:3000"
     environment:
       - MCP_TRANSPORT=${MCP_TRANSPORT:-http}
+      # Required: the remote transport refuses to start without a bearer token.
+      - NOTPLOY_MCP_HTTP_TOKEN=${NOTPLOY_MCP_HTTP_TOKEN:?set NOTPLOY_MCP_HTTP_TOKEN}
+      - NOTPLOY_MCP_HTTP_HOST=0.0.0.0
       - NOTPLOY_URL=${NOTPLOY_URL:-https://your-notploy-server.com}
       - NOTPLOY_API_KEY=${NOTPLOY_API_KEY:-your_token_here}
+      - NOTPLOY_MCP_MODE=${NOTPLOY_MCP_MODE:-business}
+      - NOTPLOY_MCP_ENVIRONMENT=${NOTPLOY_MCP_ENVIRONMENT:-self}
+      # Optional operator approval for high-impact capabilities.
+      - NOTPLOY_MCP_APPROVAL_TOKEN=${NOTPLOY_MCP_APPROVAL_TOKEN:-}
+      # Persist long-running operations and the audit trail on a volume.
+      - NOTPLOY_MCP_OPERATION_STORE=/data/operations.json
+      - NOTPLOY_MCP_AUDIT_LOG=/data/audit.jsonl
+    volumes:
+      - mcp-data:/data
     restart: unless-stopped
     networks:
       - mcp-network
 
   notploy-mcp-stdio:
-    build: .
+    build:
+      context: ../..
+      dockerfile: packages/mcp/Dockerfile
     container_name: notploy-mcp-stdio
     environment:
       - NOTPLOY_URL=${NOTPLOY_URL:-https://your-notploy-server.com}
       - NOTPLOY_API_KEY=${NOTPLOY_API_KEY:-your_token_here}
+      - NOTPLOY_MCP_MODE=${NOTPLOY_MCP_MODE:-business}
     restart: "no"
     stdin_open: true
     tty: true
     networks:
       - mcp-network
+
+volumes:
+  mcp-data:
 
 networks:
   mcp-network:

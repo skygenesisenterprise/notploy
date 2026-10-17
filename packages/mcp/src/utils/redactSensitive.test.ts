@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_REDACTED_FIELDS, redactSensitive } from "./redactSensitive.js";
+import { DEFAULT_REDACTED_FIELDS, redactKnownSecrets, redactSensitive } from "./redactSensitive.js";
 
 const redact = <T>(data: T) => redactSensitive(data, DEFAULT_REDACTED_FIELDS);
 
@@ -41,10 +41,7 @@ describe("redactSensitive", () => {
       apps: [{ name: "web", env: "SECRET=1" }, { config: { registryPassword: "p" } }],
     });
     expect(result).toEqual({
-      apps: [
-        { name: "web", env: "[REDACTED]" },
-        { config: { registryPassword: "[REDACTED]" } },
-      ],
+      apps: [{ name: "web", env: "[REDACTED]" }, { config: { registryPassword: "[REDACTED]" } }],
     });
   });
 
@@ -81,5 +78,29 @@ describe("redactSensitive", () => {
   it("redacts flag-like keys ending in a sensitive suffix", () => {
     const result = redact({ isSecret: true });
     expect(result).toEqual({ isSecret: "[REDACTED]" });
+  });
+});
+
+describe("redactKnownSecrets", () => {
+  const secret = "super-secret-api-key-12345";
+
+  it("replaces literal credentials in strings, keys and arrays", () => {
+    const result = redactKnownSecrets(
+      {
+        message: `request with ${secret} failed`,
+        [secret]: "value",
+        nested: [`Bearer ${secret}`],
+      },
+      [secret],
+    ) as Record<string, unknown>;
+
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain(secret);
+    expect(serialized).toContain("[REDACTED]");
+  });
+
+  it("ignores short values to avoid redacting common words", () => {
+    const result = redactKnownSecrets({ message: "abc" }, ["abc"]);
+    expect(result).toEqual({ message: "abc" });
   });
 });

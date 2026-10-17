@@ -46,29 +46,34 @@ describe("parseCustomHeaders", () => {
     expect(() => parseCustomHeaders(JSON.stringify({ "": "value" }))).toThrow(/empty header name/);
   });
 
-  it("rejects reserved header names case-insensitively", () => {
-    expect(() => parseCustomHeaders(JSON.stringify({ "X-API-Key": "override" }))).toThrow(
-      /cannot override reserved header/,
+  it("rejects invalid header names", () => {
+    expect(() => parseCustomHeaders(JSON.stringify({ "Bad Header": "value" }))).toThrow(
+      /invalid header name/,
     );
-    expect(() => parseCustomHeaders(JSON.stringify({ "Content-Type": "text/plain" }))).toThrow(
-      /cannot override reserved header/,
-    );
-    expect(() => parseCustomHeaders(JSON.stringify({ ACCEPT: "text/plain" }))).toThrow(
-      /cannot override reserved header/,
+    expect(() => parseCustomHeaders(JSON.stringify({ "X-Test\r\nInjected": "value" }))).toThrow(
+      /invalid header name/,
     );
   });
-});
 
-describe("getClientConfig", () => {
-  it("enables response redaction by default", async () => {
-    process.env.NOTPLOY_URL = "https://example.com";
-    process.env.NOTPLOY_API_KEY = "test-key";
-    delete process.env.NOTPLOY_REDACT_ENV;
+  it("rejects control characters in values", () => {
+    expect(() => parseCustomHeaders(JSON.stringify({ "X-Test": "a\r\nb" }))).toThrow(
+      /control characters/,
+    );
+  });
 
-    const { getClientConfig } = await import("./clientConfig.js");
-    const config = getClientConfig();
-
-    expect(config.redactEnv).toBe(true);
-    expect(config.redactFields.length).toBeGreaterThan(0);
+  it("rejects reserved header names case-insensitively", () => {
+    for (const name of [
+      "X-API-Key",
+      "Authorization",
+      "Content-Type",
+      "ACCEPT",
+      "Host",
+      "Cookie",
+      "Mcp-Session-Id",
+    ]) {
+      expect(() => parseCustomHeaders(JSON.stringify({ [name]: "override" })), name).toThrow(
+        /reserved header/,
+      );
+    }
   });
 });
