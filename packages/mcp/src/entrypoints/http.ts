@@ -129,7 +129,7 @@ export async function createHttpApplication(
   const requireAuth = async (
     c: Context<{ Bindings: HttpBindings }>,
     next: () => Promise<void>,
-  ): Promise<Response | void> => {
+  ): Promise<Response | undefined> => {
     if (!http.token) {
       await next();
       return;
@@ -141,6 +141,7 @@ export async function createHttpApplication(
       return c.json(jsonRpcError(-32001, "Unauthorized"), 401);
     }
     await next();
+    return undefined;
   };
 
   const app = new Hono<{ Bindings: HttpBindings }>();
@@ -180,7 +181,10 @@ export async function createHttpApplication(
 
       if (sessionId) {
         const record = sessions.get(sessionId);
-        if (!record || record.kind !== "streamable" || record.fingerprint !== expectedFingerprint) {
+        if (!record) {
+          return c.json(jsonRpcError(-32000, "Invalid or missing session ID"), 400);
+        }
+        if (record.kind !== "streamable" || record.fingerprint !== expectedFingerprint) {
           return c.json(jsonRpcError(-32000, "Invalid or missing session ID"), 400);
         }
         record.lastSeen = Date.now();
@@ -326,7 +330,10 @@ export async function createHttpApplication(
     if (!sessionId) {
       return c.json(jsonRpcError(-32000, "sessionId query parameter is required"), 400);
     }
-    if (!record || record.kind !== "sse" || record.fingerprint !== expectedFingerprint) {
+    if (!record) {
+      return c.json(jsonRpcError(-32000, "No transport found for sessionId"), 400);
+    }
+    if (record.kind !== "sse" || record.fingerprint !== expectedFingerprint) {
       return c.json(jsonRpcError(-32000, "No transport found for sessionId"), 400);
     }
 

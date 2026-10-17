@@ -52,6 +52,7 @@ export const statements = {
 	auditLog: ["read"],
 	vaultProvider: ["read", "create", "update", "delete"],
 	dnsProvider: ["read", "create", "update", "delete"],
+	aiProvider: ["read", "create", "update", "delete"],
 	networkProvider: ["read", "create", "update", "delete"],
 	// Traffic Manager: reading the traffic/audience reports, and configuring the
 	// watched properties and their collection sources.
@@ -105,6 +106,7 @@ export const ownerRole = ac.newRole({
 	auditLog: ["read"],
 	vaultProvider: ["read", "create", "update", "delete"],
 	dnsProvider: ["read", "create", "update", "delete"],
+	aiProvider: ["read", "create", "update", "delete"],
 });
 
 /**
@@ -149,6 +151,7 @@ export const adminRole = ac.newRole({
 	auditLog: ["read"],
 	vaultProvider: ["read", "create", "update", "delete"],
 	dnsProvider: ["read", "create", "update", "delete"],
+	aiProvider: ["read", "create", "update", "delete"],
 });
 
 /**
@@ -195,6 +198,9 @@ export const memberRole = ac.newRole({
 	// Members need provider/secret names for env editor autocomplete; values are never exposed
 	vaultProvider: ["read"],
 	dnsProvider: [],
+	// Members may use enabled AI providers in product features, but cannot
+	// manage their credentials from Settings.
+	aiProvider: ["read"],
 	networkProvider: [],
 	// Members may read the traffic reports, never configure collectors.
 	traffic: ["read"],

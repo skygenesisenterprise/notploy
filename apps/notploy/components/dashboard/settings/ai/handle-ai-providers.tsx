@@ -1,15 +1,18 @@
 "use client";
+
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
 import { PlusIcon, ServerIcon, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { AlertBlock } from "@/components/shared/alert-block";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
@@ -39,7 +42,8 @@ export const HandleAiProviders = () => {
 	const utils = api.useUtils();
 	const [open, setOpen] = useState(false);
 	const { data: providers } = api.ai.getCustomProviders.useQuery();
-	const { mutateAsync, isPending } = api.ai.saveCustomProviders.useMutation();
+	const { mutateAsync, isPending, error, isError } =
+		api.ai.saveCustomProviders.useMutation();
 
 	const form = useForm<Schema>({
 		resolver: zodResolver(Schema),
@@ -63,42 +67,44 @@ export const HandleAiProviders = () => {
 		try {
 			await mutateAsync({ providers: data.providers });
 			await utils.ai.getCustomProviders.invalidate();
-			toast.success("Custom providers saved successfully");
+			await utils.ai.getAll.invalidate();
+			toast.success("Custom AI providers saved");
 			setOpen(false);
-		} catch (error) {
-			toast.error("Failed to save custom providers", {
-				description: error instanceof Error ? error.message : "Unknown error",
-			});
+		} catch {
+			// The mutation error is rendered in the dialog.
 		}
 	};
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline" className="cursor-pointer space-x-3">
-					<ServerIcon className="h-4 w-4" />
+				<Button variant="outline">
+					<ServerIcon className="size-4" />
 					Custom Presets
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-xl">
+			<DialogContent className="max-h-screen overflow-y-auto sm:max-w-xl">
 				<DialogHeader>
 					<DialogTitle>Custom AI Providers</DialogTitle>
 					<DialogDescription>
-						Define your own AI providers, like an internal LLM platform. When at
-						least one is defined, only these providers can be used in AI
-						configurations.
+						Define endpoints approved for your organization, such as an internal
+						LLM platform or a private gateway. When at least one is defined,
+						only these endpoints can be used in AI configurations.
 					</DialogDescription>
 				</DialogHeader>
+
+				{isError && <AlertBlock type="error">{error?.message}</AlertBlock>}
+
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 						{fields.length === 0 && (
 							<p className="text-sm text-muted-foreground">
-								No custom providers defined. The built-in provider list will be
-								used.
+								No custom providers defined. The built-in provider presets will
+								be available.
 							</p>
 						)}
 						{fields.map((fieldItem, index) => (
-							<div key={fieldItem.id} className="flex gap-2 items-start">
+							<div key={fieldItem.id} className="flex items-start gap-2">
 								<FormField
 									control={form.control}
 									name={`providers.${index}.name`}
@@ -130,26 +136,28 @@ export const HandleAiProviders = () => {
 									type="button"
 									variant="ghost"
 									size="icon"
-									className="group hover:bg-red-500/10"
+									className="group text-muted-foreground hover:bg-red-500/10"
 									onClick={() => remove(index)}
 								>
-									<Trash2 className="size-4 text-primary group-hover:text-red-500" />
+									<Trash2 className="size-4 group-hover:text-red-500" />
+									<span className="sr-only">Remove provider</span>
 								</Button>
 							</div>
 						))}
-						<div className="flex justify-between">
+
+						<DialogFooter className="flex w-full flex-row justify-between gap-2 sm:justify-between">
 							<Button
 								type="button"
 								variant="outline"
 								onClick={() => append({ name: "", apiUrl: "" })}
 							>
-								<PlusIcon className="h-4 w-4" />
+								<PlusIcon className="size-4" />
 								Add Provider
 							</Button>
 							<Button type="submit" isLoading={isPending}>
 								Save
 							</Button>
-						</div>
+						</DialogFooter>
 					</form>
 				</Form>
 			</DialogContent>

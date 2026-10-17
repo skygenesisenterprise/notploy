@@ -1,10 +1,24 @@
 import { db } from "@notploy/server/db";
 import { ai, organization } from "@notploy/server/db/schema";
 import { aiCustomProviderSchema } from "@notploy/server/db/schema/ai";
-import { selectAIProvider } from "@notploy/server/utils/ai/select-ai-provider";
+import {
+	type AiCapabilities,
+	getAiProviderLabel,
+	getAiProviderPreset,
+	getModelCapabilities,
+	resolveAiProviderId,
+} from "@notploy/server/utils/ai/contracts";
+import {
+	type AiConnectionTestResult,
+	type AiModelInfo,
+	discoverAiModels,
+	generateAiStructured,
+	normalizeAiError,
+	testAiConnection,
+	validateAiEndpointUrl,
+} from "@notploy/server/utils/ai/runtime";
 import { TRPCError } from "@trpc/server";
-import { generateText, Output } from "ai";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { IS_CLOUD } from "../constants";
 import { findServerById } from "./server";
@@ -49,6 +63,91 @@ export const getAiSettingById = async (aiId: string) => {
 	return aiSetting;
 };
 
+/**
+ * Load a configuration while enforcing the organization boundary. Every
+ * mutation and every operation that uses a stored API key goes through this
+ * helper instead of trusting an `aiId` sent by the client.
+ */
+export const findAiSettingById = async (
+	aiId: string,
+	organizationId: string,
+) => {
+	const aiSetting = await db.query.ai.findFirst({
+		where: and(eq(ai.aiId, aiId), eq(ai.organizationId, organizationId)),
+	});
+	if (!aiSetting) {
+		throw new TRPCError({
+			code: "NOT_FOUND",
+			message: "AI settings not found",
+		});
+	}
+	return aiSetting;
+};
+
+export type AiTestStatus = "success" | "error";
+
+export interface AiSettingView {
+	aiId: string;
+	name: string;
+	apiUrl: string;
+	model: string;
+	isEnabled: boolean;
+	createdAt: string;
+	hasApiKey: boolean;
+	providerId: string;
+	providerLabel: string;
+	capabilities: AiCapabilities;
+	verifiedCapabilities: Partial<AiCapabilities> | null;
+	lastTestStatus: AiTestStatus | null;
+	lastTestMessage: string | null;
+	lastTestedAt: string | null;
+	lastTestLatencyMs: number | null;
+}
+
+const parseVerifiedCapabilities = (
+	value: string | null,
+): Partial<AiCapabilities> | null => {
+	if (!value) return null;
+	try {
+		const parsed = JSON.parse(value) as Record<string, unknown>;
+		const result: Partial<AiCapabilities> = {};
+		for (const [key, support] of Object.entries(parsed)) {
+			if (support === "supported") {
+				result[key as keyof AiCapabilities] = "supported";
+			}
+		}
+		return Object.keys(result).length > 0 ? result : null;
+	} catch {
+		return null;
+	}
+};
+
+/** Strip secrets before an AI configuration leaves the server. */
+export const toAiSettingView = (
+	setting: typeof ai.$inferSelect,
+): AiSettingView => {
+	const providerId = resolveAiProviderId(setting.apiUrl);
+	return {
+		aiId: setting.aiId,
+		name: setting.name,
+		apiUrl: setting.apiUrl,
+		model: setting.model,
+		isEnabled: setting.isEnabled,
+		createdAt: setting.createdAt,
+		hasApiKey: Boolean(setting.apiKey),
+		providerId,
+		providerLabel: getAiProviderLabel(providerId),
+		capabilities: getModelCapabilities(providerId, setting.model),
+		verifiedCapabilities: parseVerifiedCapabilities(
+			setting.verifiedCapabilities,
+		),
+		lastTestStatus: (setting.lastTestStatus as AiTestStatus | null) ?? null,
+		lastTestMessage: setting.lastTestMessage,
+		lastTestedAt: setting.lastTestedAt,
+		lastTestLatencyMs: setting.lastTestLatencyMs,
+	};
+};
+
 type AiCustomProvider = z.infer<typeof aiCustomProviderSchema>;
 
 const parseOrgMetadata = (metadata: string | null) => {
@@ -86,54 +185,245 @@ export const saveCustomAiProviders = async (
 			message: "Organization not found",
 		});
 	}
+
+	const seen = new Set<string>();
+	const normalized = providers.map((provider) => {
+		const apiUrl = normalizeApiUrl(provider.apiUrl);
+		validateAiEndpointUrl(apiUrl, { allowPrivateNetworks: !IS_CLOUD });
+		if (seen.has(apiUrl)) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: `Duplicate custom provider URL: ${apiUrl}`,
+			});
+		}
+		seen.add(apiUrl);
+		return {
+			name: provider.name.trim(),
+			apiUrl,
+		};
+	});
+
 	const metadata = parseOrgMetadata(org.metadata);
-	metadata.aiProviders = providers;
+	metadata.aiProviders = normalized;
 	await db
 		.update(organization)
 		.set({ metadata: JSON.stringify(metadata) })
 		.where(eq(organization.id, organizationId));
-	return providers;
+	return normalized;
 };
 
 const normalizeApiUrl = (url: string) => url.trim().replace(/\/+$/, "");
 
-export const saveAiSettings = async (organizationId: string, settings: any) => {
-	const aiId = settings.aiId;
+const resetTestState = {
+	lastTestStatus: null,
+	lastTestMessage: null,
+	lastTestedAt: null,
+	lastTestLatencyMs: null,
+	verifiedCapabilities: null,
+} as const;
 
-	if (settings.apiUrl) {
-		const customProviders = await getCustomAiProviders(organizationId);
-		if (customProviders.length > 0) {
-			const isAllowed = customProviders.some(
-				(provider) =>
-					normalizeApiUrl(provider.apiUrl) === normalizeApiUrl(settings.apiUrl),
-			);
-			if (!isAllowed) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message:
-						"This API URL is not in your organization's allowed AI providers",
-				});
-			}
+interface SaveAiSettingsInput {
+	aiId?: string;
+	name?: string;
+	apiUrl?: string;
+	apiKey?: string;
+	model?: string;
+	isEnabled?: boolean;
+}
+
+export const saveAiSettings = async (
+	organizationId: string,
+	settings: SaveAiSettingsInput,
+) => {
+	const requestedAiId =
+		typeof settings.aiId === "string" && settings.aiId.length > 0
+			? settings.aiId
+			: undefined;
+	const existing = requestedAiId
+		? await findAiSettingById(requestedAiId, organizationId)
+		: null;
+
+	const apiUrl = normalizeApiUrl(
+		String(settings.apiUrl ?? existing?.apiUrl ?? ""),
+	);
+	if (!apiUrl) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "API URL is required",
+		});
+	}
+
+	validateAiEndpointUrl(apiUrl, { allowPrivateNetworks: !IS_CLOUD });
+
+	const customProviders = await getCustomAiProviders(organizationId);
+	if (customProviders.length > 0) {
+		const isAllowed = customProviders.some(
+			(provider) => normalizeApiUrl(provider.apiUrl) === apiUrl,
+		);
+		if (!isAllowed) {
+			throw new TRPCError({
+				code: "FORBIDDEN",
+				message:
+					"This API URL is not in your organization's allowed AI providers",
+			});
 		}
 	}
 
+	const providerId = resolveAiProviderId(apiUrl);
+	const preset = getAiProviderPreset(providerId);
+	const submittedKey =
+		typeof settings.apiKey === "string" ? settings.apiKey.trim() : undefined;
+	// An empty key means "keep the stored secret" when editing. Creating a
+	// cloud configuration still requires a key; local/custom endpoints may not.
+	const apiKey = submittedKey || existing?.apiKey || "";
+	if (!apiKey && preset?.requiresApiKey) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: `${preset.name} requires an API key`,
+		});
+	}
+
+	const name = String(settings.name ?? existing?.name ?? "").trim();
+	const model = String(settings.model ?? existing?.model ?? "").trim();
+	if (!name || !model) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "Name and model are required",
+		});
+	}
+
+	const values = {
+		...(requestedAiId ? { aiId: requestedAiId } : {}),
+		organizationId,
+		name,
+		apiUrl,
+		apiKey,
+		model,
+		isEnabled:
+			typeof settings.isEnabled === "boolean"
+				? settings.isEnabled
+				: (existing?.isEnabled ?? true),
+	};
+
+	const endpointChanged =
+		!existing ||
+		normalizeApiUrl(existing.apiUrl) !== apiUrl ||
+		existing.model !== model;
+
 	return db
 		.insert(ai)
-		.values({
-			aiId,
-			organizationId,
-			...settings,
-		})
+		.values(values)
 		.onConflictDoUpdate({
 			target: ai.aiId,
-			set: {
-				...settings,
-			},
+			set: endpointChanged ? { ...values, ...resetTestState } : values,
 		});
 };
 
-export const deleteAiSettings = async (aiId: string) => {
-	return db.delete(ai).where(eq(ai.aiId, aiId));
+export const deleteAiSettings = async (
+	aiId: string,
+	organizationId: string,
+) => {
+	await findAiSettingById(aiId, organizationId);
+	return db
+		.delete(ai)
+		.where(and(eq(ai.aiId, aiId), eq(ai.organizationId, organizationId)));
+};
+
+export const getAiModelsForSetting = async ({
+	aiId,
+	organizationId,
+	apiUrl,
+	apiKey,
+}: {
+	aiId?: string;
+	organizationId: string;
+	apiUrl?: string;
+	apiKey?: string;
+}): Promise<AiModelInfo[]> => {
+	const existing = aiId ? await findAiSettingById(aiId, organizationId) : null;
+	const resolvedUrl = normalizeApiUrl(String(apiUrl ?? existing?.apiUrl ?? ""));
+	if (!resolvedUrl) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "API URL is required",
+		});
+	}
+
+	return discoverAiModels(
+		{
+			apiUrl: resolvedUrl,
+			apiKey: apiKey?.trim() || existing?.apiKey || "",
+		},
+		{ allowPrivateNetworks: !IS_CLOUD },
+	);
+};
+
+export const testAiConnectionForSetting = async ({
+	aiId,
+	organizationId,
+	apiUrl,
+	apiKey,
+	model,
+}: {
+	aiId?: string;
+	organizationId: string;
+	apiUrl?: string;
+	apiKey?: string;
+	model: string;
+}): Promise<AiConnectionTestResult> => {
+	const existing = aiId ? await findAiSettingById(aiId, organizationId) : null;
+	const resolvedUrl = normalizeApiUrl(String(apiUrl ?? existing?.apiUrl ?? ""));
+
+	try {
+		const result = await testAiConnection({
+			config: {
+				apiUrl: resolvedUrl,
+				apiKey: apiKey?.trim() || existing?.apiKey || "",
+			},
+			model,
+			allowPrivateNetworks: !IS_CLOUD,
+		});
+
+		if (existing) {
+			await db
+				.update(ai)
+				.set({
+					lastTestStatus: "success",
+					lastTestMessage: result.message,
+					lastTestedAt: new Date().toISOString(),
+					lastTestLatencyMs: result.latencyMs,
+					verifiedCapabilities: JSON.stringify(result.verifiedCapabilities),
+				})
+				.where(
+					and(
+						eq(ai.aiId, existing.aiId),
+						eq(ai.organizationId, organizationId),
+					),
+				);
+		}
+
+		return result;
+	} catch (error) {
+		const normalized = normalizeAiError(error);
+		if (existing) {
+			await db
+				.update(ai)
+				.set({
+					lastTestStatus: "error",
+					lastTestMessage: `${normalized.category}: ${normalized.message}`,
+					lastTestedAt: new Date().toISOString(),
+					lastTestLatencyMs: null,
+					verifiedCapabilities: null,
+				})
+				.where(
+					and(
+						eq(ai.aiId, existing.aiId),
+						eq(ai.organizationId, organizationId),
+					),
+				);
+		}
+		throw normalized;
+	}
 };
 
 interface Props {
@@ -144,22 +434,31 @@ interface Props {
 }
 
 export const suggestVariants = async ({
-	organizationId: _organizationId,
+	organizationId,
 	aiId,
 	input,
 	serverId,
 }: Props) => {
 	try {
 		const aiSettings = await getAiSettingById(aiId);
-		if (!aiSettings || !aiSettings.isEnabled) {
+		if (!aiSettings.isEnabled || aiSettings.organizationId !== organizationId) {
 			throw new TRPCError({
 				code: "NOT_FOUND",
 				message: "AI features are not enabled for this configuration",
 			});
 		}
 
-		const provider = selectAIProvider(aiSettings);
-		const model = provider(aiSettings.model);
+		const capabilities = getModelCapabilities(
+			resolveAiProviderId(aiSettings.apiUrl),
+			aiSettings.model,
+		);
+		if (capabilities.structuredOutput === "unsupported") {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message:
+					"This provider does not support the structured output required for Compose suggestions",
+			});
+		}
 
 		let ip = "";
 		if (!IS_CLOUD) {
@@ -207,10 +506,18 @@ export const suggestVariants = async ({
 			),
 		});
 
-		const result = await generateText({
-			model,
-			// @ts-ignore - Zod + AI SDK Output.object() causes excessively deep instantiation
-			output: Output.object({ schema: fullSchema }),
+		const result = await generateAiStructured<
+			SuggestionsOutput & {
+				suggestions: (SuggestionItem & DockerOutput)[];
+			}
+		>({
+			config: {
+				apiUrl: aiSettings.apiUrl,
+				apiKey: aiSettings.apiKey,
+			},
+			model: aiSettings.model,
+			schema: fullSchema,
+			allowPrivateNetworks: !IS_CLOUD,
 			prompt: `
 		    Act as advanced DevOps engineer. Analyze the user's request and generate up to 3 deployment suggestions, each with a complete docker compose configuration.
 
@@ -317,7 +624,8 @@ export const suggestVariants = async ({
 
 		return output.suggestions.filter((s) => s.dockerCompose);
 	} catch (error) {
-		console.error("Error in suggestVariants:", error);
-		throw error;
+		// Do not log the prompt or the provider response: both may contain
+		// user data or credentials.
+		throw normalizeAiError(error);
 	}
 };

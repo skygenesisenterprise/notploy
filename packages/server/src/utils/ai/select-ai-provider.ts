@@ -6,21 +6,14 @@ import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createOllama } from "ai-sdk-ollama";
+import { resolveAiProviderId } from "./contracts";
 
+/**
+ * Provider detection is hosted in the shared contracts so the UI and the
+ * runtime agree on what a given endpoint represents.
+ */
 export function getProviderName(apiUrl: string) {
-	if (apiUrl.includes("api.openai.com")) return "openai";
-	if (apiUrl.includes("azure.com")) return "azure";
-	if (apiUrl.includes("api.anthropic.com")) return "anthropic";
-	if (apiUrl.includes("api.cohere.ai")) return "cohere";
-	if (apiUrl.includes("api.perplexity.ai")) return "perplexity";
-	if (apiUrl.includes("api.mistral.ai")) return "mistral";
-	if (apiUrl.includes(":11434") || apiUrl.includes("ollama")) return "ollama";
-	if (apiUrl.includes("api.deepinfra.com")) return "deepinfra";
-	if (apiUrl.includes("generativelanguage.googleapis.com")) return "gemini";
-	if (apiUrl.includes("openrouter.ai")) return "openrouter";
-	if (apiUrl.includes("api.z.ai")) return "zai";
-	if (apiUrl.includes("api.minimax.io")) return "minimax";
-	return "custom";
+	return resolveAiProviderId(apiUrl);
 }
 
 export function selectAIProvider(config: { apiUrl: string; apiKey: string }) {
@@ -133,22 +126,16 @@ export const getProviderHeaders = (
 	apiUrl: string,
 	apiKey: string,
 ): Record<string, string> => {
-	// Anthropic
-	if (apiUrl.includes("anthropic")) {
+	const providerId = resolveAiProviderId(apiUrl);
+
+	if (providerId === "anthropic") {
 		return {
 			"x-api-key": apiKey,
 			"anthropic-version": "2023-06-01",
 		};
 	}
 
-	// Mistral
-	if (apiUrl.includes("mistral")) {
-		return {
-			Authorization: `Bearer ${apiKey}`,
-		};
-	}
-
-	// Default (OpenAI style)
+	// Mistral and other OpenAI-compatible endpoints use bearer auth.
 	return {
 		Authorization: `Bearer ${apiKey}`,
 	};

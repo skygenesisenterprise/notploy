@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, pgTable, text } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, text } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { nanoid } from "nanoid";
 import { z } from "zod";
@@ -14,6 +14,14 @@ export const ai = pgTable("ai", {
 	apiKey: text("apiKey").notNull(),
 	model: text("model").notNull(),
 	isEnabled: boolean("isEnabled").notNull().default(true),
+	// Last connection test, persisted so the settings page can show a reliable
+	// state after a reload instead of only the result of the current session.
+	lastTestStatus: text("lastTestStatus"), // "success" | "error"
+	lastTestMessage: text("lastTestMessage"),
+	lastTestedAt: text("lastTestedAt"),
+	lastTestLatencyMs: integer("lastTestLatencyMs"),
+	// JSON map of capabilities actually verified by the last connection test.
+	verifiedCapabilities: text("verifiedCapabilities"),
 	organizationId: text("organizationId")
 		.notNull()
 		.references(() => organization.id, { onDelete: "cascade" }), // Admin ID who created the AI settings
@@ -52,7 +60,14 @@ export const apiUpdateAi = createSchema
 	.extend({
 		aiId: z.string().min(1),
 	})
-	.omit({ organizationId: true });
+	.omit({
+		organizationId: true,
+		lastTestStatus: true,
+		lastTestMessage: true,
+		lastTestedAt: true,
+		lastTestLatencyMs: true,
+		verifiedCapabilities: true,
+	});
 
 export const aiCustomProviderSchema = z.object({
 	name: z.string().min(1, { message: "Name is required" }),

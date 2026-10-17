@@ -123,7 +123,7 @@ function schemaRequired(schema: unknown): string[] {
     : [];
 }
 
-function buildInputSchema(operation: OperationObject, method: string): string {
+function buildInputSchema(operation: OperationObject): string {
   const parameters = operation.parameters ?? [];
   const bodySchema = operation.requestBody?.content["application/json"]?.schema;
 
@@ -186,7 +186,7 @@ function normalizeOperation(
     tag: operation.tags?.[0] ?? "unknown",
     method: upperMethod,
     path,
-    schema: buildInputSchema(operation, upperMethod),
+    schema: buildInputSchema(operation),
     paramNames: [
       ...Object.keys(schemaProperties(bodySchema)),
       ...parameters.map((parameter) => parameter.name),

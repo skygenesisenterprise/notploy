@@ -147,6 +147,8 @@ function validateApiKey(raw: string | undefined): string {
   if (value.length > 4096) {
     throw new Error("Environment variable NOTPLOY_API_KEY is too long");
   }
+  // Reject control characters explicitly: an API key must be a single printable token.
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: intentional control-character validation
   if (/[\s\u0000-\u001f\u007f]/.test(value)) {
     throw new Error("Environment variable NOTPLOY_API_KEY must not contain whitespace");
   }

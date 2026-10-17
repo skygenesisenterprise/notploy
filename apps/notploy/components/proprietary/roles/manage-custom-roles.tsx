@@ -179,6 +179,11 @@ const RESOURCE_META: Record<string, { label: string; description: string }> = {
 		description:
 			"Manage DNS providers (Cloudflare, AWS Route53) and create, update, or delete their DNS records",
 	},
+	aiProvider: {
+		label: "AI Providers",
+		description:
+			"Manage AI provider connections, endpoints, models and connection tests used by AI features",
+	},
 };
 
 /** Descriptions for each action within a resource */
@@ -474,6 +479,21 @@ const ACTION_META: Record<
 			description: "Remove DNS providers and delete their records",
 		},
 	},
+	aiProvider: {
+		read: {
+			label: "Read",
+			description: "View AI providers and use enabled models in AI features",
+		},
+		create: {
+			label: "Create",
+			description: "Connect new AI providers and test their connection",
+		},
+		update: {
+			label: "Update",
+			description: "Edit AI endpoints, credentials, models and custom presets",
+		},
+		delete: { label: "Delete", description: "Remove AI providers" },
+	},
 };
 
 /** Resources that should be hidden from the custom role editor (better-auth internals) */
@@ -517,6 +537,7 @@ const ROLE_PRESETS: {
 			logs: ["read"],
 			monitoring: ["read"],
 			auditLog: ["read"],
+			aiProvider: ["read"],
 		},
 	},
 	{
@@ -539,6 +560,7 @@ const ROLE_PRESETS: {
 			schedule: ["read", "create", "update", "delete"],
 			logs: ["read"],
 			monitoring: ["read"],
+			aiProvider: ["read"],
 		},
 	},
 	{
@@ -585,6 +607,7 @@ const ROLE_PRESETS: {
 			logs: ["read"],
 			monitoring: ["read"],
 			auditLog: ["read"],
+			aiProvider: ["read", "create", "update", "delete"],
 		},
 	},
 ];
@@ -1138,14 +1161,23 @@ function PermissionEditor({
 									return (
 										<div
 											key={action}
+											role="button"
+											tabIndex={0}
 											className="flex items-center gap-3 cursor-pointer rounded-md border p-2 hover:bg-muted/50 transition-colors"
 											onClick={() => onToggle(resource, action)}
+											onKeyDown={(event) => {
+												if (event.key === "Enter" || event.key === " ") {
+													event.preventDefault();
+													onToggle(resource, action);
+												}
+											}}
 										>
 											<Switch
 												checked={
 													permissions[resource]?.includes(action) ?? false
 												}
 												onCheckedChange={() => onToggle(resource, action)}
+												onClick={(event) => event.stopPropagation()}
 											/>
 											<div className="flex flex-col">
 												<span className="text-xs font-medium">

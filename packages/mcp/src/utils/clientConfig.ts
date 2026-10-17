@@ -68,6 +68,8 @@ export function parseCustomHeaders(rawHeaders: string | undefined): Record<strin
       );
     }
 
+    // Reject CR/LF/NUL so a custom header cannot inject additional headers.
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: intentional header-injection validation
     if (/[\r\n\u0000]/.test(value)) {
       throw new Error(
         "Environment variable NOTPLOY_CUSTOM_HEADERS must not contain control characters in header values",

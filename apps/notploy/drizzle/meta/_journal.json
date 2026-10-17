@@ -1485,6 +1485,13 @@
       "when": 1792163841434,
       "tag": "0212_add_onion_service",
       "breakpoints": true
+    },
+    {
+      "idx": 213,
+      "version": "7",
+      "when": 1792243328255,
+      "tag": "0213_flashy_machine_man",
+      "breakpoints": true
     }
   ]
 }

@@ -3,26 +3,21 @@ import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
 import superjson from "superjson";
-import { AiForm } from "@/components/dashboard/settings/ai-form";
+import { ShowAiProviders } from "@/components/dashboard/settings/ai/show-ai-providers";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { appRouter } from "@/server/api/root";
 
 const Page = () => {
-	return (
-		<div className="flex flex-col gap-4 w-full">
-			<AiForm />
-		</div>
-	);
+	return <ShowAiProviders />;
 };
 
 export default Page;
 
 Page.getLayout = (page: ReactElement) => {
-	return <DashboardLayout>{page}</DashboardLayout>;
+	return <DashboardLayout metaName="AI Providers">{page}</DashboardLayout>;
 };
-export async function getServerSideProps(
-	ctx: GetServerSidePropsContext<{ serviceId: string }>,
-) {
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 	const { req, res } = ctx;
 	const { user, session } = await validateRequest(req);
 
