@@ -49,7 +49,7 @@ permissions:
 
 env:
   NODE_VERSION: "24.4.0"
-  PNPM_VERSION: "10.22.0"
+  PNPM_VERSION: "12.14.0"
   EXTENSION_DIR: packages/vscode
   # The workspace directory holding the extension is `notploy`, the same name as
   # the repository root package, so every pnpm command targets it by path

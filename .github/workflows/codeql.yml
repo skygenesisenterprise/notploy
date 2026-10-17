@@ -54,7 +54,7 @@ jobs:
         if: matrix.language == 'javascript-typescript'
         run: |
           corepack enable
-          corepack prepare pnpm@10.22.0 --activate
+          corepack prepare pnpm@12.14.0 --activate
           pnpm install --frozen-lockfile
 
       - name: Initialize CodeQL
