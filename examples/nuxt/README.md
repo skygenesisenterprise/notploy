@@ -58,4 +58,4 @@ All examples assume you use `Nixpacks` as the build type.
     - You can use this domain to access your application.
     - Set the port to 80
 
-If you need further assistance, join our [Discord server](https://discord.com/invite/2tBnJ3jDJc).
+If you need further assistance, join our [Discord server](https://discord.com/invite/GUkDugVh34).

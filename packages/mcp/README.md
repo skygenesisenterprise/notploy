@@ -7,7 +7,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-7.0-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![MCP](https://img.shields.io/badge/Model_Context_Protocol-1.x-000000)](https://modelcontextprotocol.io)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](../../.github/CONTRIBUTING.md)
-[![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/2tBnJ3jDJc)
+[![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/GUkDugVh34)
 
 > Give agents a safe, understandable way to operate Notploy.
 
@@ -649,7 +649,7 @@ Node.js 24.4+, an MCP client, and a reachable Notploy instance with an API key. 
 
 ### How do I get help or report a bug?
 
-Join the [Notploy Discord](https://discord.gg/2tBnJ3jDJc) for questions, or open a [GitHub issue](https://github.com/skygenesisenterprise/notploy/issues). Never report a security vulnerability in a public issue — see [Security](#security).
+Join the [Notploy Discord](https://discord.gg/GUkDugVh34) for questions, or open a [GitHub issue](https://github.com/skygenesisenterprise/notploy/issues). Never report a security vulnerability in a public issue — see [Security](#security).
 
 ## Related resources
 
@@ -664,7 +664,7 @@ Join the [Notploy Discord](https://discord.gg/2tBnJ3jDJc) for questions, or open
 
 ### Community
 
-- Questions and discussions: [Notploy Discord](https://discord.gg/2tBnJ3jDJc)
+- Questions and discussions: [Notploy Discord](https://discord.gg/GUkDugVh34)
 - Bugs and feature requests: [GitHub Issues](https://github.com/skygenesisenterprise/notploy/issues)
 - Contribution guide: [`.github/CONTRIBUTING.md`](../../.github/CONTRIBUTING.md)
 

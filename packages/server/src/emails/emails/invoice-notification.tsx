@@ -144,7 +144,7 @@ export const InvoiceNotificationEmail = ({
 								. If you have any questions about your billing, please contact
 								our{" "}
 								<Link
-									href="https://discord.gg/2tBnJ3jDJc"
+									href="https://discord.gg/GUkDugVh34"
 									className="text-[#71717a] underline"
 								>
 									support team

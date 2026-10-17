@@ -84,6 +84,6 @@ Key facts:
 ## External pages
 
 - [GitHub Repository](https://github.com/skygenesisenterprise/notploy): Source code, issues, and contributions
-- [Discord Community](https://discord.gg/2tBnJ3jDJc): Community support and discussions
+- [Discord Community](https://discord.gg/GUkDugVh34): Community support and discussions
 - [Careers](https://notploy.com/jobs): Open roles at Notploy
 - [Contact / Sales](https://notploy.com/contact): Enterprise and agency enquiries

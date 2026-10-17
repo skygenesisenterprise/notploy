@@ -19,4 +19,4 @@ This repository contains an example of Solidjs application that is deployed on N
     - You can use this domain to access your application.
 
     
-If you need further assistance, join our [Discord server](https://discord.com/invite/2tBnJ3jDJc).
+If you need further assistance, join our [Discord server](https://discord.com/invite/GUkDugVh34).

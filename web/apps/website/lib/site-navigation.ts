@@ -21,7 +21,7 @@ export const EXTERNAL_LINKS = {
 	githubDiscussions: "https://github.com/skygenesisenterprise/notploy/discussions",
 	githubIssues: "https://github.com/skygenesisenterprise/notploy/issues",
 	githubReleases: "https://github.com/skygenesisenterprise/notploy/releases",
-	discord: "https://discord.gg/2tBnJ3jDJc",
+	discord: "https://discord.gg/GUkDugVh34",
 	app: "https://app.notploy.com/",
 	appRegister: "https://app.notploy.com/register",
 } as const;

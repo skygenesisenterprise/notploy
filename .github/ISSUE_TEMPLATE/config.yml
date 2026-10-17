@@ -10,7 +10,7 @@ blank_issues_enabled: false
 
 contact_links:
   - name: ❓ Question or need help
-    url: https://discord.gg/2tBnJ3jDJc
+    url: https://discord.gg/GUkDugVh34
     about: Configuration help, "how do I…", deployment questions, and troubleshooting go to the Notploy Discord.
 
   - name: 🔐 Report a security vulnerability

@@ -33,7 +33,7 @@ export const OnboardingLayout = ({ children }: Props) => {
 					</Link>
 				</Button>
 				<Button variant="ghost" size="icon">
-					<Link href="https://discord.com/invite/2tBnJ3jDJc">
+					<Link href="https://discord.com/invite/GUkDugVh34">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 48 48"

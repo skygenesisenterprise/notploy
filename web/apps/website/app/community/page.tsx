@@ -245,7 +245,7 @@ export default function CommunityPage() {
 							</p>
 							<div className="mt-5">
 								<Button variant="outline" size="sm" className="rounded-full" asChild>
-									<Link href="https://discord.gg/2tBnJ3jDJc" target="_blank">
+									<Link href="https://discord.gg/GUkDugVh34" target="_blank">
 										Join Discord
 									</Link>
 								</Button>

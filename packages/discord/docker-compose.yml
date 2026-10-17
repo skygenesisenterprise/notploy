@@ -31,7 +31,7 @@ x-discord-env: &discord-env
   NOTPLOY_STATUS_URL: ${NOTPLOY_STATUS_URL:-https://status.notploy.com}
   NOTPLOY_TEMPLATES_URL: ${NOTPLOY_TEMPLATES_URL:-https://templates.notploy.com}
   NOTPLOY_CLOUD_URL: ${NOTPLOY_CLOUD_URL:-https://app.notploy.com}
-  NOTPLOY_DISCORD_INVITE: ${NOTPLOY_DISCORD_INVITE:-https://discord.gg/2tBnJ3jDJc}
+  NOTPLOY_DISCORD_INVITE: ${NOTPLOY_DISCORD_INVITE:-https://discord.gg/GUkDugVh34}
   GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-skygenesisenterprise/notploy}
   GITHUB_TOKEN: ${GITHUB_TOKEN:-}
   DISCORD_WELCOME_CHANNEL_ID: ${DISCORD_WELCOME_CHANNEL_ID:-}

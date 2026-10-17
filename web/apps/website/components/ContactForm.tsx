@@ -279,7 +279,7 @@ export function ContactForm({
 									<li>
 										Join our{" "}
 										<a
-											href="https://discord.gg/2tBnJ3jDJc"
+											href="https://discord.gg/GUkDugVh34"
 											target="_blank"
 											rel="noopener noreferrer"
 											className="text-primary underline hover:text-primary/80"

@@ -28,4 +28,4 @@ This repository contains an example of T3 application with mysql database that i
    - A new domain will be generated for you.
    - You can use this domain to access your application.
 
-If you need further assistance, join our [Discord server](https://discord.com/invite/2tBnJ3jDJc).
+If you need further assistance, join our [Discord server](https://discord.com/invite/GUkDugVh34).

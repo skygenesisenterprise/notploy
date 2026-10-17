@@ -9,7 +9,7 @@ body:
       value: |
         Something is broken. The more precisely you describe it, the faster it gets fixed.
 
-        - Not sure this is a bug? Check the [troubleshooting docs](https://docs.notploy.com/docs/core/troubleshooting) and the [Notploy Discord](https://discord.gg/2tBnJ3jDJc).
+        - Not sure this is a bug? Check the [troubleshooting docs](https://docs.notploy.com/docs/core/troubleshooting) and the [Notploy Discord](https://discord.gg/GUkDugVh34).
         - Already reported? Close your issue and add a comment to the existing one — duplicates are closed.
 
         > **Do not paste secrets, tokens, API keys, database credentials, `.env` contents, private hostnames or personal data into this issue.**

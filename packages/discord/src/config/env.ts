@@ -22,7 +22,7 @@ const DEFAULT_RESOURCES: Omit<CommunityResources, "githubUrl"> = {
 	status: "https://status.notploy.com",
 	templates: "https://templates.notploy.com",
 	cloud: "https://app.notploy.com",
-	discordInvite: "https://discord.gg/2tBnJ3jDJc",
+	discordInvite: "https://discord.gg/GUkDugVh34",
 	githubRepository: "skygenesisenterprise/notploy",
 };
 

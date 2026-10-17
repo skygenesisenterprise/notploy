@@ -123,7 +123,7 @@ Please note that **final decisions regarding project direction, architecture, an
 
 ## 📩 Questions or Suggestions?
 
-Open a [GitHub Issue](./ISSUE_TEMPLATE) for bugs and proposals, or join the [Notploy Discord](https://discord.gg/2tBnJ3jDJc) for questions.
+Open a [GitHub Issue](./ISSUE_TEMPLATE) for bugs and proposals, or join the [Notploy Discord](https://discord.gg/GUkDugVh34) for questions.
 You can also reach out to us at [contact@skygenesisenterprise.com](mailto:contact@skygenesisenterprise.com)
 
 Thank you for helping improve Notploy 💌

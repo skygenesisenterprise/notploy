@@ -6,7 +6,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-7.0-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![npm](https://img.shields.io/npm/v/@notploy/cli?label=%40notploy%2Fcli)](https://www.npmjs.com/package/@notploy/cli)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/skygenesisenterprise/notploy/blob/master/.github/CONTRIBUTING.md)
-[![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/2tBnJ3jDJc)
+[![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/GUkDugVh34)
 
 > Manage a Notploy instance from the terminal, a script or a CI pipeline.
 
@@ -840,7 +840,7 @@ Open a [GitHub issue](https://github.com/skygenesisenterprise/notploy/issues) wi
 
 ### Community
 
-- Questions and discussions: [Notploy Discord](https://discord.gg/2tBnJ3jDJc)
+- Questions and discussions: [Notploy Discord](https://discord.gg/GUkDugVh34)
 - Bugs and feature requests: [GitHub Issues](https://github.com/skygenesisenterprise/notploy/issues)
 - Repository contribution guide: [`.github/CONTRIBUTING.md`](https://github.com/skygenesisenterprise/notploy/blob/master/.github/CONTRIBUTING.md)
 

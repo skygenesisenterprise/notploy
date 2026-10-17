@@ -215,7 +215,7 @@ export const OnboardingWizard = ({ onClose }: Props) => {
 									</svg>
 								</Link>
 								<Link
-									href="https://discord.com/invite/2tBnJ3jDJc"
+									href="https://discord.com/invite/GUkDugVh34"
 									target="_blank"
 									className="hover:text-zinc-200 transition-colors"
 								>

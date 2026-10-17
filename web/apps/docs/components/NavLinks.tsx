@@ -40,7 +40,7 @@ export function NavLinks() {
 		},
 		{
 			text: "Discord",
-			url: "https://discord.gg/qrPgGxRZpW",
+			url: "https://discord.gg/GUkDugVh34",
 			icon: () => (
 				<svg
 					role="img"

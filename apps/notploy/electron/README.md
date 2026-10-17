@@ -195,7 +195,7 @@ rather than hiding them.
 ## Support
 
 - Documentation: [docs.notploy.com](https://docs.notploy.com)
-- Questions and discussions: [Notploy Discord](https://discord.gg/2tBnJ3jDJc)
+- Questions and discussions: [Notploy Discord](https://discord.gg/GUkDugVh34)
 - Bugs and feature requests: [GitHub Issues](https://github.com/skygenesisenterprise/notploy/issues)
 
 Do not report security vulnerabilities in public issues; follow the private

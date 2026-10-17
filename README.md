@@ -7,7 +7,7 @@
 [![React Native](https://img.shields.io/badge/React_Native-0.73-61DAFB?logo=react&logoColor=white)](https://reactnative.dev)
 [![Expo](https://img.shields.io/badge/Expo-58-000000?logo=expo&logoColor=white)](https://expo.dev)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/CONTRIBUTING.md)
-[![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/2tBnJ3jDJc)
+[![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/GUkDugVh34)
 
 > Deploy and operate applications on infrastructure you own.
 
@@ -322,7 +322,7 @@ The full product documentation lives at [docs.notploy.com](https://docs.notploy.
 
 ### How do I get help or report a bug?
 
-Join the [Notploy Discord](https://discord.gg/2tBnJ3jDJc) for questions, or open a [GitHub issue](https://github.com/skygenesisenterprise/notploy/issues) for bugs and feature requests. Never report a security vulnerability in a public issue — see [Security](#security).
+Join the [Notploy Discord](https://discord.gg/GUkDugVh34) for questions, or open a [GitHub issue](https://github.com/skygenesisenterprise/notploy/issues) for bugs and feature requests. Never report a security vulnerability in a public issue — see [Security](#security).
 
 ## Related resources
 
@@ -339,7 +339,7 @@ Join the [Notploy Discord](https://discord.gg/2tBnJ3jDJc) for questions, or open
 
 ### Community
 
-- Questions and discussions: [Notploy Discord](https://discord.gg/2tBnJ3jDJc)
+- Questions and discussions: [Notploy Discord](https://discord.gg/GUkDugVh34)
 - Bugs and feature requests: [GitHub Issues](https://github.com/skygenesisenterprise/notploy/issues)
 - Contribution guide: [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md)
 
