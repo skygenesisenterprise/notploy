@@ -44,7 +44,7 @@ services:
     <<: *dev
     profiles: ["dev"]
     command: >-
-      sh -lc "corepack enable &&
+      sh -lc "npm install -g pnpm@10.22.0 &&
       pnpm install
       --filter=@notploy/website...
       --filter=@notploy/docs...
@@ -59,7 +59,7 @@ services:
       deps:
         condition: service_completed_successfully
     command: >-
-      sh -lc "corepack enable &&
+      sh -lc "npm install -g pnpm@10.22.0 &&
       pnpm --filter=@notploy/website exec next dev --port 3000 --hostname 0.0.0.0"
     ports:
       - "${WEBSITE_DEV_PORT:-3000}:3000"
@@ -86,7 +86,7 @@ services:
       deps:
         condition: service_completed_successfully
     command: >-
-      sh -lc "corepack enable &&
+      sh -lc "npm install -g pnpm@10.22.0 &&
       pnpm --filter=@notploy/docs exec next dev --port 3000 --hostname 0.0.0.0"
     ports:
       - "${DOCS_DEV_PORT:-3000}:3000"

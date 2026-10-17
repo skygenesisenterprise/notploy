@@ -81,6 +81,17 @@ if (!installation.healthy) {
 	);
 }
 
+// Next 16 defaults the dev bundler to Turbopack even for a custom server
+// (createServer sets TURBOPACK=auto when nothing is selected). On the Pages
+// Router, Turbopack dev can drop client module factories ("module factory is
+// not available"), which renders a blank page. Webpack bundles every imported
+// module, so when Turbopack is not explicitly requested (TURBOPACK=1) we pin
+// TURBOPACK to the empty string: `??=` will not overwrite it, and every
+// downstream check is a truthy `!!process.env.TURBOPACK`, so webpack is used.
+// Production `next build` is unaffected.
+if (dev && process.env.TURBOPACK !== "1") {
+	process.env.TURBOPACK = "";
+}
 const app = next({ dev, turbopack: process.env.TURBOPACK === "1" });
 const handle = app.getRequestHandler();
 void app.prepare().then(async () => {

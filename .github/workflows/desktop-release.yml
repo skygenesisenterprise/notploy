@@ -59,7 +59,7 @@ permissions:
 
 env:
   NODE_VERSION: "24.4.0"
-  PNPM_VERSION: "12.14.0"
+  PNPM_VERSION: "10.22.0"
   DESKTOP_DIR: apps/desktop
   # The workspace directory is selected by path, not by name, because the
   # package name `@notploy/desktop` and the directory `apps/desktop` are two

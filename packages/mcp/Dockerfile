@@ -7,7 +7,7 @@ FROM node:lts-alpine AS builder
 WORKDIR /usr/src/app
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.22.0 --activate
+RUN npm install -g pnpm@10.22.0
 
 # Copy the workspace definition + lockfile and the package sources
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
@@ -22,7 +22,7 @@ FROM node:lts-alpine
 WORKDIR /usr/src/app
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.22.0 --activate
+RUN npm install -g pnpm@10.22.0
 
 # Copy workspace definition + lockfile and the package manifest for production install
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./

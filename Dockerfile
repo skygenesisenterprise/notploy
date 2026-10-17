@@ -33,8 +33,7 @@
 FROM node:24.4.0-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-RUN corepack prepare pnpm@10.22.0 --activate
+RUN npm install -g pnpm@10.22.0
 # openssl signs the local instance identity at container start (see
 # entrypoint.sh) with the same code path as install.sh; ca-certificates keeps
 # outbound TLS verification working in the slim image.

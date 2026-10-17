@@ -6,24 +6,36 @@ packages:
   - templates/app
   - templates/build-scripts
 
-ignoredBuiltDependencies:
-  - '@prisma/engines'
-  - '@swc/core'
-  - '@vscode/vsce-sign'
-  - core-js
-  - free-email-domains
-  - prisma
+allowBuilds:
+  '@scarf/scarf': true
+  '@tree-sitter-grammars/tree-sitter-yaml': true
+  '@vscode/vsce-sign': true
+  bcrypt: true
+  core-js: true
+  core-js-pure: true
+  cpu-features: true
+  electron-winstaller: true
+  esbuild: true
+  free-email-domains: true
+  msgpackr-extract: true
+  node-pty: true
+  protobufjs: true
+  sharp: true
+  ssh2: true
+  tree-sitter: true
+  tree-sitter-json: true
 
 onlyBuiltDependencies:
   - '@scarf/scarf'
   - '@tree-sitter-grammars/tree-sitter-yaml'
+  - '@vscode/vsce-sign'
   - bcrypt
-  - better-sqlite3
+  - core-js
   - core-js-pure
   - cpu-features
-  - electron
   - electron-winstaller
   - esbuild
+  - free-email-domains
   - msgpackr-extract
   - node-pty
   - protobufjs

@@ -3,7 +3,7 @@
 FROM node:24.4-alpine AS build
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@10.22.0 --activate
+RUN npm install -g pnpm@10.22.0
 
 WORKDIR /usr/src/app
 COPY . .

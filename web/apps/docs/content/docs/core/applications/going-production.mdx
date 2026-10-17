@@ -84,7 +84,7 @@ To also trigger the deployment from this workflow — and fail the job when the 
 FROM node:18-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm install -g pnpm@10.22.0
 
 FROM base AS build
 WORKDIR /app

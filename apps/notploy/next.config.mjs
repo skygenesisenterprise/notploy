@@ -32,8 +32,16 @@ const nextConfig = {
 				source: "/_next/static/:path*",
 				headers: [
 					{
+						// Production chunks are content-hashed and safe to cache
+						// forever. Development chunks are rebuilt on every edit:
+						// caching them as immutable makes the browser serve a
+						// stale chunk whose module factories no longer exist
+						// ("module factory is not available" HMR error).
 						key: "Cache-Control",
-						value: "public, max-age=31536000, immutable",
+						value:
+							process.env.NODE_ENV === "development"
+								? "no-store, must-revalidate"
+								: "public, max-age=31536000, immutable",
 					},
 				],
 			},

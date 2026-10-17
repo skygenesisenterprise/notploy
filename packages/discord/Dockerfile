@@ -24,8 +24,7 @@
 FROM node:24.4.0-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-RUN corepack prepare pnpm@10.22.0 --activate
+RUN npm install -g pnpm@10.22.0
 # ca-certificates keeps outbound TLS verification (Discord, GitHub, Notploy API)
 # working in the slim image.
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
