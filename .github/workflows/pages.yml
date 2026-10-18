@@ -1,12 +1,19 @@
 name: Pages
 
-# Publishes the two static sites:
-#   website       -> external Pages repository -> https://notploy.com
-#   documentation -> this repository's Pages   -> https://docs.notploy.com
+# Publishes the two static sites from compiled artifacts only. The raw source
+# is never published: the repository contains Astro examples under examples/,
+# so a branch-based build of `master` (Jekyll) fails. Each site is built, its
+# output directory is validated, a CNAME is written for its domain, and only
+# then is the result pushed to the gh-pages branch of its publishing target.
 #
-# GitHub Pages allows one custom domain per repository, which is why the
-# website is published to the organisation's Pages repository (set the
-# WEBSITE_PAGES_REPOSITORY variable) while the docs use this repository.
+#   website       -> external repository (WEBSITE_PAGES_REPOSITORY)
+#                    gh-pages -> https://notploy.com
+#   documentation -> this repository
+#                    gh-pages -> https://docs.notploy.com
+#
+# GitHub Pages allows one custom domain per repository, which is why the two
+# sites need two distinct publishing targets. The jobs are independent: a
+# failure of one does not block the other.
 #
 # Each deployment job runs inside its own GitHub environment, so protection
 # rules (required reviewers, wait timers, deployment branches) and
@@ -15,22 +22,43 @@ name: Pages
 # with the same name, which keeps the two sites isolated.
 #
 #   environment `website`
-#     variable WEBSITE_PAGES_REPOSITORY              owner/repo of the Pages repository (required)
-#     secret   PAGES_DEPLOY_TOKEN                    PAT with contents:write there (required)
-#     variable CONTACT_FORM_ENDPOINT                 optional, external contact form endpoint
-#     variable GHOST_URL                             optional, blog source
-#     secret   GHOST_KEY                             optional, blog source key
-#     variable NEXT_PUBLIC_APP_URL                   optional, canonical site URL
+#     variable WEBSITE_PAGES_REPOSITORY    required, external Pages repository,
+#                                          format `owner/repo`
+#                                          (organisation/depot), must be a
+#                                          different repository than this one
+#     secret   PAGES_DEPLOY_TOKEN          required, token with contents:write
+#                                          on WEBSITE_PAGES_REPOSITORY.
+#                                          Fine-grained PAT: repository access
+#                                          limited to that repository with
+#                                          "Contents: Read and write" (add
+#                                          "Pages: Read and write" to let the
+#                                          workflow verify the Pages settings).
+#                                          Classic PAT: `repo` scope for a
+#                                          private target repository.
+#                                          Never print its value.
+#     variable CONTACT_FORM_ENDPOINT       optional, external contact form endpoint
+#     variable GHOST_URL                   optional, blog source
+#     secret   GHOST_KEY                   optional, blog source key
+#     variable NEXT_PUBLIC_APP_URL         optional, canonical site URL
 #     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY       optional, Traffic Manager property key
 #     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT  optional, Traffic Manager collector origin
 #
 #   environment `documentation`
+#     no required configuration: the job pushes to this repository with the
+#     workflow GITHUB_TOKEN (contents: write) and no personal secret.
 #     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY       optional, Traffic Manager property key
 #     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT  optional, Traffic Manager collector origin
 #
 # Required setup (repository settings, not code):
-#   Pages source for this repository: branch `gh-pages`
-#   Pages source for the website repository: branch `gh-pages`
+#   This repository: Settings -> Pages -> Source "Deploy from a branch",
+#     branch `gh-pages`, folder `/ (root)`.
+#   Website repository: Settings -> Pages -> Source "Deploy from a branch",
+#     branch `gh-pages`, folder `/ (root)`.
+#   Do not point any of these Pages settings at `master`: the source tree is
+#   not a static site.
+#   Custom domains: `notploy.com` on the website repository,
+#   `docs.notploy.com` on this repository (DNS records live in Cloudflare and
+#   are outside the scope of this workflow).
 
 on:
   push:
@@ -40,6 +68,11 @@ on:
       - "web/apps/website/**"
       - "web/apps/docs/**"
       - "scripts/docs/**"
+      - "apps/notploy/server/api/**"
+      - "apps/notploy/scripts/generate-openapi.ts"
+      - "packages/cli/**"
+      - "packages/server/src/templates/**"
+      - "templates/blueprints/**"
       - "openapi.json"
       - "docs-sync.json"
       - "package.json"
@@ -67,8 +100,82 @@ jobs:
       name: website
       url: https://notploy.com
     permissions:
-      contents: write
+      contents: read
     steps:
+      - name: Verify website deployment configuration
+        env:
+          REPOSITORY: ${{ vars.WEBSITE_PAGES_REPOSITORY }}
+          TOKEN: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+          THIS_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$1"; exit 1; }
+
+          # Configuration errors: reported before anything is built so they
+          # cannot be confused with a build or publish failure.
+          if [ -z "$REPOSITORY" ]; then
+            fail "Set WEBSITE_PAGES_REPOSITORY on the 'website' environment to the Pages repository (owner/repo)."
+          fi
+          if [ -z "$TOKEN" ]; then
+            fail "Set PAGES_DEPLOY_TOKEN on the 'website' environment (contents:write on the Pages repository)."
+          fi
+          if ! printf '%s' "$REPOSITORY" | grep -Eq '^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'; then
+            fail "WEBSITE_PAGES_REPOSITORY ('$REPOSITORY') is not in the required 'owner/repo' format."
+          fi
+          if [ "$REPOSITORY" = "$THIS_REPOSITORY" ]; then
+            fail "WEBSITE_PAGES_REPOSITORY must not be $THIS_REPOSITORY: that repository already publishes the documentation, and GitHub Pages allows only one custom domain per repository."
+          fi
+
+          # Target repository check: distinguishes a missing repository or an
+          # unusable token from a build failure. The token value is never
+          # printed, only HTTP status codes.
+          status=$(curl -sS -o /tmp/pages-repo.json -w '%{http_code}' \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$REPOSITORY") || \
+            fail "Could not reach the GitHub API for $REPOSITORY."
+          case "$status" in
+            200) ;;
+            401) fail "PAGES_DEPLOY_TOKEN was rejected by the GitHub API (HTTP 401). Check the token value and its expiration." ;;
+            403) fail "PAGES_DEPLOY_TOKEN is not allowed on $REPOSITORY (HTTP 403). Grant it contents:write on that repository." ;;
+            404) fail "Target repository $REPOSITORY does not exist, or PAGES_DEPLOY_TOKEN cannot see it (HTTP 404)." ;;
+            *)   fail "Unexpected HTTP $status while reading $REPOSITORY with PAGES_DEPLOY_TOKEN." ;;
+          esac
+
+          # Pages settings check. HTTP 404 means Pages is disabled, which would
+          # silently swallow the deployment. HTTP 403 here only means the token
+          # cannot read Pages settings (missing Pages:read), so it warns instead
+          # of failing: the push itself only needs contents:write.
+          status=$(curl -sS -o /tmp/pages-site.json -w '%{http_code}' \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$REPOSITORY/pages") || \
+            fail "Could not reach the GitHub API for $REPOSITORY/pages."
+          case "$status" in
+            404)
+              fail "GitHub Pages is not enabled on $REPOSITORY (HTTP 404). Enable it with source 'Deploy from a branch', branch gh-pages, folder '/ (root)'."
+              ;;
+            401|403)
+              echo "::warning::PAGES_DEPLOY_TOKEN cannot read the Pages settings of $REPOSITORY (HTTP $status). Verify manually that Pages uses 'Deploy from a branch' with branch gh-pages."
+              ;;
+            200)
+              build_type=$(jq -r '.build_type // "legacy"' /tmp/pages-site.json)
+              branch=$(jq -r '.branch // empty' /tmp/pages-site.json)
+              if [ "$build_type" != "legacy" ]; then
+                fail "$REPOSITORY publishes Pages with build type '$build_type'. Set source to 'Deploy from a branch' with branch gh-pages."
+              fi
+              if [ "$branch" != "gh-pages" ]; then
+                fail "$REPOSITORY publishes Pages from branch '${branch:-none}' instead of gh-pages."
+              fi
+              echo "Target $REPOSITORY publishes branch gh-pages for notploy.com."
+              ;;
+            *)
+              echo "::warning::Unexpected HTTP $status while reading the Pages settings of $REPOSITORY."
+              ;;
+          esac
+
       - name: Check out repository
         uses: actions/checkout@v6
 
@@ -83,21 +190,6 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
-      - name: Check website environment configuration
-        env:
-          REPOSITORY: ${{ vars.WEBSITE_PAGES_REPOSITORY }}
-          TOKEN: ${{ secrets.PAGES_DEPLOY_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ -z "$REPOSITORY" ]; then
-            echo "::error::Set WEBSITE_PAGES_REPOSITORY on the 'website' environment to the Pages repository (owner/repo)."
-            exit 1
-          fi
-          if [ -z "$TOKEN" ]; then
-            echo "::error::Set PAGES_DEPLOY_TOKEN on the 'website' environment (contents:write on the Pages repository)."
-            exit 1
-          fi
-
       - name: Install website dependencies
         run: pnpm install --frozen-lockfile --filter "@notploy/website..."
 
@@ -110,6 +202,27 @@ jobs:
           GHOST_URL: ${{ vars.GHOST_URL }}
           GHOST_KEY: ${{ secrets.GHOST_KEY }}
         run: pnpm --filter @notploy/website run build:static
+
+      - name: Validate static website output and write CNAME
+        env:
+          DOMAIN: notploy.com
+        run: |
+          set -euo pipefail
+          dir=web/apps/website/out
+          if [ ! -d "$dir" ]; then
+            echo "::error::Static export '$dir' was not produced by the website build."
+            exit 1
+          fi
+          if [ ! -f "$dir/index.html" ]; then
+            echo "::error::'$dir' has no index.html; the website static export is incomplete."
+            exit 1
+          fi
+          printf '%s\n' "$DOMAIN" > "$dir/CNAME"
+          if [ "$(cat "$dir/CNAME")" != "$DOMAIN" ]; then
+            echo "::error::The generated CNAME does not contain exactly '$DOMAIN'."
+            exit 1
+          fi
+          echo "Static website output validated ($(find "$dir" -type f | wc -l) files), CNAME=$DOMAIN."
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -156,6 +269,27 @@ jobs:
           NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT: ${{ vars.NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT }}
           NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY: ${{ vars.NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY }}
         run: pnpm docs:build
+
+      - name: Validate static documentation output and write CNAME
+        env:
+          DOMAIN: docs.notploy.com
+        run: |
+          set -euo pipefail
+          dir=web/apps/docs/out
+          if [ ! -d "$dir" ]; then
+            echo "::error::Static export '$dir' was not produced by the documentation build."
+            exit 1
+          fi
+          if [ ! -f "$dir/index.html" ]; then
+            echo "::error::'$dir' has no index.html; the documentation static export is incomplete."
+            exit 1
+          fi
+          printf '%s\n' "$DOMAIN" > "$dir/CNAME"
+          if [ "$(cat "$dir/CNAME")" != "$DOMAIN" ]; then
+            echo "::error::The generated CNAME does not contain exactly '$DOMAIN'."
+            exit 1
+          fi
+          echo "Static documentation output validated ($(find "$dir" -type f | wc -l) files), CNAME=$DOMAIN."
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

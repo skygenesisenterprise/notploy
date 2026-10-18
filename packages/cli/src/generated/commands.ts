@@ -1,4 +1,4 @@
-// Auto-generated from openapi.json (sha256:51e996512d84df25) — do not edit manually.
+// Auto-generated from openapi.json (sha256:4c9eeb43a383f949) — do not edit manually.
 // Run: pnpm run generate
 //
 // 718 commands in 63 groups.
