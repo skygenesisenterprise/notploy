@@ -15,6 +15,12 @@ name: Pages
 # sites need two distinct publishing targets. The jobs are independent: a
 # failure of one does not block the other.
 #
+# The documentation is a Next.js static export, which does not support
+# next.config redirects(). The docs app therefore ships a root page that
+# redirects to /docs/core/ (the standalone server redirect still applies in
+# Docker), and `pnpm docs:build` materialises the legacy URL redirects as
+# static meta-refresh stubs under out/ before this workflow validates them.
+#
 # Each deployment job runs inside its own GitHub environment, so protection
 # rules (required reviewers, wait timers, deployment branches) and
 # environment-scoped variables and secrets apply to that site only. A value
@@ -37,8 +43,13 @@ name: Pages
 #                                          private target repository.
 #                                          Never print its value.
 #     variable CONTACT_FORM_ENDPOINT       optional, external contact form endpoint
-#     variable GHOST_URL                   optional, blog source
-#     secret   GHOST_KEY                   optional, blog source key
+#     variable GHOST_URL                   required in practice for the static
+#                                          build: the blog routes fail the
+#                                          export when the Ghost Content API is
+#                                          unreachable (the CMS that feeds
+#                                          /blog and /blog/tag/*)
+#     secret   GHOST_KEY                   required in practice, Content API key
+#                                          for GHOST_URL (26 hex characters)
 #     variable NEXT_PUBLIC_APP_URL         optional, canonical site URL
 #     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY       optional, Traffic Manager property key
 #     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT  optional, Traffic Manager collector origin
@@ -280,8 +291,20 @@ jobs:
             echo "::error::Static export '$dir' was not produced by the documentation build."
             exit 1
           fi
-          if [ ! -f "$dir/index.html" ]; then
-            echo "::error::'$dir' has no index.html; the documentation static export is incomplete."
+          # The export must serve a useful site, not just a directory tree:
+          #   index.html            root page (redirects to /docs/core/,
+          #                         replaces the next.config redirect that
+          #                         `output: "export"` does not support)
+          #   docs/index.html       documentation home
+          #   docs/core/index.html  entry point and redirect destination
+          for required in index.html docs/index.html docs/core/index.html; do
+            if [ ! -f "$dir/$required" ]; then
+              echo "::error::'$dir/$required' is missing; the documentation static export is incomplete."
+              exit 1
+            fi
+          done
+          if ! grep -q 'url=/docs/core/' "$dir/index.html"; then
+            echo "::error::'$dir/index.html' does not redirect to /docs/core/; visitors reaching https://docs.notploy.com/ would see a broken page."
             exit 1
           fi
           printf '%s\n' "$DOMAIN" > "$dir/CNAME"

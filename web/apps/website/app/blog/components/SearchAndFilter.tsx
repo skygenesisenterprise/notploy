@@ -9,8 +9,7 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import { Search } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useTransition } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface Tag {
 	id: string;
@@ -20,50 +19,71 @@ interface Tag {
 
 interface SearchAndFilterProps {
 	tags: Tag[];
-	initialSearch: string;
-	initialTag: string;
 	searchPlaceholder: string;
 	allTagsText: string;
+	onFilterChange: (filters: { search: string; tag: string }) => void;
 }
 
 const ALL_TAGS_VALUE = "all";
 
 export function SearchAndFilter({
 	tags,
-	initialSearch,
-	initialTag,
 	searchPlaceholder,
 	allTagsText,
+	onFilterChange,
 }: SearchAndFilterProps) {
-	const router = useRouter();
-	const [isPending, startTransition] = useTransition();
+	const [searchValue, setSearchValue] = useState("");
+	const [tagValue, setTagValue] = useState(ALL_TAGS_VALUE);
+
+	const apply = useCallback(
+		(search: string, tag: string) => {
+			const params = new URLSearchParams(window.location.search);
+			if (search) {
+				params.set("search", search);
+			} else {
+				params.delete("search");
+			}
+			if (tag) {
+				params.set("tag", tag);
+			} else {
+				params.delete("tag");
+			}
+			const query = params.toString();
+			window.history.replaceState(
+				null,
+				"",
+				query ? `?${query}` : window.location.pathname,
+			);
+			onFilterChange({ search, tag });
+		},
+		[onFilterChange],
+	);
+
+	// Seed from the URL after hydration: a static export cannot read
+	// searchParams on the server, so shared ?search=/?tag= links are applied
+	// on the client.
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const search = params.get("search") ?? "";
+		const tag = params.get("tag") ?? "";
+		setSearchValue(search);
+		setTagValue(tag || ALL_TAGS_VALUE);
+		onFilterChange({ search, tag });
+	}, [onFilterChange]);
 
 	const handleTagChange = (value: string) => {
-		const searchParams = new URLSearchParams(window.location.search);
-		if (value && value !== ALL_TAGS_VALUE) {
-			searchParams.set("tag", value);
-		} else {
-			searchParams.delete("tag");
-		}
-		startTransition(() => {
-			router.push(`?${searchParams.toString()}`);
-		});
+		const tag = value === ALL_TAGS_VALUE ? "" : value;
+		setTagValue(value);
+		apply(searchValue, tag);
 	};
 
 	const debouncedCallback = useDebounce((value: string) => {
-		const searchParams = new URLSearchParams(window.location.search);
-		if (value) {
-			searchParams.set("search", value);
-		} else {
-			searchParams.delete("search");
-		}
-		startTransition(() => {
-			router.push(`?${searchParams.toString()}`);
-		});
+		apply(value, tagValue === ALL_TAGS_VALUE ? "" : tagValue);
 	}, 300);
 
 	const handleSearch = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
+			setSearchValue(e.target.value);
 			debouncedCallback(e.target.value);
 		},
 		[debouncedCallback],
@@ -77,17 +97,14 @@ export function SearchAndFilter({
 				</div>
 				<input
 					type="text"
-					defaultValue={initialSearch}
+					value={searchValue}
 					onChange={handleSearch}
 					placeholder={searchPlaceholder}
 					className="w-full rounded-md border border-border bg-background py-2 pl-10 pr-4 ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
 				/>
 			</div>
 			<div className="w-full md:w-64">
-				<Select
-					defaultValue={initialTag || ALL_TAGS_VALUE}
-					onValueChange={handleTagChange}
-				>
+				<Select value={tagValue} onValueChange={handleTagChange}>
 					<SelectTrigger>
 						<SelectValue placeholder={allTagsText} />
 					</SelectTrigger>

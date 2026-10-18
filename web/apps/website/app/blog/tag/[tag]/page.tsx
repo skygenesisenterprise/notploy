@@ -31,6 +31,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export async function generateStaticParams() {
 	const tags = await getTags();
+	// Same contract as app/blog/[slug]: the static export cannot emit a dynamic
+	// route with zero parameters, so an unreachable or unconfigured Ghost API
+	// must fail the build with an actionable message instead of Next's generic
+	// "returned an empty array" error.
+	if (tags.length === 0 && process.env.NEXT_OUTPUT === "export") {
+		throw new Error(
+			"The static website build needs the Ghost blog API: no tags were returned. " +
+				"Set GHOST_URL and GHOST_KEY, and make sure the CMS is reachable, then rebuild.",
+		);
+	}
 	return tags.map((tag: { slug: string }) => ({ tag: tag.slug }));
 }
 
