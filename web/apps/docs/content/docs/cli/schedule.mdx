@@ -21,7 +21,7 @@ Cron jobs that run a shell command inside a deployed service.
 Calls `POST /api/trpc/schedule.create`.
 
 ```bash
-notploy schedule create --name <name> --cronExpression <cronExpression> --command <command> [options]
+notploy schedule create --name <value> --cronExpression <value> --command <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -40,65 +40,71 @@ notploy schedule create --name <name> --cronExpression <cronExpression> --comman
 | `--composeId <value>` | string | No | — |
 | `--serverId <value>` | string | No | — |
 | `--organizationId <value>` | string | No | — |
-| `--enabled` | boolean | No | — |
+| `--enabled [boolean]` | boolean | No | — |
+| `--no-enabled` | boolean | No | — |
 | `--timezone <value>` | string | No | — |
 | `--createdAt <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy schedule delete`
 
 Calls `POST /api/trpc/schedule.delete`.
 
 ```bash
-notploy schedule delete --scheduleId <scheduleId>
+notploy schedule delete --scheduleId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--scheduleId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy schedule list`
 
 Calls `GET /api/trpc/schedule.list`.
 
 ```bash
-notploy schedule list --id <id> --scheduleType <scheduleType>
+notploy schedule list --id <value> --scheduleType <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--id <value>` | string | Yes | — |
 | `--scheduleType <value>` | string | Yes | `application`, `compose`, `server`, `notploy-server` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy schedule one`
 
 Calls `GET /api/trpc/schedule.one`.
 
 ```bash
-notploy schedule one --scheduleId <scheduleId>
+notploy schedule one --scheduleId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--scheduleId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy schedule run-manually`
 
 Calls `POST /api/trpc/schedule.runManually`.
 
 ```bash
-notploy schedule run-manually --scheduleId <scheduleId>
+notploy schedule run-manually --scheduleId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--scheduleId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy schedule update`
 
 Calls `POST /api/trpc/schedule.update`.
 
 ```bash
-notploy schedule update --scheduleId <scheduleId> --name <name> --cronExpression <cronExpression> --command <command> [options]
+notploy schedule update --scheduleId <value> --name <value> --cronExpression <value> --command <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -117,6 +123,8 @@ notploy schedule update --scheduleId <scheduleId> --name <name> --cronExpression
 | `--composeId <value>` | string | No | — |
 | `--serverId <value>` | string | No | — |
 | `--organizationId <value>` | string | No | — |
-| `--enabled` | boolean | No | — |
+| `--enabled [boolean]` | boolean | No | — |
+| `--no-enabled` | boolean | No | — |
 | `--timezone <value>` | string | No | — |
 | `--createdAt <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

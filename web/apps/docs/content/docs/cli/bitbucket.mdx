@@ -21,15 +21,19 @@ Bitbucket connections, plus branch and repository lookups.
 Calls `GET /api/trpc/bitbucket.bitbucketProviders`.
 
 ```bash
-notploy bitbucket bitbucket-providers
+notploy bitbucket bitbucket-providers [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy bitbucket create`
 
 Calls `POST /api/trpc/bitbucket.create`.
 
 ```bash
-notploy bitbucket create --authId <authId> --name <name> [options]
+notploy bitbucket create --authId <value> --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -43,13 +47,14 @@ notploy bitbucket create --authId <authId> --name <name> [options]
 | `--gitProviderId <value>` | string | No | — |
 | `--authId <value>` | string | Yes | — |
 | `--name <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy bitbucket get-bitbucket-branches`
 
 Calls `GET /api/trpc/bitbucket.getBitbucketBranches`.
 
 ```bash
-notploy bitbucket get-bitbucket-branches --owner <owner> --repo <repo> [options]
+notploy bitbucket get-bitbucket-branches --owner <value> --repo <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -57,37 +62,40 @@ notploy bitbucket get-bitbucket-branches --owner <owner> --repo <repo> [options]
 | `--owner <value>` | string | Yes | — |
 | `--repo <value>` | string | Yes | — |
 | `--bitbucketId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy bitbucket get-bitbucket-repositories`
 
 Calls `GET /api/trpc/bitbucket.getBitbucketRepositories`.
 
 ```bash
-notploy bitbucket get-bitbucket-repositories --bitbucketId <bitbucketId>
+notploy bitbucket get-bitbucket-repositories --bitbucketId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--bitbucketId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy bitbucket one`
 
 Calls `GET /api/trpc/bitbucket.one`.
 
 ```bash
-notploy bitbucket one --bitbucketId <bitbucketId>
+notploy bitbucket one --bitbucketId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--bitbucketId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy bitbucket test-connection`
 
 Calls `POST /api/trpc/bitbucket.testConnection`.
 
 ```bash
-notploy bitbucket test-connection --bitbucketId <bitbucketId> [options]
+notploy bitbucket test-connection --bitbucketId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -98,13 +106,14 @@ notploy bitbucket test-connection --bitbucketId <bitbucketId> [options]
 | `--workspaceName <value>` | string | No | — |
 | `--apiToken <value>` | string | No | — |
 | `--appPassword <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy bitbucket update`
 
 Calls `POST /api/trpc/bitbucket.update`.
 
 ```bash
-notploy bitbucket update --bitbucketId <bitbucketId> --gitProviderId <gitProviderId> --name <name> [options]
+notploy bitbucket update --bitbucketId <value> --gitProviderId <value> --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -118,3 +127,4 @@ notploy bitbucket update --bitbucketId <bitbucketId> --gitProviderId <gitProvide
 | `--gitProviderId <value>` | string | Yes | — |
 | `--name <value>` | string | Yes | — |
 | `--organizationId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

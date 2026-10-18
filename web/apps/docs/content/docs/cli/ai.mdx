@@ -21,7 +21,7 @@ AI providers and models, plus log analysis and configuration suggestions.
 Calls `POST /api/trpc/ai.analyzeLogs`.
 
 ```bash
-notploy ai analyze-logs --aiId <aiId> --logs <logs> --context <context>
+notploy ai analyze-logs --aiId <value> --logs <value> --context <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -29,13 +29,14 @@ notploy ai analyze-logs --aiId <aiId> --logs <logs> --context <context>
 | `--aiId <value>` | string | Yes | — |
 | `--logs <value>` | string | Yes | — |
 | `--context <value>` | string | Yes | `build`, `runtime` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai create`
 
 Calls `POST /api/trpc/ai.create`.
 
 ```bash
-notploy ai create --name <name> --apiUrl <apiUrl> --apiKey <apiKey> --model <model> --isEnabled
+notploy ai create --name <value> --apiUrl <value> --apiKey <value> --model <value> --isEnabled [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -44,26 +45,28 @@ notploy ai create --name <name> --apiUrl <apiUrl> --apiKey <apiKey> --model <mod
 | `--apiUrl <value>` | string | Yes | — |
 | `--apiKey <value>` | string | Yes | — |
 | `--model <value>` | string | Yes | — |
-| `--isEnabled` | boolean | Yes | — |
+| `--isEnabled [boolean]` | boolean | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai delete`
 
 Calls `POST /api/trpc/ai.delete`.
 
 ```bash
-notploy ai delete --aiId <aiId>
+notploy ai delete --aiId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--aiId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai deploy`
 
 Calls `POST /api/trpc/ai.deploy`.
 
 ```bash
-notploy ai deploy --environmentId <environmentId> --id <id> --dockerCompose <dockerCompose> --envVariables <envVariables> --name <name> --description <description> [options]
+notploy ai deploy --environmentId <value> --id <value> --dockerCompose <value> --envVariables <value> --name <value> --description <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -75,88 +78,106 @@ notploy ai deploy --environmentId <environmentId> --id <id> --dockerCompose <doc
 | `--serverId <value>` | string | No | — |
 | `--name <value>` | string | Yes | — |
 | `--description <value>` | string | Yes | — |
-| `--domains <value>` | string | No | — |
-| `--configFiles <value>` | string | No | — |
+| `--domains <json>` | array | No | — |
+| `--configFiles <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai get`
 
 Calls `GET /api/trpc/ai.get`.
 
 ```bash
-notploy ai get --aiId <aiId>
+notploy ai get --aiId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--aiId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai get-all`
 
 Calls `GET /api/trpc/ai.getAll`.
 
 ```bash
-notploy ai get-all
+notploy ai get-all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai get-custom-providers`
 
 Calls `GET /api/trpc/ai.getCustomProviders`.
 
 ```bash
-notploy ai get-custom-providers
+notploy ai get-custom-providers [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai get-enabled-providers`
 
 Calls `GET /api/trpc/ai.getEnabledProviders`.
 
 ```bash
-notploy ai get-enabled-providers
+notploy ai get-enabled-providers [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai get-models`
 
 Calls `GET /api/trpc/ai.getModels`.
 
 ```bash
-notploy ai get-models --apiUrl <apiUrl> --apiKey <apiKey>
+notploy ai get-models [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--apiUrl <value>` | string | Yes | — |
-| `--apiKey <value>` | string | Yes | — |
+| `--apiUrl <value>` | string | No | — |
+| `--apiKey <value>` | string | No | — |
+| `--aiId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai one`
 
 Calls `GET /api/trpc/ai.one`.
 
 ```bash
-notploy ai one --aiId <aiId>
+notploy ai one --aiId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--aiId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai save-custom-providers`
 
 Calls `POST /api/trpc/ai.saveCustomProviders`.
 
 ```bash
-notploy ai save-custom-providers --providers <providers>
+notploy ai save-custom-providers --providers <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--providers <value>` | string | Yes | — |
+| `--providers <json>` | array | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai suggest`
 
 Calls `POST /api/trpc/ai.suggest`.
 
 ```bash
-notploy ai suggest --aiId <aiId> --input <input> [options]
+notploy ai suggest --aiId <value> --input <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -164,27 +185,30 @@ notploy ai suggest --aiId <aiId> --input <input> [options]
 | `--aiId <value>` | string | Yes | — |
 | `--input <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai test-connection`
 
 Calls `POST /api/trpc/ai.testConnection`.
 
 ```bash
-notploy ai test-connection --apiUrl <apiUrl> --apiKey <apiKey> --model <model>
+notploy ai test-connection --model <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--apiUrl <value>` | string | Yes | — |
-| `--apiKey <value>` | string | Yes | — |
+| `--aiId <value>` | string | No | — |
+| `--apiUrl <value>` | string | No | — |
+| `--apiKey <value>` | string | No | — |
 | `--model <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ai update`
 
 Calls `POST /api/trpc/ai.update`.
 
 ```bash
-notploy ai update --aiId <aiId> [options]
+notploy ai update --aiId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -194,5 +218,7 @@ notploy ai update --aiId <aiId> [options]
 | `--apiUrl <value>` | string | No | — |
 | `--apiKey <value>` | string | No | — |
 | `--model <value>` | string | No | — |
-| `--isEnabled` | boolean | No | — |
+| `--isEnabled [boolean]` | boolean | No | — |
+| `--no-isEnabled` | boolean | No | — |
 | `--createdAt <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

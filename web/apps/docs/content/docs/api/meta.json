@@ -3,5 +3,12 @@
 	"description": "RESTful API reference for programmatic access to Notploy.",
 	"icon": "Code",
 	"root": true,
-	"pages": ["---Get started---", "index", "---Reference---", "..."]
+	"pages": [
+		"---Get started---",
+		"index",
+		"---Guides---",
+		"...",
+		"---Generated reference---",
+		"reference"
+	]
 }

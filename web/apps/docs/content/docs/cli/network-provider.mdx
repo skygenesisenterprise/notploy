@@ -1,0 +1,139 @@
+---
+title: "Network providers"
+description: "External network providers (overlay networks and peers) plus their health checks. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+External network providers (overlay networks and peers) plus their health checks.
+
+`notploy network-provider` exposes **9 commands**. They map one-to-one onto the `network-provider.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy network-provider --help` to list these commands in your terminal, or
+	`notploy network-provider <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy network-provider all`
+
+Calls `GET /api/trpc/networkProvider.all`.
+
+```bash
+notploy network-provider all [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy network-provider create`
+
+Calls `POST /api/trpc/networkProvider.create`.
+
+```bash
+notploy network-provider create --name <value> --config <json> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--config <json>` | object | Yes | — |
+| `--peers <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy network-provider descriptors`
+
+Calls `GET /api/trpc/networkProvider.descriptors`.
+
+```bash
+notploy network-provider descriptors [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy network-provider health`
+
+Calls `GET /api/trpc/networkProvider.health`.
+
+```bash
+notploy network-provider health --networkProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--networkProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy network-provider one`
+
+Calls `GET /api/trpc/networkProvider.one`.
+
+```bash
+notploy network-provider one --networkProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--networkProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy network-provider peers`
+
+Calls `GET /api/trpc/networkProvider.peers`.
+
+```bash
+notploy network-provider peers --networkProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--networkProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy network-provider remove`
+
+Calls `POST /api/trpc/networkProvider.remove`.
+
+```bash
+notploy network-provider remove --networkProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--networkProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy network-provider test-connection`
+
+Calls `POST /api/trpc/networkProvider.testConnection`.
+
+```bash
+notploy network-provider test-connection [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--networkProviderId <value>` | string | No | — |
+| `--config <json>` | object | No | — |
+| `--peers <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy network-provider update`
+
+Calls `POST /api/trpc/networkProvider.update`.
+
+```bash
+notploy network-provider update --networkProviderId <value> --name <value> --config <json> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--networkProviderId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--config <json>` | object | Yes | — |
+| `--peers <json>` | array | No | — |
+| `--profile <name>` | string | No | — |

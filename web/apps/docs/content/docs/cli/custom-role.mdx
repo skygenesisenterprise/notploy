@@ -21,64 +21,76 @@ Organization roles built from a set of permission statements.
 Calls `GET /api/trpc/customRole.all`.
 
 ```bash
-notploy custom-role all
+notploy custom-role all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy custom-role create`
 
 Calls `POST /api/trpc/customRole.create`.
 
 ```bash
-notploy custom-role create --roleName <roleName> --permissions <permissions>
+notploy custom-role create --roleName <value> --permissions <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--roleName <value>` | string | Yes | — |
-| `--permissions <value>` | string | Yes | — |
+| `--permissions <json>` | object | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy custom-role get-statements`
 
 Calls `GET /api/trpc/customRole.getStatements`.
 
 ```bash
-notploy custom-role get-statements
+notploy custom-role get-statements [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy custom-role members-by-role`
 
 Calls `GET /api/trpc/customRole.membersByRole`.
 
 ```bash
-notploy custom-role members-by-role --roleName <roleName>
+notploy custom-role members-by-role --roleName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--roleName <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy custom-role remove`
 
 Calls `POST /api/trpc/customRole.remove`.
 
 ```bash
-notploy custom-role remove --roleName <roleName>
+notploy custom-role remove --roleName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--roleName <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy custom-role update`
 
 Calls `POST /api/trpc/customRole.update`.
 
 ```bash
-notploy custom-role update --roleName <roleName> --permissions <permissions> [options]
+notploy custom-role update --roleName <value> --permissions <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--roleName <value>` | string | Yes | — |
 | `--newRoleName <value>` | string | No | — |
-| `--permissions <value>` | string | Yes | — |
+| `--permissions <json>` | object | Yes | — |
+| `--profile <name>` | string | No | — |

@@ -1,0 +1,201 @@
+---
+title: "Traffic analytics"
+description: "Traffic sources and properties, HTTP reports and the audience overview built from access logs. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Traffic sources and properties, HTTP reports and the audience overview built from access logs.
+
+`notploy traffic` exposes **11 commands**. They map one-to-one onto the `traffic.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy traffic --help` to list these commands in your terminal, or
+	`notploy traffic <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy traffic audience`
+
+Calls `GET /api/trpc/traffic.audience`.
+
+```bash
+notploy traffic audience [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--preset <value>` | string | No | `1h`, `24h`, `7d`, `30d`, `custom` |
+| `--from <value>` | string | No | — |
+| `--to <value>` | string | No | — |
+| `--propertyIds <json>` | array | No | — |
+| `--platform <value>` | string | No | — |
+| `--limit <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy traffic collect-now`
+
+Calls `POST /api/trpc/traffic.collectNow`.
+
+```bash
+notploy traffic collect-now [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy traffic create-property`
+
+Calls `POST /api/trpc/traffic.createProperty`.
+
+```bash
+notploy traffic create-property --platform <value> --domain <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--platform <value>` | string | Yes | — |
+| `--name <value>` | string | No | — |
+| `--domain <value>` | string | Yes | — |
+| `--matchesSubdomains [boolean]` | boolean | No | — |
+| `--no-matchesSubdomains` | boolean | No | — |
+| `--sourceType <value>` | string | No | `traefik`, `web-instrumentation`, `external` |
+| `--logPath <value>` | string | No | — |
+| `--allowedOrigins <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy traffic declare-recommended`
+
+Calls `POST /api/trpc/traffic.declareRecommended`.
+
+```bash
+notploy traffic declare-recommended [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy traffic delete-property`
+
+Calls `POST /api/trpc/traffic.deleteProperty`.
+
+```bash
+notploy traffic delete-property --propertyId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--propertyId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy traffic http`
+
+Calls `GET /api/trpc/traffic.http`.
+
+```bash
+notploy traffic http [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--preset <value>` | string | No | `1h`, `24h`, `7d`, `30d`, `custom` |
+| `--from <value>` | string | No | — |
+| `--to <value>` | string | No | — |
+| `--propertyIds <json>` | array | No | — |
+| `--platform <value>` | string | No | — |
+| `--limit <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy traffic overview`
+
+Calls `GET /api/trpc/traffic.overview`.
+
+```bash
+notploy traffic overview [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--preset <value>` | string | No | `1h`, `24h`, `7d`, `30d`, `custom` |
+| `--from <value>` | string | No | — |
+| `--to <value>` | string | No | — |
+| `--propertyIds <json>` | array | No | — |
+| `--platform <value>` | string | No | — |
+| `--compare [boolean]` | boolean | No | — |
+| `--no-compare` | boolean | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy traffic properties`
+
+Calls `GET /api/trpc/traffic.properties`.
+
+```bash
+notploy traffic properties [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy traffic timeseries`
+
+Calls `GET /api/trpc/traffic.timeseries`.
+
+```bash
+notploy traffic timeseries [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--preset <value>` | string | No | `1h`, `24h`, `7d`, `30d`, `custom` |
+| `--from <value>` | string | No | — |
+| `--to <value>` | string | No | — |
+| `--propertyIds <json>` | array | No | — |
+| `--platform <value>` | string | No | — |
+| `--includeHttp [boolean]` | boolean | No | — |
+| `--no-includeHttp` | boolean | No | — |
+| `--includeAudience [boolean]` | boolean | No | — |
+| `--no-includeAudience` | boolean | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy traffic update-property`
+
+Calls `POST /api/trpc/traffic.updateProperty`.
+
+```bash
+notploy traffic update-property --propertyId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--propertyId <value>` | string | Yes | — |
+| `--name <value>` | string | No | — |
+| `--platform <value>` | string | No | — |
+| `--matchesSubdomains [boolean]` | boolean | No | — |
+| `--no-matchesSubdomains` | boolean | No | — |
+| `--enabled [boolean]` | boolean | No | — |
+| `--no-enabled` | boolean | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy traffic upsert-source`
+
+Calls `POST /api/trpc/traffic.upsertSource`.
+
+```bash
+notploy traffic upsert-source --propertyId <value> --type <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--propertyId <value>` | string | Yes | — |
+| `--type <value>` | string | Yes | `traefik`, `web-instrumentation`, `external` |
+| `--enabled [boolean]` | boolean | No | — |
+| `--no-enabled` | boolean | No | — |
+| `--logPath <value>` | string | No | — |
+| `--allowedOrigins <json>` | array | No | — |
+| `--rotatePublicKey [boolean]` | boolean | No | — |
+| `--no-rotatePublicKey` | boolean | No | — |
+| `--profile <name>` | string | No | — |

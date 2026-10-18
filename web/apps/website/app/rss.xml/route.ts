@@ -1,6 +1,9 @@
 import { getPosts } from "@/lib/ghost";
 import { NextResponse } from "next/server";
 
+// Required for `output: "export"` (GitHub Pages).
+export const dynamic = "force-static";
+
 function escapeXml(unsafe: string): string {
 	return unsafe.replace(/[<>&'"]/g, (c) => {
 		switch (c) {

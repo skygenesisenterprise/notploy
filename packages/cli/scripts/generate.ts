@@ -67,6 +67,15 @@ function main(): void {
 	const hash = hashSpec(raw);
 	const result = generateFromSpec(spec, hash);
 
+	if (result.skippedEndpoints.length > 0) {
+		console.warn(
+			`Skipped ${result.skippedEndpoints.length} endpoint(s) that are not tRPC commands (REST-only routes):`,
+		);
+		for (const endpoint of result.skippedEndpoints) {
+			console.warn(`  ${endpoint}`);
+		}
+	}
+
 	if (check) {
 		const commandsOk = checkFile(outPath, result.commandsFile);
 		const metaOk = checkFile(metaPath, result.metaFile);

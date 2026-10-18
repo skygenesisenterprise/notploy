@@ -21,43 +21,46 @@ Per-branch deployments created when preview deployments are enabled.
 Calls `GET /api/trpc/previewDeployment.all`.
 
 ```bash
-notploy preview-deployment all --applicationId <applicationId>
+notploy preview-deployment all --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy preview-deployment delete`
 
 Calls `POST /api/trpc/previewDeployment.delete`.
 
 ```bash
-notploy preview-deployment delete --previewDeploymentId <previewDeploymentId>
+notploy preview-deployment delete --previewDeploymentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--previewDeploymentId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy preview-deployment one`
 
 Calls `GET /api/trpc/previewDeployment.one`.
 
 ```bash
-notploy preview-deployment one --previewDeploymentId <previewDeploymentId>
+notploy preview-deployment one --previewDeploymentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--previewDeploymentId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy preview-deployment redeploy`
 
 Calls `POST /api/trpc/previewDeployment.redeploy`.
 
 ```bash
-notploy preview-deployment redeploy --previewDeploymentId <previewDeploymentId> [options]
+notploy preview-deployment redeploy --previewDeploymentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -65,3 +68,4 @@ notploy preview-deployment redeploy --previewDeploymentId <previewDeploymentId> 
 | `--previewDeploymentId <value>` | string | Yes | — |
 | `--title <value>` | string | No | — |
 | `--description <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

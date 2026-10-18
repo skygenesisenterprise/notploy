@@ -1,3 +1,4 @@
+# notploy: allow-host-ports — WebRTC media uses a raw UDP port range.
 version: "3.8"
 services:
   neko:

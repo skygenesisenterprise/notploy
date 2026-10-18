@@ -21,43 +21,46 @@ Create applications, connect a source, configure the build and drive the whole l
 Calls `POST /api/trpc/application.cancelDeployment`.
 
 ```bash
-notploy application cancel-deployment --applicationId <applicationId>
+notploy application cancel-deployment --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application clean-queues`
 
 Calls `POST /api/trpc/application.cleanQueues`.
 
 ```bash
-notploy application clean-queues --applicationId <applicationId>
+notploy application clean-queues --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application clear-deployments`
 
 Calls `POST /api/trpc/application.clearDeployments`.
 
 ```bash
-notploy application clear-deployments --applicationId <applicationId>
+notploy application clear-deployments --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application create`
 
 Calls `POST /api/trpc/application.create`.
 
 ```bash
-notploy application create --name <name> --environmentId <environmentId> [options]
+notploy application create --name <value> --environmentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -68,25 +71,27 @@ notploy application create --name <name> --environmentId <environmentId> [option
 | `--environmentId <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
 | `--sourceType <value>` | string | No | `github`, `docker`, `git`, `gitlab`, `bitbucket`, `gitea`, `drop` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application delete`
 
 Calls `POST /api/trpc/application.delete`.
 
 ```bash
-notploy application delete --applicationId <applicationId>
+notploy application delete --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application deploy`
 
 Calls `POST /api/trpc/application.deploy`.
 
 ```bash
-notploy application deploy --applicationId <applicationId> [options]
+notploy application deploy --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -94,107 +99,119 @@ notploy application deploy --applicationId <applicationId> [options]
 | `--applicationId <value>` | string | Yes | — |
 | `--title <value>` | string | No | — |
 | `--description <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application deploy-nginx-quickstart`
 
 Calls `POST /api/trpc/application.deployNginxQuickstart`.
 
 ```bash
-notploy application deploy-nginx-quickstart --environmentId <environmentId> [options]
+notploy application deploy-nginx-quickstart --environmentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--environmentId <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application disconnect-git-provider`
 
 Calls `POST /api/trpc/application.disconnectGitProvider`.
 
 ```bash
-notploy application disconnect-git-provider --applicationId <applicationId>
+notploy application disconnect-git-provider --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application drop-deployment`
 
 Calls `POST /api/trpc/application.dropDeployment`.
 
 ```bash
-notploy application drop-deployment
+notploy application drop-deployment [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application kill-build`
 
 Calls `POST /api/trpc/application.killBuild`.
 
 ```bash
-notploy application kill-build --applicationId <applicationId>
+notploy application kill-build --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application mark-running`
 
 Calls `POST /api/trpc/application.markRunning`.
 
 ```bash
-notploy application mark-running --applicationId <applicationId>
+notploy application mark-running --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application move`
 
 Calls `POST /api/trpc/application.move`.
 
 ```bash
-notploy application move --applicationId <applicationId> --targetEnvironmentId <targetEnvironmentId>
+notploy application move --applicationId <value> --targetEnvironmentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
 | `--targetEnvironmentId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application one`
 
 Calls `GET /api/trpc/application.one`.
 
 ```bash
-notploy application one --applicationId <applicationId>
+notploy application one --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application read-app-monitoring`
 
 Calls `GET /api/trpc/application.readAppMonitoring`.
 
 ```bash
-notploy application read-app-monitoring --appName <appName>
+notploy application read-app-monitoring --appName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--appName <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application read-logs`
 
 Calls `GET /api/trpc/application.readLogs`.
 
 ```bash
-notploy application read-logs --applicationId <applicationId> [options]
+notploy application read-logs --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -203,25 +220,27 @@ notploy application read-logs --applicationId <applicationId> [options]
 | `--tail <value>` | number | No | — |
 | `--since <value>` | string | No | — |
 | `--search <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application read-traefik-config`
 
 Calls `GET /api/trpc/application.readTraefikConfig`.
 
 ```bash
-notploy application read-traefik-config --applicationId <applicationId>
+notploy application read-traefik-config --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application redeploy`
 
 Calls `POST /api/trpc/application.redeploy`.
 
 ```bash
-notploy application redeploy --applicationId <applicationId> [options]
+notploy application redeploy --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -229,38 +248,41 @@ notploy application redeploy --applicationId <applicationId> [options]
 | `--applicationId <value>` | string | Yes | — |
 | `--title <value>` | string | No | — |
 | `--description <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application refresh-token`
 
 Calls `POST /api/trpc/application.refreshToken`.
 
 ```bash
-notploy application refresh-token --applicationId <applicationId>
+notploy application refresh-token --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application reload`
 
 Calls `POST /api/trpc/application.reload`.
 
 ```bash
-notploy application reload --appName <appName> --applicationId <applicationId>
+notploy application reload --appName <value> --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--appName <value>` | string | Yes | — |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application save-bitbucket-provider`
 
 Calls `POST /api/trpc/application.saveBitbucketProvider`.
 
 ```bash
-notploy application save-bitbucket-provider --bitbucketBuildPath <bitbucketBuildPath> --bitbucketOwner <bitbucketOwner> --bitbucketRepository <bitbucketRepository> --bitbucketRepositorySlug <bitbucketRepositorySlug> --bitbucketId <bitbucketId> --applicationId <applicationId> --bitbucketBranch <bitbucketBranch> [options]
+notploy application save-bitbucket-provider --bitbucketBuildPath <value> --bitbucketOwner <value> --bitbucketRepository <value> --bitbucketRepositorySlug <value> --bitbucketId <value> --applicationId <value> --bitbucketBranch <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -272,15 +294,17 @@ notploy application save-bitbucket-provider --bitbucketBuildPath <bitbucketBuild
 | `--bitbucketId <value>` | string | Yes | — |
 | `--applicationId <value>` | string | Yes | — |
 | `--bitbucketBranch <value>` | string | Yes | — |
-| `--enableSubmodules` | boolean | No | — |
-| `--watchPaths <value>` | string | No | — |
+| `--enableSubmodules [boolean]` | boolean | No | — |
+| `--no-enableSubmodules` | boolean | No | — |
+| `--watchPaths <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application save-build-type`
 
 Calls `POST /api/trpc/application.saveBuildType`.
 
 ```bash
-notploy application save-build-type --applicationId <applicationId> --buildType <buildType> --dockerfile <dockerfile> --dockerContextPath <dockerContextPath> --dockerBuildStage <dockerBuildStage> --herokuVersion <herokuVersion> --railpackVersion <railpackVersion> [options]
+notploy application save-build-type --applicationId <value> --buildType <value> --dockerfile <value> --dockerContextPath <value> --dockerBuildStage <value> --herokuVersion <value> --railpackVersion <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -293,14 +317,16 @@ notploy application save-build-type --applicationId <applicationId> --buildType 
 | `--herokuVersion <value>` | string | Yes | — |
 | `--railpackVersion <value>` | string | Yes | — |
 | `--publishDirectory <value>` | string | No | — |
-| `--isStaticSpa` | boolean | No | — |
+| `--isStaticSpa [boolean]` | boolean | No | — |
+| `--no-isStaticSpa` | boolean | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application save-docker-provider`
 
 Calls `POST /api/trpc/application.saveDockerProvider`.
 
 ```bash
-notploy application save-docker-provider --dockerImage <dockerImage> --applicationId <applicationId> --username <username> --password <password> --registryUrl <registryUrl>
+notploy application save-docker-provider --dockerImage <value> --applicationId <value> --username <value> --password <value> --registryUrl <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -310,13 +336,14 @@ notploy application save-docker-provider --dockerImage <dockerImage> --applicati
 | `--username <value>` | string | Yes | — |
 | `--password <value>` | string | Yes | — |
 | `--registryUrl <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application save-environment`
 
 Calls `POST /api/trpc/application.saveEnvironment`.
 
 ```bash
-notploy application save-environment --applicationId <applicationId> --env <env> --buildArgs <buildArgs> --buildSecrets <buildSecrets> --createEnvFile
+notploy application save-environment --applicationId <value> --env <value> --buildArgs <value> --buildSecrets <value> --createEnvFile [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -325,14 +352,15 @@ notploy application save-environment --applicationId <applicationId> --env <env>
 | `--env <value>` | string | Yes | — |
 | `--buildArgs <value>` | string | Yes | — |
 | `--buildSecrets <value>` | string | Yes | — |
-| `--createEnvFile` | boolean | Yes | — |
+| `--createEnvFile [boolean]` | boolean | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application save-gitea-provider`
 
 Calls `POST /api/trpc/application.saveGiteaProvider`.
 
 ```bash
-notploy application save-gitea-provider --applicationId <applicationId> --giteaBuildPath <giteaBuildPath> --giteaOwner <giteaOwner> --giteaRepository <giteaRepository> --giteaId <giteaId> --giteaBranch <giteaBranch> [options]
+notploy application save-gitea-provider --applicationId <value> --giteaBuildPath <value> --giteaOwner <value> --giteaRepository <value> --giteaId <value> --giteaBranch <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -343,15 +371,17 @@ notploy application save-gitea-provider --applicationId <applicationId> --giteaB
 | `--giteaRepository <value>` | string | Yes | — |
 | `--giteaId <value>` | string | Yes | — |
 | `--giteaBranch <value>` | string | Yes | — |
-| `--enableSubmodules` | boolean | No | — |
-| `--watchPaths <value>` | string | No | — |
+| `--enableSubmodules [boolean]` | boolean | No | — |
+| `--no-enableSubmodules` | boolean | No | — |
+| `--watchPaths <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application save-github-provider`
 
 Calls `POST /api/trpc/application.saveGithubProvider`.
 
 ```bash
-notploy application save-github-provider --applicationId <applicationId> --repository <repository> --owner <owner> --buildPath <buildPath> --githubId <githubId> --branch <branch> --triggerType <triggerType> [options]
+notploy application save-github-provider --applicationId <value> --repository <value> --owner <value> --buildPath <value> --githubId <value> --branch <value> --triggerType <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -363,15 +393,17 @@ notploy application save-github-provider --applicationId <applicationId> --repos
 | `--githubId <value>` | string | Yes | — |
 | `--branch <value>` | string | Yes | — |
 | `--triggerType <value>` | string | Yes | `push`, `tag` |
-| `--enableSubmodules` | boolean | No | — |
-| `--watchPaths <value>` | string | No | — |
+| `--enableSubmodules [boolean]` | boolean | No | — |
+| `--no-enableSubmodules` | boolean | No | — |
+| `--watchPaths <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application save-gitlab-provider`
 
 Calls `POST /api/trpc/application.saveGitlabProvider`.
 
 ```bash
-notploy application save-gitlab-provider --applicationId <applicationId> --gitlabBuildPath <gitlabBuildPath> --gitlabOwner <gitlabOwner> --gitlabRepository <gitlabRepository> --gitlabId <gitlabId> --gitlabProjectId <gitlabProjectId> --gitlabPathNamespace <gitlabPathNamespace> --gitlabBranch <gitlabBranch> [options]
+notploy application save-gitlab-provider --applicationId <value> --gitlabBuildPath <value> --gitlabOwner <value> --gitlabRepository <value> --gitlabId <value> --gitlabProjectId <value> --gitlabPathNamespace <value> --gitlabBranch <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -384,15 +416,17 @@ notploy application save-gitlab-provider --applicationId <applicationId> --gitla
 | `--gitlabProjectId <value>` | number | Yes | — |
 | `--gitlabPathNamespace <value>` | string | Yes | — |
 | `--gitlabBranch <value>` | string | Yes | — |
-| `--enableSubmodules` | boolean | No | — |
-| `--watchPaths <value>` | string | No | — |
+| `--enableSubmodules [boolean]` | boolean | No | — |
+| `--no-enableSubmodules` | boolean | No | — |
+| `--watchPaths <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application save-git-provider`
 
 Calls `POST /api/trpc/application.saveGitProvider`.
 
 ```bash
-notploy application save-git-provider --applicationId <applicationId> --customGitBuildPath <customGitBuildPath> --customGitUrl <customGitUrl> --watchPaths <watchPaths> --customGitBranch <customGitBranch> [options]
+notploy application save-git-provider --applicationId <value> --customGitBuildPath <value> --customGitUrl <value> --watchPaths <json> --customGitBranch <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -400,10 +434,12 @@ notploy application save-git-provider --applicationId <applicationId> --customGi
 | `--applicationId <value>` | string | Yes | — |
 | `--customGitBuildPath <value>` | string | Yes | — |
 | `--customGitUrl <value>` | string | Yes | — |
-| `--watchPaths <value>` | string | Yes | — |
-| `--enableSubmodules` | boolean | No | — |
+| `--watchPaths <json>` | array | Yes | — |
+| `--enableSubmodules [boolean]` | boolean | No | — |
+| `--no-enableSubmodules` | boolean | No | — |
 | `--customGitBranch <value>` | string | Yes | — |
 | `--customGitSSHKeyId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application search`
 
@@ -426,37 +462,40 @@ notploy application search [options]
 | `--environmentId <value>` | string | No | — |
 | `--limit <value>` | number | No | — |
 | `--offset <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application start`
 
 Calls `POST /api/trpc/application.start`.
 
 ```bash
-notploy application start --applicationId <applicationId>
+notploy application start --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application stop`
 
 Calls `POST /api/trpc/application.stop`.
 
 ```bash
-notploy application stop --applicationId <applicationId>
+notploy application stop --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application update`
 
 Calls `POST /api/trpc/application.update`.
 
 ```bash
-notploy application update --applicationId <applicationId> [options]
+notploy application update --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -467,20 +506,24 @@ notploy application update --applicationId <applicationId> [options]
 | `--description <value>` | string | No | — |
 | `--env <value>` | string | No | — |
 | `--previewEnv <value>` | string | No | — |
-| `--watchPaths <value>` | string | No | — |
+| `--watchPaths <json>` | array | No | — |
 | `--previewBuildArgs <value>` | string | No | — |
 | `--previewBuildSecrets <value>` | string | No | — |
-| `--previewLabels <value>` | string | No | — |
+| `--previewLabels <json>` | array | No | — |
 | `--previewWildcard <value>` | string | No | — |
 | `--previewPort <value>` | number | No | — |
-| `--previewHttps` | boolean | No | — |
+| `--previewHttps [boolean]` | boolean | No | — |
+| `--no-previewHttps` | boolean | No | — |
 | `--previewPath <value>` | string | No | — |
 | `--previewCertificateType <value>` | string | No | `letsencrypt`, `none`, `custom` |
 | `--previewCustomCertResolver <value>` | string | No | — |
 | `--previewLimit <value>` | number | No | — |
-| `--isPreviewDeploymentsActive` | boolean | No | — |
-| `--previewRequireCollaboratorPermissions` | boolean | No | — |
-| `--rollbackActive` | boolean | No | — |
+| `--isPreviewDeploymentsActive [boolean]` | boolean | No | — |
+| `--no-isPreviewDeploymentsActive` | boolean | No | — |
+| `--previewRequireCollaboratorPermissions [boolean]` | boolean | No | — |
+| `--no-previewRequireCollaboratorPermissions` | boolean | No | — |
+| `--rollbackActive [boolean]` | boolean | No | — |
+| `--no-rollbackActive` | boolean | No | — |
 | `--buildArgs <value>` | string | No | — |
 | `--buildSecrets <value>` | string | No | — |
 | `--memoryReservation <value>` | string | No | — |
@@ -488,20 +531,23 @@ notploy application update --applicationId <applicationId> [options]
 | `--cpuReservation <value>` | string | No | — |
 | `--cpuLimit <value>` | string | No | — |
 | `--title <value>` | string | No | — |
-| `--enabled` | boolean | No | — |
+| `--enabled [boolean]` | boolean | No | — |
+| `--no-enabled` | boolean | No | — |
 | `--subtitle <value>` | string | No | — |
 | `--command <value>` | string | No | — |
-| `--args <value>` | string | No | — |
+| `--args <json>` | array | No | — |
 | `--icon <value>` | string | No | — |
 | `--refreshToken <value>` | string | No | — |
 | `--sourceType <value>` | string | No | `github`, `docker`, `git`, `gitlab`, `bitbucket`, `gitea`, `drop` |
-| `--cleanCache` | boolean | No | — |
+| `--cleanCache [boolean]` | boolean | No | — |
+| `--no-cleanCache` | boolean | No | — |
 | `--repository <value>` | string | No | — |
 | `--owner <value>` | string | No | — |
 | `--branch <value>` | string | No | — |
 | `--buildPath <value>` | string | No | — |
 | `--triggerType <value>` | string | No | `push`, `tag` |
-| `--autoDeploy` | boolean | No | — |
+| `--autoDeploy [boolean]` | boolean | No | — |
+| `--no-autoDeploy` | boolean | No | — |
 | `--gitlabProjectId <value>` | number | No | — |
 | `--gitlabRepository <value>` | string | No | — |
 | `--gitlabOwner <value>` | string | No | — |
@@ -525,30 +571,33 @@ notploy application update --applicationId <applicationId> [options]
 | `--customGitBranch <value>` | string | No | — |
 | `--customGitBuildPath <value>` | string | No | — |
 | `--customGitSSHKeyId <value>` | string | No | — |
-| `--enableSubmodules` | boolean | No | — |
+| `--enableSubmodules [boolean]` | boolean | No | — |
+| `--no-enableSubmodules` | boolean | No | — |
 | `--dockerfile <value>` | string | No | — |
 | `--dockerContextPath <value>` | string | No | — |
 | `--dockerBuildStage <value>` | string | No | — |
 | `--dropBuildPath <value>` | string | No | — |
-| `--healthCheckSwarm <value>` | string | No | — |
-| `--restartPolicySwarm <value>` | string | No | — |
-| `--placementSwarm <value>` | string | No | — |
-| `--updateConfigSwarm <value>` | string | No | — |
-| `--rollbackConfigSwarm <value>` | string | No | — |
-| `--modeSwarm <value>` | string | No | — |
-| `--labelsSwarm <value>` | string | No | — |
-| `--networkSwarm <value>` | string | No | — |
-| `--stopGracePeriodSwarm <value>` | string | No | — |
-| `--endpointSpecSwarm <value>` | string | No | — |
-| `--ulimitsSwarm <value>` | string | No | — |
+| `--healthCheckSwarm <json>` | object | No | — |
+| `--restartPolicySwarm <json>` | object | No | — |
+| `--placementSwarm <json>` | object | No | — |
+| `--updateConfigSwarm <json>` | object | No | — |
+| `--rollbackConfigSwarm <json>` | object | No | — |
+| `--modeSwarm <json>` | object | No | — |
+| `--labelsSwarm <json>` | object | No | — |
+| `--networkSwarm <json>` | array | No | — |
+| `--stopGracePeriodSwarm <value>` | number | No | — |
+| `--endpointSpecSwarm <json>` | object | No | — |
+| `--ulimitsSwarm <json>` | array | No | — |
 | `--replicas <value>` | number | No | — |
 | `--applicationStatus <value>` | string | No | `idle`, `running`, `done`, `error` |
 | `--buildType <value>` | string | No | `dockerfile`, `heroku_buildpacks`, `paketo_buildpacks`, `nixpacks`, `static`, `railpack` |
 | `--railpackVersion <value>` | string | No | — |
 | `--herokuVersion <value>` | string | No | — |
 | `--publishDirectory <value>` | string | No | — |
-| `--isStaticSpa` | boolean | No | — |
-| `--createEnvFile` | boolean | No | — |
+| `--isStaticSpa [boolean]` | boolean | No | — |
+| `--no-isStaticSpa` | boolean | No | — |
+| `--createEnvFile [boolean]` | boolean | No | — |
+| `--no-createEnvFile` | boolean | No | — |
 | `--createdAt <value>` | string | No | — |
 | `--registryId <value>` | string | No | — |
 | `--rollbackRegistryId <value>` | string | No | — |
@@ -559,18 +608,23 @@ notploy application update --applicationId <applicationId> [options]
 | `--bitbucketId <value>` | string | No | — |
 | `--buildServerId <value>` | string | No | — |
 | `--buildRegistryId <value>` | string | No | — |
-| `--networkIds <value>` | string | No | — |
-| `--detachNotployNetwork` | boolean | No | — |
+| `--networkIds <json>` | array | No | — |
+| `--detachNotployNetwork [boolean]` | boolean | No | — |
+| `--no-detachNotployNetwork` | boolean | No | — |
+| `--isolatedNetwork [boolean]` | boolean | No | — |
+| `--no-isolatedNetwork` | boolean | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy application update-traefik-config`
 
 Calls `POST /api/trpc/application.updateTraefikConfig`.
 
 ```bash
-notploy application update-traefik-config --applicationId <applicationId> --traefikConfig <traefikConfig>
+notploy application update-traefik-config --applicationId <value> --traefikConfig <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
 | `--traefikConfig <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |

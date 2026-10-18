@@ -21,43 +21,46 @@ Docker Compose projects: templates, imports, isolated deployments and previews.
 Calls `POST /api/trpc/compose.cancelDeployment`.
 
 ```bash
-notploy compose cancel-deployment --composeId <composeId>
+notploy compose cancel-deployment --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose clean-queues`
 
 Calls `POST /api/trpc/compose.cleanQueues`.
 
 ```bash
-notploy compose clean-queues --composeId <composeId>
+notploy compose clean-queues --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose clear-deployments`
 
 Calls `POST /api/trpc/compose.clearDeployments`.
 
 ```bash
-notploy compose clear-deployments --composeId <composeId>
+notploy compose clear-deployments --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose create`
 
 Calls `POST /api/trpc/compose.create`.
 
 ```bash
-notploy compose create --name <name> --environmentId <environmentId> [options]
+notploy compose create --name <value> --environmentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -70,26 +73,28 @@ notploy compose create --name <name> --environmentId <environmentId> [options]
 | `--serverId <value>` | string | No | — |
 | `--composeFile <value>` | string | No | — |
 | `--sourceType <value>` | string | No | `git`, `github`, `gitlab`, `bitbucket`, `gitea`, `raw` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose delete`
 
 Calls `POST /api/trpc/compose.delete`.
 
 ```bash
-notploy compose delete --composeId <composeId> --deleteVolumes
+notploy compose delete --composeId <value> --deleteVolumes [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
-| `--deleteVolumes` | boolean | Yes | — |
+| `--deleteVolumes [boolean]` | boolean | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose deploy`
 
 Calls `POST /api/trpc/compose.deploy`.
 
 ```bash
-notploy compose deploy --composeId <composeId> [options]
+notploy compose deploy --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -97,14 +102,16 @@ notploy compose deploy --composeId <composeId> [options]
 | `--composeId <value>` | string | Yes | — |
 | `--title <value>` | string | No | — |
 | `--description <value>` | string | No | — |
-| `--freshVolumes` | boolean | No | — |
+| `--freshVolumes [boolean]` | boolean | No | — |
+| `--no-freshVolumes` | boolean | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose deploy-template`
 
 Calls `POST /api/trpc/compose.deployTemplate`.
 
 ```bash
-notploy compose deploy-template --environmentId <environmentId> --id <id> [options]
+notploy compose deploy-template --environmentId <value> --id <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -113,54 +120,59 @@ notploy compose deploy-template --environmentId <environmentId> --id <id> [optio
 | `--serverId <value>` | string | No | — |
 | `--id <value>` | string | Yes | — |
 | `--baseUrl <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose disconnect-git-provider`
 
 Calls `POST /api/trpc/compose.disconnectGitProvider`.
 
 ```bash
-notploy compose disconnect-git-provider --composeId <composeId>
+notploy compose disconnect-git-provider --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose fetch-source-type`
 
 Calls `POST /api/trpc/compose.fetchSourceType`.
 
 ```bash
-notploy compose fetch-source-type --composeId <composeId>
+notploy compose fetch-source-type --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose get-converted-compose`
 
 Calls `GET /api/trpc/compose.getConvertedCompose`.
 
 ```bash
-notploy compose get-converted-compose --composeId <composeId>
+notploy compose get-converted-compose --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose get-default-command`
 
 Calls `GET /api/trpc/compose.getDefaultCommand`.
 
 ```bash
-notploy compose get-default-command --composeId <composeId>
+notploy compose get-default-command --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose get-tags`
 
@@ -173,102 +185,110 @@ notploy compose get-tags [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--baseUrl <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose import`
 
 Calls `POST /api/trpc/compose.import`.
 
 ```bash
-notploy compose import --base64 <base64> --composeId <composeId>
+notploy compose import --base64 <value> --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--base64 <value>` | string | Yes | — |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose isolated-deployment`
 
 Calls `POST /api/trpc/compose.isolatedDeployment`.
 
 ```bash
-notploy compose isolated-deployment --composeId <composeId> [options]
+notploy compose isolated-deployment --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
 | `--suffix <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose kill-build`
 
 Calls `POST /api/trpc/compose.killBuild`.
 
 ```bash
-notploy compose kill-build --composeId <composeId>
+notploy compose kill-build --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose load-mounts-by-service`
 
 Calls `GET /api/trpc/compose.loadMountsByService`.
 
 ```bash
-notploy compose load-mounts-by-service --composeId <composeId> --serviceName <serviceName>
+notploy compose load-mounts-by-service --composeId <value> --serviceName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
 | `--serviceName <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose load-services`
 
 Calls `GET /api/trpc/compose.loadServices`.
 
 ```bash
-notploy compose load-services --composeId <composeId> [options]
+notploy compose load-services --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
 | `--type <value>` | string | No | `fetch`, `cache` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose move`
 
 Calls `POST /api/trpc/compose.move`.
 
 ```bash
-notploy compose move --composeId <composeId> --targetEnvironmentId <targetEnvironmentId>
+notploy compose move --composeId <value> --targetEnvironmentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
 | `--targetEnvironmentId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose one`
 
 Calls `GET /api/trpc/compose.one`.
 
 ```bash
-notploy compose one --composeId <composeId>
+notploy compose one --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose preview-template`
 
 Calls `POST /api/trpc/compose.previewTemplate`.
 
 ```bash
-notploy compose preview-template --base64 <base64> --appName <appName> [options]
+notploy compose preview-template --base64 <value> --appName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -276,39 +296,42 @@ notploy compose preview-template --base64 <base64> --appName <appName> [options]
 | `--base64 <value>` | string | Yes | — |
 | `--appName <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose process-template`
 
 Calls `POST /api/trpc/compose.processTemplate`.
 
 ```bash
-notploy compose process-template --base64 <base64> --composeId <composeId>
+notploy compose process-template --base64 <value> --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--base64 <value>` | string | Yes | — |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose randomize-compose`
 
 Calls `POST /api/trpc/compose.randomizeCompose`.
 
 ```bash
-notploy compose randomize-compose --composeId <composeId> [options]
+notploy compose randomize-compose --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
 | `--suffix <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose read-logs`
 
 Calls `GET /api/trpc/compose.readLogs`.
 
 ```bash
-notploy compose read-logs --composeId <composeId> --containerId <containerId> [options]
+notploy compose read-logs --composeId <value> --containerId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -318,13 +341,14 @@ notploy compose read-logs --composeId <composeId> --containerId <containerId> [o
 | `--tail <value>` | number | No | — |
 | `--since <value>` | string | No | — |
 | `--search <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose redeploy`
 
 Calls `POST /api/trpc/compose.redeploy`.
 
 ```bash
-notploy compose redeploy --composeId <composeId> [options]
+notploy compose redeploy --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -332,33 +356,38 @@ notploy compose redeploy --composeId <composeId> [options]
 | `--composeId <value>` | string | Yes | — |
 | `--title <value>` | string | No | — |
 | `--description <value>` | string | No | — |
-| `--freshVolumes` | boolean | No | — |
+| `--freshVolumes [boolean]` | boolean | No | — |
+| `--no-freshVolumes` | boolean | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose refresh-token`
 
 Calls `POST /api/trpc/compose.refreshToken`.
 
 ```bash
-notploy compose refresh-token --composeId <composeId>
+notploy compose refresh-token --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose save-environment`
 
 Calls `POST /api/trpc/compose.saveEnvironment`.
 
 ```bash
-notploy compose save-environment --composeId <composeId> --env <env> [options]
+notploy compose save-environment --composeId <value> --env <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
 | `--env <value>` | string | Yes | — |
-| `--createEnvFile` | boolean | No | — |
+| `--createEnvFile [boolean]` | boolean | No | — |
+| `--no-createEnvFile` | boolean | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose search`
 
@@ -378,30 +407,33 @@ notploy compose search [options]
 | `--environmentId <value>` | string | No | — |
 | `--limit <value>` | number | No | — |
 | `--offset <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose start`
 
 Calls `POST /api/trpc/compose.start`.
 
 ```bash
-notploy compose start --composeId <composeId>
+notploy compose start --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose stop`
 
 Calls `POST /api/trpc/compose.stop`.
 
 ```bash
-notploy compose stop --composeId <composeId>
+notploy compose stop --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose templates`
 
@@ -414,13 +446,14 @@ notploy compose templates [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--baseUrl <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy compose update`
 
 Calls `POST /api/trpc/compose.update`.
 
 ```bash
-notploy compose update --composeId <composeId> [options]
+notploy compose update --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -437,7 +470,8 @@ notploy compose update --composeId <composeId> [options]
 | `--repository <value>` | string | No | — |
 | `--owner <value>` | string | No | — |
 | `--branch <value>` | string | No | — |
-| `--autoDeploy` | boolean | No | — |
+| `--autoDeploy [boolean]` | boolean | No | — |
+| `--no-autoDeploy` | boolean | No | — |
 | `--gitlabProjectId <value>` | number | No | — |
 | `--gitlabRepository <value>` | string | No | — |
 | `--gitlabOwner <value>` | string | No | — |
@@ -454,21 +488,29 @@ notploy compose update --composeId <composeId> [options]
 | `--customGitBranch <value>` | string | No | — |
 | `--customGitSSHKeyId <value>` | string | No | — |
 | `--command <value>` | string | No | — |
-| `--createEnvFile` | boolean | No | — |
-| `--enableSubmodules` | boolean | No | — |
+| `--createEnvFile [boolean]` | boolean | No | — |
+| `--no-createEnvFile` | boolean | No | — |
+| `--enableSubmodules [boolean]` | boolean | No | — |
+| `--no-enableSubmodules` | boolean | No | — |
 | `--composePath <value>` | string | No | — |
 | `--suffix <value>` | string | No | — |
-| `--randomize` | boolean | No | — |
-| `--isolatedDeployment` | boolean | No | — |
-| `--isolatedDeploymentsVolume` | boolean | No | — |
+| `--randomize [boolean]` | boolean | No | — |
+| `--no-randomize` | boolean | No | — |
+| `--isolatedDeployment [boolean]` | boolean | No | — |
+| `--no-isolatedDeployment` | boolean | No | — |
+| `--isolatedDeploymentsVolume [boolean]` | boolean | No | — |
+| `--no-isolatedDeploymentsVolume` | boolean | No | — |
+| `--pullImages [boolean]` | boolean | No | — |
+| `--no-pullImages` | boolean | No | — |
 | `--triggerType <value>` | string | No | `push`, `tag` |
 | `--composeStatus <value>` | string | No | `idle`, `running`, `done`, `error` |
 | `--icon <value>` | string | No | — |
 | `--environmentId <value>` | string | No | — |
 | `--createdAt <value>` | string | No | — |
-| `--watchPaths <value>` | string | No | — |
+| `--watchPaths <json>` | array | No | — |
 | `--githubId <value>` | string | No | — |
 | `--gitlabId <value>` | string | No | — |
 | `--bitbucketId <value>` | string | No | — |
 | `--giteaId <value>` | string | No | — |
-| `--serviceNetworks <value>` | string | No | — |
+| `--serviceNetworks <json>` | array | No | — |
+| `--profile <name>` | string | No | — |

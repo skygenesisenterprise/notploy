@@ -37,8 +37,83 @@ export const legacyDocRedirects = [
 		"permanent": true
 	},
 	{
+		"source": "/docs/core/enterprise/audit-logs",
+		"destination": "/docs/core/audit-logs",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/custom-roles",
+		"destination": "/docs/core/permissions",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/license-keys",
+		"destination": "/docs/core/enterprise",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/scim",
+		"destination": "/docs/core/scim",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/sso",
+		"destination": "/docs/core/sso",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/sso/application-authentication",
+		"destination": "/docs/core/sso/application-authentication",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/sso/auth0",
+		"destination": "/docs/core/sso/auth0",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/sso/azure",
+		"destination": "/docs/core/sso/azure",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/sso/keycloak",
+		"destination": "/docs/core/sso/keycloak",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/sso/okta",
+		"destination": "/docs/core/sso/okta",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/sso/zitadel",
+		"destination": "/docs/core/sso/zitadel",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/enterprise/whitelabeling",
+		"destination": "/docs/core/whitelabeling",
+		"permanent": true
+	},
+	{
 		"source": "/docs/core/goodies",
 		"destination": "/docs/core",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/guides/cloudflare-tunnels",
+		"destination": "/docs/core/cloudflare-tunnels",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/guides/production-hardening",
+		"destination": "/docs/core/production-hardening",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/guides/tailscale",
+		"destination": "/docs/core/tailscale",
 		"permanent": true
 	},
 	{
@@ -49,6 +124,21 @@ export const legacyDocRedirects = [
 	{
 		"source": "/docs/core/lit",
 		"destination": "/docs/templates/examples/lit",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/migration",
+		"destination": "/docs/core/compatibility",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/migration/compatibility",
+		"destination": "/docs/core/compatibility",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/migration/from-dokploy",
+		"destination": "/docs/core/from-dokploy",
 		"permanent": true
 	},
 	{
@@ -72,8 +162,68 @@ export const legacyDocRedirects = [
 		"permanent": true
 	},
 	{
+		"source": "/docs/core/reference",
+		"destination": "/docs/core/features",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/reference/changelog",
+		"destination": "/docs/core/changelog",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/reference/feature-matrix",
+		"destination": "/docs/core/feature-matrix",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/reference/limitations",
+		"destination": "/docs/core/limitations",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/reference/platform-support",
+		"destination": "/docs/core/platform-support",
+		"permanent": true
+	},
+	{
 		"source": "/docs/core/remix",
 		"destination": "/docs/templates/examples/remix",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/security",
+		"destination": "/docs/core/account-security",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/security/api-keys",
+		"destination": "/docs/core/api-keys",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/security/authentication",
+		"destination": "/docs/core/authentication",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/security/secrets",
+		"destination": "/docs/core/secrets",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/security/ssh-access",
+		"destination": "/docs/core/ssh-access",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/security/tls-network",
+		"destination": "/docs/core/tls-network",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/security/vulnerability-disclosure",
+		"destination": "/docs/core/vulnerability-disclosure",
 		"permanent": true
 	},
 	{
@@ -89,6 +239,31 @@ export const legacyDocRedirects = [
 	{
 		"source": "/docs/core/tanstack",
 		"destination": "/docs/templates/examples/tanstack",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/troubleshooting/domains",
+		"destination": "/docs/core/troubleshooting",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/troubleshooting/instance",
+		"destination": "/docs/core/troubleshooting",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/troubleshooting/logs-monitoring",
+		"destination": "/docs/core/logs-monitoring",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/troubleshooting/networking",
+		"destination": "/docs/core/troubleshooting",
+		"permanent": true
+	},
+	{
+		"source": "/docs/core/troubleshooting/volumes-mounts",
+		"destination": "/docs/core/troubleshooting",
 		"permanent": true
 	},
 	{

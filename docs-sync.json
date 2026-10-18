@@ -1,0 +1,314 @@
+{
+	"$comment": "Connects implementation sources to documentation pages. Keep this file small: it is a map, not a description of the codebase. See scripts/docs/README.md.",
+	"sections": {
+		"core": {
+			"id": "core",
+			"title": "Core",
+			"dir": "core",
+			"description": "Deploying and operating applications, databases and servers."
+		},
+		"cli": {
+			"id": "cli",
+			"title": "CLI",
+			"dir": "cli",
+			"description": "Every command and flag the notploy binary registers."
+		},
+		"api": {
+			"id": "api",
+			"title": "API",
+			"dir": "api",
+			"description": "HTTP endpoints, schemas and authentication."
+		},
+		"templates": {
+			"id": "templates",
+			"title": "Templates",
+			"dir": "templates",
+			"description": "Blueprints, templates and framework examples."
+		}
+	},
+	"sources": {
+		"openapi": "openapi.json",
+		"openapiCopies": [
+			"packages/cli/openapi.json",
+			"packages/mcp/openapi.json",
+			"packages/sdk/openapi.json",
+			"web/apps/docs/public/openapi.json"
+		],
+		"apiRouter": "apps/notploy/server/api/root.ts",
+		"cliCommands": "packages/cli/src/generated/commands.ts",
+		"templateHelpers": "packages/server/src/templates/processors.ts",
+		"blueprints": "templates/blueprints",
+		"redirects": "web/apps/docs/scripts/redirects.mjs"
+	},
+	"regions": [
+		{
+			"file": "web/apps/docs/content/docs/core/features.mdx",
+			"id": "core-features",
+			"generator": "core-features"
+		},
+		{
+			"file": "web/apps/docs/content/docs/index.mdx",
+			"id": "docs-map",
+			"generator": "docs-map"
+		},
+		{
+			"file": "web/apps/docs/content/docs/api/index.mdx",
+			"id": "api-namespaces",
+			"generator": "api-namespaces"
+		},
+		{
+			"file": "web/apps/docs/content/docs/templates/index.mdx",
+			"id": "template-catalog",
+			"generator": "template-catalog"
+		}
+	],
+	"api": {
+		"namespaceDocs": {
+			"sshKey": "sshrouter",
+			"gitProvider": "gitprovider",
+			"volumeBackups": "volumebackups"
+		},
+		"ignore": {}
+	},
+	"core": [
+		{
+			"id": "applications",
+			"sources": ["apps/notploy/server/api/routers/application.ts"],
+			"docs": [
+				"applications/index",
+				"applications/build-type",
+				"applications/advanced",
+				"applications/going-production",
+				"applications/zero-downtime",
+				"applications/rollbacks",
+				"applications/preview-deployments"
+			]
+		},
+		{
+			"id": "projects",
+			"sources": [
+				"apps/notploy/server/api/routers/project.ts",
+				"apps/notploy/server/api/routers/environment.ts",
+				"apps/notploy/server/api/routers/tag.ts"
+			],
+			"docs": [
+				"concepts",
+				"environment-variables",
+				"variables",
+				"auto-deploy",
+				"watch-paths",
+				"patches",
+				"schedule-jobs"
+			]
+		},
+		{
+			"id": "deployments",
+			"sources": ["apps/notploy/server/api/routers/deployment.ts"],
+			"docs": [
+				"first-deployment",
+				"verify-deployment",
+				"concurrent-builds",
+				"deployment-options"
+			]
+		},
+		{
+			"id": "docker-compose",
+			"sources": ["apps/notploy/server/api/routers/compose.ts"],
+			"docs": [
+				"docker-compose/index",
+				"docker-compose/domains",
+				"docker-compose/utilities",
+				"docker-compose/example"
+			]
+		},
+		{
+			"id": "databases",
+			"sources": [
+				"apps/notploy/server/api/routers/postgres.ts",
+				"apps/notploy/server/api/routers/mysql.ts",
+				"apps/notploy/server/api/routers/mariadb.ts",
+				"apps/notploy/server/api/routers/mongo.ts",
+				"apps/notploy/server/api/routers/redis.ts",
+				"apps/notploy/server/api/routers/libsql.ts"
+			],
+			"docs": [
+				"databases/index",
+				"databases/backups",
+				"databases/restore",
+				"databases/connection/index"
+			]
+		},
+		{
+			"id": "backups",
+			"sources": [
+				"apps/notploy/server/api/routers/backup.ts",
+				"apps/notploy/server/api/routers/volume-backups.ts",
+				"apps/notploy/server/api/routers/destination.ts",
+				"apps/notploy/server/api/routers/object-storage.ts"
+			],
+			"docs": [
+				"backups",
+				"volume-backups",
+				"s3-destinations",
+				"(S3-Destinations)/aws-s3"
+			]
+		},
+		{
+			"id": "domains-and-tls",
+			"sources": [
+				"apps/notploy/server/api/routers/domain.ts",
+				"apps/notploy/server/api/routers/certificate.ts"
+			],
+			"docs": ["domains/index", "domain-and-tls", "certificates", "tls-network"]
+		},
+		{
+			"id": "dns",
+			"sources": ["apps/notploy/server/api/routers/dns-provider.ts"],
+			"docs": [
+				"dns-providers/index",
+				"dns-providers/cloudflare",
+				"dns-providers/route53"
+			]
+		},
+		{
+			"id": "git-sources",
+			"sources": [
+				"apps/notploy/server/api/routers/github.ts",
+				"apps/notploy/server/api/routers/gitlab.ts",
+				"apps/notploy/server/api/routers/bitbucket.ts",
+				"apps/notploy/server/api/routers/gitea.ts",
+				"apps/notploy/server/api/routers/git-provider.ts"
+			],
+			"docs": ["github", "gitlab", "bitbucket", "gitea", "connect-source"]
+		},
+		{
+			"id": "servers",
+			"sources": ["apps/notploy/server/api/routers/server.ts"],
+			"docs": [
+				"infrastructure",
+				"remote-servers/index",
+				"remote-servers/deploy-server",
+				"remote-servers/build-server",
+				"ssh-keys",
+				"ssh-access"
+			]
+		},
+		{
+			"id": "swarm",
+			"sources": ["apps/notploy/server/api/routers/swarm.ts"],
+			"docs": ["cluster"]
+		},
+		{
+			"id": "docker",
+			"sources": [
+				"apps/notploy/server/api/routers/docker.ts",
+				"apps/notploy/server/api/routers/docker-image.ts",
+				"apps/notploy/server/api/routers/docker-volume.ts",
+				"apps/notploy/server/api/routers/docker-disk-usage.ts",
+				"apps/notploy/server/api/routers/registry.ts"
+			],
+			"docs": ["docker", "registry/index", "volumes-mounts"]
+		},
+		{
+			"id": "notifications",
+			"sources": ["apps/notploy/server/api/routers/notification.ts"],
+			"docs": [
+				"(Notifications)/overview",
+				"(Notifications)/email",
+				"(Notifications)/webhook"
+			]
+		},
+		{
+			"id": "secrets",
+			"sources": ["apps/notploy/server/api/routers/vault-provider.ts"],
+			"docs": ["secrets", "secrets-providers/index", "environment-variables"]
+		},
+		{
+			"id": "ai",
+			"sources": ["apps/notploy/server/api/routers/ai.ts"],
+			"docs": ["ai"]
+		},
+		{
+			"id": "sso",
+			"sources": ["apps/notploy/server/api/routers/proprietary/sso.ts"],
+			"docs": [
+				"sso/index",
+				"sso/okta",
+				"sso/auth0",
+				"sso/azure",
+				"sso/keycloak",
+				"sso/zitadel",
+				"sso/application-authentication"
+			]
+		},
+		{
+			"id": "scim",
+			"sources": ["apps/notploy/server/api/routers/proprietary/scim.ts"],
+			"docs": ["scim"]
+		},
+		{
+			"id": "audit-logs",
+			"sources": ["apps/notploy/server/api/routers/proprietary/audit-log.ts"],
+			"docs": ["audit-logs"]
+		},
+		{
+			"id": "custom-roles",
+			"sources": ["apps/notploy/server/api/routers/proprietary/custom-role.ts"],
+			"docs": ["(Users)/permissions"]
+		},
+		{
+			"id": "whitelabeling",
+			"sources": ["apps/notploy/server/api/routers/proprietary/whitelabeling.ts"],
+			"docs": ["whitelabeling"]
+		},
+		{
+			"id": "cicd",
+			"sources": ["apps/notploy/server/api/routers/cicd.ts"],
+			"docs": ["github-actions", "develop/integrations"]
+		},
+		{
+			"id": "traffic",
+			"sources": ["apps/notploy/server/api/routers/traffic.ts"],
+			"docs": ["traffic-manager"]
+		},
+		{
+			"id": "monitoring",
+			"sources": [
+				"apps/notploy/server/api/routers/operational-event.ts",
+				"apps/notploy/server/api/routers/status.ts"
+			],
+			"docs": ["monitoring", "logs-monitoring"]
+		},
+		{
+			"id": "security",
+			"sources": ["apps/notploy/server/api/routers/security.ts"],
+			"docs": [
+				"account-security",
+				"authentication",
+				"api-keys",
+				"vulnerability-disclosure"
+			]
+		},
+		{
+			"id": "organizations",
+			"sources": [
+				"apps/notploy/server/api/routers/organization.ts",
+				"apps/notploy/server/api/routers/user.ts"
+			],
+			"docs": ["multi-tenancy", "instance"]
+		},
+		{
+			"id": "cloud",
+			"sources": ["apps/notploy/server/api/routers/stripe.ts"],
+			"docs": ["cloud", "cloud-plans"]
+		},
+		{
+			"id": "administration",
+			"sources": [
+				"apps/notploy/server/api/routers/admin.ts",
+				"apps/notploy/server/api/routers/settings.ts"
+			],
+			"docs": ["administration"]
+		}
+	]
+}

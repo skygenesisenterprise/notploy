@@ -19,6 +19,11 @@ const PROGRAM_OPTIONS = [
 	{ value: "all", label: "All Programs" },
 ] as const;
 
+// See ContactForm: configurable so a static build can post to an external form
+// endpoint instead of the server-only /api/contact route.
+const CONTACT_ENDPOINT =
+	process.env.NEXT_PUBLIC_CONTACT_ENDPOINT || "/api/contact";
+
 interface PartnerFormData {
 	firstName: string;
 	lastName: string;
@@ -67,7 +72,7 @@ export function PartnerForm() {
 					?.label ?? formData.programInterest;
 			const fullMessage = `Program Interest: ${programLabel}\n\n${formData.message}`;
 
-			const response = await fetch("/api/contact", {
+			const response = await fetch(CONTACT_ENDPOINT, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({

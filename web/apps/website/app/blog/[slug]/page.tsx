@@ -22,6 +22,18 @@ type Props = {
 	params: { slug: string };
 };
 
+// Static export (GitHub Pages) needs every post generated at build time.
+export async function generateStaticParams() {
+	const posts = await getPosts();
+	if (posts.length === 0 && process.env.NEXT_OUTPUT === "export") {
+		throw new Error(
+			"The static website build needs the Ghost blog API: no posts were returned. " +
+				"Set GHOST_URL and GHOST_KEY, and make sure the CMS is reachable, then rebuild.",
+		);
+	}
+	return posts.map((post) => ({ slug: post.slug }));
+}
+
 export async function generateMetadata(
 	{ params }: Props,
 	parent: ResolvingMetadata,
@@ -35,13 +47,20 @@ export async function generateMetadata(
 		};
 	}
 
+	// Static export has no image route; fall back to the committed OG image.
+	const isStaticExport = process.env.NEXT_OUTPUT === "export";
+	// The Pages workflow passes NEXT_PUBLIC_APP_URL from the `website`
+	// environment; an empty value falls back to the production domain so the
+	// canonical URL is never relative.
+	const siteUrl =
+		process.env.NEXT_PUBLIC_APP_URL || "https://notploy.com";
 	const ogUrl = new URL(
-		"/api/og",
+		isStaticExport ? "/og.png" : "/api/og",
 		process.env.NODE_ENV === "production"
 			? "https://notploy.com"
 			: "http://localhost:3001",
 	);
-	ogUrl.searchParams.set("slug", slug);
+	if (!isStaticExport) ogUrl.searchParams.set("slug", slug);
 
 	return {
 		title: post.title,
@@ -50,7 +69,7 @@ export async function generateMetadata(
 			title: post.title,
 			description: post.custom_excerpt || post.excerpt,
 			type: "article",
-			url: `${process.env.NEXT_PUBLIC_APP_URL}/blog/${post.slug}`,
+			url: `${siteUrl}/blog/${post.slug}`,
 			images: [
 				{
 					url: ogUrl.toString(),

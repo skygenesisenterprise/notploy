@@ -21,105 +21,123 @@ Organizations, members, invitations and the active organization.
 Calls `GET /api/trpc/organization.active`.
 
 ```bash
-notploy organization active
+notploy organization active [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy organization all`
 
 Calls `GET /api/trpc/organization.all`.
 
 ```bash
-notploy organization all
+notploy organization all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy organization all-invitations`
 
 Calls `GET /api/trpc/organization.allInvitations`.
 
 ```bash
-notploy organization all-invitations
+notploy organization all-invitations [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy organization create`
 
 Calls `POST /api/trpc/organization.create`.
 
 ```bash
-notploy organization create --name <name> [options]
+notploy organization create --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--name <value>` | string | Yes | — |
 | `--logo <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy organization delete`
 
 Calls `POST /api/trpc/organization.delete`.
 
 ```bash
-notploy organization delete --organizationId <organizationId>
+notploy organization delete --organizationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--organizationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy organization invite-member`
 
 Calls `POST /api/trpc/organization.inviteMember`.
 
 ```bash
-notploy organization invite-member --email <email> --role <role>
+notploy organization invite-member --email <value> --role <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--email <value>` | string | Yes | — |
 | `--role <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy organization one`
 
 Calls `GET /api/trpc/organization.one`.
 
 ```bash
-notploy organization one --organizationId <organizationId>
+notploy organization one --organizationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--organizationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy organization remove-invitation`
 
 Calls `POST /api/trpc/organization.removeInvitation`.
 
 ```bash
-notploy organization remove-invitation --invitationId <invitationId>
+notploy organization remove-invitation --invitationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--invitationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy organization set-default`
 
 Calls `POST /api/trpc/organization.setDefault`.
 
 ```bash
-notploy organization set-default --organizationId <organizationId>
+notploy organization set-default --organizationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--organizationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy organization update`
 
 Calls `POST /api/trpc/organization.update`.
 
 ```bash
-notploy organization update --organizationId <organizationId> --name <name> [options]
+notploy organization update --organizationId <value> --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -128,16 +146,18 @@ notploy organization update --organizationId <organizationId> --name <name> [opt
 | `--name <value>` | string | Yes | — |
 | `--logo <value>` | string | No | — |
 | `--defaultRole <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy organization update-member-role`
 
 Calls `POST /api/trpc/organization.updateMemberRole`.
 
 ```bash
-notploy organization update-member-role --memberId <memberId> --role <role>
+notploy organization update-member-role --memberId <value> --role <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--memberId <value>` | string | Yes | — |
 | `--role <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |

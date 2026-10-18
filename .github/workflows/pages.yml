@@ -1,0 +1,169 @@
+name: Pages
+
+# Publishes the two static sites:
+#   website       -> external Pages repository -> https://notploy.com
+#   documentation -> this repository's Pages   -> https://docs.notploy.com
+#
+# GitHub Pages allows one custom domain per repository, which is why the
+# website is published to the organisation's Pages repository (set the
+# WEBSITE_PAGES_REPOSITORY variable) while the docs use this repository.
+#
+# Each deployment job runs inside its own GitHub environment, so protection
+# rules (required reviewers, wait timers, deployment branches) and
+# environment-scoped variables and secrets apply to that site only. A value
+# defined on the environment takes precedence over a repository-level value
+# with the same name, which keeps the two sites isolated.
+#
+#   environment `website`
+#     variable WEBSITE_PAGES_REPOSITORY              owner/repo of the Pages repository (required)
+#     secret   PAGES_DEPLOY_TOKEN                    PAT with contents:write there (required)
+#     variable CONTACT_FORM_ENDPOINT                 optional, external contact form endpoint
+#     variable GHOST_URL                             optional, blog source
+#     secret   GHOST_KEY                             optional, blog source key
+#     variable NEXT_PUBLIC_APP_URL                   optional, canonical site URL
+#     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY       optional, Traffic Manager property key
+#     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT  optional, Traffic Manager collector origin
+#
+#   environment `documentation`
+#     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY       optional, Traffic Manager property key
+#     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT  optional, Traffic Manager collector origin
+#
+# Required setup (repository settings, not code):
+#   Pages source for this repository: branch `gh-pages`
+#   Pages source for the website repository: branch `gh-pages`
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "web/apps/website/**"
+      - "web/apps/docs/**"
+      - "scripts/docs/**"
+      - "openapi.json"
+      - "docs-sync.json"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24.4.0"
+  PNPM_VERSION: "10.22.0"
+
+jobs:
+  website:
+    name: Deploy website
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: website
+      url: https://notploy.com
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Check website environment configuration
+        env:
+          REPOSITORY: ${{ vars.WEBSITE_PAGES_REPOSITORY }}
+          TOKEN: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$REPOSITORY" ]; then
+            echo "::error::Set WEBSITE_PAGES_REPOSITORY on the 'website' environment to the Pages repository (owner/repo)."
+            exit 1
+          fi
+          if [ -z "$TOKEN" ]; then
+            echo "::error::Set PAGES_DEPLOY_TOKEN on the 'website' environment (contents:write on the Pages repository)."
+            exit 1
+          fi
+
+      - name: Install website dependencies
+        run: pnpm install --frozen-lockfile --filter "@notploy/website..."
+
+      - name: Build static website
+        env:
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_CONTACT_ENDPOINT: ${{ vars.CONTACT_FORM_ENDPOINT }}
+          NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT: ${{ vars.NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT }}
+          NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY: ${{ vars.NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY }}
+          GHOST_URL: ${{ vars.GHOST_URL }}
+          GHOST_KEY: ${{ secrets.GHOST_KEY }}
+        run: pnpm --filter @notploy/website run build:static
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          external_repository: ${{ vars.WEBSITE_PAGES_REPOSITORY }}
+          personal_token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./web/apps/website/out
+          cname: notploy.com
+          force_orphan: true
+          user_name: notploy-bot
+          user_email: bot@notploy.com
+
+  documentation:
+    name: Deploy documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: documentation
+      url: https://docs.notploy.com
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install documentation dependencies
+        run: pnpm install --frozen-lockfile --filter=notploy --filter "@notploy/docs..."
+
+      - name: Build static documentation
+        env:
+          NEXT_OUTPUT: export
+          NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT: ${{ vars.NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT }}
+          NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY: ${{ vars.NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY }}
+        run: pnpm docs:build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./web/apps/docs/out
+          cname: docs.notploy.com
+          force_orphan: true
+          user_name: notploy-bot
+          user_email: bot@notploy.com

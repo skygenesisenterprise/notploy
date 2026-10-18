@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+// Prerendered into the static export; the route has no request input.
+export const dynamic = "force-static";
+
 let cachedContributors: { count: number; timestamp: number } | null = null;
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 

@@ -21,91 +21,101 @@ Label projects and filter the dashboard by tag.
 Calls `GET /api/trpc/tag.all`.
 
 ```bash
-notploy tag all
+notploy tag all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy tag assign-to-project`
 
 Calls `POST /api/trpc/tag.assignToProject`.
 
 ```bash
-notploy tag assign-to-project --projectId <projectId> --tagId <tagId>
+notploy tag assign-to-project --projectId <value> --tagId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--projectId <value>` | string | Yes | — |
 | `--tagId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy tag bulk-assign`
 
 Calls `POST /api/trpc/tag.bulkAssign`.
 
 ```bash
-notploy tag bulk-assign --projectId <projectId> --tagIds <tagIds>
+notploy tag bulk-assign --projectId <value> --tagIds <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--projectId <value>` | string | Yes | — |
-| `--tagIds <value>` | string | Yes | — |
+| `--tagIds <json>` | array | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy tag create`
 
 Calls `POST /api/trpc/tag.create`.
 
 ```bash
-notploy tag create --name <name> [options]
+notploy tag create --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--name <value>` | string | Yes | — |
 | `--color <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy tag one`
 
 Calls `GET /api/trpc/tag.one`.
 
 ```bash
-notploy tag one --tagId <tagId>
+notploy tag one --tagId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--tagId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy tag remove`
 
 Calls `POST /api/trpc/tag.remove`.
 
 ```bash
-notploy tag remove --tagId <tagId>
+notploy tag remove --tagId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--tagId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy tag remove-from-project`
 
 Calls `POST /api/trpc/tag.removeFromProject`.
 
 ```bash
-notploy tag remove-from-project --projectId <projectId> --tagId <tagId>
+notploy tag remove-from-project --projectId <value> --tagId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--projectId <value>` | string | Yes | — |
 | `--tagId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy tag update`
 
 Calls `POST /api/trpc/tag.update`.
 
 ```bash
-notploy tag update --tagId <tagId> [options]
+notploy tag update --tagId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -115,3 +125,4 @@ notploy tag update --tagId <tagId> [options]
 | `--color <value>` | string | No | — |
 | `--createdAt <value>` | string | No | — |
 | `--organizationId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

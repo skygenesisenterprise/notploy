@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 Attach domains to applications and Compose stacks, and generate or validate them.
 
-`notploy domain` exposes **10 commands**. They map one-to-one onto the `domain.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy domain` exposes **11 commands**. They map one-to-one onto the `domain.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy domain --help` to list these commands in your terminal, or
@@ -21,43 +21,46 @@ Attach domains to applications and Compose stacks, and generate or validate them
 Calls `GET /api/trpc/domain.byApplicationId`.
 
 ```bash
-notploy domain by-application-id --applicationId <applicationId>
+notploy domain by-application-id --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy domain by-compose-id`
 
 Calls `GET /api/trpc/domain.byComposeId`.
 
 ```bash
-notploy domain by-compose-id --composeId <composeId>
+notploy domain by-compose-id --composeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy domain can-generate-traefik-me-domains`
 
 Calls `GET /api/trpc/domain.canGenerateTraefikMeDomains`.
 
 ```bash
-notploy domain can-generate-traefik-me-domains --serverId <serverId>
+notploy domain can-generate-traefik-me-domains --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy domain create`
 
 Calls `POST /api/trpc/domain.create`.
 
 ```bash
-notploy domain create --host <host> [options]
+notploy domain create --host <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -66,7 +69,8 @@ notploy domain create --host <host> [options]
 | `--path <value>` | string | No | — |
 | `--port <value>` | number | No | — |
 | `--customEntrypoint <value>` | string | No | — |
-| `--https` | boolean | No | — |
+| `--https [boolean]` | boolean | No | — |
+| `--no-https` | boolean | No | — |
 | `--applicationId <value>` | string | No | — |
 | `--certificateType <value>` | string | No | `letsencrypt`, `none`, `custom` |
 | `--customCertResolver <value>` | string | No | — |
@@ -75,65 +79,84 @@ notploy domain create --host <host> [options]
 | `--domainType <value>` | string | No | `compose`, `application`, `preview` |
 | `--previewDeploymentId <value>` | string | No | — |
 | `--internalPath <value>` | string | No | — |
-| `--stripPath` | boolean | No | — |
-| `--middlewares <value>` | string | No | — |
-| `--forwardAuthEnabled` | boolean | No | — |
+| `--stripPath [boolean]` | boolean | No | — |
+| `--no-stripPath` | boolean | No | — |
+| `--middlewares <json>` | array | No | — |
+| `--forwardAuthEnabled [boolean]` | boolean | No | — |
+| `--no-forwardAuthEnabled` | boolean | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy domain delete`
 
 Calls `POST /api/trpc/domain.delete`.
 
 ```bash
-notploy domain delete --domainId <domainId>
+notploy domain delete --domainId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--domainId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy domain generate-domain`
 
 Calls `POST /api/trpc/domain.generateDomain`.
 
 ```bash
-notploy domain generate-domain --appName <appName> [options]
+notploy domain generate-domain --appName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--appName <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy domain internal-dns`
+
+Calls `GET /api/trpc/domain.internalDns`.
+
+```bash
+notploy domain internal-dns [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy domain one`
 
 Calls `GET /api/trpc/domain.one`.
 
 ```bash
-notploy domain one --domainId <domainId>
+notploy domain one --domainId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--domainId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy domain toggle-enable`
 
 Calls `POST /api/trpc/domain.toggleEnable`.
 
 ```bash
-notploy domain toggle-enable --domainId <domainId>
+notploy domain toggle-enable --domainId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--domainId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy domain update`
 
 Calls `POST /api/trpc/domain.update`.
 
 ```bash
-notploy domain update --host <host> --domainId <domainId> [options]
+notploy domain update --host <value> --domainId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -142,27 +165,33 @@ notploy domain update --host <host> --domainId <domainId> [options]
 | `--path <value>` | string | No | — |
 | `--port <value>` | number | No | — |
 | `--customEntrypoint <value>` | string | No | — |
-| `--https` | boolean | No | — |
+| `--https [boolean]` | boolean | No | — |
+| `--no-https` | boolean | No | — |
 | `--certificateType <value>` | string | No | `letsencrypt`, `none`, `custom` |
 | `--customCertResolver <value>` | string | No | — |
 | `--serviceName <value>` | string | No | — |
 | `--domainType <value>` | string | No | `compose`, `application`, `preview` |
 | `--internalPath <value>` | string | No | — |
-| `--stripPath` | boolean | No | — |
-| `--middlewares <value>` | string | No | — |
-| `--forwardAuthEnabled` | boolean | No | — |
-| `--enabled` | boolean | No | — |
+| `--stripPath [boolean]` | boolean | No | — |
+| `--no-stripPath` | boolean | No | — |
+| `--middlewares <json>` | array | No | — |
+| `--forwardAuthEnabled [boolean]` | boolean | No | — |
+| `--no-forwardAuthEnabled` | boolean | No | — |
+| `--enabled [boolean]` | boolean | No | — |
+| `--no-enabled` | boolean | No | — |
 | `--domainId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy domain validate-domain`
 
 Calls `POST /api/trpc/domain.validateDomain`.
 
 ```bash
-notploy domain validate-domain --domain <domain> [options]
+notploy domain validate-domain --domain <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--domain <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

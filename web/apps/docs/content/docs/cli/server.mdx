@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 Add remote servers over SSH, validate them and read their metrics and services.
 
-`notploy server` exposes **19 commands**. They map one-to-one onto the `server.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy server` exposes **21 commands**. They map one-to-one onto the `server.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy server --help` to list these commands in your terminal, or
@@ -21,39 +21,55 @@ Add remote servers over SSH, validate them and read their metrics and services.
 Calls `GET /api/trpc/server.all`.
 
 ```bash
-notploy server all
+notploy server all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server all-for-permissions`
 
 Calls `GET /api/trpc/server.allForPermissions`.
 
 ```bash
-notploy server all-for-permissions
+notploy server all-for-permissions [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server build-servers`
 
 Calls `GET /api/trpc/server.buildServers`.
 
 ```bash
-notploy server build-servers
+notploy server build-servers [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server count`
 
 Calls `GET /api/trpc/server.count`.
 
 ```bash
-notploy server count
+notploy server count [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server create`
 
 Calls `POST /api/trpc/server.create`.
 
 ```bash
-notploy server create --name <name> --description <description> --ipAddress <ipAddress> --port <port> --username <username> --sshKeyId <sshKeyId> --serverType <serverType> [options]
+notploy server create --name <value> --description <value> --ipAddress <value> --port <value> --username <value> --sshKeyId <value> --serverType <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -65,26 +81,62 @@ notploy server create --name <name> --description <description> --ipAddress <ipA
 | `--username <value>` | string | Yes | — |
 | `--sshKeyId <value>` | string | Yes | — |
 | `--serverType <value>` | string | Yes | `deploy`, `build` |
-| `--enableDockerCleanup` | boolean | No | — |
+| `--enableDockerCleanup [boolean]` | boolean | No | — |
+| `--no-enableDockerCleanup` | boolean | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy server create-with-password`
+
+Calls `POST /api/trpc/server.createWithPassword`.
+
+```bash
+notploy server create-with-password --name <value> --description <value> --ipAddress <value> --port <value> --username <value> --serverType <value> --sshPassword <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--description <value>` | string | Yes | — |
+| `--ipAddress <value>` | string | Yes | — |
+| `--port <value>` | number | Yes | — |
+| `--username <value>` | string | Yes | — |
+| `--serverType <value>` | string | Yes | `deploy`, `build` |
+| `--enableDockerCleanup [boolean]` | boolean | No | — |
+| `--no-enableDockerCleanup` | boolean | No | — |
+| `--sshPassword <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server get-default-command`
 
 Calls `GET /api/trpc/server.getDefaultCommand`.
 
 ```bash
-notploy server get-default-command --serverId <serverId>
+notploy server get-default-command --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy server get-monitoring-workspaces`
+
+Calls `GET /api/trpc/server.getMonitoringWorkspaces`.
+
+```bash
+notploy server get-monitoring-workspaces [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server get-server-metrics`
 
 Calls `GET /api/trpc/server.getServerMetrics`.
 
 ```bash
-notploy server get-server-metrics --url <url> --token <token> --dataPoints <dataPoints>
+notploy server get-server-metrics --url <value> --token <value> --dataPoints <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -92,102 +144,117 @@ notploy server get-server-metrics --url <url> --token <token> --dataPoints <data
 | `--url <value>` | string | Yes | — |
 | `--token <value>` | string | Yes | — |
 | `--dataPoints <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server get-server-time`
 
 Calls `GET /api/trpc/server.getServerTime`.
 
 ```bash
-notploy server get-server-time
+notploy server get-server-time [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server get-services`
 
 Calls `GET /api/trpc/server.getServices`.
 
 ```bash
-notploy server get-services --serverId <serverId>
+notploy server get-services --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server one`
 
 Calls `GET /api/trpc/server.one`.
 
 ```bash
-notploy server one --serverId <serverId>
+notploy server one --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server public-ip`
 
 Calls `GET /api/trpc/server.publicIp`.
 
 ```bash
-notploy server public-ip
+notploy server public-ip [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server remove`
 
 Calls `POST /api/trpc/server.remove`.
 
 ```bash
-notploy server remove --serverId <serverId>
+notploy server remove --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server security`
 
 Calls `GET /api/trpc/server.security`.
 
 ```bash
-notploy server security --serverId <serverId>
+notploy server security --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server setup`
 
 Calls `POST /api/trpc/server.setup`.
 
 ```bash
-notploy server setup --serverId <serverId>
+notploy server setup --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server setup-monitoring`
 
 Calls `POST /api/trpc/server.setupMonitoring`.
 
 ```bash
-notploy server setup-monitoring --serverId <serverId> --metricsConfig <metricsConfig>
+notploy server setup-monitoring --serverId <value> --metricsConfig <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
-| `--metricsConfig <value>` | string | Yes | — |
+| `--metricsConfig <json>` | object | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server update`
 
 Calls `POST /api/trpc/server.update`.
 
 ```bash
-notploy server update --name <name> --description <description> --serverId <serverId> --ipAddress <ipAddress> --port <port> --username <username> --sshKeyId <sshKeyId> --serverType <serverType> [options]
+notploy server update --name <value> --description <value> --serverId <value> --ipAddress <value> --port <value> --username <value> --sshKeyId <value> --serverType <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -200,38 +267,46 @@ notploy server update --name <name> --description <description> --serverId <serv
 | `--username <value>` | string | Yes | — |
 | `--sshKeyId <value>` | string | Yes | — |
 | `--serverType <value>` | string | Yes | `deploy`, `build` |
-| `--enableDockerCleanup` | boolean | No | — |
+| `--enableDockerCleanup [boolean]` | boolean | No | — |
+| `--no-enableDockerCleanup` | boolean | No | — |
 | `--command <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server update-builds-concurrency`
 
 Calls `POST /api/trpc/server.updateBuildsConcurrency`.
 
 ```bash
-notploy server update-builds-concurrency --serverId <serverId> --buildsConcurrency <buildsConcurrency>
+notploy server update-builds-concurrency --serverId <value> --buildsConcurrency <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
 | `--buildsConcurrency <value>` | number | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server validate`
 
 Calls `GET /api/trpc/server.validate`.
 
 ```bash
-notploy server validate --serverId <serverId>
+notploy server validate --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy server with-sshkey`
 
 Calls `GET /api/trpc/server.withSSHKey`.
 
 ```bash
-notploy server with-sshkey
+notploy server with-sshkey [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |

@@ -24,46 +24,25 @@ async function generateOpenAPI() {
 			version: "1.0.0",
 			baseUrl: "https://your-notploy-instance.com/api",
 			docsUrl: "https://docs.notploy.com/api",
-			tags: [
-				"admin",
-				"docker",
-				"compose",
-				"registry",
-				"cluster",
-				"user",
-				"domain",
-				"destination",
-				"backup",
-				"deployment",
-				"mounts",
-				"certificates",
-				"settings",
-				"security",
-				"redirects",
-				"port",
-				"project",
-				"application",
-				"mysql",
-				"postgres",
-				"redis",
-				"mongo",
-				"mariadb",
-				"sshRouter",
-				"gitProvider",
-				"bitbucket",
-				"github",
-				"gitlab",
-				"gitea",
-				"server",
-				"swarm",
-				"ai",
-				"organization",
-				"schedule",
-				"rollback",
-				"volumeBackups",
-				"environment",
-			],
 		});
+
+		// Derive top-level tag metadata from the operations themselves. The
+		// documentation generator (fumadocs-openapi, per: "tag") emits one
+		// reference page per entry here, so a hardcoded list silently drops
+		// pages whenever a router tag is added or renamed.
+		const operationTags = new Set<string>();
+		for (const pathItem of Object.values(openApiDocument.paths ?? {})) {
+			for (const operation of Object.values(pathItem ?? {})) {
+				if (!operation || typeof operation !== "object") continue;
+				const tags = (operation as { tags?: string[] }).tags;
+				if (Array.isArray(tags)) {
+					for (const tag of tags) operationTags.add(tag);
+				}
+			}
+		}
+		openApiDocument.tags = [...operationTags].sort().map((name) => ({
+			name,
+		}));
 
 		// Enhance metadata
 		openApiDocument.info = {
@@ -101,6 +80,23 @@ async function generateOpenAPI() {
 				apiKey: [],
 			},
 		];
+
+		// `@notploy/trpc-openapi` marks each operation with the legacy
+		// "Authorization" scheme, which is not defined in the document. Point
+		// those requirements at the `apiKey` scheme so the spec is internally
+		// consistent and generated clients do not look for a missing scheme.
+		for (const pathItem of Object.values(openApiDocument.paths ?? {})) {
+			for (const operation of Object.values(pathItem ?? {})) {
+				if (!operation || typeof operation !== "object") continue;
+				const secured = operation as { security?: Array<Record<string, unknown>> };
+				if (!Array.isArray(secured.security)) continue;
+				secured.security = secured.security.map((requirement) =>
+					Object.hasOwn(requirement, "Authorization")
+						? { apiKey: [] }
+						: requirement,
+				);
+			}
+		}
 
 		// Add external docs
 		openApiDocument.externalDocs = {

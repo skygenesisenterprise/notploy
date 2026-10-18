@@ -21,13 +21,14 @@ Versioned file overrides applied to an application at deploy time.
 Calls `GET /api/trpc/patch.byEntityId`.
 
 ```bash
-notploy patch by-entity-id --id <id> --type <type>
+notploy patch by-entity-id --id <value> --type <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--id <value>` | string | Yes | — |
 | `--type <value>` | string | Yes | `application`, `compose` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch clean-patch-repos`
 
@@ -40,13 +41,14 @@ notploy patch clean-patch-repos [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch create`
 
 Calls `POST /api/trpc/patch.create`.
 
 ```bash
-notploy patch create --filePath <filePath> --content <content> [options]
+notploy patch create --filePath <value> --content <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -54,41 +56,45 @@ notploy patch create --filePath <filePath> --content <content> [options]
 | `--filePath <value>` | string | Yes | — |
 | `--content <value>` | string | Yes | — |
 | `--type <value>` | string | No | `create`, `update`, `delete` |
-| `--enabled` | boolean | No | — |
+| `--enabled [boolean]` | boolean | No | — |
+| `--no-enabled` | boolean | No | — |
 | `--applicationId <value>` | string | No | — |
 | `--composeId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch delete`
 
 Calls `POST /api/trpc/patch.delete`.
 
 ```bash
-notploy patch delete --patchId <patchId>
+notploy patch delete --patchId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--patchId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch ensure-repo`
 
 Calls `POST /api/trpc/patch.ensureRepo`.
 
 ```bash
-notploy patch ensure-repo --id <id> --type <type>
+notploy patch ensure-repo --id <value> --type <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--id <value>` | string | Yes | — |
 | `--type <value>` | string | Yes | `application`, `compose` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch mark-file-for-deletion`
 
 Calls `POST /api/trpc/patch.markFileForDeletion`.
 
 ```bash
-notploy patch mark-file-for-deletion --id <id> --type <type> --filePath <filePath>
+notploy patch mark-file-for-deletion --id <value> --type <value> --filePath <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -96,25 +102,27 @@ notploy patch mark-file-for-deletion --id <id> --type <type> --filePath <filePat
 | `--id <value>` | string | Yes | — |
 | `--type <value>` | string | Yes | `application`, `compose` |
 | `--filePath <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch one`
 
 Calls `GET /api/trpc/patch.one`.
 
 ```bash
-notploy patch one --patchId <patchId>
+notploy patch one --patchId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--patchId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch read-repo-directories`
 
 Calls `GET /api/trpc/patch.readRepoDirectories`.
 
 ```bash
-notploy patch read-repo-directories --id <id> --type <type> --repoPath <repoPath>
+notploy patch read-repo-directories --id <value> --type <value> --repoPath <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -122,13 +130,14 @@ notploy patch read-repo-directories --id <id> --type <type> --repoPath <repoPath
 | `--id <value>` | string | Yes | — |
 | `--type <value>` | string | Yes | `application`, `compose` |
 | `--repoPath <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch read-repo-file`
 
 Calls `GET /api/trpc/patch.readRepoFile`.
 
 ```bash
-notploy patch read-repo-file --id <id> --type <type> --filePath <filePath>
+notploy patch read-repo-file --id <value> --type <value> --filePath <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -136,13 +145,14 @@ notploy patch read-repo-file --id <id> --type <type> --filePath <filePath>
 | `--id <value>` | string | Yes | — |
 | `--type <value>` | string | Yes | `application`, `compose` |
 | `--filePath <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch save-file-as-patch`
 
 Calls `POST /api/trpc/patch.saveFileAsPatch`.
 
 ```bash
-notploy patch save-file-as-patch --id <id> --type <type> --filePath <filePath> --content <content> [options]
+notploy patch save-file-as-patch --id <value> --type <value> --filePath <value> --content <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -152,26 +162,28 @@ notploy patch save-file-as-patch --id <id> --type <type> --filePath <filePath> -
 | `--filePath <value>` | string | Yes | — |
 | `--content <value>` | string | Yes | — |
 | `--patchType <value>` | string | No | `create`, `update` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch toggle-enabled`
 
 Calls `POST /api/trpc/patch.toggleEnabled`.
 
 ```bash
-notploy patch toggle-enabled --patchId <patchId> --enabled
+notploy patch toggle-enabled --patchId <value> --enabled [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--patchId <value>` | string | Yes | — |
-| `--enabled` | boolean | Yes | — |
+| `--enabled [boolean]` | boolean | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy patch update`
 
 Calls `POST /api/trpc/patch.update`.
 
 ```bash
-notploy patch update --patchId <patchId> [options]
+notploy patch update --patchId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -179,7 +191,9 @@ notploy patch update --patchId <patchId> [options]
 | `--patchId <value>` | string | Yes | — |
 | `--type <value>` | string | No | `create`, `update`, `delete` |
 | `--filePath <value>` | string | No | — |
-| `--enabled` | boolean | No | — |
+| `--enabled [boolean]` | boolean | No | — |
+| `--no-enabled` | boolean | No | — |
 | `--content <value>` | string | No | — |
 | `--createdAt <value>` | string | No | — |
 | `--updatedAt <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

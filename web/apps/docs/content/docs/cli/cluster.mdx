@@ -27,6 +27,7 @@ notploy cluster add-manager [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy cluster add-worker`
 
@@ -39,6 +40,7 @@ notploy cluster add-worker [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy cluster get-nodes`
 
@@ -51,16 +53,18 @@ notploy cluster get-nodes [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy cluster remove-worker`
 
 Calls `POST /api/trpc/cluster.removeWorker`.
 
 ```bash
-notploy cluster remove-worker --nodeId <nodeId> [options]
+notploy cluster remove-worker --nodeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--nodeId <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

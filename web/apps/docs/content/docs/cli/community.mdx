@@ -1,0 +1,215 @@
+---
+title: "Community"
+description: "Community sources, repositories, releases and the health report of the instance's community presence. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Community sources, repositories, releases and the health report of the instance's community presence.
+
+`notploy community` exposes **14 commands**. They map one-to-one onto the `community.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy community --help` to list these commands in your terminal, or
+	`notploy community <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy community activity`
+
+Calls `GET /api/trpc/community.activity`.
+
+```bash
+notploy community activity [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--preset <value>` | string | No | `24h`, `7d`, `30d`, `90d`, `custom` |
+| `--from <value>` | string | No | — |
+| `--to <value>` | string | No | — |
+| `--repositoryIds <json>` | array | No | — |
+| `--types <json>` | array | No | — |
+| `--limit <value>` | number | No | — |
+| `--offset <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community attention`
+
+Calls `GET /api/trpc/community.attention`.
+
+```bash
+notploy community attention [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--repositoryIds <json>` | array | No | — |
+| `--limit <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community available-repositories`
+
+Calls `GET /api/trpc/community.availableRepositories`.
+
+```bash
+notploy community available-repositories --sourceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--sourceId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community create-source`
+
+Calls `POST /api/trpc/community.createSource`.
+
+```bash
+notploy community create-source --gitProviderId <value> --owner <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--gitProviderId <value>` | string | Yes | — |
+| `--owner <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community health`
+
+Calls `GET /api/trpc/community.health`.
+
+```bash
+notploy community health [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--repositoryIds <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community overview`
+
+Calls `GET /api/trpc/community.overview`.
+
+```bash
+notploy community overview [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--preset <value>` | string | No | `24h`, `7d`, `30d`, `90d`, `custom` |
+| `--from <value>` | string | No | — |
+| `--to <value>` | string | No | — |
+| `--repositoryIds <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community releases`
+
+Calls `GET /api/trpc/community.releases`.
+
+```bash
+notploy community releases [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--repositoryIds <json>` | array | No | — |
+| `--limit <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community remove-source`
+
+Calls `POST /api/trpc/community.removeSource`.
+
+```bash
+notploy community remove-source --sourceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--sourceId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community repositories`
+
+Calls `GET /api/trpc/community.repositories`.
+
+```bash
+notploy community repositories [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--sourceId <value>` | string | No | — |
+| `--search <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community sources`
+
+Calls `GET /api/trpc/community.sources`.
+
+```bash
+notploy community sources [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy community sync-now`
+
+Calls `POST /api/trpc/community.syncNow`.
+
+```bash
+notploy community sync-now --sourceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--sourceId <value>` | string | Yes | — |
+| `--repositoryId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community track-repository`
+
+Calls `POST /api/trpc/community.trackRepository`.
+
+```bash
+notploy community track-repository --sourceId <value> --fullName <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--sourceId <value>` | string | Yes | — |
+| `--fullName <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community untrack-repository`
+
+Calls `POST /api/trpc/community.untrackRepository`.
+
+```bash
+notploy community untrack-repository --repositoryId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--repositoryId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy community update-source`
+
+Calls `POST /api/trpc/community.updateSource`.
+
+```bash
+notploy community update-source --sourceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--sourceId <value>` | string | Yes | — |
+| `--enabled [boolean]` | boolean | No | — |
+| `--no-enabled` | boolean | No | — |
+| `--profile <name>` | string | No | — |

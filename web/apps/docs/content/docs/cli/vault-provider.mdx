@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 External secret managers connected to the platform to resolve secrets at deploy time.
 
-`notploy vault-provider` exposes **7 commands**. They map one-to-one onto the `vault-provider.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy vault-provider` exposes **13 commands**. They map one-to-one onto the `vault-provider.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy vault-provider --help` to list these commands in your terminal, or
@@ -21,29 +21,75 @@ External secret managers connected to the platform to resolve secrets at deploy 
 Calls `GET /api/trpc/vaultProvider.all`.
 
 ```bash
-notploy vault-provider all
+notploy vault-provider all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy vault-provider create`
 
 Calls `POST /api/trpc/vaultProvider.create`.
 
 ```bash
-notploy vault-provider create --name <name> --config <config> --assignments <assignments>
+notploy vault-provider create --name <value> --config <json> --assignments <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--name <value>` | string | Yes | — |
-| `--config <value>` | string | Yes | — |
-| `--assignments <value>` | string | Yes | — |
+| `--config <json>` | object | Yes | — |
+| `--assignments <json>` | array | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy vault-provider create-secret`
+
+Calls `POST /api/trpc/vaultProvider.createSecret`.
+
+```bash
+notploy vault-provider create-secret --vaultProviderId <value> --name <value> --value <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--vaultProviderId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--value <value>` | string | Yes | — |
+| `--description <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy vault-provider descriptors`
+
+Calls `GET /api/trpc/vaultProvider.descriptors`.
+
+```bash
+notploy vault-provider descriptors [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy vault-provider health`
+
+Calls `GET /api/trpc/vaultProvider.health`.
+
+```bash
+notploy vault-provider health --vaultProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--vaultProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy vault-provider list-secret-names`
 
 Calls `GET /api/trpc/vaultProvider.listSecretNames`.
 
 ```bash
-notploy vault-provider list-secret-names --vaultProviderId <vaultProviderId> --projectId <projectId> [options]
+notploy vault-provider list-secret-names --vaultProviderId <value> --projectId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -51,30 +97,59 @@ notploy vault-provider list-secret-names --vaultProviderId <vaultProviderId> --p
 | `--vaultProviderId <value>` | string | Yes | — |
 | `--projectId <value>` | string | Yes | — |
 | `--environmentId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy vault-provider list-secrets`
+
+Calls `GET /api/trpc/vaultProvider.listSecrets`.
+
+```bash
+notploy vault-provider list-secrets --vaultProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--vaultProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy vault-provider one`
 
 Calls `GET /api/trpc/vaultProvider.one`.
 
 ```bash
-notploy vault-provider one --vaultProviderId <vaultProviderId>
+notploy vault-provider one --vaultProviderId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--vaultProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy vault-provider remove`
 
 Calls `POST /api/trpc/vaultProvider.remove`.
 
 ```bash
-notploy vault-provider remove --vaultProviderId <vaultProviderId>
+notploy vault-provider remove --vaultProviderId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--vaultProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy vault-provider remove-secret`
+
+Calls `POST /api/trpc/vaultProvider.removeSecret`.
+
+```bash
+notploy vault-provider remove-secret --vaultSecretId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--vaultSecretId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy vault-provider test-connection`
 
@@ -87,19 +162,37 @@ notploy vault-provider test-connection [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--vaultProviderId <value>` | string | No | — |
-| `--config <value>` | string | No | — |
+| `--config <json>` | object | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy vault-provider update`
 
 Calls `POST /api/trpc/vaultProvider.update`.
 
 ```bash
-notploy vault-provider update --vaultProviderId <vaultProviderId> --name <name> --config <config> --assignments <assignments>
+notploy vault-provider update --vaultProviderId <value> --name <value> --config <json> --assignments <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--vaultProviderId <value>` | string | Yes | — |
 | `--name <value>` | string | Yes | — |
-| `--config <value>` | string | Yes | — |
-| `--assignments <value>` | string | Yes | — |
+| `--config <json>` | object | Yes | — |
+| `--assignments <json>` | array | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy vault-provider update-secret`
+
+Calls `POST /api/trpc/vaultProvider.updateSecret`.
+
+```bash
+notploy vault-provider update-secret --vaultSecretId <value> --name <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--vaultSecretId <value>` | string | Yes | — |
+| `--name <value>` | string | Yes | — |
+| `--value <value>` | string | No | — |
+| `--description <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

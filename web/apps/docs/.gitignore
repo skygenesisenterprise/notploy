@@ -10,6 +10,7 @@
 /out/
 /build
 *.tsbuildinfo
+.docs-tmp
 
 # misc
 .DS_Store

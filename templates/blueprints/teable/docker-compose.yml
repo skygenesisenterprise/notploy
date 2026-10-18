@@ -1,3 +1,4 @@
+# notploy: allow-host-ports — The bundled PostgreSQL listens on raw TCP, which the HTTP proxy cannot route.
 version: "3.9"
 
 services:

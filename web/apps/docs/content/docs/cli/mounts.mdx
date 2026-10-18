@@ -21,19 +21,20 @@ Bind mounts and named volumes attached to applications and Compose services.
 Calls `GET /api/trpc/mounts.allNamedByApplicationId`.
 
 ```bash
-notploy mounts all-named-by-application-id --applicationId <applicationId>
+notploy mounts all-named-by-application-id --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy mounts create`
 
 Calls `POST /api/trpc/mounts.create`.
 
 ```bash
-notploy mounts create --type <type> --mountPath <mountPath> --serviceId <serviceId> [options]
+notploy mounts create --type <value> --mountPath <value> --serviceId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -46,50 +47,54 @@ notploy mounts create --type <type> --mountPath <mountPath> --serviceId <service
 | `--filePath <value>` | string | No | — |
 | `--serviceType <value>` | string | No | `application`, `postgres`, `mysql`, `mariadb`, `mongo`, `redis`, `compose`, `libsql` |
 | `--serviceId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy mounts list-by-service-id`
 
 Calls `GET /api/trpc/mounts.listByServiceId`.
 
 ```bash
-notploy mounts list-by-service-id --serviceType <serviceType> --serviceId <serviceId>
+notploy mounts list-by-service-id --serviceType <value> --serviceId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serviceType <value>` | string | Yes | — |
 | `--serviceId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy mounts one`
 
 Calls `GET /api/trpc/mounts.one`.
 
 ```bash
-notploy mounts one --mountId <mountId>
+notploy mounts one --mountId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--mountId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy mounts remove`
 
 Calls `POST /api/trpc/mounts.remove`.
 
 ```bash
-notploy mounts remove --mountId <mountId>
+notploy mounts remove --mountId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--mountId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy mounts update`
 
 Calls `POST /api/trpc/mounts.update`.
 
 ```bash
-notploy mounts update --mountId <mountId> [options]
+notploy mounts update --mountId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -110,3 +115,4 @@ notploy mounts update --mountId <mountId> [options]
 | `--mysqlId <value>` | string | No | — |
 | `--postgresId <value>` | string | No | — |
 | `--redisId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

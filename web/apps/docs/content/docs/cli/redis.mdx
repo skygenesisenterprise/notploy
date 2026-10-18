@@ -21,33 +21,35 @@ Provision and operate Redis instances, including backups and external ports.
 Calls `POST /api/trpc/redis.changePassword`.
 
 ```bash
-notploy redis change-password --redisId <redisId> --password <password>
+notploy redis change-password --redisId <value> --password <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
 | `--password <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis change-status`
 
 Calls `POST /api/trpc/redis.changeStatus`.
 
 ```bash
-notploy redis change-status --redisId <redisId> --applicationStatus <applicationStatus>
+notploy redis change-status --redisId <value> --applicationStatus <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
 | `--applicationStatus <value>` | string | Yes | `idle`, `running`, `done`, `error` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis create`
 
 Calls `POST /api/trpc/redis.create`.
 
 ```bash
-notploy redis create --name <name> --databasePassword <databasePassword> --environmentId <environmentId> [options]
+notploy redis create --name <value> --databasePassword <value> --environmentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -59,50 +61,54 @@ notploy redis create --name <name> --databasePassword <databasePassword> --envir
 | `--environmentId <value>` | string | Yes | — |
 | `--description <value>` | string | No | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis deploy`
 
 Calls `POST /api/trpc/redis.deploy`.
 
 ```bash
-notploy redis deploy --redisId <redisId>
+notploy redis deploy --redisId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis move`
 
 Calls `POST /api/trpc/redis.move`.
 
 ```bash
-notploy redis move --redisId <redisId> --targetEnvironmentId <targetEnvironmentId>
+notploy redis move --redisId <value> --targetEnvironmentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
 | `--targetEnvironmentId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis one`
 
 Calls `GET /api/trpc/redis.one`.
 
 ```bash
-notploy redis one --redisId <redisId>
+notploy redis one --redisId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis read-logs`
 
 Calls `GET /api/trpc/redis.readLogs`.
 
 ```bash
-notploy redis read-logs --redisId <redisId> [options]
+notploy redis read-logs --redisId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -111,69 +117,75 @@ notploy redis read-logs --redisId <redisId> [options]
 | `--tail <value>` | number | No | — |
 | `--since <value>` | string | No | — |
 | `--search <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis rebuild`
 
 Calls `POST /api/trpc/redis.rebuild`.
 
 ```bash
-notploy redis rebuild --redisId <redisId>
+notploy redis rebuild --redisId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis reload`
 
 Calls `POST /api/trpc/redis.reload`.
 
 ```bash
-notploy redis reload --redisId <redisId> --appName <appName>
+notploy redis reload --redisId <value> --appName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
 | `--appName <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis remove`
 
 Calls `POST /api/trpc/redis.remove`.
 
 ```bash
-notploy redis remove --redisId <redisId>
+notploy redis remove --redisId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis save-environment`
 
 Calls `POST /api/trpc/redis.saveEnvironment`.
 
 ```bash
-notploy redis save-environment --redisId <redisId> --env <env>
+notploy redis save-environment --redisId <value> --env <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
 | `--env <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis save-external-port`
 
 Calls `POST /api/trpc/redis.saveExternalPort`.
 
 ```bash
-notploy redis save-external-port --redisId <redisId> --externalPort <externalPort>
+notploy redis save-external-port --redisId <value> --externalPort <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
 | `--externalPort <value>` | number | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis search`
 
@@ -193,37 +205,40 @@ notploy redis search [options]
 | `--environmentId <value>` | string | No | — |
 | `--limit <value>` | number | No | — |
 | `--offset <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis start`
 
 Calls `POST /api/trpc/redis.start`.
 
 ```bash
-notploy redis start --redisId <redisId>
+notploy redis start --redisId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis stop`
 
 Calls `POST /api/trpc/redis.stop`.
 
 ```bash
-notploy redis stop --redisId <redisId>
+notploy redis stop --redisId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redisId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redis update`
 
 Calls `POST /api/trpc/redis.update`.
 
 ```bash
-notploy redis update --redisId <redisId> [options]
+notploy redis update --redisId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -235,7 +250,7 @@ notploy redis update --redisId <redisId> [options]
 | `--databasePassword <value>` | string | No | — |
 | `--dockerImage <value>` | string | No | — |
 | `--command <value>` | string | No | — |
-| `--args <value>` | string | No | — |
+| `--args <json>` | array | No | — |
 | `--env <value>` | string | No | — |
 | `--memoryReservation <value>` | string | No | — |
 | `--memoryLimit <value>` | string | No | — |
@@ -244,18 +259,20 @@ notploy redis update --redisId <redisId> [options]
 | `--externalPort <value>` | number | No | — |
 | `--createdAt <value>` | string | No | — |
 | `--applicationStatus <value>` | string | No | `idle`, `running`, `done`, `error` |
-| `--healthCheckSwarm <value>` | string | No | — |
-| `--restartPolicySwarm <value>` | string | No | — |
-| `--placementSwarm <value>` | string | No | — |
-| `--updateConfigSwarm <value>` | string | No | — |
-| `--rollbackConfigSwarm <value>` | string | No | — |
-| `--modeSwarm <value>` | string | No | — |
-| `--labelsSwarm <value>` | string | No | — |
-| `--networkSwarm <value>` | string | No | — |
-| `--stopGracePeriodSwarm <value>` | string | No | — |
-| `--endpointSpecSwarm <value>` | string | No | — |
-| `--ulimitsSwarm <value>` | string | No | — |
+| `--healthCheckSwarm <json>` | object | No | — |
+| `--restartPolicySwarm <json>` | object | No | — |
+| `--placementSwarm <json>` | object | No | — |
+| `--updateConfigSwarm <json>` | object | No | — |
+| `--rollbackConfigSwarm <json>` | object | No | — |
+| `--modeSwarm <json>` | object | No | — |
+| `--labelsSwarm <json>` | object | No | — |
+| `--networkSwarm <json>` | array | No | — |
+| `--stopGracePeriodSwarm <value>` | number | No | — |
+| `--endpointSpecSwarm <json>` | object | No | — |
+| `--ulimitsSwarm <json>` | array | No | — |
 | `--replicas <value>` | number | No | — |
 | `--environmentId <value>` | string | No | — |
-| `--networkIds <value>` | string | No | — |
-| `--detachNotployNetwork` | boolean | No | — |
+| `--networkIds <json>` | array | No | — |
+| `--detachNotployNetwork [boolean]` | boolean | No | — |
+| `--no-detachNotployNetwork` | boolean | No | — |
+| `--profile <name>` | string | No | — |

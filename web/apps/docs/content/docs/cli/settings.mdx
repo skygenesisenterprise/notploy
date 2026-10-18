@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 Instance-wide settings: Traefik, Docker cleanup, monitoring, GPUs, updates and SSH.
 
-`notploy settings` exposes **52 commands**. They map one-to-one onto the `settings.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy settings` exposes **57 commands**. They map one-to-one onto the `settings.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy settings --help` to list these commands in your terminal, or
@@ -21,15 +21,18 @@ Instance-wide settings: Traefik, Docker cleanup, monitoring, GPUs, updates and S
 Calls `POST /api/trpc/settings.assignDomainServer`.
 
 ```bash
-notploy settings assign-domain-server --host <host> --certificateType <certificateType> [options]
+notploy settings assign-domain-server --host <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--host <value>` | string | Yes | — |
-| `--certificateType <value>` | string | Yes | `letsencrypt`, `none`, `custom` |
-| `--letsEncryptEmail <value>` | string | No | — |
-| `--https` | boolean | No | — |
+| `--certificateType <value>` | string | No | `letsencrypt`, `none`, `custom` |
+| `--customCertResolver <value>` | string | No | — |
+| `--letsEncryptEmail <value>` | string | No | `` |
+| `--https [boolean]` | boolean | No | — |
+| `--no-https` | boolean | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings check-gpustatus`
 
@@ -42,14 +45,19 @@ notploy settings check-gpustatus [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings check-infrastructure-health`
 
 Calls `GET /api/trpc/settings.checkInfrastructureHealth`.
 
 ```bash
-notploy settings check-infrastructure-health
+notploy settings check-infrastructure-health [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings clean-all`
 
@@ -62,14 +70,19 @@ notploy settings clean-all [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings clean-all-deployment-queue`
 
 Calls `POST /api/trpc/settings.cleanAllDeploymentQueue`.
 
 ```bash
-notploy settings clean-all-deployment-queue
+notploy settings clean-all-deployment-queue [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings clean-docker-builder`
 
@@ -82,6 +95,7 @@ notploy settings clean-docker-builder [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings clean-docker-prune`
 
@@ -94,22 +108,31 @@ notploy settings clean-docker-prune [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings clean-monitoring`
 
 Calls `POST /api/trpc/settings.cleanMonitoring`.
 
 ```bash
-notploy settings clean-monitoring
+notploy settings clean-monitoring [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings clean-sshprivate-key`
 
 Calls `POST /api/trpc/settings.cleanSSHPrivateKey`.
 
 ```bash
-notploy settings clean-sshprivate-key
+notploy settings clean-sshprivate-key [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings clean-stopped-containers`
 
@@ -122,6 +145,7 @@ notploy settings clean-stopped-containers [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings clean-unused-images`
 
@@ -134,6 +158,7 @@ notploy settings clean-unused-images [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings clean-unused-volumes`
 
@@ -146,62 +171,128 @@ notploy settings clean-unused-volumes [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy settings get-control-plane-runtime`
+
+Calls `GET /api/trpc/settings.getControlPlaneRuntime`.
+
+```bash
+notploy settings get-control-plane-runtime [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings get-docker-disk-usage`
 
 Calls `GET /api/trpc/settings.getDockerDiskUsage`.
 
 ```bash
-notploy settings get-docker-disk-usage
+notploy settings get-docker-disk-usage [options]
 ```
 
-### `notploy settings get-notploy-cloud-ips`
-
-Calls `GET /api/trpc/settings.getNotployCloudIps`.
-
-```bash
-notploy settings get-notploy-cloud-ips
-```
-
-### `notploy settings get-notploy-version`
-
-Calls `GET /api/trpc/settings.getNotployVersion`.
-
-```bash
-notploy settings get-notploy-version
-```
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings get-ip`
 
 Calls `GET /api/trpc/settings.getIp`.
 
 ```bash
-notploy settings get-ip
+notploy settings get-ip [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings get-log-cleanup-status`
 
 Calls `GET /api/trpc/settings.getLogCleanupStatus`.
 
 ```bash
-notploy settings get-log-cleanup-status
+notploy settings get-log-cleanup-status [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy settings get-notploy-cloud-ips`
+
+Calls `GET /api/trpc/settings.getNotployCloudIps`.
+
+```bash
+notploy settings get-notploy-cloud-ips [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy settings get-notploy-version`
+
+Calls `GET /api/trpc/settings.getNotployVersion`.
+
+```bash
+notploy settings get-notploy-version [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings get-open-api-document`
 
 Calls `GET /api/trpc/settings.getOpenApiDocument`.
 
 ```bash
-notploy settings get-open-api-document
+notploy settings get-open-api-document [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy settings get-product`
+
+Calls `GET /api/trpc/settings.getProduct`.
+
+```bash
+notploy settings get-product [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings get-release-tag`
 
 Calls `GET /api/trpc/settings.getReleaseTag`.
 
 ```bash
-notploy settings get-release-tag
+notploy settings get-release-tag [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy settings get-traefik-overview`
+
+Calls `GET /api/trpc/settings.getTraefikOverview`.
+
+```bash
+notploy settings get-traefik-overview [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings get-traefik-ports`
 
@@ -214,30 +305,67 @@ notploy settings get-traefik-ports [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings get-update-data`
 
 Calls `POST /api/trpc/settings.getUpdateData`.
 
 ```bash
-notploy settings get-update-data
+notploy settings get-update-data [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy settings get-update-status`
+
+Calls `GET /api/trpc/settings.getUpdateStatus`.
+
+```bash
+notploy settings get-update-status [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy settings get-web-server-ip-candidates`
+
+Calls `GET /api/trpc/settings.getWebServerIpCandidates`.
+
+```bash
+notploy settings get-web-server-ip-candidates [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings get-web-server-settings`
 
 Calls `GET /api/trpc/settings.getWebServerSettings`.
 
 ```bash
-notploy settings get-web-server-settings
+notploy settings get-web-server-settings [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings have-activate-requests`
 
 Calls `GET /api/trpc/settings.haveActivateRequests`.
 
 ```bash
-notploy settings have-activate-requests
+notploy settings have-activate-requests [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings have-traefik-dashboard-port-enabled`
 
@@ -250,30 +378,43 @@ notploy settings have-traefik-dashboard-port-enabled [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings health`
 
 Calls `GET /api/trpc/settings.health`.
 
 ```bash
-notploy settings health
+notploy settings health [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings is-cloud`
 
 Calls `GET /api/trpc/settings.isCloud`.
 
 ```bash
-notploy settings is-cloud
+notploy settings is-cloud [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings is-user-subscribed`
 
 Calls `GET /api/trpc/settings.isUserSubscribed`.
 
 ```bash
-notploy settings is-user-subscribed
+notploy settings is-user-subscribed [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings read-directories`
 
@@ -286,22 +427,31 @@ notploy settings read-directories [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings read-middleware-traefik-config`
 
 Calls `GET /api/trpc/settings.readMiddlewareTraefikConfig`.
 
 ```bash
-notploy settings read-middleware-traefik-config
+notploy settings read-middleware-traefik-config [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings read-traefik-config`
 
 Calls `GET /api/trpc/settings.readTraefikConfig`.
 
 ```bash
-notploy settings read-traefik-config
+notploy settings read-traefik-config [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings read-traefik-env`
 
@@ -314,35 +464,45 @@ notploy settings read-traefik-env [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings read-traefik-file`
 
 Calls `GET /api/trpc/settings.readTraefikFile`.
 
 ```bash
-notploy settings read-traefik-file --path <path> [options]
+notploy settings read-traefik-file --path <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--path <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings read-web-server-traefik-config`
 
 Calls `GET /api/trpc/settings.readWebServerTraefikConfig`.
 
 ```bash
-notploy settings read-web-server-traefik-config
+notploy settings read-web-server-traefik-config [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings reload-server`
 
 Calls `POST /api/trpc/settings.reloadServer`.
 
 ```bash
-notploy settings reload-server
+notploy settings reload-server [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings reload-traefik`
 
@@ -355,18 +515,20 @@ notploy settings reload-traefik [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings save-sshprivate-key`
 
 Calls `POST /api/trpc/settings.saveSSHPrivateKey`.
 
 ```bash
-notploy settings save-sshprivate-key --sshPrivateKey <sshPrivateKey>
+notploy settings save-sshprivate-key --sshPrivateKey <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--sshPrivateKey <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings setup-gpu`
 
@@ -379,6 +541,7 @@ notploy settings setup-gpu [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings toggle-dashboard`
 
@@ -390,32 +553,36 @@ notploy settings toggle-dashboard [options]
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--enableDashboard` | boolean | No | — |
+| `--enableDashboard [boolean]` | boolean | No | — |
+| `--no-enableDashboard` | boolean | No | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings toggle-requests`
 
 Calls `POST /api/trpc/settings.toggleRequests`.
 
 ```bash
-notploy settings toggle-requests --enable
+notploy settings toggle-requests --enable [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--enable` | boolean | Yes | — |
+| `--enable [boolean]` | boolean | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-builds-concurrency`
 
 Calls `POST /api/trpc/settings.updateBuildsConcurrency`.
 
 ```bash
-notploy settings update-builds-concurrency --buildsConcurrency <buildsConcurrency>
+notploy settings update-builds-concurrency --buildsConcurrency <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--buildsConcurrency <value>` | number | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-docker-cleanup`
 
@@ -427,95 +594,106 @@ notploy settings update-docker-cleanup --enableDockerCleanup [options]
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--enableDockerCleanup` | boolean | Yes | — |
+| `--enableDockerCleanup [boolean]` | boolean | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-enforce-sso`
 
 Calls `POST /api/trpc/settings.updateEnforceSSO`.
 
 ```bash
-notploy settings update-enforce-sso --enforceSSO
+notploy settings update-enforce-sso --enforceSSO [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--enforceSSO` | boolean | Yes | — |
+| `--enforceSSO [boolean]` | boolean | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-log-cleanup`
 
 Calls `POST /api/trpc/settings.updateLogCleanup`.
 
 ```bash
-notploy settings update-log-cleanup --cronExpression <cronExpression>
+notploy settings update-log-cleanup --cronExpression <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--cronExpression <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-middleware-traefik-config`
 
 Calls `POST /api/trpc/settings.updateMiddlewareTraefikConfig`.
 
 ```bash
-notploy settings update-middleware-traefik-config --traefikConfig <traefikConfig>
+notploy settings update-middleware-traefik-config --traefikConfig <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--traefikConfig <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-remote-servers-only`
 
 Calls `POST /api/trpc/settings.updateRemoteServersOnly`.
 
 ```bash
-notploy settings update-remote-servers-only --remoteServersOnly
+notploy settings update-remote-servers-only --remoteServersOnly [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--remoteServersOnly` | boolean | Yes | — |
+| `--remoteServersOnly [boolean]` | boolean | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-server`
 
 Calls `POST /api/trpc/settings.updateServer`.
 
 ```bash
-notploy settings update-server
+notploy settings update-server [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-server-ip`
 
 Calls `POST /api/trpc/settings.updateServerIp`.
 
 ```bash
-notploy settings update-server-ip --serverIp <serverIp>
+notploy settings update-server-ip --serverIp <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverIp <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-traefik-config`
 
 Calls `POST /api/trpc/settings.updateTraefikConfig`.
 
 ```bash
-notploy settings update-traefik-config --traefikConfig <traefikConfig>
+notploy settings update-traefik-config --traefikConfig <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--traefikConfig <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-traefik-file`
 
 Calls `POST /api/trpc/settings.updateTraefikFile`.
 
 ```bash
-notploy settings update-traefik-file --path <path> --traefikConfig <traefikConfig> [options]
+notploy settings update-traefik-file --path <value> --traefikConfig <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -523,41 +701,45 @@ notploy settings update-traefik-file --path <path> --traefikConfig <traefikConfi
 | `--path <value>` | string | Yes | — |
 | `--traefikConfig <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-traefik-ports`
 
 Calls `POST /api/trpc/settings.updateTraefikPorts`.
 
 ```bash
-notploy settings update-traefik-ports --additionalPorts <additionalPorts> [options]
+notploy settings update-traefik-ports --additionalPorts <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
-| `--additionalPorts <value>` | string | Yes | — |
+| `--additionalPorts <json>` | array | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings update-web-server-traefik-config`
 
 Calls `POST /api/trpc/settings.updateWebServerTraefikConfig`.
 
 ```bash
-notploy settings update-web-server-traefik-config --traefikConfig <traefikConfig>
+notploy settings update-web-server-traefik-config --traefikConfig <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--traefikConfig <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy settings write-traefik-env`
 
 Calls `POST /api/trpc/settings.writeTraefikEnv`.
 
 ```bash
-notploy settings write-traefik-env --env <env> [options]
+notploy settings write-traefik-env --env <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--env <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

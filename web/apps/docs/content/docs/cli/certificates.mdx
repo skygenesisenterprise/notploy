@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 Custom TLS certificates loaded by Traefik alongside automatic Let's Encrypt ones.
 
-`notploy certificates` exposes **5 commands**. They map one-to-one onto the `certificates.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy certificates` exposes **8 commands**. They map one-to-one onto the `certificates.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy certificates --help` to list these commands in your terminal, or
@@ -21,15 +21,46 @@ Custom TLS certificates loaded by Traefik alongside automatic Let's Encrypt ones
 Calls `GET /api/trpc/certificates.all`.
 
 ```bash
-notploy certificates all
+notploy certificates all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy certificates chain`
+
+Calls `GET /api/trpc/certificates.chain`.
+
+```bash
+notploy certificates chain --certificateId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--certificateId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy certificates covers`
+
+Calls `GET /api/trpc/certificates.covers`.
+
+```bash
+notploy certificates covers --certificateId <value> --hostname <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--certificateId <value>` | string | Yes | — |
+| `--hostname <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy certificates create`
 
 Calls `POST /api/trpc/certificates.create`.
 
 ```bash
-notploy certificates create --name <name> --certificateData <certificateData> --privateKey <privateKey> --organizationId <organizationId> [options]
+notploy certificates create --name <value> --certificateData <value> --privateKey <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -39,40 +70,43 @@ notploy certificates create --name <name> --certificateData <certificateData> --
 | `--certificateData <value>` | string | Yes | — |
 | `--privateKey <value>` | string | Yes | — |
 | `--certificatePath <value>` | string | No | — |
-| `--autoRenew` | boolean | No | — |
-| `--organizationId <value>` | string | Yes | — |
+| `--autoRenew [boolean]` | boolean | No | — |
+| `--no-autoRenew` | boolean | No | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy certificates one`
 
 Calls `GET /api/trpc/certificates.one`.
 
 ```bash
-notploy certificates one --certificateId <certificateId>
+notploy certificates one --certificateId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--certificateId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy certificates remove`
 
 Calls `POST /api/trpc/certificates.remove`.
 
 ```bash
-notploy certificates remove --certificateId <certificateId>
+notploy certificates remove --certificateId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--certificateId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy certificates update`
 
 Calls `POST /api/trpc/certificates.update`.
 
 ```bash
-notploy certificates update --certificateId <certificateId> [options]
+notploy certificates update --certificateId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -81,3 +115,19 @@ notploy certificates update --certificateId <certificateId> [options]
 | `--name <value>` | string | No | — |
 | `--certificateData <value>` | string | No | — |
 | `--privateKey <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy certificates validate`
+
+Calls `POST /api/trpc/certificates.validate`.
+
+```bash
+notploy certificates validate --certificateData <value> --privateKey <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--certificateData <value>` | string | Yes | — |
+| `--privateKey <value>` | string | Yes | — |
+| `--requiredHostnames <json>` | array | No | — |
+| `--profile <name>` | string | No | — |

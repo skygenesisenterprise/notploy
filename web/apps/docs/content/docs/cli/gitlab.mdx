@@ -21,7 +21,7 @@ GitLab connections, plus branch and repository lookups.
 Calls `POST /api/trpc/gitlab.create`.
 
 ```bash
-notploy gitlab create --authId <authId> --name <name> --gitlabUrl <gitlabUrl> [options]
+notploy gitlab create --authId <value> --name <value> --gitlabUrl <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -35,13 +35,14 @@ notploy gitlab create --authId <authId> --name <name> --gitlabUrl <gitlabUrl> [o
 | `--name <value>` | string | Yes | — |
 | `--gitlabUrl <value>` | string | Yes | — |
 | `--gitlabInternalUrl <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitlab get-gitlab-branches`
 
 Calls `GET /api/trpc/gitlab.getGitlabBranches`.
 
 ```bash
-notploy gitlab get-gitlab-branches --owner <owner> --repo <repo> [options]
+notploy gitlab get-gitlab-branches --owner <value> --repo <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -50,58 +51,66 @@ notploy gitlab get-gitlab-branches --owner <owner> --repo <repo> [options]
 | `--owner <value>` | string | Yes | — |
 | `--repo <value>` | string | Yes | — |
 | `--gitlabId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitlab get-gitlab-repositories`
 
 Calls `GET /api/trpc/gitlab.getGitlabRepositories`.
 
 ```bash
-notploy gitlab get-gitlab-repositories --gitlabId <gitlabId>
+notploy gitlab get-gitlab-repositories --gitlabId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--gitlabId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitlab gitlab-providers`
 
 Calls `GET /api/trpc/gitlab.gitlabProviders`.
 
 ```bash
-notploy gitlab gitlab-providers
+notploy gitlab gitlab-providers [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitlab one`
 
 Calls `GET /api/trpc/gitlab.one`.
 
 ```bash
-notploy gitlab one --gitlabId <gitlabId>
+notploy gitlab one --gitlabId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--gitlabId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitlab test-connection`
 
 Calls `POST /api/trpc/gitlab.testConnection`.
 
 ```bash
-notploy gitlab test-connection --gitlabId <gitlabId> [options]
+notploy gitlab test-connection --gitlabId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--gitlabId <value>` | string | Yes | — |
 | `--groupName <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitlab update`
 
 Calls `POST /api/trpc/gitlab.update`.
 
 ```bash
-notploy gitlab update --name <name> --gitlabId <gitlabId> --gitlabUrl <gitlabUrl> --gitProviderId <gitProviderId> [options]
+notploy gitlab update --name <value> --gitlabId <value> --gitlabUrl <value> --gitProviderId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -115,3 +124,4 @@ notploy gitlab update --name <name> --gitlabId <gitlabId> --gitlabUrl <gitlabUrl
 | `--gitlabUrl <value>` | string | Yes | — |
 | `--gitProviderId <value>` | string | Yes | — |
 | `--gitlabInternalUrl <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

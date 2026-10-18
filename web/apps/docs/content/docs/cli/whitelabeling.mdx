@@ -21,33 +21,46 @@ Rebrand the instance: application name, logos, favicon and links.
 Calls `GET /api/trpc/whitelabeling.get`.
 
 ```bash
-notploy whitelabeling get
+notploy whitelabeling get [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy whitelabeling get-public`
 
 Calls `GET /api/trpc/whitelabeling.getPublic`.
 
 ```bash
-notploy whitelabeling get-public
+notploy whitelabeling get-public [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy whitelabeling reset`
 
 Calls `POST /api/trpc/whitelabeling.reset`.
 
 ```bash
-notploy whitelabeling reset
+notploy whitelabeling reset [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy whitelabeling update`
 
 Calls `POST /api/trpc/whitelabeling.update`.
 
 ```bash
-notploy whitelabeling update --whitelabelingConfig <whitelabelingConfig>
+notploy whitelabeling update --whitelabelingConfig <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--whitelabelingConfig <value>` | string | Yes | — |
+| `--whitelabelingConfig <json>` | object | Yes | — |
+| `--profile <name>` | string | No | — |

@@ -21,46 +21,49 @@ HTTP redirects served by Traefik for an application's domains.
 Calls `POST /api/trpc/redirects.create`.
 
 ```bash
-notploy redirects create --regex <regex> --replacement <replacement> --permanent --applicationId <applicationId>
+notploy redirects create --regex <value> --replacement <value> --permanent --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--regex <value>` | string | Yes | — |
 | `--replacement <value>` | string | Yes | — |
-| `--permanent` | boolean | Yes | — |
+| `--permanent [boolean]` | boolean | Yes | — |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redirects delete`
 
 Calls `POST /api/trpc/redirects.delete`.
 
 ```bash
-notploy redirects delete --redirectId <redirectId>
+notploy redirects delete --redirectId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redirectId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redirects one`
 
 Calls `GET /api/trpc/redirects.one`.
 
 ```bash
-notploy redirects one --redirectId <redirectId>
+notploy redirects one --redirectId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--redirectId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy redirects update`
 
 Calls `POST /api/trpc/redirects.update`.
 
 ```bash
-notploy redirects update --redirectId <redirectId> --regex <regex> --replacement <replacement> --permanent
+notploy redirects update --redirectId <value> --regex <value> --replacement <value> --permanent [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -68,4 +71,5 @@ notploy redirects update --redirectId <redirectId> --regex <regex> --replacement
 | `--redirectId <value>` | string | Yes | — |
 | `--regex <value>` | string | Yes | — |
 | `--replacement <value>` | string | Yes | — |
-| `--permanent` | boolean | Yes | — |
+| `--permanent [boolean]` | boolean | Yes | — |
+| `--profile <name>` | string | No | — |

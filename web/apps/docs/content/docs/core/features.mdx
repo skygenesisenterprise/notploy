@@ -66,6 +66,43 @@ for the full breakdown, and the individual pages for status labels (available, e
 planned, unsupported).
 </Callout>
 
+## Implementation map
+
+This table is generated from the router registration and the feature mapping, so the API namespace
+and CLI group listed for a capability are the ones that actually implement it.
+
+{/* BEGIN GENERATED: core-features */}
+| Area | API namespaces | CLI | Guide |
+| --- | --- | --- | --- |
+| Applications | `application` | `notploy application` | [Applications](/docs/core/applications) (+6) |
+| Projects | `project`, `environment`, `tag` | `notploy project`, `notploy environment`, `notploy tag` | [Projects](/docs/core/concepts) (+6) |
+| Deployments | `deployment` | `notploy deployment` | [Deployments](/docs/core/first-deployment) (+3) |
+| Docker Compose | `compose` | `notploy compose` | [Docker Compose](/docs/core/docker-compose) (+3) |
+| Databases | `postgres`, `mysql`, `mariadb`, `mongo`, `redis`, `libsql` | `notploy postgres`, `notploy mysql`, `notploy mariadb`, `notploy mongo`, `notploy redis`, `notploy libsql` | [Databases](/docs/core/databases) (+3) |
+| Backups | `backup`, `volumeBackups`, `destination`, `objectStorage` | `notploy backup`, `notploy volume-backups`, `notploy destination`, `notploy object-storage` | [Backups](/docs/core/backups) (+3) |
+| Domains & TLS | `domain`, `certificates` | `notploy domain`, `notploy certificates` | [Domains & TLS](/docs/core/domains) (+3) |
+| DNS | `dnsProvider` | `notploy dns-provider` | [DNS](/docs/core/dns-providers) (+2) |
+| Git sources | `github`, `gitlab`, `bitbucket`, `gitea`, `gitProvider` | `notploy github`, `notploy gitlab`, `notploy bitbucket`, `notploy gitea`, `notploy git-provider` | [Git sources](/docs/core/github) (+4) |
+| Servers | `server` | `notploy server` | [Servers](/docs/core/infrastructure) (+5) |
+| Swarm | `swarm` | `notploy swarm` | [Swarm](/docs/core/cluster) |
+| Docker | `docker`, `dockerImage`, `dockerVolume`, `dockerDiskUsage`, `registry` | `notploy docker`, `notploy docker-image`, `notploy docker-volume`, `notploy docker-disk-usage`, `notploy registry` | [Docker](/docs/core/docker) (+2) |
+| Notifications | `notification` | `notploy notification` | [Notifications](/docs/core/overview) (+2) |
+| Secrets | `vaultProvider` | `notploy vault-provider` | [Secrets](/docs/core/secrets) (+2) |
+| AI | `ai` | `notploy ai` | [AI](/docs/core/ai) |
+| SSO | `sso` | `notploy sso` | [SSO](/docs/core/sso) (+6) |
+| SCIM | `scim` | `notploy scim` | [SCIM](/docs/core/scim) |
+| Audit logs | `auditLog` | `notploy audit-log` | [Audit logs](/docs/core/audit-logs) |
+| Custom roles | `customRole` | `notploy custom-role` | [Custom roles](/docs/core/permissions) |
+| Whitelabeling | `whitelabeling` | `notploy whitelabeling` | [Whitelabeling](/docs/core/whitelabeling) |
+| Cicd | `cicd` | — | [Cicd](/docs/core/github-actions) (+1) |
+| Traffic | `traffic` | `notploy traffic` | [Traffic](/docs/core/traffic-manager) |
+| Monitoring | `operationalEvent`, `status` | `notploy operational-event`, `notploy status` | [Monitoring](/docs/core/monitoring) (+1) |
+| Security | `security` | `notploy security` | [Security](/docs/core/account-security) (+3) |
+| Organizations | `organization`, `user` | `notploy organization`, `notploy user` | [Organizations](/docs/core/multi-tenancy) (+1) |
+| Cloud | `stripe` | `notploy stripe` | [Cloud](/docs/core/cloud) (+1) |
+| Administration | `admin`, `settings` | `notploy admin`, `notploy settings` | [Administration](/docs/core/administration) |
+{/* END GENERATED: core-features */}
+
 ## Related
 
 - [Ecosystem](/docs/core/ecosystem) — how these capabilities combine.

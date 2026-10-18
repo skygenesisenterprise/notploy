@@ -501,6 +501,9 @@ export const serverRouter = createTRPCRouter({
 				dataPoints: z.string(),
 			}),
 		)
+		// Internal dashboard query: its union input cannot be projected into
+		// OpenAPI parameters, so it stays tRPC-only (like git-provider health).
+		.meta({ openapi: { enabled: false } })
 		.query(async ({ ctx, input }) => {
 			const accessibleIds = await getAccessibleServerIds(ctx.session);
 			const servers = await db.query.server.findMany({

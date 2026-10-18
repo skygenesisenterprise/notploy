@@ -21,23 +21,31 @@ SSH keys used to reach servers and clone private repositories.
 Calls `GET /api/trpc/sshKey.all`.
 
 ```bash
-notploy ssh-key all
+notploy ssh-key all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ssh-key all-for-apps`
 
 Calls `GET /api/trpc/sshKey.allForApps`.
 
 ```bash
-notploy ssh-key all-for-apps
+notploy ssh-key all-for-apps [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ssh-key create`
 
 Calls `POST /api/trpc/sshKey.create`.
 
 ```bash
-notploy ssh-key create --name <name> --privateKey <privateKey> --publicKey <publicKey> --organizationId <organizationId> [options]
+notploy ssh-key create --name <value> --privateKey <value> --publicKey <value> --organizationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -47,6 +55,7 @@ notploy ssh-key create --name <name> --privateKey <privateKey> --publicKey <publ
 | `--privateKey <value>` | string | Yes | — |
 | `--publicKey <value>` | string | Yes | — |
 | `--organizationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ssh-key generate`
 
@@ -59,37 +68,40 @@ notploy ssh-key generate [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--type <value>` | string | No | `rsa`, `ed25519` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ssh-key one`
 
 Calls `GET /api/trpc/sshKey.one`.
 
 ```bash
-notploy ssh-key one --sshKeyId <sshKeyId>
+notploy ssh-key one --sshKeyId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--sshKeyId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ssh-key remove`
 
 Calls `POST /api/trpc/sshKey.remove`.
 
 ```bash
-notploy ssh-key remove --sshKeyId <sshKeyId>
+notploy ssh-key remove --sshKeyId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--sshKeyId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy ssh-key update`
 
 Calls `POST /api/trpc/sshKey.update`.
 
 ```bash
-notploy ssh-key update --sshKeyId <sshKeyId> [options]
+notploy ssh-key update --sshKeyId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -98,3 +110,4 @@ notploy ssh-key update --sshKeyId <sshKeyId> [options]
 | `--description <value>` | string | No | — |
 | `--lastUsedAt <value>` | string | No | — |
 | `--sshKeyId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |

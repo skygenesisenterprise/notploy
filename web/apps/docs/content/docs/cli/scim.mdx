@@ -21,29 +21,35 @@ SCIM provisioning providers and tokens used for directory sync.
 Calls `POST /api/trpc/scim.deleteProvider`.
 
 ```bash
-notploy scim delete-provider --providerId <providerId>
+notploy scim delete-provider --providerId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--providerId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy scim generate-token`
 
 Calls `POST /api/trpc/scim.generateToken`.
 
 ```bash
-notploy scim generate-token --providerId <providerId>
+notploy scim generate-token --providerId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--providerId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy scim list-providers`
 
 Calls `GET /api/trpc/scim.listProviders`.
 
 ```bash
-notploy scim list-providers
+notploy scim list-providers [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |

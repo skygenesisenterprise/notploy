@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 Inspect Docker Swarm nodes, node workloads and container statistics.
 
-`notploy swarm` exposes **4 commands**. They map one-to-one onto the `swarm.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy swarm` exposes **5 commands**. They map one-to-one onto the `swarm.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy swarm --help` to list these commands in your terminal, or
@@ -15,6 +15,19 @@ Inspect Docker Swarm nodes, node workloads and container statistics.
 </Callout>
 
 ## Commands
+
+### `notploy swarm get-console`
+
+Calls `GET /api/trpc/swarm.getConsole`.
+
+```bash
+notploy swarm get-console [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy swarm get-container-stats`
 
@@ -27,6 +40,7 @@ notploy swarm get-container-stats [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy swarm get-node-apps`
 
@@ -39,19 +53,21 @@ notploy swarm get-node-apps [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy swarm get-node-info`
 
 Calls `GET /api/trpc/swarm.getNodeInfo`.
 
 ```bash
-notploy swarm get-node-info --nodeId <nodeId> [options]
+notploy swarm get-node-info --nodeId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--nodeId <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy swarm get-nodes`
 
@@ -64,3 +80,4 @@ notploy swarm get-nodes [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

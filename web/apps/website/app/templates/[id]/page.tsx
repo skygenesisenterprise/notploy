@@ -30,7 +30,9 @@ const primaryButtonClasses = `${buttonBaseClasses} bg-primary text-primary-foreg
 const outlineButtonClasses = `${buttonBaseClasses} border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2`;
 
 export const revalidate = 3600;
-export const dynamicParams = true;
+// GitHub Pages has no server to render unknown ids; every template is
+// generated from generateStaticParams().
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
 	const templates = await getTemplates();
@@ -50,12 +52,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const url = `https://notploy.com/templates/${template.id}`;
 
 	const ogUrl = new URL(
-		"/api/og",
+		// Static export has no image route; fall back to the committed OG image.
+		process.env.NEXT_OUTPUT === "export" ? "/og.png" : "/api/og",
 		process.env.NODE_ENV === "production"
 			? "https://notploy.com"
 			: "http://localhost:3001",
 	);
-	ogUrl.searchParams.set("template", template.id);
+	if (process.env.NEXT_OUTPUT !== "export") {
+		ogUrl.searchParams.set("template", template.id);
+	}
 
 	return {
 		title,

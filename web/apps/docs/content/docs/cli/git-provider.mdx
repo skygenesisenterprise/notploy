@@ -21,38 +21,48 @@ List, share and remove every Git provider connected to an organization.
 Calls `GET /api/trpc/gitProvider.allForPermissions`.
 
 ```bash
-notploy git-provider all-for-permissions
+notploy git-provider all-for-permissions [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy git-provider get-all`
 
 Calls `GET /api/trpc/gitProvider.getAll`.
 
 ```bash
-notploy git-provider get-all
+notploy git-provider get-all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy git-provider remove`
 
 Calls `POST /api/trpc/gitProvider.remove`.
 
 ```bash
-notploy git-provider remove --gitProviderId <gitProviderId>
+notploy git-provider remove --gitProviderId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--gitProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy git-provider toggle-share`
 
 Calls `POST /api/trpc/gitProvider.toggleShare`.
 
 ```bash
-notploy git-provider toggle-share --gitProviderId <gitProviderId> --sharedWithOrganization
+notploy git-provider toggle-share --gitProviderId <value> --sharedWithOrganization [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--gitProviderId <value>` | string | Yes | — |
-| `--sharedWithOrganization` | boolean | Yes | — |
+| `--sharedWithOrganization [boolean]` | boolean | Yes | — |
+| `--profile <name>` | string | No | — |

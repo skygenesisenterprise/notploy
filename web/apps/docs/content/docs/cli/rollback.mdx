@@ -21,21 +21,23 @@ Roll a deployment back to a previously built image.
 Calls `POST /api/trpc/rollback.delete`.
 
 ```bash
-notploy rollback delete --rollbackId <rollbackId>
+notploy rollback delete --rollbackId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--rollbackId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy rollback rollback`
 
 Calls `POST /api/trpc/rollback.rollback`.
 
 ```bash
-notploy rollback rollback --rollbackId <rollbackId>
+notploy rollback rollback --rollbackId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--rollbackId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |

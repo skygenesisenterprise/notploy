@@ -3,6 +3,9 @@ import { getPosts } from "@/lib/ghost";
 import { getTemplates } from "@/lib/templates";
 import type { MetadataRoute } from "next";
 
+// Required for `output: "export"` (GitHub Pages).
+export const dynamic = "force-static";
+
 const BASE_URL = "https://notploy.com";
 
 const featurePages = [

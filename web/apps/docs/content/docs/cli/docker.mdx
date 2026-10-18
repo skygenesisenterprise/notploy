@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 Containers, the Docker daemon configuration, events and container files.
 
-`notploy docker` exposes **18 commands**. They map one-to-one onto the `docker.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy docker` exposes **20 commands**. They map one-to-one onto the `docker.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy docker --help` to list these commands in your terminal, or
@@ -21,7 +21,7 @@ Containers, the Docker daemon configuration, events and container files.
 Calls `POST /api/trpc/docker.deleteContainerFile`.
 
 ```bash
-notploy docker delete-container-file --containerId <containerId> --path <path> [options]
+notploy docker delete-container-file --containerId <value> --path <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -29,19 +29,21 @@ notploy docker delete-container-file --containerId <containerId> --path <path> [
 | `--containerId <value>` | string | Yes | — |
 | `--path <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker get-config`
 
 Calls `GET /api/trpc/docker.getConfig`.
 
 ```bash
-notploy docker get-config --containerId <containerId> [options]
+notploy docker get-config --containerId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--containerId <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker get-containers`
 
@@ -54,13 +56,14 @@ notploy docker get-containers [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker get-containers-by-app-label`
 
 Calls `GET /api/trpc/docker.getContainersByAppLabel`.
 
 ```bash
-notploy docker get-containers-by-app-label --appName <appName> --type <type> [options]
+notploy docker get-containers-by-app-label --appName <value> --type <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -68,13 +71,14 @@ notploy docker get-containers-by-app-label --appName <appName> --type <type> [op
 | `--appName <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
 | `--type <value>` | string | Yes | `standalone`, `swarm` |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker get-containers-by-app-name-match`
 
 Calls `GET /api/trpc/docker.getContainersByAppNameMatch`.
 
 ```bash
-notploy docker get-containers-by-app-name-match --appName <appName> [options]
+notploy docker get-containers-by-app-name-match --appName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -82,6 +86,20 @@ notploy docker get-containers-by-app-name-match --appName <appName> [options]
 | `--appType <value>` | string | No | `stack`, `docker-compose` |
 | `--appName <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy docker get-engine-info`
+
+Calls `GET /api/trpc/docker.getEngineInfo`.
+
+```bash
+notploy docker get-engine-info [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker get-events`
 
@@ -95,6 +113,19 @@ notploy docker get-events [options]
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
 | `--minutes <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy docker get-fleet-containers`
+
+Calls `GET /api/trpc/docker.getFleetContainers`.
+
+```bash
+notploy docker get-fleet-containers [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker get-server-health`
 
@@ -108,52 +139,56 @@ notploy docker get-server-health [options]
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
 | `--sinceHours <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker get-service-containers-by-app-name`
 
 Calls `GET /api/trpc/docker.getServiceContainersByAppName`.
 
 ```bash
-notploy docker get-service-containers-by-app-name --appName <appName> [options]
+notploy docker get-service-containers-by-app-name --appName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--appName <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker get-stack-containers-by-app-name`
 
 Calls `GET /api/trpc/docker.getStackContainersByAppName`.
 
 ```bash
-notploy docker get-stack-containers-by-app-name --appName <appName> [options]
+notploy docker get-stack-containers-by-app-name --appName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--appName <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker kill-container`
 
 Calls `POST /api/trpc/docker.killContainer`.
 
 ```bash
-notploy docker kill-container --containerId <containerId> [options]
+notploy docker kill-container --containerId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--containerId <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker list-container-files`
 
 Calls `GET /api/trpc/docker.listContainerFiles`.
 
 ```bash
-notploy docker list-container-files --containerId <containerId> --path <path> [options]
+notploy docker list-container-files --containerId <value> --path <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -161,13 +196,14 @@ notploy docker list-container-files --containerId <containerId> --path <path> [o
 | `--containerId <value>` | string | Yes | — |
 | `--path <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker read-container-file`
 
 Calls `GET /api/trpc/docker.readContainerFile`.
 
 ```bash
-notploy docker read-container-file --containerId <containerId> --path <path> [options]
+notploy docker read-container-file --containerId <value> --path <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -175,73 +211,82 @@ notploy docker read-container-file --containerId <containerId> --path <path> [op
 | `--containerId <value>` | string | Yes | — |
 | `--path <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker remove-container`
 
 Calls `POST /api/trpc/docker.removeContainer`.
 
 ```bash
-notploy docker remove-container --containerId <containerId> [options]
+notploy docker remove-container --containerId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--containerId <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker restart-container`
 
 Calls `POST /api/trpc/docker.restartContainer`.
 
 ```bash
-notploy docker restart-container --containerId <containerId> [options]
+notploy docker restart-container --containerId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--containerId <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker start-container`
 
 Calls `POST /api/trpc/docker.startContainer`.
 
 ```bash
-notploy docker start-container --containerId <containerId> [options]
+notploy docker start-container --containerId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--containerId <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker stop-container`
 
 Calls `POST /api/trpc/docker.stopContainer`.
 
 ```bash
-notploy docker stop-container --containerId <containerId> [options]
+notploy docker stop-container --containerId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--containerId <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker upload-file-to-container`
 
 Calls `POST /api/trpc/docker.uploadFileToContainer`.
 
 ```bash
-notploy docker upload-file-to-container
+notploy docker upload-file-to-container [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker write-container-file`
 
 Calls `POST /api/trpc/docker.writeContainerFile`.
 
 ```bash
-notploy docker write-container-file --containerId <containerId> --path <path> --content <content> [options]
+notploy docker write-container-file --containerId <value> --path <value> --content <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -250,3 +295,4 @@ notploy docker write-container-file --containerId <containerId> --path <path> --
 | `--path <value>` | string | Yes | — |
 | `--content <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

@@ -21,7 +21,7 @@ GitHub app connections, plus branch and repository lookups.
 Calls `GET /api/trpc/github.getGithubBranches`.
 
 ```bash
-notploy github get-github-branches --repo <repo> --owner <owner> [options]
+notploy github get-github-branches --repo <value> --owner <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -29,57 +29,65 @@ notploy github get-github-branches --repo <repo> --owner <owner> [options]
 | `--repo <value>` | string | Yes | — |
 | `--owner <value>` | string | Yes | — |
 | `--githubId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy github get-github-repositories`
 
 Calls `GET /api/trpc/github.getGithubRepositories`.
 
 ```bash
-notploy github get-github-repositories --githubId <githubId>
+notploy github get-github-repositories --githubId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--githubId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy github github-providers`
 
 Calls `GET /api/trpc/github.githubProviders`.
 
 ```bash
-notploy github github-providers
+notploy github github-providers [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy github one`
 
 Calls `GET /api/trpc/github.one`.
 
 ```bash
-notploy github one --githubId <githubId>
+notploy github one --githubId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--githubId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy github test-connection`
 
 Calls `POST /api/trpc/github.testConnection`.
 
 ```bash
-notploy github test-connection --githubId <githubId>
+notploy github test-connection --githubId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--githubId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy github update`
 
 Calls `POST /api/trpc/github.update`.
 
 ```bash
-notploy github update --githubId <githubId> --name <name> --gitProviderId <gitProviderId> --githubAppName <githubAppName>
+notploy github update --githubId <value> --name <value> --gitProviderId <value> --githubAppName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -88,3 +96,4 @@ notploy github update --githubId <githubId> --name <name> --gitProviderId <gitPr
 | `--name <value>` | string | Yes | — |
 | `--gitProviderId <value>` | string | Yes | — |
 | `--githubAppName <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |

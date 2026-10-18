@@ -1,3 +1,4 @@
+# notploy: allow-host-ports — BitTorrent DHT and incoming peer traffic are raw TCP/UDP.
 version: "3.8"
 
 services:

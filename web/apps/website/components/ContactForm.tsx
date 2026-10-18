@@ -14,6 +14,11 @@ import { useState } from "react";
 
 const FREE_EMAIL_DOMAINS: Set<string> = new Set(require("free-email-domains"));
 
+// The Docker deployment serves /api/contact. A static build (GitHub Pages) has
+// no server, so it points at an external form endpoint when one is configured.
+const CONTACT_ENDPOINT =
+	process.env.NEXT_PUBLIC_CONTACT_ENDPOINT || "/api/contact";
+
 interface ContactFormData {
 	inquiryType: "" | "support" | "sales";
 	deploymentType: "" | "cloud" | "self-hosted";
@@ -114,7 +119,7 @@ export function ContactForm({
 		setIsSubmitting(true);
 
 		try {
-			const response = await fetch("/api/contact", {
+			const response = await fetch(CONTACT_ENDPOINT, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

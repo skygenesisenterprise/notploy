@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "next dev --port 3000",
 		"build": "next build --webpack",
+		"build:static": "node scripts/build-static.mjs",
 		"start": "next start",
 		"lint": "next lint",
 		"typecheck": "tsc --noEmit"

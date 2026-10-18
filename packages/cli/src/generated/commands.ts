@@ -1,7 +1,7 @@
-// Auto-generated from openapi.json (sha256:55d43e0b327aa6c5) — do not edit manually.
+// Auto-generated from openapi.json (sha256:51e996512d84df25) — do not edit manually.
 // Run: pnpm run generate
 //
-// 604 commands in 57 groups.
+// 718 commands in 63 groups.
 
 import type { Command } from "commander";
 import { runApiCommand } from "../commands/run.js";
@@ -104,12 +104,13 @@ export function registerGeneratedCommands(program: Command) {
 	g_ai
 		.command("get-models")
 		.description("Get Models")
-		.option("--apiUrl <value>", "Api Url [required]")
-		.option("--apiKey <value>", "Api Key [required]")
+		.option("--apiUrl <value>", "Api Url")
+		.option("--apiKey <value>", "Api Key")
+		.option("--aiId <value>", "Ai Id")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "ai.getModels", "get", options, { required: ["apiUrl","apiKey"] }),
+			runApiCommand(command, "ai.getModels", "get", options),
 		);
 	g_ai
 		.command("one")
@@ -143,13 +144,14 @@ export function registerGeneratedCommands(program: Command) {
 	g_ai
 		.command("test-connection")
 		.description("Test Connection")
-		.option("--apiUrl <value>", "Api Url [required]")
-		.option("--apiKey <value>", "Api Key [required]")
+		.option("--aiId <value>", "Ai Id")
+		.option("--apiUrl <value>", "Api Url")
+		.option("--apiKey <value>", "Api Key")
 		.option("--model <value>", "Model [required]")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "ai.testConnection", "post", options, { required: ["apiUrl","apiKey","model"] }),
+			runApiCommand(command, "ai.testConnection", "post", options, { required: ["model"] }),
 		);
 	g_ai
 		.command("update")
@@ -636,10 +638,12 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--networkIds <json>", "Network Ids (nullable: pass \"null\") (JSON array)")
 		.option("--detachNotployNetwork [boolean]", "Detach Notploy Network")
 		.option("--no-detachNotployNetwork", "Set detachNotployNetwork to false")
+		.option("--isolatedNetwork [boolean]", "Isolated Network")
+		.option("--no-isolatedNetwork", "Set isolatedNetwork to false")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "application.update", "post", options, { required: ["applicationId"], types: {"args":"array?","autoDeploy":"boolean?","bitbucketBranch":"string?","bitbucketBuildPath":"string?","bitbucketId":"string?","bitbucketOwner":"string?","bitbucketRepository":"string?","bitbucketRepositorySlug":"string?","branch":"string?","buildArgs":"string?","buildPath":"string?","buildRegistryId":"string?","buildSecrets":"string?","buildServerId":"string?","cleanCache":"boolean?","command":"string?","cpuLimit":"string?","cpuReservation":"string?","createEnvFile":"boolean","customGitBranch":"string?","customGitBuildPath":"string?","customGitSSHKeyId":"string?","customGitUrl":"string?","description":"string?","detachNotployNetwork":"boolean","dockerBuildStage":"string?","dockerContextPath":"string?","dockerfile":"string?","dockerImage":"string?","dropBuildPath":"string?","enabled":"boolean?","enableSubmodules":"boolean","endpointSpecSwarm":"object?","env":"string?","giteaBranch":"string?","giteaBuildPath":"string?","giteaId":"string?","giteaOwner":"string?","giteaRepository":"string?","githubId":"string?","gitlabBranch":"string?","gitlabBuildPath":"string?","gitlabId":"string?","gitlabOwner":"string?","gitlabPathNamespace":"string?","gitlabProjectId":"number?","gitlabRepository":"string?","healthCheckSwarm":"object?","herokuVersion":"string?","icon":"string?","isPreviewDeploymentsActive":"boolean?","isStaticSpa":"boolean?","labelsSwarm":"object?","memoryLimit":"string?","memoryReservation":"string?","modeSwarm":"object?","networkIds":"array?","networkSwarm":"array?","owner":"string?","password":"string?","placementSwarm":"object?","previewBuildArgs":"string?","previewBuildSecrets":"string?","previewCustomCertResolver":"string?","previewEnv":"string?","previewHttps":"boolean","previewLabels":"array?","previewLimit":"number?","previewPath":"string?","previewPort":"number?","previewRequireCollaboratorPermissions":"boolean?","previewWildcard":"string?","publishDirectory":"string?","railpackVersion":"string?","refreshToken":"string?","registryId":"string?","registryUrl":"string?","replicas":"number","repository":"string?","restartPolicySwarm":"object?","rollbackActive":"boolean?","rollbackConfigSwarm":"object?","rollbackRegistryId":"string?","stopGracePeriodSwarm":"number?","subtitle":"string?","title":"string?","triggerType":"string?","ulimitsSwarm":"array?","updateConfigSwarm":"object?","username":"string?","watchPaths":"array?"}, enums: {"applicationStatus":["idle","running","done","error"],"buildType":["dockerfile","heroku_buildpacks","paketo_buildpacks","nixpacks","static","railpack"],"previewCertificateType":["letsencrypt","none","custom"],"sourceType":["github","docker","git","gitlab","bitbucket","gitea","drop"],"triggerType":["push","tag"]} }),
+			runApiCommand(command, "application.update", "post", options, { required: ["applicationId"], types: {"args":"array?","autoDeploy":"boolean?","bitbucketBranch":"string?","bitbucketBuildPath":"string?","bitbucketId":"string?","bitbucketOwner":"string?","bitbucketRepository":"string?","bitbucketRepositorySlug":"string?","branch":"string?","buildArgs":"string?","buildPath":"string?","buildRegistryId":"string?","buildSecrets":"string?","buildServerId":"string?","cleanCache":"boolean?","command":"string?","cpuLimit":"string?","cpuReservation":"string?","createEnvFile":"boolean","customGitBranch":"string?","customGitBuildPath":"string?","customGitSSHKeyId":"string?","customGitUrl":"string?","description":"string?","detachNotployNetwork":"boolean","dockerBuildStage":"string?","dockerContextPath":"string?","dockerfile":"string?","dockerImage":"string?","dropBuildPath":"string?","enabled":"boolean?","enableSubmodules":"boolean","endpointSpecSwarm":"object?","env":"string?","giteaBranch":"string?","giteaBuildPath":"string?","giteaId":"string?","giteaOwner":"string?","giteaRepository":"string?","githubId":"string?","gitlabBranch":"string?","gitlabBuildPath":"string?","gitlabId":"string?","gitlabOwner":"string?","gitlabPathNamespace":"string?","gitlabProjectId":"number?","gitlabRepository":"string?","healthCheckSwarm":"object?","herokuVersion":"string?","icon":"string?","isolatedNetwork":"boolean","isPreviewDeploymentsActive":"boolean?","isStaticSpa":"boolean?","labelsSwarm":"object?","memoryLimit":"string?","memoryReservation":"string?","modeSwarm":"object?","networkIds":"array?","networkSwarm":"array?","owner":"string?","password":"string?","placementSwarm":"object?","previewBuildArgs":"string?","previewBuildSecrets":"string?","previewCustomCertResolver":"string?","previewEnv":"string?","previewHttps":"boolean","previewLabels":"array?","previewLimit":"number?","previewPath":"string?","previewPort":"number?","previewRequireCollaboratorPermissions":"boolean?","previewWildcard":"string?","publishDirectory":"string?","railpackVersion":"string?","refreshToken":"string?","registryId":"string?","registryUrl":"string?","replicas":"number","repository":"string?","restartPolicySwarm":"object?","rollbackActive":"boolean?","rollbackConfigSwarm":"object?","rollbackRegistryId":"string?","stopGracePeriodSwarm":"number?","subtitle":"string?","title":"string?","triggerType":"string?","ulimitsSwarm":"array?","updateConfigSwarm":"object?","username":"string?","watchPaths":"array?"}, enums: {"applicationStatus":["idle","running","done","error"],"buildType":["dockerfile","heroku_buildpacks","paketo_buildpacks","nixpacks","static","railpack"],"previewCertificateType":["letsencrypt","none","custom"],"sourceType":["github","docker","git","gitlab","bitbucket","gitea","drop"],"triggerType":["push","tag"]} }),
 		);
 	g_application
 		.command("update-traefik-config")
@@ -655,19 +659,21 @@ export function registerGeneratedCommands(program: Command) {
 	g_auditLog
 		.command("all")
 		.description("All")
+		.option("--search <value>", "Search")
 		.option("--userId <value>", "User Id")
 		.option("--userEmail <value>", "User Email")
 		.option("--resourceName <value>", "Resource Name")
-		.option("--action <value>", "Action (one of: create, update, delete, deploy, cancel, redeploy, login, logout)")
-		.option("--resourceType <value>", "Resource Type (one of: project, service, environment, deployment, user, customRole, domain, certificate, registry, server, sshKey, gitProvider, notification, settings, session)")
+		.option("--action <value>", "Action (one of: create, update, delete, read, deploy, cancel, redeploy, login, logout, restore, run, start, stop, reload, rebuild, move)")
+		.option("--resourceType <value>", "Resource Type (one of: project, service, environment, deployment, user, customRole, domain, certificate, registry, server, sshKey, gitProvider, destination, notification, settings, session, port, redirect, security, schedule, backup, volumeBackup, docker, swarm, previewDeployment, organization, cluster, mount, application, compose, network, vaultProvider, dnsProvider, objectStorage)")
 		.option("--from <value>", "From")
 		.option("--to <value>", "To")
+		.option("--sortOrder <value>", "Sort Order (one of: asc, desc) (default: \"desc\")")
 		.option("--limit <value>", "Limit (default: 50)")
 		.option("--offset <value>", "Offset (default: 0)")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "auditLog.all", "get", options, { types: {"limit":"number","offset":"number"}, enums: {"action":["create","update","delete","deploy","cancel","redeploy","login","logout"],"resourceType":["project","service","environment","deployment","user","customRole","domain","certificate","registry","server","sshKey","gitProvider","notification","settings","session"]} }),
+			runApiCommand(command, "auditLog.all", "get", options, { types: {"limit":"number","offset":"number"}, enums: {"action":["create","update","delete","read","deploy","cancel","redeploy","login","logout","restore","run","start","stop","reload","rebuild","move"],"resourceType":["project","service","environment","deployment","user","customRole","domain","certificate","registry","server","sshKey","gitProvider","destination","notification","settings","session","port","redirect","security","schedule","backup","volumeBackup","docker","swarm","previewDeployment","organization","cluster","mount","application","compose","network","vaultProvider","dnsProvider","objectStorage"],"sortOrder":["asc","desc"]} }),
 		);
 	const g_backup = program.command("backup").description("backup commands");
 	g_backup
@@ -906,6 +912,25 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "certificates.all", "get", options),
 		);
 	g_certificates
+		.command("chain")
+		.description("Chain")
+		.option("--certificateId <value>", "Certificate Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "certificates.chain", "get", options, { required: ["certificateId"] }),
+		);
+	g_certificates
+		.command("covers")
+		.description("Covers")
+		.option("--certificateId <value>", "Certificate Id [required]")
+		.option("--hostname <value>", "Hostname [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "certificates.covers", "get", options, { required: ["certificateId","hostname"] }),
+		);
+	g_certificates
 		.command("create")
 		.description("Create")
 		.option("--certificateId <value>", "Certificate Id")
@@ -915,12 +940,11 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--certificatePath <value>", "Certificate Path")
 		.option("--autoRenew [boolean]", "Auto Renew (nullable: pass \"null\")")
 		.option("--no-autoRenew", "Set autoRenew to false")
-		.option("--organizationId <value>", "Organization Id [required]")
 		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "certificates.create", "post", options, { required: ["name","certificateData","privateKey","organizationId"], types: {"autoRenew":"boolean?","serverId":"string?"} }),
+			runApiCommand(command, "certificates.create", "post", options, { required: ["name","certificateData","privateKey"], types: {"autoRenew":"boolean?","serverId":"string?"} }),
 		);
 	g_certificates
 		.command("one")
@@ -951,6 +975,17 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "certificates.update", "post", options, { required: ["certificateId"] }),
+		);
+	g_certificates
+		.command("validate")
+		.description("Validate")
+		.option("--certificateData <value>", "Certificate Data [required]")
+		.option("--privateKey <value>", "Private Key [required]")
+		.option("--requiredHostnames <json>", "Required Hostnames (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "certificates.validate", "post", options, { required: ["certificateData","privateKey"], types: {"requiredHostnames":"array"} }),
 		);
 	const g_cluster = program.command("cluster").description("cluster commands");
 	g_cluster
@@ -989,6 +1024,149 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "cluster.removeWorker", "post", options, { required: ["nodeId"] }),
+		);
+	const g_community = program.command("community").description("community commands");
+	g_community
+		.command("activity")
+		.description("Activity")
+		.option("--preset <value>", "Preset (one of: 24h, 7d, 30d, 90d, custom) (default: \"30d\")")
+		.option("--from <value>", "From")
+		.option("--to <value>", "To")
+		.option("--repositoryIds <json>", "Repository Ids (JSON array)")
+		.option("--types <json>", "Types (JSON array)")
+		.option("--limit <value>", "Limit (default: 30)")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.activity", "get", options, { types: {"limit":"number","offset":"number","repositoryIds":"array","types":"array"}, enums: {"preset":["24h","7d","30d","90d","custom"]} }),
+		);
+	g_community
+		.command("attention")
+		.description("Attention")
+		.option("--repositoryIds <json>", "Repository Ids (JSON array)")
+		.option("--limit <value>", "Limit (default: 50)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.attention", "get", options, { types: {"limit":"number","repositoryIds":"array"} }),
+		);
+	g_community
+		.command("available-repositories")
+		.description("Available Repositories")
+		.option("--sourceId <value>", "Source Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.availableRepositories", "get", options, { required: ["sourceId"] }),
+		);
+	g_community
+		.command("create-source")
+		.description("Create Source")
+		.option("--gitProviderId <value>", "Git Provider Id [required]")
+		.option("--owner <value>", "Owner [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.createSource", "post", options, { required: ["gitProviderId","owner"] }),
+		);
+	g_community
+		.command("health")
+		.description("Health")
+		.option("--repositoryIds <json>", "Repository Ids (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.health", "get", options, { types: {"repositoryIds":"array"} }),
+		);
+	g_community
+		.command("overview")
+		.description("Overview")
+		.option("--preset <value>", "Preset (one of: 24h, 7d, 30d, 90d, custom) (default: \"30d\")")
+		.option("--from <value>", "From")
+		.option("--to <value>", "To")
+		.option("--repositoryIds <json>", "Repository Ids (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.overview", "get", options, { types: {"repositoryIds":"array"}, enums: {"preset":["24h","7d","30d","90d","custom"]} }),
+		);
+	g_community
+		.command("releases")
+		.description("Releases")
+		.option("--repositoryIds <json>", "Repository Ids (JSON array)")
+		.option("--limit <value>", "Limit (default: 10)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.releases", "get", options, { types: {"limit":"number","repositoryIds":"array"} }),
+		);
+	g_community
+		.command("remove-source")
+		.description("Remove Source")
+		.option("--sourceId <value>", "Source Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.removeSource", "post", options, { required: ["sourceId"] }),
+		);
+	g_community
+		.command("repositories")
+		.description("Repositories")
+		.option("--sourceId <value>", "Source Id")
+		.option("--search <value>", "Search")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.repositories", "get", options),
+		);
+	g_community
+		.command("sources")
+		.description("Sources")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.sources", "get", options),
+		);
+	g_community
+		.command("sync-now")
+		.description("Sync Now")
+		.option("--sourceId <value>", "Source Id [required]")
+		.option("--repositoryId <value>", "Repository Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.syncNow", "post", options, { required: ["sourceId"] }),
+		);
+	g_community
+		.command("track-repository")
+		.description("Track Repository")
+		.option("--sourceId <value>", "Source Id [required]")
+		.option("--fullName <value>", "Full Name [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.trackRepository", "post", options, { required: ["sourceId","fullName"] }),
+		);
+	g_community
+		.command("untrack-repository")
+		.description("Untrack Repository")
+		.option("--repositoryId <value>", "Repository Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.untrackRepository", "post", options, { required: ["repositoryId"] }),
+		);
+	g_community
+		.command("update-source")
+		.description("Update Source")
+		.option("--sourceId <value>", "Source Id [required]")
+		.option("--enabled [boolean]", "Enabled")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "community.updateSource", "post", options, { required: ["sourceId"], types: {"enabled":"boolean"} }),
 		);
 	const g_compose = program.command("compose").description("compose commands");
 	g_compose
@@ -1469,6 +1647,28 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "deployment.allCentralized", "get", options),
 		);
 	g_deployment
+		.command("centralized-page")
+		.description("Centralized Page")
+		.option("--offset <value>", "Offset (default: 0)")
+		.option("--limit <value>", "Limit (default: 25)")
+		.option("--status <value>", "Status (one of: running, done, error, cancelled)")
+		.option("--type <value>", "Type (one of: application, compose)")
+		.option("--search <value>", "Search")
+		.option("--sortOrder <value>", "Sort Order (one of: newest, oldest) (default: \"newest\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.centralizedPage", "get", options, { types: {"limit":"number","offset":"number"}, enums: {"sortOrder":["newest","oldest"],"status":["running","done","error","cancelled"],"type":["application","compose"]} }),
+		);
+	g_deployment
+		.command("home-activity")
+		.description("Home Activity")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "deployment.homeActivity", "get", options),
+		);
+	g_deployment
 		.command("kill-process")
 		.description("Kill Process")
 		.option("--deploymentId <value>", "Deployment Id [required]")
@@ -1525,10 +1725,20 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--secretAccessKey <value>", "Secret Access Key [required]")
 		.option("--additionalFlags <json>", "Additional Flags [required] (default: []) (nullable: pass \"null\") (JSON array)")
 		.option("--serverId <value>", "Server Id")
+		.option("--objectStorageBucketId <value>", "Object Storage Bucket Id")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "destination.create", "post", options, { required: ["name","provider","accessKey","bucket","region","endpoint","secretAccessKey","additionalFlags"], types: {"additionalFlags":"array?","provider":"string?"} }),
+		);
+	g_destination
+		.command("from-object-storage-bucket")
+		.description("From Object Storage Bucket")
+		.option("--objectStorageBucketId <value>", "Object Storage Bucket Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "destination.fromObjectStorageBucket", "post", options, { required: ["objectStorageBucketId"] }),
 		);
 	g_destination
 		.command("one")
@@ -1560,6 +1770,7 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--secretAccessKey <value>", "Secret Access Key [required]")
 		.option("--additionalFlags <json>", "Additional Flags [required] (default: []) (nullable: pass \"null\") (JSON array)")
 		.option("--serverId <value>", "Server Id")
+		.option("--objectStorageBucketId <value>", "Object Storage Bucket Id")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
@@ -1578,6 +1789,7 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--provider <value>", "Provider [required] (nullable: pass \"null\")")
 		.option("--additionalFlags <json>", "Additional Flags [required] (default: []) (nullable: pass \"null\") (JSON array)")
 		.option("--serverId <value>", "Server Id")
+		.option("--objectStorageBucketId <value>", "Object Storage Bucket Id")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
@@ -1611,12 +1823,14 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--ttl <value>", "Ttl")
 		.option("--proxied [boolean]", "Proxied")
 		.option("--no-proxied", "Set proxied to false")
+		.option("--comment <value>", "Comment")
+		.option("--tags <json>", "Tags (JSON array)")
 		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
 		.option("--zoneId <value>", "Zone Id [required]")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "dnsProvider.createRecord", "post", options, { required: ["type","name","content","dnsProviderId","zoneId"], types: {"proxied":"boolean","ttl":"number"}, enums: {"type":["A","AAAA","CNAME","MX","TXT","NS","SRV","CAA","PTR"]} }),
+			runApiCommand(command, "dnsProvider.createRecord", "post", options, { required: ["type","name","content","dnsProviderId","zoneId"], types: {"proxied":"boolean","tags":"array","ttl":"number"}, enums: {"type":["A","AAAA","CNAME","MX","TXT","NS","SRV","CAA","PTR"]} }),
 		);
 	g_dnsProvider
 		.command("delete-record")
@@ -1628,6 +1842,44 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "dnsProvider.deleteRecord", "post", options, { required: ["dnsProviderId","zoneId","recordId"] }),
+		);
+	g_dnsProvider
+		.command("descriptors")
+		.description("Descriptors")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.descriptors", "get", options),
+		);
+	g_dnsProvider
+		.command("export-zone")
+		.description("Export Zone")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--zoneId <value>", "Zone Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.exportZone", "get", options, { required: ["dnsProviderId","zoneId"] }),
+		);
+	g_dnsProvider
+		.command("health")
+		.description("Health")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.health", "get", options, { required: ["dnsProviderId"] }),
+		);
+	g_dnsProvider
+		.command("import-zone")
+		.description("Import Zone")
+		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
+		.option("--zoneId <value>", "Zone Id [required]")
+		.option("--content <value>", "Content [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "dnsProvider.importZone", "post", options, { required: ["dnsProviderId","zoneId","content"] }),
 		);
 	g_dnsProvider
 		.command("list-records")
@@ -1696,13 +1948,15 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--ttl <value>", "Ttl")
 		.option("--proxied [boolean]", "Proxied")
 		.option("--no-proxied", "Set proxied to false")
+		.option("--comment <value>", "Comment")
+		.option("--tags <json>", "Tags (JSON array)")
 		.option("--dnsProviderId <value>", "Dns Provider Id [required]")
 		.option("--zoneId <value>", "Zone Id [required]")
 		.option("--recordId <value>", "Record Id [required]")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "dnsProvider.updateRecord", "post", options, { required: ["type","name","content","dnsProviderId","zoneId","recordId"], types: {"proxied":"boolean","ttl":"number"}, enums: {"type":["A","AAAA","CNAME","MX","TXT","NS","SRV","CAA","PTR"]} }),
+			runApiCommand(command, "dnsProvider.updateRecord", "post", options, { required: ["type","name","content","dnsProviderId","zoneId","recordId"], types: {"proxied":"boolean","tags":"array","ttl":"number"}, enums: {"type":["A","AAAA","CNAME","MX","TXT","NS","SRV","CAA","PTR"]} }),
 		);
 	const g_docker = program.command("docker").description("docker commands");
 	g_docker
@@ -1758,6 +2012,15 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "docker.getContainersByAppNameMatch", "get", options, { required: ["appName"], enums: {"appType":["stack","docker-compose"]} }),
 		);
 	g_docker
+		.command("get-engine-info")
+		.description("Get Engine Info")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.getEngineInfo", "get", options),
+		);
+	g_docker
 		.command("get-events")
 		.description("Get Events")
 		.option("--serverId <value>", "Server Id")
@@ -1766,6 +2029,14 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "docker.getEvents", "get", options, { types: {"minutes":"number"} }),
+		);
+	g_docker
+		.command("get-fleet-containers")
+		.description("Get Fleet Containers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "docker.getFleetContainers", "get", options),
 		);
 	g_docker
 		.command("get-server-health")
@@ -2108,6 +2379,14 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "domain.generateDomain", "post", options, { required: ["appName"] }),
+		);
+	g_domain
+		.command("internal-dns")
+		.description("Internal Dns")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "domain.internalDns", "get", options),
 		);
 	g_domain
 		.command("one")
@@ -2799,58 +3078,6 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "libsql.update", "post", options, { required: ["libsqlId"], types: {"command":"string?","cpuLimit":"string?","cpuReservation":"string?","description":"string?","detachNotployNetwork":"boolean","enableNamespaces":"boolean","endpointSpecSwarm":"object?","env":"string?","externalAdminPort":"number?","externalGRPCPort":"number?","externalPort":"number?","healthCheckSwarm":"object?","labelsSwarm":"object?","memoryLimit":"string?","memoryReservation":"string?","modeSwarm":"object?","networkIds":"array?","networkSwarm":"array?","placementSwarm":"object?","replicas":"number","restartPolicySwarm":"object?","rollbackConfigSwarm":"object?","sqldPrimaryUrl":"string?","stopGracePeriodSwarm":"number?","updateConfigSwarm":"object?"}, enums: {"applicationStatus":["idle","running","done","error"],"sqldNode":["primary","replica"]} }),
-		);
-	const g_licenseKey = program.command("license-key").description("licenseKey commands");
-	g_licenseKey
-		.command("activate")
-		.description("Activate")
-		.option("--licenseKey <value>", "License Key [required]")
-		.option("--json", "Output machine-readable JSON")
-		.option("--profile <name>", "Configuration profile to use")
-		.action((options, command) =>
-			runApiCommand(command, "licenseKey.activate", "post", options, { required: ["licenseKey"] }),
-		);
-	g_licenseKey
-		.command("deactivate")
-		.description("Deactivate")
-		.option("--json", "Output machine-readable JSON")
-		.option("--profile <name>", "Configuration profile to use")
-		.action((options, command) =>
-			runApiCommand(command, "licenseKey.deactivate", "post", options),
-		);
-	g_licenseKey
-		.command("get-enterprise-settings")
-		.description("Get Enterprise Settings")
-		.option("--json", "Output machine-readable JSON")
-		.option("--profile <name>", "Configuration profile to use")
-		.action((options, command) =>
-			runApiCommand(command, "licenseKey.getEnterpriseSettings", "get", options),
-		);
-	g_licenseKey
-		.command("have-valid-license-key")
-		.description("Have Valid License Key")
-		.option("--json", "Output machine-readable JSON")
-		.option("--profile <name>", "Configuration profile to use")
-		.action((options, command) =>
-			runApiCommand(command, "licenseKey.haveValidLicenseKey", "get", options),
-		);
-	g_licenseKey
-		.command("update-enterprise-settings")
-		.description("Update Enterprise Settings")
-		.option("--enableEnterpriseFeatures [boolean]", "Enable Enterprise Features")
-		.option("--no-enableEnterpriseFeatures", "Set enableEnterpriseFeatures to false")
-		.option("--json", "Output machine-readable JSON")
-		.option("--profile <name>", "Configuration profile to use")
-		.action((options, command) =>
-			runApiCommand(command, "licenseKey.updateEnterpriseSettings", "post", options, { types: {"enableEnterpriseFeatures":"boolean"} }),
-		);
-	g_licenseKey
-		.command("validate")
-		.description("Validate")
-		.option("--json", "Output machine-readable JSON")
-		.option("--profile <name>", "Configuration profile to use")
-		.action((options, command) =>
-			runApiCommand(command, "licenseKey.validate", "post", options),
 		);
 	const g_mariadb = program.command("mariadb").description("mariadb commands");
 	g_mariadb
@@ -3570,10 +3797,11 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--mtu <value>", "Mtu (nullable: pass \"null\")")
 		.option("--ipam <json>", "Ipam (nullable: pass \"null\") (JSON object)")
 		.option("--serverId <value>", "Server Id (nullable: pass \"null\")")
+		.option("--networkProviderId <value>", "Network Provider Id (nullable: pass \"null\")")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "network.create", "post", options, { required: ["name"], types: {"attachable":"boolean","enableIPv4":"boolean","enableIPv6":"boolean","internal":"boolean","ipam":"object?","mtu":"number?","serverId":"string?"}, enums: {"driver":["bridge","overlay"]} }),
+			runApiCommand(command, "network.create", "post", options, { required: ["name"], types: {"attachable":"boolean","enableIPv4":"boolean","enableIPv6":"boolean","internal":"boolean","ipam":"object?","mtu":"number?","networkProviderId":"string?","serverId":"string?"}, enums: {"driver":["bridge","overlay"]} }),
 		);
 	g_network
 		.command("import")
@@ -3593,6 +3821,15 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "network.inspect", "get", options, { required: ["networkId"] }),
+		);
+	g_network
+		.command("inventory")
+		.description("Inventory")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "network.inventory", "get", options),
 		);
 	g_network
 		.command("networks-to-sync")
@@ -3638,6 +3875,93 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "network.resync", "post", options, { required: ["networkId"] }),
+		);
+	const g_networkProvider = program.command("network-provider").description("networkProvider commands");
+	g_networkProvider
+		.command("all")
+		.description("All")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "networkProvider.all", "get", options),
+		);
+	g_networkProvider
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--config <json>", "Config [required] (JSON object)")
+		.option("--peers <json>", "Peers (default: []) (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "networkProvider.create", "post", options, { required: ["name","config"], types: {"config":"object","peers":"array"} }),
+		);
+	g_networkProvider
+		.command("descriptors")
+		.description("Descriptors")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "networkProvider.descriptors", "get", options),
+		);
+	g_networkProvider
+		.command("health")
+		.description("Health")
+		.option("--networkProviderId <value>", "Network Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "networkProvider.health", "get", options, { required: ["networkProviderId"] }),
+		);
+	g_networkProvider
+		.command("one")
+		.description("One")
+		.option("--networkProviderId <value>", "Network Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "networkProvider.one", "get", options, { required: ["networkProviderId"] }),
+		);
+	g_networkProvider
+		.command("peers")
+		.description("Peers")
+		.option("--networkProviderId <value>", "Network Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "networkProvider.peers", "get", options, { required: ["networkProviderId"] }),
+		);
+	g_networkProvider
+		.command("remove")
+		.description("Remove")
+		.option("--networkProviderId <value>", "Network Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "networkProvider.remove", "post", options, { required: ["networkProviderId"] }),
+		);
+	g_networkProvider
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--networkProviderId <value>", "Network Provider Id")
+		.option("--config <json>", "Config (JSON object)")
+		.option("--peers <json>", "Peers (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "networkProvider.testConnection", "post", options, { types: {"config":"object","peers":"array"} }),
+		);
+	g_networkProvider
+		.command("update")
+		.description("Update")
+		.option("--networkProviderId <value>", "Network Provider Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--config <json>", "Config [required] (JSON object)")
+		.option("--peers <json>", "Peers (default: []) (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "networkProvider.update", "post", options, { required: ["networkProviderId","name","config"], types: {"config":"object","peers":"array"} }),
 		);
 	const g_notification = program.command("notification").description("notification commands");
 	g_notification
@@ -4452,6 +4776,279 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "notification.updateTelegram", "post", options, { required: ["notificationId","telegramId"], types: {"appBuildError":"boolean","appDeploy":"boolean","databaseBackup":"boolean","dockerCleanup":"boolean","notployBackup":"boolean","notployRestart":"boolean","serverThreshold":"boolean","volumeBackup":"boolean"} }),
+		);
+	const g_objectStorage = program.command("object-storage").description("objectStorage commands");
+	g_objectStorage
+		.command("bucket")
+		.description("Bucket")
+		.option("--objectStorageBucketId <value>", "Object Storage Bucket Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.bucket", "get", options, { required: ["objectStorageBucketId"] }),
+		);
+	g_objectStorage
+		.command("buckets")
+		.description("Buckets")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.buckets", "get", options),
+		);
+	g_objectStorage
+		.command("buckets-by-provider")
+		.description("Buckets By Provider")
+		.option("--objectStorageProviderId <value>", "Object Storage Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.bucketsByProvider", "get", options, { required: ["objectStorageProviderId"] }),
+		);
+	g_objectStorage
+		.command("create-bucket")
+		.description("Create Bucket")
+		.option("--name <value>", "Name [required]")
+		.option("--objectStorageProviderId <value>", "Object Storage Provider Id [required]")
+		.option("--bucket <value>", "Bucket [required]")
+		.option("--region <value>", "Region (default: \"\")")
+		.option("--endpoint <value>", "Endpoint (default: \"\")")
+		.option("--versioning [boolean]", "Versioning (default: false)")
+		.option("--no-versioning", "Set versioning to false")
+		.option("--lifecycle <json>", "Lifecycle (default: []) (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.createBucket", "post", options, { required: ["name","objectStorageProviderId","bucket"], types: {"lifecycle":"array","versioning":"boolean"} }),
+		);
+	g_objectStorage
+		.command("create-provider")
+		.description("Create Provider")
+		.option("--name <value>", "Name [required]")
+		.option("--providerType <value>", "Provider Type [required] (one of: aws, cloudflare-r2, scaleway, wasabi, digitalocean, backblaze, ovh, linode, storj, idrive, minio, rustfs, ceph, seaweedfs, garage, s3-compatible, notploy-internal)")
+		.option("--category <value>", "Category [required] (one of: external, self-hosted, internal)")
+		.option("--config <json>", "Config [required] (JSON object)")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.createProvider", "post", options, { required: ["name","providerType","category","config"], types: {"config":"object"}, enums: {"category":["external","self-hosted","internal"],"providerType":["aws","cloudflare-r2","scaleway","wasabi","digitalocean","backblaze","ovh","linode","storj","idrive","minio","rustfs","ceph","seaweedfs","garage","s3-compatible","notploy-internal"]} }),
+		);
+	g_objectStorage
+		.command("descriptors")
+		.description("Descriptors")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.descriptors", "get", options),
+		);
+	g_objectStorage
+		.command("provider")
+		.description("Provider")
+		.option("--objectStorageProviderId <value>", "Object Storage Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.provider", "get", options, { required: ["objectStorageProviderId"] }),
+		);
+	g_objectStorage
+		.command("provider-health")
+		.description("Provider Health")
+		.option("--objectStorageProviderId <value>", "Object Storage Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.providerHealth", "get", options, { required: ["objectStorageProviderId"] }),
+		);
+	g_objectStorage
+		.command("providers")
+		.description("Providers")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.providers", "get", options),
+		);
+	g_objectStorage
+		.command("remove-bucket")
+		.description("Remove Bucket")
+		.option("--objectStorageBucketId <value>", "Object Storage Bucket Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.removeBucket", "post", options, { required: ["objectStorageBucketId"] }),
+		);
+	g_objectStorage
+		.command("remove-provider")
+		.description("Remove Provider")
+		.option("--objectStorageProviderId <value>", "Object Storage Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.removeProvider", "post", options, { required: ["objectStorageProviderId"] }),
+		);
+	g_objectStorage
+		.command("test-bucket")
+		.description("Test Bucket")
+		.option("--objectStorageBucketId <value>", "Object Storage Bucket Id [required]")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.testBucket", "post", options, { required: ["objectStorageBucketId"] }),
+		);
+	g_objectStorage
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--objectStorageProviderId <value>", "Object Storage Provider Id")
+		.option("--providerType <value>", "Provider Type (one of: aws, cloudflare-r2, scaleway, wasabi, digitalocean, backblaze, ovh, linode, storj, idrive, minio, rustfs, ceph, seaweedfs, garage, s3-compatible, notploy-internal)")
+		.option("--category <value>", "Category (one of: external, self-hosted, internal)")
+		.option("--config <json>", "Config (JSON object)")
+		.option("--bucket <value>", "Bucket")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.testConnection", "post", options, { types: {"config":"object"}, enums: {"category":["external","self-hosted","internal"],"providerType":["aws","cloudflare-r2","scaleway","wasabi","digitalocean","backblaze","ovh","linode","storj","idrive","minio","rustfs","ceph","seaweedfs","garage","s3-compatible","notploy-internal"]} }),
+		);
+	g_objectStorage
+		.command("update-bucket")
+		.description("Update Bucket")
+		.option("--name <value>", "Name [required]")
+		.option("--objectStorageProviderId <value>", "Object Storage Provider Id [required]")
+		.option("--bucket <value>", "Bucket [required]")
+		.option("--region <value>", "Region (default: \"\")")
+		.option("--endpoint <value>", "Endpoint (default: \"\")")
+		.option("--versioning [boolean]", "Versioning (default: false)")
+		.option("--no-versioning", "Set versioning to false")
+		.option("--lifecycle <json>", "Lifecycle (default: []) (JSON array)")
+		.option("--objectStorageBucketId <value>", "Object Storage Bucket Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.updateBucket", "post", options, { required: ["name","objectStorageProviderId","bucket","objectStorageBucketId"], types: {"lifecycle":"array","versioning":"boolean"} }),
+		);
+	g_objectStorage
+		.command("update-provider")
+		.description("Update Provider")
+		.option("--name <value>", "Name [required]")
+		.option("--providerType <value>", "Provider Type [required] (one of: aws, cloudflare-r2, scaleway, wasabi, digitalocean, backblaze, ovh, linode, storj, idrive, minio, rustfs, ceph, seaweedfs, garage, s3-compatible, notploy-internal)")
+		.option("--category <value>", "Category [required] (one of: external, self-hosted, internal)")
+		.option("--config <json>", "Config [required] (JSON object)")
+		.option("--serverId <value>", "Server Id")
+		.option("--objectStorageProviderId <value>", "Object Storage Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "objectStorage.updateProvider", "post", options, { required: ["name","providerType","category","config","objectStorageProviderId"], types: {"config":"object"}, enums: {"category":["external","self-hosted","internal"],"providerType":["aws","cloudflare-r2","scaleway","wasabi","digitalocean","backblaze","ovh","linode","storj","idrive","minio","rustfs","ceph","seaweedfs","garage","s3-compatible","notploy-internal"]} }),
+		);
+	const g_onion = program.command("onion").description("onion commands");
+	g_onion
+		.command("create")
+		.description("Create")
+		.option("--name <value>", "Name [required]")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--serviceName <value>", "Service Name [required]")
+		.option("--targetPort <value>", "Target Port [required]")
+		.option("--virtualPort <value>", "Virtual Port")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "onion.create", "post", options, { required: ["name","composeId","serviceName","targetPort"], types: {"targetPort":"number","virtualPort":"number"} }),
+		);
+	g_onion
+		.command("delete")
+		.description("Delete")
+		.option("--onionServiceId <value>", "Onion Service Id [required]")
+		.option("--deleteIdentity [boolean]", "Delete Identity (default: false)")
+		.option("--no-deleteIdentity", "Set deleteIdentity to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "onion.delete", "post", options, { required: ["onionServiceId"], types: {"deleteIdentity":"boolean"} }),
+		);
+	g_onion
+		.command("list")
+		.description("List")
+		.option("--composeId <value>", "Compose Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "onion.list", "get", options, { required: ["composeId"] }),
+		);
+	g_onion
+		.command("one")
+		.description("One")
+		.option("--onionServiceId <value>", "Onion Service Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "onion.one", "get", options, { required: ["onionServiceId"] }),
+		);
+	g_onion
+		.command("restart")
+		.description("Restart")
+		.option("--onionServiceId <value>", "Onion Service Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "onion.restart", "post", options, { required: ["onionServiceId"] }),
+		);
+	g_onion
+		.command("start")
+		.description("Start")
+		.option("--onionServiceId <value>", "Onion Service Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "onion.start", "post", options, { required: ["onionServiceId"] }),
+		);
+	g_onion
+		.command("status")
+		.description("Status")
+		.option("--onionServiceId <value>", "Onion Service Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "onion.status", "get", options, { required: ["onionServiceId"] }),
+		);
+	g_onion
+		.command("stop")
+		.description("Stop")
+		.option("--onionServiceId <value>", "Onion Service Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "onion.stop", "post", options, { required: ["onionServiceId"] }),
+		);
+	g_onion
+		.command("update")
+		.description("Update")
+		.option("--name <value>", "Name")
+		.option("--serviceName <value>", "Service Name")
+		.option("--targetPort <value>", "Target Port")
+		.option("--virtualPort <value>", "Virtual Port")
+		.option("--onionServiceId <value>", "Onion Service Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "onion.update", "post", options, { required: ["onionServiceId"], types: {"targetPort":"number","virtualPort":"number"} }),
+		);
+	const g_operationalEvent = program.command("operational-event").description("operationalEvent commands");
+	g_operationalEvent
+		.command("acknowledge")
+		.description("Acknowledge")
+		.option("--eventId <value>", "Event Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "operationalEvent.acknowledge", "post", options, { required: ["eventId"] }),
+		);
+	g_operationalEvent
+		.command("list")
+		.description("List")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "operationalEvent.list", "get", options),
 		);
 	const g_organization = program.command("organization").description("organization commands");
 	g_organization
@@ -5366,19 +5963,104 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "registry.all", "get", options),
 		);
 	g_registry
+		.command("capabilities")
+		.description("Capabilities")
+		.option("--registryId <value>", "Registry Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.capabilities", "get", options, { required: ["registryId"] }),
+		);
+	g_registry
 		.command("create")
 		.description("Create")
 		.option("--registryName <value>", "Registry Name [required]")
-		.option("--username <value>", "Username [required]")
-		.option("--password <value>", "Password [required]")
+		.option("--providerType <value>", "Provider Type (one of: docker-hub, ghcr, gitlab, ecr, gar, acr, quay, artifactory, harbor, zot, distribution, nexus, generic-oci) (default: \"generic-oci\")")
+		.option("--username <value>", "Username (nullable: pass \"null\")")
+		.option("--password <value>", "Password (nullable: pass \"null\")")
 		.option("--registryUrl <value>", "Registry Url [required]")
-		.option("--registryType <value>", "Registry Type [required] (one of: cloud)")
-		.option("--imagePrefix <value>", "Image Prefix [required] (nullable: pass \"null\")")
+		.option("--namespace <value>", "Namespace (nullable: pass \"null\")")
+		.option("--imagePrefix <value>", "Image Prefix (nullable: pass \"null\")")
+		.option("--authMethod <value>", "Auth Method (one of: none, basic, token) (default: \"basic\")")
+		.option("--credentialSource <value>", "Credential Source (one of: secret, inline) (default: \"inline\")")
+		.option("--vaultSecretId <value>", "Vault Secret Id (nullable: pass \"null\")")
+		.option("--allowAnonymous [boolean]", "Allow Anonymous (default: false)")
+		.option("--no-allowAnonymous", "Set allowAnonymous to false")
+		.option("--registryType <value>", "Registry Type (one of: cloud, selfHosted) (default: \"cloud\")")
 		.option("--serverId <value>", "Server Id")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "registry.create", "post", options, { required: ["registryName","username","password","registryUrl","registryType","imagePrefix"], types: {"imagePrefix":"string?"}, enums: {"registryType":["cloud"]} }),
+			runApiCommand(command, "registry.create", "post", options, { required: ["registryName","registryUrl"], types: {"allowAnonymous":"boolean","imagePrefix":"string?","namespace":"string?","password":"string?","username":"string?","vaultSecretId":"string?"}, enums: {"authMethod":["none","basic","token"],"credentialSource":["secret","inline"],"providerType":["docker-hub","ghcr","gitlab","ecr","gar","acr","quay","artifactory","harbor","zot","distribution","nexus","generic-oci"],"registryType":["cloud","selfHosted"]} }),
+		);
+	g_registry
+		.command("delete-image")
+		.description("Delete Image")
+		.option("--registryId <value>", "Registry Id [required]")
+		.option("--repository <value>", "Repository [required]")
+		.option("--digest <value>", "Digest [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.deleteImage", "post", options, { required: ["registryId","repository","digest"] }),
+		);
+	g_registry
+		.command("descriptors")
+		.description("Descriptors")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.descriptors", "get", options),
+		);
+	g_registry
+		.command("get-digest")
+		.description("Get Digest")
+		.option("--registryId <value>", "Registry Id [required]")
+		.option("--repository <value>", "Repository [required]")
+		.option("--reference <value>", "Reference [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.getDigest", "get", options, { required: ["registryId","repository","reference"] }),
+		);
+	g_registry
+		.command("get-manifest")
+		.description("Get Manifest")
+		.option("--registryId <value>", "Registry Id [required]")
+		.option("--repository <value>", "Repository [required]")
+		.option("--reference <value>", "Reference [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.getManifest", "get", options, { required: ["registryId","repository","reference"] }),
+		);
+	g_registry
+		.command("health")
+		.description("Health")
+		.option("--registryId <value>", "Registry Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.health", "get", options, { required: ["registryId"] }),
+		);
+	g_registry
+		.command("list-repositories")
+		.description("List Repositories")
+		.option("--registryId <value>", "Registry Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.listRepositories", "get", options, { required: ["registryId"] }),
+		);
+	g_registry
+		.command("list-tags")
+		.description("List Tags")
+		.option("--registryId <value>", "Registry Id [required]")
+		.option("--repository <value>", "Repository [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.listTags", "get", options, { required: ["registryId","repository"] }),
 		);
 	g_registry
 		.command("one")
@@ -5399,47 +6081,84 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "registry.remove", "post", options, { required: ["registryId"] }),
 		);
 	g_registry
-		.command("test-registry")
-		.description("Test Registry")
-		.option("--registryName <value>", "Registry Name")
-		.option("--username <value>", "Username [required]")
-		.option("--password <value>", "Password [required]")
-		.option("--registryUrl <value>", "Registry Url [required]")
-		.option("--registryType <value>", "Registry Type [required] (one of: cloud)")
-		.option("--imagePrefix <value>", "Image Prefix (nullable: pass \"null\")")
-		.option("--serverId <value>", "Server Id")
+		.command("secret-options")
+		.description("Secret Options")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "registry.testRegistry", "post", options, { required: ["username","password","registryUrl","registryType"], types: {"imagePrefix":"string?"}, enums: {"registryType":["cloud"]} }),
+			runApiCommand(command, "registry.secretOptions", "get", options),
+		);
+	g_registry
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--registryId <value>", "Registry Id")
+		.option("--providerType <value>", "Provider Type (one of: docker-hub, ghcr, gitlab, ecr, gar, acr, quay, artifactory, harbor, zot, distribution, nexus, generic-oci)")
+		.option("--registryUrl <value>", "Registry Url")
+		.option("--namespace <value>", "Namespace (nullable: pass \"null\")")
+		.option("--authMethod <value>", "Auth Method (one of: none, basic, token)")
+		.option("--credentialSource <value>", "Credential Source (one of: secret, inline)")
+		.option("--vaultSecretId <value>", "Vault Secret Id (nullable: pass \"null\")")
+		.option("--username <value>", "Username (nullable: pass \"null\")")
+		.option("--password <value>", "Password (nullable: pass \"null\")")
+		.option("--allowAnonymous [boolean]", "Allow Anonymous")
+		.option("--no-allowAnonymous", "Set allowAnonymous to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.testConnection", "post", options, { types: {"allowAnonymous":"boolean","namespace":"string?","password":"string?","username":"string?","vaultSecretId":"string?"}, enums: {"authMethod":["none","basic","token"],"credentialSource":["secret","inline"],"providerType":["docker-hub","ghcr","gitlab","ecr","gar","acr","quay","artifactory","harbor","zot","distribution","nexus","generic-oci"]} }),
+		);
+	g_registry
+		.command("test-registry")
+		.description("Test Registry")
+		.option("--registryId <value>", "Registry Id")
+		.option("--providerType <value>", "Provider Type (one of: docker-hub, ghcr, gitlab, ecr, gar, acr, quay, artifactory, harbor, zot, distribution, nexus, generic-oci)")
+		.option("--registryUrl <value>", "Registry Url")
+		.option("--namespace <value>", "Namespace (nullable: pass \"null\")")
+		.option("--authMethod <value>", "Auth Method (one of: none, basic, token)")
+		.option("--credentialSource <value>", "Credential Source (one of: secret, inline)")
+		.option("--vaultSecretId <value>", "Vault Secret Id (nullable: pass \"null\")")
+		.option("--username <value>", "Username (nullable: pass \"null\")")
+		.option("--password <value>", "Password (nullable: pass \"null\")")
+		.option("--allowAnonymous [boolean]", "Allow Anonymous")
+		.option("--no-allowAnonymous", "Set allowAnonymous to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "registry.testRegistry", "post", options, { types: {"allowAnonymous":"boolean","namespace":"string?","password":"string?","username":"string?","vaultSecretId":"string?"}, enums: {"authMethod":["none","basic","token"],"credentialSource":["secret","inline"],"providerType":["docker-hub","ghcr","gitlab","ecr","gar","acr","quay","artifactory","harbor","zot","distribution","nexus","generic-oci"]} }),
 		);
 	g_registry
 		.command("test-registry-by-id")
 		.description("Test Registry By Id")
-		.option("--registryId <value>", "Registry Id")
-		.option("--serverId <value>", "Server Id")
+		.option("--registryId <value>", "Registry Id [required]")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "registry.testRegistryById", "post", options),
+			runApiCommand(command, "registry.testRegistryById", "post", options, { required: ["registryId"] }),
 		);
 	g_registry
 		.command("update")
 		.description("Update")
 		.option("--registryId <value>", "Registry Id [required]")
 		.option("--registryName <value>", "Registry Name")
-		.option("--imagePrefix <value>", "Image Prefix (nullable: pass \"null\")")
-		.option("--username <value>", "Username")
-		.option("--password <value>", "Password")
+		.option("--providerType <value>", "Provider Type (one of: docker-hub, ghcr, gitlab, ecr, gar, acr, quay, artifactory, harbor, zot, distribution, nexus, generic-oci)")
 		.option("--registryUrl <value>", "Registry Url")
+		.option("--namespace <value>", "Namespace (nullable: pass \"null\")")
+		.option("--imagePrefix <value>", "Image Prefix (nullable: pass \"null\")")
+		.option("--authMethod <value>", "Auth Method (one of: none, basic, token)")
+		.option("--credentialSource <value>", "Credential Source (one of: secret, inline)")
+		.option("--vaultSecretId <value>", "Vault Secret Id (nullable: pass \"null\")")
+		.option("--username <value>", "Username (nullable: pass \"null\")")
+		.option("--password <value>", "Password (nullable: pass \"null\")")
+		.option("--allowAnonymous [boolean]", "Allow Anonymous")
+		.option("--no-allowAnonymous", "Set allowAnonymous to false")
 		.option("--createdAt <value>", "Created At")
-		.option("--registryType <value>", "Registry Type (one of: cloud)")
+		.option("--registryType <value>", "Registry Type (one of: cloud, selfHosted)")
 		.option("--organizationId <value>", "Organization Id")
 		.option("--serverId <value>", "Server Id")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "registry.update", "post", options, { required: ["registryId"], types: {"imagePrefix":"string?"}, enums: {"registryType":["cloud"]} }),
+			runApiCommand(command, "registry.update", "post", options, { required: ["registryId"], types: {"allowAnonymous":"boolean","imagePrefix":"string?","namespace":"string?","password":"string?","username":"string?","vaultSecretId":"string?"}, enums: {"authMethod":["none","basic","token"],"credentialSource":["secret","inline"],"providerType":["docker-hub","ghcr","gitlab","ecr","gar","acr","quay","artifactory","harbor","zot","distribution","nexus","generic-oci"],"registryType":["cloud","selfHosted"]} }),
 		);
 	const g_rollback = program.command("rollback").description("rollback commands");
 	g_rollback
@@ -5669,6 +6388,23 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "server.create", "post", options, { required: ["name","description","ipAddress","port","username","sshKeyId","serverType"], types: {"description":"string?","enableDockerCleanup":"boolean","port":"number","sshKeyId":"string?"}, enums: {"serverType":["deploy","build"]} }),
 		);
 	g_server
+		.command("create-with-password")
+		.description("Create With Password")
+		.option("--name <value>", "Name [required]")
+		.option("--description <value>", "Description [required] (nullable: pass \"null\")")
+		.option("--ipAddress <value>", "Ip Address [required]")
+		.option("--port <value>", "Port [required]")
+		.option("--username <value>", "Username [required]")
+		.option("--serverType <value>", "Server Type [required] (one of: deploy, build)")
+		.option("--enableDockerCleanup [boolean]", "Enable Docker Cleanup (default: true)")
+		.option("--no-enableDockerCleanup", "Set enableDockerCleanup to false")
+		.option("--sshPassword <value>", "Ssh Password [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.createWithPassword", "post", options, { required: ["name","description","ipAddress","port","username","serverType","sshPassword"], types: {"description":"string?","enableDockerCleanup":"boolean","port":"number"}, enums: {"serverType":["deploy","build"]} }),
+		);
+	g_server
 		.command("get-default-command")
 		.description("Get Default Command")
 		.option("--serverId <value>", "Server Id [required]")
@@ -5676,6 +6412,14 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "server.getDefaultCommand", "get", options, { required: ["serverId"] }),
+		);
+	g_server
+		.command("get-monitoring-workspaces")
+		.description("Get Monitoring Workspaces")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "server.getMonitoringWorkspaces", "get", options),
 		);
 	g_server
 		.command("get-server-metrics")
@@ -5810,14 +6554,15 @@ export function registerGeneratedCommands(program: Command) {
 		.command("assign-domain-server")
 		.description("Assign Domain Server")
 		.option("--host <value>", "Host [required]")
-		.option("--certificateType <value>", "Certificate Type [required] (one of: letsencrypt, none, custom)")
+		.option("--certificateType <value>", "Certificate Type (one of: letsencrypt, none, custom)")
+		.option("--customCertResolver <value>", "Custom Cert Resolver (nullable: pass \"null\")")
 		.option("--letsEncryptEmail <value>", "Lets Encrypt Email (one of: )")
 		.option("--https [boolean]", "Https")
 		.option("--no-https", "Set https to false")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "settings.assignDomainServer", "post", options, { required: ["host","certificateType"], types: {"https":"boolean"}, enums: {"certificateType":["letsencrypt","none","custom"],"letsEncryptEmail":[""]} }),
+			runApiCommand(command, "settings.assignDomainServer", "post", options, { required: ["host"], types: {"customCertResolver":"string?","https":"boolean"}, enums: {"certificateType":["letsencrypt","none","custom"],"letsEncryptEmail":[""]} }),
 		);
 	g_settings
 		.command("check-gpustatus")
@@ -5915,6 +6660,14 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "settings.cleanUnusedVolumes", "post", options),
 		);
 	g_settings
+		.command("get-control-plane-runtime")
+		.description("Get Control Plane Runtime")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getControlPlaneRuntime", "get", options),
+		);
+	g_settings
 		.command("get-docker-disk-usage")
 		.description("Get Docker Disk Usage")
 		.option("--json", "Output machine-readable JSON")
@@ -5963,12 +6716,29 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "settings.getOpenApiDocument", "get", options),
 		);
 	g_settings
+		.command("get-product")
+		.description("Get Product")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getProduct", "get", options),
+		);
+	g_settings
 		.command("get-release-tag")
 		.description("Get Release Tag")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "settings.getReleaseTag", "get", options),
+		);
+	g_settings
+		.command("get-traefik-overview")
+		.description("Get Traefik Overview")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getTraefikOverview", "get", options),
 		);
 	g_settings
 		.command("get-traefik-ports")
@@ -5986,6 +6756,22 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "settings.getUpdateData", "post", options),
+		);
+	g_settings
+		.command("get-update-status")
+		.description("Get Update Status")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getUpdateStatus", "get", options),
+		);
+	g_settings
+		.command("get-web-server-ip-candidates")
+		.description("Get Web Server Ip Candidates")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "settings.getWebServerIpCandidates", "get", options),
 		);
 	g_settings
 		.command("get-web-server-settings")
@@ -6353,6 +7139,14 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "sso.deleteProvider", "post", options, { required: ["providerId"] }),
 		);
 	g_sso
+		.command("descriptors")
+		.description("Descriptors")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.descriptors", "get", options),
+		);
+	g_sso
 		.command("enforce-sso")
 		.description("Enforce SSO")
 		.option("--json", "Output machine-readable JSON")
@@ -6367,6 +7161,15 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "sso.getTrustedOrigins", "get", options),
+		);
+	g_sso
+		.command("health")
+		.description("Health")
+		.option("--providerId <value>", "Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.health", "get", options, { required: ["providerId"] }),
 		);
 	g_sso
 		.command("list-providers")
@@ -6386,6 +7189,15 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "sso.one", "get", options, { required: ["providerId"] }),
 		);
 	g_sso
+		.command("provider-kind")
+		.description("Provider Kind")
+		.option("--email <value>", "Email [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.providerKind", "get", options, { required: ["email"] }),
+		);
+	g_sso
 		.command("register")
 		.description("Register")
 		.option("--providerId <value>", "Provider Id [required]")
@@ -6393,13 +7205,15 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--domains <json>", "Domains [required] (JSON array)")
 		.option("--oidcConfig <json>", "Oidc Config (JSON object)")
 		.option("--samlConfig <json>", "Saml Config (JSON object)")
+		.option("--ldapConfig <json>", "Ldap Config (JSON object)")
+		.option("--oauthConfig <json>", "Oauth Config (JSON object)")
 		.option("--organizationId <value>", "Organization Id")
 		.option("--overrideUserInfo [boolean]", "Override User Info (default: false)")
 		.option("--no-overrideUserInfo", "Set overrideUserInfo to false")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "sso.register", "post", options, { required: ["providerId","issuer","domains"], types: {"domains":"array","oidcConfig":"object","overrideUserInfo":"boolean","samlConfig":"object"} }),
+			runApiCommand(command, "sso.register", "post", options, { required: ["providerId","issuer","domains"], types: {"domains":"array","ldapConfig":"object","oauthConfig":"object","oidcConfig":"object","overrideUserInfo":"boolean","samlConfig":"object"} }),
 		);
 	g_sso
 		.command("remove-trusted-origin")
@@ -6419,6 +7233,28 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "sso.showSignInWithSSO", "get", options),
 		);
 	g_sso
+		.command("social-provider")
+		.description("Social Provider")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.socialProvider", "get", options),
+		);
+	g_sso
+		.command("test-connection")
+		.description("Test Connection")
+		.option("--providerId <value>", "Provider Id")
+		.option("--issuer <value>", "Issuer [required]")
+		.option("--oidcConfig <json>", "Oidc Config (JSON object)")
+		.option("--samlConfig <json>", "Saml Config (JSON object)")
+		.option("--ldapConfig <json>", "Ldap Config (JSON object)")
+		.option("--oauthConfig <json>", "Oauth Config (JSON object)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "sso.testConnection", "post", options, { required: ["issuer"], types: {"ldapConfig":"object","oauthConfig":"object","oidcConfig":"object","samlConfig":"object"} }),
+		);
+	g_sso
 		.command("update")
 		.description("Update")
 		.option("--providerId <value>", "Provider Id [required]")
@@ -6426,13 +7262,15 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--domains <json>", "Domains [required] (JSON array)")
 		.option("--oidcConfig <json>", "Oidc Config (JSON object)")
 		.option("--samlConfig <json>", "Saml Config (JSON object)")
+		.option("--ldapConfig <json>", "Ldap Config (JSON object)")
+		.option("--oauthConfig <json>", "Oauth Config (JSON object)")
 		.option("--organizationId <value>", "Organization Id")
 		.option("--overrideUserInfo [boolean]", "Override User Info (default: false)")
 		.option("--no-overrideUserInfo", "Set overrideUserInfo to false")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "sso.update", "post", options, { required: ["providerId","issuer","domains"], types: {"domains":"array","oidcConfig":"object","overrideUserInfo":"boolean","samlConfig":"object"} }),
+			runApiCommand(command, "sso.update", "post", options, { required: ["providerId","issuer","domains"], types: {"domains":"array","ldapConfig":"object","oauthConfig":"object","oidcConfig":"object","overrideUserInfo":"boolean","samlConfig":"object"} }),
 		);
 	g_sso
 		.command("update-trusted-origin")
@@ -6443,6 +7281,149 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "sso.updateTrustedOrigin", "post", options, { required: ["oldOrigin","newOrigin"] }),
+		);
+	const g_status = program.command("status").description("status commands");
+	g_status
+		.command("add-incident-update")
+		.description("Add Incident Update")
+		.option("--incidentId <value>", "Incident Id [required]")
+		.option("--message <value>", "Message [required]")
+		.option("--state <value>", "State (one of: investigating, identified, monitoring, resolved)")
+		.option("--visibility <value>", "Visibility (one of: public, private) (default: \"public\")")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.addIncidentUpdate", "post", options, { required: ["incidentId","message"], enums: {"state":["investigating","identified","monitoring","resolved"],"visibility":["public","private"]} }),
+		);
+	g_status
+		.command("create-incident")
+		.description("Create Incident")
+		.option("--pageRef <value>", "Page Ref [required]")
+		.option("--title <value>", "Title [required]")
+		.option("--description <value>", "Description")
+		.option("--severity <value>", "Severity (one of: minor, major, critical) (default: \"minor\")")
+		.option("--state <value>", "State (one of: investigating, identified, monitoring, resolved) (default: \"investigating\")")
+		.option("--visibility <value>", "Visibility (one of: public, private) (default: \"private\")")
+		.option("--published [boolean]", "Published (default: false)")
+		.option("--no-published", "Set published to false")
+		.option("--componentIds <json>", "Component Ids (default: []) (JSON array)")
+		.option("--correlationKey <value>", "Correlation Key")
+		.option("--updateMessage <value>", "Update Message")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.createIncident", "post", options, { required: ["pageRef","title"], types: {"componentIds":"array","published":"boolean"}, enums: {"severity":["minor","major","critical"],"state":["investigating","identified","monitoring","resolved"],"visibility":["public","private"]} }),
+		);
+	g_status
+		.command("create-maintenance")
+		.description("Create Maintenance")
+		.option("--pageRef <value>", "Page Ref [required]")
+		.option("--title <value>", "Title [required]")
+		.option("--description <value>", "Description")
+		.option("--startAt <value>", "Start At [required]")
+		.option("--endAt <value>", "End At [required]")
+		.option("--timeZone <value>", "Time Zone (default: \"UTC\")")
+		.option("--componentIds <json>", "Component Ids (default: []) (JSON array)")
+		.option("--visibility <value>", "Visibility (one of: public, private) (default: \"private\")")
+		.option("--published [boolean]", "Published (default: false)")
+		.option("--no-published", "Set published to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.createMaintenance", "post", options, { required: ["pageRef","title","startAt","endAt"], types: {"componentIds":"array","published":"boolean"}, enums: {"visibility":["public","private"]} }),
+		);
+	g_status
+		.command("delete-incident")
+		.description("Delete Incident")
+		.option("--incidentId <value>", "Incident Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.deleteIncident", "post", options, { required: ["incidentId"] }),
+		);
+	g_status
+		.command("delete-maintenance")
+		.description("Delete Maintenance")
+		.option("--maintenanceId <value>", "Maintenance Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.deleteMaintenance", "post", options, { required: ["maintenanceId"] }),
+		);
+	g_status
+		.command("overview")
+		.description("Overview")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.overview", "get", options),
+		);
+	g_status
+		.command("publish-incident")
+		.description("Publish Incident")
+		.option("--incidentId <value>", "Incident Id [required]")
+		.option("--published [boolean]", "Published [required]")
+		.option("--visibility <value>", "Visibility (one of: public, private)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.publishIncident", "post", options, { required: ["incidentId","published"], types: {"published":"boolean"}, enums: {"visibility":["public","private"]} }),
+		);
+	g_status
+		.command("publish-maintenance")
+		.description("Publish Maintenance")
+		.option("--maintenanceId <value>", "Maintenance Id [required]")
+		.option("--published [boolean]", "Published [required]")
+		.option("--visibility <value>", "Visibility (one of: public, private)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.publishMaintenance", "post", options, { required: ["maintenanceId","published"], types: {"published":"boolean"}, enums: {"visibility":["public","private"]} }),
+		);
+	g_status
+		.command("set-incident-state")
+		.description("Set Incident State")
+		.option("--incidentId <value>", "Incident Id [required]")
+		.option("--state <value>", "State [required] (one of: investigating, identified, monitoring, resolved)")
+		.option("--message <value>", "Message")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.setIncidentState", "post", options, { required: ["incidentId","state"], enums: {"state":["investigating","identified","monitoring","resolved"]} }),
+		);
+	g_status
+		.command("set-maintenance-state")
+		.description("Set Maintenance State")
+		.option("--maintenanceId <value>", "Maintenance Id [required]")
+		.option("--state <value>", "State [required] (one of: scheduled, in_progress, completed, cancelled)")
+		.option("--message <value>", "Message")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.setMaintenanceState", "post", options, { required: ["maintenanceId","state"], enums: {"state":["scheduled","in_progress","completed","cancelled"]} }),
+		);
+	g_status
+		.command("timeline")
+		.description("Timeline")
+		.option("--incidentId <value>", "Incident Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.timeline", "get", options, { required: ["incidentId"] }),
+		);
+	g_status
+		.command("update-incident")
+		.description("Update Incident")
+		.option("--incidentId <value>", "Incident Id [required]")
+		.option("--title <value>", "Title")
+		.option("--description <value>", "Description")
+		.option("--severity <value>", "Severity (one of: minor, major, critical)")
+		.option("--visibility <value>", "Visibility (one of: public, private)")
+		.option("--componentIds <json>", "Component Ids (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "status.updateIncident", "post", options, { required: ["incidentId"], types: {"componentIds":"array"}, enums: {"severity":["minor","major","critical"],"visibility":["public","private"]} }),
 		);
 	const g_stripe = program.command("stripe").description("stripe commands");
 	g_stripe
@@ -6474,6 +7455,22 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "stripe.createCustomerPortalSession", "post", options),
 		);
 	g_stripe
+		.command("get-billing-contact")
+		.description("Get Billing Contact")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.getBillingContact", "get", options),
+		);
+	g_stripe
+		.command("get-billing-overview")
+		.description("Get Billing Overview")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.getBillingOverview", "get", options),
+		);
+	g_stripe
 		.command("get-billing-status")
 		.description("Get Billing Status")
 		.option("--json", "Output machine-readable JSON")
@@ -6498,12 +7495,36 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "stripe.getInvoices", "get", options),
 		);
 	g_stripe
+		.command("get-payment-methods")
+		.description("Get Payment Methods")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.getPaymentMethods", "get", options),
+		);
+	g_stripe
+		.command("get-plans")
+		.description("Get Plans")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.getPlans", "get", options),
+		);
+	g_stripe
 		.command("get-products")
 		.description("Get Products")
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "stripe.getProducts", "get", options),
+		);
+	g_stripe
+		.command("get-usage")
+		.description("Get Usage")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "stripe.getUsage", "get", options),
 		);
 	g_stripe
 		.command("start-free-trial")
@@ -6535,6 +7556,15 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "stripe.upgradeSubscription", "post", options, { required: ["tier","serverQuantity","isAnnual"], types: {"isAnnual":"boolean","serverQuantity":"number"}, enums: {"tier":["hobby","startup"]} }),
 		);
 	const g_swarm = program.command("swarm").description("swarm commands");
+	g_swarm
+		.command("get-console")
+		.description("Get Console")
+		.option("--serverId <value>", "Server Id")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "swarm.getConsole", "get", options),
+		);
 	g_swarm
 		.command("get-container-stats")
 		.description("Get Container Stats")
@@ -6651,6 +7681,147 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "tag.update", "post", options, { required: ["tagId"], types: {"color":"string?"} }),
+		);
+	const g_traffic = program.command("traffic").description("traffic commands");
+	g_traffic
+		.command("audience")
+		.description("Audience")
+		.option("--preset <value>", "Preset (one of: 1h, 24h, 7d, 30d, custom) (default: \"24h\")")
+		.option("--from <value>", "From")
+		.option("--to <value>", "To")
+		.option("--propertyIds <json>", "Property Ids (JSON array)")
+		.option("--platform <value>", "Platform")
+		.option("--limit <value>", "Limit (default: 10)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.audience", "get", options, { types: {"limit":"number","propertyIds":"array"}, enums: {"preset":["1h","24h","7d","30d","custom"]} }),
+		);
+	g_traffic
+		.command("collect-now")
+		.description("Collect Now")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.collectNow", "post", options),
+		);
+	g_traffic
+		.command("create-property")
+		.description("Create Property")
+		.option("--platform <value>", "Platform [required]")
+		.option("--name <value>", "Name")
+		.option("--domain <value>", "Domain [required]")
+		.option("--matchesSubdomains [boolean]", "Matches Subdomains (default: true)")
+		.option("--no-matchesSubdomains", "Set matchesSubdomains to false")
+		.option("--sourceType <value>", "Source Type (one of: traefik, web-instrumentation, external) (default: \"traefik\")")
+		.option("--logPath <value>", "Log Path")
+		.option("--allowedOrigins <json>", "Allowed Origins (JSON array)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.createProperty", "post", options, { required: ["platform","domain"], types: {"allowedOrigins":"array","matchesSubdomains":"boolean"}, enums: {"sourceType":["traefik","web-instrumentation","external"]} }),
+		);
+	g_traffic
+		.command("declare-recommended")
+		.description("Declare Recommended")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.declareRecommended", "post", options),
+		);
+	g_traffic
+		.command("delete-property")
+		.description("Delete Property")
+		.option("--propertyId <value>", "Property Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.deleteProperty", "post", options, { required: ["propertyId"] }),
+		);
+	g_traffic
+		.command("http")
+		.description("Http")
+		.option("--preset <value>", "Preset (one of: 1h, 24h, 7d, 30d, custom) (default: \"24h\")")
+		.option("--from <value>", "From")
+		.option("--to <value>", "To")
+		.option("--propertyIds <json>", "Property Ids (JSON array)")
+		.option("--platform <value>", "Platform")
+		.option("--limit <value>", "Limit (default: 10)")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.http", "get", options, { types: {"limit":"number","propertyIds":"array"}, enums: {"preset":["1h","24h","7d","30d","custom"]} }),
+		);
+	g_traffic
+		.command("overview")
+		.description("Overview")
+		.option("--preset <value>", "Preset (one of: 1h, 24h, 7d, 30d, custom) (default: \"24h\")")
+		.option("--from <value>", "From")
+		.option("--to <value>", "To")
+		.option("--propertyIds <json>", "Property Ids (JSON array)")
+		.option("--platform <value>", "Platform")
+		.option("--compare [boolean]", "Compare (default: false)")
+		.option("--no-compare", "Set compare to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.overview", "get", options, { types: {"compare":"boolean","propertyIds":"array"}, enums: {"preset":["1h","24h","7d","30d","custom"]} }),
+		);
+	g_traffic
+		.command("properties")
+		.description("Properties")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.properties", "get", options),
+		);
+	g_traffic
+		.command("timeseries")
+		.description("Timeseries")
+		.option("--preset <value>", "Preset (one of: 1h, 24h, 7d, 30d, custom) (default: \"24h\")")
+		.option("--from <value>", "From")
+		.option("--to <value>", "To")
+		.option("--propertyIds <json>", "Property Ids (JSON array)")
+		.option("--platform <value>", "Platform")
+		.option("--includeHttp [boolean]", "Include Http (default: true)")
+		.option("--no-includeHttp", "Set includeHttp to false")
+		.option("--includeAudience [boolean]", "Include Audience (default: true)")
+		.option("--no-includeAudience", "Set includeAudience to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.timeseries", "get", options, { types: {"includeAudience":"boolean","includeHttp":"boolean","propertyIds":"array"}, enums: {"preset":["1h","24h","7d","30d","custom"]} }),
+		);
+	g_traffic
+		.command("update-property")
+		.description("Update Property")
+		.option("--propertyId <value>", "Property Id [required]")
+		.option("--name <value>", "Name")
+		.option("--platform <value>", "Platform")
+		.option("--matchesSubdomains [boolean]", "Matches Subdomains")
+		.option("--no-matchesSubdomains", "Set matchesSubdomains to false")
+		.option("--enabled [boolean]", "Enabled")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.updateProperty", "post", options, { required: ["propertyId"], types: {"enabled":"boolean","matchesSubdomains":"boolean"} }),
+		);
+	g_traffic
+		.command("upsert-source")
+		.description("Upsert Source")
+		.option("--propertyId <value>", "Property Id [required]")
+		.option("--type <value>", "Type [required] (one of: traefik, web-instrumentation, external)")
+		.option("--enabled [boolean]", "Enabled")
+		.option("--no-enabled", "Set enabled to false")
+		.option("--logPath <value>", "Log Path (nullable: pass \"null\")")
+		.option("--allowedOrigins <json>", "Allowed Origins (nullable: pass \"null\") (JSON array)")
+		.option("--rotatePublicKey [boolean]", "Rotate Public Key")
+		.option("--no-rotatePublicKey", "Set rotatePublicKey to false")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "traffic.upsertSource", "post", options, { required: ["propertyId","type"], types: {"allowedOrigins":"array?","enabled":"boolean","logPath":"string?","rotatePublicKey":"boolean"}, enums: {"type":["traefik","web-instrumentation","external"]} }),
 		);
 	const g_user = program.command("user").description("user commands");
 	g_user
@@ -6923,9 +8094,6 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--no-enablePaidFeatures", "Set enablePaidFeatures to false")
 		.option("--allowImpersonation [boolean]", "Allow Impersonation")
 		.option("--no-allowImpersonation", "Set allowImpersonation to false")
-		.option("--enableEnterpriseFeatures [boolean]", "Enable Enterprise Features")
-		.option("--no-enableEnterpriseFeatures", "Set enableEnterpriseFeatures to false")
-		.option("--licenseKey <value>", "License Key (nullable: pass \"null\")")
 		.option("--stripeCustomerId <value>", "Stripe Customer Id (nullable: pass \"null\")")
 		.option("--stripeSubscriptionId <value>", "Stripe Subscription Id (nullable: pass \"null\")")
 		.option("--serversQuantity <value>", "Servers Quantity")
@@ -6936,7 +8104,7 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--json", "Output machine-readable JSON")
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
-			runApiCommand(command, "user.update", "post", options, { types: {"allowImpersonation":"boolean","banExpires":"string?","banned":"boolean?","banReason":"string?","createdAt":"string?","emailVerified":"boolean","enableEnterpriseFeatures":"boolean","enablePaidFeatures":"boolean","image":"string?","isRegistered":"boolean","licenseKey":"string?","sendInvoiceNotifications":"boolean","serversQuantity":"number","stripeCustomerId":"string?","stripeSubscriptionId":"string?","twoFactorEnabled":"boolean?"} }),
+			runApiCommand(command, "user.update", "post", options, { types: {"allowImpersonation":"boolean","banExpires":"string?","banned":"boolean?","banReason":"string?","createdAt":"string?","emailVerified":"boolean","enablePaidFeatures":"boolean","image":"string?","isRegistered":"boolean","sendInvoiceNotifications":"boolean","serversQuantity":"number","stripeCustomerId":"string?","stripeSubscriptionId":"string?","twoFactorEnabled":"boolean?"} }),
 		);
 	const g_vaultProvider = program.command("vault-provider").description("vaultProvider commands");
 	g_vaultProvider
@@ -6959,6 +8127,35 @@ export function registerGeneratedCommands(program: Command) {
 			runApiCommand(command, "vaultProvider.create", "post", options, { required: ["name","config","assignments"], types: {"assignments":"array","config":"object"} }),
 		);
 	g_vaultProvider
+		.command("create-secret")
+		.description("Create Secret")
+		.option("--vaultProviderId <value>", "Vault Provider Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--value <value>", "Value [required]")
+		.option("--description <value>", "Description")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.createSecret", "post", options, { required: ["vaultProviderId","name","value"] }),
+		);
+	g_vaultProvider
+		.command("descriptors")
+		.description("Descriptors")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.descriptors", "get", options),
+		);
+	g_vaultProvider
+		.command("health")
+		.description("Health")
+		.option("--vaultProviderId <value>", "Vault Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.health", "get", options, { required: ["vaultProviderId"] }),
+		);
+	g_vaultProvider
 		.command("list-secret-names")
 		.description("List Secret Names")
 		.option("--vaultProviderId <value>", "Vault Provider Id [required]")
@@ -6968,6 +8165,15 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "vaultProvider.listSecretNames", "get", options, { required: ["vaultProviderId","projectId"] }),
+		);
+	g_vaultProvider
+		.command("list-secrets")
+		.description("List Secrets")
+		.option("--vaultProviderId <value>", "Vault Provider Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.listSecrets", "get", options, { required: ["vaultProviderId"] }),
 		);
 	g_vaultProvider
 		.command("one")
@@ -6986,6 +8192,15 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "vaultProvider.remove", "post", options, { required: ["vaultProviderId"] }),
+		);
+	g_vaultProvider
+		.command("remove-secret")
+		.description("Remove Secret")
+		.option("--vaultSecretId <value>", "Vault Secret Id [required]")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.removeSecret", "post", options, { required: ["vaultSecretId"] }),
 		);
 	g_vaultProvider
 		.command("test-connection")
@@ -7008,6 +8223,18 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "vaultProvider.update", "post", options, { required: ["vaultProviderId","name","config","assignments"], types: {"assignments":"array","config":"object"} }),
+		);
+	g_vaultProvider
+		.command("update-secret")
+		.description("Update Secret")
+		.option("--vaultSecretId <value>", "Vault Secret Id [required]")
+		.option("--name <value>", "Name [required]")
+		.option("--value <value>", "Value")
+		.option("--description <value>", "Description")
+		.option("--json", "Output machine-readable JSON")
+		.option("--profile <name>", "Configuration profile to use")
+		.action((options, command) =>
+			runApiCommand(command, "vaultProvider.updateSecret", "post", options, { required: ["vaultSecretId","name"] }),
 		);
 	const g_volumeBackups = program.command("volume-backups").description("volumeBackups commands");
 	g_volumeBackups

@@ -21,31 +21,43 @@ Create, update, search and remove projects, and read the onboarding state of an 
 Calls `GET /api/trpc/project.all`.
 
 ```bash
-notploy project all
+notploy project all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy project all-for-permissions`
 
 Calls `GET /api/trpc/project.allForPermissions`.
 
 ```bash
-notploy project all-for-permissions
+notploy project all-for-permissions [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy project complete-onboarding`
 
 Calls `POST /api/trpc/project.completeOnboarding`.
 
 ```bash
-notploy project complete-onboarding
+notploy project complete-onboarding [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy project create`
 
 Calls `POST /api/trpc/project.create`.
 
 ```bash
-notploy project create --name <name> [options]
+notploy project create --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -53,13 +65,14 @@ notploy project create --name <name> [options]
 | `--name <value>` | string | Yes | — |
 | `--description <value>` | string | No | — |
 | `--env <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy project duplicate`
 
 Calls `POST /api/trpc/project.duplicate`.
 
 ```bash
-notploy project duplicate --sourceEnvironmentId <sourceEnvironmentId> --name <name> [options]
+notploy project duplicate --sourceEnvironmentId <value> --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -67,49 +80,62 @@ notploy project duplicate --sourceEnvironmentId <sourceEnvironmentId> --name <na
 | `--sourceEnvironmentId <value>` | string | Yes | — |
 | `--name <value>` | string | Yes | — |
 | `--description <value>` | string | No | — |
-| `--includeServices` | boolean | No | — |
-| `--selectedServices <value>` | string | No | — |
-| `--duplicateInSameProject` | boolean | No | — |
+| `--includeServices [boolean]` | boolean | No | — |
+| `--no-includeServices` | boolean | No | — |
+| `--selectedServices <json>` | array | No | — |
+| `--duplicateInSameProject [boolean]` | boolean | No | — |
+| `--no-duplicateInSameProject` | boolean | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy project home-stats`
 
 Calls `GET /api/trpc/project.homeStats`.
 
 ```bash
-notploy project home-stats
+notploy project home-stats [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy project onboarding-status`
 
 Calls `GET /api/trpc/project.onboardingStatus`.
 
 ```bash
-notploy project onboarding-status
+notploy project onboarding-status [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy project one`
 
 Calls `GET /api/trpc/project.one`.
 
 ```bash
-notploy project one --projectId <projectId>
+notploy project one --projectId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--projectId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy project remove`
 
 Calls `POST /api/trpc/project.remove`.
 
 ```bash
-notploy project remove --projectId <projectId>
+notploy project remove --projectId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--projectId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy project search`
 
@@ -126,13 +152,14 @@ notploy project search [options]
 | `--description <value>` | string | No | — |
 | `--limit <value>` | number | No | — |
 | `--offset <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy project update`
 
 Calls `POST /api/trpc/project.update`.
 
 ```bash
-notploy project update --projectId <projectId> [options]
+notploy project update --projectId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -143,3 +170,4 @@ notploy project update --projectId <projectId> [options]
 | `--createdAt <value>` | string | No | — |
 | `--organizationId <value>` | string | No | — |
 | `--env <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

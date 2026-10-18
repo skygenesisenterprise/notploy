@@ -26,12 +26,15 @@ notploy audit-log all [options]
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
+| `--search <value>` | string | No | — |
 | `--userId <value>` | string | No | — |
 | `--userEmail <value>` | string | No | — |
 | `--resourceName <value>` | string | No | — |
-| `--action <value>` | string | No | `create`, `update`, `delete`, `deploy`, `cancel`, `redeploy`, `login`, `logout` |
-| `--resourceType <value>` | string | No | `project`, `service`, `environment`, `deployment`, `user`, `customRole`, `domain`, `certificate`, `registry`, `server`, `sshKey`, `gitProvider`, `notification`, `settings`, `session` |
+| `--action <value>` | string | No | `create`, `update`, `delete`, `read`, `deploy`, `cancel`, `redeploy`, `login`, `logout`, `restore`, `run`, `start`, `stop`, `reload`, `rebuild`, `move` |
+| `--resourceType <value>` | string | No | `project`, `service`, `environment`, `deployment`, `user`, `customRole`, `domain`, `certificate`, `registry`, `server`, `sshKey`, `gitProvider`, `destination`, `notification`, `settings`, `session`, `port`, `redirect`, `security`, `schedule`, `backup`, `volumeBackup`, `docker`, `swarm`, `previewDeployment`, `organization`, `cluster`, `mount`, `application`, `compose`, `network`, `vaultProvider`, `dnsProvider`, `objectStorage` |
 | `--from <value>` | string | No | — |
 | `--to <value>` | string | No | — |
+| `--sortOrder <value>` | string | No | `asc`, `desc` |
 | `--limit <value>` | number | No | — |
 | `--offset <value>` | number | No | — |
+| `--profile <name>` | string | No | — |

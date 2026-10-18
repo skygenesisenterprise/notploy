@@ -21,9 +21,10 @@ Administrative operations that apply to the whole instance.
 Calls `POST /api/trpc/admin.setupMonitoring`.
 
 ```bash
-notploy admin setup-monitoring --metricsConfig <metricsConfig>
+notploy admin setup-monitoring --metricsConfig <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--metricsConfig <value>` | string | Yes | — |
+| `--metricsConfig <json>` | object | Yes | — |
+| `--profile <name>` | string | No | — |

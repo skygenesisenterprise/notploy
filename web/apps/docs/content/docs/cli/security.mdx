@@ -21,7 +21,7 @@ Per-application HTTP basic auth and response security headers.
 Calls `POST /api/trpc/security.create`.
 
 ```bash
-notploy security create --applicationId <applicationId> --username <username> --password <password>
+notploy security create --applicationId <value> --username <value> --password <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -29,37 +29,40 @@ notploy security create --applicationId <applicationId> --username <username> --
 | `--applicationId <value>` | string | Yes | — |
 | `--username <value>` | string | Yes | — |
 | `--password <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy security delete`
 
 Calls `POST /api/trpc/security.delete`.
 
 ```bash
-notploy security delete --securityId <securityId>
+notploy security delete --securityId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--securityId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy security one`
 
 Calls `GET /api/trpc/security.one`.
 
 ```bash
-notploy security one --securityId <securityId>
+notploy security one --securityId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--securityId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy security update`
 
 Calls `POST /api/trpc/security.update`.
 
 ```bash
-notploy security update --securityId <securityId> --username <username> --password <password>
+notploy security update --securityId <value> --username <value> --password <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -67,3 +70,4 @@ notploy security update --securityId <securityId> --username <username> --passwo
 | `--securityId <value>` | string | Yes | — |
 | `--username <value>` | string | Yes | — |
 | `--password <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |

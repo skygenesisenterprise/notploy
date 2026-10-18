@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 Container registries used to pull private images.
 
-`notploy registry` exposes **7 commands**. They map one-to-one onto the `registry.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy registry` exposes **17 commands**. They map one-to-one onto the `registry.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy registry --help` to list these commands in your terminal, or
@@ -21,99 +21,271 @@ Container registries used to pull private images.
 Calls `GET /api/trpc/registry.all`.
 
 ```bash
-notploy registry all
+notploy registry all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy registry capabilities`
+
+Calls `GET /api/trpc/registry.capabilities`.
+
+```bash
+notploy registry capabilities --registryId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy registry create`
 
 Calls `POST /api/trpc/registry.create`.
 
 ```bash
-notploy registry create --registryName <registryName> --username <username> --password <password> --registryUrl <registryUrl> --registryType <registryType> --imagePrefix <imagePrefix> [options]
+notploy registry create --registryName <value> --registryUrl <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--registryName <value>` | string | Yes | — |
-| `--username <value>` | string | Yes | — |
-| `--password <value>` | string | Yes | — |
+| `--providerType <value>` | string | No | `docker-hub`, `ghcr`, `gitlab`, `ecr`, `gar`, `acr`, `quay`, `artifactory`, `harbor`, `zot`, `distribution`, `nexus`, `generic-oci` |
+| `--username <value>` | string | No | — |
+| `--password <value>` | string | No | — |
 | `--registryUrl <value>` | string | Yes | — |
-| `--registryType <value>` | string | Yes | `cloud` |
-| `--imagePrefix <value>` | string | Yes | — |
+| `--namespace <value>` | string | No | — |
+| `--imagePrefix <value>` | string | No | — |
+| `--authMethod <value>` | string | No | `none`, `basic`, `token` |
+| `--credentialSource <value>` | string | No | `secret`, `inline` |
+| `--vaultSecretId <value>` | string | No | — |
+| `--allowAnonymous [boolean]` | boolean | No | — |
+| `--no-allowAnonymous` | boolean | No | — |
+| `--registryType <value>` | string | No | `cloud`, `selfHosted` |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy registry delete-image`
+
+Calls `POST /api/trpc/registry.deleteImage`.
+
+```bash
+notploy registry delete-image --registryId <value> --repository <value> --digest <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | Yes | — |
+| `--repository <value>` | string | Yes | — |
+| `--digest <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy registry descriptors`
+
+Calls `GET /api/trpc/registry.descriptors`.
+
+```bash
+notploy registry descriptors [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy registry get-digest`
+
+Calls `GET /api/trpc/registry.getDigest`.
+
+```bash
+notploy registry get-digest --registryId <value> --repository <value> --reference <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | Yes | — |
+| `--repository <value>` | string | Yes | — |
+| `--reference <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy registry get-manifest`
+
+Calls `GET /api/trpc/registry.getManifest`.
+
+```bash
+notploy registry get-manifest --registryId <value> --repository <value> --reference <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | Yes | — |
+| `--repository <value>` | string | Yes | — |
+| `--reference <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy registry health`
+
+Calls `GET /api/trpc/registry.health`.
+
+```bash
+notploy registry health --registryId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy registry list-repositories`
+
+Calls `GET /api/trpc/registry.listRepositories`.
+
+```bash
+notploy registry list-repositories --registryId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy registry list-tags`
+
+Calls `GET /api/trpc/registry.listTags`.
+
+```bash
+notploy registry list-tags --registryId <value> --repository <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | Yes | — |
+| `--repository <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy registry one`
 
 Calls `GET /api/trpc/registry.one`.
 
 ```bash
-notploy registry one --registryId <registryId>
+notploy registry one --registryId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--registryId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy registry remove`
 
 Calls `POST /api/trpc/registry.remove`.
 
 ```bash
-notploy registry remove --registryId <registryId>
+notploy registry remove --registryId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--registryId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy registry secret-options`
+
+Calls `GET /api/trpc/registry.secretOptions`.
+
+```bash
+notploy registry secret-options [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy registry test-connection`
+
+Calls `POST /api/trpc/registry.testConnection`.
+
+```bash
+notploy registry test-connection [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--registryId <value>` | string | No | — |
+| `--providerType <value>` | string | No | `docker-hub`, `ghcr`, `gitlab`, `ecr`, `gar`, `acr`, `quay`, `artifactory`, `harbor`, `zot`, `distribution`, `nexus`, `generic-oci` |
+| `--registryUrl <value>` | string | No | — |
+| `--namespace <value>` | string | No | — |
+| `--authMethod <value>` | string | No | `none`, `basic`, `token` |
+| `--credentialSource <value>` | string | No | `secret`, `inline` |
+| `--vaultSecretId <value>` | string | No | — |
+| `--username <value>` | string | No | — |
+| `--password <value>` | string | No | — |
+| `--allowAnonymous [boolean]` | boolean | No | — |
+| `--no-allowAnonymous` | boolean | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy registry test-registry`
 
 Calls `POST /api/trpc/registry.testRegistry`.
 
 ```bash
-notploy registry test-registry --username <username> --password <password> --registryUrl <registryUrl> --registryType <registryType> [options]
+notploy registry test-registry [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--registryName <value>` | string | No | — |
-| `--username <value>` | string | Yes | — |
-| `--password <value>` | string | Yes | — |
-| `--registryUrl <value>` | string | Yes | — |
-| `--registryType <value>` | string | Yes | `cloud` |
-| `--imagePrefix <value>` | string | No | — |
-| `--serverId <value>` | string | No | — |
+| `--registryId <value>` | string | No | — |
+| `--providerType <value>` | string | No | `docker-hub`, `ghcr`, `gitlab`, `ecr`, `gar`, `acr`, `quay`, `artifactory`, `harbor`, `zot`, `distribution`, `nexus`, `generic-oci` |
+| `--registryUrl <value>` | string | No | — |
+| `--namespace <value>` | string | No | — |
+| `--authMethod <value>` | string | No | `none`, `basic`, `token` |
+| `--credentialSource <value>` | string | No | `secret`, `inline` |
+| `--vaultSecretId <value>` | string | No | — |
+| `--username <value>` | string | No | — |
+| `--password <value>` | string | No | — |
+| `--allowAnonymous [boolean]` | boolean | No | — |
+| `--no-allowAnonymous` | boolean | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy registry test-registry-by-id`
 
 Calls `POST /api/trpc/registry.testRegistryById`.
 
 ```bash
-notploy registry test-registry-by-id [options]
+notploy registry test-registry-by-id --registryId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
-| `--registryId <value>` | string | No | — |
-| `--serverId <value>` | string | No | — |
+| `--registryId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy registry update`
 
 Calls `POST /api/trpc/registry.update`.
 
 ```bash
-notploy registry update --registryId <registryId> [options]
+notploy registry update --registryId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--registryId <value>` | string | Yes | — |
 | `--registryName <value>` | string | No | — |
+| `--providerType <value>` | string | No | `docker-hub`, `ghcr`, `gitlab`, `ecr`, `gar`, `acr`, `quay`, `artifactory`, `harbor`, `zot`, `distribution`, `nexus`, `generic-oci` |
+| `--registryUrl <value>` | string | No | — |
+| `--namespace <value>` | string | No | — |
 | `--imagePrefix <value>` | string | No | — |
+| `--authMethod <value>` | string | No | `none`, `basic`, `token` |
+| `--credentialSource <value>` | string | No | `secret`, `inline` |
+| `--vaultSecretId <value>` | string | No | — |
 | `--username <value>` | string | No | — |
 | `--password <value>` | string | No | — |
-| `--registryUrl <value>` | string | No | — |
+| `--allowAnonymous [boolean]` | boolean | No | — |
+| `--no-allowAnonymous` | boolean | No | — |
 | `--createdAt <value>` | string | No | — |
-| `--registryType <value>` | string | No | `cloud` |
+| `--registryType <value>` | string | No | `cloud`, `selfHosted` |
 | `--organizationId <value>` | string | No | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

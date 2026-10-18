@@ -55,9 +55,15 @@ importers:
       lint-staged:
         specifier: ^15.5.2
         version: 15.5.2
+      toml:
+        specifier: 3.0.0
+        version: 3.0.0
       tsx:
         specifier: 4.22.4
         version: 4.22.4
+      yaml:
+        specifier: 2.9.1
+        version: 2.9.1
 
   apps/api:
     dependencies:
@@ -1562,9 +1568,6 @@ importers:
       '@next/third-parties':
         specifier: 16.3.6
         version: 16.3.6(next@16.3.3(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
-      '@openpanel/nextjs':
-        specifier: ^1.5.1
-        version: 1.5.1(next@16.3.3(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.1.16
         version: 2.2.1(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -22213,13 +22216,6 @@ snapshots:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 
-  '@openpanel/nextjs@1.5.1(next@16.3.3(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
-    dependencies:
-      '@openpanel/web': 1.4.1
-      next: 16.3.3(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
-
   '@openpanel/nextjs@1.5.1(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@openpanel/web': 1.4.1
@@ -24550,7 +24546,7 @@ snapshots:
       semver: 7.7.3
       strip-ansi: 5.2.0
       wcwidth: 1.0.1
-      yaml: 2.8.1
+      yaml: 2.9.1
     transitivePeerDependencies:
       - encoding
 
@@ -25155,7 +25151,7 @@ snapshots:
   '@scalar/json-magic@0.8.10':
     dependencies:
       '@scalar/helpers': 0.2.6
-      yaml: 2.8.1
+      yaml: 2.9.1
 
   '@scalar/json-magic@0.8.2':
     dependencies:
@@ -33377,7 +33373,7 @@ snapshots:
 
   openapi3-ts@4.4.0:
     dependencies:
-      yaml: 2.8.1
+      yaml: 2.9.1
 
   openapi3-ts@4.6.1:
     dependencies:
@@ -33723,7 +33719,7 @@ snapshots:
   postcss-load-config@4.0.2(postcss@8.5.30)(ts-node@10.9.2(@types/node@24.19.2)(typescript@5.9.3)):
     dependencies:
       lilconfig: 3.1.4
-      yaml: 2.8.1
+      yaml: 2.9.1
     optionalDependencies:
       postcss: 8.5.30
       ts-node: 10.9.2(@types/node@24.19.2)(typescript@5.9.3)

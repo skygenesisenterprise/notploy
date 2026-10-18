@@ -21,13 +21,14 @@ List, inspect and remove images stored on a server.
 Calls `GET /api/trpc/dockerImage.getImageConfig`.
 
 ```bash
-notploy docker-image get-image-config --imageRef <imageRef> [options]
+notploy docker-image get-image-config --imageRef <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--imageRef <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker-image get-images`
 
@@ -40,13 +41,14 @@ notploy docker-image get-images [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker-image remove-image`
 
 Calls `POST /api/trpc/dockerImage.removeImage`.
 
 ```bash
-notploy docker-image remove-image --repository <repository> --tag <tag> --id <id> [options]
+notploy docker-image remove-image --repository <value> --tag <value> --id <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -54,5 +56,7 @@ notploy docker-image remove-image --repository <repository> --tag <tag> --id <id
 | `--repository <value>` | string | Yes | — |
 | `--tag <value>` | string | Yes | — |
 | `--id <value>` | string | Yes | — |
-| `--force` | boolean | No | — |
+| `--force [boolean]` | boolean | No | — |
+| `--no-force` | boolean | No | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

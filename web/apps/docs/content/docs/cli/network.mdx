@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 Docker networks: create, import, inspect and resynchronise them across servers.
 
-`notploy network` exposes **9 commands**. They map one-to-one onto the `network.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy network` exposes **10 commands**. They map one-to-one onto the `network.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy network --help` to list these commands in your terminal, or
@@ -27,51 +27,73 @@ notploy network all [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy network create`
 
 Calls `POST /api/trpc/network.create`.
 
 ```bash
-notploy network create --name <name> [options]
+notploy network create --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--name <value>` | string | Yes | — |
 | `--driver <value>` | string | No | `bridge`, `overlay` |
-| `--internal` | boolean | No | — |
-| `--attachable` | boolean | No | — |
-| `--enableIPv4` | boolean | No | — |
-| `--enableIPv6` | boolean | No | — |
-| `--mtu <value>` | string | No | — |
-| `--ipam <value>` | string | No | — |
+| `--internal [boolean]` | boolean | No | — |
+| `--no-internal` | boolean | No | — |
+| `--attachable [boolean]` | boolean | No | — |
+| `--no-attachable` | boolean | No | — |
+| `--enableIPv4 [boolean]` | boolean | No | — |
+| `--no-enableIPv4` | boolean | No | — |
+| `--enableIPv6 [boolean]` | boolean | No | — |
+| `--no-enableIPv6` | boolean | No | — |
+| `--mtu <value>` | number | No | — |
+| `--ipam <json>` | object | No | — |
 | `--serverId <value>` | string | No | — |
+| `--networkProviderId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy network import`
 
 Calls `POST /api/trpc/network.import`.
 
 ```bash
-notploy network import --names <names> [options]
+notploy network import --names <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
-| `--names <value>` | string | Yes | — |
+| `--names <json>` | array | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy network inspect`
 
 Calls `GET /api/trpc/network.inspect`.
 
 ```bash
-notploy network inspect --networkId <networkId>
+notploy network inspect --networkId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--networkId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy network inventory`
+
+Calls `GET /api/trpc/network.inventory`.
+
+```bash
+notploy network inventory [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy network networks-to-sync`
 
@@ -84,51 +106,56 @@ notploy network networks-to-sync [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy network one`
 
 Calls `GET /api/trpc/network.one`.
 
 ```bash
-notploy network one --networkId <networkId>
+notploy network one --networkId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--networkId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy network recreate`
 
 Calls `POST /api/trpc/network.recreate`.
 
 ```bash
-notploy network recreate --networkId <networkId>
+notploy network recreate --networkId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--networkId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy network remove`
 
 Calls `POST /api/trpc/network.remove`.
 
 ```bash
-notploy network remove --networkId <networkId>
+notploy network remove --networkId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--networkId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy network resync`
 
 Calls `POST /api/trpc/network.resync`.
 
 ```bash
-notploy network resync --networkId <networkId>
+notploy network resync --networkId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--networkId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |

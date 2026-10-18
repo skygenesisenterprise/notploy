@@ -21,7 +21,7 @@ Gitea connections, plus branch and repository lookups.
 Calls `POST /api/trpc/gitea.create`.
 
 ```bash
-notploy gitea create --giteaUrl <giteaUrl> --name <name> [options]
+notploy gitea create --giteaUrl <value> --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -41,13 +41,14 @@ notploy gitea create --giteaUrl <giteaUrl> --name <name> [options]
 | `--name <value>` | string | Yes | — |
 | `--giteaUsername <value>` | string | No | — |
 | `--organizationName <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitea get-gitea-branches`
 
 Calls `GET /api/trpc/gitea.getGiteaBranches`.
 
 ```bash
-notploy gitea get-gitea-branches --owner <owner> --repositoryName <repositoryName> [options]
+notploy gitea get-gitea-branches --owner <value> --repositoryName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -55,50 +56,58 @@ notploy gitea get-gitea-branches --owner <owner> --repositoryName <repositoryNam
 | `--owner <value>` | string | Yes | — |
 | `--repositoryName <value>` | string | Yes | — |
 | `--giteaId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitea get-gitea-repositories`
 
 Calls `GET /api/trpc/gitea.getGiteaRepositories`.
 
 ```bash
-notploy gitea get-gitea-repositories --giteaId <giteaId>
+notploy gitea get-gitea-repositories --giteaId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--giteaId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitea get-gitea-url`
 
 Calls `GET /api/trpc/gitea.getGiteaUrl`.
 
 ```bash
-notploy gitea get-gitea-url --giteaId <giteaId>
+notploy gitea get-gitea-url --giteaId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--giteaId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitea gitea-providers`
 
 Calls `GET /api/trpc/gitea.giteaProviders`.
 
 ```bash
-notploy gitea gitea-providers
+notploy gitea gitea-providers [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitea one`
 
 Calls `GET /api/trpc/gitea.one`.
 
 ```bash
-notploy gitea one --giteaId <giteaId>
+notploy gitea one --giteaId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--giteaId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitea test-connection`
 
@@ -112,13 +121,14 @@ notploy gitea test-connection [options]
 | --- | --- | --- | --- |
 | `--giteaId <value>` | string | No | — |
 | `--organizationName <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy gitea update`
 
 Calls `POST /api/trpc/gitea.update`.
 
 ```bash
-notploy gitea update --giteaId <giteaId> --giteaUrl <giteaUrl> --gitProviderId <gitProviderId> --name <name> [options]
+notploy gitea update --giteaId <value> --giteaUrl <value> --gitProviderId <value> --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -138,3 +148,4 @@ notploy gitea update --giteaId <giteaId> --giteaUrl <giteaUrl> --gitProviderId <
 | `--name <value>` | string | Yes | — |
 | `--giteaUsername <value>` | string | No | — |
 | `--organizationName <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

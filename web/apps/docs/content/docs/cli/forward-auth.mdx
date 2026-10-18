@@ -21,114 +21,131 @@ Deploy an authentication proxy in front of applications and manage its domains.
 Calls `POST /api/trpc/forwardAuth.deployOnServer`.
 
 ```bash
-notploy forward-auth deploy-on-server --serverId <serverId> --providerId <providerId>
+notploy forward-auth deploy-on-server --serverId <value> --providerId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
 | `--providerId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy forward-auth disable`
 
 Calls `POST /api/trpc/forwardAuth.disable`.
 
 ```bash
-notploy forward-auth disable --domainId <domainId>
+notploy forward-auth disable --domainId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--domainId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy forward-auth enable`
 
 Calls `POST /api/trpc/forwardAuth.enable`.
 
 ```bash
-notploy forward-auth enable --domainId <domainId>
+notploy forward-auth enable --domainId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--domainId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy forward-auth get-auth-domain`
 
 Calls `GET /api/trpc/forwardAuth.getAuthDomain`.
 
 ```bash
-notploy forward-auth get-auth-domain --serverId <serverId>
+notploy forward-auth get-auth-domain --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy forward-auth list-providers`
 
 Calls `GET /api/trpc/forwardAuth.listProviders`.
 
 ```bash
-notploy forward-auth list-providers
+notploy forward-auth list-providers [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy forward-auth remove-auth-domain`
 
 Calls `POST /api/trpc/forwardAuth.removeAuthDomain`.
 
 ```bash
-notploy forward-auth remove-auth-domain --serverId <serverId>
+notploy forward-auth remove-auth-domain --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy forward-auth remove-on-server`
 
 Calls `POST /api/trpc/forwardAuth.removeOnServer`.
 
 ```bash
-notploy forward-auth remove-on-server --serverId <serverId>
+notploy forward-auth remove-on-server --serverId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy forward-auth server-status`
 
 Calls `GET /api/trpc/forwardAuth.serverStatus`.
 
 ```bash
-notploy forward-auth server-status
+notploy forward-auth server-status [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy forward-auth set-auth-domain`
 
 Calls `POST /api/trpc/forwardAuth.setAuthDomain`.
 
 ```bash
-notploy forward-auth set-auth-domain --serverId <serverId> --authDomain <authDomain> [options]
+notploy forward-auth set-auth-domain --serverId <value> --authDomain <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | Yes | — |
 | `--authDomain <value>` | string | Yes | — |
-| `--https` | boolean | No | — |
+| `--https [boolean]` | boolean | No | — |
+| `--no-https` | boolean | No | — |
 | `--certificateType <value>` | string | No | `none`, `letsencrypt`, `custom` |
 | `--customCertResolver <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy forward-auth status`
 
 Calls `GET /api/trpc/forwardAuth.status`.
 
 ```bash
-notploy forward-auth status --domainId <domainId>
+notploy forward-auth status --domainId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--domainId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |

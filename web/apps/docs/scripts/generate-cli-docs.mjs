@@ -12,9 +12,17 @@
 //
 // Usage: pnpm run generate:cli   (from web/apps/docs)
 
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseCommandsFile } from "./lib/cli-commands.mjs";
 
 const DOCS_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CLI_ROOT = resolve(DOCS_ROOT, "../../../packages/cli");
@@ -316,11 +324,6 @@ const GROUPS = {
 		blurb:
 			"Instance-wide settings: Traefik, Docker cleanup, monitoring, GPUs, updates and SSH.",
 	},
-	"license-key": {
-		title: "License keys",
-		section: "Platform",
-		blurb: "Activate and inspect the enterprise license of the instance.",
-	},
 	stripe: {
 		title: "Stripe",
 		section: "Platform",
@@ -341,14 +344,53 @@ const GROUPS = {
 		section: "Automation",
 		blurb: "AI providers and models, plus log analysis and configuration suggestions.",
 	},
+	community: {
+		title: "Community",
+		section: "Platform",
+		blurb:
+			"Community sources, repositories, releases and the health report of the instance's community presence.",
+	},
+	"network-provider": {
+		title: "Network providers",
+		section: "Servers & infrastructure",
+		blurb:
+			"External network providers (overlay networks and peers) plus their health checks.",
+	},
+	"object-storage": {
+		title: "Object storage",
+		section: "Backups",
+		blurb:
+			"S3-compatible providers and buckets used as backup destinations, including usage and health.",
+	},
+	onion: {
+		title: "Onion services",
+		section: "Domains & networking",
+		blurb:
+			"Tor onion services attached to a Compose stack: create, start, stop and inspect their status.",
+	},
+	"operational-event": {
+		title: "Operational events",
+		section: "Overview",
+		blurb:
+			"Timeline of instance-level events used by alerts, audits and the activity feed.",
+	},
+	status: {
+		title: "Status page",
+		section: "Platform",
+		blurb:
+			"Publish incidents and maintenance windows to the public status page.",
+	},
+	traffic: {
+		title: "Traffic analytics",
+		section: "Overview",
+		blurb:
+			"Traffic sources and properties, HTTP reports and the audience overview built from access logs.",
+	},
 };
 
 // ---------------------------------------------------------------------------
 // Parse packages/cli/src/generated/commands.ts
 // ---------------------------------------------------------------------------
-
-// Every generated command adds this option on top of the spec inputs.
-const GLOBAL_OPTIONS = new Set(["--json"]);
 
 // Sidebar order for the reference; sections not listed here are appended.
 const SECTION_ORDER = [
@@ -365,80 +407,6 @@ const SECTION_ORDER = [
 	"Platform",
 	"Automation",
 ];
-
-function unescapeJsString(value) {
-	return value.replace(/\\(.)/g, "$1");
-}
-
-/** `--sourceType <value>` + "sourceType (github, docker)" -> enum values. */
-function splitDescription(description) {
-	const match = description.match(/^(.*?)\s*\(([^()]*)\)$/);
-	if (match) {
-		const values = match[2].split(", ").map((v) => v.trim());
-		if (values.length > 0 && values.every((v) => /^[A-Za-z0-9_.:-]+$/.test(v))) {
-			return { description: match[1], values };
-		}
-	}
-	return { description, values: [] };
-}
-
-function parseCommandsFile(source) {
-	const groupDeclarations = [
-		...source.matchAll(
-			/const (g_[A-Za-z0-9_]+) = program\.command\('([^']+)'\)\.description\('([^']*)'\);/g,
-		),
-	];
-
-	const groups = [];
-	for (const [index, declaration] of groupDeclarations.entries()) {
-		const [, variable, name] = declaration;
-		const segmentStart = declaration.index ?? 0;
-		const segmentEnd =
-			groupDeclarations[index + 1]?.index ?? source.lastIndexOf("}\n");
-		const segment = source.slice(segmentStart, segmentEnd);
-
-		// Each command starts a `.command('action')` chain; split there so the
-		// options and the API call that follow stay with their command.
-		const chunks = segment.split(/\n\t+\.command\('([^']+)'\)/).slice(1);
-		const commands = [];
-
-		for (let i = 0; i < chunks.length; i += 2) {
-			const action = chunks[i];
-			const body = chunks[i + 1] ?? "";
-
-			const options = [
-				...body.matchAll(
-					/\.(requiredOption|option)\('(--[^']+)'(?:,\s*'((?:[^'\\]|\\.)*)')?\)/g,
-				),
-			]
-				.filter(([, , flag]) => !GLOBAL_OPTIONS.has(flag.split(" ")[0]))
-				.map(([, kind, flag, rawDescription]) => {
-					const { values } = splitDescription(unescapeJsString(rawDescription ?? ""));
-					const flagName = flag.split(" ")[0].replace(/^--/, "");
-					return {
-						flag,
-						required: kind === "requiredOption",
-						values,
-						// The generated commands coerce numeric inputs with Number().
-						isNumber: body.includes(`opts["${flagName}"] = Number(`),
-					};
-				});
-
-			const call = body.match(/await (apiGet|apiPost)\("([^"]+)"/);
-
-			commands.push({
-				action,
-				options,
-				endpoint: call?.[2] ?? null,
-				method: call?.[1] === "apiGet" ? "GET" : "POST",
-			});
-		}
-
-		groups.push({ name, variable, commands });
-	}
-
-	return groups;
-}
 
 const groups = parseCommandsFile(readFileSync(COMMANDS_SOURCE, "utf8"));
 const knownGroups = new Set(groups.map((group) => group.name));
@@ -480,10 +448,9 @@ function escapeCell(value) {
 function usageLine(group, command) {
 	const required = command.options
 		.filter((option) => option.required)
-		.map((option) => {
-			const name = option.flag.replace(/^--/, "").split(" ")[0];
-			return option.flag.includes("<value>") ? `--${name} <${name}>` : `--${name}`;
-		});
+		// The flag literal carries the real placeholder (`<json>`, `<value>`,
+		// `[boolean]`), so the usage line matches `--help`.
+		.map((option) => option.flag.replace(/ \[boolean\]$/, ""));
 	const hasOptional = command.options.some((option) => !option.required);
 	const parts = [`notploy ${group} ${command.action}`, ...required];
 	if (hasOptional) parts.push("[options]");
@@ -494,11 +461,7 @@ function renderOptionsTable(command) {
 	if (command.options.length === 0) return "";
 	const rows = command.options
 		.map((option) => {
-			const type = option.flag.includes("<value>")
-				? option.isNumber
-					? "number"
-					: "string"
-				: "boolean";
+			const type = option.type ?? (option.isNumber ? "number" : "string");
 			const values = option.values.length
 				? option.values.map((value) => code(value)).join(", ")
 				: "—";
@@ -631,19 +594,76 @@ function renderMetaJson(groups) {
 }
 
 // ---------------------------------------------------------------------------
-// Write
+// Write (or verify, with --check)
 // ---------------------------------------------------------------------------
 
-rmSync(LEGACY_OUT_DIR, { recursive: true, force: true });
-mkdirSync(OUT_DIR, { recursive: true });
-
-writeFileSync(join(OUT_DIR, "meta.json"), renderMetaJson(groups));
-writeFileSync(join(OUT_DIR, "reference.mdx"), renderReferenceIndex(groups));
+const generated = new Map();
+generated.set("meta.json", renderMetaJson(groups));
+generated.set("reference.mdx", renderReferenceIndex(groups));
 for (const group of groups) {
-	writeFileSync(join(OUT_DIR, `${group.name}.mdx`), renderGroupPage(group));
+	generated.set(`${group.name}.mdx`, renderGroupPage(group));
 }
 
-const total = groups.reduce((sum, group) => sum + group.commands.length, 0);
-console.log(
-	`Generated ${groups.length} group pages and ${total} commands → ${OUT_DIR.replace(`${DOCS_ROOT}/`, "")}`,
-);
+const check = process.argv.includes("--check");
+
+if (check) {
+	const handWritten = new Set([...STATIC_PAGES, "meta.json"]);
+	const existing = new Set(
+		readdirSync(OUT_DIR).filter(
+			(name) =>
+				name.endsWith(".mdx") &&
+				!handWritten.has(name.replace(/\.mdx$/, "")),
+		),
+	);
+	const problems = [];
+	for (const [name, content] of generated) {
+		const file = join(OUT_DIR, name);
+		if (!existsSync(file)) {
+			problems.push(`missing: ${name}`);
+			continue;
+		}
+		if (readFileSync(file, "utf8") !== content) {
+			problems.push(`stale: ${name}`);
+		}
+		existing.delete(name);
+	}
+	for (const name of [...existing].sort()) {
+		problems.push(`orphaned: ${name} (no matching CLI group)`);
+	}
+	if (problems.length > 0) {
+		console.error(
+			`CLI documentation is out of date (${problems.length} file(s)):`,
+		);
+		for (const problem of problems) console.error(`  ${problem}`);
+		console.error("Run 'pnpm --filter @notploy/docs run generate:cli' and commit the result.");
+		process.exitCode = 1;
+	} else {
+		const total = groups.reduce((sum, group) => sum + group.commands.length, 0);
+		console.log(
+			`CLI documentation is up to date (${groups.length} groups, ${total} commands).`,
+		);
+	}
+} else {
+	rmSync(LEGACY_OUT_DIR, { recursive: true, force: true });
+	mkdirSync(OUT_DIR, { recursive: true });
+
+	// Group pages are fully generated, so a page for a group the CLI no longer
+	// exposes is deleted instead of lingering in the sidebar.
+	const handWritten = new Set([...STATIC_PAGES, "meta.json"]);
+	for (const name of readdirSync(OUT_DIR)) {
+		if (!name.endsWith(".mdx")) continue;
+		if (handWritten.has(name.replace(/\.mdx$/, ""))) continue;
+		if (!generated.has(name)) {
+			rmSync(join(OUT_DIR, name), { force: true });
+		}
+	}
+
+	for (const [name, content] of generated) {
+		writeFileSync(join(OUT_DIR, name), content);
+	}
+
+	const total = groups.reduce((sum, group) => sum + group.commands.length, 0);
+	console.log(
+		`Generated ${groups.length} group pages and ${total} commands → ${OUT_DIR.replace(`${DOCS_ROOT}/`, "")}`,
+	);
+}

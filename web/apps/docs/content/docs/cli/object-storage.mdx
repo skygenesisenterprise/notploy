@@ -1,0 +1,239 @@
+---
+title: "Object storage"
+description: "S3-compatible providers and buckets used as backup destinations, including usage and health. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+S3-compatible providers and buckets used as backup destinations, including usage and health.
+
+`notploy object-storage` exposes **15 commands**. They map one-to-one onto the `object-storage.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy object-storage --help` to list these commands in your terminal, or
+	`notploy object-storage <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy object-storage bucket`
+
+Calls `GET /api/trpc/objectStorage.bucket`.
+
+```bash
+notploy object-storage bucket --objectStorageBucketId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--objectStorageBucketId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage buckets`
+
+Calls `GET /api/trpc/objectStorage.buckets`.
+
+```bash
+notploy object-storage buckets [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage buckets-by-provider`
+
+Calls `GET /api/trpc/objectStorage.bucketsByProvider`.
+
+```bash
+notploy object-storage buckets-by-provider --objectStorageProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--objectStorageProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage create-bucket`
+
+Calls `POST /api/trpc/objectStorage.createBucket`.
+
+```bash
+notploy object-storage create-bucket --name <value> --objectStorageProviderId <value> --bucket <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--objectStorageProviderId <value>` | string | Yes | — |
+| `--bucket <value>` | string | Yes | — |
+| `--region <value>` | string | No | — |
+| `--endpoint <value>` | string | No | — |
+| `--versioning [boolean]` | boolean | No | — |
+| `--no-versioning` | boolean | No | — |
+| `--lifecycle <json>` | array | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage create-provider`
+
+Calls `POST /api/trpc/objectStorage.createProvider`.
+
+```bash
+notploy object-storage create-provider --name <value> --providerType <value> --category <value> --config <json> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--providerType <value>` | string | Yes | `aws`, `cloudflare-r2`, `scaleway`, `wasabi`, `digitalocean`, `backblaze`, `ovh`, `linode`, `storj`, `idrive`, `minio`, `rustfs`, `ceph`, `seaweedfs`, `garage`, `s3-compatible`, `notploy-internal` |
+| `--category <value>` | string | Yes | `external`, `self-hosted`, `internal` |
+| `--config <json>` | object | Yes | — |
+| `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage descriptors`
+
+Calls `GET /api/trpc/objectStorage.descriptors`.
+
+```bash
+notploy object-storage descriptors [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage provider`
+
+Calls `GET /api/trpc/objectStorage.provider`.
+
+```bash
+notploy object-storage provider --objectStorageProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--objectStorageProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage provider-health`
+
+Calls `GET /api/trpc/objectStorage.providerHealth`.
+
+```bash
+notploy object-storage provider-health --objectStorageProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--objectStorageProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage providers`
+
+Calls `GET /api/trpc/objectStorage.providers`.
+
+```bash
+notploy object-storage providers [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage remove-bucket`
+
+Calls `POST /api/trpc/objectStorage.removeBucket`.
+
+```bash
+notploy object-storage remove-bucket --objectStorageBucketId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--objectStorageBucketId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage remove-provider`
+
+Calls `POST /api/trpc/objectStorage.removeProvider`.
+
+```bash
+notploy object-storage remove-provider --objectStorageProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--objectStorageProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage test-bucket`
+
+Calls `POST /api/trpc/objectStorage.testBucket`.
+
+```bash
+notploy object-storage test-bucket --objectStorageBucketId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--objectStorageBucketId <value>` | string | Yes | — |
+| `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage test-connection`
+
+Calls `POST /api/trpc/objectStorage.testConnection`.
+
+```bash
+notploy object-storage test-connection [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--objectStorageProviderId <value>` | string | No | — |
+| `--providerType <value>` | string | No | `aws`, `cloudflare-r2`, `scaleway`, `wasabi`, `digitalocean`, `backblaze`, `ovh`, `linode`, `storj`, `idrive`, `minio`, `rustfs`, `ceph`, `seaweedfs`, `garage`, `s3-compatible`, `notploy-internal` |
+| `--category <value>` | string | No | `external`, `self-hosted`, `internal` |
+| `--config <json>` | object | No | — |
+| `--bucket <value>` | string | No | — |
+| `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage update-bucket`
+
+Calls `POST /api/trpc/objectStorage.updateBucket`.
+
+```bash
+notploy object-storage update-bucket --name <value> --objectStorageProviderId <value> --bucket <value> --objectStorageBucketId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--objectStorageProviderId <value>` | string | Yes | — |
+| `--bucket <value>` | string | Yes | — |
+| `--region <value>` | string | No | — |
+| `--endpoint <value>` | string | No | — |
+| `--versioning [boolean]` | boolean | No | — |
+| `--no-versioning` | boolean | No | — |
+| `--lifecycle <json>` | array | No | — |
+| `--objectStorageBucketId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy object-storage update-provider`
+
+Calls `POST /api/trpc/objectStorage.updateProvider`.
+
+```bash
+notploy object-storage update-provider --name <value> --providerType <value> --category <value> --config <json> --objectStorageProviderId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--providerType <value>` | string | Yes | `aws`, `cloudflare-r2`, `scaleway`, `wasabi`, `digitalocean`, `backblaze`, `ovh`, `linode`, `storj`, `idrive`, `minio`, `rustfs`, `ceph`, `seaweedfs`, `garage`, `s3-compatible`, `notploy-internal` |
+| `--category <value>` | string | Yes | `external`, `self-hosted`, `internal` |
+| `--config <json>` | object | Yes | — |
+| `--serverId <value>` | string | No | — |
+| `--objectStorageProviderId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |

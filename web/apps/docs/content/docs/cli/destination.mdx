@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 S3-compatible storage destinations that backups are uploaded to.
 
-`notploy destination` exposes **6 commands**. They map one-to-one onto the `destination.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy destination` exposes **7 commands**. They map one-to-one onto the `destination.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy destination --help` to list these commands in your terminal, or
@@ -21,15 +21,19 @@ S3-compatible storage destinations that backups are uploaded to.
 Calls `GET /api/trpc/destination.all`.
 
 ```bash
-notploy destination all
+notploy destination all [options]
 ```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |
 
 ### `notploy destination create`
 
 Calls `POST /api/trpc/destination.create`.
 
 ```bash
-notploy destination create --name <name> --provider <provider> --accessKey <accessKey> --bucket <bucket> --region <region> --endpoint <endpoint> --secretAccessKey <secretAccessKey> --additionalFlags <additionalFlags> [options]
+notploy destination create --name <value> --provider <value> --accessKey <value> --bucket <value> --region <value> --endpoint <value> --secretAccessKey <value> --additionalFlags <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -41,39 +45,56 @@ notploy destination create --name <name> --provider <provider> --accessKey <acce
 | `--region <value>` | string | Yes | — |
 | `--endpoint <value>` | string | Yes | — |
 | `--secretAccessKey <value>` | string | Yes | — |
-| `--additionalFlags <value>` | string | Yes | — |
+| `--additionalFlags <json>` | array | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--objectStorageBucketId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy destination from-object-storage-bucket`
+
+Calls `POST /api/trpc/destination.fromObjectStorageBucket`.
+
+```bash
+notploy destination from-object-storage-bucket --objectStorageBucketId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--objectStorageBucketId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy destination one`
 
 Calls `GET /api/trpc/destination.one`.
 
 ```bash
-notploy destination one --destinationId <destinationId>
+notploy destination one --destinationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--destinationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy destination remove`
 
 Calls `POST /api/trpc/destination.remove`.
 
 ```bash
-notploy destination remove --destinationId <destinationId>
+notploy destination remove --destinationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--destinationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy destination test-connection`
 
 Calls `POST /api/trpc/destination.testConnection`.
 
 ```bash
-notploy destination test-connection --name <name> --provider <provider> --accessKey <accessKey> --bucket <bucket> --region <region> --endpoint <endpoint> --secretAccessKey <secretAccessKey> --additionalFlags <additionalFlags> [options]
+notploy destination test-connection --name <value> --provider <value> --accessKey <value> --bucket <value> --region <value> --endpoint <value> --secretAccessKey <value> --additionalFlags <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -85,15 +106,17 @@ notploy destination test-connection --name <name> --provider <provider> --access
 | `--region <value>` | string | Yes | — |
 | `--endpoint <value>` | string | Yes | — |
 | `--secretAccessKey <value>` | string | Yes | — |
-| `--additionalFlags <value>` | string | Yes | — |
+| `--additionalFlags <json>` | array | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--objectStorageBucketId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy destination update`
 
 Calls `POST /api/trpc/destination.update`.
 
 ```bash
-notploy destination update --name <name> --accessKey <accessKey> --bucket <bucket> --region <region> --endpoint <endpoint> --secretAccessKey <secretAccessKey> --destinationId <destinationId> --provider <provider> --additionalFlags <additionalFlags> [options]
+notploy destination update --name <value> --accessKey <value> --bucket <value> --region <value> --endpoint <value> --secretAccessKey <value> --destinationId <value> --provider <value> --additionalFlags <json> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -106,5 +129,7 @@ notploy destination update --name <name> --accessKey <accessKey> --bucket <bucke
 | `--secretAccessKey <value>` | string | Yes | — |
 | `--destinationId <value>` | string | Yes | — |
 | `--provider <value>` | string | Yes | — |
-| `--additionalFlags <value>` | string | Yes | — |
+| `--additionalFlags <json>` | array | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--objectStorageBucketId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

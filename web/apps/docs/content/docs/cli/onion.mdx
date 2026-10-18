@@ -1,0 +1,144 @@
+---
+title: "Onion services"
+description: "Tor onion services attached to a Compose stack: create, start, stop and inspect their status. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Tor onion services attached to a Compose stack: create, start, stop and inspect their status.
+
+`notploy onion` exposes **9 commands**. They map one-to-one onto the `onion.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy onion --help` to list these commands in your terminal, or
+	`notploy onion <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy onion create`
+
+Calls `POST /api/trpc/onion.create`.
+
+```bash
+notploy onion create --name <value> --composeId <value> --serviceName <value> --targetPort <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | Yes | — |
+| `--composeId <value>` | string | Yes | — |
+| `--serviceName <value>` | string | Yes | — |
+| `--targetPort <value>` | number | Yes | — |
+| `--virtualPort <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy onion delete`
+
+Calls `POST /api/trpc/onion.delete`.
+
+```bash
+notploy onion delete --onionServiceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--onionServiceId <value>` | string | Yes | — |
+| `--deleteIdentity [boolean]` | boolean | No | — |
+| `--no-deleteIdentity` | boolean | No | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy onion list`
+
+Calls `GET /api/trpc/onion.list`.
+
+```bash
+notploy onion list --composeId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--composeId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy onion one`
+
+Calls `GET /api/trpc/onion.one`.
+
+```bash
+notploy onion one --onionServiceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--onionServiceId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy onion restart`
+
+Calls `POST /api/trpc/onion.restart`.
+
+```bash
+notploy onion restart --onionServiceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--onionServiceId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy onion start`
+
+Calls `POST /api/trpc/onion.start`.
+
+```bash
+notploy onion start --onionServiceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--onionServiceId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy onion status`
+
+Calls `GET /api/trpc/onion.status`.
+
+```bash
+notploy onion status --onionServiceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--onionServiceId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy onion stop`
+
+Calls `POST /api/trpc/onion.stop`.
+
+```bash
+notploy onion stop --onionServiceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--onionServiceId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy onion update`
+
+Calls `POST /api/trpc/onion.update`.
+
+```bash
+notploy onion update --onionServiceId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--name <value>` | string | No | — |
+| `--serviceName <value>` | string | No | — |
+| `--targetPort <value>` | number | No | — |
+| `--virtualPort <value>` | number | No | — |
+| `--onionServiceId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |

@@ -21,7 +21,7 @@ Publish container ports directly, without routing them through a domain.
 Calls `POST /api/trpc/port.create`.
 
 ```bash
-notploy port create --publishedPort <publishedPort> --publishMode <publishMode> --targetPort <targetPort> --protocol <protocol> --applicationId <applicationId>
+notploy port create --publishedPort <value> --publishMode <value> --targetPort <value> --protocol <value> --applicationId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -31,37 +31,40 @@ notploy port create --publishedPort <publishedPort> --publishMode <publishMode> 
 | `--targetPort <value>` | number | Yes | — |
 | `--protocol <value>` | string | Yes | `tcp`, `udp` |
 | `--applicationId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy port delete`
 
 Calls `POST /api/trpc/port.delete`.
 
 ```bash
-notploy port delete --portId <portId>
+notploy port delete --portId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--portId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy port one`
 
 Calls `GET /api/trpc/port.one`.
 
 ```bash
-notploy port one --portId <portId>
+notploy port one --portId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--portId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy port update`
 
 Calls `POST /api/trpc/port.update`.
 
 ```bash
-notploy port update --portId <portId> --publishedPort <publishedPort> --publishMode <publishMode> --targetPort <targetPort> --protocol <protocol>
+notploy port update --portId <value> --publishedPort <value> --publishMode <value> --targetPort <value> --protocol <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -71,3 +74,4 @@ notploy port update --portId <portId> --publishedPort <publishedPort> --publishM
 | `--publishMode <value>` | string | Yes | `ingress`, `host` |
 | `--targetPort <value>` | number | Yes | — |
 | `--protocol <value>` | string | Yes | `tcp`, `udp` |
+| `--profile <name>` | string | No | — |

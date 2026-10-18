@@ -15,7 +15,13 @@
 		"web:dev": "pnpm --filter=@notploy/website run dev",
 		"web:build": "pnpm --filter=@notploy/website run build",
 		"docs:dev": "pnpm --filter=@notploy/docs run dev",
-		"docs:build": "pnpm --filter=@notploy/docs run build",
+		"docs:check": "node scripts/docs/cli.mjs check",
+		"docs:check:changed": "node scripts/docs/cli.mjs check --changed",
+		"docs:check:coverage": "node scripts/docs/cli.mjs coverage",
+		"docs:check:links": "node scripts/docs/cli.mjs check --only links",
+		"docs:generate": "node scripts/docs/cli.mjs generate",
+		"docs:test": "node --test scripts/docs/tests/*.test.mjs",
+		"docs:build": "node scripts/docs/cli.mjs check --only spec,regions,links && pnpm --filter=@notploy/docs run build:docs && pnpm --filter=@notploy/docs run build",
 		"desktop:dev": "pnpm --filter=@notploy/app run desktop:dev",
 		"desktop:build": "pnpm --filter=@notploy/app run desktop:build",
 		"desktop:start": "pnpm --filter=@notploy/app run desktop:start",
@@ -45,7 +51,9 @@
 		"dotenv": "16.4.5",
 		"esbuild": "0.28.2",
 		"lint-staged": "^15.5.2",
-		"tsx": "4.22.4"
+		"toml": "3.0.0",
+		"tsx": "4.22.4",
+		"yaml": "2.9.1"
 	},
 	"packageManager": "pnpm@10.22.0",
 	"engines": {

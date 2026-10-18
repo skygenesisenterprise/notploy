@@ -1,0 +1,42 @@
+---
+title: "Operational events"
+description: "Timeline of instance-level events used by alerts, audits and the activity feed. Generated from the `notploy` command surface."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Timeline of instance-level events used by alerts, audits and the activity feed.
+
+`notploy operational-event` exposes **2 commands**. They map one-to-one onto the `operational-event.*` API operations, so anything reachable from the dashboard is reachable from here.
+
+<Callout>
+	Run `notploy operational-event --help` to list these commands in your terminal, or
+	`notploy operational-event <command> --help` for a single command.
+</Callout>
+
+## Commands
+
+### `notploy operational-event acknowledge`
+
+Calls `POST /api/trpc/operationalEvent.acknowledge`.
+
+```bash
+notploy operational-event acknowledge --eventId <value> [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--eventId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
+
+### `notploy operational-event list`
+
+Calls `GET /api/trpc/operationalEvent.list`.
+
+```bash
+notploy operational-event list [options]
+```
+
+| Option | Type | Required | Allowed values |
+| --- | --- | --- | --- |
+| `--profile <name>` | string | No | — |

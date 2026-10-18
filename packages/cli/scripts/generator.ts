@@ -88,6 +88,13 @@ export interface GeneratedResult {
 	commandCount: number;
 	groupCount: number;
 	specHash: string;
+	skippedEndpoints: string[];
+}
+
+export interface SkippedEndpoint {
+	endpoint: string;
+	method: string;
+	reason: string;
 }
 
 export class GeneratorError extends Error {
@@ -466,14 +473,30 @@ function groupDescription(spec: OpenAPISpec, group: string): string {
 }
 
 /**
+ * The CLI calls tRPC procedures, so only endpoints addressed as
+ * `/<namespace>.<procedure>` can be exposed as commands. REST routes declared
+ * with an explicit `openapi.path` (for example `/cicd/deploy`) are served by
+ * the HTTP API but have no matching tRPC route, so the generated client cannot
+ * call them. They are reported instead of being silently dropped or turned
+ * into commands that would 404.
+ */
+function isTrpcEndpoint(endpoint: string): boolean {
+	return /^[A-Za-z0-9_-]+\.[A-Za-z0-9_.-]+$/.test(endpoint);
+}
+
+/**
  * Parses the spec into the deterministic command model used by the renderer.
  */
-export function parseSpec(spec: OpenAPISpec): CommandInfo[] {
+export function parseSpecWithReport(spec: OpenAPISpec): {
+	commands: CommandInfo[];
+	skipped: SkippedEndpoint[];
+} {
 	if (!isRecord(spec.paths)) {
 		throw new GeneratorError("The OpenAPI document has no paths object.");
 	}
 	const components = spec.components?.schemas ?? {};
 	const commands: CommandInfo[] = [];
+	const skipped: SkippedEndpoint[] = [];
 
 	for (const [pathKey, methods] of Object.entries(spec.paths)) {
 		for (const [method, operation] of Object.entries(methods)) {
@@ -485,6 +508,15 @@ export function parseSpec(spec: OpenAPISpec): CommandInfo[] {
 			}
 
 			const endpoint = pathKey.replace(/^\//, "");
+			if (!isTrpcEndpoint(endpoint)) {
+				skipped.push({
+					endpoint: pathKey,
+					method,
+					reason: "not a <namespace>.<procedure> tRPC endpoint",
+				});
+				continue;
+			}
+
 			const [group, ...rest] = endpoint.split(".");
 			const action = rest.join(".");
 			if (!group || !action) {
@@ -531,7 +563,17 @@ export function parseSpec(spec: OpenAPISpec): CommandInfo[] {
 		}
 	}
 
-	return commands.sort((a, b) => a.endpoint.localeCompare(b.endpoint));
+	return {
+		commands: commands.sort((a, b) => a.endpoint.localeCompare(b.endpoint)),
+		skipped,
+	};
+}
+
+/**
+ * Parses the spec into the deterministic command model used by the renderer.
+ */
+export function parseSpec(spec: OpenAPISpec): CommandInfo[] {
+	return parseSpecWithReport(spec).commands;
 }
 
 function optionLines(option: OptionInfo): string[] {
@@ -666,7 +708,7 @@ export function generateFromSpec(
 	spec: OpenAPISpec,
 	specHash: string,
 ): GeneratedResult {
-	const commands = parseSpec(spec);
+	const { commands, skipped } = parseSpecWithReport(spec);
 	const groupCount = new Set(commands.map((command) => command.group)).size;
 	return {
 		commandsFile: renderCommands(spec, specHash, commands),
@@ -674,6 +716,9 @@ export function generateFromSpec(
 		commandCount: commands.length,
 		groupCount,
 		specHash,
+		skippedEndpoints: skipped.map(
+			(entry) => `${entry.method.toUpperCase()} ${entry.endpoint}`,
+		),
 	};
 }
 

@@ -21,7 +21,7 @@ Inspect volumes, their size and the files inside them.
 Calls `POST /api/trpc/dockerVolume.deleteVolumeFile`.
 
 ```bash
-notploy docker-volume delete-volume-file --volumeName <volumeName> --path <path> [options]
+notploy docker-volume delete-volume-file --volumeName <value> --path <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -29,19 +29,21 @@ notploy docker-volume delete-volume-file --volumeName <volumeName> --path <path>
 | `--volumeName <value>` | string | Yes | — |
 | `--path <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker-volume get-volume-config`
 
 Calls `GET /api/trpc/dockerVolume.getVolumeConfig`.
 
 ```bash
-notploy docker-volume get-volume-config --volumeName <volumeName> [options]
+notploy docker-volume get-volume-config --volumeName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--volumeName <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker-volume get-volumes`
 
@@ -54,6 +56,7 @@ notploy docker-volume get-volumes [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker-volume get-volumes-size`
 
@@ -66,13 +69,14 @@ notploy docker-volume get-volumes-size [options]
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker-volume list-volume-files`
 
 Calls `GET /api/trpc/dockerVolume.listVolumeFiles`.
 
 ```bash
-notploy docker-volume list-volume-files --volumeName <volumeName> --path <path> [options]
+notploy docker-volume list-volume-files --volumeName <value> --path <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -80,13 +84,14 @@ notploy docker-volume list-volume-files --volumeName <volumeName> --path <path> 
 | `--volumeName <value>` | string | Yes | — |
 | `--path <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker-volume read-volume-file`
 
 Calls `GET /api/trpc/dockerVolume.readVolumeFile`.
 
 ```bash
-notploy docker-volume read-volume-file --volumeName <volumeName> --path <path> [options]
+notploy docker-volume read-volume-file --volumeName <value> --path <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -94,26 +99,28 @@ notploy docker-volume read-volume-file --volumeName <volumeName> --path <path> [
 | `--volumeName <value>` | string | Yes | — |
 | `--path <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker-volume remove-volume`
 
 Calls `POST /api/trpc/dockerVolume.removeVolume`.
 
 ```bash
-notploy docker-volume remove-volume --volumeName <volumeName> [options]
+notploy docker-volume remove-volume --volumeName <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--volumeName <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy docker-volume write-volume-file`
 
 Calls `POST /api/trpc/dockerVolume.writeVolumeFile`.
 
 ```bash
-notploy docker-volume write-volume-file --volumeName <volumeName> --path <path> --content <content> [options]
+notploy docker-volume write-volume-file --volumeName <value> --path <value> --content <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -122,3 +129,4 @@ notploy docker-volume write-volume-file --volumeName <volumeName> --path <path> 
 | `--path <value>` | string | Yes | — |
 | `--content <value>` | string | Yes | — |
 | `--serverId <value>` | string | No | — |
+| `--profile <name>` | string | No | — |

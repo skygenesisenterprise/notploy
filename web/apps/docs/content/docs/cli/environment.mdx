@@ -21,19 +21,20 @@ Applications and databases live inside an environment, and environments belong t
 Calls `GET /api/trpc/environment.byProjectId`.
 
 ```bash
-notploy environment by-project-id --projectId <projectId>
+notploy environment by-project-id --projectId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--projectId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy environment create`
 
 Calls `POST /api/trpc/environment.create`.
 
 ```bash
-notploy environment create --name <name> --projectId <projectId> [options]
+notploy environment create --name <value> --projectId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -41,13 +42,14 @@ notploy environment create --name <name> --projectId <projectId> [options]
 | `--name <value>` | string | Yes | — |
 | `--description <value>` | string | No | — |
 | `--projectId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy environment duplicate`
 
 Calls `POST /api/trpc/environment.duplicate`.
 
 ```bash
-notploy environment duplicate --environmentId <environmentId> --name <name> [options]
+notploy environment duplicate --environmentId <value> --name <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -55,30 +57,33 @@ notploy environment duplicate --environmentId <environmentId> --name <name> [opt
 | `--environmentId <value>` | string | Yes | — |
 | `--name <value>` | string | Yes | — |
 | `--description <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy environment one`
 
 Calls `GET /api/trpc/environment.one`.
 
 ```bash
-notploy environment one --environmentId <environmentId>
+notploy environment one --environmentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--environmentId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy environment remove`
 
 Calls `POST /api/trpc/environment.remove`.
 
 ```bash
-notploy environment remove --environmentId <environmentId>
+notploy environment remove --environmentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
 | --- | --- | --- | --- |
 | `--environmentId <value>` | string | Yes | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy environment search`
 
@@ -96,13 +101,14 @@ notploy environment search [options]
 | `--projectId <value>` | string | No | — |
 | `--limit <value>` | number | No | — |
 | `--offset <value>` | number | No | — |
+| `--profile <name>` | string | No | — |
 
 ### `notploy environment update`
 
 Calls `POST /api/trpc/environment.update`.
 
 ```bash
-notploy environment update --environmentId <environmentId> [options]
+notploy environment update --environmentId <value> [options]
 ```
 
 | Option | Type | Required | Allowed values |
@@ -112,3 +118,4 @@ notploy environment update --environmentId <environmentId> [options]
 | `--description <value>` | string | No | — |
 | `--projectId <value>` | string | No | — |
 | `--env <value>` | string | No | — |
+| `--profile <name>` | string | No | — |
