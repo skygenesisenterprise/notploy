@@ -17,6 +17,8 @@ DOCKER_VERSION="28.5.2"
 #   2. NOTPLOY_FLAVOR (self/selfhosted | cloud | console), else
 #   3. the legacy IS_CLOUD=true signal (cloud), else
 #   4. self-hosted.
+# ---------------------------------------------------------------------------
+
 NOTPLOY_PRODUCT="${NOTPLOY_PRODUCT:-}"
 if [ -z "$NOTPLOY_PRODUCT" ]; then
     case "${NOTPLOY_FLAVOR:-}" in
@@ -74,6 +76,10 @@ Usage: install.sh [--self|--cloud|--console] [--force-identity] [options] [updat
 Installation options:
   --self|--cloud|--console   Select the Notploy product to install.
   --force-identity           Regenerate the local instance identity and PKI.
+
+Platforms:
+  This script is the Linux installer (native Linux or WSL).
+  Windows Server 2022/2025/2026 uses the standalone install.ps1 instead.
 
 Migration options:
   --migrate                  Perform the Dokploy → Notploy migration (the default
@@ -872,10 +878,16 @@ write_migration_report() {
 check_system_preflight() {
     echo "Checking system..."
 
-    if [ "$(uname -s)" = "Linux" ]; then
-        echo "✓ Linux"
+    if is_linux_like; then
+        if is_wsl; then
+            echo "✓ Linux (WSL)"
+        else
+            echo "✓ Linux"
+        fi
+    elif is_windows_host; then
+        echo "✗ Native Windows (this is the Linux installer; use install.ps1)"
     else
-        echo "✗ Linux"
+        echo "✗ Linux/WSL (Notploy requires Linux or WSL2 on Windows Server)"
     fi
 
     if command -v docker >/dev/null 2>&1; then
@@ -975,6 +987,68 @@ is_proxmox_lxc() {
     
     return 1
 }
+# Function to detect if running in Windows Subsystem for Linux (WSL)
+is_wsl() {
+    if [ -n "$WSL_DISTRO_NAME" ]; then
+        return 0
+    fi
+    if [ -n "$WSLENV" ]; then
+        return 0
+    fi
+    if [ -r /proc/version ] && grep -qi microsoft /proc/version 2>/dev/null; then
+        return 0
+    fi
+    if [ -r /proc/sys/kernel/osrelease ] && grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
+        return 0
+    fi
+    return 1
+}
+
+# Function to detect if running in a Linux-like environment (Linux or WSL)
+is_linux_like() {
+    case "$(uname -s)" in
+        Linux) return 0 ;;
+        *) 
+            if is_wsl; then
+                return 0
+            fi
+            return 1
+            ;;
+    esac
+}
+
+# True under a native Windows POSIX layer (Git Bash, MSYS2, Cygwin) rather than
+# WSL. This script is the Linux installer only. Windows Server is covered by
+# the standalone PowerShell installer (install.ps1); refuse here so a Git Bash
+# user gets a clear pointer instead of a half-finished host.
+is_windows_host() {
+    case "$(uname -s)" in
+        MINGW*|MSYS*|CYGWIN*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Points Windows Server administrators at install.ps1, the complete Windows
+# installer. Keep the hosted URL in sync with the published install.ps1.
+windows_install_hint() {
+    cat >&2 <<'EOF'
+Error: this is the Linux installer and does not run natively on Windows.
+
+On Windows Server 2022/2025/2026, use the standalone PowerShell installer
+(install.ps1) in an elevated PowerShell:
+
+  irm https://notploy.com/install.ps1 | iex
+
+or, from a checkout of this repository:
+
+  powershell -ExecutionPolicy Bypass -File .\install.ps1
+
+install.ps1 provisions WSL2 with a Linux Docker engine and installs Notploy
+there. No change was made to this host.
+EOF
+    exit 1
+}
+
 
 # ---------------------------------------------------------------------------
 # Host state detection: Docker Swarm and existing Notploy.
@@ -2036,6 +2110,13 @@ install_notploy() {
         exit 1
     fi
 
+    # Native Windows (Git Bash/MSYS/Cygwin) is covered by the standalone
+    # PowerShell installer (install.ps1). Failing here is deliberate: this
+    # script only knows how to provision a Linux host.
+    if is_windows_host; then
+        windows_install_hint
+    fi
+
     if [ -f /.dockerenv ]; then
         echo "This script must be run on Linux" >&2
         exit 1
@@ -2284,6 +2365,11 @@ update_notploy() {
 
 # When sourced (NOTPLOY_SOURCE_ONLY=1) only the definitions above are used.
 if [ "${NOTPLOY_SOURCE_ONLY:-0}" != "1" ]; then
+    # Applies to every action, including `update`: this script is the Linux
+    # installer; Windows Server uses the standalone install.ps1.
+    if is_windows_host; then
+        windows_install_hint
+    fi
     detect_elevation
     if [ "$ACTION" = "update" ]; then
         update_notploy
