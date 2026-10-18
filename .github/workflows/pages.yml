@@ -33,12 +33,18 @@ name: Pages
 #                                          (organisation/depot), must be a
 #                                          different repository than this one
 #     secret   PAGES_DEPLOY_TOKEN          required, token with contents:write
-#                                          on WEBSITE_PAGES_REPOSITORY.
+#                                          AND pages:read/write on
+#                                          WEBSITE_PAGES_REPOSITORY.
 #                                          Fine-grained PAT: repository access
 #                                          limited to that repository with
-#                                          "Contents: Read and write" (add
-#                                          "Pages: Read and write" to let the
-#                                          workflow verify the Pages settings).
+#                                          "Contents: Read and write" and
+#                                          "Pages: Read and write" (the Pages
+#                                          permission is what lets the
+#                                          post-deploy step read and repair
+#                                          the Pages settings; without it the
+#                                          job fails naming the missing
+#                                          permission instead of pretending
+#                                          the publication was verified).
 #                                          Classic PAT: `repo` scope for a
 #                                          private target repository.
 #                                          Never print its value.
@@ -56,20 +62,47 @@ name: Pages
 #
 #   environment `documentation`
 #     no required configuration: the job pushes to this repository with the
-#     workflow GITHUB_TOKEN (contents: write) and no personal secret.
+#     workflow GITHUB_TOKEN (permissions contents: write + pages: write, no
+#     personal secret). The pages permission lets the same token verify and
+#     repair this repository's Pages settings after the publish.
 #     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_KEY       optional, Traffic Manager property key
 #     variable NEXT_PUBLIC_NOTPLOY_TRAFFIC_ENDPOINT  optional, Traffic Manager collector origin
 #
+# After each publish, both jobs run .github/scripts/ensure-github-pages.mjs
+# against their own publishing target. It verifies the publication parameters
+# and repairs what the available permissions allow, idempotently (a write
+# request is only sent when the current state differs from the expected one):
+#   - GitHub Pages disabled       -> enable it with source branch gh-pages
+#   - wrong source branch/build   -> switch back to "Deploy from a branch",
+#                                    gh-pages, folder "/ (root)"
+#   - Enforce HTTPS off           -> turn it on; a refusal (certificate still
+#                                    pending) is only a warning
+#   - custom domain not recorded  -> warning only: the domain is bound through
+#                                    the CNAME file published in gh-pages and
+#                                    through Settings -> Pages. DNS records
+#                                    and organisation domain verification are
+#                                    external, are never modified here, and
+#                                    cannot be automated from a workflow.
+# The step runs after the push so the gh-pages branch already exists the first
+# time Pages has to be enabled. Each job keeps its own result: a failure of one
+# never blocks the other.
+#
 # Required setup (repository settings, not code):
 #   This repository: Settings -> Pages -> Source "Deploy from a branch",
-#     branch `gh-pages`, folder `/ (root)`.
+#     branch `gh-pages`, folder `/ (root)` (the workflow repairs this
+#     automatically when the token allows it; otherwise the failure message
+#     names the exact setting).
 #   Website repository: Settings -> Pages -> Source "Deploy from a branch",
-#     branch `gh-pages`, folder `/ (root)`.
+#     branch `gh-pages`, folder `/ (root)` (same automatic repair through
+#     PAGES_DEPLOY_TOKEN).
 #   Do not point any of these Pages settings at `master`: the source tree is
 #   not a static site.
 #   Custom domains: `notploy.com` on the website repository,
-#   `docs.notploy.com` on this repository (DNS records live in Cloudflare and
-#   are outside the scope of this workflow).
+#   `docs.notploy.com` on this repository. The CNAME files are written by the
+#   workflow into the published artifacts; the DNS records (already pointing
+#   both hostnames at GitHub Pages) and, for an organisation repository, the
+#   domain verification under organisation Settings -> Domains stay manual
+#   and are outside the scope of this workflow.
 
 on:
   push:
@@ -89,6 +122,7 @@ on:
       - "package.json"
       - "pnpm-lock.yaml"
       - ".github/workflows/pages.yml"
+      - ".github/scripts/ensure-github-pages.mjs"
   workflow_dispatch:
 
 concurrency:
@@ -118,6 +152,8 @@ jobs:
           REPOSITORY: ${{ vars.WEBSITE_PAGES_REPOSITORY }}
           TOKEN: ${{ secrets.PAGES_DEPLOY_TOKEN }}
           THIS_REPOSITORY: ${{ github.repository }}
+          GHOST_URL: ${{ vars.GHOST_URL }}
+          GHOST_KEY: ${{ secrets.GHOST_KEY }}
         run: |
           set -euo pipefail
           fail() { echo "::error::$1"; exit 1; }
@@ -154,38 +190,22 @@ jobs:
             *)   fail "Unexpected HTTP $status while reading $REPOSITORY with PAGES_DEPLOY_TOKEN." ;;
           esac
 
-          # Pages settings check. HTTP 404 means Pages is disabled, which would
-          # silently swallow the deployment. HTTP 403 here only means the token
-          # cannot read Pages settings (missing Pages:read), so it warns instead
-          # of failing: the push itself only needs contents:write.
-          status=$(curl -sS -o /tmp/pages-site.json -w '%{http_code}' \
-            -H "Authorization: Bearer $TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/$REPOSITORY/pages") || \
-            fail "Could not reach the GitHub API for $REPOSITORY/pages."
-          case "$status" in
-            404)
-              fail "GitHub Pages is not enabled on $REPOSITORY (HTTP 404). Enable it with source 'Deploy from a branch', branch gh-pages, folder '/ (root)'."
-              ;;
-            401|403)
-              echo "::warning::PAGES_DEPLOY_TOKEN cannot read the Pages settings of $REPOSITORY (HTTP $status). Verify manually that Pages uses 'Deploy from a branch' with branch gh-pages."
-              ;;
-            200)
-              build_type=$(jq -r '.build_type // "legacy"' /tmp/pages-site.json)
-              branch=$(jq -r '.branch // empty' /tmp/pages-site.json)
-              if [ "$build_type" != "legacy" ]; then
-                fail "$REPOSITORY publishes Pages with build type '$build_type'. Set source to 'Deploy from a branch' with branch gh-pages."
-              fi
-              if [ "$branch" != "gh-pages" ]; then
-                fail "$REPOSITORY publishes Pages from branch '${branch:-none}' instead of gh-pages."
-              fi
-              echo "Target $REPOSITORY publishes branch gh-pages for notploy.com."
-              ;;
-            *)
-              echo "::warning::Unexpected HTTP $status while reading the Pages settings of $REPOSITORY."
-              ;;
-          esac
+          # The Pages settings themselves are verified and repaired after the
+          # publish by .github/scripts/ensure-github-pages.mjs: that step runs
+          # once the gh-pages branch exists, so Pages can also be enabled on
+          # the very first deployment. Only credentials and the target
+          # repository are checked here, before anything is built.
+
+          # Ghost Content API configuration: presence only, values are never
+          # printed. An unset value does not fail here because the static
+          # export itself reports an actionable error when the blog routes
+          # cannot be generated.
+          if [ -z "$GHOST_URL" ]; then
+            echo "::warning::GHOST_URL is not set on the 'website' environment; the static export fetches /blog from the Ghost Content API and fails the build when the CMS is unreachable."
+          fi
+          if [ -z "$GHOST_KEY" ]; then
+            echo "::warning::GHOST_KEY is not set on the 'website' environment (secret: Content API key for GHOST_URL)."
+          fi
 
       - name: Check out repository
         uses: actions/checkout@v6
@@ -247,6 +267,14 @@ jobs:
           user_name: notploy-bot
           user_email: bot@notploy.com
 
+      - name: Verify GitHub Pages publication settings
+        env:
+          PAGES_REPOSITORY: ${{ vars.WEBSITE_PAGES_REPOSITORY }}
+          PAGES_TOKEN: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+          PAGES_EXPECTED_CNAME: notploy.com
+          PAGES_DOMAIN: https://notploy.com
+        run: node .github/scripts/ensure-github-pages.mjs
+
   documentation:
     name: Deploy documentation
     runs-on: ubuntu-latest
@@ -256,6 +284,7 @@ jobs:
       url: https://docs.notploy.com
     permissions:
       contents: write
+      pages: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -324,3 +353,11 @@ jobs:
           force_orphan: true
           user_name: notploy-bot
           user_email: bot@notploy.com
+
+      - name: Verify GitHub Pages publication settings
+        env:
+          PAGES_REPOSITORY: ${{ github.repository }}
+          PAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAGES_EXPECTED_CNAME: docs.notploy.com
+          PAGES_DOMAIN: https://docs.notploy.com
+        run: node .github/scripts/ensure-github-pages.mjs
