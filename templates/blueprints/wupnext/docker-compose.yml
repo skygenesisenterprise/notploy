@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   wupnext:
     image: docker.io/javierlnmn/wupnext:0.3.0
@@ -20,7 +18,7 @@ services:
       DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
       DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL}
       DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
-    # Expose only to internal network; domain routing handled by Notploy/Traefik
+    # Expose only to internal network; domain routing handled by Dokploy/Traefik
     expose:
       - "8000"
     volumes:

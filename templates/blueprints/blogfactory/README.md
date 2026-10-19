@@ -1,6 +1,6 @@
-# BlogFactory on Notploy
+# BlogFactory on Dokploy
 
-Notploy creates independent database, storage, JWT, encryption, and scheduler secrets during import. Only the `web` service receives a public domain; the API, scheduler, PostgreSQL, and MinIO remain private.
+Dokploy creates independent database, storage, JWT, encryption, and scheduler secrets during import. Only the `web` service receives a public domain; the API, scheduler, PostgreSQL, and MinIO remain private.
 
 ## First administrator
 

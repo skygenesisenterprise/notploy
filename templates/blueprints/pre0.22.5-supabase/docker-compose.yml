@@ -1,5 +1,4 @@
-# notploy: allow-container-names — frozen legacy template (pre-Notploy 0.22.5). Supabase functionally depends on container names: Kong routes Realtime via its container DNS name and Vector derives log routing from container names. The ${CONTAINER_PREFIX} per-deploy hash prevents name collisions.
-# notploy: allow-host-ports — Supavisor and PostgreSQL expose raw TCP ports that the HTTP proxy cannot route.
+# dokploy: allow-container-names — frozen legacy template (pre-Dokploy 0.22.5). Supabase functionally depends on container names: Kong routes Realtime via its container DNS name and Vector derives log routing from container names. The ${CONTAINER_PREFIX} per-deploy hash prevents name collisions.
 # Usage
 #   Start:              docker compose up
 #   With helpers:       docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml up

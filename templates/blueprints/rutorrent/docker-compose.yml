@@ -1,6 +1,3 @@
-# notploy: allow-host-ports — BitTorrent DHT and incoming peer traffic are raw TCP/UDP.
-version: "3.8"
-
 services:
   rutorrent:
     image: crazymax/rtorrent-rutorrent:latest
@@ -8,7 +5,7 @@ services:
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
-      # Optional: keep defaults, Notploy will route 8080 via domain
+      # Optional: keep defaults, Dokploy will route 8080 via domain
       - RUTORRENT_PORT=8080
       - XMLRPC_PORT=8000
       # You can customize these if you like:
@@ -18,7 +15,7 @@ services:
       - rutorrent-data:/data
       - rutorrent-downloads:/downloads
       - rutorrent-passwd:/passwd
-    # Expose only P2P-related ports; Notploy domain will handle the web UI.
+    # Expose only P2P-related ports; Dokploy domain will handle the web UI.
     ports:
       - "${INCOMING_PORT:-50000}:50000/tcp"
       - "${DHT_PORT:-6881}:6881/udp"

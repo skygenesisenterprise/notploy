@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postiz-app:
     image: ghcr.io/gitroomhq/postiz-app:latest
@@ -26,7 +24,7 @@ services:
       NEXT_PUBLIC_UPLOAD_DIRECTORY: "/uploads"
       
       # === Social Media API Settings ===
-      # These variables should be defined in the Notploy Environment tab.
+      # These variables should be defined in the Dokploy Environment tab.
       # For more configuration options and details, please refer to the official documentation.
       # Every provider Postiz reads must be listed here, otherwise setting it in
       # the Environment tab has no effect: it never reaches the container.

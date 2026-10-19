@@ -1,6 +1,6 @@
 services:
-  notploy-monitoring:
-    image: notploy/monitoring:canary
+  dokploy-monitoring:
+    image: dokploy/monitoring:canary
     restart: unless-stopped
     env_file:
       - .env

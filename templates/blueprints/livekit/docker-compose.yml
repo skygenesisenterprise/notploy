@@ -1,4 +1,3 @@
-# notploy: allow-host-ports — WebRTC, TURN and RTMP are raw TCP/UDP protocols that cannot be routed by the HTTP proxy.
 services:
   livekit:
     image: livekit/livekit-server:v1.9.0

@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   anubis:
     image: ghcr.io/techarohq/anubis:latest
@@ -29,10 +28,10 @@ services:
       - SERVE_ROBOTS_TXT=${SERVE_ROBOTS_TXT} # Set to true if you don't want search engines
 
 
-# Unconmment in case you want to connect the anubis container to notploy-network
+# Unconmment in case you want to connect the anubis container to dokploy-network
 #     networks:
-#       - notploy-network
+#       - dokploy-network
 
 # networks:
-#   notploy-network:
-#     external: true # Using existing notploy-network to connect to your frontend locally
+#   dokploy-network:
+#     external: true # Using existing dokploy-network to connect to your frontend locally
