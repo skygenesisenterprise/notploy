@@ -1,5 +1,5 @@
 import { coreSitePages } from "@/lib/site-navigation";
-import { getTemplates } from "@/lib/templates";
+import { getTemplates } from "@/lib/templates.server";
 import type { MetadataRoute } from "next";
 
 // Required for `output: "export"` (GitHub Pages).

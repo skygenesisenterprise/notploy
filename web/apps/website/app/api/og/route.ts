@@ -1,5 +1,5 @@
 import { generateOGImage } from "@/lib/og-image";
-import { getTemplate } from "@/lib/templates";
+import { getTemplate } from "@/lib/templates.server";
 import type { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {

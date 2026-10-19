@@ -1,4 +1,5 @@
-import { getTemplates, getTopTags } from "@/lib/templates";
+import { getTopTags } from "@/lib/templates";
+import { getTemplates } from "@/lib/templates.server";
 import type { Metadata } from "next";
 import { TemplateExplorer } from "./components/TemplateExplorer";
 

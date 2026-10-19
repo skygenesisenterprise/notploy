@@ -1,12 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import {
 	getRelatedTemplates,
-	getTemplate,
-	getTemplateFiles,
 	getTemplateLogoUrl,
-	getTemplates,
 	templateToBase64,
 } from "@/lib/templates";
+import {
+	getTemplate,
+	getTemplateFiles,
+	getTemplates,
+} from "@/lib/templates.server";
 import { ArrowLeft, BookOpen, Github, Globe } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -36,7 +38,7 @@ export const dynamicParams = false;
 
 export async function generateStaticParams() {
 	const templates = await getTemplates();
-	return templates.slice(0, 30).map((template) => ({ id: template.id }));
+	return templates.map((template) => ({ id: template.id }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

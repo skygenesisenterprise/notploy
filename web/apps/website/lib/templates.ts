@@ -1,5 +1,4 @@
-const TEMPLATES_BASE_URL = "https://templates.notploy.com";
-const REVALIDATE_SECONDS = 3600;
+export const TEMPLATES_BASE_URL = "https://templates.notploy.com";
 
 export interface TemplateLinks {
 	github?: string;
@@ -23,54 +22,16 @@ export interface TemplateFiles {
 	instructions: string | null;
 }
 
-export async function getTemplates(): Promise<Template[]> {
-	try {
-		const response = await fetch(`${TEMPLATES_BASE_URL}/meta.json`, {
-			next: { revalidate: REVALIDATE_SECONDS },
-		});
-		if (!response.ok) return [];
-		const templates: Template[] = await response.json();
-		return templates.sort((a, b) => a.name.localeCompare(b.name));
-	} catch {
-		return [];
-	}
-}
-
-export async function getTemplate(id: string): Promise<Template | null> {
-	const templates = await getTemplates();
-	return templates.find((template) => template.id === id) ?? null;
-}
+// Set by scripts/build-static.mjs for the static export, where the blueprint
+// assets are copied into `public/blueprints`. It is a NEXT_PUBLIC_ variable so
+// the server bundle and the client bundle resolve the exact same URL and the
+// hydrated markup matches what was prerendered. Server builds leave it unset
+// and keep pointing at the templates host.
+const TEMPLATE_ASSET_BASE = process.env.NEXT_PUBLIC_TEMPLATE_ASSET_BASE;
 
 export function getTemplateLogoUrl(template: Template): string {
-	return `${TEMPLATES_BASE_URL}/blueprints/${template.id}/${template.logo}`;
-}
-
-async function getBlueprintFile(
-	id: string,
-	fileName: string,
-): Promise<string | null> {
-	try {
-		const response = await fetch(
-			`${TEMPLATES_BASE_URL}/blueprints/${id}/${fileName}`,
-			{ next: { revalidate: REVALIDATE_SECONDS } },
-		);
-		if (!response.ok) return null;
-		const text = await response.text();
-		// The templates host serves the SPA's index.html for missing files
-		if (/^\s*(<!doctype|<html\b)/i.test(text)) return null;
-		return text.trim() || null;
-	} catch {
-		return null;
-	}
-}
-
-export async function getTemplateFiles(id: string): Promise<TemplateFiles> {
-	const [dockerCompose, templateToml, instructions] = await Promise.all([
-		getBlueprintFile(id, "docker-compose.yml"),
-		getBlueprintFile(id, "template.toml"),
-		getBlueprintFile(id, "instructions.md"),
-	]);
-	return { dockerCompose, templateToml, instructions };
+	const base = TEMPLATE_ASSET_BASE ?? `${TEMPLATES_BASE_URL}/blueprints`;
+	return `${base}/${template.id}/${template.logo}`;
 }
 
 // Same payload format the Notploy UI expects for Compose → Advanced → Base64 import
