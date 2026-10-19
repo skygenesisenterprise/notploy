@@ -4,9 +4,12 @@
   "description": "Build scripts for Notploy Templates validation",
   "private": true,
   "scripts": {
+    "generate-meta": "node generate-meta.js",
+    "check-meta": "node generate-meta.js --check",
+    "verify-dist": "node verify-dist.js",
+    "check-links": "node check-links.js",
     "validate-template": "tsx validate-template.ts",
-    "validate-docker-compose": "tsx validate-docker-compose.ts",
-    "process-meta": "node process-meta.js"
+    "validate-docker-compose": "tsx validate-docker-compose.ts"
   },
   "dependencies": {
     "toml": "^3.0.0",
@@ -21,4 +24,3 @@
     "node": ">=18.0.0"
   }
 }
-

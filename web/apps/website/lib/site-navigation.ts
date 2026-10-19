@@ -12,6 +12,7 @@ export interface NavGroup {
 
 export const EXTERNAL_LINKS = {
 	docs: "https://docs.notploy.com/docs/core",
+	templates: "https://templates.notploy.com",
 	docsArchitecture: "https://docs.notploy.com/docs/core/architecture",
 	docsFeatures: "https://docs.notploy.com/docs/core/features",
 	docsInstall: "https://docs.notploy.com/docs/core/installation",
@@ -186,6 +187,11 @@ export const footerSections: {
 			{ href: EXTERNAL_LINKS.docs, label: "Documentation", external: true },
 			{ href: "/integrations", label: "Integrations" },
 			{ href: "/templates", label: "Templates" },
+			{
+				href: EXTERNAL_LINKS.templates,
+				label: "Template Gallery",
+				external: true,
+			},
 			{ href: "/deploy-ai", label: "Deploy AI" },
 			{ href: "/sandbox-software", label: "Sandbox Software" },
 			{ href: "/self-hosted-paas", label: "Self-Hosted PaaS" },

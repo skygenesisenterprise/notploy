@@ -7,20 +7,22 @@ const SelectedTags = () => {
   const removeSelectedTag = useStore((state) => state.removeSelectedTag);
 
   return (
-    <div className="flex flex-wrap gap-2 mt-4 border-t pt-4">
+    <div className="mt-4 flex flex-wrap gap-2 border-t pt-4">
       {selectedTags.map((tag) => (
         <Badge
           key={tag}
           variant="default"
-          className="cursor-pointer pr-1 flex items-center gap-1"
+          className="flex items-center gap-1 pr-1"
         >
           {tag}
-          <div
-            className="hover:bg-primary-foreground/20 rounded-full p-1"
+          <button
+            type="button"
             onClick={() => removeSelectedTag(tag)}
+            aria-label={`Remove ${tag} filter`}
+            className="rounded-full p-1 hover:bg-primary-foreground/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
-            <XIcon className="h-3 w-3" />
-          </div>
+            <XIcon aria-hidden="true" className="h-3 w-3" />
+          </button>
         </Badge>
       ))}
     </div>

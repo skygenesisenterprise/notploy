@@ -40,6 +40,14 @@ export function TemplateExplorer({
 					{templates.length}+ pre-configured open source templates you can
 					deploy on Notploy with a single click.
 				</p>
+				<a
+					href="https://templates.notploy.com"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="mt-4 inline-flex text-sm font-medium text-primary underline-offset-4 hover:underline"
+				>
+					Open the official Templates gallery
+				</a>
 			</div>
 
 			<SearchAndFilter

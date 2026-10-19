@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 
 // Minimal markdown renderer (no external dependencies) for the per-template
 // instructions.md files. Supports headings, paragraphs, fenced code blocks,
@@ -14,7 +14,10 @@ const renderInline = (text: string): React.ReactNode[] => {
   let match: RegExpExecArray | null;
   INLINE_PATTERN.lastIndex = 0;
 
-  while ((match = INLINE_PATTERN.exec(text)) !== null) {
+  for (;;) {
+    match = INLINE_PATTERN.exec(text);
+    if (match === null) break;
+
     if (match.index > lastIndex) {
       nodes.push(text.slice(lastIndex, match.index));
     }
@@ -32,11 +35,17 @@ const renderInline = (text: string): React.ReactNode[] => {
       nodes.push(<strong key={key++}>{token.slice(2, -2)}</strong>);
     } else {
       const link = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(token);
-      if (link) {
+      // Instructions are contributed with the blueprints, so only render
+      // links with a safe scheme instead of trusting arbitrary href values.
+      const safeHref =
+        link && /^(https?:\/\/|mailto:|\/(?!\/))/i.test(link[2])
+          ? link[2]
+          : null;
+      if (link && safeHref) {
         nodes.push(
           <a
             key={key++}
-            href={link[2]}
+            href={safeHref}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 dark:text-blue-400 underline underline-offset-2"
@@ -45,7 +54,7 @@ const renderInline = (text: string): React.ReactNode[] => {
           </a>
         );
       } else {
-        nodes.push(token);
+        nodes.push(link ? link[1] : token);
       }
     }
     lastIndex = match.index + token.length;
@@ -125,8 +134,8 @@ const Markdown: React.FC<MarkdownProps> = ({ content }) => {
       }
       blocks.push(
         <ul key={key++} className="list-disc pl-6 space-y-1">
-          {items.map((item, idx) => (
-            <li key={idx}>{renderInline(item)}</li>
+          {items.map((item) => (
+            <li key={item}>{renderInline(item)}</li>
           ))}
         </ul>
       );
@@ -142,8 +151,8 @@ const Markdown: React.FC<MarkdownProps> = ({ content }) => {
       }
       blocks.push(
         <ol key={key++} className="list-decimal pl-6 space-y-1">
-          {items.map((item, idx) => (
-            <li key={idx}>{renderInline(item)}</li>
+          {items.map((item) => (
+            <li key={item}>{renderInline(item)}</li>
           ))}
         </ol>
       );

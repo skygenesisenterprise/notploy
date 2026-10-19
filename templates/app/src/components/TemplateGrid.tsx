@@ -1,196 +1,97 @@
-import React, { useEffect, useState } from "react";
+import type * as React from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from "./ui/card";
-import { useStore } from "@/store";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
+import { TemplateLogo } from "./TemplateLogo";
 import { cn } from "@/lib/utils";
-import TemplateDialog from "./TemplateDialog";
-
-interface Template {
-  id: string;
-  name: string;
-  description: string;
-  version: string;
-  logo?: string;
-  links: {
-    github?: string;
-    website?: string;
-    docs?: string;
-  };
-  tags: string[];
-}
-
-interface TemplateFiles {
-  dockerCompose: string | null;
-  config: string | null;
-  instructions: string | null;
-}
+import type { Template } from "@/lib/templates";
+import type { TemplatesStatus } from "@/hooks/use-templates";
 
 interface TemplateGridProps {
+  templates: Template[];
+  totalCount: number;
   view: "grid" | "rows";
+  status: TemplatesStatus;
+  error: string | null;
+  hasFilters: boolean;
+  onRetry: () => void;
+  onClearFilters: () => void;
 }
 
-const TemplateGrid: React.FC<TemplateGridProps> = ({ view }) => {
-  const {
-    templates,
-    setTemplates,
-    setTemplatesCount,
-    filteredTemplates,
-    setFilteredTemplates,
-  } = useStore();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const searchQuery = useStore((state) => state.searchQuery);
-  const selectedTags = useStore((state) => state.selectedTags);
-  const { addSelectedTag } = useStore();
+const gridClasses = (view: "grid" | "rows") =>
+  cn("grid gap-4", {
+    "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4": view === "grid",
+    "grid-cols-1": view === "rows",
+  });
 
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
-    null
-  );
-  const [templateFiles, setTemplateFiles] = useState<TemplateFiles | null>(
-    null
-  );
-  const [modalLoading, setModalLoading] = useState(false);
+const TemplateGrid: React.FC<TemplateGridProps> = ({
+  templates,
+  totalCount,
+  view,
+  status,
+  error,
+  hasFilters,
+  onRetry,
+  onClearFilters,
+}) => {
+  const location = useLocation();
 
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        const response = await fetch("/meta.json");
-        if (!response.ok) {
-          throw new Error("Failed to fetch templates");
-        }
-        const data = await response.json();
-        setTemplates(data);
-        setFilteredTemplates(data);
-        setTemplatesCount(data.length);
-        setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-        setLoading(false);
-      }
-    };
-
-    fetchTemplates();
-  }, [setTemplates, setFilteredTemplates]);
-
-  const fetchTemplateFiles = async (templateId: string) => {
-    setModalLoading(true);
-    try {
-      const [dockerComposeRes, configRes, instructionsRes] = await Promise.all(
-        [
-          fetch(`/blueprints/${templateId}/docker-compose.yml`),
-          fetch(`/blueprints/${templateId}/template.toml`),
-          fetch(`/blueprints/${templateId}/instructions.md`),
-        ]
-      );
-
-      const dockerCompose = dockerComposeRes.ok
-        ? await dockerComposeRes.text()
-        : null;
-      const config = configRes.ok ? await configRes.text() : null;
-
-      // Guard against SPA fallbacks that return index.html with a 200 status
-      // for templates that don't have an instructions.md file.
-      const instructionsIsMarkdown =
-        instructionsRes.ok &&
-        !(instructionsRes.headers.get("content-type") || "").includes(
-          "text/html"
-        );
-      const instructions = instructionsIsMarkdown
-        ? await instructionsRes.text()
-        : null;
-
-      setTemplateFiles({ dockerCompose, config, instructions });
-    } catch (err) {
-      console.error("Error fetching template files:", err);
-      setTemplateFiles({ dockerCompose: null, config: null, instructions: null });
-    } finally {
-      setModalLoading(false);
-    }
-  };
-
-  const handleTemplateClick = (template: Template) => {
-    setSelectedTemplate(template);
-    setTemplateFiles(null); // Reset previous files
-    fetchTemplateFiles(template.id);
-  };
-
-  useEffect(() => {
-    const filtered = templates.filter((template) => {
-      // Filter by search query
-      const matchesSearch = template.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-
-      // Filter by selected tags
-      const matchesTags =
-        selectedTags.length === 0 ||
-        selectedTags.every((tag) => template.tags.includes(tag));
-
-      return matchesSearch && matchesTags;
-    });
-
-    setTemplatesCount(filtered.length);
-    setFilteredTemplates(filtered);
-  }, [searchQuery, selectedTags]);
-
-  if (loading) {
+  if (status === "loading") {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div
-          className={cn("", {
-            "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6":
-              view === "grid",
-            "grid grid-cols-1 gap-4": view === "rows",
-          })}
-        >
-          {[1, 2, 3].map((item) => (
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className={gridClasses(view)}>
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
             <Skeleton
               key={item}
               className={cn({
                 "h-[300px]": view === "grid",
                 "h-[135px]": view === "rows",
               })}
-            ></Skeleton>
+            />
           ))}
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (status === "error") {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-4xl font-bold text-center text-gray-900 mb-4">
-          Error
-        </h1>
-        <p className="text-center text-red-600">{error}</p>
+      <div className="mx-auto max-w-7xl px-4 py-12 text-center sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-bold">Templates could not be loaded</h2>
+        <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+          {error ?? "An unexpected error occurred while loading the catalogue."}
+        </p>
+        <Button className="mt-6" onClick={onRetry}>
+          Try again
+        </Button>
       </div>
     );
   }
 
   return (
-    <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div
-          className={cn("", {
-            "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6":
-              view === "grid",
-            "grid grid-cols-1 gap-4": view === "rows",
-          })}
-        >
-          {filteredTemplates.length > 0 ? (
-            filteredTemplates.map((template) => (
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      {templates.length > 0 ? (
+        <div className={gridClasses(view)}>
+          {templates.map((template) => (
+            <Link
+              key={template.id}
+              to={{
+                pathname: `/templates/${encodeURIComponent(template.id)}`,
+                search: location.search,
+              }}
+              className="group block h-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
               <Card
-                key={template.id}
-                onClick={() => handleTemplateClick(template)}
                 className={cn(
-                  " cursor-pointer hover:shadow-lg transition-all duration-200 h-full max-h-[300px]",
+                  "h-full max-h-[300px] transition-all duration-200 group-hover:shadow-lg",
                   {
                     "flex-col": view === "grid",
                     "flex-row gap-0": view === "rows",
@@ -198,47 +99,47 @@ const TemplateGrid: React.FC<TemplateGridProps> = ({ view }) => {
                 )}
               >
                 <CardHeader
-                  className={cn("flex  gap-2 ", {
+                  className={cn("flex gap-2", {
                     "flex-row": view === "grid",
-                    "flex-col justify-center items-center ms-4":
-                      view === "rows",
+                    "ms-4 flex-col items-center justify-center": view === "rows",
                   })}
                 >
-                  <img
-                    src={`/blueprints/${template.id}/${template.logo}`}
-                    alt={template.name}
-                    className={cn("w-auto h-12 s object-contain mb-2", {
-                      "w-auto h-12": view === "grid",
-                      "w-12 h-auto": view === "rows",
+                  <TemplateLogo
+                    template={template}
+                    className={cn("mb-2 h-12 w-auto", {
+                      "h-12 w-auto": view === "grid",
+                      "h-auto w-12": view === "rows",
                     })}
                   />
                 </CardHeader>
                 <CardContent className="flex-1">
-                  <CardTitle className="text-xl ">{template.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
+                  <CardTitle className="text-xl">{template.name}</CardTitle>
+                  <p className="line-clamp-2 text-sm text-muted-foreground">
                     {template.description}
                   </p>
-                  <div className="mt-2 flex flex-wrap gap-1 w-fit">
-                    {template.tags.slice(0, 3).map((tag) => (
-                      <span
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addSelectedTag(tag);
-                        }}
-                        key={tag}
-                        className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  {template.tags.length > 0 && (
+                    <div className="mt-2 flex w-fit flex-wrap gap-1">
+                      {template.tags.slice(0, 3).map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {template.tags.length > 3 && (
+                        <Badge variant="outline">
+                          +{template.tags.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
-                <CardFooter className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">
-                    {template.version}
+                <CardFooter className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {template.version || "latest"}
                   </span>
                   <svg
-                    className="w-4 h-4 text-gray-400"
+                    aria-hidden="true"
+                    focusable="false"
+                    className="h-4 w-4 text-muted-foreground"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -252,24 +153,29 @@ const TemplateGrid: React.FC<TemplateGridProps> = ({ view }) => {
                   </svg>
                 </CardFooter>
               </Card>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <p className="text-gray-500 text-lg">
-                No templates found matching "{searchQuery}"
-              </p>
-            </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="py-12 text-center">
+          <h2 className="text-xl font-semibold">
+            {hasFilters
+              ? "No templates match your criteria"
+              : "No templates are available"}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {hasFilters
+              ? `${totalCount} templates are available in the catalogue.`
+              : "The catalogue is empty right now. Try again later."}
+          </p>
+          {hasFilters && (
+            <Button variant="outline" className="mt-6" onClick={onClearFilters}>
+              Clear filters
+            </Button>
           )}
         </div>
-      </div>
-
-      <TemplateDialog
-        selectedTemplate={selectedTemplate}
-        templateFiles={templateFiles}
-        modalLoading={modalLoading}
-        onOpenChange={(open) => !open && setSelectedTemplate(null)}
-      />
-    </>
+      )}
+    </div>
   );
 };
 

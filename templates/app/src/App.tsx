@@ -1,19 +1,23 @@
-import TemplateGrid from "./components/TemplateGrid";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Navigation from "./components/Navigation";
-import Search from "./components/Search";
-import { useStore } from "@/store";
+import Gallery from "./components/Gallery";
+import Footer from "./components/Footer";
+import NotFoundPage from "./components/NotFoundPage";
 import "./App.css";
-import { BrowserRouter } from "react-router-dom";
 
 function App() {
-  const view = useStore((state) => state.view);
-
   return (
     <BrowserRouter>
-      <div className="min-h-screen">
+      <div className="flex min-h-screen flex-col">
         <Navigation />
-        <Search />
-        <TemplateGrid view={view} />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Gallery />} />
+            <Route path="/templates/:id" element={<Gallery />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </main>
+        <Footer />
       </div>
     </BrowserRouter>
   );

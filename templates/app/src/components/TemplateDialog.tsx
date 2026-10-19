@@ -1,4 +1,7 @@
-import React from "react";
+import * as React from "react";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import copy from "copy-to-clipboard";
 import {
   Dialog,
   DialogContent,
@@ -6,40 +9,27 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { toast } from "sonner";
-import copy from "copy-to-clipboard";
 import { CodeEditor } from "./ui/code-editor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Label } from "./ui/label";
 import { Clipboard } from "lucide-react";
 import { Input } from "./ui/input";
 import Markdown from "./ui/markdown";
-
-interface Template {
-  id: string;
-  name: string;
-  description: string;
-  version: string;
-  logo?: string;
-  links: {
-    github?: string;
-    website?: string;
-    docs?: string;
-  };
-  tags: string[];
-}
-
-interface TemplateFiles {
-  dockerCompose: string | null;
-  config: string | null;
-  instructions: string | null;
-}
+import { TemplateLogo } from "./TemplateLogo";
+import {
+  templateToBase64,
+  type Template,
+  type TemplateFiles,
+} from "@/lib/templates";
 
 interface TemplateDialogProps {
   selectedTemplate: Template | null;
   templateFiles: TemplateFiles | null;
   modalLoading: boolean;
+  modalError: string | null;
+  onRetry: () => void;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -47,48 +37,65 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
   selectedTemplate,
   templateFiles,
   modalLoading,
+  modalError,
+  onRetry,
   onOpenChange,
 }) => {
-  const getBase64Config = () => {
+  const base64 = React.useMemo(() => {
     if (!templateFiles?.dockerCompose && !templateFiles?.config) return "";
+    return templateToBase64(templateFiles);
+  }, [templateFiles]);
 
-    const configObj = {
-      compose: templateFiles.dockerCompose || "",
-      config: templateFiles.config || "",
-    };
+  const hasFiles = Boolean(
+    templateFiles?.dockerCompose ||
+      templateFiles?.config ||
+      templateFiles?.instructions
+  );
 
-    // Use encodeURIComponent to handle Unicode characters properly
-    const jsonString = JSON.stringify(configObj, null, 2);
-    return btoa(unescape(encodeURIComponent(jsonString)));
+  const copyValue = (value: string) => {
+    copy(value);
+    toast.success("Copied to clipboard");
   };
 
   return (
     <Dialog open={!!selectedTemplate} onOpenChange={onOpenChange}>
-      <DialogContent className="flex flex-col !max-w-[90vw] w-full lg:max-w-[90vw] max-h-[85vh] p-0">
-        <DialogHeader className="space-y-4 border-b sticky top-0 p-4 pb-0 text-start bg-background rounded-t-lg z-10">
+      <DialogContent className="flex max-h-[85vh] w-full flex-col !max-w-[90vw] rounded-lg p-0 lg:max-w-[90vw]">
+        <DialogHeader className="sticky top-0 z-10 space-y-4 rounded-t-lg border-b bg-background p-4 pb-4 text-start">
           <div className="flex items-center gap-4">
-            {selectedTemplate?.logo && (
-              <img
-                src={`/blueprints/${selectedTemplate.id}/${selectedTemplate.logo}`}
-                alt={selectedTemplate.name}
-                className="w-12 h-12 object-contain"
+            {selectedTemplate && (
+              <TemplateLogo
+                template={selectedTemplate}
+                className="h-12 w-12 shrink-0"
               />
             )}
             <div className="min-w-0">
-              <DialogTitle className="text-2xl truncate">
+              <DialogTitle className="truncate text-2xl">
                 {selectedTemplate?.name}
               </DialogTitle>
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <span className="text-sm text-gray-500">
-                  {selectedTemplate?.version}
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <span className="text-sm text-muted-foreground">
+                  {selectedTemplate?.version || "latest"}
                 </span>
-                <div className="flex gap-2 flex-wrap">
+                <nav
+                  aria-label="Template links"
+                  className="flex flex-wrap gap-3 text-sm"
+                >
+                  {selectedTemplate?.links.website && (
+                    <a
+                      href={selectedTemplate.links.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                    >
+                      Website
+                    </a>
+                  )}
                   {selectedTemplate?.links.github && (
                     <a
                       href={selectedTemplate.links.github}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-gray-900"
+                      className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                     >
                       GitHub
                     </a>
@@ -98,84 +105,92 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
                       href={selectedTemplate.links.docs}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-gray-900"
+                      className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                     >
                       Docs
                     </a>
                   )}
-                  <a
-                    href={`https://github.com/skygenesisenterprise/notploy/tree/master/templates/blueprints/${selectedTemplate?.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-gray-900"
-                  >
-                    Edit Template
-                  </a>
-                </div>
+                  {selectedTemplate && (
+                    <a
+                      href={`https://github.com/skygenesisenterprise/notploy/tree/master/templates/blueprints/${encodeURIComponent(selectedTemplate.id)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                    >
+                      Edit template
+                    </a>
+                  )}
+                </nav>
               </div>
             </div>
           </div>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6 pt-3 space-y-6">
+          <div className="space-y-6 p-6 pt-3">
             <div className="space-y-2">
               <DialogDescription className="text-base">
                 {selectedTemplate?.description}
               </DialogDescription>
-              <div className="flex flex-wrap gap-1">
-                {selectedTemplate?.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              {selectedTemplate && selectedTemplate.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {selectedTemplate.tags.map((tag) => (
+                    <Badge key={tag} variant="secondary">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
 
             {modalLoading ? (
-              <div className="py-12 text-center">
-                <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-solid border-blue-500 border-r-transparent"></div>
-                <p className="mt-4 text-gray-600">Loading template files...</p>
+              <div className="py-12 text-center" role="status">
+                <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Loading template files...
+                </p>
               </div>
-            ) : (
+            ) : modalError ? (
+              <div className="py-8 text-center" role="alert">
+                <p className="text-sm text-destructive">{modalError}</p>
+                <Button variant="outline" className="mt-4" onClick={onRetry}>
+                  Try again
+                </Button>
+              </div>
+            ) : hasFiles ? (
               <div className="space-y-6">
-                {(templateFiles?.dockerCompose || templateFiles?.config) && (
+                {base64 && (
                   <div className="flex flex-col gap-3">
-                    <Label className="flex flex-col items-start w-fit justify-start gap-1">
-                      <span className="leading-tight text-xl font-semibold">
+                    <Label className="flex w-fit flex-col items-start justify-start gap-1">
+                      <span className="text-xl leading-tight font-semibold">
                         Base64 Configuration
                       </span>
-                      <span className="leading-tight text-sm text-gray-500">
-                        Encoded template file
+                      <span className="text-sm leading-tight text-muted-foreground">
+                        Encoded compose file and template.toml
                       </span>
                     </Label>
                     <div className="relative w-full">
                       <Button
                         className="absolute end-0 top-1/2 -translate-y-1/2"
-                        size={"icon"}
-                        onClick={() => {
-                          toast.success("Copied to clipboard");
-                          copy(getBase64Config());
-                        }}
+                        size="icon"
+                        aria-label="Copy base64 configuration"
+                        onClick={() => copyValue(base64)}
                       >
-                        <Clipboard className="h-4 w-4" />
+                        <Clipboard aria-hidden="true" className="h-4 w-4" />
                       </Button>
                       <Input
-                        value={getBase64Config()}
+                        value={base64}
                         className="w-full pr-10"
                         readOnly
+                        aria-label="Base64 configuration"
                       />
                     </div>
                   </div>
                 )}
+
                 <Tabs
                   defaultValue={
-                    templateFiles?.instructions
-                      ? "instructions"
-                      : "docker-compose"
+                    templateFiles?.instructions ? "instructions" : "docker-compose"
                   }
                   className="w-full"
                 >
@@ -205,11 +220,11 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
                   {templateFiles?.instructions && (
                     <TabsContent value="instructions" className="mt-4">
                       <div className="space-y-2">
-                        <Label className="flex flex-col items-start w-fit justify-start gap-1">
-                          <span className="leading-tight text-xl font-semibold">
+                        <Label className="flex w-fit flex-col items-start justify-start gap-1">
+                          <span className="text-xl leading-tight font-semibold">
                             Setup Instructions
                           </span>
-                          <span className="leading-tight text-sm text-gray-500">
+                          <span className="text-sm leading-tight text-muted-foreground">
                             instructions.md
                           </span>
                         </Label>
@@ -219,28 +234,28 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
                       </div>
                     </TabsContent>
                   )}
+
                   <TabsContent value="docker-compose" className="mt-4">
-                    {templateFiles?.dockerCompose && (
+                    {templateFiles?.dockerCompose ? (
                       <div className="space-y-2">
-                        <Label className="flex flex-col items-start w-fit justify-start gap-1">
-                          <span className="leading-tight text-xl font-semibold">
+                        <Label className="flex w-fit flex-col items-start justify-start gap-1">
+                          <span className="text-xl leading-tight font-semibold">
                             Docker Compose
                           </span>
-                          <span className="leading-tight text-sm text-gray-500">
+                          <span className="text-sm leading-tight text-muted-foreground">
                             docker-compose.yml
                           </span>
                         </Label>
-                        <div className="relative w-full rounded-md overflow-hidden border">
+                        <div className="relative w-full overflow-hidden rounded-md border">
                           <CodeEditor
-                            value={templateFiles.dockerCompose || ""}
+                            value={templateFiles.dockerCompose}
                             language="yaml"
-                            className="font-mono w-full [&_*]:!break-words"
+                            className="w-full font-mono [&_*]:!break-words"
                           />
                           <Button
-                            onClick={() => {
-                              toast.success("Copied to clipboard");
-                              copy(templateFiles.dockerCompose || "");
-                            }}
+                            onClick={() =>
+                              copyValue(templateFiles.dockerCompose ?? "")
+                            }
                             className="absolute top-2 right-2 px-3 py-1 text-sm"
                             variant="secondary"
                           >
@@ -248,31 +263,32 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
                           </Button>
                         </div>
                       </div>
+                    ) : (
+                      <p className="py-8 text-center text-sm text-muted-foreground">
+                        This template does not publish a docker-compose.yml file.
+                      </p>
                     )}
                   </TabsContent>
 
                   <TabsContent value="config" className="mt-4">
-                    {templateFiles?.config && (
+                    {templateFiles?.config ? (
                       <div className="space-y-2">
-                        <Label className="flex flex-col items-start w-fit justify-start gap-1">
-                          <span className="leading-tight text-xl font-semibold">
+                        <Label className="flex w-fit flex-col items-start justify-start gap-1">
+                          <span className="text-xl leading-tight font-semibold">
                             Configuration
                           </span>
-                          <span className="leading-tight text-sm text-gray-500">
-                            template.yml
+                          <span className="text-sm leading-tight text-muted-foreground">
+                            template.toml
                           </span>
                         </Label>
-                        <div className="relative w-full rounded-md overflow-hidden border">
+                        <div className="relative w-full overflow-hidden rounded-md border">
                           <CodeEditor
-                            value={templateFiles.config || ""}
+                            value={templateFiles.config}
                             language="toml"
-                            className="font-mono w-full [&_*]:!break-words"
+                            className="w-full font-mono [&_*]:!break-words"
                           />
                           <Button
-                            onClick={() => {
-                              toast.success("Copied to clipboard");
-                              copy(templateFiles.config || "");
-                            }}
+                            onClick={() => copyValue(templateFiles.config ?? "")}
                             className="absolute top-2 right-2 px-3 py-1 text-sm"
                             variant="secondary"
                           >
@@ -280,17 +296,19 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
                           </Button>
                         </div>
                       </div>
+                    ) : (
+                      <p className="py-8 text-center text-sm text-muted-foreground">
+                        This template does not publish a template.toml file.
+                      </p>
                     )}
                   </TabsContent>
                 </Tabs>
-
-                {!templateFiles?.dockerCompose && !templateFiles?.config && (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">
-                      No configuration files available for this template.
-                    </p>
-                  </div>
-                )}
+              </div>
+            ) : (
+              <div className="py-8 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No configuration files are available for this template.
+                </p>
               </div>
             )}
           </div>

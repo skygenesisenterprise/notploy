@@ -4,7 +4,13 @@ import "./index.css";
 import App from "./App.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import { ThemeProvider } from "./theme-provider.tsx";
-createRoot(document.getElementById("root")!).render(
+
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("The #root element is missing from index.html");
+}
+
+createRoot(rootElement).render(
   <StrictMode>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <App />

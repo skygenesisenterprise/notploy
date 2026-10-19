@@ -224,6 +224,10 @@ The `web/` directory is its own pnpm workspace root with a dedicated `Makefile`,
 | `templates/build-scripts` | `@notploy/templates-build-scripts` | Template validation and metadata generation |
 | `examples` | — | Standalone deployment examples; intentionally outside the pnpm workspace |
 
+The templates app is built and deployed independently to Cloudflare Pages at
+`templates.notploy.com`; see [`templates/README.md`](templates/README.md) for the
+build command, output directory and asset rules.
+
 The root `Dockerfile` has `selfhosted`, `cloud`, and `dev` targets. The default self-hosted image includes deployment tooling; the cloud target uses the same application runtime without that tooling. The root Compose stack runs PostgreSQL, Redis and Traefik alongside Notploy, and exposes an optional status service plus `dev` profile; Notploy manages Traefik through the host Docker Engine when needed.
 
 ## Development
