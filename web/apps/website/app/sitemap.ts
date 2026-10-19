@@ -1,5 +1,4 @@
 import { coreSitePages } from "@/lib/site-navigation";
-import { getPosts } from "@/lib/ghost";
 import { getTemplates } from "@/lib/templates";
 import type { MetadataRoute } from "next";
 
@@ -43,7 +42,6 @@ const industryPages = [
 const legalPages = ["/terms-of-service", "/terms", "/privacy"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-	const posts = await getPosts();
 	const templates = await getTemplates();
 	const now = new Date();
 
@@ -53,12 +51,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			lastModified: now,
 			changeFrequency: "monthly",
 			priority: 1,
-		},
-		{
-			url: `${BASE_URL}/blog`,
-			lastModified: now,
-			changeFrequency: "weekly",
-			priority: 0.8,
 		},
 		...coreSitePages.map(({ path, priority }) => ({
 			url: `${BASE_URL}${path}`,
@@ -89,12 +81,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			lastModified: now,
 			changeFrequency: "yearly" as const,
 			priority: 0.3,
-		})),
-		...posts.map((post) => ({
-			url: `${BASE_URL}/blog/${post.slug}`,
-			lastModified: new Date(post.published_at),
-			changeFrequency: "monthly" as const,
-			priority: 0.8,
 		})),
 		{
 			url: `${BASE_URL}/templates`,

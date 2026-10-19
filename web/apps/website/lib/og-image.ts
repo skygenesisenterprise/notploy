@@ -6,12 +6,6 @@ import sharp from "sharp";
 interface GenerateOGImageOptions {
 	title: string;
 	label?: string;
-	author?: {
-		name: string;
-		image?: string;
-	};
-	date?: string;
-	readingTime?: number;
 }
 
 const NOTPLOY_WORDMARK = {
@@ -24,10 +18,7 @@ const NOTPLOY_WORDMARK = {
 
 export async function generateOGImage({
 	title,
-	label = "Notploy - Blog Post",
-	author,
-	date,
-	readingTime,
+	label = "Notploy",
 }: GenerateOGImageOptions): Promise<Buffer> {
 	// Cargar la fuente
 	const interRegular = await fs.readFile(
@@ -110,48 +101,6 @@ export async function generateOGImage({
 										maxWidth: "900px",
 									},
 									children: title,
-								},
-							},
-							{
-								type: "div",
-								props: {
-									style: {
-										display: "flex",
-										alignItems: "center",
-										gap: "16px",
-									},
-									children: [
-										author?.name && {
-											type: "div",
-											props: {
-												style: {
-													color: "#9CA3AF",
-													fontSize: "24px",
-												},
-												children: author.name,
-											},
-										},
-										date && {
-											type: "div",
-											props: {
-												style: {
-													color: "#9CA3AF",
-													fontSize: "24px",
-												},
-												children: `• ${date}`,
-											},
-										},
-										readingTime && {
-											type: "div",
-											props: {
-												style: {
-													color: "#9CA3AF",
-													fontSize: "24px",
-												},
-												children: `• ${readingTime} min read`,
-											},
-										},
-									].filter(Boolean) as any,
 								},
 							},
 						],

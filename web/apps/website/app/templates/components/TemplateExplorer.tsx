@@ -3,7 +3,7 @@
 import type { Template } from "@/lib/templates";
 import Link from "next/link";
 import { useState } from "react";
-import { SearchAndFilter } from "../../blog/components/SearchAndFilter";
+import { SearchAndFilter } from "./SearchAndFilter";
 import { TemplateCard } from "./TemplateCard";
 
 export function TemplateExplorer({

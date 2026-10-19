@@ -2,7 +2,7 @@ import type React from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { H2, H3 } from "../../blog/[slug]/components/Headings";
+import { H2, H3 } from "./Headings";
 import { TemplateCodeBlock } from "./TemplateCodeBlock";
 
 const components: Partial<Components> = {

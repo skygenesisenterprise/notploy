@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { Inter, Lexend } from "next/font/google";
 import type { ReactNode } from "react";
 import "@/styles/tailwind.css";
-import "react-photo-view/dist/react-photo-view.css";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { NotployTraffic } from "@/components/NotployTraffic";

@@ -116,11 +116,6 @@ export const navGroups: NavGroup[] = [
 		title: "Resources",
 		items: [
 			{
-				href: "/blog",
-				label: "Blog",
-				description: "Guides, announcements and product updates",
-			},
-			{
 				href: EXTERNAL_LINKS.docsArchitecture,
 				label: "Architecture",
 				description: "How Notploy's core components fit together",
@@ -205,7 +200,6 @@ export const footerSections: {
 			{ href: "/notploy-vs-portainer", label: "Notploy vs. Portainer" },
 			{ href: "/notploy-vs-vercel", label: "Notploy vs. Vercel" },
 			{ href: "/industries", label: "Industries" },
-			{ href: "/blog", label: "Blog" },
 			{ href: "/partners", label: "Partners" },
 			{ href: "/jobs", label: "Careers" },
 		],

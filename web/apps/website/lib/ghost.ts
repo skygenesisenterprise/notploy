@@ -80,63 +80,6 @@ export interface Post {
 	url: string;
 }
 
-export async function getPosts(options = {}): Promise<Post[]> {
-	try {
-		const result = (await api.posts.browse({
-			include: "authors",
-			limit: "all",
-		})) as Post[];
-		return result;
-	} catch (error) {
-		console.error("Error fetching posts:", error);
-		return [];
-	}
-}
-
-export async function getPost(slug: string): Promise<Post | null> {
-	try {
-		const result = (await api.posts.read({
-			slug,
-			include: "authors",
-		})) as Post;
-
-		return result;
-	} catch (error) {
-		console.error("Error fetching post:", error);
-		return null;
-	}
-}
-
-export interface GhostTag {
-	id: string;
-	name: string;
-	slug: string;
-}
-
-export async function getTags(): Promise<GhostTag[]> {
-	try {
-		const result = (await api.tags.browse()) as GhostTag[];
-		return result;
-	} catch (error) {
-		console.error("Error fetching tags:", error);
-		return [];
-	}
-}
-
-export async function getPostsByTag(tag: string): Promise<Post[]> {
-	try {
-		const result = (await api.posts.browse({
-			limit: "all",
-			filter: `tag:${tag}`,
-			include: ["tags", "authors"],
-		})) as Post[];
-		return result;
-	} catch (error) {
-		console.error(`Error fetching posts with tag ${tag}:`, error);
-		return [];
-	}
-}
-
 /**
  * Job offers are published as Ghost posts marked with the `job` tag by the
  * Notploy console. The location and application link travel on prefixed tags,

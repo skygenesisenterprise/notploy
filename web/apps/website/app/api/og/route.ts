@@ -1,4 +1,3 @@
-import { getPost } from "@/lib/ghost";
 import { generateOGImage } from "@/lib/og-image";
 import { getTemplate } from "@/lib/templates";
 import type { NextRequest } from "next/server";
@@ -6,69 +5,29 @@ import type { NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = new URL(request.url);
-		const slug = searchParams.get("slug");
 		const templateId = searchParams.get("template");
 
-		if (templateId) {
-			const template = await getTemplate(templateId);
-
-			if (!template) {
-				console.error("Template not found:", templateId);
-				return new Response("Template not found", { status: 404 });
-			}
-
-			const ogImage = await generateOGImage({
-				title: `Deploy ${template.name} on Notploy`,
-				label: "Notploy - Open Source Templates",
-			});
-
-			return new Response(ogImage, {
-				headers: {
-					"Content-Type": "image/png",
-					"Cache-Control": "public, max-age=86400, stale-while-revalidate",
-				},
-			});
+		if (!templateId) {
+			console.error("Missing template parameter");
+			return new Response("Missing template parameter", { status: 400 });
 		}
 
-		console.log("Generating OG image for slug:", slug);
+		const template = await getTemplate(templateId);
 
-		if (!slug) {
-			console.error("Missing slug parameter");
-			return new Response("Missing slug parameter", { status: 400 });
+		if (!template) {
+			console.error("Template not found:", templateId);
+			return new Response("Template not found", { status: 404 });
 		}
-
-		const post = await getPost(slug);
-
-		if (!post) {
-			console.error("Post not found for slug:", slug);
-			return new Response("Post not found", { status: 404 });
-		}
-
-		const formattedDate = new Date(post.published_at).toLocaleDateString(
-			"en-US",
-			{
-				year: "numeric",
-				month: "long",
-				day: "numeric",
-			},
-		);
 
 		const ogImage = await generateOGImage({
-			title: post.title,
-			author: post.primary_author
-				? {
-						name: post.primary_author.name,
-						image: post.primary_author.profile_image || undefined,
-					}
-				: undefined,
-			date: formattedDate,
-			readingTime: post.reading_time,
+			title: `Deploy ${template.name} on Notploy`,
+			label: "Notploy - Open Source Templates",
 		});
 
 		return new Response(ogImage, {
 			headers: {
 				"Content-Type": "image/png",
-				"Cache-Control": "public, max-age=31536000, immutable",
+				"Cache-Control": "public, max-age=86400, stale-while-revalidate",
 			},
 		});
 	} catch (error) {

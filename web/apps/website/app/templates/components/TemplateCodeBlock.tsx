@@ -5,8 +5,8 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 import { type JSX, useLayoutEffect, useState } from "react";
 import * as react from "react";
 import * as jsxRuntime from "react/jsx-runtime";
-// Full shiki bundle (languages are still lazy-loaded): the blog's
-// shiki/bundle/web build lacks toml and other infra languages
+// Full shiki bundle (languages are still lazy-loaded): the web build
+// lacks toml and other infra languages
 import { type BundledLanguage, codeToHast } from "shiki";
 
 async function highlight(code: string, lang: string) {
