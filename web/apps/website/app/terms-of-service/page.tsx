@@ -1,3 +1,4 @@
+import { LegalPage } from "@/components/pages/LegalPage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,13 +9,7 @@ export const metadata: Metadata = {
 
 export default function TermsOfServicePage() {
 	return (
-		<div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-12 sm:px-6 lg:px-8">
-			<h1 className="mb-6 text-center font-display text-4xl tracking-tight text-foreground sm:text-5xl">
-				Terms of Service
-			</h1>
-			<p className="text-center text-sm text-muted-foreground">
-				Notploy.com · Last Updated: January 2026
-			</p>
+		<LegalPage badge="Terms of service" title="Terms of Service" updated="January 2026">
 
 			<section className="flex flex-col gap-2">
 				<h2 className="mb-2 text-2xl font-semibold">Overview</h2>
@@ -990,6 +985,6 @@ export default function TermsOfServicePage() {
 					.
 				</p>
 			</section>
-		</div>
+		</LegalPage>
 	);
 }

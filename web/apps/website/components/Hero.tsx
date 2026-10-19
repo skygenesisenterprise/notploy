@@ -1,22 +1,13 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Check, ChevronRight, Copy } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import AnimatedGradientText from "./ui/animated-gradient-text";
 import AnimatedGridPattern from "./ui/animated-grid-pattern";
 import { Button } from "./ui/button";
 
 export function Hero() {
-	const [isCopied, setIsCopied] = useState(false);
-
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setIsCopied(false);
-		}, 2000);
-		return () => clearTimeout(timer);
-	}, [isCopied]);
 	return (
 		<div className="bg-background py-16 sm:py-24 lg:py-28">
 			<div className=" bottom-0 flex w-full items-center justify-center overflow-hidden rounded-lg  bg-background">
@@ -101,26 +92,13 @@ export function Hero() {
 									</Button>
 								</div>
 								<div className="flex flex-wrap items-center justify-center gap-6 md:flex-nowrap">
-									<code className="flex flex-row items-center gap-4 rounded-xl border p-3 font-sans">
-										curl -sSL https://notploy.com/install.sh | sh
-										<button
-											type="button"
-											onClick={() =>
-												navigator.clipboard
-													.writeText(
-														"curl -sSL https://notploy.com/install.sh | sh",
-													)
-													.then(() => setIsCopied(true))
-													.catch(() => setIsCopied(false))
-											}
-										>
-											{isCopied ? (
-												<Check className="h-4 w-4 text-muted-foreground" />
-											) : (
-												<Copy className="h-4 w-4 text-muted-foreground" />
-											)}
-										</button>
-									</code>
+									<Link
+										href="/self"
+										className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+									>
+										Self-hosted installation guide
+										<ChevronRight className="h-4 w-4" aria-hidden="true" />
+									</Link>
 								</div>
 								<div className="flex items-center justify-center gap-5 text-sm text-muted-foreground">
 									<a

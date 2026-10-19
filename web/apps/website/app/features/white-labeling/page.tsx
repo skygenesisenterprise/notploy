@@ -1,3 +1,4 @@
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
 import { Container } from "@/components/Container";
 import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
@@ -73,138 +74,55 @@ const relatedFeatures = [
 
 export default function WhiteLabelingPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Deploy applications under your own brand
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Replace every Notploy mention with your own name, logo, branding,
-							and visual identity.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link href="/contact">Contact sales</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link
-									href="https://docs.notploy.com/docs/core"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									View documentation
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Your product, your brand */}
-			<section aria-labelledby="your-product-your-brand" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Make it yours
-						</p>
-						<h2 id="your-product-your-brand" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Your product, your brand
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy&apos;s white labeling lets enterprise teams and agencies
-							deliver a fully branded, professional deployment platform.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{coreFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Powerful features for growing teams */}
-			<section aria-labelledby="powerful-features" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Explore related capabilities
-						</p>
-						<h2 id="powerful-features" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Powerful features for growing teams
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy scales with your team, with features and plans for when
-							you&apos;re ready to take the next step.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-3">
-						{relatedFeatures.map((feature) => (
-							<Link
-								key={feature.title}
-								href={feature.href}
-								className="rounded-xl border border-border/50 bg-card p-6 transition hover:border-border"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</Link>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* CTA */}
-			<section aria-labelledby="launch-your-platform" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Talk to our team
-						</p>
-						<h2 id="launch-your-platform" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Ready to launch your own platform?
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Talk to us about white labeling and the rest of Notploy&apos;s
-							higher-tier features.
-						</p>
-						<div className="mt-10">
-							<Button className="rounded-full" asChild>
-								<Link href="/contact">Schedule a call</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-		</div>
+		<FeaturePageTemplate
+			badge="Capabilities"
+			badgeDetail="Enterprise & agencies"
+			title="Your platform,"
+			highlight="your own brand"
+			description="Replace every Notploy mention with your own name, logo, branding, and visual identity — and hand clients a deployment platform that looks entirely yours."
+			actions={
+				<>
+					<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+						<Link href="/contact">Contact sales</Link>
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full rounded-full px-6 sm:w-auto"
+						asChild
+					>
+						<Link href="https://docs.notploy.com/docs/core" target="_blank">
+							View documentation
+						</Link>
+					</Button>
+				</>
+			}
+			links={[{ href: "/enterprise", label: "Notploy Enterprise" }, { href: "/partners", label: "Partner program" }]}
+			sections={[
+				{
+					id: "your-product-your-brand",
+					title: "Your product, your brand",
+					description:
+						"Notploy's white labeling lets enterprise teams and agencies deliver a fully branded, professional deployment platform.",
+					items: coreFeatures,
+					columns: 2,
+					layout: "split",
+				},
+			]}
+			related={{
+				id: "powerful-features",
+				title: "Powerful features for growing teams",
+				description:
+					"Notploy scales with your team, with features and plans for when you're ready to take the next step.",
+				items: relatedFeatures,
+				columns: 3,
+			}}
+			finalCta={{
+				title: "Ready to launch your own platform?",
+				description:
+					"Talk to us about white labeling and the rest of Notploy's higher-tier features.",
+				cta: "Schedule a call",
+				href: "/contact",
+			}}
+		/>
 	);
 }

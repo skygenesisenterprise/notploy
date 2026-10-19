@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/pages/PageHero";
 import { Container } from "@/components/Container";
 import { CallToAction } from "@/components/CallToAction";
 import { Testimonials } from "@/components/Testimonials";
@@ -132,58 +133,59 @@ export default function NotployVsPortainerPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Notploy vs. Portainer
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Both tools help you manage containers on your own server. But they
-							solve very different problems—here's what that means for your setup.
-						</p>
-
-						<div className="mt-16 grid gap-8 sm:grid-cols-2">
-							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-foreground">Notploy</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									For scaling teams that want to self-host web apps and databases
-									with a polished UI, automated deployments from git repos,
-									multi-server support, a built-in reverse proxy, and SSL.
-								</p>
-							</div>
-							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-foreground">Portainer</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									For enterprises that already run Kubernetes and want a GUI to
-									manage containers, images, and stacks. A practical choice for
-									ops-focused users who need visibility into existing
-									infrastructure.
-								</p>
-							</div>
-						</div>
-
-						<Button className="mt-10 rounded-full" asChild>
+			<PageHero
+				badge="Comparisons"
+				badgeDetail="Side-by-side"
+				title="Notploy vs."
+				highlight="Portainer"
+				description="Both tools help you manage containers on your own server. But they solve very different problems — here's what that means for your setup."
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
 							<Link
 								href="https://app.notploy.com/register"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								Get started with Notploy
+								Start with Notploy
 							</Link>
 						</Button>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
+						>
+							<Link href="/contact">Talk to sales</Link>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/comparison", label: "All comparisons" },
+					{ href: "/pricing", label: "Pricing" },
+					{ href: "/self", label: "Notploy Self" },
+				]}
+			>
+				<div className="mx-auto grid max-w-3xl gap-3 text-left sm:grid-cols-2">
+					<div className="rounded-2xl border border-primary bg-primary p-6 text-primary-foreground">
+						<p className="text-sm font-medium text-primary-foreground/75">
+							Notploy
+						</p>
+						<p className="mt-3 text-base leading-relaxed">
+							A modern, open deployment platform you run on infrastructure
+							you own: Git-based deploys, databases, Compose, monitoring
+							and backups in one control plane.
+						</p>
 					</div>
-				</Container>
-			</section>
+					<div className="rounded-2xl border border-border/50 bg-card p-6">
+						<p className="text-sm font-medium text-muted-foreground">
+							Portainer
+						</p>
+						<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+							For enterprises that already run Kubernetes and want a GUI to manage containers, images, and stacks — a practical choice for ops-focused users who need visibility into existing infrastructure.
+						</p>
+					</div>
+				</div>
+			</PageHero>
 
 			{/* Notploy vs Portainer at a glance */}
 			<section className="border-b border-border/30 py-20 sm:py-32">

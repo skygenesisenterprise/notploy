@@ -1,3 +1,5 @@
+import { ChoicePanels, ProcessRail, SectionHeading } from "@/components/pages/PagePrimitives";
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
 import { Container } from "@/components/Container";
 import { CallToAction } from "@/components/CallToAction";
 import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
@@ -161,367 +163,158 @@ const faqs = [
 
 export default function ApplicationManagementSoftwarePage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Application Management Software That Works
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Monitor, control, and maintain your business applications from a
-							single dashboard. Notploy gives your IT team the visibility and
-							tools to keep every application running at peak
-							performance&mdash;without the complexity.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									aria-label="Get Started with Notploy"
-									target="_blank"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button
-								className="rounded-full bg-primary hover:bg-primary/90"
-								asChild
-							>
-								<Link href="/contact" aria-label="Contact Us" className="text-foreground">
-									Contact Us
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Visibility across every application */}
-			<section aria-labelledby="visibility-at-scale" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-3xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							One place for every app
-						</p>
-						<h2 id="visibility-at-scale" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Visibility across every application as you scale
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Bring your entire application landscape into one place with
-							Notploy. Get a clear view of application health, resource usage,
-							and deployment history.
-						</p>
-					</div>
-				</Container>
-			</section>
-
-			{/* Everything your team needs in one platform */}
-			<section aria-labelledby="everything-in-one-platform" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Signals that matter
-						</p>
-						<h2 id="everything-in-one-platform" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Everything your team needs in one platform
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Improving visibility into your application portfolio is the first
-							step toward better application management. Notploy surfaces the
-							signals your IT team needs, in real time, in one place.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{coreFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Standardize your management process */}
-			<section aria-labelledby="standardize-your-process" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-5xl lg:grid lg:grid-cols-2 lg:gap-16">
-						<div>
-							<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-								Consistency over tribal knowledge
-							</p>
-							<h2 id="standardize-your-process" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-								Standardize your management process
-							</h2>
-							<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-								Maintain consistent environments and standardized release
-								processes to keep operational efficiency at peak levels. When
-								every application is managed together, your IT team maintains
-								shared standards instead of tribal knowledge.
-							</p>
-							<p className="mt-4 text-sm text-muted-foreground">
-								Notploy gives teams a consistent application management system
-								for deployments, environment configuration, and rollback
-								workflows, so reliability doesn&apos;t depend on who happens to
-								be on call.
-							</p>
-							<ul className="mt-8 space-y-3">
-								{standardizationChecks.map((item) => (
-									<li key={item} className="flex items-start gap-3">
-										<CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
-										<span className="text-sm text-muted-foreground">
-											{item}
-										</span>
-									</li>
-								))}
-							</ul>
-						</div>
-						<div className="mt-10 lg:mt-0">
-							<div className="rounded-xl border border-border/50 bg-card p-6">
-								<div className="space-y-3">
-									{applicationStatuses.map((app) => (
-										<div
-											key={app.name}
-											className="flex items-center justify-between rounded-lg border border-border/30 bg-background/50 px-4 py-3"
-										>
-											<span className="text-sm font-medium">{app.name}</span>
-											<span
-												className={`text-xs font-medium ${
-													app.status === "Running"
-														? "text-green-500"
-														: app.status === "Deploying"
-															? "text-primary/800"
-															: "text-orange-500"
-												}`}
-											>
-												{app.status}
-											</span>
-										</div>
-									))}
-								</div>
-							</div>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Full control over your application portfolio */}
-			<section aria-labelledby="full-portfolio-control" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Control at every level
-						</p>
-						<h2 id="full-portfolio-control" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Full control over your application portfolio
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Manage business applications at the level your business goals
-							require, from resource allocation and scaling to security controls
-							and workflow automation.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{controlFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Run Notploy where your business needs it */}
-			<section aria-labelledby="run-where-needed" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Self-hosted or cloud
-						</p>
-						<h2 id="run-where-needed" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Run Notploy where your business needs it
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Deploy Notploy on your own infrastructure or ours. Both options
-							give you the same application management capabilities, and you
-							choose what fits your operational model and regulatory compliance
-							requirements.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Server className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Self-hosted</h3>
-							<ul className="mt-4 space-y-2">
-								{selfHostedItems.map((item) => (
-									<li
-										key={item}
-										className="flex items-center gap-2 text-sm text-muted-foreground"
-									>
-										<CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
-										{item}
-									</li>
-								))}
-							</ul>
-						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Cloud className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Notploy Cloud</h3>
-							<ul className="mt-4 space-y-2">
-								{cloudItems.map((item) => (
-									<li
-										key={item}
-										className="flex items-center gap-2 text-sm text-muted-foreground"
-									>
-										<CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
-										{item}
-									</li>
-								))}
-							</ul>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Deploy AI in a controlled environment */}
-			<section aria-labelledby="deploy-ai-safely" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Sandboxed by default
-						</p>
-						<h2 id="deploy-ai-safely" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Deploy AI in a controlled environment
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Use Notploy to create sandbox environments separated from production infrastructure, where technical and non-technical employees can launch AI-coded apps safely.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-3">
-						{[
-							{
-								number: "1",
-								title: "Set up in minutes",
-								description:
-									"Create a sandboxed environment on your own infrastructure with a single command. Configure access controls, connect your Git repo, and your team's ready to deploy.",
-							},
-							{
-								number: "2",
-								title: "Deploy from any source",
-								description:
-									"Once Notploy is set up, team members can take AI-coded apps from a Git repo, Docker image, or Compose file to a running environment without engineering support.",
-							},
-							{
-								number: "3",
-								title: "Monitor and recover fast",
-								description:
-									"Real-time metrics, centralized logs, RBAC, and quick rollback give your team full visibility and control over every AI-built app, so you can catch problems early before they reach production.",
-							},
-						].map((step) => (
-							<div
-								key={step.number}
-								className="relative rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="absolute right-6 top-6 font-display text-4xl font-bold text-primary/30">
-									{step.number}
-								</div>
-								<h3 className="text-lg font-semibold">{step.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">{step.description}</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Take control of your application landscape */}
-			<section aria-labelledby="take-control" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-3xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Get started in minutes
-						</p>
-						<h2 id="take-control" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Take control of your application landscape
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy gives your IT team the application management software it
-							needs to monitor, maintain, and scale business applications with
-							confidence. Create your account and get started in minutes.
-						</p>
-						<div className="mt-10">
-							<Button className="rounded-full" asChild>
-								<Link href="https://app.notploy.com">Create your account</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* FAQs */}
-			<section aria-labelledby="management-software-faqs" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Your questions answered
-						</p>
-						<h2 id="management-software-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Application management software FAQs
-						</h2>
-					</div>
-					<Accordion
-						type="single"
-						collapsible
-						className="mx-auto mt-12 w-full max-w-3xl"
+		<FeaturePageTemplate
+			badge="Capabilities"
+			badgeDetail="Operations & visibility"
+			title="Application management"
+			highlight="that works"
+			description="Monitor, control, and maintain your business applications from a single dashboard. Notploy gives your IT team the visibility and tools to keep every application running at peak performance — without the complexity."
+			actions={
+				<>
+					<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+						<Link href="https://app.notploy.com/register" target="_blank">
+							Get Started
+						</Link>
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full rounded-full px-6 sm:w-auto"
+						asChild
 					>
-						{faqs.map((faq, index) => (
-							<AccordionItem value={`faq-${index}`} key={index}>
-								<AccordionTrigger className="text-left">
-									{faq.question}
-								</AccordionTrigger>
-								<AccordionContent>{faq.answer}</AccordionContent>
-							</AccordionItem>
+						<Link href="/contact">Contact Us</Link>
+					</Button>
+				</>
+			}
+			links={[
+				{ href: "/platform", label: "Platform overview" },
+				{ href: "/features/container-server-monitoring", label: "Monitoring" },
+				{ href: "/pricing", label: "Pricing" },
+			]}
+			sections={[
+				{
+					id: "everything-in-one-platform",
+					title: "Everything your team needs in one platform",
+					description:
+						"Improving visibility into your application portfolio is the first step toward better application management. Notploy surfaces the signals your IT team needs, in real time, in one place.",
+					items: coreFeatures,
+					columns: 3,
+				},
+				{
+					id: "full-portfolio-control",
+					title: "Full control over your application portfolio",
+					description:
+						"Manage business applications at the level your business goals require, from resource allocation and scaling to security controls and workflow automation.",
+					items: controlFeatures,
+					columns: 3,
+				},
+			]}
+			faqs={{
+				id: "management-software-faqs",
+				title: "Application management software FAQs",
+				description: "Answers before you bring your portfolio into one place.",
+				items: faqs,
+			}}
+			finalCta={{
+				title: "Take control of your application landscape",
+				description:
+					"Notploy gives your IT team the application management software it needs to monitor, maintain, and scale business applications with confidence.",
+				cta: "Create your account",
+				href: "https://app.notploy.com",
+				external: true,
+			}}
+		>
+			<Container className="pb-20 sm:pb-28">
+				<SectionHeading
+					id="standardize-your-process"
+					title="Standardize your management process"
+					description="Maintain consistent environments and standardized release processes to keep operational efficiency at peak levels. When every application is managed together, your IT team maintains shared standards instead of tribal knowledge."
+				/>
+				<div className="mx-auto mt-12 grid max-w-5xl gap-10 lg:grid-cols-2">
+					<ul className="space-y-4 border-t border-border/40 pt-6">
+						{standardizationChecks.map((item) => (
+							<li key={item} className="flex items-start gap-3">
+								<CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+								<span className="text-base leading-relaxed text-muted-foreground">
+									{item}
+								</span>
+							</li>
 						))}
-					</Accordion>
-				</Container>
-			</section>
+					</ul>
+					<div className="rounded-2xl border border-border/50 bg-card p-6">
+						<p className="text-sm text-muted-foreground">
+							A portfolio view, at a glance
+						</p>
+						<div className="mt-4 space-y-3">
+							{applicationStatuses.map((app) => (
+								<div
+									key={app.name}
+									className="flex items-center justify-between rounded-lg bg-secondary/60 px-4 py-3"
+								>
+									<span className="text-sm font-medium text-foreground">
+										{app.name}
+									</span>
+									<span className="rounded-full bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">
+										{app.status}
+									</span>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+			</Container>
 
-			<CallToAction />
-		</div>
+			<ChoicePanels
+				id="run-where-needed"
+				title="Run Notploy where your business needs it"
+				description="Deploy Notploy on your own infrastructure or ours. Both options give you the same application management capabilities, and you choose what fits your operational model and regulatory compliance requirements."
+				panels={[
+					{
+						name: "Self-hosted",
+						tagline: "Your infrastructure, your rules",
+						description:
+							"Run the platform on servers you control, with data, secrets and backups kept inside your boundary.",
+						bullets: selfHostedItems,
+						cta: "Explore Self",
+						href: "/self",
+					},
+					{
+						name: "Notploy Cloud",
+						tagline: "Managed for you",
+						description:
+							"Let Notploy run the control plane while your applications keep running on your own servers.",
+						bullets: cloudItems,
+						cta: "Explore Cloud",
+						href: "/cloud",
+						highlighted: true,
+					},
+				]}
+			/>
+
+			<ProcessRail
+				id="deploy-ai-safely"
+				title="Deploy AI in a controlled environment"
+				description="Use Notploy to create sandbox environments separated from production infrastructure, where technical and non-technical employees can launch AI-coded apps safely."
+				steps={[
+					{
+						title: "Set up in minutes",
+						description:
+							"Create a sandboxed environment on your own infrastructure with a single command. Configure access controls, connect your Git repo, and your team is ready to deploy.",
+						label: "Sandbox",
+					},
+					{
+						title: "Deploy from any source",
+						description:
+							"Once Notploy is set up, team members can take AI-coded apps from a Git repo, Docker image, or Compose file to a running environment without engineering support.",
+						label: "Deploy",
+					},
+					{
+						title: "Monitor and recover fast",
+						description:
+							"Real-time metrics, centralized logs, RBAC, and quick rollback give your team full visibility and control over every AI-built app.",
+						label: "Operate",
+					},
+				]}
+			/>
+		</FeaturePageTemplate>
 	);
 }

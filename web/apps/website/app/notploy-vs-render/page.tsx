@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/pages/PageHero";
 import { Container } from "@/components/Container";
 import { CallToAction } from "@/components/CallToAction";
 import { Testimonials } from "@/components/Testimonials";
@@ -134,64 +135,59 @@ export default function NotployVsRenderPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Notploy vs. Render
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Choose Notploy and choose control over your servers, setup, and
-							infrastructure bill.
+			<PageHero
+				badge="Comparisons"
+				badgeDetail="Side-by-side"
+				title="Notploy vs."
+				highlight="Render"
+				description="Choose Notploy and choose control over your servers, setup, and infrastructure bill."
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+							<Link
+								href="https://app.notploy.com/register"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Start with Notploy
+							</Link>
+						</Button>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
+						>
+							<Link href="/contact">Talk to sales</Link>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/comparison", label: "All comparisons" },
+					{ href: "/pricing", label: "Pricing" },
+					{ href: "/self", label: "Notploy Self" },
+				]}
+			>
+				<div className="mx-auto grid max-w-3xl gap-3 text-left sm:grid-cols-2">
+					<div className="rounded-2xl border border-primary bg-primary p-6 text-primary-foreground">
+						<p className="text-sm font-medium text-primary-foreground/75">
+							Notploy
 						</p>
-
-						<div className="mt-16 grid gap-8 sm:grid-cols-2">
-							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-foreground">Notploy</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									Notploy gives you PaaS-level simplicity on infrastructure you
-									own. Deploy apps, Docker Compose stacks, databases, and
-									background workers on any VPS or cloud server, with
-									predictable pricing and no vendor lock-in.
-								</p>
-							</div>
-							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-foreground">Render</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									A hosted, fully managed PaaS, Render handles servers,
-									networking, and scaling for you, with service types for web
-									apps, background workers, cron jobs, and managed databases,
-									all billed per service.
-								</p>
-							</div>
-						</div>
-
-						<div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									Register now
-								</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link href="/contact">Talk to sales</Link>
-							</Button>
-						</div>
+						<p className="mt-3 text-base leading-relaxed">
+							A modern, open deployment platform you run on infrastructure
+							you own: Git-based deploys, databases, Compose, monitoring
+							and backups in one control plane.
+						</p>
 					</div>
-				</Container>
-			</section>
+					<div className="rounded-2xl border border-border/50 bg-card p-6">
+						<p className="text-sm font-medium text-muted-foreground">
+							Render
+						</p>
+						<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+							A hosted, fully managed PaaS. Render handles servers, networking, and scaling for you, with service types for web apps, workers, cron jobs, and managed databases, all billed per service.
+						</p>
+					</div>
+				</div>
+			</PageHero>
 
 			{/* Notploy vs Render at a glance */}
 			<section className="border-b border-border/30 py-20 sm:py-32">

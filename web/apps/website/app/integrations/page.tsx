@@ -1,5 +1,10 @@
 import { CallToAction } from "@/components/CallToAction";
 import { Container } from "@/components/Container";
+import { PageHero } from "@/components/pages/PageHero";
+import {
+	ProcessRail,
+	SectionHeading,
+} from "@/components/pages/PagePrimitives";
 import { Button } from "@/components/ui/button";
 import {
 	IconApi,
@@ -11,6 +16,7 @@ import {
 	IconRobot,
 	IconTerminal2,
 } from "@tabler/icons-react";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -74,73 +80,115 @@ const integrations = [
 	},
 ];
 
+const workflow = [
+	{
+		title: "A branch is pushed",
+		description:
+			"A developer pushes a branch. A webhook notifies Notploy of the change.",
+		label: "GitHub",
+	},
+	{
+		title: "Notploy builds",
+		description:
+			"The platform builds the application, resolves configuration and secrets, and prepares the release.",
+		label: "Build",
+	},
+	{
+		title: "Infrastructure updates",
+		description:
+			"Containers are scheduled on your servers or Swarm cluster; routing and TLS are updated automatically.",
+		label: "Deploy",
+	},
+	{
+		title: "The app serves traffic",
+		description:
+			"The new version serves traffic. Logs, metrics and rollbacks are available from the dashboard, CLI or API.",
+		label: "Live",
+	},
+];
+
 export default function IntegrationsPage() {
 	return (
 		<div className="min-h-screen bg-background">
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Notploy fits the way you already work
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Notploy is not only a web dashboard. It is an infrastructure
-							platform you can drive from GitHub, your editor, your terminal,
-							your own systems and even AI agents — without changing how your
-							team works.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link href="/platform">Explore the platform</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link href="https://docs.notploy.com/docs/core" target="_blank">
-									Documentation
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
+			<PageHero
+				badge="Integrations"
+				badgeDetail="GitHub · CLI · API · MCP"
+				title="Fits"
+				highlight="the way you work"
+				description="Notploy is not only a web dashboard. It is an infrastructure platform you can drive from GitHub, your editor, your terminal, your own systems and even AI agents — without changing how your team works."
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+							<Link href="/platform">
+								Explore the platform
+								<IconArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+							</Link>
+						</Button>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
+						>
+							<Link href="https://docs.notploy.com/docs/core" target="_blank">
+								Documentation
+								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
+							</Link>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/templates", label: "Deploy a template" },
+					{ href: "/community", label: "Request an integration" },
+					{
+						href: "https://docs.notploy.com/docs/core/ai",
+						label: "AI & MCP docs",
+						external: true,
+					},
+				]}
+			/>
 
-			<section aria-labelledby="ways-to-work-with-notploy" className="border-b border-border/30 py-20 sm:py-32">
+			<section
+				aria-labelledby="ways-to-work-with-notploy"
+				className="pb-20 sm:pb-28"
+			>
 				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Your existing tools
-						</p>
-						<h2 id="ways-to-work-with-notploy" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Ways to work with Notploy
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Each integration solves a concrete workflow, not a checkbox.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
+					<SectionHeading
+						id="ways-to-work-with-notploy"
+						title="Ways to work with Notploy"
+						description="Each integration solves a concrete workflow, not a checkbox."
+					/>
+
+					<div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 border-l border-t border-border/40 sm:grid-cols-2">
 						{integrations.map((integration) => (
 							<div
 								key={integration.title}
-								className="flex flex-col rounded-xl border border-border/50 bg-card p-6"
+								className="group flex flex-col border-b border-r border-border/40 p-6 transition-colors hover:bg-card sm:p-8"
 							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<integration.icon className="h-5 w-5" />
+								<div className="flex items-start justify-between gap-4">
+									<integration.icon
+										className="h-7 w-7 text-primary"
+										stroke={1.5}
+										aria-hidden="true"
+									/>
+									<span className="text-sm text-muted-foreground">
+										{integration.title}
+									</span>
 								</div>
-								<h3 className="text-lg font-semibold">{integration.title}</h3>
-								<p className="mt-1 text-sm font-medium text-primary">
+								<h3 className="mt-5 text-xl font-semibold text-foreground">
 									{integration.tagline}
-								</p>
-								<p className="mt-3 text-sm text-muted-foreground">
+								</h3>
+								<p className="mt-3 text-base leading-relaxed text-muted-foreground">
 									{integration.description}
 								</p>
-								<div className="mt-5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+								<div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
 									{integration.flow.map((step, index) => (
 										<span key={step} className="flex items-center gap-2">
-											<span className="rounded-full border border-border/50 bg-background px-2.5 py-1">
+											<span className="rounded-full bg-secondary px-3 py-1">
 												{step}
 											</span>
 											{index < integration.flow.length - 1 && (
 												<IconArrowRight
-													className="h-3 w-3 text-primary"
+													className="h-3.5 w-3.5 text-primary"
 													aria-hidden="true"
 												/>
 											)}
@@ -153,94 +201,38 @@ export default function IntegrationsPage() {
 				</Container>
 			</section>
 
-			<section aria-labelledby="a-concrete-workflow" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							From push to production
-						</p>
-						<h2 id="a-concrete-workflow" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							A concrete workflow
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							How a change in your codebase reaches production on infrastructure
-							you own.
-						</p>
-					</div>
-					<ol className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
-						{[
-							{
-								number: "01",
-								title: "GitHub",
-								description:
-									"A developer pushes a branch. A webhook notifies Notploy of the change.",
-							},
-							{
-								number: "02",
-								title: "Notploy",
-								description:
-									"The platform builds the application, resolves configuration and secrets, and prepares the release.",
-							},
-							{
-								number: "03",
-								title: "Infrastructure",
-								description:
-									"Containers are scheduled on your servers or Swarm cluster; routing and TLS are updated automatically.",
-							},
-							{
-								number: "04",
-								title: "Applications",
-								description:
-									"The new version serves traffic. Logs, metrics and rollbacks are available from the dashboard, CLI or API.",
-							},
-						].map((step) => (
-							<li
-								key={step.number}
-								className="relative rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="absolute right-6 top-6 font-display text-3xl font-bold text-primary/30">
-									{step.number}
-								</div>
-								<h3 className="text-lg font-semibold">{step.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{step.description}
-								</p>
-							</li>
-						))}
-					</ol>
-					<div className="mx-auto mt-12 max-w-2xl text-center">
-						<Button variant="outline" className="rounded-full" asChild>
-							<Link
-								href="https://docs.notploy.com/docs/core/architecture"
-								target="_blank"
-							>
-								Go deeper: architecture documentation
-							</Link>
-						</Button>
-					</div>
-				</Container>
-			</section>
+			<ProcessRail
+				id="a-concrete-workflow"
+				title="A concrete workflow"
+				description="How a change in your codebase reaches production on infrastructure you own."
+				steps={workflow}
+			/>
 
-			<section aria-labelledby="more-integrations-on-the-way" className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="more-integrations-on-the-way" className="py-20 sm:py-28">
 				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							On the roadmap
-						</p>
-						<h2 id="more-integrations-on-the-way" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							More integrations on the way
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy is built around reusable provider adapters, so new
-							sources, editors and automation targets land without redesigning
-							the platform. Have a workflow in mind? Propose it.
-						</p>
-						<div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
+					<div className="mx-auto grid max-w-6xl gap-8 rounded-2xl border border-border/50 bg-card p-8 sm:p-12 lg:grid-cols-[1.4fr_0.6fr] lg:items-end">
+						<div>
+							<h2
+								id="more-integrations-on-the-way"
+								className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+							>
+								More integrations on the way
+							</h2>
+							<p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+								Notploy is built around reusable provider adapters, so new
+								sources, editors and automation targets land without
+								redesigning the platform. Have a workflow in mind? Propose it.
+							</p>
+						</div>
+						<div className="flex flex-col gap-3">
+							<Button className="w-full rounded-full" asChild>
 								<Link href="/community">Join the community</Link>
 							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link href="https://github.com/skygenesisenterprise/notploy" target="_blank">
+							<Button variant="outline" className="w-full rounded-full" asChild>
+								<Link
+									href="https://github.com/skygenesisenterprise/notploy"
+									target="_blank"
+								>
 									<IconPlug className="mr-2 h-4 w-4" aria-hidden="true" />
 									Request an integration
 								</Link>

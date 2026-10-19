@@ -1,23 +1,24 @@
 import { CallToAction } from "@/components/CallToAction";
 import { Container } from "@/components/Container";
-import { Button } from "@/components/ui/button";
+import { layers } from "@/components/home/content";
+import { PageHero } from "@/components/pages/PageHero";
+import { PlatformDomains } from "@/components/pages/PlatformDomains";
 import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@/components/ui/accordion";
+	CellGrid,
+	ChoicePanels,
+	PageFaq,
+	SectionHeading,
+} from "@/components/pages/PagePrimitives";
+import { Reveal } from "@/components/home/Reveal";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
 	IconApi,
+	IconArrowRight,
 	IconCube,
-	IconEye,
-	IconKey,
-	IconNetwork,
-	IconRocket,
-	IconServer2,
-	IconShieldLock,
 	IconStack2,
 } from "@tabler/icons-react";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -29,69 +30,6 @@ export const metadata: Metadata = {
 		canonical: "https://notploy.com/platform",
 	},
 };
-
-const capabilityGroups = [
-	{
-		icon: IconRocket,
-		title: "Deploy",
-		description:
-			"From a Git repository or a container image to a running application, with build pipelines, environment variables and repeatable deployments.",
-		items: [
-			"Application deployment with Nixpacks, Buildpacks or a Dockerfile",
-			"Native Docker Compose projects",
-			"Databases: PostgreSQL, MySQL, MariaDB, MongoDB, Redis",
-			"One-click templates for popular tools",
-		],
-	},
-	{
-		icon: IconServer2,
-		title: "Infrastructure",
-		description:
-			"Manage the machines that run your workloads — a single server or a whole fleet — without leaving the platform.",
-		items: [
-			"Server management, local and remote",
-			"Docker as the container runtime",
-			"Docker Swarm clusters for multi-node deployments",
-			"Storage, volumes and S3-compatible object storage",
-		],
-	},
-	{
-		icon: IconNetwork,
-		title: "Networking",
-		description:
-			"Traffic, naming and encryption are handled by the platform so services reach each other and the outside world safely.",
-		items: [
-			"Internal networking between services",
-			"DNS and custom domains per application",
-			"Automatic TLS certificates and renewal",
-			"Load balancing across nodes",
-		],
-	},
-	{
-		icon: IconShieldLock,
-		title: "Security",
-		description:
-			"Access to infrastructure is explicit, auditable and revocable — for humans, applications and machines alike.",
-		items: [
-			"Secrets and encrypted environment variables",
-			"Container registry credentials",
-			"Role-based access control and SSO",
-			"Audit logs and SSH key management",
-		],
-	},
-	{
-		icon: IconEye,
-		title: "Operations",
-		description:
-			"Everything needed to keep applications healthy after the first deploy, from observability to automation.",
-		items: [
-			"Real-time monitoring: CPU, memory, network",
-			"Backups and scheduled jobs",
-			"REST API, CLI and TypeScript SDK",
-			"Webhooks and notifications",
-		],
-	},
-];
 
 const designPrinciples = [
 	{
@@ -116,7 +54,8 @@ const designPrinciples = [
 
 const platformFaqs = [
 	{
-		question: "What is the difference between Notploy Platform, Self and Cloud?",
+		question:
+			"What is the difference between Notploy Platform, Self and Cloud?",
 		answer:
 			"Notploy Platform is the shared set of capabilities — deployment, infrastructure, networking, security and operations. Notploy Self is the open-source edition you run yourself; Notploy Cloud is the managed service operated by Notploy. Both run the same platform capabilities.",
 	},
@@ -140,200 +79,184 @@ const platformFaqs = [
 export default function PlatformPage() {
 	return (
 		<div className="min-h-screen bg-background">
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
+			<PageHero
+				badge="Platform"
+				badgeDetail="Open standards · Docker · Traefik"
+				title="One control plane for"
+				highlight="every layer"
+				description="Notploy Platform is the common set of capabilities shared by Notploy Self and Notploy Cloud: deploying applications, managing servers and clusters, routing traffic, protecting secrets and operating everything through one API. Easy by default, transparent by design."
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+							<Link href="/self">
+								Deploy with Notploy Self
+								<IconArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+							</Link>
+						</Button>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
+						>
+							<Link href="/cloud">
+								Explore Notploy Cloud
+								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
+							</Link>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/integrations", label: "Ways to work with Notploy" },
+					{ href: "/pricing", label: "Pricing" },
+					{
+						href: "https://docs.notploy.com/docs/core/architecture",
+						label: "Architecture docs",
+						external: true,
+					},
+				]}
+			/>
+
+			<section
+				aria-labelledby="capabilities-by-operational-domain"
+				className="pb-20 sm:pb-28"
+			>
 				<Container>
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							The capabilities behind the Notploy ecosystem
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Notploy Platform is the common set of capabilities shared by
-							Notploy Self and Notploy Cloud: deploying applications, managing
-							servers and clusters, routing traffic, protecting secrets and
-							operating everything through one API. Easy by default,
-							transparent by design.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link href="/self">Deploy with Notploy Self</Link>
-							</Button>
-							<Button
-								className="rounded-full bg-primary hover:bg-primary/90"
-								asChild
-							>
-								<Link href="/cloud" className="text-foreground">
-									Explore Notploy Cloud
-								</Link>
-							</Button>
-						</div>
-					</div>
+					<SectionHeading
+						id="capabilities-by-operational-domain"
+						title="Capabilities by operational domain"
+						description="The platform covers the full lifecycle of an application, from the first commit to day-two operations. Each domain stands on its own, but they are designed to work together."
+					/>
+					<PlatformDomains />
 				</Container>
 			</section>
 
-			<section aria-labelledby="capabilities-by-operational-domain" className="border-b border-border/30 py-20 sm:py-32">
+			<section
+				aria-labelledby="how-the-platform-fits-together"
+				className="py-20 sm:py-28"
+			>
 				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Five domains
-						</p>
-						<h2 id="capabilities-by-operational-domain" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Capabilities by operational domain
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							The platform covers the full lifecycle of an application, from the
-							first commit to day-two operations. Each domain stands on its own,
-							but they are designed to work together.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{capabilityGroups.map((group) => (
-							<div
-								key={group.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<group.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{group.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{group.description}
-								</p>
-								<ul className="mt-5 space-y-2.5 text-sm text-muted-foreground">
-									{group.items.map((item) => (
-										<li key={item} className="flex gap-2.5">
-											<span
-												aria-hidden="true"
-												className="mt-2 h-1 w-1 flex-shrink-0 rounded-full bg-primary"
-											/>
-											<span>{item}</span>
-										</li>
-									))}
-								</ul>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
+					<SectionHeading
+						id="how-the-platform-fits-together"
+						title="How the platform fits together"
+						description="Notploy is infrastructure-first: the platform manages the machinery — servers, containers, routing, certificates, storage — while you keep ownership of it."
+					/>
 
-			<section aria-labelledby="how-the-platform-fits-together" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Design principles
-						</p>
-						<h2 id="how-the-platform-fits-together" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							How the platform fits together
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy is infrastructure-first: the platform manages the
-							machinery — servers, containers, routing, certificates, storage —
-							while you keep ownership of it.
-						</p>
+					<div className="mx-auto mt-12 max-w-4xl space-y-3">
+						{layers.map((layer, index) => {
+							const isPlatform = layer.layer === "Notploy";
+							return (
+								<Reveal key={layer.title} delay={index * 0.08}>
+									<div
+										className={cn(
+											"grid gap-4 rounded-2xl border p-6 sm:grid-cols-[160px_1fr] sm:items-center sm:p-8",
+											isPlatform
+												? "border-primary bg-primary text-primary-foreground"
+												: "border-border/50 bg-card",
+										)}
+									>
+										<p
+											className={cn(
+												"text-sm font-medium",
+												isPlatform
+													? "text-primary-foreground/75"
+													: "text-muted-foreground",
+											)}
+										>
+											{layer.layer}
+										</p>
+										<div>
+											<h3
+												className={cn(
+													"font-display text-xl tracking-tight sm:text-2xl",
+													isPlatform
+														? "text-primary-foreground"
+														: "text-foreground",
+												)}
+											>
+												{layer.title}
+											</h3>
+											<p
+												className={cn(
+													"mt-2 text-base leading-relaxed",
+													isPlatform
+														? "text-primary-foreground/75"
+														: "text-muted-foreground",
+												)}
+											>
+												{layer.description}
+											</p>
+										</div>
+									</div>
+								</Reveal>
+							);
+						})}
 					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-3">
-						{designPrinciples.map((principle) => (
-							<div
-								key={principle.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<principle.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{principle.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{principle.description}
-								</p>
-							</div>
-						))}
-					</div>
-					<div className="mx-auto mt-12 max-w-2xl text-center">
+
+					<div className="mt-8 text-center">
 						<Button variant="outline" className="rounded-full" asChild>
 							<Link
 								href="https://docs.notploy.com/docs/core/architecture"
 								target="_blank"
 							>
 								Read the architecture documentation
+								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
 							</Link>
 						</Button>
 					</div>
 				</Container>
 			</section>
 
-			<section aria-labelledby="one-platform-two-ways-to-run-it" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Self and Cloud
-						</p>
-						<h2 id="one-platform-two-ways-to-run-it" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							One platform, two ways to run it
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							The capabilities are the same. What changes is who operates the
-							control plane — you, or Notploy.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<IconServer2 className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Notploy Self</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								The open-source edition. You install it on infrastructure you
-								own and keep full control over updates, data and network
-								boundaries.
-							</p>
-							<div className="mt-6">
-								<Button variant="outline" className="rounded-full" asChild>
-									<Link href="/self">Explore Self</Link>
-								</Button>
-							</div>
-						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<IconKey className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Notploy Cloud</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								The managed service operated by Notploy. The control plane is
-								run and upgraded for you, with support and availability
-								commitments.
-							</p>
-							<div className="mt-6">
-								<Button variant="outline" className="rounded-full" asChild>
-									<Link href="/cloud">Explore Cloud</Link>
-								</Button>
-							</div>
-						</div>
-					</div>
-				</Container>
-			</section>
+			<CellGrid
+				id="design-principles"
+				title="How the platform is built"
+				description="The decisions behind the product, visible in every screen and every endpoint."
+				items={designPrinciples}
+				columns={3}
+			/>
 
-			<section aria-labelledby="platform-faqs" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Common questions
-						</p>
-						<h2 id="platform-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Platform FAQs
-						</h2>
-					</div>
-					<div className="mx-auto mt-12 w-full max-w-3xl">
-						<Accordion type="single" collapsible>
-							{platformFaqs.map((faq, index) => (
-								<AccordionItem value={`faq-${index}`} key={faq.question}>
-									<AccordionTrigger className="text-left">
-										{faq.question}
-									</AccordionTrigger>
-									<AccordionContent>{faq.answer}</AccordionContent>
-								</AccordionItem>
-							))}
-						</Accordion>
-					</div>
-				</Container>
-			</section>
+			<ChoicePanels
+				id="one-platform-two-ways-to-run-it"
+				title="One platform, two ways to run it"
+				description="The capabilities are the same. What changes is who operates the control plane — you, or Notploy."
+				panels={[
+					{
+						name: "Notploy Self",
+						tagline: "You operate the platform",
+						description:
+							"The open-source edition. You install it on infrastructure you own and keep full control over updates, data and network boundaries.",
+						bullets: [
+							"Apache-2.0 and free to self-host",
+							"Run on any Linux server with Docker",
+							"Keep data, secrets and backups inside your boundary",
+							"Extend it, script it and audit it",
+						],
+						cta: "Explore Self",
+						href: "/self",
+					},
+					{
+						name: "Notploy Cloud",
+						tagline: "Notploy operates it for you",
+						description:
+							"The managed service operated by Notploy. The control plane is run and upgraded for you, with support and availability commitments.",
+						bullets: [
+							"Control plane hosted and monitored for you",
+							"Always on a supported release",
+							"Support with response commitments",
+							"Same platform capabilities as Self",
+						],
+						cta: "Explore Cloud",
+						href: "/cloud",
+						highlighted: true,
+					},
+				]}
+			/>
+
+			<PageFaq
+				id="platform-faqs"
+				title="Platform FAQs"
+				description="How the shared platform relates to the two editions."
+				faqs={platformFaqs}
+			/>
 
 			<CallToAction />
 		</div>

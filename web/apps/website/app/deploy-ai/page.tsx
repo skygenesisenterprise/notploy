@@ -1,5 +1,3 @@
-import { Container } from "@/components/Container";
-import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
 import {
 	Bot,
@@ -15,6 +13,10 @@ import {
 	Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import { Container } from "@/components/Container";
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
+import { Reveal } from "@/components/home/Reveal";
+import { CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -96,248 +98,156 @@ const empowerTeamPoints = [
 
 export default function DeployAIPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Empower your employees to deploy AI
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Your teams are building with AI. Talk to an expert to learn how
-							Notploy will give them a safe, governed environment to ship those
-							tools without touching production infrastructure or involving an
-							engineer.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									aria-label="Get Started with Notploy"
-									target="_blank"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button
-								className="rounded-full bg-primary hover:bg-primary/90"
-								asChild
-							>
-								<Link href="/contact" aria-label="Contact Us" className="text-foreground">
-									Contact Us
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Everything you need to start deploying AI today */}
-			<section aria-labelledby="everything-you-need-to-start-deploying-ai-today" className="border-b border-border/30 py-20 sm:py-32">
+		<FeaturePageTemplate
+			badge="AI deployment"
+			badgeDetail="Sandboxes & guardrails"
+			title="Deploy AI apps"
+			highlight="without the risk"
+			description="Your teams are building with AI. Notploy gives them a safe, governed environment to ship those tools without touching production infrastructure or waiting on an engineer."
+			actions={
+				<>
+					<Button className="rounded-full" asChild>
+						<Link
+							href="https://app.notploy.com/register"
+							target="_blank"
+							rel="noreferrer"
+						>
+							Get started
+						</Link>
+					</Button>
+					<Button variant="outline" className="rounded-full" asChild>
+						<Link href="/contact">Talk to an expert</Link>
+					</Button>
+				</>
+			}
+			links={[
+				{ href: "/platform", label: "Platform overview" },
+				{ href: "/enterprise", label: "Enterprise" },
+				{ href: "/features/single-sign-on", label: "SSO & SCIM" },
+			]}
+			sections={[
+				{
+					id: "ai-deployment-essentials",
+					title: "Everything you need to deploy AI today",
+					description:
+						"Notploy is built to take an app from an AI coding tool to a live, internal URL in minutes.",
+					items: coreFeatures,
+					columns: 3,
+				},
+				{
+					id: "guardrails-not-gatekeepers",
+					title: "Guardrails, not gatekeepers",
+					description:
+						"AI-generated code moves fast. Notploy's enterprise features make sure that speed doesn't come at the cost of security or control.",
+					items: guardrailFeatures,
+					columns: 2,
+					callout: {
+						title: "Bring AI deployment to the whole company",
+						description:
+							"SSO, audit logs, fine-grained RBAC and priority support, deployed on your infrastructure.",
+						cta: "Discover Notploy Enterprise",
+						href: "/enterprise",
+					},
+				},
+			]}
+			finalCta={{
+				title: "Unlock your deployment potential",
+				description:
+					"Say goodbye to infrastructure hassles. Notploy Cloud handles deployments, containers and traffic so your team can focus on building.",
+				cta: "Create an account",
+				href: "https://app.notploy.com/register",
+				external: true,
+			}}
+		>
+			<section aria-labelledby="internal-sandbox" className="py-20 sm:py-28">
 				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							AI deployment essentials
-						</p>
-						<h2 id="everything-you-need-to-start-deploying-ai-today" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Everything you need to start deploying AI today
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy is built to take an app from an AI coding tool to a live,
-							internal URL in minutes.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{coreFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Built for teams that need guardrails, not gatekeepers */}
-			<section aria-labelledby="built-for-teams-that-need-guardrails-not-gatekeepers" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Secure AI rollout
-						</p>
-						<h2 id="built-for-teams-that-need-guardrails-not-gatekeepers" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Built for teams that need guardrails, not gatekeepers
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							AI-generated code moves fast. Notploy&apos;s enterprise features
-							make sure that speed doesn&apos;t come at the cost of security or
-							control.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{guardrailFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-								{feature.link ? (
-									<Link
-										href={feature.link.href}
-										className="mt-4 inline-block text-sm font-medium text-primary hover:underline"
-									>
-										{feature.link.label} &rarr;
-									</Link>
-								) : null}
-							</div>
-						))}
-					</div>
-					<div className="mt-12 flex justify-center">
-						<Button className="rounded-full" asChild>
-							<Link href="/enterprise">Discover Notploy Enterprise</Link>
-						</Button>
-					</div>
-				</Container>
-			</section>
-
-			{/* Test freely. Ship confidently. */}
-			<section aria-labelledby="test-freely-ship-confidently" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Your internal sandbox
-						</p>
-						<h2 id="test-freely-ship-confidently" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+					<Reveal className="mx-auto max-w-2xl text-center">
+						<h2
+							id="internal-sandbox"
+							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+						>
 							Test freely. Ship confidently.
 						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
+						<p className="mt-4 text-lg leading-relaxed text-muted-foreground">
 							A dedicated internal sandbox means your teams can move fast
 							without creating risk for the rest of the business.
 						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<FlaskConical className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Test without the risk</h3>
-							<ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-								{testFreelyPoints.map((point) => (
-									<li key={point} className="flex gap-3">
-										<ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-										<span>{point}</span>
-									</li>
-								))}
-							</ul>
-						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Rocket className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Empower your team</h3>
-							<ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-								{empowerTeamPoints.map((point) => (
-									<li key={point} className="flex gap-3">
-										<ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-										<span>{point}</span>
-									</li>
-								))}
-							</ul>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Openclaw */}
-			<section aria-labelledby="get-started-with-openclaw-in-one-click" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-3xl text-center">
-						<div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary">
-							<Sparkles className="h-7 w-7" />
-						</div>
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Private AI coding
-						</p>
-						<h2 id="get-started-with-openclaw-in-one-click" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Get started with Openclaw in one click
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Openclaw is an open-source AI-powered coding assistant that you
-							can self-host on Notploy with a single template deploy. It gives
-							your team a private, internal AI coding environment, and no data
-							leaves your infrastructure.
-						</p>
-						<div className="mt-10">
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link
-									href="https://docs.notploy.com/docs/templates/openclaw"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									Read the Openclaw docs
-								</Link>
-							</Button>
-						</div>
+					</Reveal>
+					<div className="mx-auto mt-12 grid max-w-5xl gap-4 sm:grid-cols-2">
+						{[
+							{
+								title: "Test without the risk",
+								icon: FlaskConical,
+								points: testFreelyPoints,
+							},
+							{
+								title: "Empower your team",
+								icon: Rocket,
+								points: empowerTeamPoints,
+							},
+						].map((card) => (
+							<Reveal key={card.title}>
+								<div className="h-full rounded-2xl border border-border/50 bg-card p-8">
+									<card.icon
+										className="h-7 w-7 text-primary [stroke-width:1.5]"
+										aria-hidden="true"
+									/>
+									<h3 className="mt-5 text-lg font-semibold text-foreground">
+										{card.title}
+									</h3>
+									<ul className="mt-5 space-y-3">
+										{card.points.map((point) => (
+											<li key={point} className="flex gap-3 text-base">
+												<CheckCircle2
+													className="mt-1 h-4 w-4 shrink-0 text-primary"
+													aria-hidden="true"
+												/>
+												<span className="text-muted-foreground">{point}</span>
+											</li>
+										))}
+									</ul>
+								</div>
+							</Reveal>
+						))}
 					</div>
 				</Container>
 			</section>
 
-			{/* Notploy Cloud CTA */}
-			<section aria-labelledby="unlock-your-deployment-potential-with-notploy-cloud" className="border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="openclaw" className="pb-20 sm:pb-28">
 				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Fully managed hosting
-						</p>
-						<h2 id="unlock-your-deployment-potential-with-notploy-cloud" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Unlock Your Deployment Potential with Notploy Cloud
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Say goodbye to infrastructure hassles, Notploy Cloud handles it
-							all. Effortlessly deploy, manage Docker containers, and secure
-							your traffic with Traefik. Focus on building, we&apos;ll handle
-							the rest.
-						</p>
-						<div className="mt-10">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									Create an account
-								</Link>
-							</Button>
+					<Reveal className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-8 sm:p-12">
+						<div className="max-w-2xl">
+							<Sparkles
+								className="h-7 w-7 text-primary [stroke-width:1.5]"
+								aria-hidden="true"
+							/>
+							<h2
+								id="openclaw"
+								className="mt-5 font-display text-3xl tracking-tight text-foreground"
+							>
+								Openclaw in one click
+							</h2>
+							<p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+								Openclaw is an open-source AI coding assistant you can
+								self-host on Notploy with a single template deploy. Your team
+								gets a private, internal AI environment, and no data leaves
+								your infrastructure.
+							</p>
+							<div className="mt-7">
+								<Button variant="outline" className="rounded-full" asChild>
+									<Link
+										href="https://docs.notploy.com/docs/templates/openclaw"
+										target="_blank"
+										rel="noreferrer"
+									>
+										Read the Openclaw docs
+									</Link>
+								</Button>
+							</div>
 						</div>
-					</div>
+					</Reveal>
 				</Container>
 			</section>
-		</div>
+		</FeaturePageTemplate>
 	);
 }

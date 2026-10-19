@@ -1,25 +1,27 @@
 import { CallToAction } from "@/components/CallToAction";
 import { Container } from "@/components/Container";
+import { PageHero } from "@/components/pages/PageHero";
 import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@/components/ui/accordion";
+	CellGrid,
+	PageFaq,
+	ProcessRail,
+	ProductFrame,
+	SplitFeatureList,
+} from "@/components/pages/PagePrimitives";
 import { Button } from "@/components/ui/button";
 import {
-	IconCloudComputing,
 	IconArrowBackUp,
+	IconCloudComputing,
 	IconCpu,
 	IconKey,
 	IconLock,
 	IconRefresh,
-	IconRocket,
 	IconServer2,
 	IconShieldCheck,
 	IconTerminal2,
 	IconWorld,
 } from "@tabler/icons-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -31,8 +33,6 @@ export const metadata: Metadata = {
 		canonical: "https://notploy.com/self",
 	},
 };
-
-const INSTALL_COMMAND = "curl -sSL https://notploy.com/install.sh | sh";
 
 const infrastructureTargets = [
 	{
@@ -55,7 +55,7 @@ const infrastructureTargets = [
 	},
 	{
 		icon: IconWorld,
-		title: "Air-gapped and restricted environments",
+		title: "Air-gapped environments",
 		description:
 			"Deploy inside private networks, regulated environments or systems with no outbound access to a vendor cloud.",
 	},
@@ -100,6 +100,33 @@ const controlPrinciples = [
 	},
 ];
 
+const quickStart = [
+	{
+		title: "Provision a server",
+		description:
+			"Any Linux VPS or machine you already own. Modest specs are enough.",
+		label: "Host",
+	},
+	{
+		title: "Run the installer",
+		description:
+			"One command sets up Docker and the Notploy stack on the host.",
+		label: "One command",
+	},
+	{
+		title: "Open the dashboard",
+		description:
+			"Create your admin account in the web UI and connect a server.",
+		label: "Account",
+	},
+	{
+		title: "Deploy",
+		description:
+			"Connect a Git repository, add a domain, and ship your first application.",
+		label: "Ship",
+	},
+];
+
 const selfFaqs = [
 	{
 		question: "What do I need to run Notploy Self?",
@@ -131,208 +158,93 @@ const selfFaqs = [
 export default function SelfPage() {
 	return (
 		<div className="min-h-screen bg-background">
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-4xl text-center">
-						<p className="mb-4 text-sm font-semibold uppercase tracking-wider text-primary">
-							Notploy Self
-						</p>
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							The open-source platform you run yourself
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Notploy Self is the free, Apache-2.0 licensed edition of Notploy.
-							Install it on infrastructure you control — your servers, your VPS,
-							your hosting provider — and deploy applications and databases
-							without handing ownership of your stack to anyone.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link href="https://docs.notploy.com/docs/core/installation" target="_blank">
-									Installation guide
-								</Link>
-							</Button>
-							<Button
-								variant="outline"
-								className="rounded-full"
-								asChild
+			<PageHero
+				badge="Notploy Self"
+				badgeDetail="Open source · Apache-2.0"
+				badgeHref="https://github.com/skygenesisenterprise/notploy"
+				title="The platform"
+				highlight="you run yourself"
+				description="Notploy Self is the free, Apache-2.0 licensed edition of Notploy. Install it on infrastructure you control — your servers, your VPS, your hosting provider — and deploy applications and databases without handing ownership of your stack to anyone."
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+							<Link
+								href="https://docs.notploy.com/docs/core/installation"
+								target="_blank"
 							>
-								<Link href="https://github.com/skygenesisenterprise/notploy" target="_blank">
-									View on GitHub
-								</Link>
-							</Button>
-						</div>
-						<div className="mx-auto mt-12 max-w-2xl">
-							<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-4 py-3 text-left font-mono text-sm text-foreground">
-								<span className="select-none text-primary">$</span>
-								<code className="flex-1 overflow-x-auto whitespace-nowrap">
-									{INSTALL_COMMAND}
-								</code>
-							</div>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			<section aria-labelledby="runs-on-infrastructure-you-choose" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Where it runs
-						</p>
-						<h2 id="runs-on-infrastructure-you-choose" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Runs on infrastructure you choose
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy does not require a specific provider or data center. If it
-							runs Linux and Docker, it can run Notploy.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{infrastructureTargets.map((target) => (
-							<div
-								key={target.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<target.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{target.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{target.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			<section aria-labelledby="control-and-sovereignty-by-default" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Your data, your rules
-						</p>
-						<h2 id="control-and-sovereignty-by-default" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Control and sovereignty by default
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Self-hosting is not only about where binaries run. It is about
-							keeping decisions — data location, upgrade cadence, security
-							boundaries — where they belong: with you.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{controlPrinciples.map((principle) => (
-							<div
-								key={principle.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<principle.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{principle.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{principle.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			<section aria-labelledby="from-a-blank-server-to-your-first-deployment" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Quick start
-						</p>
-						<h2 id="from-a-blank-server-to-your-first-deployment" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							From a blank server to your first deployment
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy is designed to be operational in minutes, not in a
-							sprint.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
-						{[
-							{
-								number: "01",
-								title: "Provision a server",
-								description:
-									"Any Linux VPS or machine you already own. Modest specs are enough.",
-							},
-							{
-								number: "02",
-								title: "Run the installer",
-								description:
-									"One command sets up Docker and the Notploy stack on the host.",
-							},
-							{
-								number: "03",
-								title: "Open the dashboard",
-								description:
-									"Create your admin account in the web UI and connect a server.",
-							},
-							{
-								number: "04",
-								title: "Deploy",
-								description:
-									"Connect a Git repository, add a domain, and ship your first application.",
-							},
-						].map((step) => (
-							<div
-								key={step.number}
-								className="relative rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="absolute right-6 top-6 font-display text-3xl font-bold text-primary/30">
-									{step.number}
-								</div>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<IconRocket className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{step.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{step.description}
-								</p>
-							</div>
-						))}
-					</div>
-					<div className="mx-auto mt-12 max-w-2xl text-center">
-						<Button variant="outline" className="rounded-full" asChild>
-							<Link href="https://docs.notploy.com/docs/core" target="_blank">
-								Read the documentation
+								Installation guide
+								<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
 							</Link>
 						</Button>
-					</div>
-				</Container>
-			</section>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
+						>
+							<Link
+								href="https://github.com/skygenesisenterprise/notploy"
+								target="_blank"
+							>
+								View on GitHub
+								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
+							</Link>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/cloud", label: "Compare with Cloud" },
+					{ href: "/platform", label: "Explore the platform" },
+					{ href: "/pricing", label: "Pricing" },
+				]}
+			/>
 
-			<section aria-labelledby="notploy-self-faqs" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Common questions
-						</p>
-						<h2 id="notploy-self-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Notploy Self FAQs
-						</h2>
-					</div>
-					<div className="mx-auto mt-12 w-full max-w-3xl">
-						<Accordion type="single" collapsible>
-							{selfFaqs.map((faq, index) => (
-								<AccordionItem value={`faq-${index}`} key={faq.question}>
-									<AccordionTrigger className="text-left">
-										{faq.question}
-									</AccordionTrigger>
-									<AccordionContent>{faq.answer}</AccordionContent>
-								</AccordionItem>
-							))}
-						</Accordion>
-					</div>
-				</Container>
-			</section>
+			<Container className="pb-20 sm:pb-28">
+				<ProductFrame
+					src="/dashboard.png"
+					alt="Notploy dashboard listing applications and their deployments"
+					path="your-server/dashboard"
+					caption="The full control plane, running on a machine you own."
+				/>
+			</Container>
+
+			<CellGrid
+				id="runs-on-infrastructure-you-choose"
+				title="Runs on infrastructure you choose"
+				description="Notploy does not require a specific provider or data center. If it runs Linux and Docker, it can run Notploy."
+				items={infrastructureTargets}
+				columns={2}
+			/>
+
+			<SplitFeatureList
+				id="control-and-sovereignty-by-default"
+				title="Control and sovereignty by default"
+				description="Self-hosting is not only about where binaries run. It is about keeping decisions — data location, upgrade cadence, security boundaries — where they belong: with you."
+				items={controlPrinciples}
+				aside={
+					<Link
+						href="https://docs.notploy.com/docs/core/architecture"
+						target="_blank"
+						className="mt-6 inline-flex items-center gap-1 text-base font-medium text-foreground underline underline-offset-4 hover:text-primary"
+					>
+						Read the architecture docs
+						<ArrowRight className="h-4 w-4" aria-hidden="true" />
+					</Link>
+				}
+			/>
+
+			<ProcessRail
+				id="from-a-blank-server-to-your-first-deployment"
+				title="From a blank server to your first deployment"
+				description="Notploy is designed to be operational in minutes, not in a sprint."
+				steps={quickStart}
+			/>
+
+			<PageFaq
+				id="notploy-self-faqs"
+				title="Notploy Self FAQs"
+				description="The practical questions that come up before the first install."
+				faqs={selfFaqs}
+			/>
 
 			<CallToAction />
 		</div>

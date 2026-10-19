@@ -119,7 +119,11 @@ const Ripple = React.memo(function Ripple({
 		},
 	];
 
-	const communitySponsors = [];
+	const communitySponsors: {
+		name: string;
+		image: string;
+		link: string;
+	}[] = [];
 
 	return (
 		<div

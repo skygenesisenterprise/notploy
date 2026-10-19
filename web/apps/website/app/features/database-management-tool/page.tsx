@@ -1,3 +1,5 @@
+import { ProductFrame } from "@/components/pages/PagePrimitives";
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
 import { Container } from "@/components/Container";
 import { CallToAction } from "@/components/CallToAction";
 import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
@@ -176,280 +178,117 @@ const faqs = [
 
 export default function DatabaseManagementToolPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Database Management, Done Right
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Create, manage, and back up databases easily with Notploy&apos;s
-							database tool, and customize the process to suit your project
-							needs. Deploy in minutes, maintain full control over your stored
-							data, and recover fast when it matters.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									aria-label="Get Started with Notploy"
-									target="_blank"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button
-								className="rounded-full bg-primary hover:bg-primary/90"
-								asChild
-							>
-								<Link href="/contact" aria-label="Contact Us" className="text-foreground">
-									Contact Us
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Deploy the database you already use */}
-			<section aria-labelledby="deploy-your-database" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Five systems, one workflow
-						</p>
-						<h2 id="deploy-your-database" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Deploy the database you already use
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy&apos;s database management tool supports five widely used
-							database systems out of the box, so you&apos;re not locked into a
-							single technology. You pick what fits your stack and your data
-							management needs.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{databaseSystems.map((db) => (
-							<div
-								key={db.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<db.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{db.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{db.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Watch your databases in real time */}
-			<section aria-labelledby="watch-in-real-time" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-3xl text-center">
-						<div className="mb-6 flex justify-center">
-							<div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary">
-								<Activity className="h-7 w-7" />
-							</div>
-						</div>
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Live metrics, zero guessing
-						</p>
-						<h2 id="watch-in-real-time" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Watch your databases in real time
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy surfaces live monitoring graphs for memory, CPU, disk, and
-							network directly in the dashboard. The data updates as you view
-							it, so you can see exactly what your database is doing and catch
-							problems before they become incidents.
-						</p>
-					</div>
-				</Container>
-			</section>
-
-			{/* Protect, recover, and connect with confidence */}
-			<section aria-labelledby="protect-recover-connect" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Backups, logs, restores
-						</p>
-						<h2 id="protect-recover-connect" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Protect, recover, and connect with confidence
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Automated backups, transparent logs, straightforward restores, and
-							flexible connection options. Everything you need to manage a
-							database reliably, all in one place.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{protectionFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Advanced options, your way */}
-			<section aria-labelledby="advanced-options" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Granular control included
-						</p>
-						<h2 id="advanced-options" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Advanced options, your way
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy goes beyond the basics, giving you granular control over
-							how each database runs, from the image it uses to the resources it
-							consumes and everything in between.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{advancedOptions.map((option) => (
-							<div
-								key={option.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<option.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{option.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{option.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Your data stays secure */}
-			<section aria-labelledby="data-stays-secure" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<div className="mb-6 flex justify-center">
-							<div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary">
-								<Shield className="h-7 w-7" />
-							</div>
-						</div>
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							On your own server
-						</p>
-						<h2 id="data-stays-secure" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Your data stays secure
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Your database data is stored on your own server. Notploy creates
-							Docker containers on your infrastructure, so you have full
-							control over your data&mdash;no third parties, no external
-							dependencies.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-3">
-						{securityFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6 text-center"
-							>
-								<div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Start managing databases smarter */}
-			<section aria-labelledby="manage-databases-smarter" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-3xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Up and running fast
-						</p>
-						<h2 id="manage-databases-smarter" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Start managing databases smarter
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy gives you everything you need to deploy, monitor, and
-							protect your databases&mdash;without the complexity. Create your
-							account and have your first database running in minutes with our
-							database management tool.
-						</p>
-						<div className="mt-10">
-							<Button className="rounded-full" asChild>
-								<Link href="https://app.notploy.com">Create your account</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Database management tool FAQs */}
-			<section aria-labelledby="database-faqs" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Answers before you start
-						</p>
-						<h2 id="database-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Database management tool FAQs
-						</h2>
-					</div>
-					<Accordion
-						type="single"
-						collapsible
-						className="mx-auto mt-12 w-full max-w-3xl"
+		<FeaturePageTemplate
+			badge="Capabilities"
+			badgeDetail="Databases & backups"
+			title="Database management,"
+			highlight="done right"
+			description="Create, manage, and back up databases easily with Notploy's database tool, and customize the process to suit your project needs. Deploy in minutes, maintain full control over your stored data, and recover fast when it matters."
+			actions={
+				<>
+					<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+						<Link href="https://app.notploy.com/register" target="_blank">
+							Get Started
+						</Link>
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full rounded-full px-6 sm:w-auto"
+						asChild
 					>
-						{faqs.map((faq, index) => (
-							<AccordionItem value={`faq-${index}`} key={index}>
-								<AccordionTrigger className="text-left">
-									{faq.question}
-								</AccordionTrigger>
-								<AccordionContent>{faq.answer}</AccordionContent>
-							</AccordionItem>
-						))}
-					</Accordion>
+						<Link href="/contact">Contact Us</Link>
+					</Button>
+				</>
+			}
+			links={[
+				{ href: "/platform", label: "Platform overview" },
+				{ href: "/features/container-server-monitoring", label: "Monitoring" },
+				{ href: "/pricing", label: "Pricing" },
+			]}
+			sections={[
+				{
+					id: "deploy-your-database",
+					title: "Deploy the database you already use",
+					description:
+						"Notploy's database management tool supports five widely used database systems out of the box, so you're not locked into a single technology. You pick what fits your stack and your data management needs.",
+					items: databaseSystems,
+					columns: 3,
+				},
+				{
+					id: "protect-recover-connect",
+					title: "Protect, recover, and connect with confidence",
+					description:
+						"Automated backups, transparent logs, straightforward restores, and flexible connection options. Everything you need to manage a database reliably, all in one place.",
+					items: protectionFeatures,
+					columns: 2,
+					layout: "split",
+				},
+				{
+					id: "advanced-options",
+					title: "Advanced options, your way",
+					description:
+						"Notploy goes beyond the basics, giving you granular control over how each database runs, from the image it uses to the resources it consumes and everything in between.",
+					items: advancedOptions,
+					columns: 3,
+				},
+				{
+					id: "data-stays-secure",
+					title: "Your data stays secure",
+					description:
+						"Your database data is stored on your own server. Notploy creates Docker containers on your infrastructure, so you have full control over your data — no third parties, no external dependencies.",
+					items: securityFeatures,
+					columns: 3,
+				},
+			]}
+			faqs={{
+				id: "database-faqs",
+				title: "Database management tool FAQs",
+				description: "Answers before you start managing databases with Notploy.",
+				items: faqs,
+			}}
+			finalCta={{
+				title: "Start managing databases smarter",
+				description:
+					"Notploy gives you everything you need to deploy, monitor, and protect your databases — without the complexity.",
+				cta: "Create your account",
+				href: "https://app.notploy.com",
+				external: true,
+			}}
+		>
+			<Container className="pb-20 sm:pb-28">
+				<ProductFrame
+					src="/backups.png"
+					alt="Notploy backup configuration for a managed database"
+					path="app.notploy.com/databases/backups"
+					caption="Provision, monitor and back up databases from the same control plane."
+				/>
+			</Container>
+
+			<section className="pb-20 sm:pb-28">
+				<Container>
+					<div className="mx-auto max-w-5xl rounded-2xl border border-border/50 bg-card p-8 sm:p-10">
+						<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+							<div>
+								<h2 className="font-display text-2xl tracking-tight text-foreground">
+									Watch your databases in real time
+								</h2>
+								<p className="mt-2 max-w-2xl text-base leading-relaxed text-muted-foreground">
+									Notploy surfaces live monitoring graphs for memory, CPU,
+									disk, and network directly in the dashboard. The data
+									updates as you view it, so you can see exactly what your
+									database is doing and catch problems before they become
+									incidents.
+								</p>
+							</div>
+							<Button variant="outline" className="shrink-0 rounded-full" asChild>
+								<Link href="/features/container-server-monitoring">
+									See monitoring
+								</Link>
+							</Button>
+						</div>
+					</div>
 				</Container>
 			</section>
-
-			<CallToAction />
-		</div>
+		</FeaturePageTemplate>
 	);
 }

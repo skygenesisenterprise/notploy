@@ -1,3 +1,4 @@
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
 import { Container } from "@/components/Container";
 import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
@@ -73,140 +74,55 @@ const relatedFeatures = [
 
 export default function SingleSignOnPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							One login for your entire organization
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Connect Notploy to your identity provider and manage access from a
-							single place. Available to Enterprise plan users and as a one-off
-							additional feature.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link href="/contact">Contact sales</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link
-									href="https://docs.notploy.com/docs/core"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									View documentation
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Authentication that scales with you */}
-			<section aria-labelledby="authentication-that-scales" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							One login for everyone
-						</p>
-						<h2 id="authentication-that-scales" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Authentication that scales with you
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy&apos;s SSO support means your team logs in through the
-							identity provider you already trust, so there are no separate
-							credentials to manage.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{coreFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Powerful features for growing teams */}
-			<section aria-labelledby="powerful-features" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Explore related capabilities
-						</p>
-						<h2 id="powerful-features" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Powerful features for growing teams
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy scales with your team, with features and plans for when
-							you&apos;re ready to take the next step.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-3">
-						{relatedFeatures.map((feature) => (
-							<Link
-								key={feature.title}
-								href={feature.href}
-								className="rounded-xl border border-border/50 bg-card p-6 transition hover:border-border"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</Link>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* CTA */}
-			<section aria-labelledby="simplify-access" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Talk to our team
-						</p>
-						<h2 id="simplify-access" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Ready to simplify access for your team?
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Talk to us about SSO and the rest of Notploy&apos;s security
-							features.
-						</p>
-						<div className="mt-10">
-							<Button className="rounded-full" asChild>
-								<Link href="/contact">Schedule a call</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-		</div>
+		<FeaturePageTemplate
+			badge="Capabilities"
+			badgeDetail="Security & governance"
+			title="One login"
+			highlight="for everyone"
+			description="Connect Notploy to your identity provider and manage access from a single place. Available to Enterprise plan users and as a one-off additional feature."
+			actions={
+				<>
+					<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+						<Link href="/contact">Contact sales</Link>
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full rounded-full px-6 sm:w-auto"
+						asChild
+					>
+						<Link href="https://docs.notploy.com/docs/core" target="_blank">
+							View documentation
+						</Link>
+					</Button>
+				</>
+			}
+			links={[{ href: "/features/security", label: "Security overview" }, { href: "/features/role-based-access-control", label: "Role-based access" }]}
+			sections={[
+				{
+					id: "authentication-that-scales",
+					title: "Authentication that scales with you",
+					description:
+						"Notploy's SSO support means your team logs in through the identity provider you already trust, so there are no separate credentials to manage.",
+					items: coreFeatures,
+					columns: 2,
+					layout: "split",
+				},
+			]}
+			related={{
+				id: "powerful-features",
+				title: "Powerful features for growing teams",
+				description:
+					"Notploy scales with your team, with features and plans for when you're ready to take the next step.",
+				items: relatedFeatures,
+				columns: 3,
+			}}
+			finalCta={{
+				title: "Ready to simplify access for your team?",
+				description:
+					"Talk to us about SSO and the rest of Notploy's security features.",
+				cta: "Schedule a call",
+				href: "/contact",
+			}}
+		/>
 	);
 }

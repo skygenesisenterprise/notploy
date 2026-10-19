@@ -1,3 +1,4 @@
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
 import { Container } from "@/components/Container";
 import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
@@ -73,139 +74,55 @@ const relatedFeatures = [
 
 export default function AuditLogsPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Full visibility into every action taken
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Know exactly who did what, and when, across your entire Notploy
-							organization.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link href="/contact">Contact sales</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link
-									href="https://docs.notploy.com/docs/core"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									View documentation
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* A complete record of every change */}
-			<section aria-labelledby="complete-record-of-changes" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Nothing goes unrecorded
-						</p>
-						<h2 id="complete-record-of-changes" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							A complete record of every change
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Every create, update, delete, deployment, and configuration change
-							is logged&mdash;giving you a reliable trail for security,
-							compliance, and debugging.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{coreFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Powerful features for growing teams */}
-			<section aria-labelledby="powerful-features" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Explore related capabilities
-						</p>
-						<h2 id="powerful-features" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Powerful features for growing teams
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy scales with your team, with features and plans for when
-							you&apos;re ready to take the next step.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-3">
-						{relatedFeatures.map((feature) => (
-							<Link
-								key={feature.title}
-								href={feature.href}
-								className="rounded-xl border border-border/50 bg-card p-6 transition hover:border-border"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</Link>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* CTA */}
-			<section aria-labelledby="ready-to-take-control" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Talk to our team
-						</p>
-						<h2 id="ready-to-take-control" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Ready to take control?
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Talk to us about audit logs and the rest of Notploy&apos;s
-							higher-tier features.
-						</p>
-						<div className="mt-10">
-							<Button className="rounded-full" asChild>
-								<Link href="/contact">Schedule a call</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-		</div>
+		<FeaturePageTemplate
+			badge="Capabilities"
+			badgeDetail="Security & governance"
+			title="Full visibility into"
+			highlight="every action taken"
+			description="Know exactly who did what, and when, across your entire Notploy organization, with an audit trail built for security reviews, compliance and incident response."
+			actions={
+				<>
+					<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+						<Link href="/contact">Contact sales</Link>
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full rounded-full px-6 sm:w-auto"
+						asChild
+					>
+						<Link href="https://docs.notploy.com/docs/core" target="_blank">
+							View documentation
+						</Link>
+					</Button>
+				</>
+			}
+			links={[{ href: "/features/security", label: "Security overview" }, { href: "/pricing", label: "Plans and pricing" }]}
+			sections={[
+				{
+					id: "complete-record-of-changes",
+					title: "A complete record of every change",
+					description:
+						"Every create, update, delete, deployment, and configuration change is logged — giving you a reliable trail for security, compliance, and debugging.",
+					items: coreFeatures,
+					columns: 2,
+					layout: "split",
+				},
+			]}
+			related={{
+				id: "powerful-features",
+				title: "Powerful features for growing teams",
+				description:
+					"Notploy scales with your team, with features and plans for when you're ready to take the next step.",
+				items: relatedFeatures,
+				columns: 3,
+			}}
+			finalCta={{
+				title: "Ready to take control?",
+				description:
+					"Talk to us about audit logs and the rest of Notploy's higher-tier features.",
+				cta: "Schedule a call",
+				href: "/contact",
+			}}
+		/>
 	);
 }

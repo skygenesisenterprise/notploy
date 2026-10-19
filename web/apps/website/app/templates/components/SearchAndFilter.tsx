@@ -90,7 +90,7 @@ export function SearchAndFilter({
 	);
 
 	return (
-		<div className="mb-8 flex flex-col gap-4 md:flex-row">
+		<div className="mb-5 flex flex-col gap-3 md:flex-row">
 			<div className="relative flex-1">
 				<div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
 					<Search className="h-5 w-5 text-muted-foreground" />
@@ -100,7 +100,7 @@ export function SearchAndFilter({
 					value={searchValue}
 					onChange={handleSearch}
 					placeholder={searchPlaceholder}
-					className="w-full rounded-md border border-border bg-background py-2 pl-10 pr-4 ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+					className="h-11 w-full rounded-xl border border-border/60 bg-background pl-10 pr-4 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 				/>
 			</div>
 			<div className="w-full md:w-64">

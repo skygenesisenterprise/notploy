@@ -1,14 +1,15 @@
 import { CallToAction } from "@/components/CallToAction";
 import { Container } from "@/components/Container";
+import { Reveal } from "@/components/home/Reveal";
+import { PageHero } from "@/components/pages/PageHero";
 import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@/components/ui/accordion";
-import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
+	CellGrid,
+	PageFaq,
+	SectionHeading,
+	SplitFeatureList,
+} from "@/components/pages/PagePrimitives";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, CheckCircle2, type LucideIcon } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, CheckCircle2, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -60,299 +61,219 @@ export interface IndustryPageData {
 export function IndustryPage({ data }: { data: IndustryPageData }) {
 	return (
 		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							{data.hero.title}
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							{data.hero.description}
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link href="/contact">Contact Sales</Link>
-							</Button>
-						</div>
-						<p className="mt-6 text-sm text-muted-foreground">
-							Deploy with one line of code
-						</p>
-					</div>
-				</Container>
-			</section>
-
-			{/* Core features */}
-			<section
-				aria-labelledby="industry-section-1"
-				className="border-b border-border/30 py-20 sm:py-32"
-			>
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Core features
-						</p>
-						<h2
-							id="industry-section-1"
-							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
-						>
-							{data.features.heading}
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							{data.features.description}
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{data.features.items.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
+			<PageHero
+				compact
+				badge="Industry"
+				badgeDetail="Governed deployment"
+				title={data.hero.title}
+				description={data.hero.description}
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+							<Link
+								href="https://app.notploy.com/register"
+								target="_blank"
+								rel="noopener noreferrer"
 							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Comparison */}
-			<section
-				aria-labelledby="industry-section-2"
-				className="border-b border-border/30 bg-background py-20 sm:py-32"
-			>
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Comparison
-						</p>
-						<h2
-							id="industry-section-2"
-							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+								Get Started
+								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
+							</Link>
+						</Button>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
 						>
-							{data.comparison.heading}
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							{data.comparison.description}
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 md:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-8">
-							<h3 className="text-lg font-semibold text-foreground">
-								{data.comparison.without.title}
-							</h3>
-							<ul className="mt-6 space-y-4">
-								{data.comparison.without.items.map((item) => (
-									<li key={item} className="flex items-start gap-3">
-										<AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary/80" />
-										<span className="text-sm text-muted-foreground">
-											{item}
-										</span>
-									</li>
-								))}
-							</ul>
-						</div>
-						<div className="rounded-xl border border-primary/40 bg-card p-8">
-							<h3 className="text-lg font-semibold text-primary">
-								{data.comparison.withNotploy.title}
-							</h3>
-							<ul className="mt-6 space-y-4">
-								{data.comparison.withNotploy.items.map((item) => (
-									<li key={item} className="flex items-start gap-3">
-										<CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
-										<span className="text-sm text-muted-foreground">
-											{item}
-										</span>
-									</li>
-								))}
-							</ul>
-						</div>
-					</div>
-				</Container>
-			</section>
+							<Link href="/contact">Contact Sales</Link>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/self", label: "Self-host Notploy" },
+					{ href: "/platform", label: "Platform capabilities" },
+					{ href: "/industries", label: "All industries" },
+				]}
+			/>
 
-			{/* Workflow steps */}
+			<CellGrid
+				id="industry-features"
+				title={data.features.heading}
+				description={data.features.description}
+				items={data.features.items}
+				columns={3}
+			/>
+
 			<section
-				aria-labelledby="industry-section-3"
-				className="border-b border-border/30 py-20 sm:py-32"
+				aria-labelledby="industry-comparison"
+				className="py-20 sm:py-28"
 			>
 				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Workflow
-						</p>
-						<h2
-							id="industry-section-3"
-							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
-						>
-							{data.workflow.heading}
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							{data.workflow.description}
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
-						{data.workflow.steps.map((step, index) => (
-							<div
-								key={step.title}
-								className="flex flex-col rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<span className="text-sm font-semibold">{index + 1}</span>
-								</div>
-								<h3 className="text-lg font-semibold">{step.title}</h3>
-								<p className="mt-3 flex-1 text-sm text-muted-foreground">
-									{step.description}
-								</p>
-								<p className="mt-4 font-mono text-xs text-primary">
-									{step.flow}
-								</p>
+					<SectionHeading
+						id="industry-comparison"
+						title={data.comparison.heading}
+						description={data.comparison.description}
+					/>
+
+					<div className="mx-auto mt-12 grid max-w-6xl gap-4 md:grid-cols-2">
+						<Reveal>
+							<div className="flex h-full flex-col rounded-2xl border border-border/50 bg-card p-8">
+								<h3 className="font-display text-2xl tracking-tight text-foreground">
+									{data.comparison.without.title}
+								</h3>
+								<ul className="mt-6 flex-1 space-y-4">
+									{data.comparison.without.items.map((item) => (
+										<li key={item} className="flex items-start gap-3">
+											<AlertTriangle
+												className="mt-1 h-5 w-5 shrink-0 text-muted-foreground"
+												aria-hidden="true"
+											/>
+											<span className="text-base leading-relaxed text-muted-foreground">
+												{item}
+											</span>
+										</li>
+									))}
+								</ul>
 							</div>
-						))}
+						</Reveal>
+
+						<Reveal delay={0.08}>
+							<div className="flex h-full flex-col rounded-2xl border border-primary bg-primary p-8 text-primary-foreground">
+								<h3 className="font-display text-2xl tracking-tight">
+									{data.comparison.withNotploy.title}
+								</h3>
+								<ul className="mt-6 flex-1 space-y-4">
+									{data.comparison.withNotploy.items.map((item) => (
+										<li key={item} className="flex items-start gap-3">
+											<CheckCircle2
+												className="mt-1 h-5 w-5 shrink-0 text-primary-foreground"
+												aria-hidden="true"
+											/>
+											<span className="text-base leading-relaxed text-primary-foreground/75">
+												{item}
+											</span>
+										</li>
+									))}
+								</ul>
+							</div>
+						</Reveal>
 					</div>
 				</Container>
 			</section>
 
-			{/* Built for + screenshot */}
-			<section
-				aria-labelledby="industry-section-4"
-				className="border-b border-border/30 bg-background py-20 sm:py-32"
-			>
+			<SplitFeatureList
+				id="industry-workflow"
+				title={data.workflow.heading}
+				description={data.workflow.description}
+				items={data.workflow.steps.map((step) => ({
+					title: step.title,
+					description: step.description,
+					meta: step.flow,
+				}))}
+			/>
+
+			<section aria-labelledby="industry-built-for" className="py-20 sm:py-28">
 				<Container>
-					<div className="mx-auto flex max-w-6xl flex-col gap-12 md:flex-row md:items-center">
-						<div className="flex-1">
-							<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-								Built for this industry
-							</p>
+					<div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-16">
+						<Reveal>
 							<h2
-								id="industry-section-4"
+								id="industry-built-for"
 								className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
 							>
 								{data.builtFor.heading}
 							</h2>
 							{data.builtFor.paragraphs.map((paragraph) => (
-								<p key={paragraph} className="mt-5 text-muted-foreground">
+								<p
+									key={paragraph}
+									className="mt-5 text-base leading-relaxed text-muted-foreground"
+								>
 									{paragraph}
 								</p>
 							))}
-						</div>
-						<div className="flex-1">
-							<div className="relative aspect-video overflow-hidden rounded-xl border border-border/50">
-								<Image
-									src="/images/notploy-environments.png"
-									alt={data.builtFor.screenshotAlt}
-									fill
-									className="object-cover object-top"
-									sizes="(max-width: 768px) 100vw, 50vw"
-								/>
+						</Reveal>
+
+						<Reveal delay={0.08}>
+							<div
+								className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-2xl"
+								data-ui
+							>
+								<div className="flex h-11 items-center gap-2 border-b border-border/60 px-4">
+									<span
+										className="h-2.5 w-2.5 rounded-full bg-destructive/70"
+										aria-hidden="true"
+									/>
+									<span
+										className="h-2.5 w-2.5 rounded-full bg-primary/60"
+										aria-hidden="true"
+									/>
+									<span
+										className="h-2.5 w-2.5 rounded-full bg-muted-foreground/40"
+										aria-hidden="true"
+									/>
+									<span className="ml-3 truncate text-[13px] text-muted-foreground">
+										notploy/environments
+									</span>
+								</div>
+								<div className="relative aspect-video w-full bg-secondary">
+									<Image
+										src="/images/notploy-environments.png"
+										alt={data.builtFor.screenshotAlt}
+										fill
+										className="object-cover object-top"
+										sizes="(max-width: 1024px) 100vw, 55vw"
+									/>
+								</div>
 							</div>
-						</div>
+						</Reveal>
 					</div>
 				</Container>
 			</section>
 
-			{/* Platform details */}
-			<section
-				aria-labelledby="industry-section-5"
-				className="border-b border-border/30 py-20 sm:py-32"
-			>
+			<section aria-labelledby="industry-details" className="py-20 sm:py-28">
 				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Platform details
-						</p>
-						<h2
-							id="industry-section-5"
-							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
-						>
-							Platform details at a glance
-						</h2>
-					</div>
-					<div className="mx-auto mt-12 max-w-4xl overflow-x-auto">
-						<table className="w-full border-collapse">
-							<thead>
-								<tr className="border-b border-border">
-									<th className="px-4 py-4 text-left font-semibold">Area</th>
-									<th className="px-4 py-4 text-left font-semibold">
-										What Notploy supports
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{data.detailRows.map((row) => (
-									<tr key={row.area} className="border-b border-border/50">
-										<td className="px-4 py-3 font-medium">{row.area}</td>
-										<td className="px-4 py-3 text-sm text-muted-foreground">
-											{row.support}
-										</td>
+					<SectionHeading
+						id="industry-details"
+						title="Platform details at a glance"
+						description="The same capabilities across every sector, visible in one table."
+					/>
+
+					<Reveal className="mx-auto mt-12 max-w-4xl">
+						<div className="overflow-x-auto rounded-2xl border border-border/50">
+							<table className="w-full border-collapse text-left">
+								<thead className="bg-card">
+									<tr>
+										<th className="px-6 py-4 text-base font-semibold text-foreground">
+											Area
+										</th>
+										<th className="px-6 py-4 text-base font-semibold text-foreground">
+											What Notploy supports
+										</th>
 									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
+								</thead>
+								<tbody>
+									{data.detailRows.map((row) => (
+										<tr key={row.area} className="border-t border-border/50">
+											<td className="px-6 py-4 font-medium text-foreground">
+												{row.area}
+											</td>
+											<td className="px-6 py-4 text-sm leading-relaxed text-muted-foreground">
+												{row.support}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</Reveal>
 				</Container>
 			</section>
 
-			{/* FAQs */}
-			<section
-				aria-labelledby="industry-section-6"
-				className="border-b border-border/30 bg-background py-20 sm:py-32"
-			>
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							FAQs
-						</p>
-						<h2
-							id="industry-section-6"
-							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
-						>
-							{data.faqs.heading}
-						</h2>
-					</div>
-					<Accordion
-						type="single"
-						collapsible
-						className="mx-auto mt-12 w-full max-w-3xl"
-					>
-						{data.faqs.items.map((faq, index) => (
-							<AccordionItem value={`faq-${index}`} key={faq.question}>
-								<AccordionTrigger className="text-left text-foreground">
-									{faq.question}
-								</AccordionTrigger>
-								<AccordionContent>
-									<p>{faq.answer}</p>
-								</AccordionContent>
-							</AccordionItem>
-						))}
-					</Accordion>
-				</Container>
-			</section>
+			<PageFaq
+				id="industry-faqs"
+				title={data.faqs.heading}
+				description="The questions platform and security teams ask before the first deployment."
+				faqs={data.faqs.items}
+			/>
 
-			{/* Final CTA */}
 			<CallToAction />
 		</div>
 	);

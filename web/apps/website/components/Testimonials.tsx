@@ -159,8 +159,8 @@ const ReviewCard = ({
 	return (
 		<figure
 			className={cn(
-				"relative w-64 cursor-pointer overflow-hidden rounded-xl border bg-card p-4",
-				"hover:bg-accent/15",
+				"relative w-64 overflow-hidden rounded-xl border border-border/50 bg-card p-4",
+				"hover:border-primary/30",
 			)}
 		>
 			<div className="flex flex-row items-center gap-2">
@@ -182,22 +182,18 @@ export function Testimonials() {
 		<section
 			id="testimonials"
 			aria-labelledby="testimonials-heading"
-			className="border-b border-border/30 py-20 sm:py-32"
+			className="py-20 sm:py-28"
 		>
-			<div className="mx-auto max-w-2xl px-4 md:text-center">
-				<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-					Testimonials
-				</p>
+			<div className="mx-auto max-w-2xl px-4 text-center">
 				<h2 id="testimonials-heading" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-					Why Developers Love Notploy
+					Why developers use Notploy
 				</h2>
-				<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-					Think we’re bragging? Hear from the devs who once doubted too—until
-					Notploy made their lives (and deployments) surprisingly easier.
+				<p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+					Deployment stories from the people running Notploy day to day.
 				</p>
 			</div>
 
-			<div className="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden  bg-background md:shadow-xl">
+			<div className="relative mt-10 flex h-[420px] w-full flex-col items-center justify-center overflow-hidden">
 				<Marquee pauseOnHover className="[--duration:20s]">
 					{firstRow.map((review) => (
 						<ReviewCard key={review.username} {...review} />
@@ -208,8 +204,6 @@ export function Testimonials() {
 						<ReviewCard key={review.username} {...review} />
 					))}
 				</Marquee>
-				<div className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r  from-background" />
-				<div className="pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l  from-background" />
 			</div>
 		</section>
 	);

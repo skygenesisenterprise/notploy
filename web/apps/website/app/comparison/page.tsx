@@ -1,16 +1,21 @@
-import { Container } from "@/components/Container";
 import { CallToAction } from "@/components/CallToAction";
+import { Container } from "@/components/Container";
+import { PageHero } from "@/components/pages/PageHero";
+import {
+	SectionHeading,
+	SplitFeatureList,
+} from "@/components/pages/PagePrimitives";
 import { Testimonials } from "@/components/Testimonials";
-import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, GitBranch, Activity, Users, Gauge } from "lucide-react";
+import { Reveal } from "@/components/home/Reveal";
+import { Activity, ArrowRight, ArrowUpRight, GitBranch, Gauge, Users } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
 	title: "Notploy Vs. and PaaS Comparison Pages | Notploy",
 	description:
-		"How does Notploy compare to other application deployment, database management, and PaaS solutions? Learn on our \"Notploy vs.\" alternative comparison pages.",
+		'How does Notploy compare to other application deployment, database management, and PaaS solutions? Learn on our "Notploy vs." alternative comparison pages.',
 };
 
 const competitors = [
@@ -82,103 +87,92 @@ const whyNotploy = [
 export default function ComparisonPage() {
 	return (
 		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Notploy vs.
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Read our comparison pages to discover why so many people are
-							choosing Notploy.
-						</p>
-
-						<Button className="mt-10 rounded-full" asChild>
-							<Link
-								href="https://app.notploy.com/register"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
+			<PageHero
+				badge="Comparisons"
+				badgeDetail="Open source · Self-hosted"
+				title="Notploy"
+				highlight="vs. the alternatives"
+				description="Read the comparison pages to see how Notploy differs from the tools it is often measured against — on deployment, monitoring, backups, team access and who owns the infrastructure."
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+							<Link href="https://app.notploy.com/register" target="_blank">
 								Get started
+								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
 							</Link>
 						</Button>
-					</div>
-				</Container>
-			</section>
-
-			{/* Competitor comparison cards */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-2">
-						{competitors.map((competitor) => (
-							<Link
-								key={competitor.name}
-								href={competitor.href}
-								className="group rounded-xl border border-border/50 bg-card p-6 transition hover:border-border hover:bg-muted/30"
-							>
-								<div className="flex items-center justify-between">
-									<h3 className="text-lg font-semibold text-foreground">
-										Notploy vs. {competitor.name}
-									</h3>
-									<ArrowRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
-								</div>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{competitor.description}
-								</p>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
+						>
+							<Link href="/self">
+								Explore Notploy Self
+								<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
 							</Link>
-						))}
-					</div>
-				</Container>
-			</section>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/platform", label: "Platform capabilities" },
+					{ href: "/pricing", label: "Pricing" },
+					{
+						href: "https://github.com/skygenesisenterprise/notploy",
+						label: "GitHub",
+						external: true,
+					},
+				]}
+			/>
 
-			{/* Why Notploy is the best PaaS solution */}
-			<section aria-labelledby="why-notploy-best-paas" className="border-b border-border/30 bg-background py-20 sm:py-32">
+			<section aria-labelledby="choose-a-comparison" className="pb-20 sm:pb-28">
 				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Best solution
-						</p>
-						<h2 id="why-notploy-best-paas" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Why Notploy is the best PaaS solution for scaling teams
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Discover the advantages that make Notploy ideal for growing teams.
-						</p>
-					</div>
+					<SectionHeading
+						id="choose-a-comparison"
+						title="Choose a comparison"
+						description="Each page looks at one alternative on the dimensions that actually change the decision: deployment workflow, operations, governance and ownership."
+					/>
 
-					<div className="mx-auto mt-14 grid max-w-6xl gap-8 sm:grid-cols-2">
-						{whyNotploy.map((item) => (
-							<div
-								key={item.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<item.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{item.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{item.description}
-								</p>
-							</div>
+					<div className="mx-auto mt-12 max-w-5xl border-t border-border/40">
+						{competitors.map((competitor, index) => (
+							<Reveal key={competitor.name} delay={index * 0.04}>
+								<Link
+									href={competitor.href}
+									className="group grid gap-3 border-b border-border/40 py-7 transition-colors hover:bg-card sm:grid-cols-[200px_1fr_auto] sm:items-center sm:gap-8 sm:px-4"
+								>
+									<h3 className="font-display text-2xl tracking-tight text-foreground transition-colors group-hover:text-primary">
+										vs. {competitor.name}
+									</h3>
+									<p className="text-base leading-relaxed text-muted-foreground">
+										{competitor.description}
+									</p>
+									<span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-colors group-hover:border-primary group-hover:text-primary">
+										<ArrowRight className="h-4 w-4" aria-hidden="true" />
+									</span>
+								</Link>
+							</Reveal>
 						))}
 					</div>
 				</Container>
 			</section>
 
-			{/* Testimonials */}
+			<SplitFeatureList
+				id="why-notploy-best-paas"
+				title="Why teams pick Notploy"
+				description="The advantages that matter once a project has real users, real data and more than one person deploying."
+				items={whyNotploy}
+				aside={
+					<Link
+						href="/platform"
+						className="mt-6 inline-flex items-center gap-1 text-base font-medium text-foreground underline underline-offset-4 hover:text-primary"
+					>
+						See the full platform
+						<ArrowRight className="h-4 w-4" aria-hidden="true" />
+					</Link>
+				}
+			/>
+
 			<Testimonials />
 
-			{/* Final CTA */}
 			<CallToAction />
 		</div>
 	);

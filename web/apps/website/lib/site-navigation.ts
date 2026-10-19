@@ -8,6 +8,8 @@ export interface NavItem {
 export interface NavGroup {
 	title: string;
 	items: NavItem[];
+	/** Wide, two-column mega menu for groups with many destinations. */
+	columns?: 2;
 }
 
 export const EXTERNAL_LINKS = {
@@ -27,118 +29,168 @@ export const EXTERNAL_LINKS = {
 	appRegister: "https://app.notploy.com/register",
 } as const;
 
+/**
+ * Notploy's information architecture.
+ *
+ * Organised around what a visitor is trying to decide: which edition to run,
+ * which capabilities matter, which use case fits, and how to get help. The
+ * edition names are Notploy's own (Self, Cloud, Enterprise) rather than the
+ * generic "Product / Developers" taxonomy inherited from the Dokploy site.
+ */
 export const navGroups: NavGroup[] = [
 	{
-		title: "Product",
+		title: "Editions",
 		items: [
-			{
-				href: "/",
-				label: "Overview",
-				description: "What Notploy is and what it manages",
-			},
 			{
 				href: "/self",
 				label: "Notploy Self",
-				description: "Open-source and self-hosted on infrastructure you own",
+				description: "Free and open source, on servers you own",
 			},
 			{
 				href: "/cloud",
 				label: "Notploy Cloud",
-				description: "A managed service operated by Notploy Enterprise",
+				description: "Managed control plane, your applications stay yours",
 			},
 			{
-				href: "/platform",
-				label: "Platform",
-				description: "The capabilities behind the Notploy ecosystem",
+				href: "/enterprise",
+				label: "Notploy Enterprise",
+				description: "SSO, audit logs, RBAC and priority support",
 			},
 			{
-				href: "/pricing",
-				label: "Pricing",
-				description: "Self, Cloud and Enterprise plans",
+				href: "/comparison",
+				label: "Compare editions",
+				description: "Side by side: Self, Cloud and Enterprise",
 			},
 		],
 	},
 	{
-		title: "Developers",
+		title: "Capabilities",
+		columns: 2,
 		items: [
 			{
-				href: EXTERNAL_LINKS.docs,
-				label: "Documentation",
-				description: "Guides, installation, architecture and reference",
-				external: true,
+				href: "/features/application-deployment-platform",
+				label: "Application deployment",
+				description: "Git, Docker, Compose and Buildpacks",
 			},
 			{
-				href: "/integrations",
-				label: "Integrations",
-				description: "Web UI, CLI, API, SDK, VS Code and MCP",
+				href: "/features/application-management-software",
+				label: "Application management",
+				description: "Environments, domains, rollbacks and logs",
 			},
 			{
-				href: "/templates",
-				label: "Templates",
-				description: "Ready-to-deploy application templates",
+				href: "/features/database-management-tool",
+				label: "Databases",
+				description: "Postgres, MySQL, Mongo, Redis and MariaDB",
+			},
+			{
+				href: "/features/container-server-monitoring",
+				label: "Monitoring",
+				description: "Metrics, health checks and server load",
+			},
+			{
+				href: "/features/security",
+				label: "Security",
+				description: "Certificates, secrets and network isolation",
+			},
+			{
+				href: "/features/role-based-access-control",
+				label: "Role-based access",
+				description: "Roles and permissions per resource",
+			},
+			{
+				href: "/features/single-sign-on",
+				label: "Single sign-on",
+				description: "SSO, SAML and SCIM provisioning",
+			},
+			{
+				href: "/features/audit-logs",
+				label: "Audit logs",
+				description: "A trace for every deployment and change",
+			},
+			{
+				href: "/features/white-labeling",
+				label: "White labeling",
+				description: "Your brand on the platform your clients use",
+			},
+		],
+	},
+	{
+		title: "Solutions",
+		items: [
+			{
+				href: "/deploy-ai",
+				label: "Deploy AI",
+				description: "A governed sandbox for AI-built apps",
+			},
+			{
+				href: "/sandbox-software",
+				label: "Sandbox software",
+				description: "Ship internal tools without touching production",
+			},
+			{
+				href: "/self-hosted-paas",
+				label: "Self-hosted PaaS",
+				description: "Replace Heroku on your own infrastructure",
+			},
+			{
+				href: "/industries",
+				label: "By industry",
+				description: "Agencies, finance, government, healthcare and more",
 			},
 			{
 				href: EXTERNAL_LINKS.docsAi,
 				label: "AI & MCP",
-				description: "Let AI agents work with your infrastructure",
+				description: "Let agents drive deployments over MCP",
 				external: true,
 			},
 		],
 	},
 	{
-		title: "Community",
+		title: "Support",
 		items: [
 			{
-				href: EXTERNAL_LINKS.github,
-				label: "GitHub",
-				description: "Source code, releases and issue tracker",
+				href: EXTERNAL_LINKS.docs,
+				label: "Documentation",
+				description: "Installation, architecture and reference",
 				external: true,
 			},
 			{
+				href: "/contact",
+				label: "Contact us",
+				description: "Sales, licensing and migration questions",
+			},
+			{
 				href: EXTERNAL_LINKS.githubDiscussions,
-				label: "Discussions",
-				description: "Ask questions and share ideas",
+				label: "Community discussions",
+				description: "Ask questions and share setups",
+				external: true,
+			},
+			{
+				href: EXTERNAL_LINKS.githubIssues,
+				label: "Report an issue",
+				description: "Bugs and feature requests on GitHub",
 				external: true,
 			},
 			{
 				href: "/community",
-				label: "Contributing",
-				description: "Code, docs, templates, translations and support",
-			},
-			{
-				href: EXTERNAL_LINKS.githubIssues,
-				label: "Roadmap",
-				description: "Follow planned work in the public issue tracker",
-				external: true,
+				label: "Community & contributing",
+				description: "Code, docs, templates and translations",
 			},
 		],
 	},
+];
+
+/** Flat links rendered next to the dropdowns: the two most common destinations. */
+export const primaryNav: NavItem[] = [
 	{
-		title: "Resources",
-		items: [
-			{
-				href: EXTERNAL_LINKS.docsArchitecture,
-				label: "Architecture",
-				description: "How Notploy's core components fit together",
-				external: true,
-			},
-			{
-				href: EXTERNAL_LINKS.githubReleases,
-				label: "Changelog",
-				description: "Every release, from the GitHub releases feed",
-				external: true,
-			},
-			{
-				href: "/comparison",
-				label: "Comparisons",
-				description: "Notploy compared to similar tools",
-			},
-			{
-				href: "/industries",
-				label: "Industries",
-				description: "Notploy for agencies, finance, government and more",
-			},
-		],
+		href: "/platform",
+		label: "Platform",
+		description: "How Notploy deploys and operates applications",
+	},
+	{
+		href: "/pricing",
+		label: "Pricing",
+		description: "Self, Cloud and Enterprise plans",
 	},
 ];
 

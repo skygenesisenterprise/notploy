@@ -1,7 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import {
 	Box,
 	Check,
@@ -21,9 +19,10 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { ContactFormModal } from "./ContactFormModal";
+import { Reveal } from "./home/Reveal";
+import { PageHero } from "./pages/PageHero";
+import { CellGrid, SectionHeading } from "./pages/PagePrimitives";
 import { Container } from "./Container";
-import AnimatedGradientText from "./ui/animated-gradient-text";
-import AnimatedGridPattern from "./ui/animated-grid-pattern";
 import { Button } from "./ui/button";
 
 const features = [
@@ -100,357 +99,202 @@ const hostingOptions = [
 	},
 ];
 
+const aiGovernance = [
+	{
+		icon: ScrollText,
+		title: "Audited deployments",
+		description:
+			"Every deployment triggered by an AI agent or team member is logged: who did what, when, and what changed.",
+	},
+	{
+		icon: Box,
+		title: "Sandbox environments",
+		description:
+			"AI-built apps run in isolated containers, separated from production infrastructure. Multitenancy keeps every workspace apart.",
+	},
+	{
+		icon: KeyRound,
+		title: "Controlled access",
+		description:
+			"Use fine-grained RBAC and SSO to decide who can deploy, see, and approve AI-built apps at every level.",
+	},
+	{
+		icon: RotateCcw,
+		title: "Instant rollback",
+		description:
+			"When an AI-built app behaves unexpectedly, roll back in seconds, with no manual intervention.",
+	},
+];
+
+const screenshots = [
+	{
+		src: "/enterprise/custom-roles.png",
+		alt: "Create custom roles with fine-grained permissions",
+		title: "Custom roles",
+		description:
+			"Define roles with preset templates or build from scratch with granular permission toggles per resource.",
+	},
+	{
+		src: "/enterprise/git-permission.png",
+		alt: "Assign git providers to individual team members",
+		title: "Git provider access",
+		description:
+			"Control which Git providers each team member can access across GitHub, GitLab, Bitbucket and Gitea.",
+	},
+	{
+		src: "/enterprise/servers-permission.png",
+		alt: "Assign remote servers to individual team members",
+		title: "Server assignment",
+		description:
+			"Assign specific remote servers to individual team members so they only see what they need.",
+	},
+];
+
 export function EnterpriseLanding() {
 	const [contactOpen, setContactOpen] = useState(false);
 
 	return (
-		<div className="bg-background">
+		<div className="min-h-screen bg-background">
 			<ContactFormModal open={contactOpen} onOpenChange={setContactOpen} />
-			{/* Hero Section */}
-			<div className="relative overflow-hidden bg-background pt-20 pb-16 lg:pt-32">
-				<div className="relative">
-					<AnimatedGridPattern
-						numSquares={30}
-						maxOpacity={0.1}
-						height={40}
-						width={40}
-						duration={3}
-						repeatDelay={1}
-						className={cn(
-							"[mask-image:radial-gradient(800px_circle_at_center,white,transparent)]",
-							"absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12",
-						)}
-					/>
-					<Container className="relative z-10">
-						<div className="text-center">
-							<motion.div
-								className="relative z-10 mb-6 inline-block"
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.3 }}
-							>
-								<AnimatedGradientText>
-									<span
-										className={cn(
-											"inline animate-gradient bg-gradient-to-r from-primary via-primary/60 to-primary bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent",
-										)}
-									>
-										Enterprise
-									</span>
-								</AnimatedGradientText>
-							</motion.div>
-
-							<motion.h1
-								className="mx-auto max-w-4xl font-display text-5xl font-medium tracking-tight text-muted-foreground sm:text-7xl"
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.3 }}
-							>
-								{"Enterprise-Grade "}
-								<span className="relative whitespace-normal text-primary lg:whitespace-nowrap">
-									<svg
-										aria-hidden="true"
-										viewBox="0 0 418 42"
-										className="absolute left-0 top-2/3 h-[0.58em] w-full fill-primary"
-										preserveAspectRatio="none"
-									>
-										<path d="M203.371.916c-26.013-2.078-76.686 1.963-124.73 9.946L67.3 12.749C35.421 18.062 18.2 21.766 6.004 25.934 1.244 27.561.828 27.778.874 28.61c.07 1.214.828 1.121 9.595-1.176 9.072-2.377 17.15-3.92 39.246-7.496C123.565 7.986 157.869 4.492 195.942 5.046c7.461.108 19.25 1.696 19.17 2.582-.107 1.183-7.874 4.31-25.75 10.366-21.992 7.45-35.43 12.534-36.701 13.884-2.173 2.308-.202 4.407 4.442 4.734 2.654.187 3.263.157 15.593-.78 35.401-2.686 57.944-3.488 88.365-3.143 46.327.526 75.721 2.23 130.788 7.584 19.787 1.924 20.814 1.98 24.557 1.332l.066-.011c1.201-.203 1.53-1.825.399-2.335-2.911-1.31-4.893-1.604-22.048-3.261-57.509-5.556-87.871-7.36-132.059-7.842-23.239-.254-33.617-.116-50.627.674-11.629.54-42.371 2.494-46.696 2.967-2.359.259 8.133-3.625 26.504-9.81 23.239-7.825 27.934-10.149 28.304-14.005.417-4.348-3.529-6-16.878-7.066Z" />
-									</svg>
-									<span className="relative">Deployment, Your Way</span>
-								</span>
-							</motion.h1>
-
-							<motion.p
-								className="mx-auto mt-6 max-w-3xl text-lg tracking-tight text-muted-foreground"
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.3, delay: 0.2 }}
-							>
-								Scale with confidence. Deploy on-premises or in the cloud with
-								enterprise security, compliance, and support built for
-								organizations that demand the best.
-							</motion.p>
-
-							<motion.div
-								className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.3, delay: 0.4 }}
-							>
-								<Button
-									className="rounded-full"
-									onClick={() => setContactOpen(true)}
-								>
-									Contact sales
-								</Button>
-								<Button variant="outline" className="rounded-full" asChild>
-									<Link href="https://docs.notploy.com" target="_blank">
-										View documentation
-									</Link>
-								</Button>
-							</motion.div>
-						</div>
-					</Container>
-				</div>
-			</div>
-
-			{/* Features Grid */}
-			<section aria-labelledby="enterprise-features" className="py-20">
-				<Container>
-					<div className="text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Features
-						</p>
-						<h2
-							id="enterprise-features"
-							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
+			<PageHero
+				badge="Enterprise"
+				badgeDetail="Security, compliance, control"
+				title="Enterprise-grade deployment,"
+				highlight="your way"
+				description="Scale with confidence. Deploy on-premises or in the cloud with enterprise security, compliance and support built for organisations that demand the best."
+				actions={
+					<>
+						<Button
+							className="rounded-full"
+							onClick={() => setContactOpen(true)}
 						>
-							Built for Enterprise Teams
-						</h2>
-						<p className="mx-auto mt-4 mb-16 max-w-2xl text-lg tracking-tight text-muted-foreground">
-							Everything you need to deploy, manage, and scale mission-critical
-							applications with confidence and security.
-						</p>
-					</div>
-
-					<div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
-						{features.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
+							Contact sales
+						</Button>
+						<Button variant="outline" className="rounded-full" asChild>
+							<Link
+								href="https://docs.notploy.com"
+								target="_blank"
+								rel="noreferrer"
 							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Hosting Flexibility Section */}
-			<section aria-labelledby="enterprise-hosting" className="py-20">
-				<Container>
-					<div className="mb-16 text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Deployment flexibility
-						</p>
-						<h2
-							id="enterprise-hosting"
-							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
-						>
-							Deploy Anywhere, Without Compromise
-						</h2>
-						<p className="mx-auto mt-4 max-w-2xl text-lg tracking-tight text-muted-foreground">
-							The flexibility to host Notploy exactly where your business needs
-							it—on your infrastructure or ours.
-						</p>
-					</div>
-
-					<div className="grid gap-8 md:grid-cols-2">
-						{hostingOptions.map((option) => (
-							<div
-								key={option.title}
-								className="rounded-xl border border-border/50 bg-card p-8"
-							>
-								<div className="mb-6 flex items-center gap-4">
-									<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-										<option.icon className="h-5 w-5" />
-									</div>
-									<h3 className="text-lg font-semibold">{option.title}</h3>
-								</div>
-								<ul className="space-y-4">
-									{option.benefits.map((benefit) => (
-										<li key={benefit} className="flex items-start gap-3">
-											<Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-											<span className="text-sm text-muted-foreground">{benefit}</span>
-										</li>
-									))}
-								</ul>
-							</div>
-						))}
-					</div>
-
-					<div className="mt-12 rounded-xl border border-border/50 bg-card p-8 text-center">
-						<h3 className="text-lg font-semibold">
-							Hybrid Deployments
-						</h3>
-						<p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
-							Need the best of both worlds? Deploy Notploy across multiple
-							environments with centralized management and unified monitoring.
-						</p>
-					</div>
-				</Container>
-			</section>
-
-			{/* AI governance section */}
-			<section aria-labelledby="enterprise-ai-governance" className="py-20">
-				<Container>
-					<div className="mb-12 text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							AI governance
-						</p>
-						<h2
-							id="enterprise-ai-governance"
-							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
-						>
-							Enterprise-grade governance for AI-built apps
-						</h2>
-						<p className="mx-auto mt-4 max-w-2xl text-lg tracking-tight text-muted-foreground">
-							AI tools have accelerated how teams ship software. Notploy gives
-							enterprises a safe way to do it, with audit trails, access
-							controls, and isolated environments.
-						</p>
-					</div>
-
-					<div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
-						{[
-							{
-								icon: ScrollText,
-								title: "Audited deployments",
-								description:
-									"Every deployment triggered by an AI agent or team member is logged—who did what, when, and what changed.",
-							},
-							{
-								icon: Box,
-								title: "Sandbox environments",
-								description:
-									"AI-built apps run in isolated containers, separated from production infrastructure. Multitenancy keeps every workspace apart.",
-							},
-							{
-								icon: KeyRound,
-								title: "Controlled access",
-								description:
-									"Use fine-grained RBAC and SSO to decide who can deploy, see, and approve AI-built apps at every level of the organization.",
-							},
-							{
-								icon: RotateCcw,
-								title: "Instant rollback",
-								description:
-									"When an AI-built app behaves unexpectedly in production, roll back in seconds—no manual intervention, no downtime spiral.",
-							},
-						].map((item) => (
-							<div
-								key={item.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<item.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{item.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{item.description}
-								</p>
-							</div>
-						))}
-					</div>
-
-					<div className="mx-auto mt-12 max-w-2xl rounded-xl border border-border/50 bg-card p-8 text-center">
-						<p className="text-lg tracking-tight text-muted-foreground">
-							See how Notploy handles AI deployment — from AI-generated code to
-							a governed, production-ready environment.
-						</p>
-						<Button className="mt-6 rounded-full" asChild>
-							<Link href="/features/application-deployment-platform">
-								Explore AI deployment
+								View documentation
 							</Link>
 						</Button>
+					</>
+				}
+				links={[
+					{ href: "/features/single-sign-on", label: "SSO & SCIM" },
+					{ href: "/features/audit-logs", label: "Audit logs" },
+					{ href: "/features/role-based-access-control", label: "RBAC" },
+				]}
+			/>
+
+			<CellGrid
+				id="enterprise-features"
+				title="Built for enterprise teams"
+				description="Everything you need to deploy, manage and scale mission-critical applications with confidence and security."
+				items={features}
+				columns={4}
+			/>
+
+			<section aria-labelledby="enterprise-hosting" className="py-20 sm:py-28">
+				<Container>
+					<SectionHeading
+						id="enterprise-hosting"
+						title="Deploy anywhere, without compromise"
+						description="Host Notploy exactly where your business needs it: on your infrastructure or ours."
+					/>
+					<div className="mx-auto mt-12 grid max-w-5xl gap-4 md:grid-cols-2">
+						{hostingOptions.map((option) => (
+							<Reveal key={option.title}>
+								<div className="h-full rounded-2xl border border-border/50 bg-card p-8">
+									<option.icon
+										className="h-7 w-7 text-primary [stroke-width:1.5]"
+										aria-hidden="true"
+									/>
+									<h3 className="mt-5 text-xl font-semibold text-foreground">
+										{option.title}
+									</h3>
+									<ul className="mt-5 space-y-3">
+										{option.benefits.map((benefit) => (
+											<li key={benefit} className="flex gap-3 text-base">
+												<Check
+													className="mt-1 h-4 w-4 shrink-0 text-primary"
+													aria-hidden="true"
+												/>
+												<span className="text-muted-foreground">
+													{benefit}
+												</span>
+											</li>
+										))}
+									</ul>
+								</div>
+							</Reveal>
+						))}
+					</div>
+
+					<Reveal className="mx-auto mt-4 max-w-5xl rounded-2xl border border-border/50 bg-card p-8 text-center">
+						<h3 className="font-display text-2xl tracking-tight text-foreground">
+							Hybrid deployments
+						</h3>
+						<p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
+							Deploy Notploy across multiple environments with centralised
+							management and unified monitoring.
+						</p>
+					</Reveal>
+				</Container>
+			</section>
+
+			<CellGrid
+				id="enterprise-ai-governance"
+				title="Governance for AI-built apps"
+				description="AI tools have accelerated how teams ship software. Notploy gives enterprises a safe way to do it, with audit trails, access controls and isolated environments."
+				items={aiGovernance}
+				columns={4}
+			/>
+
+			<section aria-labelledby="enterprise-rbac" className="py-20 sm:py-28">
+				<Container>
+					<SectionHeading
+						id="enterprise-rbac"
+						title="Granular access control, visualised"
+						description="Complete visibility and control over who can access what, down to the individual resource level."
+					/>
+					<div className="mx-auto mt-12 grid max-w-6xl gap-4 md:grid-cols-3">
+						{screenshots.map((item) => (
+							<Reveal key={item.title}>
+								<div className="h-full overflow-hidden rounded-2xl border border-border/50 bg-card">
+									<div className="overflow-hidden bg-secondary p-4">
+										<img
+											src={item.src}
+											alt={item.alt}
+											className="w-full rounded-lg object-contain"
+										/>
+									</div>
+									<div className="p-6">
+										<h3 className="text-lg font-semibold text-foreground">
+											{item.title}
+										</h3>
+										<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+											{item.description}
+										</p>
+									</div>
+								</div>
+							</Reveal>
+						))}
 					</div>
 				</Container>
 			</section>
 
-			{/* RBAC Screenshots Section */}
-			<section aria-labelledby="enterprise-rbac" className="py-20">
+			<section aria-labelledby="enterprise-cta" className="pb-20 sm:pb-28">
 				<Container>
-					<div className="mb-16 text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Access control
-						</p>
-						<h2
-							id="enterprise-rbac"
-							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
-						>
-							Granular Access Control, Visualized
-						</h2>
-						<p className="mx-auto mt-4 max-w-2xl text-lg tracking-tight text-muted-foreground">
-							Powerful RBAC tools that give you complete visibility and control
-							over who can access what—down to the individual resource level.
-						</p>
-					</div>
-
-					<div className="grid gap-6 md:grid-cols-3">
-						<div className="rounded-xl border border-border/50 bg-card overflow-hidden">
-							<div className="aspect-video w-full overflow-hidden bg-card/80">
-								<img
-									src="/enterprise/custom-roles.png"
-									alt="Create custom roles with fine-grained permissions"
-									className="h-full w-full object-cover object-top"
-								/>
-							</div>
-							<div className="p-6">
-								<h3 className="text-lg font-semibold">Custom Roles</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									Define roles with preset templates or build from scratch with
-									granular permission toggles per resource.
-								</p>
-							</div>
-						</div>
-
-						<div className="rounded-xl border border-border/50 bg-card overflow-hidden">
-							<div className="w-full overflow-hidden bg-accent p-4">
-								<img
-									src="/enterprise/git-permission.png"
-									alt="Assign git providers to individual team members"
-									className="w-full rounded-lg object-contain"
-								/>
-							</div>
-							<div className="p-6">
-								<h3 className="text-lg font-semibold">Git Provider Access</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									Control which Git providers each team member can access across
-									GitHub, GitLab, Bitbucket, and Gitea.
-								</p>
-							</div>
-						</div>
-
-						<div className="rounded-xl border border-border/50 bg-card overflow-hidden">
-							<div className="w-full overflow-hidden bg-accent p-4">
-								<img
-									src="/enterprise/servers-permission.png"
-									alt="Assign remote servers to individual team members"
-									className="w-full rounded-lg object-contain"
-								/>
-							</div>
-							<div className="p-6">
-								<h3 className="text-lg font-semibold">Server Assignment</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									Assign specific remote servers to individual team members so
-									they only see what they need.
-								</p>
-							</div>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* CTA Section */}
-			<section aria-labelledby="enterprise-cta" className="py-20">
-				<Container>
-					<div className="rounded-xl border border-border/50 bg-card p-12 text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Next step
-						</p>
+					<Reveal className="mx-auto max-w-3xl rounded-2xl border border-border/50 bg-card p-8 text-center sm:p-12">
 						<h2
 							id="enterprise-cta"
 							className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
 						>
-							Ready to Scale Enterprise?
+							Ready to scale enterprise?
 						</h2>
-						<p className="mx-auto mt-6 max-w-2xl text-lg tracking-tight text-muted-foreground">
+						<p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
 							Talk to our team about your deployment needs and discover how
 							Notploy Enterprise can transform your infrastructure.
 						</p>
@@ -469,7 +313,7 @@ export function EnterpriseLanding() {
 								sales@notploy.com
 							</a>
 						</p>
-					</div>
+					</Reveal>
 				</Container>
 			</section>
 		</div>

@@ -1,11 +1,3 @@
-import { Container } from "@/components/Container";
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@/components/ui/accordion";
-import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
 import {
 	Activity,
@@ -29,6 +21,10 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CheckCircle2 } from "lucide-react";
+import { Container } from "@/components/Container";
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
+import { Reveal } from "@/components/home/Reveal";
 
 export const metadata: Metadata = {
 	title: "Sandbox Software for Safe Internal Deployments",
@@ -209,309 +205,134 @@ const faqs = [
 
 export default function SandboxSoftwarePage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Your team&apos;s sandbox. Your infrastructure. Your rules.
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Notploy gives you a fully isolated environment to build, test, and
-							ship internal and AI-coded apps, without touching your production
-							environment or putting your systems at risk.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									aria-label="Get Started with Notploy"
-									target="_blank"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link href="/contact">Contact us</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Everything you need to build, test, and ship safely */}
-			<section aria-labelledby="everything-you-need-to-build-test-and-ship-safely" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Contained by default
-						</p>
-						<h2 id="everything-you-need-to-build-test-and-ship-safely" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Everything you need to build, test, and ship safely
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Whether your team is prototyping a new feature or rolling out an
-							AI-coded tool, your sandbox environment handles it—contained,
-							controlled, and completely separate from your live environment.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{sandboxFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
+		<FeaturePageTemplate
+			badge="Sandbox software"
+			badgeDetail="Isolated by default"
+			title="Your team's sandbox."
+			highlight="Your rules."
+			description="Give your team a fully isolated environment to build, test and ship internal and AI-coded apps, without touching production or putting your systems at risk."
+			actions={
+				<>
+					<Button className="rounded-full" asChild>
+						<Link
+							href="https://app.notploy.com/register"
+							target="_blank"
+							rel="noreferrer"
+						>
+							Get started
+						</Link>
+					</Button>
+					<Button variant="outline" className="rounded-full" asChild>
+						<Link href="/contact">Talk to us</Link>
+					</Button>
+				</>
+			}
+			links={[
+				{ href: "/deploy-ai", label: "AI deployments" },
+				{ href: "/self-hosted-paas", label: "Self-hosted PaaS" },
+				{ href: "/industries", label: "By industry" },
+			]}
+			sections={[
+				{
+					id: "sandbox-use-cases",
+					title: "One sandbox, every use case",
+					description:
+						"From internal tools to AI-coded prototypes, keep every experiment contained.",
+					items: sandboxFeatures,
+					columns: 4,
+				},
+				{
+					id: "vibe-coded-apps",
+					title: "Ship AI-coded apps with confidence",
+					description:
+						"Each app runs in its own isolated environment. Multitenancy keeps every team separate, so experimentation stays contained.",
+					items: vibeCodedFeatures,
+					columns: 3,
+				},
+				{
+					id: "platform",
+					title: "Everything you need to run a sandbox",
+					description:
+						"Docker, Compose and Nixpacks out of the box, with monitoring, SSL and access control built in.",
+					items: platformFeatures,
+					columns: 3,
+				},
+				{
+					id: "enterprise",
+					title: "Enterprise control, on your infrastructure",
+					description:
+						"Centralise access, keep data on your servers and get dedicated support as your sandbox footprint grows.",
+					items: enterpriseFeatures,
+					columns: 2,
+					callout: {
+						title: "Governance without slowing teams down",
+						description:
+							"SSO, SCIM, audit logs and custom roles, all deployable on-premises.",
+						cta: "Explore Notploy Enterprise",
+						href: "/enterprise",
+					},
+				},
+			]}
+			faqs={{
+				id: "sandbox-faqs",
+				title: "Sandbox software FAQs",
+				description: "How sandboxes work and where Notploy fits.",
+				items: faqs.map((faq) => ({
+					question: faq.question,
+					answer: (
+						<>
+							{faq.answer.map((paragraph, index) => (
+								<p key={paragraph} className={index > 0 ? "mt-3" : undefined}>
+									{paragraph}
 								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* The smart way to release vibe-coded apps internally */}
-			<section aria-labelledby="the-smart-way-to-release-vibe-coded-apps-internally" className="border-b border-border/30 bg-background py-20 sm:py-32">
+							))}
+						</>
+					),
+				})),
+			}}
+			finalCta={{
+				title: "Give your team a safer place to build",
+				description:
+					"Deploy your first sandbox on infrastructure you control, or let Notploy Cloud manage the control plane for you.",
+				cta: "Create your account",
+				href: "https://app.notploy.com/register",
+				external: true,
+			}}
+		>
+			<section aria-labelledby="mcp" className="pb-20 sm:pb-28">
 				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Release AI apps safely
-						</p>
-						<h2 id="the-smart-way-to-release-vibe-coded-apps-internally" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							The smart way to release vibe-coded apps internally
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							AI-assisted development is moving fast. Notploy gives your team
-							the infrastructure to deploy and share AI-generated applications
-							in a secure, controlled environment without slowing down the
-							development process.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-3">
-						{vibeCodedFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-					<div className="mt-12 text-center">
-						<Button variant="outline" className="rounded-full" asChild>
-							<Link href="/deploy-ai">Deploy AI software with Notploy</Link>
-						</Button>
-					</div>
-				</Container>
-			</section>
-
-			{/* The features that make Notploy a powerful sandbox tool */}
-			<section aria-labelledby="the-features-that-make-notploy-a-powerful-sandbox-tool" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Platform capabilities
-						</p>
-						<h2 id="the-features-that-make-notploy-a-powerful-sandbox-tool" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							The features that make Notploy a powerful sandbox tool
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy is designed for teams that need flexibility, security, and
-							control—whether you&apos;re running a single internal app or
-							managing development environments across multiple projects.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{platformFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Notploy Enterprise: sandbox software built for teams */}
-			<section aria-labelledby="notploy-enterprise-sandbox-software-built-for-teams" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							For organizations at scale
-						</p>
-						<h2 id="notploy-enterprise-sandbox-software-built-for-teams" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Notploy Enterprise: sandbox software built for teams
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							For organizations running sandbox environments at scale, Notploy
-							Enterprise adds the infrastructure, support, and controls that
-							make internal deployments manageable—even for large teams.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{enterpriseFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-					<div className="mt-12 text-center">
-						<Button variant="outline" className="rounded-full" asChild>
-							<Link href="/enterprise">Discover Notploy Enterprise</Link>
-						</Button>
-					</div>
-				</Container>
-			</section>
-
-			{/* Connect AI agents directly to your sandbox */}
-			<section aria-labelledby="connect-ai-agents-directly-to-your-sandbox" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto grid max-w-5xl items-center gap-12 lg:grid-cols-2">
+					<Reveal className="grid gap-10 rounded-2xl border border-border/50 bg-card p-8 sm:p-12 lg:grid-cols-2 lg:items-center">
 						<div>
-							<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-								MCP server integration
-							</p>
-							<h2 id="connect-ai-agents-directly-to-your-sandbox" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-								Connect AI agents directly to your sandbox
+							<Bot
+								className="h-7 w-7 text-primary [stroke-width:1.5]"
+								aria-hidden="true"
+							/>
+							<h2
+								id="mcp"
+								className="mt-5 font-display text-3xl tracking-tight text-foreground"
+							>
+								Deploy from your AI coding tool
 							</h2>
-							<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-								Notploy&apos;s MCP server enables AI agents to interact with
-								your deployment environment through the Model Context Protocol,
-								no custom integration required.
+							<p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+								Notploy&apos;s MCP server lets compatible agents trigger
+								deployments, inspect app state and manage services without a
+								custom integration.
 							</p>
-							<ul className="mt-8 space-y-4">
-								{mcpPoints.map((point) => (
-									<li key={point} className="flex items-start gap-3">
-										<span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
-											<Check className="h-3.5 w-3.5" />
-										</span>
-										<span className="text-sm text-muted-foreground">
-											{point}
-										</span>
-									</li>
-								))}
-							</ul>
 						</div>
-						<div className="flex aspect-square items-center justify-center rounded-xl border border-border/50 bg-card sm:aspect-video lg:aspect-square">
-							<div className="flex flex-col items-center gap-4 text-center">
-								<div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/20 text-primary">
-									<Sparkles className="h-8 w-8" />
-								</div>
-								<p className="max-w-[220px] text-sm text-muted-foreground">
-									Cursor, Copilot, Claude, and any MCP-compatible agent
-								</p>
-							</div>
-						</div>
-					</div>
+						<ul className="space-y-3">
+							{mcpPoints.map((point) => (
+								<li key={point} className="flex gap-3 text-base">
+									<CheckCircle2
+										className="mt-1 h-4 w-4 shrink-0 text-primary"
+										aria-hidden="true"
+									/>
+									<span className="text-muted-foreground">{point}</span>
+								</li>
+							))}
+						</ul>
+					</Reveal>
 				</Container>
 			</section>
-
-			{/* FAQs */}
-			<section aria-labelledby="sandbox-software-faqs" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Common questions
-						</p>
-						<h2 id="sandbox-software-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Sandbox software FAQs
-						</h2>
-					</div>
-					<Accordion
-						type="single"
-						collapsible
-						className="mx-auto mt-16 w-full max-w-3xl"
-					>
-						{faqs.map((faq) => (
-							<AccordionItem value={faq.question} key={faq.question}>
-								<AccordionTrigger className="text-left text-foreground">
-									{faq.question}
-								</AccordionTrigger>
-								<AccordionContent>
-									<div className="space-y-3">
-										{faq.answer.map((paragraph) => (
-											<p key={paragraph}>{paragraph}</p>
-										))}
-									</div>
-								</AccordionContent>
-							</AccordionItem>
-						))}
-					</Accordion>
-				</Container>
-			</section>
-
-			{/* CTA */}
-			<section aria-labelledby="give-your-team-a-safe-place-to-build" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Start sandboxing today
-						</p>
-						<h2 id="give-your-team-a-safe-place-to-build" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Give your team a safe place to build
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Start deploying internal and AI-coded apps in a sandbox that stays
-							fully separate from production, on infrastructure you control.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									aria-label="Get Started with Notploy"
-									target="_blank"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link href="/contact">Contact us</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-		</div>
+		</FeaturePageTemplate>
 	);
 }

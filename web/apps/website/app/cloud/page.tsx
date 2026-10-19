@@ -1,11 +1,12 @@
 import { CallToAction } from "@/components/CallToAction";
 import { Container } from "@/components/Container";
+import { PageHero } from "@/components/pages/PageHero";
 import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@/components/ui/accordion";
+	CellGrid,
+	ChoicePanels,
+	PageFaq,
+	SectionHeading,
+} from "@/components/pages/PagePrimitives";
 import { Button } from "@/components/ui/button";
 import {
 	IconCheck,
@@ -13,10 +14,12 @@ import {
 	IconGauge,
 	IconHeadset,
 	IconRefresh,
-	IconShieldCheck,
+	IconRocket,
 	IconServer2,
 	IconSettings,
+	IconShieldCheck,
 } from "@tabler/icons-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -29,68 +32,69 @@ export const metadata: Metadata = {
 	},
 };
 
-const managedResponsibilities = [
+const notployResponsibilities = [
 	{
 		icon: IconSettings,
 		title: "Control plane operations",
-		who: "Notploy",
 		description:
 			"The Notploy dashboard, its database and its supporting services are hosted, monitored and upgraded by the Notploy team.",
 	},
 	{
 		icon: IconRefresh,
 		title: "Upgrades and maintenance",
-		who: "Notploy",
 		description:
 			"New versions, patches and maintenance windows are handled for you — you always run a supported release without planning a migration.",
 	},
 	{
 		icon: IconGauge,
 		title: "Availability of the service",
-		who: "Notploy",
 		description:
 			"The managed control plane is operated with availability commitments, so your team is not on call for the platform itself.",
 	},
 	{
+		icon: IconHeadset,
+		title: "Support",
+		description:
+			"Direct support channels with response commitments for incidents and questions about the platform.",
+	},
+];
+
+const yourResponsibilities = [
+	{
 		icon: IconServer2,
 		title: "Your workloads and servers",
-		who: "You",
 		description:
 			"Your applications keep running on infrastructure you control. You decide which servers connect, what runs on them and who can access them.",
 	},
 	{
 		icon: IconShieldCheck,
 		title: "Access and governance",
-		who: "You",
 		description:
 			"Teams, roles, permissions and secrets remain under your organization's governance, exactly as with Self.",
-	},
-	{
-		icon: IconHeadset,
-		title: "Support",
-		who: "Notploy",
-		description:
-			"Direct support channels with response commitments for incidents and questions about the platform.",
 	},
 ];
 
 const cloudCapabilities = [
 	{
+		icon: IconRocket,
 		title: "No infrastructure to provision",
 		description:
 			"Skip the installation step entirely. Create your organization and start deploying — the Notploy control plane is already running.",
 	},
 	{
+		icon: IconRefresh,
 		title: "Always up to date",
 		description:
 			"Feature releases, security patches and upgrades are rolled out by the Notploy team without downtime planning on your side.",
 	},
 	{
+		icon: IconCloud,
 		title: "Operated by Notploy",
 		description:
 			"Notploy Cloud is run by Notploy (Sky Genesis Enterprise) — the same people who build the product — not by an anonymous reseller.",
 	},
 	{
+		icon: IconGauge,
 		title: "A fast path to production",
 		description:
 			"Ideal for teams that want the Notploy deployment experience immediately, without an initial hosting and setup phase.",
@@ -128,213 +132,194 @@ const cloudFaqs = [
 export default function CloudPage() {
 	return (
 		<div className="min-h-screen bg-background">
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-4xl text-center">
-						<p className="mb-4 text-sm font-semibold uppercase tracking-wider text-primary">
-							Notploy Cloud
-						</p>
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Notploy, operated for you
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Notploy Cloud is the managed Notploy service operated by Notploy.
-							The control plane is hosted, upgraded and supported by the team
-							that builds the product — so you get the platform without taking
-							on its operations.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									target="_blank"
-									aria-label="Create a Notploy Cloud account"
-								>
-									Get started with Cloud
-								</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link href="/pricing">See pricing</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			<section aria-labelledby="a-managed-service-not-a-hosted-copy" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Who operates what
-						</p>
-						<h2 id="a-managed-service-not-a-hosted-copy" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							A managed service, not a hosted copy
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Running Notploy yourself and using Notploy Cloud are different
-							operating models. Here is precisely who is responsible for what.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{managedResponsibilities.map((item) => (
-							<div
-								key={item.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex items-center justify-between">
-									<div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-										<item.icon className="h-5 w-5" />
-									</div>
-									<span className="rounded-full border border-border/50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-										{item.who}
-									</span>
-								</div>
-								<h3 className="text-lg font-semibold">{item.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{item.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			<section aria-labelledby="what-cloud-adds-on-top-of-self" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Beyond self-hosting
-						</p>
-						<h2 id="what-cloud-adds-on-top-of-self" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							What Cloud adds on top of Self
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Same platform, different responsibility model — plus the
-							expectations you would have from a managed service.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{cloudCapabilities.map((capability) => (
-							<div
-								key={capability.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<h3 className="text-lg font-semibold">{capability.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{capability.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			<section aria-labelledby="self-or-cloud" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Choosing an edition
-						</p>
-						<h2 id="self-or-cloud" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Self or Cloud?
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Both editions share the same platform capabilities. The choice is
-							about who operates the control plane.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<IconServer2 className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Notploy Self</h3>
-							<ul className="mt-6 space-y-3 text-sm text-muted-foreground">
-								{[
-									"Free, open source (Apache-2.0)",
-									"You install, upgrade and operate the control plane",
-									"Maximum control: air-gapped, restricted networks, custom policies",
-									"Best for self-hosters, homelabs and infrastructure teams",
-								].map((bullet) => (
-									<li key={bullet} className="flex gap-3">
-										<IconCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-										<span>{bullet}</span>
-									</li>
-								))}
-							</ul>
-							<div className="mt-6">
-								<Button variant="outline" className="rounded-full" asChild>
-									<Link href="/self">Explore Self</Link>
-								</Button>
-							</div>
-						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<IconCloud className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Notploy Cloud</h3>
-							<ul className="mt-6 space-y-3 text-sm text-muted-foreground">
-								{[
-									"Managed service operated by Notploy",
-									"Control plane hosted, monitored and upgraded for you",
-									"Support and availability commitments",
-									"Best for teams that want Notploy without operating it",
-								].map((bullet) => (
-									<li key={bullet} className="flex gap-3">
-										<IconCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-										<span>{bullet}</span>
-									</li>
-								))}
-							</ul>
-							<div className="mt-6">
-								<Button className="rounded-full" asChild>
-									<Link href="https://app.notploy.com/register" target="_blank">
-										Get started
-									</Link>
-								</Button>
-							</div>
-						</div>
-					</div>
-					<div className="mx-auto mt-10 max-w-2xl text-center">
-						<p className="text-sm text-muted-foreground">
-							Looking for the operational details?{" "}
-							<Link
-								href="https://docs.notploy.com/docs/core/differences"
-								target="_blank"
-								className="text-primary underline underline-offset-4 hover:text-primary/80"
-							>
-								Cloud vs Self in the documentation
+			<PageHero
+				badge="Notploy Cloud"
+				badgeDetail="Managed by Notploy"
+				title="Notploy,"
+				highlight="operated for you"
+				description="Notploy Cloud is the managed Notploy service operated by Notploy. The control plane is hosted, upgraded and supported by the team that builds the product — so you get the platform without taking on its operations."
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+							<Link href="https://app.notploy.com/register" target="_blank">
+								Get started with Cloud
+								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
 							</Link>
-							.
-						</p>
+						</Button>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
+						>
+							<Link href="/pricing">
+								See pricing
+								<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+							</Link>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/self", label: "Compare with Self" },
+					{ href: "/platform", label: "Explore the platform" },
+					{
+						href: "https://docs.notploy.com/docs/core/differences",
+						label: "Cloud vs Self docs",
+						external: true,
+					},
+				]}
+			>
+				<div className="mx-auto grid max-w-2xl grid-cols-1 gap-px overflow-hidden rounded-xl border border-border/60 bg-border/60 sm:grid-cols-3">
+					{[
+						{ label: "Control plane", value: "Operated by Notploy" },
+						{ label: "Your workloads", value: "Your servers" },
+						{ label: "Support", value: "Included" },
+					].map((item) => (
+						<div key={item.label} className="bg-card px-5 py-4">
+							<p className="text-sm text-muted-foreground">{item.label}</p>
+							<p className="mt-1 text-base font-semibold text-foreground">
+								{item.value}
+							</p>
+						</div>
+					))}
+				</div>
+			</PageHero>
+
+			<section
+				aria-labelledby="a-managed-service-not-a-hosted-copy"
+				className="py-20 sm:py-28"
+			>
+				<Container>
+					<SectionHeading
+						id="a-managed-service-not-a-hosted-copy"
+						title="A managed service, not a hosted copy"
+						description="Running Notploy yourself and using Notploy Cloud are different operating models. Here is precisely who is responsible for what."
+					/>
+
+					<div className="mx-auto mt-12 grid max-w-6xl gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+						<div className="rounded-2xl border border-primary bg-primary p-8 text-primary-foreground">
+							<div className="flex flex-wrap items-center justify-between gap-3">
+								<h3 className="font-display text-2xl tracking-tight">
+									Notploy operates
+								</h3>
+								<span className="rounded-full bg-primary-foreground/15 px-3 py-1 text-sm font-medium">
+									Managed
+								</span>
+							</div>
+							<ul className="mt-8 space-y-6">
+								{notployResponsibilities.map((item) => (
+									<li key={item.title} className="flex gap-4">
+										<item.icon
+											className="mt-0.5 h-6 w-6 shrink-0 text-primary-foreground"
+											stroke={1.5}
+											aria-hidden="true"
+										/>
+										<div>
+											<h4 className="text-lg font-semibold">{item.title}</h4>
+											<p className="mt-1 text-base leading-relaxed text-primary-foreground/75">
+												{item.description}
+											</p>
+										</div>
+									</li>
+								))}
+							</ul>
+						</div>
+
+						<div className="rounded-2xl border border-border/50 bg-card p-8">
+							<div className="flex flex-wrap items-center justify-between gap-3">
+								<h3 className="font-display text-2xl tracking-tight">
+									You keep
+								</h3>
+								<span className="rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">
+									Your control
+								</span>
+							</div>
+							<ul className="mt-8 space-y-6">
+								{yourResponsibilities.map((item) => (
+									<li key={item.title} className="flex gap-4">
+										<item.icon
+											className="mt-0.5 h-6 w-6 shrink-0 text-primary"
+											stroke={1.5}
+											aria-hidden="true"
+										/>
+										<div>
+											<h4 className="text-lg font-semibold text-foreground">
+												{item.title}
+											</h4>
+											<p className="mt-1 text-base leading-relaxed text-muted-foreground">
+												{item.description}
+											</p>
+										</div>
+									</li>
+								))}
+								<li className="flex gap-4 border-t border-border/40 pt-6">
+									<IconCheck
+										className="mt-0.5 h-6 w-6 shrink-0 text-primary"
+										aria-hidden="true"
+									/>
+									<p className="text-base leading-relaxed text-muted-foreground">
+										Nothing about your applications, data or credentials moves
+										to Notploy. The service runs the control plane; the
+										workloads stay yours.
+									</p>
+								</li>
+							</ul>
+						</div>
 					</div>
 				</Container>
 			</section>
 
-			<section aria-labelledby="notploy-cloud-faqs" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Common questions
-						</p>
-						<h2 id="notploy-cloud-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Notploy Cloud FAQs
-						</h2>
-					</div>
-					<div className="mx-auto mt-12 w-full max-w-3xl">
-						<Accordion type="single" collapsible>
-							{cloudFaqs.map((faq, index) => (
-								<AccordionItem value={`faq-${index}`} key={faq.question}>
-									<AccordionTrigger className="text-left">
-										{faq.question}
-									</AccordionTrigger>
-									<AccordionContent>{faq.answer}</AccordionContent>
-								</AccordionItem>
-							))}
-						</Accordion>
-					</div>
-				</Container>
-			</section>
+			<CellGrid
+				id="what-cloud-adds-on-top-of-self"
+				title="What Cloud adds on top of Self"
+				description="Same platform, different responsibility model — plus the expectations you would have from a managed service."
+				items={cloudCapabilities}
+				columns={2}
+			/>
+
+			<ChoicePanels
+				id="self-or-cloud"
+				title="Self or Cloud?"
+				description="Both editions share the same platform capabilities. The choice is about who operates the control plane."
+				panels={[
+					{
+						name: "Notploy Self",
+						tagline: "You operate the platform",
+						description:
+							"The open-source edition. Install it on infrastructure you own and keep full control over updates, data and network boundaries.",
+						bullets: [
+							"Free, open source (Apache-2.0)",
+							"You install, upgrade and operate the control plane",
+							"Maximum control: air-gapped, restricted networks, custom policies",
+							"Best for self-hosters, homelabs and infrastructure teams",
+						],
+						cta: "Explore Self",
+						href: "/self",
+					},
+					{
+						name: "Notploy Cloud",
+						tagline: "Notploy operates it for you",
+						description:
+							"The managed service operated by Notploy. The control plane is run and upgraded for you, with support and availability commitments.",
+						bullets: [
+							"Managed service operated by Notploy",
+							"Control plane hosted, monitored and upgraded for you",
+							"Support and availability commitments",
+							"Best for teams that want Notploy without operating it",
+						],
+						cta: "Get started",
+						href: "https://app.notploy.com/register",
+						external: true,
+						highlighted: true,
+					},
+				]}
+			/>
+
+			<PageFaq
+				id="notploy-cloud-faqs"
+				title="Notploy Cloud FAQs"
+				description="What the managed service covers, and what stays on your side."
+				faqs={cloudFaqs}
+			/>
 
 			<CallToAction />
 		</div>

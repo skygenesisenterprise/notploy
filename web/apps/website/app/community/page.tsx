@@ -1,5 +1,13 @@
 import { CallToAction } from "@/components/CallToAction";
 import { Container } from "@/components/Container";
+import { OpenStats } from "@/components/home/OpenStats";
+import { Reveal } from "@/components/home/Reveal";
+import { PageHero } from "@/components/pages/PageHero";
+import {
+	CellGrid,
+	SectionHeading,
+	SplitFeatureList,
+} from "@/components/pages/PagePrimitives";
 import { Button } from "@/components/ui/button";
 import {
 	IconBug,
@@ -11,6 +19,7 @@ import {
 	IconRoad,
 	IconTemplate,
 } from "@tabler/icons-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -92,166 +101,153 @@ const principles = [
 	},
 ];
 
+const startingPoints = [
+	{
+		title: "New to Notploy",
+		description:
+			"Read the documentation, deploy a first application, then tell how it went. Feedback from new users is the most valuable there is.",
+		cta: "Read the docs",
+		href: "https://docs.notploy.com/docs/core",
+		external: true,
+	},
+	{
+		title: "Want to contribute",
+		description:
+			"Look for good-first-issue labels on GitHub, or bring a problem you actually have — both are valid entry points.",
+		cta: "Browse issues",
+		href: "https://github.com/skygenesisenterprise/notploy",
+		external: true,
+	},
+	{
+		title: "Just have a question",
+		description:
+			"Ask in Discussions or Discord. Chances are someone already hit what you are hitting.",
+		cta: "Join Discord",
+		href: "https://discord.gg/GUkDugVh34",
+		external: true,
+	},
+];
+
 export default function CommunityPage() {
 	return (
 		<div className="min-h-screen bg-background">
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Built with the community, in the open
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Notploy is open-source infrastructure software, Apache-2.0
-							licensed. Whether you deploy with it, report issues, write docs or
-							ship code — there is a clear way to participate.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://github.com/skygenesisenterprise/notploy"
-									target="_blank"
-								>
-									Open GitHub
-								</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link
-									href="https://github.com/skygenesisenterprise/notploy/discussions"
-									target="_blank"
-								>
-									Join the discussions
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			<section aria-labelledby="ways-to-participate" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Get involved
-						</p>
-						<h2 id="ways-to-participate" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Ways to participate
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Not every contribution is code. These are the paths that keep the
-							project moving.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
-						{contributionPaths.map((path) => (
-							<div
-								key={path.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
+			<PageHero
+				badge="Community"
+				badgeDetail="Apache-2.0 · Built in the open"
+				badgeHref="https://github.com/skygenesisenterprise/notploy"
+				title="Built with the community,"
+				highlight="in the open"
+				description="Notploy is open-source infrastructure software, Apache-2.0 licensed. Whether you deploy with it, report issues, write docs or ship code — there is a clear way to participate."
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+							<Link
+								href="https://github.com/skygenesisenterprise/notploy"
+								target="_blank"
 							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<path.icon className="h-5 w-5" />
+								Open GitHub
+								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
+							</Link>
+						</Button>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
+						>
+							<Link
+								href="https://github.com/skygenesisenterprise/notploy/discussions"
+								target="_blank"
+							>
+								Join the discussions
+								<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+							</Link>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/templates", label: "Publish a template" },
+					{
+						href: "https://discord.gg/GUkDugVh34",
+						label: "Discord",
+						external: true,
+					},
+					{
+						href: "https://github.com/skygenesisenterprise/notploy/issues",
+						label: "Roadmap",
+						external: true,
+					},
+				]}
+			/>
+
+			<OpenStats
+				id="project-stats"
+				title="The project, in public"
+				description="Stars, contributors and license are visible to anyone. Here is where you can check the project for yourself."
+			/>
+
+			<CellGrid
+				id="ways-to-participate"
+				title="Ways to participate"
+				description="Not every contribution is code. These are the paths that keep the project moving."
+				items={contributionPaths}
+				columns={4}
+			/>
+
+			<SplitFeatureList
+				id="open-source-plainly-stated"
+				title="Open source, plainly stated"
+				description="The license and the development process are part of the product. Both are meant to be read."
+				items={principles}
+				aside={
+					<p className="mt-6 max-w-md text-sm leading-relaxed text-muted-foreground">
+						Enterprise features are available under a commercial license
+						maintained by Sky Genesis Enterprise — the core platform stays
+						open.
+					</p>
+				}
+			/>
+
+			<section aria-labelledby="where-to-start" className="py-20 sm:py-28">
+				<Container>
+					<SectionHeading
+						id="where-to-start"
+						title="Where to start"
+						description="Three honest entry points, whether you are deploying for the first time or writing your first patch."
+					/>
+
+					<Reveal className="mx-auto mt-12 max-w-6xl">
+						<div className="grid divide-y divide-border/50 overflow-hidden rounded-2xl border border-border/50 bg-card sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+							{startingPoints.map((point) => (
+								<div key={point.title} className="flex flex-col p-6 sm:p-8">
+									<h3 className="font-display text-xl tracking-tight text-foreground">
+										{point.title}
+									</h3>
+									<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+										{point.description}
+									</p>
+									<div className="mt-6 pt-2">
+										<Button
+											variant="outline"
+											className="rounded-full"
+											asChild
+										>
+											<Link
+												href={point.href}
+												target={point.external ? "_blank" : undefined}
+												rel={point.external ? "noreferrer" : undefined}
+											>
+												{point.cta}
+												<ArrowRight
+													className="ml-2 h-4 w-4"
+													aria-hidden="true"
+												/>
+											</Link>
+										</Button>
+									</div>
 								</div>
-								<h3 className="text-lg font-semibold">{path.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{path.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			<section aria-labelledby="open-source-plainly-stated" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Project principles
-						</p>
-						<h2 id="open-source-plainly-stated" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Open source, plainly stated
-						</h2>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-3">
-						{principles.map((principle) => (
-							<div
-								key={principle.title}
-								className="rounded-xl border border-border/50 bg-card p-6 text-center"
-							>
-								<h3 className="text-lg font-semibold">{principle.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{principle.description}
-								</p>
-							</div>
-						))}
-					</div>
-					<div className="mx-auto mt-12 max-w-2xl text-center">
-						<p className="text-sm text-muted-foreground">
-							Enterprise features are available under a commercial license
-							maintained by Sky Genesis Enterprise — the core platform stays
-							open.
-						</p>
-					</div>
-				</Container>
-			</section>
-
-			<section aria-labelledby="where-to-start" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							First steps
-						</p>
-						<h2 id="where-to-start" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Where to start
-						</h2>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-3">
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<h3 className="text-lg font-semibold">New to Notploy</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								Read the documentation, deploy a first application, then tell
-								how it went. Feedback from new users is the most valuable there
-								is.
-							</p>
-							<div className="mt-5">
-								<Button variant="outline" size="sm" className="rounded-full" asChild>
-									<Link href="https://docs.notploy.com/docs/core" target="_blank">
-										Read the docs
-									</Link>
-								</Button>
-							</div>
+							))}
 						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<h3 className="text-lg font-semibold">Want to contribute</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								Look for good-first-issue labels on GitHub, or bring a problem
-								you actually have — both are valid entry points.
-							</p>
-							<div className="mt-5">
-								<Button variant="outline" size="sm" className="rounded-full" asChild>
-									<Link
-										href="https://github.com/skygenesisenterprise/notploy"
-										target="_blank"
-									>
-										Browse issues
-									</Link>
-								</Button>
-							</div>
-						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<h3 className="text-lg font-semibold">Just have a question</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								Ask in Discussions or Discord. Chances are someone already hit
-								what you are hitting.
-							</p>
-							<div className="mt-5">
-								<Button variant="outline" size="sm" className="rounded-full" asChild>
-									<Link href="https://discord.gg/GUkDugVh34" target="_blank">
-										Join Discord
-									</Link>
-								</Button>
-							</div>
-						</div>
-					</div>
+					</Reveal>
 				</Container>
 			</section>
 

@@ -1,8 +1,10 @@
 import { Container } from "@/components/Container";
 import { PartnerForm } from "@/components/PartnerForm";
+import { Reveal } from "@/components/home/Reveal";
+import { PageHero } from "@/components/pages/PageHero";
+import { SectionHeading } from "@/components/pages/PagePrimitives";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
 import { Check } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -46,7 +48,7 @@ const PROGRAMS = [
 	},
 	{
 		title: "Reseller Program",
-		badge: "Coming Soon",
+		badge: "Coming soon",
 		badgeVariant: "secondary" as const,
 		description:
 			"Sell Notploy directly in your market with local presence and relationships.",
@@ -63,95 +65,79 @@ const PROGRAMS = [
 
 export default function PartnersPage() {
 	return (
-		<div className="relative bg-background">
-			<AnimatedGridPattern
-				numSquares={30}
-				maxOpacity={0.1}
-				height={40}
-				width={40}
-				duration={3}
-				repeatDelay={1}
-				className="[mask-image:radial-gradient(800px_circle_at_50%_0%,white,transparent)] absolute inset-x-0 top-0 h-[120%] skew-y-12"
+		<div className="min-h-screen bg-background">
+			<PageHero
+				badge="Partners"
+				badgeDetail="Agency, referral & reseller"
+				title="Partner with"
+				highlight="Notploy"
+				description="Unlock premium features for your clients, earn revenue through referrals, and scale your agency on infrastructure you control."
+				actions={
+					<Button className="rounded-full" asChild>
+						<Link href="#get-started">Become a partner</Link>
+					</Button>
+				}
+				links={[
+					{ href: "mailto:partners@notploy.com", label: "partners@notploy.com" },
+					{ href: "/pricing", label: "Pricing" },
+				]}
 			/>
-			{/* Hero */}
-			<section className="relative z-10 border-b border-border/30 py-20 sm:py-28">
-				<Container>
-					<div className="mx-auto max-w-3xl text-center">
-						<h1 className="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-							Partner with Notploy
-						</h1>
-						<p className="mt-4 text-lg text-muted-foreground">
-							Join our partner program to unlock premium features, earn revenue
-							through referrals, and scale your agency operations.
-						</p>
-						<Button asChild size="lg" className="mt-8">
-							<Link href="#get-started">Become a Partner</Link>
-						</Button>
-					</div>
-				</Container>
-			</section>
 
-			{/* Program cards */}
-			<section aria-labelledby="partner-programs" className="relative z-10 border-b border-border/30 py-20 sm:py-32">
+			<section aria-labelledby="partner-programs" className="pb-20 sm:pb-28">
 				<Container>
-					<p id="partner-programs" className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-						Partner programs
-					</p>
-					<div className="grid gap-8 md:grid-cols-3">
+					<SectionHeading
+						id="partner-programs"
+						title="Partner programs"
+						description="Pick the model that fits how you work with clients."
+					/>
+
+					<div className="mx-auto mt-12 grid max-w-6xl gap-4 md:grid-cols-3">
 						{PROGRAMS.map((program) => (
-							<div
-								key={program.title}
-								className="flex flex-col rounded-xl border border-border/50 bg-card p-6"
-							>
-								<Badge
-									variant={program.badgeVariant}
-									className="mb-4 w-fit"
-								>
-									{program.badge}
-								</Badge>
-								<h2 className="text-xl font-semibold text-foreground">
-									{program.title}
-								</h2>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{program.description}
-								</p>
-								<ul className="mt-4 flex flex-col gap-2 text-sm text-muted-foreground">
-									{program.features.map((f) => (
-										<li key={f} className="flex items-center gap-2">
-											<Check className="h-4 w-4 shrink-0 text-primary" />
-											{f}
-										</li>
-									))}
-								</ul>
-								<div className="mt-auto pt-6">
-									<Button asChild variant="outline" className="w-full">
-										<Link href={program.href}>{program.cta}</Link>
-									</Button>
+							<Reveal key={program.title}>
+								<div className="flex h-full flex-col rounded-2xl border border-border/50 bg-card p-8">
+									<Badge variant={program.badgeVariant} className="mb-5 w-fit">
+										{program.badge}
+									</Badge>
+									<h3 className="font-display text-2xl tracking-tight text-foreground">
+										{program.title}
+									</h3>
+									<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+										{program.description}
+									</p>
+									<ul className="mt-6 flex-1 space-y-3">
+										{program.features.map((feature) => (
+											<li key={feature} className="flex gap-3 text-base">
+												<Check
+													className="mt-1 h-4 w-4 shrink-0 text-primary"
+													aria-hidden="true"
+												/>
+												<span className="text-muted-foreground">{feature}</span>
+											</li>
+										))}
+									</ul>
+									<div className="mt-8">
+										<Button asChild variant="outline" className="w-full rounded-full">
+											<Link href={program.href}>{program.cta}</Link>
+										</Button>
+									</div>
 								</div>
-							</div>
+							</Reveal>
 						))}
 					</div>
 				</Container>
 			</section>
 
-			{/* Get Started / Form */}
-			<section id="get-started" aria-labelledby="get-started-heading" className="relative z-10 border-b border-border/30 py-20 sm:py-32">
+			<section id="get-started" aria-labelledby="get-started-heading" className="pb-20 sm:pb-28">
 				<Container>
 					<div className="mx-auto max-w-2xl">
-						<div className="text-center">
-							<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-								Grow with Notploy
-							</p>
-							<h2 id="get-started-heading" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-								Get Started
-							</h2>
-							<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-								Join our partner program and start growing with Notploy.
-							</p>
-						</div>
-						<div className="mt-10 rounded-xl border border-border/50 bg-card p-6">
+						<SectionHeading
+							id="get-started-heading"
+							title="Get started"
+							description="Tell us about your agency or referral audience and we will follow up with the next steps."
+						/>
+						<Reveal className="mt-10 rounded-2xl border border-border/50 bg-card p-6 sm:p-8">
 							<PartnerForm />
-						</div>
+						</Reveal>
 					</div>
 				</Container>
 			</section>

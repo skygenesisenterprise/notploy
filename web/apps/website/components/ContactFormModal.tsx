@@ -12,7 +12,7 @@ import { ContactForm } from "./ContactForm";
 interface ContactFormModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	defaultInquiryType?: "support" | "sales" | "other";
+	defaultInquiryType?: "support" | "sales";
 }
 
 export function ContactFormModal({

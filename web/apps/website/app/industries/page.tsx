@@ -1,8 +1,16 @@
 import { CallToAction } from "@/components/CallToAction";
 import { Container } from "@/components/Container";
-import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
+import { Reveal } from "@/components/home/Reveal";
+import { PageHero } from "@/components/pages/PageHero";
+import { CellGrid, SectionHeading } from "@/components/pages/PagePrimitives";
 import { Button } from "@/components/ui/button";
 import {
+	IconFileAnalytics,
+	IconServer2,
+	IconShieldLock,
+} from "@tabler/icons-react";
+import {
+	ArrowUpRight,
 	Briefcase,
 	Building2,
 	Factory,
@@ -75,84 +83,114 @@ const industries = [
 	},
 ];
 
+const commonFoundation = [
+	{
+		icon: IconShieldLock,
+		title: "Access you can govern",
+		description:
+			"Organizations, projects, roles, sessions, API keys and single sign-on keep the platform aligned with your internal access model.",
+	},
+	{
+		icon: IconServer2,
+		title: "Data inside your boundary",
+		description:
+			"Notploy Self keeps the control plane, application data and backups on infrastructure you own, including restricted and air-gapped networks.",
+	},
+	{
+		icon: IconFileAnalytics,
+		title: "Operations you can audit",
+		description:
+			"Audit logs record who changed what and when, so incidents and compliance reviews can be answered from the same control plane.",
+	},
+];
+
 export default function IndustriesPage() {
 	return (
 		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Deployment solutions for your industry
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Notploy gives teams in regulated and fast-moving industries a
-							governed platform to deploy, review, and operate applications on
-							infrastructure they control.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link href="/contact">Contact Sales</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Industries grid */}
-			<section aria-labelledby="explore-notploy-by-industry" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Solutions for every sector
-						</p>
-						<h2 id="explore-notploy-by-industry" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Explore Notploy by industry
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							The same deployment platform, adapted to the workflows,
-							governance, and infrastructure requirements of your sector.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{industries.map((industry) => (
+			<PageHero
+				badge="Industries"
+				badgeDetail="Regulated · Fast-moving teams"
+				title="Deployment for"
+				highlight="your industry"
+				description="Notploy gives teams in regulated and fast-moving industries a governed platform to deploy, review, and operate applications on infrastructure they control."
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
 							<Link
-								key={industry.title}
-								href={industry.href}
-								className="rounded-xl border border-border/50 bg-card p-6 transition hover:border-border"
+								href="https://app.notploy.com/register"
+								target="_blank"
+								rel="noopener noreferrer"
 							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<industry.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{industry.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{industry.description}
-								</p>
+								Get Started
+								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
 							</Link>
+						</Button>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
+						>
+							<Link href="/contact">Contact Sales</Link>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/self", label: "Self-host Notploy" },
+					{ href: "/platform", label: "Platform capabilities" },
+					{ href: "/comparison", label: "Comparisons" },
+				]}
+			/>
+
+			<section
+				aria-labelledby="explore-notploy-by-industry"
+				className="pb-20 sm:pb-28"
+			>
+				<Container>
+					<SectionHeading
+						id="explore-notploy-by-industry"
+						title="Explore Notploy by industry"
+						description="The same deployment platform, adapted to the workflows, governance, and infrastructure requirements of your sector."
+					/>
+
+					<div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 border-l border-t border-border/40 sm:grid-cols-2">
+						{industries.map((industry, index) => (
+							<Reveal key={industry.title} delay={index * 0.04}>
+								<Link
+									href={industry.href}
+									className="group flex h-full flex-col border-b border-r border-border/40 p-7 transition-colors hover:bg-card sm:p-8"
+								>
+									<div className="flex items-center justify-between gap-4">
+										<industry.icon
+											className="h-7 w-7 text-primary"
+											strokeWidth={1.5}
+											aria-hidden="true"
+										/>
+										<ArrowUpRight
+											className="h-5 w-5 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
+											aria-hidden="true"
+										/>
+									</div>
+									<h3 className="mt-6 font-display text-2xl tracking-tight text-foreground">
+										{industry.title}
+									</h3>
+									<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+										{industry.description}
+									</p>
+								</Link>
+							</Reveal>
 						))}
 					</div>
 				</Container>
 			</section>
 
-			{/* Final CTA */}
+			<CellGrid
+				id="the-same-foundation"
+				title="The same foundation, adapted to your sector"
+				description="Sector pages change the examples and the operational constraints. The platform underneath stays the same."
+				items={commonFoundation}
+				columns={3}
+			/>
+
 			<CallToAction />
 		</div>
 	);

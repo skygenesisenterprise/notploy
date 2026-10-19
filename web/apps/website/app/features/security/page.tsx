@@ -1,3 +1,5 @@
+import { ChoicePanels } from "@/components/pages/PagePrimitives";
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
 import { Container } from "@/components/Container";
 import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
@@ -232,347 +234,118 @@ const faqs = [
 
 export default function SecurityPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Lock down your deployments without blocking your team
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Notploy gives you layered security at every level, from how your
-							team authenticates to exactly what each user can access. Get SSO,
-							custom roles, a complete audit trail, and host in your own secure
-							environment.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									aria-label="Get Started with Notploy"
-									target="_blank"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link href="/contact">Contact sales</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* SSO */}
-			<section aria-labelledby="connect-identity-provider" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							SSO with any IdP
-						</p>
-						<h2 id="connect-identity-provider" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Connect any identity provider
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Enterprise users can authenticate through any OIDC or SAML
-							2.0-compatible identity provider. If your organization already
-							runs Okta, Azure AD, or Keycloak, Notploy connects to it.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{ssoFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* RBAC */}
-			<section aria-labelledby="control-user-access" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Granular roles and permissions
-						</p>
-						<h2 id="control-user-access" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Control exactly what each user can access
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Role-based access control ships with every paid plan. Enterprise
-							extends it with fully custom roles built from individual
-							permissions across every resource type in the platform.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{rbacFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex items-center justify-between">
-									<div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-										<feature.icon className="h-5 w-5" />
-									</div>
-									<span className="rounded-full bg-primary/20 px-3 py-1 text-xs font-medium text-primary">
-										{feature.plan}
-									</span>
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-					<div className="mt-12 text-center">
-						<Button variant="outline" className="rounded-full" asChild>
-							<Link href="/enterprise">Discover Enterprise</Link>
-						</Button>
-					</div>
-				</Container>
-			</section>
-
-			{/* Audit Logs */}
-			<section aria-labelledby="know-who-did-what" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							A complete audit trail
-						</p>
-						<h2 id="know-who-did-what" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Know exactly who did what and when
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Audit Logs give Enterprise organizations a complete, filterable
-							record of every action taken across the platform&mdash;essential
-							for SOC 2, GDPR, and internal change management processes.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{auditLogItems.map((item) => (
-							<div
-								key={item.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<h3 className="text-lg font-semibold">{item.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{item.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Security features by plan */}
-			<section aria-labelledby="security-features-by-plan" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Startup to Enterprise
-						</p>
-						<h2 id="security-features-by-plan" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Security features by plan
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Core access controls come with every paid plan. Enterprise adds
-							the layers that compliance-conscious teams and larger
-							organizations need.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<h3 className="text-lg font-semibold">
-								Startup and above
-							</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								A great starting point:
-							</p>
-							<ul className="mt-6 space-y-3">
-								{startupPlanFeatures.map((feature) => (
-									<li
-										key={feature}
-										className="flex items-start gap-3 text-sm text-muted-foreground"
-									>
-										<ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-										{feature}
-									</li>
-								))}
-							</ul>
-						</div>
-						<div className="rounded-xl border border-primary/50 bg-card p-6">
-							<h3 className="text-lg font-semibold">Enterprise</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								Everything in Startup, plus:
-							</p>
-							<ul className="mt-6 space-y-3">
-								{enterprisePlanFeatures.map((feature) => (
-									<li
-										key={feature}
-										className="flex items-start gap-3 text-sm text-muted-foreground"
-									>
-										<ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-										{feature}
-									</li>
-								))}
-							</ul>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Infrastructure security */}
-			<section aria-labelledby="infrastructure-security" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Hardened at the server
-						</p>
-						<h2 id="infrastructure-security" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Security from the infrastructure up
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Access control is only one part of the picture. Notploy is built
-							with server-level security in mind, including built-in guidance to
-							keep your infrastructure hardened alongside your access policies.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{infrastructureFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* FAQs */}
-			<section aria-labelledby="security-faqs" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Your questions answered
-						</p>
-						<h2 id="security-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Security and governance FAQs
-						</h2>
-					</div>
-					<div className="mx-auto mt-16 max-w-3xl space-y-8">
-						{faqs.map((faq) => (
-							<div
-								key={faq.question}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<h3 className="text-lg font-semibold">
-									{faq.question}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">{faq.answer}</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Related Features */}
-			<section aria-labelledby="security-in-depth" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Dig into the details
-						</p>
-						<h2 id="security-in-depth" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Explore Notploy&apos;s security features in depth
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Dive deeper into the access control and governance features that
-							keep your organization secure.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-3">
-						{relatedFeatures.map((feature) => (
-							<Link
-								key={feature.title}
-								href={feature.href}
-								className="rounded-xl border border-border/50 bg-card p-6 transition hover:border-border"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</Link>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* CTA */}
-			<section aria-labelledby="deploy-securely" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Start shipping safely
-						</p>
-						<h2 id="deploy-securely" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Deploy securely with Notploy
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Start shipping applications today with Notploy, safe in the
-							knowledge that your environment is secure. For additional
-							governance, choose our Enterprise plan.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									aria-label="Get Started with Notploy"
-									target="_blank"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link href="/contact">Contact sales</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-		</div>
+		<FeaturePageTemplate
+			badge="Capabilities"
+			badgeDetail="Security & governance"
+			title="Lock down your deployments"
+			highlight="without blocking your team"
+			description="Notploy gives you layered security at every level, from how your team authenticates to exactly what each user can access. Get SSO, custom roles, a complete audit trail, and host in your own secure environment."
+			actions={
+				<>
+					<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+						<Link href="https://app.notploy.com/register" target="_blank">
+							Get Started
+						</Link>
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full rounded-full px-6 sm:w-auto"
+						asChild
+					>
+						<Link href="/contact">Contact sales</Link>
+					</Button>
+				</>
+			}
+			links={[
+				{ href: "/enterprise", label: "Enterprise" },
+				{ href: "/features/single-sign-on", label: "Single sign-on" },
+				{ href: "/features/audit-logs", label: "Audit logs" },
+			]}
+			sections={[
+				{
+					id: "connect-identity-provider",
+					title: "Connect any identity provider",
+					description:
+						"Enterprise users can authenticate through any OIDC or SAML 2.0-compatible identity provider. If your organization already runs Okta, Azure AD, or Keycloak, Notploy connects to it.",
+					items: ssoFeatures,
+					columns: 2,
+					layout: "split",
+				},
+				{
+					id: "control-user-access",
+					title: "Control exactly what each user can access",
+					description:
+						"Role-based access control ships with every paid plan. Enterprise extends it with fully custom roles built from individual permissions across every resource type in the platform.",
+					items: rbacFeatures,
+					columns: 3,
+				},
+				{
+					id: "know-who-did-what",
+					title: "Know exactly who did what and when",
+					description:
+						"Audit Logs give Enterprise organizations a complete, filterable record of every action taken across the platform — essential for SOC 2, GDPR, and internal change management processes.",
+					items: auditLogItems,
+					columns: 3,
+				},
+				{
+					id: "infrastructure-security",
+					title: "Security from the infrastructure up",
+					description:
+						"Access control is only one part of the picture. Notploy is built with server-level security in mind, including built-in guidance to keep your infrastructure hardened alongside your access policies.",
+					items: infrastructureFeatures,
+					columns: 2,
+					layout: "split",
+				},
+			]}
+			related={{
+				id: "security-in-depth",
+				title: "Explore Notploy's security features in depth",
+				description:
+					"Dive deeper into the access control and governance features that keep your organization secure.",
+				items: relatedFeatures,
+				columns: 3,
+			}}
+			faqs={{
+				id: "security-faqs",
+				title: "Security and governance FAQs",
+				description: "How access, audit and infrastructure security fit together.",
+				items: faqs,
+			}}
+			finalCta={{
+				title: "Deploy securely with Notploy",
+				description:
+					"Start shipping applications today with Notploy, safe in the knowledge that your environment is secure. For additional governance, choose our Enterprise plan.",
+				cta: "Get Started",
+				href: "https://app.notploy.com/register",
+				external: true,
+			}}
+		>
+			<ChoicePanels
+				id="security-features-by-plan"
+				title="Security features by plan"
+				description="Core access controls come with every paid plan. Enterprise adds the layers that compliance-conscious teams and larger organizations need."
+				panels={[
+					{
+						name: "Startup and above",
+						tagline: "The essentials",
+						description:
+							"Core access controls for teams that are getting their deployment workflow under control.",
+						bullets: startupPlanFeatures,
+						cta: "See pricing",
+						href: "/pricing",
+					},
+					{
+						name: "Enterprise",
+						tagline: "Governance at scale",
+						description:
+							"Everything in Startup, plus the governance layers required by larger and regulated organizations.",
+						bullets: enterprisePlanFeatures,
+						cta: "Contact sales",
+						href: "/contact",
+						highlighted: true,
+					},
+				]}
+			/>
+		</FeaturePageTemplate>
 	);
 }

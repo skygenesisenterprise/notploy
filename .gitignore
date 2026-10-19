@@ -156,3 +156,7 @@ build/
 # (self|cloud|console) remembered for the next start. Local state, never committed.
 .make-product
 .pnpm-store/
+
+.claude/
+.agents/
+skills-lock.json

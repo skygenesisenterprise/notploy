@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 			label: "Notploy - Open Source Templates",
 		});
 
-		return new Response(ogImage, {
+		return new Response(new Uint8Array(ogImage), {
 			headers: {
 				"Content-Type": "image/png",
 				"Cache-Control": "public, max-age=86400, stale-while-revalidate",

@@ -2,74 +2,99 @@
 
 import { Container } from "@/components/Container";
 import { ContactForm } from "@/components/ContactForm";
-import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
-import { cn } from "@/lib/utils";
+import { Reveal } from "@/components/home/Reveal";
+import { PageHero } from "@/components/pages/PageHero";
+import { Button } from "@/components/ui/button";
+import { Mail, MessageSquare } from "lucide-react";
 import { useState } from "react";
 
 export default function ContactPage() {
 	const [isSubmitted, setIsSubmitted] = useState(false);
 
-	if (isSubmitted) {
-		return (
-			<div className="bg-background py-24 sm:py-32">
+	return (
+		<div className="min-h-screen bg-background">
+			<PageHero
+				compact
+				badge="Contact"
+				badgeDetail="Sales & support"
+				title="Let's talk about"
+				highlight="your stack"
+				description="Tell us what you are deploying and how you want to run it. Our team will point you to the right edition and help you get started."
+				links={[
+					{ href: "mailto:sales@notploy.com", label: "sales@notploy.com" },
+					{ href: "https://docs.notploy.com", label: "Documentation" },
+				]}
+			/>
+
+			<section aria-labelledby="contact-form" className="pb-20 sm:pb-28">
 				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-							Thank you for contacting us!
-						</h1>
-						<p className="mt-6 text-lg leading-8 text-muted-foreground">
-							We've received your message and will get back to you as soon as
-							possible.
-						</p>
-						<div className="mt-10">
-							<button
-								type="button"
-								onClick={() => setIsSubmitted(false)}
-								className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
+					<div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)]">
+						<Reveal className="lg:pt-4">
+							<h2
+								id="contact-form"
+								className="font-display text-2xl tracking-tight text-foreground"
 							>
-								Send Another Message
-							</button>
-						</div>
+								{isSubmitted ? "Message received" : "Send us a message"}
+							</h2>
+							<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+								{isSubmitted
+									? "Thanks for reaching out. We will get back to you as soon as possible."
+									: "Questions about self-hosting, Cloud, Enterprise or a migration? We usually reply within one business day."}
+							</p>
+
+							<div className="mt-8 space-y-4 border-t border-border/40 pt-6">
+								<a
+									href="mailto:sales@notploy.com"
+									className="flex items-start gap-3 text-base text-muted-foreground transition-colors hover:text-foreground"
+								>
+									<Mail
+										className="mt-1 h-4 w-4 shrink-0 text-primary"
+										aria-hidden="true"
+									/>
+									<span>
+										<span className="block text-foreground">Sales</span>
+										sales@notploy.com
+									</span>
+								</a>
+								<a
+									href="https://discord.gg/notploy"
+									target="_blank"
+									rel="noreferrer"
+									className="flex items-start gap-3 text-base text-muted-foreground transition-colors hover:text-foreground"
+								>
+									<MessageSquare
+										className="mt-1 h-4 w-4 shrink-0 text-primary"
+										aria-hidden="true"
+									/>
+									<span>
+										<span className="block text-foreground">Community</span>
+										Join the Discord
+									</span>
+								</a>
+							</div>
+						</Reveal>
+
+						<Reveal className="rounded-2xl border border-border/50 bg-card p-6 sm:p-8">
+							{isSubmitted ? (
+								<div className="py-8 text-center">
+									<p className="text-lg text-muted-foreground">
+										We&apos;ve received your message.
+									</p>
+									<Button
+										className="mt-6 rounded-full"
+										variant="outline"
+										onClick={() => setIsSubmitted(false)}
+									>
+										Send another message
+									</Button>
+								</div>
+							) : (
+								<ContactForm onSuccess={() => setIsSubmitted(true)} />
+							)}
+						</Reveal>
 					</div>
 				</Container>
-			</div>
-		);
-	}
-
-	return (
-		<section aria-labelledby="contact-us" className="relative bg-background py-24 sm:py-32">
-			<AnimatedGridPattern
-				numSquares={30}
-				maxOpacity={0.1}
-				height={40}
-				width={40}
-				duration={3}
-				repeatDelay={1}
-				className={cn(
-					"[mask-image:radial-gradient(800px_circle_at_center,white,transparent)]",
-					"absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12",
-				)}
-			/>
-			<Container>
-				<div className="relative z-10 mx-auto max-w-3xl rounded-lg border border-border bg-background p-8">
-					<div className="text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Talk to us
-						</p>
-						<h2 id="contact-us" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Contact Us
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Get in touch with our team. We're here to help with any questions
-							about Notploy.
-						</p>
-					</div>
-
-					<div className="mt-16">
-						<ContactForm onSuccess={() => setIsSubmitted(true)} />
-					</div>
-				</div>
-			</Container>
-		</section>
+			</section>
+		</div>
 	);
 }

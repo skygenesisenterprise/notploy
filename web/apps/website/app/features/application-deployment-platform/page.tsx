@@ -1,3 +1,5 @@
+import { ChoicePanels, ProductFrame } from "@/components/pages/PagePrimitives";
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
 import { Container } from "@/components/Container";
 import { CallToAction } from "@/components/CallToAction";
 import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
@@ -211,338 +213,175 @@ const faqs = [
 
 export default function ApplicationDeploymentPlatformPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							The Ultimate Application Deployment Platform
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Deploy any type of application with our straightforward solution.
-							Benefit from multiple build types, Docker Compose support, and our
-							native Git integration.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									aria-label="Get Started with Notploy"
-									target="_blank"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button
-								className="rounded-full bg-primary hover:bg-primary/90"
-								asChild
-							>
-								<Link href="/contact" aria-label="Contact Us" className="text-foreground">
-									Contact Us
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Professional features for every developer */}
-			<section aria-labelledby="professional-features" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Flexible by design
-						</p>
-						<h2 id="professional-features" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Professional features for every developer
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Take advantage of flexible features that empower everyone, no
-							matter your build strategy or the size of your team.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{professionalFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* AI deployment */}
-			<section aria-labelledby="ai-built-apps" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							From prompt to production
-						</p>
-						<h2 id="ai-built-apps" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Deploy the apps your teams are already building with AI
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							AI coding tools are changing how applications get written. Notploy handles the deployment side, from AI-generated code to a live URL, powered by your existing workflows.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
-						{aiDeploymentFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-					<div className="mx-auto mt-16 max-w-2xl rounded-xl border border-border/50 bg-card p-6 text-center">
-						<h3 className="text-lg font-semibold">Need a governed environment for AI tools?</h3>
-						<p className="mt-3 text-muted-foreground">
-							See how Notploy handles sandboxed deploys, non-technical users, and enterprise security for AI-built apps.
-						</p>
-						<div className="mt-6">
-							<Button className="rounded-full" asChild>
-								<Link href="/enterprise">Deploy AI tools with Notploy</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Ship from GitHub, Bitbucket, and more */}
-			<section aria-labelledby="ship-from-any-provider" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-3xl text-center">
-						<div className="mb-6 flex justify-center">
-							<div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary">
-								<GitBranch className="h-7 w-7" />
-							</div>
-						</div>
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Connect your Git provider
-						</p>
-						<h2 id="ship-from-any-provider" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Ship from GitHub, Bitbucket, and more
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Connect your repo and deploy on push with webhooks. We support
-							GitHub, GitLab, Gitea, Bitbucket, Docker registry, and Git generic
-							provider. Control exactly what changes trigger a release, including
-							monorepos.
-						</p>
-					</div>
-				</Container>
-			</section>
-
-			{/* Automate deployments and test changes */}
-			<section aria-labelledby="automate-deployments" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Ship on autopilot
-						</p>
-						<h2 id="automate-deployments" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Automate deployments and test changes
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Keep application deployments hands-off, while still staying in
-							control of what ships and when.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-3">
-						{automationFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6 text-center"
-							>
-								<div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Host Notploy where your business needs it */}
-			<section aria-labelledby="host-where-needed" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							On-prem or cloud
-						</p>
-						<h2 id="host-where-needed" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Host Notploy where your business needs it
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Choose a deployment option that suits your business–on your
-							infrastructure or ours.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
-						{deploymentOptions.map((option) => (
-							<div
-								key={option.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<option.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{option.title}
-								</h3>
-								<ul className="mt-4 space-y-2">
-									{option.items.map((item) => (
-										<li
-											key={item}
-											className="flex items-center gap-2 text-sm text-muted-foreground"
-										>
-											<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-											{item}
-										</li>
-									))}
-								</ul>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Hundreds of templates */}
-			<section aria-labelledby="hundreds-of-templates" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-3xl text-center">
-						<div className="mb-6 flex justify-center">
-							<div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary">
-								<LayoutTemplate className="h-7 w-7" />
-							</div>
-						</div>
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Ready-to-run app library
-						</p>
-						<h2 id="hundreds-of-templates" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Hundreds of templates to get started
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Deploy popular open-source apps in one click with Notploy Templates,
-							a ready-to-run library of pre-configured apps you can deploy fast,
-							without rebuilding the same stack from scratch.
-						</p>
-					</div>
-				</Container>
-			</section>
-
-			{/* Dashboard screenshot */}
-			<section className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-6xl overflow-hidden rounded-xl border border-border/50 shadow-2xl">
-						<Image
-							src="/dashboard.png"
-							alt="Notploy dashboard showing projects and deployed services"
-							width={1200}
-							height={750}
-							className="w-full object-cover"
-							sizes="(max-width: 768px) 100vw, 1200px"
-							priority={false}
-						/>
-					</div>
-				</Container>
-			</section>
-
-			{/* Everything you need in a deployment platform */}
-			<section aria-labelledby="everything-you-need" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							The complete toolkit
-						</p>
-						<h2 id="everything-you-need" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Everything you need in a deployment platform
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy is the software deployment platform for shipping anything
-							from a single service to a full multi-container stack.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{platformFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Application deployment FAQs */}
-			<section aria-labelledby="application-deployment-faqs" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Common questions
-						</p>
-						<h2 id="application-deployment-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Application deployment FAQs
-						</h2>
-					</div>
-					<Accordion
-						type="single"
-						collapsible
-						className="mx-auto mt-12 w-full max-w-3xl"
+		<FeaturePageTemplate
+			badge="Capabilities"
+			badgeDetail="Deploy anything"
+			title="The ultimate"
+			highlight="deployment platform"
+			description="Deploy any type of application with a straightforward workflow. Benefit from multiple build strategies, Docker Compose support, and native Git integration — without giving up control of the infrastructure."
+			actions={
+				<>
+					<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+						<Link href="https://app.notploy.com/register" target="_blank">
+							Get Started
+						</Link>
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full rounded-full px-6 sm:w-auto"
+						asChild
 					>
-						{faqs.map((faq, index) => (
-							<AccordionItem value={`faq-${index}`} key={index}>
-								<AccordionTrigger className="text-left">
-									{faq.question}
-								</AccordionTrigger>
-								<AccordionContent>{faq.answer}</AccordionContent>
-							</AccordionItem>
-						))}
-					</Accordion>
+						<Link href="/contact">Contact Us</Link>
+					</Button>
+				</>
+			}
+			links={[
+				{ href: "/platform", label: "Platform overview" },
+				{ href: "/templates", label: "Templates" },
+				{ href: "/pricing", label: "Pricing" },
+			]}
+			sections={[
+				{
+					id: "professional-features",
+					title: "Professional features for every developer",
+					description:
+						"Take advantage of flexible features that empower everyone, no matter your build strategy or the size of your team.",
+					items: professionalFeatures,
+					columns: 3,
+				},
+				{
+					id: "ai-built-apps",
+					title: "Deploy the apps your teams are already building with AI",
+					description:
+						"AI coding tools are changing how applications get written. Notploy handles the deployment side, from AI-generated code to a live URL, powered by your existing workflows.",
+					items: aiDeploymentFeatures,
+					columns: 4,
+					callout: {
+						title: "Need a governed environment for AI tools?",
+						description:
+							"See how Notploy handles sandboxed deploys, non-technical users, and enterprise security for AI-built apps.",
+						cta: "Deploy AI tools with Notploy",
+						href: "/deploy-ai",
+					},
+				},
+				{
+					id: "automate-deployments",
+					title: "Automate deployments and test changes",
+					description:
+						"Keep application deployments hands-off, while still staying in control of what ships and when.",
+					items: automationFeatures,
+					columns: 3,
+					layout: "split",
+				},
+				{
+					id: "everything-you-need",
+					title: "Everything you need in a deployment platform",
+					description:
+						"Notploy is the software deployment platform for shipping anything from a single service to a full multi-container stack.",
+					items: platformFeatures,
+					columns: 3,
+				},
+			]}
+			faqs={{
+				id: "application-deployment-faqs",
+				title: "Application deployment FAQs",
+				description:
+					"The questions that come up before the first deployment.",
+				items: faqs,
+			}}
+			finalCta={{
+				title: "Ship your first application today",
+				description:
+					"Create an account and deploy from Git, a container registry or Docker Compose in minutes.",
+				cta: "Get Started",
+				href: "https://app.notploy.com/register",
+				external: true,
+			}}
+		>
+			<section className="py-20 sm:py-28">
+				<Container>
+					<div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-2">
+						<div className="rounded-2xl border border-border/50 bg-card p-8">
+							<GitBranch className="h-7 w-7 text-primary" strokeWidth={1.5} aria-hidden="true" />
+							<h2 className="mt-5 font-display text-2xl tracking-tight text-foreground">
+								Ship from GitHub, Bitbucket, and more
+							</h2>
+							<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+								Connect your repo and deploy on push with webhooks. We support
+								GitHub, GitLab, Gitea, Bitbucket, Docker registry, and Git
+								generic provider. Control exactly what changes trigger a
+								release, including monorepos.
+							</p>
+							<Button className="mt-6 rounded-full" variant="outline" asChild>
+								<Link href="/integrations">
+									See integrations
+								</Link>
+							</Button>
+						</div>
+						<div className="rounded-2xl border border-border/50 bg-card p-8">
+							<LayoutTemplate className="h-7 w-7 text-primary" strokeWidth={1.5} aria-hidden="true" />
+							<h2 className="mt-5 font-display text-2xl tracking-tight text-foreground">
+								Hundreds of templates to get started
+							</h2>
+							<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+								Deploy popular open-source apps in one click with Notploy
+								Templates, a ready-to-run library of pre-configured apps you
+								can deploy fast, without rebuilding the same stack from
+								scratch.
+							</p>
+							<Button className="mt-6 rounded-full" variant="outline" asChild>
+								<Link href="/templates">Browse templates</Link>
+							</Button>
+						</div>
+					</div>
 				</Container>
 			</section>
 
-			<CallToAction />
-		</div>
+			<Container className="pb-20 sm:pb-28">
+				<ProductFrame
+					src="/dashboard.png"
+					alt="Notploy dashboard showing projects and deployed services"
+					path="app.notploy.com/projects"
+					caption="Projects, services and deployment history in one control plane."
+				/>
+			</Container>
+
+			<ChoicePanels
+				id="host-where-needed"
+				title="Host Notploy where your business needs it"
+				description="Choose a deployment option that suits your business — on your infrastructure or ours."
+				panels={[
+					{
+						name: "Self-hosted",
+						tagline: "Full control",
+						description:
+							"Run the full platform on infrastructure you own and keep data, secrets and backups inside your boundary.",
+						bullets: [
+							"Complete data sovereignty",
+							"Maximum security control",
+							"Compliance with strict regulations",
+							"No external dependencies",
+						],
+						cta: "Explore Self",
+						href: "/self",
+					},
+					{
+						name: "Notploy Cloud",
+						tagline: "Managed for you",
+						description:
+							"The control plane is hosted, upgraded and supported by Notploy while your apps run on your servers.",
+						bullets: [
+							"Rapid scaling capabilities",
+							"Reduced infrastructure overhead",
+							"Global availability",
+							"Managed infrastructure",
+						],
+						cta: "Explore Cloud",
+						href: "/cloud",
+						highlighted: true,
+					},
+				]}
+			/>
+		</FeaturePageTemplate>
 	);
 }

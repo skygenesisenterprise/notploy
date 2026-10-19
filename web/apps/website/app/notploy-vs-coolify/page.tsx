@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/pages/PageHero";
 import { Container } from "@/components/Container";
 import { CallToAction } from "@/components/CallToAction";
 import { Testimonials } from "@/components/Testimonials";
@@ -102,60 +103,59 @@ export default function NotployVsCoolifyPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Notploy vs. Coolify
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							If you're looking for a self-hosted, open deployment solution that
-							lets you run applications on your own VPS or hardware, Notploy and
-							Coolify are the two leading options. But which should you choose?
-						</p>
-
-						<div className="mt-16 grid gap-8 sm:grid-cols-2">
-							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-foreground">Notploy</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									For a polished, intuitive, open deployment solution with
-									powerful automation, AI, monitoring and integration features –
-									designed for developers who want control without complexity –
-									choose Notploy.
-								</p>
-							</div>
-							<div className="rounded-xl border border-border/50 bg-card p-6 text-left">
-								<h3 className="text-xl font-semibold text-foreground">Coolify</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									For an open source deployment tool that's geared toward indie
-									devs and OSS hobbyists, with an accessible, less polished
-									approach that suits individuals over businesses, choose
-									Coolify.
-								</p>
-							</div>
-						</div>
-
-						<Button className="mt-10 rounded-full" asChild>
+			<PageHero
+				badge="Comparisons"
+				badgeDetail="Side-by-side"
+				title="Notploy vs."
+				highlight="Coolify"
+				description="If you're looking for a self-hosted, open deployment solution that lets you run applications on your own VPS or hardware, Notploy and Coolify are the two leading options. But which should you choose?"
+				actions={
+					<>
+						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
 							<Link
 								href="https://app.notploy.com/register"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								Register now
+								Start with Notploy
 							</Link>
 						</Button>
+						<Button
+							variant="outline"
+							className="w-full rounded-full px-6 sm:w-auto"
+							asChild
+						>
+							<Link href="/contact">Talk to sales</Link>
+						</Button>
+					</>
+				}
+				links={[
+					{ href: "/comparison", label: "All comparisons" },
+					{ href: "/pricing", label: "Pricing" },
+					{ href: "/self", label: "Notploy Self" },
+				]}
+			>
+				<div className="mx-auto grid max-w-3xl gap-3 text-left sm:grid-cols-2">
+					<div className="rounded-2xl border border-primary bg-primary p-6 text-primary-foreground">
+						<p className="text-sm font-medium text-primary-foreground/75">
+							Notploy
+						</p>
+						<p className="mt-3 text-base leading-relaxed">
+							A modern, open deployment platform you run on infrastructure
+							you own: Git-based deploys, databases, Compose, monitoring
+							and backups in one control plane.
+						</p>
 					</div>
-				</Container>
-			</section>
+					<div className="rounded-2xl border border-border/50 bg-card p-6">
+						<p className="text-sm font-medium text-muted-foreground">
+							Coolify
+						</p>
+						<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+							For an open source deployment tool geared toward indie devs and OSS hobbyists, with an accessible, less polished approach that suits individuals over businesses — choose Coolify.
+						</p>
+					</div>
+				</div>
+			</PageHero>
 
 			{/* Notploy vs Coolify at a glance */}
 			<section className="border-b border-border/30 py-20 sm:py-32">

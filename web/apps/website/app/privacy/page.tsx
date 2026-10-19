@@ -1,3 +1,4 @@
+import { LegalPage } from "@/components/pages/LegalPage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,10 +9,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
 	return (
-		<div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-12 sm:px-6 lg:px-8">
-			<h1 className="mb-6 text-center font-display text-4xl tracking-tight text-foreground sm:text-5xl">
-				 Notploy Privacy Policy
-			</h1>
+		<LegalPage badge="Privacy" title="Privacy Policy">
 
 			<section className="flex flex-col gap-4">
 				<h2 className="text-2xl font-semibold">Introduction</h2>
@@ -290,6 +288,6 @@ export default function PrivacyPage() {
 					</a>
 				</p>
 			</section>
-		</div>
+		</LegalPage>
 	);
 }

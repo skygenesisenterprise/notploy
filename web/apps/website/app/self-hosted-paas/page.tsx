@@ -1,11 +1,3 @@
-import { Container } from "@/components/Container";
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@/components/ui/accordion";
-import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
 import {
 	Wallet,
@@ -27,6 +19,9 @@ import {
 	Cpu,
 } from "lucide-react";
 import Link from "next/link";
+import { Container } from "@/components/Container";
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
+import { ChoicePanels } from "@/components/pages/PagePrimitives";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -242,352 +237,110 @@ const faqs = [
 	},
 ];
 
-const INSTALL_COMMAND = "curl -sSL https://raw.githubusercontent.com/skygenesisenterprise/notploy/main/install.sh | sh";
-
 export default function SelfHostedPaasPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
-				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							The Self-Hosted PaaS Built for Developers
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Notploy is a free, open source PaaS that enables developers to
-							deploy apps and databases on their own infrastructure. Full
-							control, no vendor lock-in, and none of the Kubernetes complexity.
-							Install it with a single command and start deploying in minutes.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									aria-label="Get Started with Notploy"
-									target="_blank"
-								>
-									Get Started
-								</Link>
-							</Button>
-							<Button
-								className="rounded-full bg-primary hover:bg-primary/90"
-								asChild
-							>
-								<Link href="/contact" aria-label="Contact Us" className="text-foreground">
-									Contact Us
-								</Link>
-							</Button>
-						</div>
-
-						{/* Install command */}
-						<div className="mx-auto mt-12 max-w-2xl">
-							<p className="mb-3 text-sm text-muted-foreground">
-								Deploy with one line of code
-							</p>
-							<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-4 py-3 text-left font-mono text-sm text-foreground">
-								<span className="select-none text-primary">$</span>
-								<code className="flex-1 overflow-x-auto whitespace-nowrap">
-									{INSTALL_COMMAND}
-								</code>
-							</div>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Full control over your platform */}
-			<section aria-labelledby="full-control-over-your-platform" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Own your infrastructure
-						</p>
-						<h2 id="full-control-over-your-platform" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Full control over your platform
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Self-hosting a PaaS solution means you decide where your
-							infrastructure lives, how resources are allocated, and who has
-							access—without paying for a managed service to make those
-							decisions for you.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{controlFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Self-Hosted Enterprise PaaS */}
-			<section aria-labelledby="self-hosted-enterprise-paas" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							For larger teams
-						</p>
-						<h2 id="self-hosted-enterprise-paas" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Self-Hosted Enterprise PaaS
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							For organizations that need more than the open source version,
-							Notploy Enterprise adds the security, compliance, and support
-							features that larger teams require, deployable on-premises or in
-							your own cloud, with no external dependencies.
-						</p>
-						<div className="mt-8">
-							<Button className="rounded-full" asChild>
-								<Link href="/enterprise">Learn more about Notploy Enterprise</Link>
-							</Button>
-						</div>
-					</div>
-					<div className="mx-auto mt-16 max-w-3xl">
-						<h3 className="text-center text-lg font-semibold text-foreground">
-							What you get with Notploy Enterprise
-						</h3>
-						<div className="mt-8 grid gap-6 sm:grid-cols-2">
-							{enterpriseFeatures.map((feature) => (
-								<div
-									key={feature.title}
-									className="rounded-xl border border-border/50 bg-card p-6"
-								>
-									<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-										<feature.icon className="h-5 w-5" />
-									</div>
-									<h4 className="text-lg font-semibold">
-										{feature.title}
-									</h4>
-									<p className="mt-3 text-sm text-muted-foreground">
-										{feature.description}
-									</p>
-								</div>
-							))}
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* How to get set up */}
-			<section aria-labelledby="how-to-get-set-up-with-self-hosted-notploy" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Four simple steps
-						</p>
-						<h2 id="how-to-get-set-up-with-self-hosted-notploy" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							How to get set up with self-hosted Notploy
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Getting a self-hosted PaaS running doesn&apos;t have to be an
-							infrastructure project. Notploy is designed for minimal overhead,
-							so you can go from a blank server to a running deployment platform
-							in under ten minutes.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{setupSteps.map((step) => (
-							<div
-								key={step.number}
-								className="relative rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="absolute right-6 top-6 font-display text-4xl font-bold text-primary/30">
-									{step.number}
-								</div>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<step.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{step.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{step.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Should you choose Cloud or Self-Hosted? */}
-			<section aria-labelledby="should-you-choose-cloud-or-self-hosted" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Two deployment options
-						</p>
-						<h2 id="should-you-choose-cloud-or-self-hosted" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Should you choose Cloud or Self-Hosted?
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Both are great options. Every key feature available in
-							Self-Hosted is also available in Cloud, and vice versa. The choice
-							comes down to how much you want to manage yourself.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Server className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Self-Hosted</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								Choose Self-Hosted if you want zero cost beyond your server
-								bills, full control over everything, or need to run Notploy in
-								an air-gapped or private network.
-							</p>
-							<ul className="mt-6 space-y-3 text-sm text-muted-foreground">
-								{selfHostedBullets.map((bullet) => (
-									<li key={bullet} className="flex gap-3">
-										<CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-										<span>{bullet}</span>
-									</li>
-								))}
-							</ul>
-						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Cloud className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">
-								Notploy Cloud
-							</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								Choose Cloud if you&apos;d rather not maintain the Notploy
-								instance itself. Your apps still run on your own servers —
-								Notploy manages the control plane for you.
-							</p>
-							<ul className="mt-6 space-y-3 text-sm text-muted-foreground">
-								{cloudBullets.map((bullet) => (
-									<li key={bullet} className="flex gap-3">
-										<CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-										<span>{bullet}</span>
-									</li>
-								))}
-							</ul>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* One product, two ways to run the control plane */}
-			<section aria-labelledby="one-product-two-ways-to-run-the-control-plane" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Identical deployment engine
-						</p>
-						<h2 id="one-product-two-ways-to-run-the-control-plane" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							One product, two ways to run the control plane
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy&apos;s deployment engine is identical in both options. The
-							only difference is where the control plane—the UI, PostgreSQL
-							database, and Redis instance—runs.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-4xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-6 text-center">
-							<div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Server className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Self-Hosted</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								Everything runs on your server. Full control, zero external
-								dependencies.
-							</p>
-						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-6 text-center">
-							<div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-								<Cloud className="h-5 w-5" />
-							</div>
-							<h3 className="text-lg font-semibold">Notploy Cloud</h3>
-							<p className="mt-3 text-sm text-muted-foreground">
-								Your apps keep running independently even if the Cloud control
-								plane is temporarily unavailable.
-							</p>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* CTA */}
-			<section aria-labelledby="your-own-paas-up-and-running-today" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Get started in minutes
-						</p>
-						<h2 id="your-own-paas-up-and-running-today" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Your own PaaS, up and running today
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Notploy is free to self-host and takes just a few commands to
-							install. Create your account, follow the setup guide, and
-							you&apos;ll have a fully functional open source PaaS running on
-							your own infrastructure in minutes.
-						</p>
-						<div className="mt-10">
-							<Button className="rounded-full" asChild>
-								<Link
-									href="https://app.notploy.com/register"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									Create your account
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* FAQs */}
-			<section aria-labelledby="self-hosted-paas-faqs" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Common questions
-						</p>
-						<h2 id="self-hosted-paas-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Self-hosted PaaS FAQs
-						</h2>
-					</div>
-					<Accordion
-						type="single"
-						collapsible
-						className="mx-auto mt-12 w-full max-w-3xl"
-					>
-						{faqs.map((faq, index) => (
-							<AccordionItem value={`faq-${index}`} key={faq.question}>
-								<AccordionTrigger className="text-left">
-									{faq.question}
-								</AccordionTrigger>
-								<AccordionContent>{faq.answer}</AccordionContent>
-							</AccordionItem>
-						))}
-					</Accordion>
-				</Container>
-			</section>
-		</div>
+		<FeaturePageTemplate
+			badge="Self-hosted PaaS"
+			badgeDetail="Free & open source"
+			title="Your own PaaS,"
+			highlight="on your own servers"
+			description="Install Notploy on any Linux server in minutes. Git-based deploys, databases and Docker, with full control and none of the Kubernetes complexity."
+			actions={
+				<>
+					<Button className="rounded-full" asChild>
+						<Link
+							href="https://app.notploy.com/register"
+							target="_blank"
+							rel="noreferrer"
+						>
+							Get started
+						</Link>
+					</Button>
+					<Button variant="outline" className="rounded-full" asChild>
+						<Link href="/contact">Contact us</Link>
+					</Button>
+				</>
+			}
+			links={[
+				{ href: "/self", label: "Notploy Self" },
+				{ href: "/cloud", label: "Notploy Cloud" },
+				{ href: "/comparison", label: "Compare editions" },
+			]}
+			sections={[
+				{
+					id: "full-control",
+					title: "Full control over your platform",
+					description:
+						"Self-hosting a PaaS means you decide where your infrastructure lives, how resources are allocated, and who has access.",
+					items: controlFeatures,
+					columns: 3,
+				},
+				{
+					id: "enterprise",
+					title: "Self-hosted for larger teams",
+					description:
+						"Notploy Enterprise adds the security, compliance and support features larger organisations require, on-premises or in your own cloud.",
+					items: enterpriseFeatures,
+					columns: 2,
+					callout: {
+						title: "Security and compliance, on your infrastructure",
+						description:
+							"SSO/SAML, audit logs, fine-grained RBAC and guaranteed response times.",
+						cta: "Learn about Notploy Enterprise",
+						href: "/enterprise",
+					},
+				},
+				{
+					id: "setup",
+					title: "From blank server to running platform",
+					description:
+						"Notploy is designed for minimal overhead. Docker is the only prerequisite, and the installer handles the rest.",
+					items: setupSteps,
+					columns: 2,
+				},
+			]}
+			faqs={{
+				id: "self-hosted-faqs",
+				title: "Self-hosted PaaS FAQs",
+				description: "What to know before you install.",
+				items: faqs,
+			}}
+			finalCta={{
+				title: "Your own PaaS, up and running today",
+				description:
+					"Notploy is free to self-host and takes just a few commands to install. Follow the setup guide and deploy on your own infrastructure in minutes.",
+				cta: "Create your account",
+				href: "https://app.notploy.com/register",
+				external: true,
+			}}
+		>
+			<ChoicePanels
+				id="cloud-or-self-hosted"
+				title="Cloud or self-hosted?"
+				description="Both run the same deployment engine. The choice comes down to how much you want to manage yourself."
+				panels={[
+					{
+						name: "Self-hosted",
+						tagline: "Free, on your servers",
+						description:
+							"Choose self-hosted for zero platform cost, full control, or air-gapped and private networks.",
+						bullets: selfHostedBullets,
+						cta: "Install Notploy",
+						href: "https://docs.notploy.com/docs/core",
+						external: true,
+					},
+					{
+						name: "Notploy Cloud",
+						tagline: "Managed control plane",
+						description:
+							"Choose Cloud if you would rather not maintain the Notploy instance itself. Your apps still run on your own servers.",
+						bullets: cloudBullets,
+						cta: "Explore Cloud",
+						href: "/cloud",
+						highlighted: true,
+					},
+				]}
+			/>
+		</FeaturePageTemplate>
 	);
 }

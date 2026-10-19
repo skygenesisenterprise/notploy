@@ -1,3 +1,5 @@
+import { ChoicePanels, ProductFrame } from "@/components/pages/PagePrimitives";
+import { FeaturePageTemplate } from "@/components/pages/FeaturePageTemplate";
 import { Container } from "@/components/Container";
 import AnimatedGridPattern from "@/components/ui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
@@ -146,310 +148,146 @@ const faqs = [
 
 export default function ContainerServerMonitoringPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			{/* Hero Section */}
-			<section className="relative overflow-hidden border-b border-border/30 bg-background py-20 sm:py-32">
-				<AnimatedGridPattern
-					numSquares={30}
-					maxOpacity={0.1}
-					height={40}
-					width={40}
-					duration={3}
-					repeatDelay={1}
-					className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] absolute inset-x-0 inset-y-[-30%] h-[200%] skew-y-12"
+		<FeaturePageTemplate
+			badge="Capabilities"
+			badgeDetail="Observability"
+			title="Real-time monitoring"
+			highlight="and alerts"
+			description="Monitor your server, CPU, memory, and network usage in real time across all your deployments — with the dashboard and alerts already built into the platform."
+			actions={
+				<>
+					<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
+						<Link href="/contact">Contact sales</Link>
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full rounded-full px-6 sm:w-auto"
+						asChild
+					>
+						<Link href="https://docs.notploy.com/docs/core" target="_blank">
+							View documentation
+						</Link>
+					</Button>
+				</>
+			}
+			links={[
+				{ href: "/platform", label: "Platform overview" },
+				{ href: "/features/application-management-software", label: "Application management" },
+				{ href: "/pricing", label: "Pricing" },
+			]}
+			sections={[
+				{
+					id: "continuous-operation",
+					title: "Ensure continuous operation with monitoring",
+					description:
+						"Prevent disruption by setting up a monitoring dashboard and custom alerts.",
+					items: monitoringFeatures,
+					columns: 2,
+					layout: "split",
+				},
+				{
+					id: "configure-alerts",
+					title: "Configure alerts so you never miss an issue",
+					description:
+						"Set thresholds, receive notifications where you work, and stay in control of your infrastructure at all times.",
+					items: alertFeatures,
+					columns: 3,
+				},
+				{
+					id: "configuration-options",
+					title: "Multiple configuration options",
+					description:
+						"Set up your Notploy dashboard to suit your needs with different configuration options.",
+					items: configFeatures,
+					columns: 2,
+					layout: "split",
+				},
+			]}
+			related={{
+				id: "monitoring-tool",
+				title: "Container and server monitoring tool",
+				description:
+					"Take advantage of Notploy's comprehensive container and server monitoring software alongside the rest of the platform.",
+				items: relatedFeatures,
+				columns: 3,
+			}}
+			faqs={{
+				id: "monitoring-faqs",
+				title: "Container and server monitoring FAQs",
+				description: "The questions teams ask before switching on alerts.",
+				items: faqs,
+			}}
+			finalCta={{
+				title: "Ready to keep your systems running?",
+				description:
+					"Get real-time visibility into your servers and containers with Notploy's built-in monitoring.",
+				cta: "Contact sales",
+				href: "/contact",
+			}}
+		>
+			<Container className="py-20 sm:py-28">
+				<div className="mx-auto max-w-3xl rounded-2xl border border-border/50 bg-card p-8 text-center">
+					<h2 className="font-display text-2xl tracking-tight text-foreground">
+						Monitoring is already on
+					</h2>
+					<p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
+						Use Notploy's container monitoring dashboard as soon as you have
+						completed the server deployment setup.
+					</p>
+					<p className="mt-6 rounded-xl bg-secondary px-4 py-3 text-sm text-muted-foreground">
+						Remote servers → Select your server → Setup Server
+					</p>
+					<p className="mt-3 text-sm text-muted-foreground">
+						If all your checkmarks are green, you're good to go.
+					</p>
+				</div>
+			</Container>
+
+			<Container className="pb-20 sm:pb-28">
+				<ProductFrame
+					src="/primary/monitoring.png"
+					alt="Notploy monitoring dashboard with CPU, memory and network metrics"
+					path="app.notploy.com/monitoring"
+					caption="Metrics update as you watch them — no separate monitoring stack to install."
 				/>
-				<Container className="relative z-10">
-					<div className="mx-auto max-w-4xl text-center">
-						<h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-							Real-Time Container Monitoring and Alerts
-						</h1>
-						<p className="mt-6 text-lg text-muted-foreground">
-							Monitor your server, CPU, memory, and network usage in real-time
-							across all your deployments for full visibility.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link href="/contact">Contact sales</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link
-									href="https://docs.notploy.com/docs/core"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									View documentation
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
+			</Container>
 
-			{/* Ensure continuous operation */}
-			<section aria-labelledby="continuous-operation" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Prevent downtime early
-						</p>
-						<h2 id="continuous-operation" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Ensure continuous operation with monitoring
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Prevent disruption by setting up a monitoring dashboard and custom
-							alerts.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{monitoringFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Configure alerts */}
-			<section aria-labelledby="configure-alerts" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Get notified in time
-						</p>
-						<h2 id="configure-alerts" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Configure alerts so you never miss an issue
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Set thresholds, receive notifications where you work, and stay in
-							control of your infrastructure at all times.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-3">
-						{alertFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">
-									{feature.title}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* No setup required */}
-			<section aria-labelledby="no-setup-required" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Monitoring out of the box
-						</p>
-						<h2 id="no-setup-required" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Access server monitoring with no setup required
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Use Notploy&apos;s container monitoring dashboard as soon as
-							you&apos;ve completed the server deployment setup.
-						</p>
-					</div>
-					<div className="mx-auto mt-12 max-w-xl rounded-xl border border-border/50 bg-card p-6 text-center">
-						<p className="font-mono text-sm text-muted-foreground">
-							Remote servers → Select your server → Setup Server
-						</p>
-						<p className="mt-4 text-sm text-muted-foreground">
-							If all your checkmarks are green, you&apos;re good to go!
-						</p>
-					</div>
-				</Container>
-			</section>
-
-			{/* Deployment options */}
-			<section aria-labelledby="host-where-needed" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							On-prem or cloud
-						</p>
-						<h2 id="host-where-needed" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Host Notploy where your business needs it
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Choose a deployment option that suits your business&mdash;on your
-							infrastructure or ours.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-3xl gap-8 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<h3 className="text-lg font-semibold">
-								On-Premise Deployment
-							</h3>
-							<ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-								<li>Complete data sovereignty</li>
-								<li>Maximum security control</li>
-								<li>Compliance with strict regulations</li>
-								<li>No external dependencies</li>
-							</ul>
-						</div>
-						<div className="rounded-xl border border-border/50 bg-card p-6">
-							<h3 className="text-lg font-semibold">
-								Cloud Deployment
-							</h3>
-							<ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-								<li>Rapid scaling capabilities</li>
-								<li>Reduced infrastructure overhead</li>
-								<li>Global availability</li>
-								<li>Managed infrastructure</li>
-							</ul>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Configuration options */}
-			<section aria-labelledby="configuration-options" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Tune it your way
-						</p>
-						<h2 id="configuration-options" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Multiple configuration options
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Set up your Notploy dashboard to suit your needs with different
-							configuration options.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2">
-						{configFeatures.map((feature) => (
-							<div
-								key={feature.title}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* FAQs */}
-			<section aria-labelledby="monitoring-faqs" className="border-b border-border/30 bg-background py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Common monitoring questions
-						</p>
-						<h2 id="monitoring-faqs" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Container and server monitoring FAQs
-						</h2>
-					</div>
-					<div className="mx-auto mt-16 max-w-3xl space-y-8">
-						{faqs.map((faq) => (
-							<div
-								key={faq.question}
-								className="rounded-xl border border-border/50 bg-card p-6"
-							>
-								<h3 className="text-lg font-semibold">
-									{faq.question}
-								</h3>
-								<p className="mt-3 text-sm text-muted-foreground">{faq.answer}</p>
-							</div>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* Related Features */}
-			<section aria-labelledby="monitoring-tool" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Part of one platform
-						</p>
-						<h2 id="monitoring-tool" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Container and Server monitoring tool
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Take advantage of Notploy&apos;s comprehensive container and server
-							monitoring software alongside the rest of the platform.
-						</p>
-					</div>
-					<div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-3">
-						{relatedFeatures.map((feature) => (
-							<Link
-								key={feature.title}
-								href={feature.href}
-								className="rounded-xl border border-border/50 bg-card p-6 transition hover:border-border"
-							>
-								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/20 text-primary">
-									<feature.icon className="h-5 w-5" />
-								</div>
-								<h3 className="text-lg font-semibold">{feature.title}</h3>
-								<p className="mt-3 text-sm text-muted-foreground">
-									{feature.description}
-								</p>
-							</Link>
-						))}
-					</div>
-				</Container>
-			</section>
-
-			{/* CTA */}
-			<section aria-labelledby="keep-systems-running" className="border-b border-border/30 py-20 sm:py-32">
-				<Container>
-					<div className="mx-auto max-w-2xl text-center">
-						<p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-							Start monitoring today
-						</p>
-						<h2 id="keep-systems-running" className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
-							Ready to keep your systems running?
-						</h2>
-						<p className="mt-4 text-lg tracking-tight text-muted-foreground">
-							Get real-time visibility into your servers and containers with
-							Notploy&apos;s built-in monitoring.
-						</p>
-						<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-							<Button className="rounded-full" asChild>
-								<Link href="/contact">Contact sales</Link>
-							</Button>
-							<Button variant="outline" className="rounded-full" asChild>
-								<Link
-									href="https://docs.notploy.com/docs/core"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									View documentation
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
-		</div>
+			<ChoicePanels
+				id="host-where-needed"
+				title="Host Notploy where your business needs it"
+				description="Choose a deployment option that suits your business — on your infrastructure or ours."
+				panels={[
+					{
+						name: "On-Premise Deployment",
+						tagline: "Your infrastructure",
+						description:
+							"Keep monitoring data and application telemetry inside your own network.",
+						bullets: [
+							"Complete data sovereignty",
+							"Maximum security control",
+							"Compliance with strict regulations",
+							"No external dependencies",
+						],
+						cta: "Explore Self",
+						href: "/self",
+					},
+					{
+						name: "Cloud Deployment",
+						tagline: "Managed control plane",
+						description:
+							"Let Notploy operate the dashboard while your workloads run on your servers.",
+						bullets: [
+							"Rapid scaling capabilities",
+							"Reduced infrastructure overhead",
+							"Global availability",
+							"Managed infrastructure",
+						],
+						cta: "Explore Cloud",
+						href: "/cloud",
+						highlighted: true,
+					},
+				]}
+			/>
+		</FeaturePageTemplate>
 	);
 }
