@@ -7,15 +7,16 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 export default defineConfig({
   plugins: [react(), tailwindcss(),
     viteStaticCopy({
-			targets: [
-				{
-					src: '../blueprints/*',
-					dest: 'blueprints' // raíz de dist (public root)
-				}
-				// meta.json is no longer copied from the repo root: it is
-				// generated into app/public/meta.json by build-scripts/generate-meta.js
-			]
-		})
+      targets: [
+        {
+          // Resolve from this config file, independent of the build process cwd.
+          src: path.resolve(__dirname, '../blueprints/*'),
+          dest: 'blueprints' // raíz de dist (public root)
+        }
+        // meta.json is no longer copied from the repo root: it is
+        // generated into app/public/meta.json by build-scripts/generate-meta.js
+      ]
+    })
 
   ],
   resolve: {
