@@ -5,8 +5,8 @@
  *
  * The templates app is published as a static site: `dist/meta.json` is the
  * catalogue and `dist/blueprints/<id>/` holds the files each template card and
- * dialog reads. A missing logo or blueprint directory is invisible at build
- * time (Vite happily copies whatever exists), so fail the build instead.
+ * detail page reads. A missing logo or blueprint directory is invisible at
+ * build time (Vite happily copies whatever exists), so fail the build instead.
  *
  * Usage:
  *   node build-scripts/verify-dist.js [--dist <dir>]

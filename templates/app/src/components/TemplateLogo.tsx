@@ -21,11 +21,11 @@ export function TemplateLogo({ template, className }: TemplateLogoProps) {
       <div
         aria-hidden="true"
         className={cn(
-          "flex items-center justify-center rounded-md bg-muted text-muted-foreground",
+          "flex items-center justify-center rounded-md bg-muted/60 text-muted-foreground",
           className
         )}
       >
-        <LayoutGrid className="h-6 w-6" />
+        <LayoutGrid className="size-5" />
       </div>
     );
   }

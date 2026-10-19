@@ -48,7 +48,7 @@ const renderInline = (text: string): React.ReactNode[] => {
             href={safeHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 underline underline-offset-2"
+            className="text-primary underline underline-offset-2 transition-colors hover:text-primary/80"
           >
             {link[1]}
           </a>
@@ -66,9 +66,9 @@ const renderInline = (text: string): React.ReactNode[] => {
 };
 
 const HEADING_CLASSES: Record<number, string> = {
-  1: "text-2xl font-bold mt-2",
-  2: "text-xl font-semibold mt-6 border-b pb-1",
-  3: "text-lg font-semibold mt-4",
+  1: "font-display text-2xl font-semibold tracking-tight mt-2",
+  2: "font-display text-xl font-semibold tracking-tight mt-6 border-b border-border pb-1",
+  3: "font-display text-lg font-semibold tracking-tight mt-4",
   4: "text-base font-semibold mt-3",
 };
 
@@ -103,7 +103,7 @@ const Markdown: React.FC<MarkdownProps> = ({ content }) => {
       blocks.push(
         <pre
           key={key++}
-          className="bg-muted rounded-md p-4 overflow-x-auto text-sm font-mono whitespace-pre"
+          className="bg-muted/60 border border-border rounded-lg p-4 overflow-x-auto text-sm font-mono whitespace-pre"
         >
           <code>{code.join("\n")}</code>
         </pre>
@@ -133,7 +133,7 @@ const Markdown: React.FC<MarkdownProps> = ({ content }) => {
         i++;
       }
       blocks.push(
-        <ul key={key++} className="list-disc pl-6 space-y-1">
+        <ul key={key++} className="list-disc pl-6 space-y-1 text-muted-foreground">
           {items.map((item) => (
             <li key={item}>{renderInline(item)}</li>
           ))}
@@ -150,7 +150,7 @@ const Markdown: React.FC<MarkdownProps> = ({ content }) => {
         i++;
       }
       blocks.push(
-        <ol key={key++} className="list-decimal pl-6 space-y-1">
+        <ol key={key++} className="list-decimal pl-6 space-y-1 text-muted-foreground">
           {items.map((item) => (
             <li key={item}>{renderInline(item)}</li>
           ))}
@@ -174,7 +174,7 @@ const Markdown: React.FC<MarkdownProps> = ({ content }) => {
       i++;
     }
     blocks.push(
-      <p key={key++} className="leading-relaxed">
+      <p key={key++} className="leading-relaxed text-muted-foreground">
         {renderInline(paragraph.join(" "))}
       </p>
     );

@@ -1,16 +1,45 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link
+      rel="preload"
+      href="/fonts/inter-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/lexend-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <script>
+      // Apply the saved theme before first paint so the dark-first palette
+      // does not flash when the visitor picked the light theme.
+      try {
+        var theme = localStorage.getItem("vite-ui-theme") || "dark";
+        var dark =
+          theme === "dark" ||
+          (theme === "system" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+        document.documentElement.classList.toggle("light", !dark);
+      } catch (error) {
+        // Storage can be unavailable in private browsing; keep the dark default.
+      }
+    </script>
     <title>Notploy Templates — Open Source Deployment Blueprints</title>
     <meta
       name="description"
       content="Browse Notploy's open source templates and deploy Docker Compose applications on your own infrastructure with one click."
     />
     <link rel="canonical" href="https://templates.notploy.com/" />
-    <meta name="theme-color" content="#09090b" />
+    <meta name="theme-color" content="#1f1f1f" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Notploy Templates" />

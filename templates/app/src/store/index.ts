@@ -10,6 +10,7 @@ interface TemplateStore {
   selectedTags: string[];
   addSelectedTag: (tag: string) => void;
   removeSelectedTag: (tag: string) => void;
+  setSelectedTags: (tags: string[]) => void;
   clearFilters: () => void;
   view: "grid" | "rows";
   setView: (view: "grid" | "rows") => void;
@@ -33,6 +34,8 @@ export const useStore = create<TemplateStore>()(
         set((state) => ({
           selectedTags: state.selectedTags.filter((t) => t !== tag),
         })),
+      setSelectedTags: (tags) =>
+        set({ selectedTags: [...new Set(tags.filter(Boolean))] }),
       clearFilters: () => set({ searchQuery: "", selectedTags: [] }),
       view: "grid",
       setView: (view) => set({ view }),

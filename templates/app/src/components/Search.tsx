@@ -13,6 +13,7 @@ import {
   CommandList,
 } from "./ui/command";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { Container } from "./Container";
 import SelectedTags from "./SelectedTags";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store";
@@ -23,12 +24,13 @@ interface SearchProps {
   tags: string[];
 }
 
+const SPLIT_TAG = ",";
+
 const Search = ({ resultCount, totalCount, tags }: SearchProps) => {
   const searchQuery = useStore((state) => state.searchQuery);
   const setSearchQuery = useStore((state) => state.setSearchQuery);
   const selectedTags = useStore((state) => state.selectedTags);
-  const addSelectedTag = useStore((state) => state.addSelectedTag);
-  const removeSelectedTag = useStore((state) => state.removeSelectedTag);
+  const setSelectedTags = useStore((state) => state.setSelectedTags);
   const clearFilters = useStore((state) => state.clearFilters);
   const view = useStore((state) => state.view);
   const setView = useStore((state) => state.setView);
@@ -37,11 +39,39 @@ const Search = ({ resultCount, totalCount, tags }: SearchProps) => {
   const [tagSearch, setTagSearch] = React.useState("");
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Keep the input in sync when the URL changes (back/forward, direct link).
-  const urlQuery = searchParams.get("q") ?? "";
+  const applyFilters = React.useCallback(
+    (query: string, nextTags: string[]) => {
+      setSearchParams(
+        (previous) => {
+          const next = new URLSearchParams(previous);
+          if (query) next.set("q", query);
+          else next.delete("q");
+          if (nextTags.length > 0) next.set("tags", nextTags.join(SPLIT_TAG));
+          else next.delete("tags");
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
+
+  // Keep search and tags in sync with the URL so filtered catalogues can be
+  // linked and survive a reload (the website uses `?search=` / `?tag=`).
   React.useEffect(() => {
-    if (urlQuery !== searchQuery) setSearchQuery(urlQuery);
-  }, [urlQuery, searchQuery, setSearchQuery]);
+    const state = useStore.getState();
+    const urlQuery = searchParams.get("q") ?? "";
+    const urlTags = (searchParams.get("tags") ?? "")
+      .split(SPLIT_TAG)
+      .filter(Boolean);
+
+    if (urlQuery !== state.searchQuery) state.setSearchQuery(urlQuery);
+
+    const sameTags =
+      urlTags.length === state.selectedTags.length &&
+      urlTags.every((tag, index) => tag === state.selectedTags[index]);
+    if (!sameTags) state.setSelectedTags(urlTags);
+  }, [searchParams]);
 
   const filteredTags = React.useMemo(() => {
     const term = tagSearch.trim().toLowerCase();
@@ -49,40 +79,36 @@ const Search = ({ resultCount, totalCount, tags }: SearchProps) => {
     return tags.filter((tag) => tag.toLowerCase().includes(term));
   }, [tags, tagSearch]);
 
-  const writeQueryToUrl = (value: string) => {
-    setSearchParams(
-      (previous) => {
-        const next = new URLSearchParams(previous);
-        if (value) next.set("q", value);
-        else next.delete("q");
-        return next;
-      },
-      { replace: true }
-    );
-  };
-
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearchQuery(value);
-    writeQueryToUrl(value);
+    applyFilters(value, selectedTags);
   };
 
   const handleClearSearch = () => {
     setSearchQuery("");
-    writeQueryToUrl("");
+    applyFilters("", selectedTags);
+  };
+
+  const handleToggleTag = (tag: string) => {
+    const nextTags = selectedTags.includes(tag)
+      ? selectedTags.filter((selected) => selected !== tag)
+      : [...selectedTags, tag];
+    setSelectedTags(nextTags);
+    applyFilters(searchQuery, nextTags);
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    applyFilters(
+      searchQuery,
+      selectedTags.filter((selected) => selected !== tag)
+    );
   };
 
   const handleClearFilters = () => {
     clearFilters();
     setTagSearch("");
-    setSearchParams(
-      (previous) => {
-        const next = new URLSearchParams(previous);
-        next.delete("q");
-        return next;
-      },
-      { replace: true }
-    );
+    applyFilters("", []);
   };
 
   const hasFilters = searchQuery.length > 0 || selectedTags.length > 0;
@@ -93,70 +119,41 @@ const Search = ({ resultCount, totalCount, tags }: SearchProps) => {
 
   return (
     <section
+      id="catalogue"
       aria-label="Search and filter templates"
-      className="mx-auto w-full border-b p-4 lg:p-12"
+      className="scroll-mt-24 border-b border-border/50"
     >
-      <div className="mx-auto flex max-w-xl flex-col gap-2">
-        <div className="relative w-full">
-          <label htmlFor="template-search" className="sr-only">
-            Search templates
-          </label>
-          <div className="mb-2 flex flex-row items-center gap-2">
-            <p className="text-sm font-bold" aria-live="polite">
-              {countLabel}
-            </p>
-          </div>
-
-          <div className="relative">
+      <Container className="py-6">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative w-full lg:max-w-md">
+            <label htmlFor="template-search" className="sr-only">
+              Search templates
+            </label>
+            <SearchIcon
+              aria-hidden="true"
+              className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            />
             <Input
               id="template-search"
               type="search"
               placeholder="Search templates..."
               value={searchQuery}
               onChange={handleSearchChange}
-              className="w-full pr-10 [&::-webkit-search-cancel-button]:hidden"
+              className="h-11 rounded-lg border-border/70 bg-card/60 pr-10 pl-10 text-sm shadow-none [&::-webkit-search-cancel-button]:hidden"
             />
-            {searchQuery.length > 0 ? (
+            {searchQuery.length > 0 && (
               <button
                 type="button"
                 onClick={handleClearSearch}
                 aria-label="Clear search"
-                className="absolute end-2 top-1/2 -translate-y-1/2 rounded-sm p-1 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                className="absolute end-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               >
-                <XIcon className="h-4 w-4" />
+                <XIcon className="size-4" />
               </button>
-            ) : (
-              <SearchIcon
-                aria-hidden="true"
-                className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground lg:size-5"
-              />
             )}
           </div>
-        </div>
 
-        <div className="flex flex-row justify-between gap-2">
-          <Tabs
-            value={view}
-            onValueChange={(value) => {
-              setView(value as "grid" | "rows");
-            }}
-          >
-            <TabsList>
-              <TabsTrigger value="grid" className="cursor-pointer">
-                <Grid aria-hidden="true" /> <span className="p-1 text-xs">Grid</span>
-              </TabsTrigger>
-              <TabsTrigger value="rows" className="cursor-pointer">
-                <List aria-hidden="true" /> <span className="p-1 text-xs">List</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <div className="flex items-center gap-2">
-            {hasFilters && (
-              <Button variant="ghost" size="sm" onClick={handleClearFilters}>
-                Clear
-              </Button>
-            )}
+          <div className="flex flex-wrap items-center gap-2">
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -164,21 +161,21 @@ const Search = ({ resultCount, totalCount, tags }: SearchProps) => {
                   role="combobox"
                   aria-expanded={open}
                   aria-label="Filter by tag"
-                  className="justify-between"
+                  className="h-11 justify-between gap-2 rounded-lg border-border/70 bg-card/60 px-3.5 shadow-none"
                 >
                   Tags
                   {selectedTags.length > 0 && (
-                    <span className="rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+                    <span className="rounded-full bg-primary px-1.5 py-0.5 text-[0.65rem] font-semibold text-primary-foreground">
                       {selectedTags.length}
                     </span>
                   )}
                   <ChevronsUpDown
                     aria-hidden="true"
-                    className="ml-2 h-4 w-4 shrink-0 opacity-50"
+                    className="size-4 shrink-0 opacity-50"
                   />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-56 p-0">
+              <PopoverContent align="end" className="w-64 p-0">
                 <Command shouldFilter={false}>
                   <CommandInput
                     placeholder="Search tags..."
@@ -192,18 +189,12 @@ const Search = ({ resultCount, totalCount, tags }: SearchProps) => {
                         <CommandItem
                           key={tag}
                           value={tag}
-                          onSelect={(value) => {
-                            if (selectedTags.includes(value)) {
-                              removeSelectedTag(value);
-                            } else {
-                              addSelectedTag(value);
-                            }
-                          }}
+                          onSelect={() => handleToggleTag(tag)}
                         >
                           <Check
                             aria-hidden="true"
                             className={cn(
-                              "mr-2 h-4 w-4",
+                              "mr-2 size-4",
                               selectedTags.includes(tag)
                                 ? "opacity-100"
                                 : "opacity-0"
@@ -217,10 +208,50 @@ const Search = ({ resultCount, totalCount, tags }: SearchProps) => {
                 </Command>
               </PopoverContent>
             </Popover>
+
+            <Tabs
+              value={view}
+              onValueChange={(value) => {
+                setView(value as "grid" | "rows");
+              }}
+            >
+              <TabsList className="h-11 rounded-lg border border-border/70 bg-card/60 p-1">
+                <TabsTrigger
+                  value="grid"
+                  aria-label="Grid view"
+                  className="px-3"
+                >
+                  <Grid aria-hidden="true" className="size-4" />
+                </TabsTrigger>
+                <TabsTrigger
+                  value="rows"
+                  aria-label="List view"
+                  className="px-3"
+                >
+                  <List aria-hidden="true" className="size-4" />
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {hasFilters && (
+              <Button
+                variant="ghost"
+                onClick={handleClearFilters}
+                className="h-11 rounded-lg px-3.5 text-muted-foreground"
+              >
+                Reset
+              </Button>
+            )}
           </div>
         </div>
-        {selectedTags.length > 0 && <SelectedTags />}
-      </div>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {countLabel}
+          </p>
+          <SelectedTags onRemove={handleRemoveTag} />
+        </div>
+      </Container>
     </section>
   );
 };

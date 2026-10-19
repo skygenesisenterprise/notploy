@@ -124,6 +124,7 @@ function dockerComposeComplete(
 interface Props extends ReactCodeMirrorProps {
   wrapperClassName?: string;
   disabled?: boolean;
+  readOnly?: boolean;
   language?: "yaml" | "json" | "properties" | "shell" | "toml";
   lineWrapping?: boolean;
   lineNumbers?: boolean;
@@ -134,9 +135,15 @@ export const CodeEditor = ({
   wrapperClassName,
   language = "yaml",
   lineNumbers = true,
+  readOnly = false,
   ...props
 }: Props) => {
   const { theme } = useTheme();
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      typeof document !== "undefined" &&
+      document.documentElement.classList.contains("dark"));
   return (
     <div className={cn("relative overflow-auto", wrapperClassName)}>
       <CodeMirror
@@ -147,7 +154,7 @@ export const CodeEditor = ({
           highlightActiveLine: !props.disabled,
           allowMultipleSelections: true,
         }}
-        theme={theme === "dark" ? githubDark : githubLight}
+        theme={isDark ? githubDark : githubLight}
         extensions={[
           language === "yaml"
             ? yaml()
@@ -164,10 +171,10 @@ export const CodeEditor = ({
             : [],
         ]}
         {...props}
-        editable={!props.disabled}
+        editable={!props.disabled && !readOnly}
         className={cn(
           "w-full h-full text-sm leading-relaxed",
-          `cm-theme-${theme}`,
+          `cm-theme-${isDark ? "dark" : "light"}`,
           className
         )}
       />

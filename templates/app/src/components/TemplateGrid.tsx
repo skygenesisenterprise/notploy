@@ -1,16 +1,9 @@
 import type * as React from "react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
-import { Badge } from "./ui/badge";
+import { SearchX } from "lucide-react";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
-import { TemplateLogo } from "./TemplateLogo";
+import { Container } from "./Container";
+import { TemplateCard } from "./TemplateCard";
 import { cn } from "@/lib/utils";
 import type { Template } from "@/lib/templates";
 import type { TemplatesStatus } from "@/hooks/use-templates";
@@ -28,7 +21,7 @@ interface TemplateGridProps {
 
 const gridClasses = (view: "grid" | "rows") =>
   cn("grid gap-4", {
-    "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4": view === "grid",
+    "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3": view === "grid",
     "grid-cols-1": view === "rows",
   });
 
@@ -42,130 +35,79 @@ const TemplateGrid: React.FC<TemplateGridProps> = ({
   onRetry,
   onClearFilters,
 }) => {
-  const location = useLocation();
-
   if (status === "loading") {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <Container className="py-10 sm:py-12">
         <div className={gridClasses(view)}>
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-            <Skeleton
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
+            <div
               key={item}
-              className={cn({
-                "h-[300px]": view === "grid",
-                "h-[135px]": view === "rows",
-              })}
-            />
+              className="flex flex-col gap-4 rounded-xl border border-border/50 bg-card/50 p-6"
+            >
+              <div className="flex items-center gap-3">
+                <Skeleton className="size-11 rounded-lg" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-3 w-1/4" />
+                </div>
+              </div>
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-4/5" />
+              <div className="mt-2 flex gap-2">
+                <Skeleton className="h-5 w-16 rounded-full" />
+                <Skeleton className="h-5 w-20 rounded-full" />
+              </div>
+            </div>
           ))}
         </div>
-      </div>
+      </Container>
     );
   }
 
   if (status === "error") {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-12 text-center sm:px-6 lg:px-8">
-        <h2 className="text-2xl font-bold">Templates could not be loaded</h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
-          {error ?? "An unexpected error occurred while loading the catalogue."}
-        </p>
-        <Button className="mt-6" onClick={onRetry}>
-          Try again
-        </Button>
-      </div>
+      <Container className="py-20">
+        <div className="mx-auto max-w-xl rounded-xl border border-border/50 bg-card p-8 text-center">
+          <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
+            Catalogue unavailable
+          </p>
+          <h2 className="mt-3 font-display text-2xl font-semibold">
+            Templates could not be loaded
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            {error ??
+              "An unexpected error occurred while loading the catalogue."}
+          </p>
+          <Button className="mt-6" onClick={onRetry}>
+            Try again
+          </Button>
+        </div>
+      </Container>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <Container className="py-10 sm:py-12">
       {templates.length > 0 ? (
         <div className={gridClasses(view)}>
           {templates.map((template) => (
-            <Link
-              key={template.id}
-              to={{
-                pathname: `/templates/${encodeURIComponent(template.id)}`,
-                search: location.search,
-              }}
-              className="group block h-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              <Card
-                className={cn(
-                  "h-full max-h-[300px] transition-all duration-200 group-hover:shadow-lg",
-                  {
-                    "flex-col": view === "grid",
-                    "flex-row gap-0": view === "rows",
-                  }
-                )}
-              >
-                <CardHeader
-                  className={cn("flex gap-2", {
-                    "flex-row": view === "grid",
-                    "ms-4 flex-col items-center justify-center": view === "rows",
-                  })}
-                >
-                  <TemplateLogo
-                    template={template}
-                    className={cn("mb-2 h-12 w-auto", {
-                      "h-12 w-auto": view === "grid",
-                      "h-auto w-12": view === "rows",
-                    })}
-                  />
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <CardTitle className="text-xl">{template.name}</CardTitle>
-                  <p className="line-clamp-2 text-sm text-muted-foreground">
-                    {template.description}
-                  </p>
-                  {template.tags.length > 0 && (
-                    <div className="mt-2 flex w-fit flex-wrap gap-1">
-                      {template.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="secondary">
-                          {tag}
-                        </Badge>
-                      ))}
-                      {template.tags.length > 3 && (
-                        <Badge variant="outline">
-                          +{template.tags.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    {template.version || "latest"}
-                  </span>
-                  <svg
-                    aria-hidden="true"
-                    focusable="false"
-                    className="h-4 w-4 text-muted-foreground"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </CardFooter>
-              </Card>
-            </Link>
+            <TemplateCard key={template.id} template={template} view={view} />
           ))}
         </div>
       ) : (
-        <div className="py-12 text-center">
-          <h2 className="text-xl font-semibold">
+        <div className="mx-auto max-w-xl rounded-xl border border-dashed border-border/70 bg-card/40 px-6 py-16 text-center">
+          <SearchX
+            aria-hidden="true"
+            className="mx-auto size-7 text-muted-foreground"
+          />
+          <h2 className="mt-4 font-display text-xl font-semibold">
             {hasFilters
               ? "No templates match your criteria"
               : "No templates are available"}
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {hasFilters
-              ? `${totalCount} templates are available in the catalogue.`
+              ? `${totalCount} templates are available in the catalogue. Try a different search or remove some tags.`
               : "The catalogue is empty right now. Try again later."}
           </p>
           {hasFilters && (
@@ -175,7 +117,7 @@ const TemplateGrid: React.FC<TemplateGridProps> = ({
           )}
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 

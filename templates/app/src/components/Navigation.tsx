@@ -1,11 +1,25 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
-import { Plus, StarIcon } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { BookOpen, Github, Menu, Plus, Star, X } from "lucide-react";
 import { ModeToggle } from "@/mode-toggle";
 import { Button } from "./ui/button";
+import { Container } from "./Container";
 import NotployLogo from "./ui/notploy-logo";
+import { cn } from "@/lib/utils";
 
-const Navigation = () => {
+const NAV_LINKS = [
+  { href: "/", label: "Templates", internal: true },
+  { href: "https://notploy.com", label: "Website", internal: false },
+  {
+    href: "https://docs.notploy.com",
+    label: "Documentation",
+    internal: false,
+  },
+] as const;
+
+const REPOSITORY_URL = "https://github.com/skygenesisenterprise/notploy";
+
+function useGithubStars() {
   const [githubStars, setGithubStars] = React.useState<number | null>(null);
 
   React.useEffect(() => {
@@ -40,63 +54,186 @@ const Navigation = () => {
     };
   }, []);
 
-  return (
-    <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 p-2 py-4 backdrop-blur-xs lg:p-4">
-      <Link
-        to="/"
-        aria-label="Notploy Templates home"
-        className="flex flex-row items-center justify-center gap-2 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <NotployLogo className="size-7 text-black lg:size-10 dark:text-white" />
-        <span className="hidden text-2xl font-bold lg:block">
-          Notploy Templates
-        </span>
-      </Link>
-      <div className="flex flex-row items-center justify-center gap-2">
-        <Button asChild>
-          <a
-            href="https://github.com/skygenesisenterprise/notploy/issues/new"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Add Template
-            <Plus aria-hidden="true" />
-          </a>
-        </Button>
+  return githubStars;
+}
 
-        <Button asChild variant="outline">
-          <a
-            href="https://github.com/skygenesisenterprise/notploy"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Open the Notploy repository on GitHub${githubStars === null ? "" : ` (${githubStars} stars)`}`}
+function GithubStarsButton({
+  githubStars,
+  className,
+}: {
+  githubStars: number | null;
+  className?: string;
+}) {
+  return (
+    <Button
+      asChild
+      variant="outline"
+      className={cn(
+        "rounded-full border-border/60 bg-card/40 shadow-none",
+        className
+      )}
+    >
+      <a
+        href={REPOSITORY_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Open the Notploy repository on GitHub${
+          githubStars === null ? "" : ` (${githubStars} stars)`
+        }`}
+      >
+        <Star aria-hidden="true" className="size-4 fill-muted text-muted" />
+        <span className="tabular-nums">
+          {githubStars === null ? "Star" : githubStars.toLocaleString()}
+        </span>
+        <Github aria-hidden="true" className="size-4" />
+      </a>
+    </Button>
+  );
+}
+
+const Navigation = () => {
+  const githubStars = useGithubStars();
+  const location = useLocation();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const previousPathname = React.useRef(location.pathname);
+
+  React.useEffect(() => {
+    if (previousPathname.current === location.pathname) return;
+    previousPathname.current = location.pathname;
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  const isTemplatesRoute = location.pathname === "/" || location.pathname.startsWith("/templates/");
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <Container>
+        <nav className="flex h-16 items-center justify-between gap-4">
+          <Link
+            to="/"
+            aria-label="Notploy Templates home"
+            className="flex items-center gap-2.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <span className="flex items-center gap-1">
-              <StarIcon
-                aria-hidden="true"
-                className="h-4 w-4 fill-muted text-muted"
-              />
-              <span>{githubStars === null ? "Star" : githubStars.toLocaleString()}</span>
+            <NotployLogo className="h-8 w-auto text-primary" />
+            <span className="flex flex-col leading-none">
+              <span className="font-display text-sm font-semibold tracking-tight">
+                Notploy
+              </span>
+              <span className="mt-0.5 text-[0.65rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+                Templates
+              </span>
             </span>
-            <svg
-              aria-hidden="true"
-              focusable="false"
-              width="19"
-              height="19"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="xMidYMid"
-              viewBox="0 0 256 256"
+          </Link>
+
+          <div className="hidden items-center gap-1 md:flex">
+            {NAV_LINKS.map((link) => {
+              const active = link.internal && isTemplatesRoute;
+              const className = cn(
+                "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                active
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              );
+
+              return link.internal ? (
+                <Link key={link.href} to={link.href} className={className}>
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={className}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <GithubStarsButton
+              githubStars={githubStars}
+              className="hidden sm:inline-flex"
+            />
+            <Button asChild className="hidden rounded-full sm:inline-flex">
+              <a
+                href="https://github.com/skygenesisenterprise/notploy/issues/new"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Plus aria-hidden="true" />
+                Add template
+              </a>
+            </Button>
+            <ModeToggle />
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full md:hidden"
+              aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-navigation"
+              onClick={() => setMobileOpen((open) => !open)}
             >
-              <path
-                d="M128.001 0C57.317 0 0 57.307 0 128.001c0 56.554 36.676 104.535 87.535 121.46 6.397 1.185 8.746-2.777 8.746-6.158 0-3.052-.12-13.135-.174-23.83-35.61 7.742-43.124-15.103-43.124-15.103-5.823-14.795-14.213-18.73-14.213-18.73-11.613-7.944.876-7.78.876-7.78 12.853.902 19.621 13.19 19.621 13.19 11.417 19.568 29.945 13.911 37.249 10.64 1.149-8.272 4.466-13.92 8.127-17.116-28.431-3.236-58.318-14.212-58.318-63.258 0-13.975 5-25.394 13.188-34.358-1.329-3.224-5.71-16.242 1.24-33.874 0 0 10.749-3.44 35.21 13.121 10.21-2.836 21.16-4.258 32.038-4.307 10.878.049 21.837 1.47 32.066 4.307 24.431-16.56 35.165-13.12 35.165-13.12 6.967 17.63 2.584 30.65 1.255 33.873 8.207 8.964 13.173 20.383 13.173 34.358 0 49.163-29.944 59.988-58.447 63.157 4.591 3.972 8.682 11.762 8.682 23.704 0 17.126-.148 30.91-.148 35.126 0 3.407 2.304 7.398 8.792 6.14C219.37 232.5 256 184.537 256 128.002 256 57.307 198.691 0 128.001 0Zm-80.06 182.34c-.282.636-1.283.827-2.194.39-.929-.417-1.45-1.284-1.15-1.922.276-.655 1.279-.838 2.205-.399.93.418 1.46 1.293 1.139 1.931Zm6.296 5.618c-.61.566-1.804.303-2.614-.591-.837-.892-.994-2.086-.375-2.66.63-.566 1.787-.301 2.626.591.838.903 1 2.088.363 2.66Zm4.32 7.188c-.785.545-2.067.034-2.86-1.104-.784-1.138-.784-2.503.017-3.05.795-.547 2.058-.055 2.861 1.075.782 1.157.782 2.522-.019 3.08Zm7.304 8.325c-.701.774-2.196.566-3.29-.49-1.119-1.032-1.43-2.496-.726-3.27.71-.776 2.213-.558 3.315.49 1.11 1.03 1.45 2.505.701 3.27Zm9.442 2.81c-.31 1.003-1.75 1.459-3.199 1.033-1.448-.439-2.395-1.613-2.103-2.626.301-1.01 1.747-1.484 3.207-1.028 1.446.436 2.396 1.602 2.095 2.622Zm10.744 1.193c.036 1.055-1.193 1.93-2.715 1.95-1.53.034-2.769-.82-2.786-1.86 0-1.065 1.202-1.932 2.733-1.958 1.522-.03 2.768.818 2.768 1.868Zm10.555-.405c.182 1.03-.875 2.088-2.387 2.37-1.485.271-2.861-.365-3.05-1.386-.184-1.056.893-2.114 2.376-2.387 1.514-.263 2.868.356 3.061 1.403Z"
-                fill="currentColor"
-              />
-            </svg>
-          </a>
-        </Button>
-        <ModeToggle />
-      </div>
+              {mobileOpen ? (
+                <X aria-hidden="true" />
+              ) : (
+                <Menu aria-hidden="true" />
+              )}
+            </Button>
+          </div>
+        </nav>
+
+        {mobileOpen && (
+          <div
+            id="mobile-navigation"
+            className="border-t border-border/50 py-4 md:hidden"
+          >
+            <div className="flex flex-col gap-1">
+              {NAV_LINKS.map((link) =>
+                link.internal ? (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className="rounded-md px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  >
+                    {link.label === "Documentation" ? (
+                      <BookOpen aria-hidden="true" className="size-4" />
+                    ) : null}
+                    {link.label}
+                  </a>
+                )
+              )}
+            </div>
+            <div className="mt-3 flex flex-col gap-2 border-t border-border/50 pt-3">
+              <Button asChild className="rounded-full">
+                <a
+                  href="https://github.com/skygenesisenterprise/notploy/issues/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Plus aria-hidden="true" />
+                  Add template
+                </a>
+              </Button>
+              <GithubStarsButton githubStars={githubStars} className="w-full" />
+            </div>
+          </div>
+        )}
+      </Container>
     </header>
   );
 };

@@ -131,6 +131,30 @@ export function allTags(templates: Template[]): string[] {
   );
 }
 
+/**
+ * Ranks the catalogue by how many tags a template shares with the current
+ * one, so detail pages can suggest genuinely related blueprints.
+ */
+export function getRelatedTemplates(
+  template: Template,
+  templates: Template[],
+  limit = 3
+): Template[] {
+  return templates
+    .filter((candidate) => candidate.id !== template.id)
+    .map((candidate) => ({
+      candidate,
+      shared: candidate.tags.filter((tag) => template.tags.includes(tag)).length,
+    }))
+    .filter(({ shared }) => shared > 0)
+    .sort(
+      (a, b) =>
+        b.shared - a.shared || a.candidate.name.localeCompare(b.candidate.name)
+    )
+    .slice(0, limit)
+    .map(({ candidate }) => candidate);
+}
+
 function blueprintAsset(id: string, fileName: string): string {
   return `${BLUEPRINTS_PATH}/${encodeURIComponent(id)}/${encodeURIComponent(fileName)}`;
 }

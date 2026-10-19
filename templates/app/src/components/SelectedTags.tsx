@@ -1,29 +1,36 @@
 import { XIcon } from "lucide-react";
 import { useStore } from "@/store";
-import { Badge } from "./ui/badge";
 
-const SelectedTags = () => {
+interface SelectedTagsProps {
+  onRemove?: (tag: string) => void;
+}
+
+const SelectedTags = ({ onRemove }: SelectedTagsProps) => {
   const selectedTags = useStore((state) => state.selectedTags);
   const removeSelectedTag = useStore((state) => state.removeSelectedTag);
 
+  if (selectedTags.length === 0) return null;
+
   return (
-    <div className="mt-4 flex flex-wrap gap-2 border-t pt-4">
+    <div className="flex flex-wrap items-center gap-2">
       {selectedTags.map((tag) => (
-        <Badge
+        <span
           key={tag}
-          variant="default"
-          className="flex items-center gap-1 pr-1"
+          className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 py-1 pl-2.5 pr-1 text-xs font-medium text-primary"
         >
           {tag}
           <button
             type="button"
-            onClick={() => removeSelectedTag(tag)}
+            onClick={() => {
+              removeSelectedTag(tag);
+              onRemove?.(tag);
+            }}
             aria-label={`Remove ${tag} filter`}
-            className="rounded-full p-1 hover:bg-primary-foreground/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            className="rounded-full p-0.5 transition-colors hover:bg-primary/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
-            <XIcon aria-hidden="true" className="h-3 w-3" />
+            <XIcon aria-hidden="true" className="size-3" />
           </button>
-        </Badge>
+        </span>
       ))}
     </div>
   );

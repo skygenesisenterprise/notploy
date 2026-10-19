@@ -4,6 +4,11 @@ The public template gallery is served at [templates.notploy.com](https://templat
 It is a Vite + React single-page application that reads the blueprint catalogue
 from `templates/blueprints`.
 
+The gallery follows the Notploy design system shared with
+`web/apps/website` and `web/apps/docs`: the same oklch palette, radii, motion,
+Inter body font and Lexend display font. It is dark-first with a light theme
+toggle, and the fonts are self-hosted from `app/public/fonts`.
+
 ## Structure
 
 | Path | Role |
@@ -55,10 +60,11 @@ The catalogue URL is `/meta.json`, generated at build time and never committed
 
 ### Client-side routing
 
-The app uses `BrowserRouter`: `/` shows the catalogue and `/templates/<id>`
-opens the matching template dialog, so template pages can be linked and
-reloaded directly. Cloudflare Pages serves `index.html` for unmatched paths as
-long as the output has no top-level `404.html`; do not add one.
+The app uses `BrowserRouter`: `/` shows the catalogue and `/templates/<id>` is
+a full detail page with the deployment steps, base64 payload, reference files,
+instructions and related templates. Template pages can be linked and reloaded
+directly. Cloudflare Pages serves `index.html` for unmatched paths as long as
+the output has no top-level `404.html`; do not add one.
 
 ## Cloudflare Pages
 
