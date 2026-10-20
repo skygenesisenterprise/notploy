@@ -31,8 +31,12 @@ const PRIVATE_KEY_BLOCK =
 
 const URL_CREDENTIALS = /(\b[a-z][a-z0-9+.-]*:\/\/)([^/\s:@]+):([^/\s@]+)@/gi;
 
-const AUTH_HEADER =
-	/\b((?:proxy-)?authorization\s*[:=]\s*(?:bearer|basic|token|digest)\s+)[^\s,;]+/gi;
+/**
+ * Authorization values are opaque and schemes vary (`Bearer`, `Basic`, `ApiKey`,
+ * `SSWS`, …). Redact the whole header value instead of trying to enumerate
+ * schemes, otherwise an unknown scheme leaves its credential exposed.
+ */
+const AUTH_HEADER = /\b((?:proxy-)?authorization\s*[:=]\s*)[^\r\n]+/gi;
 
 /** `--flag=value` (rclone, docker, CLI tools). */
 const FLAG_ASSIGNMENT = new RegExp(
@@ -46,6 +50,18 @@ const FLAG_SEPARATED = new RegExp(`(--?${SENSITIVE_KEY}\\s+)${VALUE}`, "gi");
 /** `KEY=value`, `KEY: value`, `"KEY": "value"`, `KEY='value'`. */
 const KEY_VALUE = new RegExp(
 	`((?:^|[\\s,{;])["']?${SENSITIVE_KEY}["']?\\s*[:=]\\s*)${VALUE}`,
+	"gi",
+);
+
+/**
+ * Unquoted YAML-style values may contain spaces (`password: my secret`). The
+ * generic key/value pattern stops at the first space, so redact the rest of the
+ * line for colon-separated values that are not quoted/JSON/collection syntax.
+ * This is intentionally conservative: losing the tail of one diagnostic line is
+ * preferable to leaking a multi-word secret.
+ */
+const YAML_VALUE = new RegExp(
+	`((?:^|[\\s,{;])["']?${SENSITIVE_KEY}["']?[ \\t]*:[ \\t]*)(?![\\s"'{[])([^\\r\\n]+)`,
 	"gi",
 );
 
@@ -85,6 +101,7 @@ export const redactSecrets = (input: string): string => {
 	output = output.replace(AUTH_HEADER, `$1${REDACTED}`);
 	output = output.replace(FLAG_ASSIGNMENT, maskValue);
 	output = output.replace(FLAG_SEPARATED, maskValue);
+	output = output.replace(YAML_VALUE, maskValue);
 	output = output.replace(KEY_VALUE, maskValue);
 
 	for (const pattern of KNOWN_TOKEN_PATTERNS) {
@@ -171,6 +188,25 @@ export const safeErrorMessage = (error: unknown): string => {
  * redact complete lines and keep the trailing partial line until the next chunk
  * arrives. Call `flush()` when the stream closes to emit the remaining text.
  */
+const PRIVATE_KEY_BEGIN = /-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----/g;
+const PRIVATE_KEY_END = /-----END [A-Z0-9 ]*PRIVATE KEY-----/;
+
+/**
+ * Returns the index of a private-key block whose END marker has not arrived
+ * yet. Emitting complete lines before that point would leak the key material
+ * one line at a time, so the buffer holds the block until it is complete.
+ */
+const findOpenPrivateKey = (text: string): number => {
+	let openIndex = -1;
+	for (const match of text.matchAll(PRIVATE_KEY_BEGIN)) {
+		const rest = text.slice((match.index ?? 0) + match[0].length);
+		if (!PRIVATE_KEY_END.test(rest)) {
+			openIndex = match.index ?? -1;
+		}
+	}
+	return openIndex;
+};
+
 export const createRedactingLineBuffer = () => {
 	let pending = "";
 	return {
@@ -179,12 +215,25 @@ export const createRedactingLineBuffer = () => {
 				return "";
 			}
 			pending += chunk;
-			const lastNewline = pending.lastIndexOf("\n");
+
+			// A private key can span several lines: hold everything from an
+			// unterminated BEGIN marker until its END marker arrives.
+			let emit = pending;
+			const openPrivateKey = findOpenPrivateKey(pending);
+			if (openPrivateKey !== -1) {
+				emit = pending.slice(0, openPrivateKey);
+				pending = pending.slice(openPrivateKey);
+			} else {
+				pending = "";
+			}
+
+			const lastNewline = emit.lastIndexOf("\n");
 			if (lastNewline === -1) {
+				pending = emit + pending;
 				return "";
 			}
-			const complete = pending.slice(0, lastNewline + 1);
-			pending = pending.slice(lastNewline + 1);
+			const complete = emit.slice(0, lastNewline + 1);
+			pending = emit.slice(lastNewline + 1) + pending;
 			return redactSecrets(complete);
 		},
 		flush(): string {

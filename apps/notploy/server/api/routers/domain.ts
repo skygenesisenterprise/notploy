@@ -36,6 +36,20 @@ import {
 	apiUpdateDomain,
 } from "@/server/db/schema";
 
+/**
+ * Generated Notploy Cloud hostnames are provisioned by `cloudDomain`, so the
+ * generic domain mutations must not let a user rename, disable or delete them.
+ */
+const assertNotCloudManaged = (domain: { cloudManaged: boolean }) => {
+	if (domain.cloudManaged) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message:
+				"This hostname is managed by Notploy Cloud. Release or retry it from the cloud domain controls.",
+		});
+	}
+};
+
 /** Resolves the server a domain is hosted on, if any. */
 const resolveDomainServerId = async (domain: {
 	applicationId?: string | null;
@@ -152,6 +166,7 @@ export const domainRouter = createTRPCRouter({
 		.input(apiUpdateDomain)
 		.mutation(async ({ input, ctx }) => {
 			const currentDomain = await findDomainById(input.domainId);
+			assertNotCloudManaged(currentDomain);
 			const targetHost = input.host ?? currentDomain.host;
 			const targetHttps = input.https ?? currentDomain.https;
 			const targetCertificateType =
@@ -213,6 +228,7 @@ export const domainRouter = createTRPCRouter({
 		.input(apiFindDomain)
 		.mutation(async ({ input, ctx }) => {
 			const currentDomain = await findDomainById(input.domainId);
+			assertNotCloudManaged(currentDomain);
 			const serviceId = currentDomain.applicationId || currentDomain.composeId;
 			if (serviceId) {
 				await checkServicePermissionAndAccess(ctx, serviceId, {
@@ -282,6 +298,7 @@ export const domainRouter = createTRPCRouter({
 		.input(apiFindDomain)
 		.mutation(async ({ input, ctx }) => {
 			const domain = await findDomainById(input.domainId);
+			assertNotCloudManaged(domain);
 			const serviceId = domain.applicationId || domain.composeId;
 			if (serviceId) {
 				await checkServicePermissionAndAccess(ctx, serviceId, {

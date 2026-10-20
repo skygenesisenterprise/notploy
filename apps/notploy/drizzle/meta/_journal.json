@@ -1499,6 +1499,13 @@
       "when": 1792487114379,
       "tag": "0214_project_resource_quotas",
       "breakpoints": true
+    },
+    {
+      "idx": 215,
+      "version": "7",
+      "when": 1792494292911,
+      "tag": "0215_nifty_paladin",
+      "breakpoints": true
     }
   ]
 }

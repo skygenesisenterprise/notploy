@@ -139,6 +139,7 @@ const baseApp: ApplicationNested = {
 const baseDomain: Domain = {
 	applicationId: "",
 	certificateType: "none",
+	cloudManaged: false,
 	createdAt: "",
 	domainId: "",
 	host: "",

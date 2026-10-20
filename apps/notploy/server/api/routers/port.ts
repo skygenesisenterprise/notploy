@@ -1,10 +1,8 @@
 import {
-	createPort,
-	findPortConflict,
-	findPortsByApplicationId,
+	createPortChecked,
 	finPortById,
 	removePortById,
-	updatePortById,
+	updatePortChecked,
 } from "@notploy/server";
 import { checkServicePermissionAndAccess } from "@notploy/server/services/permission";
 import { TRPCError } from "@trpc/server";
@@ -24,17 +22,7 @@ export const portRouter = createTRPCRouter({
 				await checkServicePermissionAndAccess(ctx, input.applicationId, {
 					service: ["create"],
 				});
-				const existingPorts = await findPortsByApplicationId(
-					input.applicationId,
-				);
-				const conflict = findPortConflict(input, existingPorts);
-				if (conflict) {
-					throw new TRPCError({
-						code: "BAD_REQUEST",
-						message: conflict.message,
-					});
-				}
-				const port = await createPort(input);
+				const port = await createPortChecked(input);
 				await audit(ctx, {
 					action: "create",
 					resourceType: "port",
@@ -109,17 +97,16 @@ export const portRouter = createTRPCRouter({
 				{ service: ["create"] },
 			);
 			try {
-				const existingPorts = (
-					await findPortsByApplicationId(port.application.applicationId)
-				).filter((entry) => entry.portId !== input.portId);
-				const conflict = findPortConflict(input, existingPorts);
-				if (conflict) {
-					throw new TRPCError({
-						code: "BAD_REQUEST",
-						message: conflict.message,
-					});
-				}
-				const result = await updatePortById(input.portId, input);
+				const result = await updatePortChecked(
+					input.portId,
+					port.application.applicationId,
+					{
+						publishedPort: input.publishedPort,
+						targetPort: input.targetPort,
+						protocol: input.protocol,
+						publishMode: input.publishMode,
+					},
+				);
 				await audit(ctx, {
 					action: "update",
 					resourceType: "port",

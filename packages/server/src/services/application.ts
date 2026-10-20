@@ -193,6 +193,22 @@ export const updateApplicationStatus = async (
 	return application;
 };
 
+/**
+ * Notploy Cloud: assign and provision the generated *.notploy.app hostname
+ * once a deployment is live. Imported lazily because `cloud-domain` imports
+ * this module; the cycle stays safe, and domain provisioning must never turn a
+ * successful deployment into a failure (the ledger records the error instead).
+ */
+const ensureCloudDomainAfterDeploy = async (applicationId: string) => {
+	const { ensureCloudDomainForApplication } = await import("./cloud-domain");
+	await ensureCloudDomainForApplication(applicationId).catch((error) => {
+		console.error(
+			"Cloud domain provisioning failed:",
+			redactSecrets(error instanceof Error ? error.message : String(error)),
+		);
+	});
+};
+
 export const deployApplication = async ({
 	applicationId,
 	titleLog = "Manual deployment",
@@ -271,6 +287,7 @@ export const deployApplication = async ({
 		await mechanizeDockerContainer(application);
 		await updateDeploymentStatus(deployment.deploymentId, "done");
 		await updateApplicationStatus(applicationId, "done");
+		await ensureCloudDomainAfterDeploy(applicationId);
 
 		await sendBuildSuccessNotifications({
 			projectName: application.environment.project.name,
@@ -304,7 +321,7 @@ export const deployApplication = async ({
 			projectName: application.environment.project.name,
 			applicationName: application.name,
 			applicationType: "application",
-			// @ts-ignore
+			// @ts-expect-error
 			errorMessage: error?.message || "Error building",
 			buildLink,
 			organizationId: application.environment.project.organizationId,
@@ -362,6 +379,7 @@ export const rebuildApplication = async ({
 		await mechanizeDockerContainer(application);
 		await updateDeploymentStatus(deployment.deploymentId, "done");
 		await updateApplicationStatus(applicationId, "done");
+		await ensureCloudDomainAfterDeploy(applicationId);
 
 		await sendBuildSuccessNotifications({
 			projectName: application.environment.project.name,

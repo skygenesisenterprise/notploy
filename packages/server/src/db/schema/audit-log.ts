@@ -71,6 +71,7 @@ export type AuditResourceType =
 	| "user"
 	| "customRole"
 	| "domain"
+	| "cloudDomain"
 	| "certificate"
 	| "registry"
 	| "server"

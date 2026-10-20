@@ -29,6 +29,19 @@ for every secret, for example with `openssl rand -hex 32`.
 | `NOTPLOY_PORT` | `3000` | Host port for the dashboard. |
 | `NOTPLOY_DNS_HOST_PORT` | `53` | Host port for the Notploy DNS server (the container listens on `53`). Must be free — `systemd-resolved`, `dnsmasq` or Pi-hole commonly occupy `53`. |
 
+## Notploy Cloud generated domains
+
+Managed Cloud assigns a public `<application>.notploy.app` hostname after a successful deployment. See [Cloud generated domains](/docs/core/cloud-domains) for the lifecycle and routing model. Self-hosted and console instances never allocate these hostnames.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `NOTPLOY_CLOUD_DOMAIN` | `notploy.app` on managed Cloud | Wildcard zone used for generated hostnames. Set it to an empty value to disable allocation. |
+| `CLOUDFLARE_API_TOKEN` | _(unset)_ | Scoped token (`Zone:Read` + `DNS:Edit` on the wildcard zone) used to create the `*.<zone>` record. Without it, DNS provisioning is skipped and the wildcard is assumed to be managed elsewhere. |
+| `NOTPLOY_CLOUD_INGRESS_TARGET` | _(unset)_ | IP (A/AAAA) or hostname (CNAME) the wildcard record points at. Required, with the token, to enable Cloudflare provisioning. |
+| `NOTPLOY_CLOUD_DNS_ZONE_ID` | _(auto)_ | Pins the Cloudflare zone id instead of resolving it from the zone list. Useful when the token can see several zones. |
+| `NOTPLOY_CLOUD_DNS_PROXIED` | `true` | Proxied through Cloudflare, which terminates TLS at the edge for the wildcard. Set to `false` for a DNS-only setup where Traefik issues a certificate per hostname. |
+| `NOTPLOY_CLOUD_CERT_RESOLVER` | _(unset)_ | Traefik certificate resolver to use when a wildcard certificate is pre-provisioned. Defaults to per-host Let's Encrypt certificates. |
+
 ## Database
 
 | Variable | Default | Description |

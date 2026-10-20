@@ -1,0 +1,76 @@
+---
+title: Cloud generated domains
+description: "Automatic public *.notploy.app hostnames for applications deployed on Notploy Cloud."
+---
+
+**Purpose** — Explain how Notploy Cloud assigns, resolves and retires the public hostname of an application, and what an operator must configure. Self-hosted and console installations do not use this feature; they keep [custom domains](/docs/core/domains).
+
+## What happens on deploy
+
+When an application finishes deploying successfully, Notploy Cloud:
+
+1. derives a label from the application name (`My Project` → `my-project`);
+2. reserves `<label>.notploy.app` in the database, adding a numeric suffix (`-2`, `-3`, …) when the name is taken;
+3. ensures the central Cloudflare wildcard record for the zone;
+4. creates a routing entry pointing at the application's first published target port and applies it through the Traefik file provider;
+5. records the result as `active` (or `error` with a recoverable diagnostic).
+
+The hostname is visible on the application's **Domains** tab, with copy/open actions, its provisioning status and the target port. It is allocated once and preserved across redeployments, rebuilds and server changes.
+
+## Ownership and uniqueness
+
+| Layer | Responsibility |
+| --- | --- |
+| `cloud_domain` table | Source of truth: hostname, owning organization/project/environment/application, target port, status |
+| Cloudflare | Resolution only: one wildcard `*.<zone>` record for the whole Cloud |
+| Traefik file provider | Routing: a `Host(...)` rule per generated hostname, only for the reserved hostnames |
+
+Allocation is atomic: the `cloud_domain_hostname_unique` index plus `ON CONFLICT DO NOTHING` means two concurrent deployments cannot both claim a name. The loser retries the next suffix. A second live hostname for the same application is blocked by a partial unique index.
+
+The generated routing row is marked `cloudManaged`. It is hidden from the custom-domain list and cannot be renamed, disabled or deleted through `domain.*`; the generic mutations return an explicit error.
+
+## Lifecycle
+
+| Status | Meaning |
+| --- | --- |
+| `pending` | Reserved, routing/TLS not applied yet |
+| `active` | Routing applied and reachable |
+| `error` | Reservation kept, provisioning failed (`errorMessage` explains why); retry from the dashboard or `cloudDomain.ensure` |
+| `released` | Explicitly released; the routing entry is removed immediately |
+
+Releasing keeps the row as a tombstone. The unique hostname index then prevents the name from being handed to another tenant, which is what avoids exposing a previous tenant's content. Application deletion detaches the ledger row (`applicationId` becomes `null`) instead of deleting it, for the same reason.
+
+Renaming an application does **not** rename its hostname: the URL is stable by design. Releasing and reallocating is an explicit operation.
+
+## DNS and TLS
+
+The wildcard is bootstrapped through the Cloudflare API using a token scoped to `Zone:Read` + `DNS:Edit`:
+
+- `CLOUDFLARE_API_TOKEN` — scoped token;
+- `NOTPLOY_CLOUD_INGRESS_TARGET` — IP (A/AAAA) or hostname (CNAME) of the Cloud ingress;
+- `NOTPLOY_CLOUD_DNS_ZONE_ID` — optional pinned zone id;
+- `NOTPLOY_CLOUD_DNS_PROXIED` — `true` (default) or `false`.
+
+The wildcard is created or updated once and cached for five minutes, so deployments do not hammer the API. Cloudflare errors surface on the ledger and are retried on the next deployment or from the dashboard. Secrets are removed from those messages by the central redaction policy.
+
+With proxying enabled, Cloudflare terminates TLS at the edge for `*.notploy.app`; no per-host certificate is needed. With `NOTPLOY_CLOUD_DNS_PROXIED=false`, Traefik issues a per-hostname Let's Encrypt certificate. Set `NOTPLOY_CLOUD_CERT_RESOLVER` when a wildcard certificate is already provisioned and exposed under a Traefik resolver.
+
+Unknown or unassigned hostnames have no Traefik `Host(...)` rule, so they never fall through to an internal service or another tenant. Management interfaces are not routed through the Cloud wildcard.
+
+## API
+
+| Procedure | Permission | Behaviour |
+| --- | --- | --- |
+| `cloudDomain.byApplicationId` | `domain:read` | Returns `{ enabled, domain }` with hostname, HTTPS URL, status, port and error |
+| `cloudDomain.ensure` | `domain:create` | Allocates if missing, retries DNS/routing/TLS provisioning, never renames an existing hostname |
+| `cloudDomain.release` | `domain:delete` | Removes routing and marks the reservation `released` |
+
+Every mutation writes an audit event (`resourceType: cloudDomain`).
+
+## Limitations
+
+- Preview deployments and temporary preview domains are out of scope; previews keep their existing behaviour.
+- A single wildcard zone and a single ingress target are assumed. Multi-region or per-server ingress targets need a separate load-balancing design.
+- Cloudflare is the supported DNS provider for this bootstrap; other providers still work for custom domains through [DNS providers](/docs/core/dns-providers).
+- The wildcard certificate itself is provisioned by Cloudflare or by the operator; Notploy does not perform DNS-01 issuance.
+- Application deletion leaves a `released`/detached tombstone indefinitely; pruning old tombstones would need an explicit retention policy.

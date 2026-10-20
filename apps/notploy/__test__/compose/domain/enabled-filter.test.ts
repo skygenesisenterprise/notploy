@@ -35,6 +35,7 @@ const baseDomain: Domain = {
 	uniqueConfigKey: 1,
 	customCertResolver: null,
 	certificateType: "none",
+	cloudManaged: false,
 	applicationId: "",
 	composeId: "compose-id",
 	domainType: "compose",

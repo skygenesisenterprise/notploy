@@ -18,6 +18,7 @@ const app = {
 const baseDomain: Domain = {
 	applicationId: "app-1",
 	certificateType: "none",
+	cloudManaged: false,
 	createdAt: "",
 	domainId: "domain-1",
 	host: "app.example.com",

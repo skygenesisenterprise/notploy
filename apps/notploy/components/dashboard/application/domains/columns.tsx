@@ -73,6 +73,7 @@ export const toOnionDomainRow = (
 	applicationId: null,
 	previewDeploymentId: null,
 	certificateType: "none",
+	cloudManaged: false,
 	internalPath: "/",
 	stripPath: false,
 	middlewares: [],
@@ -123,7 +124,8 @@ export const createColumns = ({
 								{serviceName}
 							</Badge>
 						);
-					},					} satisfies ColumnDef<DomainRow>,
+					},
+				} satisfies ColumnDef<DomainRow>,
 			]
 		: []),
 	{

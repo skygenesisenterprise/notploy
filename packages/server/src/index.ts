@@ -16,6 +16,8 @@ export * from "./services/backup";
 export * from "./services/bitbucket";
 export * from "./services/certificate";
 export * from "./services/cicd";
+export * from "./services/cloud-domain";
+export * from "./services/cloud-domain-dns";
 export * from "./services/cluster";
 export * from "./services/community";
 export * from "./services/compose";

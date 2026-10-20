@@ -12,6 +12,7 @@ describe("createDomainLabels", () => {
 		uniqueConfigKey: 1,
 		customCertResolver: null,
 		certificateType: "none",
+		cloudManaged: false,
 		applicationId: "",
 		composeId: "",
 		domainType: "compose",

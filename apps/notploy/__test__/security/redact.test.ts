@@ -17,6 +17,7 @@ const SENTINELS = {
 	jwt: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzZW50aW5lbCJ9.c2lnbmF0dXJlLXNlbnRpbmVs",
 	privateKey:
 		"-----BEGIN OPENSSH PRIVATE KEY-----\nSENTINELSSHKEYMATERIAL\n-----END OPENSSH PRIVATE KEY-----",
+	yamlSecret: "Yaml Sentinel With Spaces!",
 };
 
 const ALL_SECRETS = [
@@ -26,6 +27,7 @@ const ALL_SECRETS = [
 	SENTINELS.token,
 	SENTINELS.jwt,
 	"SENTINELSSHKEYMATERIAL",
+	SENTINELS.yamlSecret,
 ];
 
 const expectNoSecret = (output: string) => {
@@ -59,6 +61,27 @@ describe("redactSecrets", () => {
 		expectNoSecret(output);
 		expect(output).toContain("DATABASE_PASSWORD=");
 		expect(output).toContain("AWS_SECRET_ACCESS_KEY=");
+	});
+
+	it("redacts authorization headers regardless of the scheme", () => {
+		const text = [
+			`Authorization: ApiKey ${SENTINELS.password}`,
+			`Proxy-Authorization: SSWS ${SENTINELS.token}`,
+		].join("\n");
+
+		const output = redactSecrets(text);
+
+		expectNoSecret(output);
+		expect(output).toContain("Authorization: ");
+	});
+
+	it("redacts unquoted YAML values that contain spaces", () => {
+		const output = redactSecrets(
+			`password: ${SENTINELS.yamlSecret}\napiKey: ${SENTINELS.secretKey}\nregion: eu-west-1`,
+		);
+
+		expectNoSecret(output);
+		expect(output).toContain("region: eu-west-1");
 	});
 
 	it("redacts URL credentials, auth headers, JWTs and provider tokens", () => {
@@ -171,6 +194,30 @@ describe("createRedactingLineBuffer", () => {
 		expect(buffer.push("password=abc")).toBe("");
 		expect(buffer.push("def\nnext line\n")).not.toContain("abcdef");
 		expect(buffer.flush()).toBe("");
+	});
+
+	it("does not leak a private key split across several chunks", () => {
+		const buffer = createRedactingLineBuffer();
+		const begin = buffer.push("ssh key:\n-----BEGIN OPENSSH PRIVATE KEY-----\n");
+		const middle = buffer.push("SENTINELSSHKEYMATERIAL\n");
+		const end = buffer.push("-----END OPENSSH PRIVATE KEY-----\nnext line\n");
+
+		expect(`${begin}${middle}${end}`).not.toContain("SENTINELSSHKEYMATERIAL");
+		expect(`${begin}${middle}${end}`).toContain("next line");
+		expect(buffer.flush()).toBe("");
+	});
+
+	it("redacts several consecutive secrets split across chunks", () => {
+		const buffer = createRedactingLineBuffer();
+		const first = buffer.push(`password=${SENTINELS.password.slice(0, 6)}`);
+		const second = buffer.push(
+			`${SENTINELS.password.slice(6)} token=${SENTINELS.token.slice(0, 4)}\n`,
+		);
+		const third = buffer.push(`${SENTINELS.token.slice(4)}\n`);
+		const output = `${first}${second}${third}`;
+
+		expect(output).not.toContain(SENTINELS.password);
+		expect(output).not.toContain(SENTINELS.token);
 	});
 
 	it("flushes a trailing partial line on close", () => {

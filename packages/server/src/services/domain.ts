@@ -9,16 +9,13 @@ import { execAsyncRemote } from "@notploy/server/utils/process/execAsync";
 import { manageDomain } from "@notploy/server/utils/traefik/domain";
 import { getPublicIpWithFallback } from "@notploy/server/wss/utils";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { z } from "zod";
 import { type apiCreateDomain, domains } from "../db/schema";
+import { type DomainScope, getDomainRequirements } from "../utils/domain-scope";
 import { findApplicationById } from "./application";
 import { detectCDNProvider } from "./cdn";
 import { findServerById } from "./server";
-import {
-	type DomainScope,
-	getDomainRequirements,
-} from "../utils/domain-scope";
 
 export type Domain = typeof domains.$inferSelect;
 
@@ -104,7 +101,13 @@ export const findDomainById = async (domainId: string) => {
 
 export const findDomainsByApplicationId = async (applicationId: string) => {
 	const domainsArray = await db.query.domains.findMany({
-		where: eq(domains.applicationId, applicationId),
+		// Cloud-managed hostnames are surfaced separately with their provisioning
+		// status; keeping them out of the custom-domain list prevents users from
+		// editing the host and breaking the stable generated URL.
+		where: and(
+			eq(domains.applicationId, applicationId),
+			eq(domains.cloudManaged, false),
+		),
 		with: {
 			application: {
 				columns: { applicationId: true, appName: true, name: true },

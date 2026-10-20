@@ -51,13 +51,20 @@ recopié.
   - clés sensibles (mots de passe, secrets, tokens, clés d'accès, clés privées,
     credentials, autorisation) dans les formes `--flag=valeur`, `--flag valeur`,
     `KEY=valeur`, JSON et YAML ;
-  - credentials d'URL (`scheme://user:pass@host`), en-têtes d'autorisation,
-    blocs de clé privée PEM, JWT et tokens fournisseurs reconnaissables ;
+  - les valeurs YAML non quotées contenant des espaces (`password: my secret`)
+    sont masquées jusqu'à la fin de la ligne ; le reste de la ligne est perdu,
+    ce qui est le compromis assumé pour ne pas laisser fuir un secret multi-mots ;
+  - credentials d'URL (`scheme://user:pass@host`), en-têtes d'autorisation
+    masqués quelle que soit la casse ou la forme du schéma (`Bearer`, `Basic`,
+    `ApiKey`, `SSWS`, schéma inconnu), blocs de clé privée PEM, JWT et tokens
+    fournisseurs reconnaissables ;
   - `redactSecretValues()` pour masquer des valeurs connues collectées à
     l'exécution ;
   - `redactObject()` pour les contextes structurés, sans muter l'objet source ;
   - `createRedactingLineBuffer()` pour les flux de logs, y compris un secret
-    coupé entre deux chunks.
+    coupé entre deux chunks et une clé privée dont le bloc `BEGIN`/`END`
+    s'étend sur plusieurs chunks (le buffer retient le bloc tant que `END`
+    n'est pas arrivé).
 - `ExecError` redacte le message, la commande, `stdout`, `stderr` et l'erreur
   d'origine dès sa construction.
 - `redactBackupError()` masque en plus littéralement `accessKey`/
@@ -73,11 +80,17 @@ recopié.
 
 ### Preuves
 
-`apps/notploy/__test__/security/redact.test.ts` (12 tests) utilise des secrets
-sentinelles (clé S3, secret, mot de passe, token GitHub, JWT, clé privée) et
-vérifie qu'aucun n'apparaît dans le texte, les objets, `ExecError`, les erreurs
-de backup ou les messages d'erreur, tout en conservant les informations de
-diagnostic non sensibles.
+`apps/notploy/__test__/security/redact.test.ts` (16 tests) utilise des secrets
+sentinelles (clé S3, secret, mot de passe, token GitHub, JWT, clé privée, valeur
+YAML avec espaces) et vérifie qu'aucun n'apparaît dans le texte, les objets,
+`ExecError`, les erreurs de backup, les messages d'erreur, les en-têtes
+d'autorisation à schéma arbitraire et les flux découpés en chunks, tout en
+conservant les informations de diagnostic non sensibles.
+
+Limite assumée : le masquage est une politique textuelle. Un secret sans nom de
+clé reconnaissable et sans préfixe fournisseur connu (par exemple une valeur
+aléatoire de 32 caractères) n'est masqué que si l'appelant fournit la valeur à
+`redactSecretValues()` ; c'est le cas des backups via `redactBackupError()`.
 
 ## 3. Cycle de vie des streams et du monitoring (P0)
 
@@ -170,7 +183,19 @@ shell ou sans gzip rendait la sauvegarde impossible.
   l'application et rejettent le conflit avec un message explicite.
 - `normalizePortMappings()` protège aussi le builder runtime : une ligne
   invalide ou dupliquée ne peut plus écraser silencieusement une autre.
-- Tests : `__test__/network/ports.test.ts` (15 tests).
+- Les écritures passent par `createPortChecked()` / `updatePortChecked()` :
+  validation et insertion/mise à jour sont dans la même transaction, sous un
+  verrou consultatif Postgres par application
+  (`pg_advisory_xact_lock(hashtext(applicationId))`). Sans cela, deux requêtes
+  concurrentes pouvaient lire le même état et insérer deux mappings que
+  Docker/Swarm fusionne silencieusement — le bug de mapping perdu de #5509.
+  Un index unique serait plus fort mais ne peut pas être ajouté sans traiter
+  les doublons déjà présents, ce qui serait une migration destructive.
+- Tests : `__test__/network/ports.test.ts` (15 tests) pour la validation pure,
+  `__test__/network/port-service.test.ts` (5 tests) pour l'ordre
+  verrou → lecture → validation → écriture et l'absence d'écriture en cas de
+  conflit. La concurrence réelle entre deux transactions n'est pas testée sans
+  une base PostgreSQL disponible.
 
 ### Permissions — corrigé
 
@@ -270,16 +295,9 @@ Commandes lancées dans `apps/notploy` :
 
 ```bash
 pnpm exec vitest run --config __test__/vitest.config.ts \
-  __test__/security/redact.test.ts \
-  __test__/network/ports.test.ts \
-  __test__/backups/db-backup-restore-injection.test.ts \
-  __test__/backups/redact-credentials.test.ts \
-  __test__/backups/backup-command.test.ts \
-  __test__/wss/cleanup.test.ts \
-  __test__/permissions/service-access.test.ts \
-  __test__/permissions/check-permission.test.ts \
-  __test__/permissions/resolve-permissions.test.ts
-# 10 fichiers, 124 tests, tous verts
+  __test__/security __test__/backups __test__/permissions \
+  __test__/quotas __test__/network
+# 18 fichiers, 193 tests, tous verts
 ```
 
 Quotas et déplacement logique :
@@ -290,16 +308,18 @@ pnpm exec vitest run --config __test__/vitest.config.ts \
 # 14 fichiers, 158 tests, tous verts
 ```
 
-`pnpm typecheck` dans `packages/server` : **0 erreur**. Dans `apps/notploy` :
-68 erreurs préexistantes, aucune dans les fichiers de quotas.
+`pnpm exec tsc --noEmit` dans `packages/server` : **0 erreur**. Dans
+`apps/notploy` : **68 erreurs préexistantes**, aucune dans les fichiers modifiés
+par cet audit (redaction, quotas, déplacement, ports, WSS, backups).
 
 Suite complète (`pnpm exec vitest run --config __test__/vitest.config.ts`) :
-**1554 tests verts**, 7 échecs sur la dernière exécution. Six sont les échecs
-connus non liés (4 builds Docker réels dans `deploy/application.real.test.ts`,
-un mock `db.select` dans `env/aws-parameter-store.test.ts`, une attente ACME
-dans `compose/domain/labels.test.ts`). Le septième varie selon la charge :
-timeout de 5 s dans `utils/remote-stream.test.ts` ou
-`server/update-check.test.ts`, chacun passant seul (4/4 et 39/39).
+**1564 tests verts, 5 ignorés, 6 échecs**, tous connus et indépendants des
+changements (4 builds Docker réels dans `deploy/application.real.test.ts`, un
+mock `db.select` dans `env/aws-parameter-store.test.ts`, une attente ACME dans
+`compose/domain/labels.test.ts`). Lors d'une exécution précédente, un septième
+échec intermittent apparaissait sous charge (timeout de 5 s dans
+`utils/remote-stream.test.ts` ou `server/update-check.test.ts`) ; ces deux
+fichiers passent seuls (4/4 et 39/39).
 
 `pnpm typecheck` reste en échec sur **68 erreurs préexistantes** hors périmètre
 (par exemple `components/dashboard/settings/servers/handle-servers.tsx`,
@@ -333,4 +353,20 @@ erreur ne concerne les fichiers modifiés par cet audit.
 - `apps/notploy/docs/issue-112-child-issues.md` (propositions d'issues filles)
 - `apps/notploy/server/wss/{cleanup.ts,docker-container-logs.ts,docker-stats.ts,listen-deployment.ts,terminal.ts}`
 - `packages/server/src/utils/builders/index.ts`
+- `packages/server/src/services/port.ts` (écritures transactionnelles)
+- `apps/notploy/server/api/routers/port.ts`
 - Tests listés au §7.
+
+## 9. Matrice de couverture #112
+
+| Critère | Défaut constaté | Correction | Tests | Limitations | Statut |
+| --- | --- | --- | --- | --- | --- |
+| Masquage des secrets (logs, erreurs, notifications, WSS) | `ExecError`, notifications et logs exposaient les credentials | Politique centrale + application aux frontières, buffer de flux | `security/redact.test.ts` (16), `backups/*` (27) | Politique textuelle : un secret sans nom de clé ni préfixe connu n'est masqué que si sa valeur est fournie ; logs disque laissés bruts pour l'opérateur | CORRIGÉ |
+| Cycle de vie WSS/streams/timers/PTY | timers et canaux SSH non nettoyés sur sorties anticipées | `cleanup.ts` idempotent, garde `closed`/`inFlight`, escalade `SIGTERM`→`SIGKILL` | `wss/cleanup.test.ts` (2) | Cleanup testé unitairement ; pas de test avec vraies connexions SSH/PTY | PARTIEL |
+| Sauvegardes/restaurations sans shell interne | dump exécuté via un shell et `gzip` dans le conteneur | Binaires natifs + compression sur l'hôte, `rclone deletefile` sur échec | `backups/*` (27) | Images hardened réelles non exécutées ; `gzip`/`gunzip`/`tar` requis sur l'hôte | PARTIEL |
+| Validation des ports | doublons de port publié écrasés par le runtime | `findPortConflict`, `normalizePortMappings`, écritures sous verrou consultatif | `network/ports.test.ts` (15), `network/port-service.test.ts` (5) | Concurrence réelle non testée sans PostgreSQL ; pas d'index unique (doublons historiques) | CORRIGÉ |
+| Héritage des permissions projet → services | un membre sans grant explicite n'accédait pas aux services du projet | Résolution hiérarchique + `projectId` explicite à la création | `permissions/*` (57) | `project.all` filtre encore par grants explicites ; grant explicite survit à la révocation projet (comportement documenté) | PARTIEL |
+| Quotas CPU/mémoire projet | aucun quota agrégé | Colonnes nullables, calcul SQL, refus typé, audit, API + UI | `quotas/*` (35) | Limite logique seulement ; Compose non compté ; pas de garantie runtime agrégée | PARTIEL |
+| Déplacement logique de service | mutation `move` sans contrôle d'org, d'accès ni de quota | `assertServiceMoveAllowed`, `service.movePreview`, dialogue de confirmation | `quotas/service-move.test.ts` (9) | Rollback applicatif non cadré ; Compose hors quota | PARTIEL |
+| Transfert serveur → serveur | source nettoyée avant validation de la cible | Nettoyage différé, rollback ownership/réseaux/runtime | — | Pas de plan affiché, pas de health check explicite, pas de test deux serveurs | PARTIEL |
+| Adoption Swarm, `apply -f`, previews Compose, templates | non implémentés | Aucun changement volontaire | — | Critères proposés dans `issue-112-child-issues.md` | HORS PÉRIMÈTRE |

@@ -27,6 +27,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { OnionServiceCard } from "@/components/dashboard/compose/onion/onion-service-card";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,9 +60,9 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { OnionServiceCard } from "@/components/dashboard/compose/onion/onion-service-card";
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
+import { CloudDomainCard } from "./cloud-domain-card";
 import {
 	createColumns,
 	type DomainRow,
@@ -309,6 +310,11 @@ export const ShowDomains = ({ id, type }: Props) => {
 						)}
 					</div>
 				</CardHeader>
+				{type === "application" && (
+					<div className="px-6 pb-4">
+						<CloudDomainCard applicationId={id} />
+					</div>
+				)}
 				{type === "compose" && rows.length > 0 && (
 					<div className="px-6 pb-4">
 						<ComposeRedeployAlert />

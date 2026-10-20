@@ -45,6 +45,7 @@
 		"volume-backups",
 		"---Domains & networking---",
 		"certificates",
+		"cloud-domains",
 		"dns-providers",
 		"domains",
 		"traefik",

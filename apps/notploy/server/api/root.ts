@@ -6,6 +6,7 @@ import { backupRouter } from "./routers/backup";
 import { bitbucketRouter } from "./routers/bitbucket";
 import { certificateRouter } from "./routers/certificate";
 import { cicdRouter } from "./routers/cicd";
+import { cloudDomainRouter } from "./routers/cloud-domain";
 import { clusterRouter } from "./routers/cluster";
 import { communityRouter } from "./routers/community";
 import { composeRouter } from "./routers/compose";
@@ -90,6 +91,7 @@ export const appRouter = createTRPCRouter({
 	dockerDiskUsage: dockerDiskUsageRouter,
 	dockerImage: dockerImageRouter,
 	dockerVolume: dockerVolumeRouter,
+	cloudDomain: cloudDomainRouter,
 	domain: domainRouter,
 	gitea: giteaRouter,
 	gitProvider: gitProviderRouter,
