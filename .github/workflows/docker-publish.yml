@@ -349,15 +349,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          # install.sh installs the self-hosted, cloud and console products, so
-          # it rides along with those three releases.
+          # install.sh (Linux) and install.ps1 (Windows Server) install the
+          # self-hosted, cloud and console products, so they ride along with
+          # those three releases.
           if [ "$RELEASE_ASSETS" != "true" ]; then
             echo "enabled=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           cp install.sh install-notploy.sh
-          chmod +x install.sh install-notploy.sh
+          chmod +x install.sh install-notploy.sh install.ps1
           echo "enabled=true" >> "$GITHUB_OUTPUT"
 
       # Idempotent: re-running the workflow updates the existing release instead
@@ -378,3 +379,4 @@ jobs:
           files: |
             ${{ steps.assets.outputs.enabled == 'true' && 'install.sh' || '' }}
             ${{ steps.assets.outputs.enabled == 'true' && 'install-notploy.sh' || '' }}
+            ${{ steps.assets.outputs.enabled == 'true' && 'install.ps1' || '' }}
