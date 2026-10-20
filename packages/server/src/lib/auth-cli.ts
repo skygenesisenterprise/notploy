@@ -1,5 +1,4 @@
 import { apiKey } from "@better-auth/api-key";
-import { passkey } from "@better-auth/passkey";
 import { scim } from "@better-auth/scim";
 import { sso } from "@better-auth/sso";
 import { betterAuth } from "better-auth";
@@ -8,6 +7,7 @@ import { admin, organization, twoFactor } from "better-auth/plugins";
 import { db } from "../db";
 import * as schema from "../db/schema";
 import { ac, adminRole, memberRole, ownerRole } from "./access-control";
+import { webauthnTwoFactor } from "./plugins/webauthn-two-factor";
 
 // CLI-only config for `@better-auth/cli generate` — must mirror the plugin set
 // in auth.ts. Never import this from runtime code.
@@ -37,7 +37,7 @@ export const auth = betterAuth({
 			},
 		}),
 		twoFactor(),
-		passkey(),
+		webauthnTwoFactor(),
 		organization({
 			ac,
 			roles: { owner: ownerRole, admin: adminRole, member: memberRole },

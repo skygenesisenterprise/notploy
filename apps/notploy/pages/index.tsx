@@ -5,12 +5,16 @@ import {
 	isAdminPresent,
 } from "@notploy/server";
 import { validateRequest } from "@notploy/server/lib/auth";
+import {
+	browserSupportsWebAuthn,
+	startAuthentication,
+} from "@simplewebauthn/browser";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Fingerprint } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { type ReactElement, useEffect, useState } from "react";
+import { type ReactElement, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -46,6 +50,12 @@ import {
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import {
+	isCeremonyCancellation,
+	requestWebAuthnTwoFactorOptions,
+	verifyWebAuthnTwoFactor,
+	type WebAuthnTwoFactorOptions,
+} from "@/lib/webauthn-two-factor";
 import { appRouter } from "@/server/api/root";
 import { generateServerSideHelper } from "@/utils/create-server-helpers";
 import { useWhitelabelingPublic } from "@/utils/hooks/use-whitelabeling";
@@ -69,10 +79,15 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 	const router = useRouter();
 	const { config: whitelabeling } = useWhitelabelingPublic();
 	const [isLoginLoading, setIsLoginLoading] = useState(false);
-	const [isPasskeyLoading, setIsPasskeyLoading] = useState(false);
 	const [isTwoFactorLoading, setIsTwoFactorLoading] = useState(false);
 	const [isBackupCodeLoading, setIsBackupCodeLoading] = useState(false);
 	const [isTwoFactor, setIsTwoFactor] = useState(false);
+	const [isWebAuthnSupported, setIsWebAuthnSupported] = useState(false);
+	const [securityKeyOptions, setSecurityKeyOptions] =
+		useState<WebAuthnTwoFactorOptions | null>(null);
+	const [hasSecurityKey, setHasSecurityKey] = useState(false);
+	const [hasNoSecurityKey, setHasNoSecurityKey] = useState(false);
+	const [isSecurityKeyLoading, setIsSecurityKeyLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [twoFactorCode, setTwoFactorCode] = useState("");
 	const [isBackupCodeModalOpen, setIsBackupCodeModalOpen] = useState(false);
@@ -108,6 +123,64 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [router.query.error]);
 
+	useEffect(() => {
+		setIsWebAuthnSupported(browserSupportsWebAuthn());
+	}, []);
+
+	const loadSecurityKeyOptions = useCallback(async () => {
+		const { options, error } = await requestWebAuthnTwoFactorOptions();
+		setSecurityKeyOptions(options);
+		setHasSecurityKey(!!options);
+		setHasNoSecurityKey(error?.code === "NO_SECURITY_KEY");
+	}, []);
+
+	// The password step left a pending two-factor token, so a challenge can be
+	// requested before the user chooses a factor. Accounts without a key keep
+	// the code form only.
+	useEffect(() => {
+		if (!isTwoFactor || !isWebAuthnSupported) return;
+		loadSecurityKeyOptions().catch(() => setSecurityKeyOptions(null));
+	}, [isTwoFactor, isWebAuthnSupported, loadSecurityKeyOptions]);
+
+	const onSecurityKeySubmit = async () => {
+		if (!securityKeyOptions) return;
+
+		setIsSecurityKeyLoading(true);
+		try {
+			const assertion = await startAuthentication({
+				optionsJSON: securityKeyOptions,
+			});
+			const { token, error: verifyError } =
+				await verifyWebAuthnTwoFactor(assertion);
+
+			if (verifyError || !token) {
+				const message =
+					verifyError?.message ??
+					"The security key could not be verified. Try again.";
+				toast.error(message);
+				setError(message);
+				// The challenge is single use: fetch a fresh one for the retry.
+				await loadSecurityKeyOptions();
+				return;
+			}
+
+			toast.success("Logged in successfully");
+			router.push("/dashboard/home");
+		} catch (caught) {
+			if (!isCeremonyCancellation(caught)) {
+				const message =
+					caught instanceof Error
+						? caught.message
+						: "The security key could not be verified. Try again.";
+				toast.error(message);
+				setError(message);
+				await loadSecurityKeyOptions();
+			}
+		} finally {
+			setIsSecurityKeyLoading(false);
+		}
+	};
+
 	const onSubmit = async (values: LoginForm) => {
 		setIsLoginLoading(true);
 		try {
@@ -134,8 +207,10 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 
 			if (data && "twoFactorRedirect" in data && data.twoFactorRedirect) {
 				setTwoFactorCode("");
+				setSecurityKeyOptions(null);
+				setHasNoSecurityKey(false);
 				setIsTwoFactor(true);
-				toast.info("Please enter your 2FA code");
+				toast.info("Please enter your 2FA code or use a security key");
 				return;
 			}
 
@@ -147,34 +222,6 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 			setIsLoginLoading(false);
 		}
 	};
-	const onPasskeySignIn = async () => {
-		setIsPasskeyLoading(true);
-		try {
-			const { data, error } = await authClient.signIn.passkey();
-
-			if (error) {
-				const errorCode = "code" in error ? error.code : undefined;
-				if (
-					errorCode !== "AUTH_CANCELLED" &&
-					errorCode !== "ERROR_CEREMONY_ABORTED"
-				) {
-					toast.error(error.message || "Failed to sign in with passkey");
-					setError(error.message || "Failed to sign in with passkey");
-				}
-				return;
-			}
-
-			if (data) {
-				toast.success("Logged in successfully");
-				router.push("/dashboard/home");
-			}
-		} catch {
-			toast.error("An error occurred while signing in with passkey");
-		} finally {
-			setIsPasskeyLoading(false);
-		}
-	};
-
 	const onTwoFactorSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (twoFactorCode.length !== 6) {
@@ -279,16 +326,6 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 					</Button>
 				</form>
 			</Form>
-			<Button
-				variant="outline"
-				className="w-full mt-4"
-				type="button"
-				onClick={onPasskeySignIn}
-				isLoading={isPasskeyLoading}
-			>
-				<Fingerprint className="size-4" />
-				Sign in with Passkey
-			</Button>
 		</>
 	);
 
@@ -365,7 +402,7 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 								</InputOTP>
 								<CardDescription>
 									Enter the 6-digit code from your authenticator app
-								</CardDescription>
+								</CardDescription>{" "}
 								<button
 									type="button"
 									onClick={() => setIsBackupCodeModalOpen(true)}
@@ -373,6 +410,38 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 								>
 									Lost access to your authenticator app?
 								</button>
+								{isWebAuthnSupported && hasSecurityKey && (
+									<>
+										<div className="flex items-center gap-3 my-1">
+											<span className="h-px flex-1 bg-border" />
+											<span className="text-xs uppercase text-muted-foreground">
+												or
+											</span>
+											<span className="h-px flex-1 bg-border" />
+										</div>
+										<Button
+											variant="outline"
+											className="w-full"
+											type="button"
+											disabled={!securityKeyOptions}
+											isLoading={isSecurityKeyLoading}
+											onClick={onSecurityKeySubmit}
+										>
+											<Fingerprint className="size-4" />
+											Use a security key
+										</Button>{" "}
+									<CardDescription>
+										Use a hardware key or a security key stored in your browser or
+										password manager (Bitwarden, 1Password, iCloud Keychain).
+									</CardDescription>
+									</>
+								)}
+								{isWebAuthnSupported && hasNoSecurityKey && (
+									<CardDescription>
+										No security key is registered on this account. After signing
+										in, add one from Profile → Security to use it next time.
+									</CardDescription>
+								)}
 							</div>
 
 							<div className="grid grid-cols-2 gap-4">
@@ -383,6 +452,10 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 									onClick={() => {
 										setIsTwoFactor(false);
 										setTwoFactorCode("");
+										setSecurityKeyOptions(null);
+										setHasSecurityKey(false);
+										setHasNoSecurityKey(false);
+										setError(null);
 									}}
 								>
 									Back

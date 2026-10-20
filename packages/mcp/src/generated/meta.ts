@@ -5,6 +5,6 @@ export const generatedMetadata = {
   generator: "notploy-mcp/openapi",
   generatorVersion: 1,
   specVersion: "1.0.0",
-  specHash: "4c9eeb43a383f94920c75be33720af832d7ef7dd490de4114452b06613a80b73",
-  operationCount: 725,
+  specHash: "1e10aba255907e70e79847727678e40fce1bdd0e673cad9a2e460571dbf8c3f4",
+  operationCount: 724,
 } as const;

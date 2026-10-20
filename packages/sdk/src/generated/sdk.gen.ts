@@ -1742,9 +1742,6 @@ import type {
 	UserHaveRootAccessData,
 	UserHaveRootAccessErrors,
 	UserHaveRootAccessResponses,
-	UserListPasskeysData,
-	UserListPasskeysErrors,
-	UserListPasskeysResponses,
 	UserListSessionsData,
 	UserListSessionsErrors,
 	UserListSessionsResponses,
@@ -8241,15 +8238,6 @@ export const userGetPermissions = <ThrowOnError extends boolean = false>(
 		UserGetPermissionsErrors,
 		ThrowOnError
 	>({ url: "/user.getPermissions", ...options });
-
-export const userListPasskeys = <ThrowOnError extends boolean = false>(
-	options?: Options<UserListPasskeysData, ThrowOnError>,
-) =>
-	(options?.client ?? client).get<
-		UserListPasskeysResponses,
-		UserListPasskeysErrors,
-		ThrowOnError
-	>({ url: "/user.listPasskeys", ...options });
 
 export const userHaveRootAccess = <ThrowOnError extends boolean = false>(
 	options?: Options<UserHaveRootAccessData, ThrowOnError>,

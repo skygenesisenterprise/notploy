@@ -1,7 +1,7 @@
-// Auto-generated from openapi.json (sha256:4c9eeb43a383f949) — do not edit manually.
+// Auto-generated from openapi.json (sha256:1e10aba255907e70) — do not edit manually.
 // Run: pnpm run generate
 //
-// 718 commands in 63 groups.
+// 717 commands in 63 groups.
 
 import type { Command } from "commander";
 import { runApiCommand } from "../commands/run.js";
@@ -7997,14 +7997,6 @@ export function registerGeneratedCommands(program: Command) {
 		.option("--profile <name>", "Configuration profile to use")
 		.action((options, command) =>
 			runApiCommand(command, "user.haveRootAccess", "get", options),
-		);
-	g_user
-		.command("list-passkeys")
-		.description("List Passkeys")
-		.option("--json", "Output machine-readable JSON")
-		.option("--profile <name>", "Configuration profile to use")
-		.action((options, command) =>
-			runApiCommand(command, "user.listPasskeys", "get", options),
 		);
 	g_user
 		.command("list-sessions")

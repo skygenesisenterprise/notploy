@@ -224,8 +224,15 @@ export const twoFactor = pgTable("two_factor", {
 	lockedUntil: timestamp("locked_until"),
 });
 
-export const passkey = pgTable(
-	"passkey",
+/**
+ * WebAuthn credential registered as a two-factor method (security key,
+ * platform authenticator, or a key stored in a password manager).
+ *
+ * It is only accepted by the `/webauthn-2fa/*` endpoints: there is no
+ * passwordless sign-in path, so the credential never replaces the password.
+ */
+export const securityKey = pgTable(
+	"security_key",
 	{
 		id: text("id").primaryKey(),
 		name: text("name"),
@@ -242,14 +249,14 @@ export const passkey = pgTable(
 		aaguid: text("aaguid"),
 	},
 	(table) => [
-		index("passkey_userId_idx").on(table.userId),
-		index("passkey_credentialID_idx").on(table.credentialID),
+		index("security_key_user_id_idx").on(table.userId),
+		index("security_key_credential_id_idx").on(table.credentialID),
 	],
 );
 
-export const passkeyRelations = relations(passkey, ({ one }) => ({
+export const securityKeyRelations = relations(securityKey, ({ one }) => ({
 	user: one(user, {
-		fields: [passkey.userId],
+		fields: [securityKey.userId],
 		references: [user.id],
 	}),
 }));

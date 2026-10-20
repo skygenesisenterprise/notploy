@@ -155,8 +155,8 @@ export const twoFactor = pgTable(
 	],
 );
 
-export const passkey = pgTable(
-	"passkey",
+export const securityKey = pgTable(
+	"security_key",
 	{
 		id: text("id").primaryKey(),
 		name: text("name"),
@@ -173,8 +173,8 @@ export const passkey = pgTable(
 		aaguid: text("aaguid"),
 	},
 	(table) => [
-		index("passkey_userId_idx").on(table.userId),
-		index("passkey_credentialID_idx").on(table.credentialID),
+		index("securityKey_userId_idx").on(table.userId),
+		index("securityKey_credentialID_idx").on(table.credentialID),
 	],
 );
 
@@ -264,7 +264,7 @@ export const userRelations = relations(user, ({ many }) => ({
 	accounts: many(account),
 	ssoProviders: many(ssoProvider),
 	twoFactors: many(twoFactor),
-	passkeys: many(passkey),
+	securityKeys: many(securityKey),
 	members: many(member),
 	invitations: many(invitation),
 }));
@@ -297,9 +297,9 @@ export const twoFactorRelations = relations(twoFactor, ({ one }) => ({
 	}),
 }));
 
-export const passkeyRelations = relations(passkey, ({ one }) => ({
+export const securityKeyRelations = relations(securityKey, ({ one }) => ({
 	user: one(user, {
-		fields: [passkey.userId],
+		fields: [securityKey.userId],
 		references: [user.id],
 	}),
 }));

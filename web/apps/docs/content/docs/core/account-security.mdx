@@ -1,33 +1,13 @@
 ---
 title: Account Security
-description: "Protect your Notploy account with passkeys (WebAuthn) and two-factor authentication."
+description: "Protect your Notploy account with two-factor authentication: authenticator codes or a security key."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Notploy supports two mechanisms to secure panel access, and they can be combined: **passkeys** for passwordless sign-in and **two-factor authentication (2FA)** on top of password logins.
-
-## Passkeys
-
-Passkeys are a passwordless sign-in method based on WebAuthn. Instead of typing a password (and a 2FA code), you authenticate with your device — Touch ID, Face ID, Windows Hello, or a hardware security key like a YubiKey. The credential never leaves your device and is resistant to phishing: it only works on your Notploy panel's domain.
-
-### Registering a passkey
-
-1. Go to **Settings → Profile**.
-2. In the **Passkeys** section, click add and follow your browser's prompt (fingerprint, face, PIN, or security key).
-3. Give it a recognizable name — you can register several (e.g. laptop + phone) and remove them individually at any time.
-
-### Signing in
-
-On the login page, use the passkey option and pick the credential — no password or 2FA code required.
-
-<Callout type="info">
-  Register at least two passkeys (or keep your password + 2FA working) so losing a device doesn't lock you out.
-</Callout>
+Every sign-in starts with your password. Two-factor authentication (2FA) adds a second proof on top of it — a time-based code from an authenticator app, or a security key (WebAuthn). Both methods can be registered on the same account, and either one completes the second step.
 
 ## Two-Factor Authentication (2FA)
-
-2FA adds a time-based one-time code (TOTP) to password logins, from any authenticator app (Google Authenticator, 1Password, Authy, etc.).
 
 ### Enabling 2FA
 
@@ -37,11 +17,30 @@ On the login page, use the passkey option and pick the credential — no passwor
 
 Once enabled, password sign-ins require the current code from your app.
 
-## Which one should I use?
+## Security keys (WebAuthn)
 
-- **Passkeys** are the strongest and most convenient option — phishing-resistant and no codes to type. Prefer them for day-to-day sign-in.
-- **2FA** protects the password flow, which remains available as a fallback. If you keep using passwords, enable it.
-- Using both gives you a secure fallback chain: passkey for daily use, password + 2FA if a device is unavailable.
+A security key is a second factor based on WebAuthn. It lives in the authenticator itself: a hardware key such as a YubiKey, the platform authenticator (Touch ID, Face ID, Windows Hello), or a key stored in a password manager such as Bitwarden, 1Password, or iCloud Keychain. The credential never leaves the authenticator and is bound to your Notploy domain, so it is resistant to phishing.
+
+A security key never replaces the password: it is only accepted after the password step.
+
+### Registering a security key
+
+1. Enable 2FA first — the security key is offered as a second factor.
+2. Go to **Settings → Profile → Security** and open **Security key** in the 2FA card.
+3. Give the key a recognizable name (e.g. `YubiKey`, `Bitwarden vault`) and follow your browser's prompt.
+4. On the next sign-in, enter your password, then choose **Use a security key** instead of typing a code.
+
+You can register up to ten keys and remove them individually at any time. Removing a key leaves the authenticator codes in place.
+
+<Callout type="info">
+  Register a second key (or keep your backup codes) so losing one device doesn't lock you out. Backup codes remain usable when no security key is available.
+</Callout>
+
+## Choosing a second factor
+
+- **Authenticator codes** work anywhere, with no extra hardware, but a code can be phished.
+- **Security keys** are phishing-resistant and require nothing to type; the browser and device must support WebAuthn (HTTPS or localhost).
+- You can keep both: sign in with the key when it is available, and fall back to a code or a backup code otherwise.
 
 <Callout type="info">
   Organization owners on Notploy Cloud and self-hosted instances with SSO can additionally enforce sign-in through their identity provider — see the SSO documentation.

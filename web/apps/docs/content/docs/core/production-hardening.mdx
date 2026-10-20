@@ -19,7 +19,7 @@ Notploy secures the application layer — authentication, authorization, TLS aut
 
 | Layer | Notploy (the product) | You (the operator) |
 |---|---|---|
-| Access control | 2FA, passkeys, RBAC, custom roles, SSO/OIDC/SAML, SCIM (Enterprise) | Assigning least-privilege roles, offboarding users promptly |
+| Access control | 2FA (authenticator codes or security key), RBAC, custom roles, SSO/OIDC/SAML, SCIM (Enterprise) | Assigning least-privilege roles, offboarding users promptly |
 | API/CLI | Token-based auth scoped to your organization, optional expiration, `Access to API/CLI` permission | Who gets that permission, setting an expiration on every token, not sharing tokens across integrations |
 | Secrets | Secrets Provider integration (Vault, Infisical, AWS SM, Doppler, Azure KV, Scaleway) — values never stored in the Notploy DB when referenced this way | Operating the external vault, least-privilege vault credentials, not pasting raw secrets into env vars |
 | Reverse proxy / TLS | Traefik auto-config, automatic Let's Encrypt certs, HTTP→HTTPS redirect on Applications | DNS records, custom Traefik middlewares (HSTS, rate limiting), keeping the Traefik dashboard closed |
@@ -159,7 +159,7 @@ security_opt:
 
 ## 4. Notploy
 
-- ⬜ **2FA or passkeys** for every member with panel access — see [Account Security](/docs/core/account-security). Passkeys are phishing-resistant and preferred for day-to-day sign-in.
+- ⬜ **2FA** for every member with panel access — see [Account Security](/docs/core/account-security). Prefer a security key over codes when the device supports it: it is phishing-resistant.
 - ⬜ **SSO/OIDC or SAML** if you have an IdP (Enterprise) — see [SSO](/docs/core/enterprise/sso). Enterprise lets you **force SSO** for the organization, disabling password-based sign-in so every member authenticates through your IdP (and inherits whatever MFA policy you enforce there). Combine with [SCIM Provisioning](/docs/core/enterprise/scim) to auto-deprovision users the moment they leave your IdP, rather than relying on someone remembering to remove them from Notploy.
 - ⬜ **Least-privilege roles.** Use the built-in Member permissions (see [Permissions](/docs/core/permissions)) or, on Enterprise, [Custom Roles](/docs/core/enterprise/custom-roles) scoped per project/environment. Don't hand out Admin by default.
 - ⬜ **Secrets Providers** instead of raw values in env vars — see [Secrets Providers](/docs/core/secrets-providers). Values are fetched at deploy time and never stored in the Notploy database; your vault stays the source of truth, and rotation there takes effect on the next deploy.
@@ -239,7 +239,7 @@ http:
 | 6 | `daemon.json` hardened (live-restore, log rotation) | Docker | ⬜ |
 | 7 | Docker socket never exposed over TCP | Docker | ⬜ |
 | 8 | Registry credentials scoped and stored in Notploy | Docker | ⬜ |
-| 9 | 2FA or passkeys enabled for every member | Notploy | ⬜ |
+| 9 | 2FA enabled for every member | Notploy | ⬜ |
 | 10 | SSO/OIDC configured, and forced org-wide if on Enterprise | Notploy | ⬜ |
 | 11 | SCIM auto-deprovisioning (if on SSO) | Notploy | ⬜ |
 | 12 | Roles follow least privilege / Custom Roles in use | Notploy | ⬜ |

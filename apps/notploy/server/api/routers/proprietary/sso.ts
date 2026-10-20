@@ -782,7 +782,7 @@ export const ssoRouter = createTRPCRouter({
 			});
 
 			// Once an external identity source exists it becomes the authority:
-			// local password/social/passkey sign-in and sign-up are turned off so
+			// local password/social sign-in and sign-up are turned off so
 			// authentication runs through the provider. Cloud manages this itself.
 			if (!IS_CLOUD) {
 				await updateWebServerSettings({ enforceSSO: true });

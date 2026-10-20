@@ -4,12 +4,11 @@ import {
 	apikey,
 	invitation,
 	member,
-	passkey,
 	user,
 } from "@notploy/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import * as bcrypt from "bcrypt";
-import { and, desc, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { CicdTokenScope } from "../lib/cicd-scope";
 import { auth } from "../lib/auth";
 
@@ -396,21 +395,6 @@ export const findMemberById = async (
 		});
 	}
 	return result;
-};
-
-export const findPasskeysByUserId = async (userId: string) => {
-	return db.query.passkey.findMany({
-		where: eq(passkey.userId, userId),
-		columns: {
-			id: true,
-			name: true,
-			deviceType: true,
-			backedUp: true,
-			createdAt: true,
-			aaguid: true,
-		},
-		orderBy: [desc(passkey.createdAt)],
-	});
 };
 
 export const createOrganizationUserWithCredentials = async ({

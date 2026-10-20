@@ -19,7 +19,7 @@ Falling back to the insecure hardcoded default — this is a CRITICAL SECURITY R
 This mode WILL BE REMOVED in a future release.
 
 Please migrate to Docker Secrets:
-  curl -sSL https://notploy.com/security/0.29.3.sh | bash
+  curl -sSL https://notploy.com/security/1.1.5.sh | sudo bash
 `);
 	}
 	return HARDCODED_LEGACY_SECRET;

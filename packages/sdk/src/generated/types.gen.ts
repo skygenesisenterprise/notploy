@@ -22563,51 +22563,6 @@ export type UserGetPermissionsResponses = {
 export type UserGetPermissionsResponse =
 	UserGetPermissionsResponses[keyof UserGetPermissionsResponses];
 
-export type UserListPasskeysData = {
-	body?: never;
-	path?: never;
-	query?: never;
-	url: "/user.listPasskeys";
-};
-
-export type UserListPasskeysErrors = {
-	/**
-	 * Invalid input data
-	 */
-	400: ErrorBadRequest;
-	/**
-	 * Authorization not provided
-	 */
-	401: ErrorUnauthorized;
-	/**
-	 * Insufficient access
-	 */
-	403: ErrorForbidden;
-	/**
-	 * Not found
-	 */
-	404: ErrorNotFound;
-	/**
-	 * Internal server error
-	 */
-	500: ErrorInternalServerError;
-};
-
-export type UserListPasskeysError =
-	UserListPasskeysErrors[keyof UserListPasskeysErrors];
-
-export type UserListPasskeysResponses = {
-	/**
-	 * Successful response
-	 */
-	200: {
-		[key: string]: never;
-	};
-};
-
-export type UserListPasskeysResponse =
-	UserListPasskeysResponses[keyof UserListPasskeysResponses];
-
 export type UserHaveRootAccessData = {
 	body?: never;
 	path?: never;

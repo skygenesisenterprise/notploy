@@ -1,6 +1,5 @@
 import type { IncomingMessage } from "node:http";
 import { apiKey } from "@better-auth/api-key";
-import { passkey } from "@better-auth/passkey";
 import { scim } from "@better-auth/scim";
 import { sso } from "@better-auth/sso";
 import * as bcrypt from "bcrypt";
@@ -33,6 +32,7 @@ import { ac, adminRole, memberRole, ownerRole } from "./access-control";
 import { betterAuthSecret } from "./auth-secret";
 import { ldapSso } from "./plugins/ldap-sso";
 import { socialSso } from "./plugins/social-sso";
+import { webauthnTwoFactor } from "./plugins/webauthn-two-factor";
 
 const resolveTrustedOrigins = async (opts?: { request?: Request }) => {
 	try {
@@ -192,17 +192,17 @@ const createBetterAuth = () =>
 				const isBlockedAuthPath =
 					ctx.path.startsWith("/sign-in/email") ||
 					ctx.path.startsWith("/sign-in/social") ||
-					ctx.path.startsWith("/sign-in/passkey") ||
 					ctx.path.startsWith("/sign-up/email") ||
-					ctx.path.startsWith("/passkey/verify-authentication") ||
-					ctx.path.startsWith("/passkey/generate-authenticate-options");
+					// A pending password challenge must not be completed either.
+					ctx.path === "/webauthn-2fa/generate-options" ||
+					ctx.path === "/webauthn-2fa/verify";
 
 				if (!IS_CLOUD && isBlockedAuthPath) {
 					const settings = await getWebServerSettings();
 					if (settings?.enforceSSO) {
 						throw new APIError("FORBIDDEN", {
 							message:
-								"SSO is enforced. Direct password, social, and passkey sign-in are disabled.",
+								"SSO is enforced. Direct password and social sign-in are disabled.",
 						});
 					}
 				}
@@ -527,7 +527,8 @@ const createBetterAuth = () =>
 			socialSso(),
 			scim(),
 			twoFactor(),
-			passkey(),
+			// Security keys as a second factor, next to the TOTP codes.
+			webauthnTwoFactor(),
 			organization({
 				ac,
 				roles: {

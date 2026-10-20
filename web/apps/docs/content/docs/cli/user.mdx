@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 Accounts, API keys, sessions, permissions and per-user metrics.
 
-`notploy user` exposes **26 commands**. They map one-to-one onto the `user.*` API operations, so anything reachable from the dashboard is reachable from here.
+`notploy user` exposes **25 commands**. They map one-to-one onto the `user.*` API operations, so anything reachable from the dashboard is reachable from here.
 
 <Callout>
 	Run `notploy user --help` to list these commands in your terminal, or
@@ -252,18 +252,6 @@ Calls `GET /api/trpc/user.haveRootAccess`.
 
 ```bash
 notploy user have-root-access [options]
-```
-
-| Option | Type | Required | Allowed values |
-| --- | --- | --- | --- |
-| `--profile <name>` | string | No | — |
-
-### `notploy user list-passkeys`
-
-Calls `GET /api/trpc/user.listPasskeys`.
-
-```bash
-notploy user list-passkeys [options]
 ```
 
 | Option | Type | Required | Allowed values |

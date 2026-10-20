@@ -10588,21 +10588,6 @@ export const generatedOperations: GeneratedApiOperation[] = [
     },
   },
   {
-    name: "user-listPasskeys",
-    description: "GET /user.listPasskeys",
-    tag: "user",
-    method: "GET",
-    path: "/user.listPasskeys",
-    schema: z.object({}),
-    annotations: {
-      title: "User ListPasskeys",
-      readOnlyHint: true,
-      destructiveHint: false,
-      idempotentHint: true,
-      openWorldHint: true,
-    },
-  },
-  {
     name: "user-listSessions",
     description: "GET /user.listSessions",
     tag: "user",

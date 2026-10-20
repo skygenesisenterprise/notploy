@@ -17,7 +17,7 @@ import { ShowConnectEditor } from "@/components/dashboard/settings/api/show-conn
 import { LinkingAccount } from "@/components/dashboard/settings/linking-account/linking-account";
 import { Configure2FA } from "@/components/dashboard/settings/profile/configure-2fa";
 import { Enable2FA } from "@/components/dashboard/settings/profile/enable-2fa";
-import { ManagePasskeys } from "@/components/dashboard/settings/profile/manage-passkeys";
+import { ManageSecurityKeys } from "@/components/dashboard/settings/profile/manage-security-keys";
 import { ProfileForm } from "@/components/dashboard/settings/profile/profile-form";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { AlertBlock } from "@/components/shared/alert-block";
@@ -214,26 +214,32 @@ const Page = () => {
 										</CardTitle>
 										<CardDescription>
 											{user.twoFactorEnabled
-												? "Two-factor authentication is enabled."
+												? "Authenticator codes or a security key are required after your password."
 												: "Two-factor authentication is not configured."}
 										</CardDescription>
 									</CardHeader>
 									<CardContent className="flex flex-wrap gap-2 border-t pt-5">
-										{user.twoFactorEnabled ? <Configure2FA /> : <Enable2FA />}
+										{user.twoFactorEnabled ? (
+											<>
+												<Configure2FA />
+												<ManageSecurityKeys />
+											</>
+										) : (
+											<Enable2FA />
+										)}
 									</CardContent>
 								</Card>
 								<Card>
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2 text-lg">
 											<UserRound className="size-5 text-muted-foreground" />
-											Passkeys and sessions
+											Sessions
 										</CardTitle>
 										<CardDescription>
-											Manage sign-in devices and active sessions.
+											Review and revoke the devices signed in to your account.
 										</CardDescription>
 									</CardHeader>
 									<CardContent className="flex flex-wrap gap-2 border-t pt-5">
-										<ManagePasskeys />
 										<Button
 											variant="outline"
 											size="sm"
