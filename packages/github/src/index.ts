@@ -38,6 +38,23 @@ export type {
 	CreateDeploymentOptions,
 	CreateDeploymentStatusOptions,
 } from "./client/namespaces/deployments.js";
+// Shared integration contract (identities, refs, origins, correlation)
+export type {
+	BuildIdempotencyKeyOptions,
+	DeploymentOrigin,
+	GitHubDeploymentTrigger,
+	GitHubInstallationIdentity,
+	GitHubRef,
+	GitHubRefKind,
+	GitHubRepositoryIdentity,
+} from "./contract/index.js";
+export {
+	buildDeploymentIdempotencyKey,
+	deploymentOrigins,
+	isDeploymentOrigin,
+	parseGitRef,
+	repositoryFullName,
+} from "./contract/index.js";
 // Errors
 export {
 	GitHubApiError,
@@ -85,3 +102,14 @@ export type {
 	GitHubWorkflowRunEvent,
 } from "./webhooks/events.js";
 export { parseWebhookPayload } from "./webhooks/events.js";
+// Webhooks (delivery handling)
+export {
+	DEFAULT_MAX_PAYLOAD_BYTES,
+	getWebhookHeader,
+	isValidDeliveryId,
+	type RawWebhookPayload,
+	type ReceiveOptions,
+	type ReceiveResult,
+	type WebhookHeaders,
+	WebhooksNamespace,
+} from "./webhooks/index.js";

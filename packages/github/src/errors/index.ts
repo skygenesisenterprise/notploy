@@ -124,12 +124,20 @@ export class GitHubApiError extends GitHubError {
 /** Thrown when webhook signature verification or payload parsing fails. */
 export class GitHubWebhookError extends GitHubError {
 	readonly name: string = "GitHubWebhookError";
-	/** Machine-readable reason: "invalid_signature", "unsupported_event", "malformed_payload". */
+	/**
+	 * Machine-readable reason: "invalid_signature", "invalid_headers",
+	 * "payload_too_large", "unsupported_event" or "malformed_payload".
+	 */
 	readonly reason: string;
 
 	constructor(
 		message: string,
-		reason: "invalid_signature" | "unsupported_event" | "malformed_payload",
+		reason:
+			| "invalid_signature"
+			| "invalid_headers"
+			| "payload_too_large"
+			| "unsupported_event"
+			| "malformed_payload",
 	) {
 		super(message);
 		this.name = "GitHubWebhookError";

@@ -14,6 +14,12 @@ const mocks = vi.hoisted(() => ({
 	shouldDeploy: vi.fn(),
 	createPreviewDeployment: vi.fn(),
 	findPreviewDeploymentByApplicationId: vi.fn(),
+	claimDelivery: vi.fn(),
+	completeDelivery: vi.fn(),
+	readRawBody: vi.fn(),
+	verifySignature: vi.fn(),
+	updateSet: vi.fn(),
+	updateWhere: vi.fn(),
 }));
 
 vi.mock("drizzle-orm", () => ({
@@ -48,6 +54,7 @@ vi.mock("@/server/db/schema", () => ({
 
 vi.mock("@notploy/server/db", () => ({
 	db: {
+		update: vi.fn(() => ({ set: mocks.updateSet })),
 		query: {
 			github: {
 				findFirst: mocks.githubFindFirst,
@@ -76,12 +83,18 @@ vi.mock("@notploy/server", () => ({
 	removePreviewDeployment: vi.fn(),
 }));
 
-vi.mock("@octokit/webhooks", () => ({
-	Webhooks: vi.fn().mockImplementation(function Webhooks() {
-		return {
-			verify: mocks.verify,
-		};
-	}),
+vi.mock("@/server/utils/github-webhook", () => ({
+	GithubWebhookRequestError: class GithubWebhookRequestError extends Error {
+		status: number;
+		constructor(message: string, status: number) {
+			super(message);
+			this.status = status;
+		}
+	},
+	claimGithubDelivery: mocks.claimDelivery,
+	completeGithubDelivery: mocks.completeDelivery,
+	readRawWebhookBody: mocks.readRawBody,
+	verifyGithubSignature: mocks.verifySignature,
 }));
 
 vi.mock("@/server/queues/queueSetup", () => ({
@@ -116,49 +129,74 @@ const createResponse = () => {
 	return res;
 };
 
+/** Default webhook dependencies: signature valid, delivery newly claimed. */
+const primeWebhook = () => {
+	mocks.verifySignature.mockResolvedValue(true);
+	mocks.claimDelivery.mockResolvedValue("claimed");
+	mocks.completeDelivery.mockResolvedValue(undefined);
+	mocks.updateSet.mockReturnValue({ where: mocks.updateWhere });
+	mocks.updateWhere.mockResolvedValue([]);
+};
+
+/**
+ * The route disables Next's body parser and reads the raw stream, so the request
+ * is represented by the headers only; `readRawWebhookBody` is mocked to return
+ * the serialized payload it would have read.
+ */
+const createRequest = (
+	body: Record<string, unknown>,
+	event = "push",
+	headers: Record<string, string | undefined> = {},
+) => {
+	mocks.readRawBody.mockResolvedValue(JSON.stringify(body));
+
+	return {
+		headers: {
+			"x-hub-signature-256": "sha256=test-signature",
+			"x-github-event": event,
+			"x-github-delivery": "delivery-1",
+			...headers,
+		},
+	} as unknown as NextApiRequest;
+};
+
+const buildPushBody = (
+	branch: string,
+	owner: { login?: string; name?: string } = { login: "agentHits" },
+) => ({
+	installation: {
+		id: 12345,
+	},
+	ref: `refs/heads/${branch}`,
+	after: "abc123",
+	head_commit: {
+		message: "fix: trigger deployment",
+	},
+	commits: [
+		{
+			modified: ["src/index.ts"],
+		},
+	],
+	repository: {
+		name: "notploy",
+		full_name: "agentHits/notploy",
+		clone_url: "https://github.com/skygenesisenterprise/notploy.git",
+		html_url: "https://github.com/skygenesisenterprise/notploy",
+		owner,
+	},
+});
+
 const createPushRequest = (
 	branch: string,
 	owner: { login?: string; name?: string } = { login: "agentHits" },
-) =>
-	({
-		headers: {
-			"x-hub-signature-256": "sha256=test-signature",
-			"x-github-event": "push",
-		},
-		body: {
-			installation: {
-				id: 12345,
-			},
-			ref: `refs/heads/${branch}`,
-			after: "abc123",
-			head_commit: {
-				message: "fix: trigger deployment",
-			},
-			commits: [
-				{
-					modified: ["src/index.ts"],
-				},
-			],
-			repository: {
-				name: "notploy",
-				full_name: "agentHits/notploy",
-				clone_url: "https://github.com/skygenesisenterprise/notploy.git",
-				html_url: "https://github.com/skygenesisenterprise/notploy",
-				owner,
-			},
-		},
-	}) as unknown as NextApiRequest;
+) => createRequest(buildPushBody(branch, owner));
 
-const createTagRequest = (tagName: string) => {
-	const req = createPushRequest("main") as unknown as {
-		body: { ref: string; head_commit: { message: string } };
-	};
-
-	req.body.ref = `refs/tags/${tagName}`;
-	req.body.head_commit.message = `release: ${tagName}`;
-
-	return req as unknown as NextApiRequest;
-};
+const createTagRequest = (tagName: string) =>
+	createRequest({
+		...buildPushBody("main"),
+		ref: `refs/tags/${tagName}`,
+		head_commit: { message: `release: ${tagName}` },
+	});
 
 describe("GitHub app webhook auto-deploy", () => {
 	beforeEach(() => {
@@ -168,7 +206,7 @@ describe("GitHub app webhook auto-deploy", () => {
 			githubInstallationId: 12345,
 			githubWebhookSecret: "webhook-secret",
 		});
-		mocks.verify.mockResolvedValue(true);
+		primeWebhook();
 		mocks.shouldDeploy.mockReturnValue(true);
 		mocks.composeFindMany.mockResolvedValue([]);
 		mocks.queueAdd.mockResolvedValue({ id: "job-id" });
@@ -345,12 +383,8 @@ describe("GitHub app webhook preview deployments", () => {
 		}));
 
 	const createPullRequestRequest = (action: string) =>
-		({
-			headers: {
-				"x-hub-signature-256": "sha256=test-signature",
-				"x-github-event": "pull_request",
-			},
-			body: {
+		createRequest(
+			{
 				installation: {
 					id: 12345,
 				},
@@ -379,7 +413,8 @@ describe("GitHub app webhook preview deployments", () => {
 					},
 				},
 			},
-		}) as unknown as NextApiRequest;
+			"pull_request",
+		);
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -388,7 +423,7 @@ describe("GitHub app webhook preview deployments", () => {
 			githubInstallationId: 12345,
 			githubWebhookSecret: "webhook-secret",
 		});
-		mocks.verify.mockResolvedValue(true);
+		primeWebhook();
 		mocks.queueAdd.mockResolvedValue({ id: "job-id" });
 		mocks.createPreviewDeployment.mockResolvedValue({
 			previewDeploymentId: "new-preview-id",
@@ -476,5 +511,191 @@ describe("GitHub app webhook preview deployments", () => {
 			}),
 		);
 		expect(res.status).toHaveBeenCalledWith(200);
+	});
+});
+
+describe("GitHub webhook security and delivery handling", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		mocks.githubFindFirst.mockResolvedValue({
+			githubId: "github-provider-id",
+			githubInstallationId: 12345,
+			githubWebhookSecret: "webhook-secret",
+			githubInstallationSuspendedAt: null,
+		});
+		mocks.applicationsFindMany.mockResolvedValue([]);
+		mocks.composeFindMany.mockResolvedValue([]);
+		mocks.queueAdd.mockResolvedValue({ id: "job-id" });
+		primeWebhook();
+	});
+
+	it("rejects a delivery without a signature header", async () => {
+		const req = createPushRequest("main") as unknown as {
+			headers: Record<string, string | undefined>;
+		};
+		delete req.headers["x-hub-signature-256"];
+		const res = createResponse();
+
+		await handler(req as never, res);
+
+		expect(res.status).toHaveBeenCalledWith(400);
+		expect(mocks.claimDelivery).not.toHaveBeenCalled();
+		expect(mocks.queueAdd).not.toHaveBeenCalled();
+	});
+
+	it("rejects a delivery without a delivery id", async () => {
+		const req = createPushRequest("main") as unknown as {
+			headers: Record<string, string | undefined>;
+		};
+		delete req.headers["x-github-delivery"];
+		const res = createResponse();
+
+		await handler(req as never, res);
+
+		expect(res.status).toHaveBeenCalledWith(400);
+		expect(mocks.queueAdd).not.toHaveBeenCalled();
+	});
+
+	it("never processes an unverified signature", async () => {
+		mocks.verifySignature.mockResolvedValue(false);
+		const res = createResponse();
+
+		await handler(createPushRequest("main"), res);
+
+		expect(res.status).toHaveBeenCalledWith(401);
+		expect(mocks.claimDelivery).not.toHaveBeenCalled();
+		expect(mocks.queueAdd).not.toHaveBeenCalled();
+	});
+
+	it("does not disclose whether an installation exists", async () => {
+		mocks.githubFindFirst.mockResolvedValue(undefined);
+		const res = createResponse();
+
+		await handler(createPushRequest("main"), res);
+
+		expect(res.status).toHaveBeenCalledWith(401);
+		expect(mocks.queueAdd).not.toHaveBeenCalled();
+	});
+
+	it("acknowledges a duplicate delivery without enqueueing work", async () => {
+		mocks.claimDelivery.mockResolvedValue("duplicate");
+		const res = createResponse();
+
+		await handler(createPushRequest("main"), res);
+
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.json).toHaveBeenCalledWith({
+			message: "Duplicate delivery ignored",
+		});
+		expect(mocks.queueAdd).not.toHaveBeenCalled();
+		expect(mocks.completeDelivery).not.toHaveBeenCalled();
+	});
+
+	it("records the delivery outcome after processing", async () => {
+		const res = createResponse();
+
+		await handler(createPushRequest("main"), res);
+
+		expect(mocks.completeDelivery).toHaveBeenCalledWith(
+			expect.objectContaining({
+				githubId: "github-provider-id",
+				deliveryId: "delivery-1",
+				status: "processed",
+			}),
+		);
+	});
+
+	it("refuses to deploy from a suspended installation", async () => {
+		mocks.githubFindFirst.mockResolvedValue({
+			githubId: "github-provider-id",
+			githubInstallationId: 12345,
+			githubWebhookSecret: "webhook-secret",
+			githubInstallationSuspendedAt: new Date().toISOString(),
+		});
+		const res = createResponse();
+
+		await handler(createPushRequest("main"), res);
+
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.json).toHaveBeenCalledWith({
+			message: "Installation suspended, deployment skipped",
+		});
+		expect(mocks.queueAdd).not.toHaveBeenCalled();
+	});
+
+	it("marks the installation suspended on a suspend event", async () => {
+		const res = createResponse();
+
+		await handler(
+			createRequest(
+				{ action: "suspend", installation: { id: 12345 } },
+				"installation",
+			),
+			res,
+		);
+
+		expect(mocks.updateSet).toHaveBeenCalledWith(
+			expect.objectContaining({
+				githubInstallationSuspendedAt: expect.any(String),
+			}),
+		);
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(mocks.queueAdd).not.toHaveBeenCalled();
+	});
+
+	it("clears the suspension on an unsuspend event", async () => {
+		const res = createResponse();
+
+		await handler(
+			createRequest(
+				{ action: "unsuspend", installation: { id: 12345 } },
+				"installation",
+			),
+			res,
+		);
+
+		expect(mocks.updateSet).toHaveBeenCalledWith({
+			githubInstallationSuspendedAt: null,
+		});
+		expect(res.status).toHaveBeenCalledWith(200);
+	});
+
+	it("acknowledges installation repository changes", async () => {
+		const res = createResponse();
+
+		await handler(
+			createRequest(
+				{
+					action: "added",
+					installation: { id: 12345 },
+					repositories_added: [{ id: 1, name: "a", full_name: "acme/a" }],
+				},
+				"installation_repositories",
+			),
+			res,
+		);
+
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.json).toHaveBeenCalledWith({
+			message: "Installation repositories updated",
+		});
+	});
+
+	it("acknowledges unsupported events instead of failing the delivery", async () => {
+		const res = createResponse();
+
+		await handler(
+			createRequest(
+				{
+					zen: "Keep it logically awesome.",
+					installation: { id: 12345 },
+				},
+				"issues",
+			),
+			res,
+		);
+
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(mocks.queueAdd).not.toHaveBeenCalled();
 	});
 });
