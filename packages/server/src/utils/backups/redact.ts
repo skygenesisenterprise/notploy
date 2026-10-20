@@ -1,12 +1,27 @@
+import { redactSecrets, redactSecretValues } from "../security/redact";
+
 /**
- * Redacts S3 credentials from rclone command strings.
+ * Redacts credentials from rclone command strings.
  *
- * Used to prevent credential leakage in structured logs and error output.
- * Matches the flag format produced by `getS3Credentials()`:
- *   --s3-access-key-id="VALUE"  and  --s3-secret-access-key="VALUE"
+ * Kept as a named helper for existing call sites; the actual policy lives in
+ * the central `security/redact` module so S3 flags, URL credentials, private
+ * keys and provider tokens share one implementation.
  */
 export const redactRcloneCredentials = (command: string): string => {
-	return command
-		.replace(/(--s3-access-key-id=)"[^"]*"/g, '$1"[REDACTED]"')
-		.replace(/(--s3-secret-access-key=)"[^"]*"/g, '$1"[REDACTED]"');
+	return redactSecrets(command);
 };
+
+/**
+ * Redacts an error raised while backing up to a specific destination. The
+ * destination values are masked literally, in addition to the structural
+ * patterns, so a provider that echoes only the secret (without its flag name)
+ * cannot leak it into notifications or logs.
+ */
+export const redactBackupError = (
+	error: unknown,
+	destination?: { accessKey?: string | null; secretAccessKey?: string | null },
+): string =>
+	redactSecretValues(error instanceof Error ? error.message : String(error), [
+		destination?.accessKey,
+		destination?.secretAccessKey,
+	]);

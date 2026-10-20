@@ -31,11 +31,13 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@notploy/server/services/permission";
+import { assertServiceMoveAllowed } from "@notploy/server/services/service-move";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
+import { withQuotaAudit } from "@/server/api/utils/quota";
 import {
 	apiChangePostgresStatus,
 	apiCreatePostgres,
@@ -400,9 +402,14 @@ export const postgresRouter = createTRPCRouter({
 				service: ["create"],
 			});
 
-			const service = await updatePostgresById(postgresId, {
-				...rest,
-			});
+			const service = await withQuotaAudit(
+				ctx,
+				{ type: "service", id: postgresId, name: rest.appName },
+				() =>
+					updatePostgresById(postgresId, {
+						...rest,
+					}),
+			);
 
 			if (!service) {
 				throw new TRPCError({
@@ -480,6 +487,15 @@ export const postgresRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, input.postgresId, {
 				service: ["create"],
 			});
+
+			await withQuotaAudit(ctx, { type: "service", id: input.postgresId }, () =>
+				assertServiceMoveAllowed({
+					ctx,
+					serviceType: "postgres",
+					serviceId: input.postgresId,
+					targetEnvironmentId: input.targetEnvironmentId,
+				}),
+			);
 
 			const updatedPostgres = await db
 				.update(postgresTable)

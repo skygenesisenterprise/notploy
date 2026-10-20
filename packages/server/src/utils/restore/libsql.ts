@@ -20,10 +20,12 @@ export const restoreLibsqlBackup = async (
 
 		const backupPath = `${bucketPath}/${backupInput.backupFile}`;
 
-		const rcloneCommand = `rclone cat ${rcloneFlags.join(" ")} ${quote([backupPath])}`;
+		const rcloneCommand = `rclone cat ${rcloneFlags.join(" ")} ${quote([backupPath])} | gunzip`;
 
 		const containerSearch = getServiceContainerCommand(appName);
-		const restoreCommand = `docker exec -i $CONTAINER_ID sh -c "tar xzf - -C /var/lib/sqld"`;
+		// Decompress on the host: the image only needs `tar`, not `gzip` or a
+		// shell. `tar xf -` reads the archive from stdin.
+		const restoreCommand = `docker exec -i $CONTAINER_ID tar xf - -C /var/lib/sqld`;
 
 		const command = `CONTAINER_ID=$(${containerSearch}) && ${rcloneCommand} | ${restoreCommand}`;
 

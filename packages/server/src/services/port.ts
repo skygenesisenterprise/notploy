@@ -6,6 +6,14 @@ import type { z } from "zod";
 
 export type Port = typeof ports.$inferSelect;
 
+export const findPortsByApplicationId = async (
+	applicationId: string,
+): Promise<Port[]> => {
+	return db.query.ports.findMany({
+		where: eq(ports.applicationId, applicationId),
+	});
+};
+
 export const createPort = async (input: z.infer<typeof apiCreatePort>) => {
 	const newPort = await db
 		.insert(ports)

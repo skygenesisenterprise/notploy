@@ -23,6 +23,17 @@ export const projects = pgTable("project", {
 		.notNull()
 		.references(() => organization.id, { onDelete: "cascade" }),
 	env: encryptedText("env").notNull().default(""),
+	/**
+	 * Logical project quotas. These are Notploy-level caps on the limits that
+	 * services **declare**, not a runtime isolation guarantee: Docker and Swarm
+	 * still enforce each service's own `cpuLimit`/`memoryLimit`. `null` means
+	 * "no quota". Units match the service columns: CPU in nanocpus and memory
+	 * in bytes.
+	 */
+	cpuLimit: text("cpuLimit"),
+	cpuReservation: text("cpuReservation"),
+	memoryLimit: text("memoryLimit"),
+	memoryReservation: text("memoryReservation"),
 });
 
 export const projectRelations = relations(projects, ({ many, one }) => ({
@@ -65,7 +76,20 @@ export const apiRemoveProject = createSchema
 // 	})
 // 	.required();
 
+/**
+ * Quotas are non-negative byte/nanocpu strings. Empty strings are rejected so
+ * "no quota" is always represented by `null` (or by omitting the field).
+ */
+const quotaField = z
+	.string()
+	.regex(/^\d+$/, "Must be a non-negative integer")
+	.nullable();
+
 export const apiUpdateProject = createSchema.partial().extend({
 	projectId: z.string().min(1),
+	cpuLimit: quotaField.optional(),
+	cpuReservation: quotaField.optional(),
+	memoryLimit: quotaField.optional(),
+	memoryReservation: quotaField.optional(),
 });
 // .omit({ serverId: true });

@@ -42,6 +42,7 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@notploy/server/services/permission";
+import { assertServiceMoveAllowed } from "@notploy/server/services/service-move";
 import { processTemplate } from "@notploy/server/templates/processors";
 import {
 	type CompleteTemplate,
@@ -787,6 +788,13 @@ export const composeRouter = createTRPCRouter({
 				service: ["create"],
 			});
 
+			await assertServiceMoveAllowed({
+				ctx,
+				serviceType: "compose",
+				serviceId: input.composeId,
+				targetEnvironmentId: input.targetEnvironmentId,
+			});
+
 			const updatedCompose = await db
 				.update(composeTable)
 				.set({
@@ -804,7 +812,7 @@ export const composeRouter = createTRPCRouter({
 			}
 
 			await audit(ctx, {
-				action: "update",
+				action: "move",
 				resourceType: "compose",
 				resourceId: input.composeId,
 				resourceName: updatedCompose.name,

@@ -17,6 +17,10 @@ import { eq, getTableColumns } from "drizzle-orm";
 import { quote } from "shell-quote";
 import type { z } from "zod";
 import { validUniqueServerAppName } from "./project";
+import {
+	assertServiceQuotaChange,
+	hasResourceLimitChange,
+} from "./project-quota";
 
 export function getMountPath(dockerImage: string): string {
 	const versionMatch = dockerImage.match(/postgres:(\d+)/);
@@ -124,6 +128,18 @@ export const updatePostgresById = async (
 	postgresData: Partial<Postgres>,
 ) => {
 	const { appName, ...rest } = postgresData;
+
+	if (hasResourceLimitChange(rest)) {
+		const current = await findPostgresById(postgresId);
+		await assertServiceQuotaChange({
+			projectId: current.environment.project.projectId,
+			serviceType: "postgres",
+			serviceId: postgresId,
+			current,
+			changes: rest,
+		});
+	}
+
 	const result = await db
 		.update(postgres)
 		.set({

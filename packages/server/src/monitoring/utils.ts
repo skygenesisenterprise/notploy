@@ -16,33 +16,42 @@ export interface Container {
 export const recordAdvancedStats = async (
 	stats: Container,
 	appName: string,
+	options?: { isAborted?: () => boolean },
 ) => {
 	const { MONITORING_PATH } = paths();
 	const path = `${MONITORING_PATH}/${appName}`;
+	const aborted = () => options?.isAborted?.() === true;
 
 	await promises.mkdir(path, { recursive: true });
 
+	// A WebSocket can close while a stats collector is mid-write. Check the
+	// cancellation signal between files so a closed session stops writing as
+	// soon as the current write completes instead of finishing the whole batch.
 	await updateStatsFile(appName, "cpu", stats.CPUPerc);
+	if (aborted()) return;
 	await updateStatsFile(appName, "memory", {
 		used: stats.MemUsage.split(" ")[0],
 		total: stats.MemUsage.split(" ")[2],
 	});
+	if (aborted()) return;
 
 	await updateStatsFile(appName, "block", {
 		readMb: parseIoToMb(stats.BlockIO.split(" ")[0]),
 		writeMb: parseIoToMb(stats.BlockIO.split(" ")[2]),
 	});
+	if (aborted()) return;
 
 	await updateStatsFile(appName, "network", {
 		inputMb: parseIoToMb(stats.NetIO.split(" ")[0]),
 		outputMb: parseIoToMb(stats.NetIO.split(" ")[2]),
 	});
+	if (aborted()) return;
 
 	if (appName === "notploy") {
 		const osutils = new OSUtils();
 		const diskResult = await osutils.disk.usageByMountPoint("/");
 
-		if (diskResult.success && diskResult.data) {
+		if (diskResult.success && diskResult.data && !aborted()) {
 			const disk = diskResult.data;
 			const diskUsage = disk.used.toGB().toFixed(2);
 			const diskTotal = disk.total.toGB().toFixed(2);

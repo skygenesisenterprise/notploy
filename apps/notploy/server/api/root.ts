@@ -53,9 +53,10 @@ import { rollbackRouter } from "./routers/rollbacks";
 import { scheduleRouter } from "./routers/schedule";
 import { securityRouter } from "./routers/security";
 import { serverRouter } from "./routers/server";
+import { serviceRouter } from "./routers/service";
 import { settingsRouter } from "./routers/settings";
-import { statusRouter } from "./routers/status";
 import { sshRouter } from "./routers/ssh-key";
+import { statusRouter } from "./routers/status";
 import { stripeRouter } from "./routers/stripe";
 import { swarmRouter } from "./routers/swarm";
 import { tagRouter } from "./routers/tag";
@@ -111,6 +112,7 @@ export const appRouter = createTRPCRouter({
 	redis: redisRouter,
 	registry: registryRouter,
 	security: securityRouter,
+	service: serviceRouter,
 	server: serverRouter,
 	settings: settingsRouter,
 	status: statusRouter,

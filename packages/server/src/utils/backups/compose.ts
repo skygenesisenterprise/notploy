@@ -9,6 +9,7 @@ import { findEnvironmentById } from "@notploy/server/services/environment";
 import { findProjectById } from "@notploy/server/services/project";
 import { sendDatabaseBackupNotifications } from "../notifications/database-backup";
 import { execAsync, execAsyncRemote } from "../process/execAsync";
+import { redactBackupError } from "./redact";
 import {
 	getBackupCommand,
 	getBackupTimestamp,
@@ -62,14 +63,13 @@ export const runComposeBackup = async (
 
 		await updateDeploymentStatus(deployment.deploymentId, "done");
 	} catch (error) {
-		console.log(error);
+		console.error(redactBackupError(error, destination));
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
 			databaseType: getDatabaseType(databaseType),
 			type: "error",
-			// @ts-ignore
-			errorMessage: error?.message || "Error message not provided",
+			errorMessage: redactBackupError(error, destination),
 			organizationId: project.organizationId,
 			databaseName: backup.database,
 		});

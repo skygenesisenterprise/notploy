@@ -24,11 +24,13 @@ import {
 	checkServiceAccess,
 	checkServicePermissionAndAccess,
 } from "@notploy/server/services/permission";
+import { assertServiceMoveAllowed } from "@notploy/server/services/service-move";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
+import { withQuotaAudit } from "@/server/api/utils/quota";
 import { db } from "@/server/db";
 import {
 	apiChangeLibsqlStatus,
@@ -402,9 +404,14 @@ export const libsqlRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, libsqlId, {
 				service: ["create"],
 			});
-			const libsql = await updateLibsqlById(libsqlId, {
-				...rest,
-			});
+			const libsql = await withQuotaAudit(
+				ctx,
+				{ type: "service", id: libsqlId, name: rest.appName },
+				() =>
+					updateLibsqlById(libsqlId, {
+						...rest,
+					}),
+			);
 
 			if (!libsql) {
 				throw new TRPCError({
@@ -432,6 +439,15 @@ export const libsqlRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, input.libsqlId, {
 				service: ["create"],
 			});
+
+			await withQuotaAudit(ctx, { type: "service", id: input.libsqlId }, () =>
+				assertServiceMoveAllowed({
+					ctx,
+					serviceType: "libsql",
+					serviceId: input.libsqlId,
+					targetEnvironmentId: input.targetEnvironmentId,
+				}),
+			);
 
 			const updatedLibsql = await db
 				.update(libsqlTable)

@@ -116,4 +116,5 @@ export const getNetworkProviderCategory = (
 ) => networkProviderCategory[providerType];
 
 export * from "./cidr";
+export * from "./ports";
 export * from "./types";

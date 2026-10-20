@@ -91,16 +91,16 @@ export const getS3Credentials = (destination: Destination) => {
 	return rcloneFlags;
 };
 
-// User-controlled values (database name, user, password) are passed to the
-// container as environment variables via `docker exec -e VAR=<escaped>` and
-// referenced as "$VAR" inside the inner shell, so they never appear in the
-// inner command text. The -e value is escaped for the outer shell with
-// shell-quote; the inner script is single-quoted and reads the env vars.
+// Database backups must work on minimal/hardened images. The only binary we
+// assume is the engine's own dump tool: we no longer spawn `bash`/`sh` inside
+// the container and no longer require `gzip` there. User-controlled values are
+// passed as structured argv entries escaped with shell-quote (outer shell),
+// and compression happens on the host after the container exits.
 export const getPostgresBackupCommand = (
 	database: string,
 	databaseUser: string,
 ) => {
-	return `docker exec -e DB_NAME=${quote([database])} -e DB_USER=${quote([databaseUser])} -i $CONTAINER_ID bash -c 'set -o pipefail; pg_dump -Fc --no-acl --no-owner -h localhost -U "$DB_USER" --no-password "$DB_NAME" | gzip'`;
+	return `docker exec -i $CONTAINER_ID pg_dump -Fc --no-acl --no-owner -h localhost -U ${quote([databaseUser])} --no-password ${quote([database])}`;
 };
 
 export const getMariadbBackupCommand = (
@@ -108,14 +108,16 @@ export const getMariadbBackupCommand = (
 	databaseUser: string,
 	databasePassword: string,
 ) => {
-	return `docker exec -e DB_NAME=${quote([database])} -e DB_USER=${quote([databaseUser])} -e DB_PASS=${quote([databasePassword])} -i $CONTAINER_ID bash -c 'set -o pipefail; mariadb-dump --user="$DB_USER" --password="$DB_PASS" --single-transaction --quick --databases "$DB_NAME" | gzip'`;
+	// MYSQL_PWD keeps the password out of the client argv (and out of the
+	// container's process list); it is still escaped for the outer shell.
+	return `docker exec -e MYSQL_PWD=${quote([databasePassword])} -i $CONTAINER_ID mariadb-dump --user=${quote([databaseUser])} --single-transaction --quick --databases ${quote([database])}`;
 };
 
 export const getMysqlBackupCommand = (
 	database: string,
 	databasePassword: string,
 ) => {
-	return `docker exec -e DB_NAME=${quote([database])} -e DB_PASS=${quote([databasePassword])} -i $CONTAINER_ID bash -c 'set -o pipefail; mysqldump --default-character-set=utf8mb4 -u root --password="$DB_PASS" --single-transaction --no-tablespaces --quick "$DB_NAME" | gzip'`;
+	return `docker exec -e MYSQL_PWD=${quote([databasePassword])} -i $CONTAINER_ID mysqldump --default-character-set=utf8mb4 -u root --single-transaction --no-tablespaces --quick ${quote([database])}`;
 };
 
 export const getMongoBackupCommand = (
@@ -123,11 +125,11 @@ export const getMongoBackupCommand = (
 	databaseUser: string,
 	databasePassword: string,
 ) => {
-	return `docker exec -e DB_NAME=${quote([database])} -e DB_USER=${quote([databaseUser])} -e DB_PASS=${quote([databasePassword])} -i $CONTAINER_ID bash -c 'set -o pipefail; mongodump -d "$DB_NAME" -u "$DB_USER" -p "$DB_PASS" --archive --authenticationDatabase admin --gzip'`;
+	return `docker exec -i $CONTAINER_ID mongodump -d ${quote([database])} -u ${quote([databaseUser])} --password=${quote([databasePassword])} --archive --authenticationDatabase admin --gzip`;
 };
 
 export const getLibsqlBackupCommand = (database: string) => {
-	return `docker exec -e DB_NAME=${quote([database])} -i $CONTAINER_ID sh -c 'tar cf - -C /var/lib/sqld "$DB_NAME" | gzip'`;
+	return `docker exec -i $CONTAINER_ID tar cf - -C /var/lib/sqld ${quote([database])}`;
 };
 
 export const getServiceContainerCommand = (appName: string) => {
@@ -267,6 +269,9 @@ export const getBackupCommand = (
 	const backupCommand = generateBackupCommand(backup);
 	const rcloneCommand = `rclone rcat ${rcloneFlags.join(" ")} "${rcloneDestination}"`;
 	const rcloneDeleteCommand = `rclone deletefile ${rcloneFlags.join(" ")} "${rcloneDestination}"`;
+	// Mongo already emits a gzip archive (`--gzip`); every other engine writes
+	// raw bytes and is compressed on the host, never inside the container.
+	const hostCompression = backup.databaseType === "mongo" ? "" : " | gzip";
 
 	logger.info(
 		{
@@ -292,7 +297,7 @@ export const getBackupCommand = (
 	echo "[$(date)] Container Up: $CONTAINER_ID" >> ${logPath};
 	echo "[$(date)] Starting backup and upload to S3..." >> ${logPath};
 
-	UPLOAD_OUTPUT=$({ ${backupCommand} | ${rcloneCommand}; } 2>&1 >/dev/null) || {
+	UPLOAD_OUTPUT=$({ ${backupCommand}${hostCompression} | ${rcloneCommand}; } 2>&1 >/dev/null) || {
 		echo "[$(date)] ❌ Error: Backup failed" >> ${logPath};
 		echo "Error: $UPLOAD_OUTPUT" >> ${logPath};
 		${rcloneDeleteCommand} >/dev/null 2>&1 || true;

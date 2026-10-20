@@ -492,6 +492,7 @@ export const transferService = async (
 	const originalNetworkIds =
 		"networkIds" in service ? service.networkIds : undefined;
 	let switched = false;
+	let volumes: string[] = [];
 
 	log(`Transferring ${service.appName} from ${sourceName} to ${targetName}`);
 	try {
@@ -499,7 +500,7 @@ export const transferService = async (
 		await stopOnSource(service, log);
 		await updateStatus(serviceType, serviceId, "running");
 
-		const volumes = await listVolumes(service);
+		volumes = await listVolumes(service);
 		const bindMounts = listBindMounts(service);
 		log(
 			`Found ${volumes.length} volume(s) and ${bindMounts.length} bind mount(s)`,
@@ -564,9 +565,9 @@ export const transferService = async (
 			await moveDeploymentLogs(service, targetServerId, log);
 		}
 
-		log(`Cleaning up ${sourceName}`);
-		await cleanupSource(service, volumes, removeSourceData, log);
-		await updateStatus(serviceType, serviceId, "idle");
+		// Source cleanup is deliberately deferred until the target deployment
+		// succeeds. Deleting source data before that point would make a failed
+		// transfer unrecoverable when removeSourceData is set.
 	} catch (error) {
 		if (switched) {
 			await updateServer(serviceType, serviceId, {
@@ -584,12 +585,25 @@ export const transferService = async (
 	try {
 		await deployOnTarget(serviceType, serviceId, targetName, log);
 	} catch (error) {
+		// The switch already happened, but the source was not cleaned up. Roll
+		// ownership and runtime back to the source so a failed target deployment
+		// never leaves the service stranded or deletes the only copy of its data.
+		if (switched) {
+			log(`Deployment on ${targetName} failed, rolling back to ${sourceName}`);
+			await updateServer(serviceType, serviceId, {
+				serverId: sourceServerId,
+				networkIds: originalNetworkIds,
+			});
+			await startOnSource(service, log);
+		}
 		await updateStatus(serviceType, serviceId, "error");
-		log(
-			`Data was transferred but the deployment on ${targetName} failed, run Deploy to retry`,
-		);
+		log(`Source data on ${sourceName} was left intact`);
 		throw error;
 	}
+
+	log(`Cleaning up ${sourceName}`);
+	await cleanupSource(service, volumes, removeSourceData, log);
+	await updateStatus(serviceType, serviceId, "idle");
 
 	return {
 		serviceType,

@@ -9,6 +9,7 @@ import type { Postgres } from "@notploy/server/services/postgres";
 import { findProjectById } from "@notploy/server/services/project";
 import { sendDatabaseBackupNotifications } from "../notifications/database-backup";
 import { execAsync, execAsyncRemote } from "../process/execAsync";
+import { redactBackupError } from "./redact";
 import {
 	getBackupCommand,
 	getBackupTimestamp,
@@ -66,8 +67,7 @@ export const runPostgresBackup = async (
 			projectName: project.name,
 			databaseType: "postgres",
 			type: "error",
-			// @ts-ignore
-			errorMessage: error?.message || "Error message not provided",
+			errorMessage: redactBackupError(error, destination),
 			organizationId: project.organizationId,
 			databaseName: backup.database,
 		});

@@ -21,6 +21,7 @@ import { ShowInternalMongoCredentials } from "@/components/dashboard/mongo/gener
 import { UpdateMongo } from "@/components/dashboard/mongo/update-mongo";
 import { ContainerFreeMonitoring } from "@/components/dashboard/monitoring/free/container/show-free-container-monitoring";
 import { ContainerPaidMonitoring } from "@/components/dashboard/monitoring/paid/container/show-paid-container-monitoring";
+import { MoveService } from "@/components/dashboard/shared/move-service";
 import { ShowDatabaseAdvancedSettings } from "@/components/dashboard/shared/show-database-advanced-settings";
 import { TransferService } from "@/components/dashboard/shared/transfer-service";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
@@ -98,6 +99,17 @@ const Mongo = (
 											id={mongoId}
 											type="mongo"
 											serverId={data?.serverId}
+										/>
+									)}
+									{permissions?.service.create && (
+										<MoveService
+											id={mongoId}
+											type="mongo"
+											currentEnvironmentId={
+												typeof environmentId === "string"
+													? environmentId
+													: undefined
+											}
 										/>
 									)}
 									{permissions?.service.delete && (

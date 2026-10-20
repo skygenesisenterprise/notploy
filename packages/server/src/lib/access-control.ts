@@ -20,7 +20,9 @@ export const statements = {
 	ac: ["create", "read", "update", "delete"],
 
 	// Notploy core resources
-	project: ["create", "delete"],
+	// `update` covers project-level settings such as resource quotas, which
+	// must not be changeable by members who only have service-level access.
+	project: ["create", "update", "delete"],
 	service: ["create", "read", "delete"],
 	environment: ["create", "read", "delete"],
 	docker: ["read"],
@@ -73,7 +75,7 @@ export const ownerRole = ac.newRole({
 	invitation: ["create", "cancel"],
 	team: ["create", "update", "delete"],
 	ac: ["create", "read", "update", "delete"],
-	project: ["create", "delete"],
+	project: ["create", "update", "delete"],
 	service: ["create", "read", "delete"],
 	environment: ["create", "read", "delete"],
 	docker: ["read"],
@@ -118,7 +120,7 @@ export const adminRole = ac.newRole({
 	invitation: ["create", "cancel"],
 	team: ["create", "update", "delete"],
 	ac: ["create", "read", "update", "delete"],
-	project: ["create", "delete"],
+	project: ["create", "update", "delete"],
 	service: ["create", "read", "delete"],
 	environment: ["create", "read", "delete"],
 	docker: ["read"],

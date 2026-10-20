@@ -1,6 +1,7 @@
 import { db } from "@notploy/server/db";
 import { notifications } from "@notploy/server/db/schema";
 import { VolumeBackupEmail } from "@notploy/server/emails/emails/volume-backup";
+import { redactSecrets } from "@notploy/server/utils/security/redact";
 import { render } from "@react-email/components";
 import { format } from "date-fns";
 import { and, eq } from "drizzle-orm";
@@ -25,7 +26,7 @@ export const sendVolumeBackupNotifications = async ({
 	volumeName,
 	serviceType,
 	type,
-	errorMessage,
+	errorMessage: rawErrorMessage,
 	organizationId,
 	backupSize,
 }: {
@@ -46,6 +47,9 @@ export const sendVolumeBackupNotifications = async ({
 	errorMessage?: string;
 	backupSize?: string;
 }) => {
+	const errorMessage = rawErrorMessage
+		? redactSecrets(rawErrorMessage)
+		: rawErrorMessage;
 	const date = new Date();
 	const unixDate = ~~(Number(date) / 1000);
 	const notificationList = await db.query.notifications.findMany({

@@ -2,9 +2,14 @@ import { spawn } from "node:child_process";
 import type http from "node:http";
 import { findServerById, IS_CLOUD, validateRequest } from "@notploy/server";
 import { encodeBase64 } from "@notploy/server/utils/docker/utils";
+import {
+	createRedactingLineBuffer,
+	safeErrorMessage,
+} from "@notploy/server/utils/security/redact";
 import { readValidDirectory } from "@notploy/server/wss/utils";
-import { Client } from "ssh2";
+import { Client, type ClientChannel } from "ssh2";
 import { WebSocketServer } from "ws";
+import { createCleanup } from "./cleanup";
 
 export const setupDeploymentLogsWebSocketServer = (
 	server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>,
@@ -53,6 +58,53 @@ export const setupDeploymentLogsWebSocketServer = (
 
 		let tailProcess: ReturnType<typeof spawn> | null = null;
 		let sshClient: Client | null = null;
+		let sshStream: ClientChannel | null = null;
+		let killTimer: NodeJS.Timeout | null = null;
+
+		// Every resource acquired for this socket funnels through this function.
+		// It is idempotent: close, error and server shutdown can all race.
+		const cleanup = createCleanup(
+			() => {
+				if (killTimer) {
+					clearTimeout(killTimer);
+					killTimer = null;
+				}
+			},
+			() => {
+				if (tailProcess && !tailProcess.killed) {
+					tailProcess.kill("SIGTERM");
+					killTimer = setTimeout(() => {
+						if (tailProcess && !tailProcess.killed) {
+							tailProcess.kill("SIGKILL");
+						}
+					}, 1000);
+					killTimer.unref?.();
+				}
+			},
+			() => sshStream?.close(),
+			() => sshClient?.end(),
+		);
+
+		ws.on("close", cleanup);
+		ws.on("error", cleanup);
+
+		const sendLog = (
+			redactor: ReturnType<typeof createRedactingLineBuffer>,
+			text: string,
+		) => {
+			const redacted = redactor.push(text);
+			if (redacted && ws.readyState === ws.OPEN) {
+				ws.send(redacted);
+			}
+		};
+
+		const streamLog = (
+			redactor: ReturnType<typeof createRedactingLineBuffer>,
+		) => {
+			return (data: Buffer | string) => {
+				sendLog(redactor, data.toString());
+			};
+		};
 
 		try {
 			if (serverId) {
@@ -60,14 +112,17 @@ export const setupDeploymentLogsWebSocketServer = (
 
 				if (server.organizationId !== session.activeOrganizationId) {
 					ws.close();
+					cleanup();
 					return;
 				}
 
 				if (!server.sshKeyId) {
 					ws.close();
+					cleanup();
 					return;
 				}
 
+				const redactor = createRedactingLineBuffer();
 				sshClient = new Client();
 				sshClient
 					.on("ready", () => {
@@ -76,35 +131,31 @@ export const setupDeploymentLogsWebSocketServer = (
 
 						sshClient!.exec(command, (err, stream) => {
 							if (err) {
-								sshClient!.end();
+								cleanup();
 								ws.close();
 								return;
 							}
+							sshStream = stream;
 							stream
 								.on("close", () => {
-									sshClient!.end();
+									sshStream = null;
+									const remaining = redactor.flush();
+									if (remaining && ws.readyState === ws.OPEN) {
+										ws.send(remaining);
+									}
+									cleanup();
 									ws.close();
 								})
-								.on("data", (data: string) => {
-									if (ws.readyState === ws.OPEN) {
-										ws.send(data.toString());
-									}
-								})
-								.stderr.on("data", (data) => {
-									if (ws.readyState === ws.OPEN) {
-										ws.send(data.toString());
-									}
-								});
+								.on("data", streamLog(redactor))
+								.stderr.on("data", streamLog(redactor));
 						});
 					})
 					.on("error", (err) => {
 						if (ws.readyState === ws.OPEN) {
-							ws.send(`SSH error: ${err.message}`);
+							ws.send(`SSH error: ${safeErrorMessage(err)}`);
 							ws.close();
 						}
-						if (sshClient) {
-							sshClient.end();
-						}
+						cleanup();
 					})
 					.connect({
 						host: server.ipAddress,
@@ -112,80 +163,45 @@ export const setupDeploymentLogsWebSocketServer = (
 						username: server.username,
 						privateKey: server.sshKey?.privateKey,
 					});
-
-				ws.on("close", () => {
-					if (sshClient) {
-						sshClient.end();
-					}
-				});
 			} else {
 				if (IS_CLOUD) {
 					ws.send("This feature is not available in the cloud version.");
 					ws.close();
+					cleanup();
 					return;
 				}
+				const redactor = createRedactingLineBuffer();
 				tailProcess = spawn("tail", ["-n", "+1", "-f", logPath]);
 
-				const stdout = tailProcess.stdout;
-				const stderr = tailProcess.stderr;
+				tailProcess.stdout?.on("data", streamLog(redactor));
 
-				if (stdout) {
-					stdout.on("data", (data) => {
-						if (ws.readyState === ws.OPEN) {
-							ws.send(data.toString());
-						}
-					});
-				}
-
-				if (stderr) {
-					stderr.on("data", (data) => {
-						if (ws.readyState === ws.OPEN) {
-							ws.send(new Error(`tail error: ${data.toString()}`).message);
-						}
-					});
-				}
+				tailProcess.stderr?.on("data", (data) => {
+					const message = safeErrorMessage(`tail error: ${data.toString()}`);
+					if (ws.readyState === ws.OPEN) {
+						ws.send(message);
+					}
+				});
 
 				tailProcess.on("close", () => {
+					tailProcess = null;
+					const remaining = redactor.flush();
+					if (remaining && ws.readyState === ws.OPEN) {
+						ws.send(remaining);
+					}
+					cleanup();
 					ws.close();
 				});
 
 				tailProcess.on("error", () => {
-					if (ws.readyState === ws.OPEN) {
-						ws.close();
-					}
-				});
-
-				ws.on("close", () => {
-					if (tailProcess && !tailProcess.killed) {
-						tailProcess.kill("SIGTERM");
-						// Force kill after a timeout if it doesn't terminate
-						setTimeout(() => {
-							if (tailProcess && !tailProcess.killed) {
-								tailProcess.kill("SIGKILL");
-							} else {
-							}
-						}, 1000);
-					} else {
-					}
+					tailProcess = null;
+					cleanup();
+					ws.close();
 				});
 			}
 		} catch (error) {
-			// Clean up resources on error
-			if (tailProcess && !tailProcess.killed) {
-				tailProcess.kill("SIGTERM");
-				setTimeout(() => {
-					if (tailProcess && !tailProcess.killed) {
-						tailProcess.kill("SIGKILL");
-					}
-				}, 1000);
-			}
-			if (sshClient) {
-				sshClient.end();
-			}
+			cleanup();
 			if (ws.readyState === ws.OPEN) {
-				// @ts-ignore
-				const errorMessage = error?.message as unknown as string;
-				ws.send(errorMessage || "An error occurred");
+				ws.send(safeErrorMessage(error) || "An error occurred");
 				ws.close();
 			}
 		}

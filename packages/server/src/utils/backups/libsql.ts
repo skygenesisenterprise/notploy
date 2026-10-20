@@ -9,6 +9,7 @@ import type { Libsql } from "@notploy/server/services/libsql";
 import { findProjectById } from "@notploy/server/services/project";
 import { sendDatabaseBackupNotifications } from "../notifications/database-backup";
 import { execAsync, execAsyncRemote } from "../process/execAsync";
+import { redactBackupError } from "./redact";
 import {
 	getBackupCommand,
 	getBackupTimestamp,
@@ -66,8 +67,7 @@ export const runLibsqlBackup = async (
 			projectName: project.name,
 			databaseType: "libsql",
 			type: "error",
-			// @ts-ignore
-			errorMessage: error?.message || "Error message not provided",
+			errorMessage: redactBackupError(error, destination),
 			organizationId: project.organizationId,
 			databaseName: backup.database,
 		});

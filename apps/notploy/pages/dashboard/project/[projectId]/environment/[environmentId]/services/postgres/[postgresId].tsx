@@ -21,6 +21,7 @@ import { ShowExternalPostgresCredentials } from "@/components/dashboard/postgres
 import { ShowGeneralPostgres } from "@/components/dashboard/postgres/general/show-general-postgres";
 import { ShowInternalPostgresCredentials } from "@/components/dashboard/postgres/general/show-internal-postgres-credentials";
 import { UpdatePostgres } from "@/components/dashboard/postgres/update-postgres";
+import { MoveService } from "@/components/dashboard/shared/move-service";
 import { ShowDatabaseAdvancedSettings } from "@/components/dashboard/shared/show-database-advanced-settings";
 import { TransferService } from "@/components/dashboard/shared/transfer-service";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
@@ -98,6 +99,17 @@ const Postgresql = (
 											id={postgresId}
 											type="postgres"
 											serverId={data?.serverId}
+										/>
+									)}
+									{permissions?.service.create && (
+										<MoveService
+											id={postgresId}
+											type="postgres"
+											currentEnvironmentId={
+												typeof environmentId === "string"
+													? environmentId
+													: undefined
+											}
 										/>
 									)}
 									{permissions?.service.delete && (

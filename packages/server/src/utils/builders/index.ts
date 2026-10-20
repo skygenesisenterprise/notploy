@@ -11,6 +11,7 @@ import {
 	generateVolumeMounts,
 	prepareEnvironmentVariables,
 } from "../docker/utils";
+import { normalizePortMappings } from "../network/ports";
 import { getRemoteDocker } from "../servers/remote-docker";
 import { withResolvedVaultRefs } from "../vault";
 import { getDockerCommand } from "./docker-file";
@@ -164,7 +165,7 @@ export const mechanizeDockerContainer = async (
 		EndpointSpec: EndpointSpec
 			? EndpointSpec
 			: {
-					Ports: ports.map((port) => ({
+					Ports: normalizePortMappings(ports).map((port) => ({
 						PublishMode: port.publishMode,
 						Protocol: port.protocol,
 						TargetPort: port.targetPort,

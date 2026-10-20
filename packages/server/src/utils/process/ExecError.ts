@@ -1,3 +1,5 @@
+import { redactSecrets } from "../security/redact";
+
 export interface ExecErrorDetails {
 	command: string;
 	stdout?: string;
@@ -16,13 +18,26 @@ export class ExecError extends Error {
 	public readonly serverId?: string | null;
 
 	constructor(message: string, details: ExecErrorDetails) {
-		super(message);
+		// A failed command usually embeds the full command line (including
+		// rclone S3 keys, registry tokens or database passwords) in both the
+		// message and stdout/stderr. Redact at construction so no consumer can
+		// accidentally forward the raw error to a log or notification.
+		super(redactSecrets(message));
 		this.name = "ExecError";
-		this.command = details.command;
-		this.stdout = details.stdout;
-		this.stderr = details.stderr;
+		this.command = redactSecrets(details.command);
+		this.stdout = details.stdout
+			? redactSecrets(details.stdout)
+			: details.stdout;
+		this.stderr = details.stderr
+			? redactSecrets(details.stderr)
+			: details.stderr;
 		this.exitCode = details.exitCode;
-		this.originalError = details.originalError;
+		// Never keep the raw cause either: console inspectors and error
+		// serializers expose its `message`/`cmd`, which still contain the
+		// command line with plaintext credentials.
+		this.originalError = details.originalError
+			? new Error(redactSecrets(details.originalError.message))
+			: undefined;
 		this.serverId = details.serverId;
 
 		// Maintains proper stack trace for where our error was thrown (only available on V8)

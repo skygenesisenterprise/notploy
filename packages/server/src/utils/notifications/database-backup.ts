@@ -1,6 +1,7 @@
 import { db } from "@notploy/server/db";
 import { notifications } from "@notploy/server/db/schema";
 import DatabaseBackupEmail from "@notploy/server/emails/emails/database-backup";
+import { redactSecrets } from "@notploy/server/utils/security/redact";
 import { render } from "@react-email/components";
 import { format } from "date-fns";
 import { and, eq } from "drizzle-orm";
@@ -24,7 +25,7 @@ export const sendDatabaseBackupNotifications = async ({
 	applicationName,
 	databaseType,
 	type,
-	errorMessage,
+	errorMessage: rawErrorMessage,
 	organizationId,
 	databaseName,
 }: {
@@ -36,6 +37,11 @@ export const sendDatabaseBackupNotifications = async ({
 	errorMessage?: string;
 	databaseName: string;
 }) => {
+	// A failed dump/upload command carries the destination credentials in its
+	// error text. Notifications are external, so redact before rendering.
+	const errorMessage = rawErrorMessage
+		? redactSecrets(rawErrorMessage)
+		: rawErrorMessage;
 	const date = new Date();
 	const unixDate = ~~(Number(date) / 1000);
 	const notificationList = await db.query.notifications.findMany({

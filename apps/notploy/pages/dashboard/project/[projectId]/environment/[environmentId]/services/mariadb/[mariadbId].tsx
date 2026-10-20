@@ -21,6 +21,7 @@ import { ShowInternalMariadbCredentials } from "@/components/dashboard/mariadb/g
 import { UpdateMariadb } from "@/components/dashboard/mariadb/update-mariadb";
 import { ContainerFreeMonitoring } from "@/components/dashboard/monitoring/free/container/show-free-container-monitoring";
 import { ContainerPaidMonitoring } from "@/components/dashboard/monitoring/paid/container/show-paid-container-monitoring";
+import { MoveService } from "@/components/dashboard/shared/move-service";
 import { ShowDatabaseAdvancedSettings } from "@/components/dashboard/shared/show-database-advanced-settings";
 import { TransferService } from "@/components/dashboard/shared/transfer-service";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
@@ -99,6 +100,17 @@ const Mariadb = (
 											id={mariadbId}
 											type="mariadb"
 											serverId={data?.serverId}
+										/>
+									)}
+									{permissions?.service.create && (
+										<MoveService
+											id={mariadbId}
+											type="mariadb"
+											currentEnvironmentId={
+												typeof environmentId === "string"
+													? environmentId
+													: undefined
+											}
 										/>
 									)}
 									{permissions?.service.delete && (

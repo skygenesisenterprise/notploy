@@ -18,6 +18,10 @@ import { eq, getTableColumns } from "drizzle-orm";
 import { quote } from "shell-quote";
 import type { z } from "zod";
 import { validUniqueServerAppName } from "./project";
+import {
+	assertServiceQuotaChange,
+	hasResourceLimitChange,
+} from "./project-quota";
 
 export type Mongo = typeof mongo.$inferSelect;
 
@@ -92,6 +96,18 @@ export const updateMongoById = async (
 	mongoData: Partial<Mongo>,
 ) => {
 	const { appName, ...rest } = mongoData;
+
+	if (hasResourceLimitChange(rest)) {
+		const current = await findMongoById(mongoId);
+		await assertServiceQuotaChange({
+			projectId: current.environment.project.projectId,
+			serviceType: "mongo",
+			serviceId: mongoId,
+			current,
+			changes: rest,
+		});
+	}
+
 	const result = await db
 		.update(mongo)
 		.set({

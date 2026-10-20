@@ -20,6 +20,7 @@ import { ShowExternalRedisCredentials } from "@/components/dashboard/redis/gener
 import { ShowGeneralRedis } from "@/components/dashboard/redis/general/show-general-redis";
 import { ShowInternalRedisCredentials } from "@/components/dashboard/redis/general/show-internal-redis-credentials";
 import { UpdateRedis } from "@/components/dashboard/redis/update-redis";
+import { MoveService } from "@/components/dashboard/shared/move-service";
 import { ShowDatabaseAdvancedSettings } from "@/components/dashboard/shared/show-database-advanced-settings";
 import { TransferService } from "@/components/dashboard/shared/transfer-service";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
@@ -97,6 +98,17 @@ const Redis = (
 											id={redisId}
 											type="redis"
 											serverId={data?.serverId}
+										/>
+									)}
+									{permissions?.service.create && (
+										<MoveService
+											id={redisId}
+											type="redis"
+											currentEnvironmentId={
+												typeof environmentId === "string"
+													? environmentId
+													: undefined
+											}
 										/>
 									)}
 									{permissions?.service.delete && (

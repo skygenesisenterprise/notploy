@@ -30,12 +30,14 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@notploy/server/services/permission";
+import { assertServiceMoveAllowed } from "@notploy/server/services/service-move";
 import { TRPCError } from "@trpc/server";
 import { observable } from "@trpc/server/observable";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
+import { withQuotaAudit } from "@/server/api/utils/quota";
 import {
 	apiChangeMariaDBStatus,
 	apiCreateMariaDB,
@@ -372,9 +374,14 @@ export const mariadbRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, mariadbId, {
 				service: ["create"],
 			});
-			const service = await updateMariadbById(mariadbId, {
-				...rest,
-			});
+			const service = await withQuotaAudit(
+				ctx,
+				{ type: "service", id: mariadbId, name: rest.appName },
+				() =>
+					updateMariadbById(mariadbId, {
+						...rest,
+					}),
+			);
 
 			if (!service) {
 				throw new TRPCError({
@@ -459,6 +466,15 @@ export const mariadbRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, input.mariadbId, {
 				service: ["create"],
 			});
+
+			await withQuotaAudit(ctx, { type: "service", id: input.mariadbId }, () =>
+				assertServiceMoveAllowed({
+					ctx,
+					serviceType: "mariadb",
+					serviceId: input.mariadbId,
+					targetEnvironmentId: input.targetEnvironmentId,
+				}),
+			);
 
 			const updatedMariadb = await db
 				.update(mariadbTable)

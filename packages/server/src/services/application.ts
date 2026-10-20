@@ -26,6 +26,7 @@ import {
 import { cloneGiteaRepository } from "@notploy/server/utils/providers/gitea";
 import { cloneGithubRepository } from "@notploy/server/utils/providers/github";
 import { cloneGitlabRepository } from "@notploy/server/utils/providers/gitlab";
+import { redactSecrets } from "@notploy/server/utils/security/redact";
 import { createTraefikConfig } from "@notploy/server/utils/traefik/application";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
@@ -52,6 +53,10 @@ import {
 	updatePreviewDeployment,
 } from "./preview-deployment";
 import { validUniqueServerAppName } from "./project";
+import {
+	assertServiceQuotaChange,
+	hasResourceLimitChange,
+} from "./project-quota";
 export type Application = typeof applications.$inferSelect;
 
 export const createApplication = async (
@@ -150,6 +155,18 @@ export const updateApplication = async (
 	applicationData: Partial<Application>,
 ) => {
 	const { appName, ...rest } = applicationData;
+
+	if (hasResourceLimitChange(rest)) {
+		const current = await findApplicationById(applicationId);
+		await assertServiceQuotaChange({
+			projectId: current.environment.project.projectId,
+			serviceType: "application",
+			serviceId: applicationId,
+			current,
+			changes: rest,
+		});
+	}
+
 	const application = await db
 		.update(applications)
 		.set({
@@ -270,7 +287,7 @@ export const deployApplication = async ({
 		// Only log details for non-ExecError errors
 		if (!(error instanceof ExecError)) {
 			const message = error instanceof Error ? error.message : String(error);
-			const encodedMessage = encodeBase64(message);
+			const encodedMessage = encodeBase64(redactSecrets(message));
 			command += `echo "${encodedMessage}" | base64 -d >> "${deployment.logPath}";`;
 		}
 
@@ -361,7 +378,7 @@ export const rebuildApplication = async ({
 		// Only log details for non-ExecError errors
 		if (!(error instanceof ExecError)) {
 			const message = error instanceof Error ? error.message : String(error);
-			const encodedMessage = encodeBase64(message);
+			const encodedMessage = encodeBase64(redactSecrets(message));
 			command += `echo "${encodedMessage}" | base64 -d >> "${deployment.logPath}";`;
 		}
 
@@ -603,7 +620,7 @@ export const rebuildPreviewApplication = async ({
 		// Only log details for non-ExecError errors
 		if (!(error instanceof ExecError)) {
 			const message = error instanceof Error ? error.message : String(error);
-			const encodedMessage = encodeBase64(message);
+			const encodedMessage = encodeBase64(redactSecrets(message));
 			command += `echo "${encodedMessage}" | base64 -d >> "${deployment.logPath}";`;
 		}
 

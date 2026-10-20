@@ -17,6 +17,10 @@ import { eq, getTableColumns } from "drizzle-orm";
 import { quote } from "shell-quote";
 import type { z } from "zod";
 import { validUniqueServerAppName } from "./project";
+import {
+	assertServiceQuotaChange,
+	hasResourceLimitChange,
+} from "./project-quota";
 
 export type MySql = typeof mysql.$inferSelect;
 
@@ -95,6 +99,18 @@ export const updateMySqlById = async (
 	mysqlData: Partial<MySql>,
 ) => {
 	const { appName, ...rest } = mysqlData;
+
+	if (hasResourceLimitChange(rest)) {
+		const current = await findMySqlById(mysqlId);
+		await assertServiceQuotaChange({
+			projectId: current.environment.project.projectId,
+			serviceType: "mysql",
+			serviceId: mysqlId,
+			current,
+			changes: rest,
+		});
+	}
+
 	const result = await db
 		.update(mysql)
 		.set({

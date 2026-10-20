@@ -1,5 +1,7 @@
 import {
 	createPort,
+	findPortConflict,
+	findPortsByApplicationId,
 	finPortById,
 	removePortById,
 	updatePortById,
@@ -22,6 +24,16 @@ export const portRouter = createTRPCRouter({
 				await checkServicePermissionAndAccess(ctx, input.applicationId, {
 					service: ["create"],
 				});
+				const existingPorts = await findPortsByApplicationId(
+					input.applicationId,
+				);
+				const conflict = findPortConflict(input, existingPorts);
+				if (conflict) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: conflict.message,
+					});
+				}
 				const port = await createPort(input);
 				await audit(ctx, {
 					action: "create",
@@ -31,6 +43,9 @@ export const portRouter = createTRPCRouter({
 				});
 				return port;
 			} catch (error) {
+				if (error instanceof TRPCError) {
+					throw error;
+				}
 				throw new TRPCError({
 					code: "BAD_REQUEST",
 					message: "Error input: Inserting port",
@@ -94,6 +109,16 @@ export const portRouter = createTRPCRouter({
 				{ service: ["create"] },
 			);
 			try {
+				const existingPorts = (
+					await findPortsByApplicationId(port.application.applicationId)
+				).filter((entry) => entry.portId !== input.portId);
+				const conflict = findPortConflict(input, existingPorts);
+				if (conflict) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: conflict.message,
+					});
+				}
 				const result = await updatePortById(input.portId, input);
 				await audit(ctx, {
 					action: "update",
@@ -103,6 +128,9 @@ export const portRouter = createTRPCRouter({
 				});
 				return result;
 			} catch (error) {
+				if (error instanceof TRPCError) {
+					throw error;
+				}
 				const message =
 					error instanceof Error ? error.message : "Error updating the port";
 				throw new TRPCError({

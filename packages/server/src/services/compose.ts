@@ -31,6 +31,7 @@ import { cloneGiteaRepository } from "@notploy/server/utils/providers/gitea";
 import { cloneGithubRepository } from "@notploy/server/utils/providers/github";
 import { cloneGitlabRepository } from "@notploy/server/utils/providers/gitlab";
 import { getCreateComposeFileCommand } from "@notploy/server/utils/providers/raw";
+import { redactSecrets } from "@notploy/server/utils/security/redact";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { quote } from "shell-quote";
@@ -327,7 +328,7 @@ export const deployCompose = async ({
 		// Only log details for non-ExecError errors
 		if (!(error instanceof ExecError)) {
 			const message = error instanceof Error ? error.message : String(error);
-			const encodedMessage = encodeBase64(message);
+			const encodedMessage = encodeBase64(redactSecrets(message));
 			command += `echo "${encodedMessage}" | base64 -d >> "${deployment.logPath}";`;
 		}
 
@@ -443,7 +444,7 @@ export const rebuildCompose = async ({
 		// Only log details for non-ExecError errors
 		if (!(error instanceof ExecError)) {
 			const message = error instanceof Error ? error.message : String(error);
-			const encodedMessage = encodeBase64(message);
+			const encodedMessage = encodeBase64(redactSecrets(message));
 			command += `echo "${encodedMessage}" | base64 -d >> "${deployment.logPath}";`;
 		}
 

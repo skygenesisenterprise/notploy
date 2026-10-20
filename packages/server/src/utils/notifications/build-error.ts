@@ -1,6 +1,7 @@
 import { db } from "@notploy/server/db";
 import { notifications } from "@notploy/server/db/schema";
 import BuildFailedEmail from "@notploy/server/emails/emails/build-failed";
+import { redactSecrets } from "@notploy/server/utils/security/redact";
 import { render } from "@react-email/components";
 import { format } from "date-fns";
 import { and, eq } from "drizzle-orm";
@@ -32,10 +33,14 @@ export const sendBuildErrorNotifications = async ({
 	projectName,
 	applicationName,
 	applicationType,
-	errorMessage,
+	errorMessage: rawErrorMessage,
 	buildLink,
 	organizationId,
 }: Props) => {
+	// Build output can echo environment variables, clone URLs with embedded
+	// tokens or an SSH key. Notifications leave the trust boundary, so never
+	// send the raw error there.
+	const errorMessage = redactSecrets(rawErrorMessage);
 	const date = new Date();
 	const unixDate = ~~(Number(date) / 1000);
 	const notificationList = await db.query.notifications.findMany({
@@ -428,7 +433,7 @@ ${errorMessage}
 				});
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(redactSecrets(String(error)));
 		}
 	}
 };

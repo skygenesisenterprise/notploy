@@ -110,20 +110,57 @@ export const setupDockerStatsMonitoringSocketServer = (
 			ws.close(4003, "Not authorized");
 			return;
 		}
-		const intervalId = setInterval(async () => {
+
+		// The collector owns a timer *and* persists metrics to disk. Both must
+		// stop as soon as the socket goes away (client navigation, network drop,
+		// container deletion or server shutdown). `inFlight` prevents overlapping
+		// ticks on slow hosts from piling up duplicate collectors, and `closed`
+		// prevents a tick already in progress from writing stats after close.
+		let closed = false;
+		let inFlight = false;
+		let intervalId: NodeJS.Timeout | null = null;
+
+		const stopCollector = () => {
+			if (closed) {
+				return;
+			}
+			closed = true;
+			if (intervalId) {
+				clearInterval(intervalId);
+				intervalId = null;
+			}
+		};
+
+		ws.on("close", stopCollector);
+		ws.on("error", stopCollector);
+
+		const send = (data: unknown) => {
+			if (!closed && ws.readyState === ws.OPEN) {
+				ws.send(JSON.stringify({ data }));
+			}
+		};
+
+		const tick = async () => {
+			if (closed || inFlight) {
+				return;
+			}
+			inFlight = true;
 			try {
 				// Special case: when monitoring "notploy", get host system stats instead of container stats
 				if (appName === "notploy") {
 					const stat = await getHostSystemStats();
+					if (closed) {
+						return;
+					}
 
-					await recordAdvancedStats(stat, appName);
+					await recordAdvancedStats(stat, appName, {
+						isAborted: () => closed,
+					});
+					if (closed) {
+						return;
+					}
 					const data = await getLastAdvancedStatsFile(appName);
-
-					ws.send(
-						JSON.stringify({
-							data,
-						}),
-					);
+					send(data);
 					return;
 				}
 
@@ -143,10 +180,14 @@ export const setupDockerStatsMonitoringSocketServer = (
 				const containers = await docker.listContainers({
 					filters: JSON.stringify(filter),
 				});
+				if (closed) {
+					return;
+				}
 
 				const container = containers[0];
 				if (!container || container?.State !== "running") {
 					const remoteNode = await findRemoteSwarmNode(appName, appType);
+					stopCollector();
 					ws.close(
 						4000,
 						remoteNode
@@ -156,8 +197,11 @@ export const setupDockerStatsMonitoringSocketServer = (
 					return;
 				}
 				const { stdout, stderr } = await execAsync(
-					`docker stats ${container.Id} --no-stream --format \'{"BlockIO":"{{.BlockIO}}","CPUPerc":"{{.CPUPerc}}","Container":"{{.Container}}","ID":"{{.ID}}","MemPerc":"{{.MemPerc}}","MemUsage":"{{.MemUsage}}","Name":"{{.Name}}","NetIO":"{{.NetIO}}"}\'`,
+					`docker stats ${container.Id} --no-stream --format '{"BlockIO":"{{.BlockIO}}","CPUPerc":"{{.CPUPerc}}","Container":"{{.Container}}","ID":"{{.ID}}","MemPerc":"{{.MemPerc}}","MemUsage":"{{.MemUsage}}","Name":"{{.Name}}","NetIO":"{{.NetIO}}"}'`,
 				);
+				if (closed) {
+					return;
+				}
 				if (stderr) {
 					console.error("Docker stats error:", stderr);
 					return;
@@ -165,21 +209,23 @@ export const setupDockerStatsMonitoringSocketServer = (
 				const stat = JSON.parse(stdout);
 
 				await recordAdvancedStats(stat, appName);
+				if (closed) {
+					return;
+				}
 				const data = await getLastAdvancedStatsFile(appName);
-
-				ws.send(
-					JSON.stringify({
-						data,
-					}),
-				);
+				send(data);
 			} catch (error) {
-				// @ts-ignore
-				ws.close(4000, `Error: ${error.message}`);
+				stopCollector();
+				if (ws.readyState === ws.OPEN) {
+					// @ts-ignore
+					ws.close(4000, `Error: ${error.message}`);
+				}
+			} finally {
+				inFlight = false;
 			}
-		}, 1300);
+		};
 
-		ws.on("close", () => {
-			clearInterval(intervalId);
-		});
+		intervalId = setInterval(tick, 1300);
+		intervalId.unref?.();
 	});
 };

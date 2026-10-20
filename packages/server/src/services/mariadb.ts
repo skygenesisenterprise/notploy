@@ -17,6 +17,10 @@ import { eq, getTableColumns } from "drizzle-orm";
 import { quote } from "shell-quote";
 import type { z } from "zod";
 import { validUniqueServerAppName } from "./project";
+import {
+	assertServiceQuotaChange,
+	hasResourceLimitChange,
+} from "./project-quota";
 
 export type Mariadb = typeof mariadb.$inferSelect;
 
@@ -97,6 +101,18 @@ export const updateMariadbById = async (
 	mariadbData: Partial<Mariadb>,
 ) => {
 	const { appName, ...rest } = mariadbData;
+
+	if (hasResourceLimitChange(rest)) {
+		const current = await findMariadbById(mariadbId);
+		await assertServiceQuotaChange({
+			projectId: current.environment.project.projectId,
+			serviceType: "mariadb",
+			serviceId: mariadbId,
+			current,
+			changes: rest,
+		});
+	}
+
 	const result = await db
 		.update(mariadb)
 		.set({

@@ -21,6 +21,7 @@ import {
 	execAsync,
 	execAsyncRemote,
 } from "@notploy/server/utils/process/execAsync";
+import { redactSecrets } from "@notploy/server/utils/security/redact";
 import { TRPCError } from "@trpc/server";
 import { format } from "date-fns";
 import {
@@ -43,6 +44,10 @@ import {
 import { findBackupById } from "./backup";
 import { type Compose, findComposeById, updateCompose } from "./compose";
 import {
+	publishOperationalEvent,
+	resolveOperationalEvent,
+} from "./operational-event";
+import {
 	findPreviewDeploymentById,
 	type PreviewDeployment,
 	updatePreviewDeployment,
@@ -51,10 +56,6 @@ import { removeRollbackById } from "./rollbacks";
 import { findScheduleById } from "./schedule";
 import { findServerById, type Server } from "./server";
 import { findVolumeBackupById } from "./volume-backups";
-import {
-	publishOperationalEvent,
-	resolveOperationalEvent,
-} from "./operational-event";
 
 export type ServicePath = { href: string | null; label: string };
 
@@ -157,7 +158,7 @@ export const readDeploymentLogs = async (
 		deployment.compose?.serverId;
 	if (serverId) {
 		const { stdout } = await execAsyncRemote(serverId, command);
-		return stdout;
+		return redactSecrets(stdout);
 	}
 
 	if (IS_CLOUD) {
@@ -165,7 +166,10 @@ export const readDeploymentLogs = async (
 	}
 
 	const { stdout } = await execAsync(command);
-	return stdout;
+	// Build output can contain environment values or clone credentials. The
+	// log file stays untouched for operators with disk access, but every API
+	// consumer receives a redacted view.
+	return redactSecrets(stdout);
 };
 
 export const createDeployment = async (
@@ -1045,10 +1049,7 @@ export const findDeploymentsCentralizedPage = async (
 						environments,
 						eq(applications.environmentId, environments.environmentId),
 					)
-					.innerJoin(
-						projects,
-						eq(environments.projectId, projects.projectId),
-					)
+					.innerJoin(projects, eq(environments.projectId, projects.projectId))
 					.where(
 						and(
 							inArray(applications.applicationId, appIds),
@@ -1069,10 +1070,7 @@ export const findDeploymentsCentralizedPage = async (
 						environments,
 						eq(compose.environmentId, environments.environmentId),
 					)
-					.innerJoin(
-						projects,
-						eq(environments.projectId, projects.projectId),
-					)
+					.innerJoin(projects, eq(environments.projectId, projects.projectId))
 					.where(
 						and(
 							inArray(compose.composeId, compIds),

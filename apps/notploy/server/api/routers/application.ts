@@ -42,6 +42,7 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@notploy/server/services/permission";
+import { assertServiceMoveAllowed } from "@notploy/server/services/service-move";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -53,6 +54,7 @@ import {
 	withPermission,
 } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
+import { withQuotaAudit } from "@/server/api/utils/quota";
 import {
 	apiCreateApplication,
 	apiDeployApplication,
@@ -783,9 +785,18 @@ export const applicationRouter = createTRPCRouter({
 			}
 
 			const { applicationId, ...rest } = input;
-			const updateApp = await updateApplication(applicationId, {
-				...rest,
-			});
+			const updateApp = await withQuotaAudit(
+				ctx,
+				{
+					type: "application",
+					id: applicationId,
+					name: rest.appName ?? rest.name,
+				},
+				() =>
+					updateApplication(applicationId, {
+						...rest,
+					}),
+			);
 
 			if (!updateApp) {
 				throw new TRPCError({
@@ -1026,6 +1037,18 @@ export const applicationRouter = createTRPCRouter({
 				service: ["create"],
 			});
 
+			await withQuotaAudit(
+				ctx,
+				{ type: "application", id: input.applicationId },
+				() =>
+					assertServiceMoveAllowed({
+						ctx,
+						serviceType: "application",
+						serviceId: input.applicationId,
+						targetEnvironmentId: input.targetEnvironmentId,
+					}),
+			);
+
 			const updatedApplication = await db
 				.update(applications)
 				.set({
@@ -1042,7 +1065,7 @@ export const applicationRouter = createTRPCRouter({
 				});
 			}
 			await audit(ctx, {
-				action: "update",
+				action: "move",
 				resourceType: "application",
 				resourceId: updatedApplication.applicationId,
 				resourceName: updatedApplication.appName,

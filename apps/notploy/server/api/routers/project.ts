@@ -25,8 +25,11 @@ import {
 	findMySqlById,
 	findPostgresById,
 	findProjectById,
+	findProjectQuota,
 	findRedisById,
 	findUserById,
+	getProjectQuotaUsage,
+	hasResourceLimitChange,
 	isManagedCloud,
 	updateProjectById,
 	updateUser,
@@ -50,6 +53,7 @@ import {
 	withPermission,
 } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
+import { withQuotaAudit } from "@/server/api/utils/quota";
 import {
 	apiCreateProject,
 	apiFindOneProject,
@@ -799,6 +803,40 @@ export const projectRouter = createTRPCRouter({
 				throw error;
 			}
 		}),
+	quota: protectedProcedure
+		.input(apiFindOneProject)
+		.query(async ({ input, ctx }) => {
+			const project = await findProjectById(input.projectId);
+			if (
+				!project ||
+				project.organizationId !== ctx.session.activeOrganizationId
+			) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			if (ctx.user.role !== "owner" && ctx.user.role !== "admin") {
+				const { accessedProjects } = await findMemberByUserId(
+					ctx.user.id,
+					ctx.session.activeOrganizationId,
+				);
+				if (!accessedProjects.includes(input.projectId)) {
+					throw new TRPCError({
+						code: "UNAUTHORIZED",
+						message: "You don't have access to this project",
+					});
+				}
+			}
+
+			const [quota, usage] = await Promise.all([
+				findProjectQuota(input.projectId),
+				getProjectQuotaUsage(input.projectId),
+			]);
+
+			return { quota, usage };
+		}),
 	update: protectedProcedure
 		.input(apiUpdateProject)
 		.mutation(async ({ input, ctx }) => {
@@ -830,9 +868,20 @@ export const projectRouter = createTRPCRouter({
 					await checkPermission(ctx, { projectEnvVars: ["write"] });
 				}
 
-				const project = await updateProjectById(input.projectId, {
-					...input,
-				});
+				// Project quotas are governance settings: service-level access is
+				// not enough to change them.
+				if (hasResourceLimitChange(input)) {
+					await checkPermission(ctx, { project: ["update"] });
+				}
+
+				const project = await withQuotaAudit(
+					ctx,
+					{ type: "project", id: input.projectId, name: input.name },
+					() =>
+						updateProjectById(input.projectId, {
+							...input,
+						}),
+				);
 
 				if (project) {
 					await audit(ctx, {
@@ -939,6 +988,13 @@ export const projectRouter = createTRPCRouter({
 									mounts,
 									appName,
 									refreshToken,
+									// Resource limits are not copied: the duplicated service
+									// must be checked against its target project's quota
+									// through a normal update instead of bypassing it.
+									cpuLimit: _cpuLimit,
+									cpuReservation: _cpuReservation,
+									memoryLimit: _memoryLimit,
+									memoryReservation: _memoryReservation,
 									...application
 								} = await findApplicationById(id);
 								const newAppName = appName.substring(
@@ -1053,8 +1109,16 @@ export const projectRouter = createTRPCRouter({
 								break;
 							}
 							case "libsql": {
-								const { libsqlId, mounts, appName, ...libsql } =
-									await findLibsqlById(id);
+								const {
+									libsqlId,
+									mounts,
+									appName,
+									cpuLimit: _cpuLimit,
+									cpuReservation: _cpuReservation,
+									memoryLimit: _memoryLimit,
+									memoryReservation: _memoryReservation,
+									...libsql
+								} = await findLibsqlById(id);
 
 								const newAppName = appName.substring(
 									0,
@@ -1082,8 +1146,17 @@ export const projectRouter = createTRPCRouter({
 								break;
 							}
 							case "mariadb": {
-								const { mariadbId, mounts, backups, appName, ...mariadb } =
-									await findMariadbById(id);
+								const {
+									mariadbId,
+									mounts,
+									backups,
+									appName,
+									cpuLimit: _cpuLimit,
+									cpuReservation: _cpuReservation,
+									memoryLimit: _memoryLimit,
+									memoryReservation: _memoryReservation,
+									...mariadb
+								} = await findMariadbById(id);
 
 								const newAppName = appName.substring(
 									0,
@@ -1118,8 +1191,17 @@ export const projectRouter = createTRPCRouter({
 								break;
 							}
 							case "mongo": {
-								const { mongoId, mounts, backups, appName, ...mongo } =
-									await findMongoById(id);
+								const {
+									mongoId,
+									mounts,
+									backups,
+									appName,
+									cpuLimit: _cpuLimit,
+									cpuReservation: _cpuReservation,
+									memoryLimit: _memoryLimit,
+									memoryReservation: _memoryReservation,
+									...mongo
+								} = await findMongoById(id);
 
 								const newAppName = appName.substring(
 									0,
@@ -1154,8 +1236,17 @@ export const projectRouter = createTRPCRouter({
 								break;
 							}
 							case "mysql": {
-								const { mysqlId, mounts, backups, appName, ...mysql } =
-									await findMySqlById(id);
+								const {
+									mysqlId,
+									mounts,
+									backups,
+									appName,
+									cpuLimit: _cpuLimit,
+									cpuReservation: _cpuReservation,
+									memoryLimit: _memoryLimit,
+									memoryReservation: _memoryReservation,
+									...mysql
+								} = await findMySqlById(id);
 
 								const newAppName = appName.substring(
 									0,
@@ -1190,8 +1281,17 @@ export const projectRouter = createTRPCRouter({
 								break;
 							}
 							case "postgres": {
-								const { postgresId, mounts, backups, appName, ...postgres } =
-									await findPostgresById(id);
+								const {
+									postgresId,
+									mounts,
+									backups,
+									appName,
+									cpuLimit: _cpuLimit,
+									cpuReservation: _cpuReservation,
+									memoryLimit: _memoryLimit,
+									memoryReservation: _memoryReservation,
+									...postgres
+								} = await findPostgresById(id);
 
 								const newAppName = appName.substring(
 									0,
@@ -1226,8 +1326,16 @@ export const projectRouter = createTRPCRouter({
 								break;
 							}
 							case "redis": {
-								const { redisId, mounts, appName, ...redis } =
-									await findRedisById(id);
+								const {
+									redisId,
+									mounts,
+									appName,
+									cpuLimit: _cpuLimit,
+									cpuReservation: _cpuReservation,
+									memoryLimit: _memoryLimit,
+									memoryReservation: _memoryReservation,
+									...redis
+								} = await findRedisById(id);
 
 								const newAppName = appName.substring(
 									0,

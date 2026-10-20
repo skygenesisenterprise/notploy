@@ -29,11 +29,13 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@notploy/server/services/permission";
+import { assertServiceMoveAllowed } from "@notploy/server/services/service-move";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
+import { withQuotaAudit } from "@/server/api/utils/quota";
 import {
 	apiChangeRedisStatus,
 	apiCreateRedis,
@@ -381,9 +383,14 @@ export const redisRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, redisId, {
 				service: ["create"],
 			});
-			const redis = await updateRedisById(redisId, {
-				...rest,
-			});
+			const redis = await withQuotaAudit(
+				ctx,
+				{ type: "service", id: redisId, name: rest.appName },
+				() =>
+					updateRedisById(redisId, {
+						...rest,
+					}),
+			);
 
 			if (!redis) {
 				throw new TRPCError({
@@ -461,6 +468,15 @@ export const redisRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, input.redisId, {
 				service: ["create"],
 			});
+
+			await withQuotaAudit(ctx, { type: "service", id: input.redisId }, () =>
+				assertServiceMoveAllowed({
+					ctx,
+					serviceType: "redis",
+					serviceId: input.redisId,
+					targetEnvironmentId: input.targetEnvironmentId,
+				}),
+			);
 
 			const updatedRedis = await db
 				.update(redisTable)

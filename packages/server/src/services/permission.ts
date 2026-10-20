@@ -1,7 +1,7 @@
 import { db } from "@notploy/server/db";
 import { member, organizationRole } from "@notploy/server/db/schema";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import {
 	ac,
 	adminRole,
@@ -26,6 +26,114 @@ export type ResolvedPermissions = {
 	[R in Resource]: {
 		[A in Statements[R][number]]: boolean;
 	};
+};
+
+/**
+ * Resolves the project that owns a service, whatever its type.
+ *
+ * Project access is the default authorization boundary: a member who can
+ * access a project must also access the services it contains, including
+ * services created after the member was granted access. The lookup is a
+ * single UNION query so the fallback does not multiply database round-trips
+ * for each request.
+ */
+const findProjectIdForService = async (
+	serviceId: string,
+): Promise<string | null> => {
+	const rows = (await db.execute(sql`
+		select e."projectId" as "projectId"
+		from "application" s
+		join "environment" e on e."environmentId" = s."environmentId"
+		where s."applicationId" = ${serviceId}
+		union all
+		select e."projectId" as "projectId"
+		from "compose" s
+		join "environment" e on e."environmentId" = s."environmentId"
+		where s."composeId" = ${serviceId}
+		union all
+		select e."projectId" as "projectId"
+		from "postgres" s
+		join "environment" e on e."environmentId" = s."environmentId"
+		where s."postgresId" = ${serviceId}
+		union all
+		select e."projectId" as "projectId"
+		from "mysql" s
+		join "environment" e on e."environmentId" = s."environmentId"
+		where s."mysqlId" = ${serviceId}
+		union all
+		select e."projectId" as "projectId"
+		from "mariadb" s
+		join "environment" e on e."environmentId" = s."environmentId"
+		where s."mariadbId" = ${serviceId}
+		union all
+		select e."projectId" as "projectId"
+		from "mongo" s
+		join "environment" e on e."environmentId" = s."environmentId"
+		where s."mongoId" = ${serviceId}
+		union all
+		select e."projectId" as "projectId"
+		from "libsql" s
+		join "environment" e on e."environmentId" = s."environmentId"
+		where s."libsqlId" = ${serviceId}
+		union all
+		select e."projectId" as "projectId"
+		from "redis" s
+		join "environment" e on e."environmentId" = s."environmentId"
+		where s."redisId" = ${serviceId}
+		limit 1
+	`)) as unknown as Array<{ projectId: string }>;
+
+	return rows[0]?.projectId ?? null;
+};
+
+const findProjectIdForEnvironment = async (
+	environmentId: string,
+): Promise<string | null> => {
+	const rows = (await db.execute(sql`
+		select "projectId" as "projectId"
+		from "environment"
+		where "environmentId" = ${environmentId}
+		limit 1
+	`)) as unknown as Array<{ projectId: string }>;
+
+	return rows[0]?.projectId ?? null;
+};
+
+const isPrivilegedRole = (roleName: string) =>
+	roleName === "owner" || roleName === "admin";
+
+/**
+ * Service access is additive: an explicit `accessedServices` grant always
+ * works, and project access now grants every service in that project. The
+ * project lookup is only needed for the fallback, so explicitly granted
+ * services keep the previous fast path.
+ */
+const hasServiceAccess = async (
+	memberRecord: Awaited<ReturnType<typeof findMemberByUserId>>,
+	serviceId: string,
+): Promise<boolean> => {
+	if (memberRecord.accessedServices.includes(serviceId)) {
+		return true;
+	}
+	if (memberRecord.accessedProjects.length === 0) {
+		return false;
+	}
+	const projectId = await findProjectIdForService(serviceId);
+	return projectId ? memberRecord.accessedProjects.includes(projectId) : false;
+};
+
+const hasEnvironmentAccess = async (
+	memberRecord: Awaited<ReturnType<typeof findMemberByUserId>>,
+	environmentId: string,
+): Promise<boolean> => {
+	if (memberRecord.accessedEnvironments.includes(environmentId)) {
+		return true;
+	}
+	if (memberRecord.accessedProjects.length === 0) {
+		return false;
+	}
+	const projectId = await findProjectIdForEnvironment(environmentId);
+	return projectId ? memberRecord.accessedProjects.includes(projectId) : false;
 };
 
 const staticRoles: Record<string, ReturnType<typeof ac.newRole>> = {
@@ -228,19 +336,25 @@ export const checkServicePermissionAndAccess = async (
 	const organizationId = ctx.session.activeOrganizationId;
 	const memberRecord = await findMemberByUserId(userId, organizationId);
 	await checkPermission(ctx, permissions);
-	if (memberRecord.role !== "owner" && memberRecord.role !== "admin") {
-		if (!memberRecord.accessedServices.includes(serviceId)) {
-			throw new TRPCError({
-				code: "UNAUTHORIZED",
-				message: "You don't have access to this service",
-			});
-		}
+	if (
+		!isPrivilegedRole(memberRecord.role) &&
+		!(await hasServiceAccess(memberRecord, serviceId))
+	) {
+		throw new TRPCError({
+			code: "UNAUTHORIZED",
+			message: "You don't have access to this service",
+		});
 	}
 };
 
+/**
+ * For `create`, `projectOrServiceId` is a **project id**: the caller is about
+ * to create a service, so there is no service row to resolve yet. For
+ * `read`/`delete` it is a service id and project inheritance applies.
+ */
 export const checkServiceAccess = async (
 	ctx: PermissionCtx,
-	serviceId: string,
+	projectOrServiceId: string,
 	action: "create" | "read" | "delete" = "read",
 ) => {
 	const userId = ctx.user.id;
@@ -249,22 +363,25 @@ export const checkServiceAccess = async (
 
 	await checkPermission(ctx, { service: [action] });
 
-	if (memberRecord.role !== "owner" && memberRecord.role !== "admin") {
-		if (action === "create") {
-			if (!memberRecord.accessedProjects.includes(serviceId)) {
-				throw new TRPCError({
-					code: "UNAUTHORIZED",
-					message: "You don't have access to this project",
-				});
-			}
-		} else {
-			if (!memberRecord.accessedServices.includes(serviceId)) {
-				throw new TRPCError({
-					code: "UNAUTHORIZED",
-					message: "You don't have access to this service",
-				});
-			}
+	if (isPrivilegedRole(memberRecord.role)) {
+		return;
+	}
+
+	if (action === "create") {
+		if (!memberRecord.accessedProjects.includes(projectOrServiceId)) {
+			throw new TRPCError({
+				code: "UNAUTHORIZED",
+				message: "You don't have access to this project",
+			});
 		}
+		return;
+	}
+
+	if (!(await hasServiceAccess(memberRecord, projectOrServiceId))) {
+		throw new TRPCError({
+			code: "UNAUTHORIZED",
+			message: "You don't have access to this service",
+		});
 	}
 };
 
@@ -279,12 +396,8 @@ export const checkEnvironmentAccess = async (
 
 	await checkPermission(ctx, { environment: [action] });
 
-	if (
-		action !== "create" &&
-		memberRecord.role !== "owner" &&
-		memberRecord.role !== "admin"
-	) {
-		if (!memberRecord.accessedEnvironments.includes(environmentId)) {
+	if (action !== "create" && !isPrivilegedRole(memberRecord.role)) {
+		if (!(await hasEnvironmentAccess(memberRecord, environmentId))) {
 			throw new TRPCError({
 				code: "UNAUTHORIZED",
 				message: "You don't have access to this environment",

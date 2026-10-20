@@ -17,6 +17,10 @@ import { eq, getTableColumns } from "drizzle-orm";
 import { quote } from "shell-quote";
 import type { z } from "zod";
 import { validUniqueServerAppName } from "./project";
+import {
+	assertServiceQuotaChange,
+	hasResourceLimitChange,
+} from "./project-quota";
 
 export type Libsql = typeof libsql.$inferSelect;
 
@@ -92,6 +96,18 @@ export const updateLibsqlById = async (
 	libsqlData: Partial<Libsql>,
 ) => {
 	const { appName, ...rest } = libsqlData;
+
+	if (hasResourceLimitChange(rest)) {
+		const current = await findLibsqlById(libsqlId);
+		await assertServiceQuotaChange({
+			projectId: current.environment.project.projectId,
+			serviceType: "libsql",
+			serviceId: libsqlId,
+			current,
+			changes: rest,
+		});
+	}
+
 	const result = await db
 		.update(libsql)
 		.set({

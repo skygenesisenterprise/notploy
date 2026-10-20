@@ -21,6 +21,7 @@ import { ShowExternalMysqlCredentials } from "@/components/dashboard/mysql/gener
 import { ShowGeneralMysql } from "@/components/dashboard/mysql/general/show-general-mysql";
 import { ShowInternalMysqlCredentials } from "@/components/dashboard/mysql/general/show-internal-mysql-credentials";
 import { UpdateMysql } from "@/components/dashboard/mysql/update-mysql";
+import { MoveService } from "@/components/dashboard/shared/move-service";
 import { ShowDatabaseAdvancedSettings } from "@/components/dashboard/shared/show-database-advanced-settings";
 import { TransferService } from "@/components/dashboard/shared/transfer-service";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
@@ -99,6 +100,17 @@ const MySql = (
 												id={mysqlId}
 												type="mysql"
 												serverId={data?.serverId}
+											/>
+										)}
+										{permissions?.service.create && (
+											<MoveService
+												id={mysqlId}
+												type="mysql"
+												currentEnvironmentId={
+													typeof environmentId === "string"
+														? environmentId
+														: undefined
+												}
 											/>
 										)}
 										{permissions?.service.delete && (

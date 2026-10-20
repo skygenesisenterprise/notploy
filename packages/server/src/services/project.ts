@@ -14,6 +14,12 @@ import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import type { z } from "zod";
 import { createProductionEnvironment } from "./environment";
+import {
+	assertProjectQuotaWithinUsage,
+	hasResourceLimitChange,
+	type ProjectQuota,
+	parseQuotaValue,
+} from "./project-quota";
 
 export type Project = typeof projects.$inferSelect;
 
@@ -134,6 +140,65 @@ export const updateProjectById = async (
 	projectId: string,
 	projectData: Partial<Project>,
 ) => {
+	if (hasResourceLimitChange(projectData)) {
+		const current = await db.query.projects.findFirst({
+			columns: {
+				projectId: true,
+				cpuLimit: true,
+				cpuReservation: true,
+				memoryLimit: true,
+				memoryReservation: true,
+			},
+			where: eq(projects.projectId, projectId),
+		});
+
+		if (!current) {
+			throw new TRPCError({
+				code: "NOT_FOUND",
+				message: "Project not found",
+			});
+		}
+
+		const quota: ProjectQuota = {
+			cpuLimit:
+				projectData.cpuLimit !== undefined
+					? projectData.cpuLimit
+					: current.cpuLimit,
+			cpuReservation:
+				projectData.cpuReservation !== undefined
+					? projectData.cpuReservation
+					: current.cpuReservation,
+			memoryLimit:
+				projectData.memoryLimit !== undefined
+					? projectData.memoryLimit
+					: current.memoryLimit,
+			memoryReservation:
+				projectData.memoryReservation !== undefined
+					? projectData.memoryReservation
+					: current.memoryReservation,
+		};
+
+		// A reservation larger than its limit is rejected before any write: Docker
+		// would otherwise receive an incoherent resource specification.
+		for (const [reservation, limit, label] of [
+			["cpuReservation", "cpuLimit", "CPU"],
+			["memoryReservation", "memoryLimit", "memory"],
+		] as const) {
+			if (
+				quota[reservation] !== null &&
+				quota[limit] !== null &&
+				parseQuotaValue(quota[reservation]) > parseQuotaValue(quota[limit])
+			) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: `The project ${label} reservation cannot be greater than its ${label} limit.`,
+				});
+			}
+		}
+
+		await assertProjectQuotaWithinUsage({ projectId, quota });
+	}
+
 	const result = await db
 		.update(projects)
 		.set({

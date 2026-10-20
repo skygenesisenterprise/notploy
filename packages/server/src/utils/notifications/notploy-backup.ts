@@ -1,6 +1,7 @@
 import { db } from "@notploy/server/db";
 import { notifications } from "@notploy/server/db/schema";
 import NotployBackupEmail from "@notploy/server/emails/emails/notploy-backup";
+import { redactSecrets } from "@notploy/server/utils/security/redact";
 import { render } from "@react-email/components";
 import { format } from "date-fns";
 import { eq } from "drizzle-orm";
@@ -21,13 +22,16 @@ import {
 
 export const sendNotployBackupNotifications = async ({
 	type,
-	errorMessage,
+	errorMessage: rawErrorMessage,
 	backupSize,
 }: {
 	type: "error" | "success";
 	errorMessage?: string;
 	backupSize?: string;
 }) => {
+	const errorMessage = rawErrorMessage
+		? redactSecrets(rawErrorMessage)
+		: rawErrorMessage;
 	const date = new Date();
 	const unixDate = ~~(Number(date) / 1000);
 	const notificationList = await db.query.notifications.findMany({

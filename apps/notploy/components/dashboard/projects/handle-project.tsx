@@ -31,6 +31,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/utils/api";
 
+const quotaValue = z
+	.string()
+	.optional()
+	.refine(
+		(value) => !value || (Number.isFinite(Number(value)) && Number(value) > 0),
+		{ message: "Enter a positive number" },
+	);
+
 const AddProjectSchema = z.object({
 	name: z
 		.string()
@@ -52,7 +60,28 @@ const AddProjectSchema = z.object({
 		})
 		.transform((name) => name.trim()),
 	description: z.string().optional(),
+	cpuLimit: quotaValue,
+	cpuReservation: quotaValue,
+	memoryLimit: quotaValue,
+	memoryReservation: quotaValue,
 });
+
+const NANOCPUS_PER_CORE = 1_000_000_000;
+const BYTES_PER_MIB = 1024 * 1024;
+
+const storedToCores = (value?: string | null) =>
+	value ? String(Number(value) / NANOCPUS_PER_CORE) : "";
+const storedToMiB = (value?: string | null) =>
+	value ? String(Number(value) / BYTES_PER_MIB) : "";
+
+const coresToStored = (value?: string) =>
+	value ? String(Math.round(Number(value) * NANOCPUS_PER_CORE)) : null;
+const mibToStored = (value?: string) =>
+	value ? String(Math.round(Number(value) * BYTES_PER_MIB)) : null;
+
+const toCores = (value: number) =>
+	Number((value / NANOCPUS_PER_CORE).toFixed(2));
+const toMiB = (value: number) => Number((value / BYTES_PER_MIB).toFixed(2));
 
 type AddProject = z.infer<typeof AddProjectSchema>;
 
@@ -65,9 +94,13 @@ export const HandleProject = ({ projectId }: Props) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
+	// Both mutations are declared unconditionally so the hook order stays
+	// stable when the dialog switches between create and update mode.
+	const updateProjectMutation = api.project.update.useMutation();
+	const createProjectMutation = api.project.create.useMutation();
 	const { mutateAsync, error, isError } = projectId
-		? api.project.update.useMutation()
-		: api.project.create.useMutation();
+		? updateProjectMutation
+		: createProjectMutation;
 
 	const { data, refetch } = api.project.one.useQuery(
 		{
@@ -78,6 +111,11 @@ export const HandleProject = ({ projectId }: Props) => {
 		},
 	);
 
+	const { data: quotaData } = api.project.quota.useQuery(
+		{ projectId: projectId || "" },
+		{ enabled: !!projectId },
+	);
+
 	const { data: availableTags = [] } = api.tag.all.useQuery();
 	const bulkAssignMutation = api.tag.bulkAssign.useMutation();
 
@@ -86,6 +124,10 @@ export const HandleProject = ({ projectId }: Props) => {
 		defaultValues: {
 			description: "",
 			name: "",
+			cpuLimit: "",
+			cpuReservation: "",
+			memoryLimit: "",
+			memoryReservation: "",
 		},
 		resolver: standardSchemaResolver(AddProjectSchema),
 	});
@@ -94,6 +136,10 @@ export const HandleProject = ({ projectId }: Props) => {
 		form.reset({
 			description: data?.description ?? "",
 			name: data?.name ?? "",
+			cpuLimit: storedToCores(data?.cpuLimit),
+			cpuReservation: storedToCores(data?.cpuReservation),
+			memoryLimit: storedToMiB(data?.memoryLimit),
+			memoryReservation: storedToMiB(data?.memoryReservation),
 		});
 		// Load existing tags when editing a project
 		if (data?.projectTags) {
@@ -109,6 +155,14 @@ export const HandleProject = ({ projectId }: Props) => {
 			name: data.name,
 			description: data.description,
 			projectId: projectId || "",
+			...(projectId
+				? {
+						cpuLimit: coresToStored(data.cpuLimit),
+						cpuReservation: coresToStored(data.cpuReservation),
+						memoryLimit: mibToStored(data.memoryLimit),
+						memoryReservation: mibToStored(data.memoryReservation),
+					}
+				: {}),
 		})
 			.then(async (data) => {
 				// Assign tags to the project (both create and update)
@@ -128,6 +182,9 @@ export const HandleProject = ({ projectId }: Props) => {
 				}
 
 				await utils.project.all.invalidate();
+				if (projectId) {
+					await utils.project.quota.invalidate({ projectId });
+				}
 				toast.success(projectId ? "Project Updated" : "Project Created");
 				setIsOpen(false);
 				if (!projectId) {
@@ -145,9 +202,12 @@ export const HandleProject = ({ projectId }: Props) => {
 					refetch();
 				}
 			})
-			.catch(() => {
+			.catch((error: Error) => {
 				toast.error(
-					projectId ? "Error updating a project" : "Error creating a project",
+					error.message ||
+						(projectId
+							? "Error updating a project"
+							: "Error creating a project"),
 				);
 			});
 	};
@@ -231,6 +291,82 @@ export const HandleProject = ({ projectId }: Props) => {
 								placeholder="Select tags..."
 							/>
 						</div>
+
+						{projectId && (
+							<div className="space-y-3 rounded-md border p-4">
+								<div className="space-y-1">
+									<p className="text-sm font-medium">
+										Resource quotas (logical limits)
+									</p>
+									<p className="text-xs text-muted-foreground">
+										Notploy refuses any service change that would push the sum
+										of declared limits above these caps. Docker/Swarm still
+										enforce each service's own limits; services without a
+										declared limit count as 0. Leave a field empty for no quota.
+									</p>
+								</div>
+
+								<div className="grid gap-3 sm:grid-cols-2">
+									{(
+										[
+											{
+												name: "cpuLimit",
+												label: "CPU limit (cores)",
+												placeholder: "2",
+											},
+											{
+												name: "cpuReservation",
+												label: "CPU reservation (cores)",
+												placeholder: "1",
+											},
+											{
+												name: "memoryLimit",
+												label: "Memory limit (MiB)",
+												placeholder: "4096",
+											},
+											{
+												name: "memoryReservation",
+												label: "Memory reservation (MiB)",
+												placeholder: "2048",
+											},
+										] as const
+									).map((quotaField) => (
+										<FormField
+											key={quotaField.name}
+											control={form.control}
+											name={quotaField.name}
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>{quotaField.label}</FormLabel>
+													<FormControl>
+														<Input
+															type="number"
+															min={0}
+															step="any"
+															placeholder={quotaField.placeholder}
+															value={field.value ?? ""}
+															onChange={field.onChange}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									))}
+								</div>
+
+								{quotaData && (
+									<p className="text-xs text-muted-foreground">
+										Declared usage across services:{" "}
+										{toCores(quotaData.usage.cpuLimit)} CPU limit ·{" "}
+										{toCores(quotaData.usage.cpuReservation)} CPU reservation ·{" "}
+										{toMiB(quotaData.usage.memoryLimit)} MiB memory limit ·{" "}
+										{toMiB(quotaData.usage.memoryReservation)} MiB memory
+										reservation.
+									</p>
+								)}
+							</div>
+						)}
 					</form>
 
 					<DialogFooter>

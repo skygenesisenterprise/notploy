@@ -16,9 +16,9 @@ import {
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 // A stub replacing the real `docker` binary. It ignores exec/-i/$CONTAINER_ID,
-// exports the -e VAR=val pairs, and runs the inner `sh -c <script>` — so the
-// test exercises BOTH shell layers (outer /bin/sh building the docker command,
-// and the inner shell) the way production does, without needing a container.
+// exports the -e VAR=val pairs, then runs either the legacy inner `sh -c` script
+// or the structured argv directly. Production no longer needs a shell inside
+// the container, so both shapes are exercised.
 const stub = `/tmp/docker_stub_${process.pid}`;
 const MARK = `/tmp/notploy_dbbk_pwned_${process.pid}`;
 
@@ -30,9 +30,13 @@ shift # exec
 envs=()
 while [ "$1" = "-e" ]; do envs+=("$2"); shift 2; done
 shift 2 # -i CONTAINER
-shell="$1"; shift # bash|sh
-shift # -c
-env "\${envs[@]}" "$shell" -c "$1" </dev/null 2>/dev/null || true
+if [ "$1" = "bash" ] || [ "$1" = "sh" ]; then
+  shell="$1"; shift
+  shift # -c
+  env "\${envs[@]}" "$shell" -c "$1" </dev/null 2>/dev/null || true
+else
+  env "\${envs[@]}" "$@" </dev/null 2>/dev/null || true
+fi
 `,
 	);
 	chmodSync(stub, 0o755);
@@ -94,13 +98,28 @@ describe("database backup/restore command injection", () => {
 		});
 	}
 
-	it("preserves a legitimate database name (passed through as env var)", () => {
+	it("preserves a legitimate database name as a structured argv entry", () => {
 		const cmd = getPostgresBackupCommand("my-db_prod", "app_user");
-		// Values live in -e assignments, never inline in the pg_dump text.
-		expect(cmd).toContain("-e DB_NAME=my-db_prod");
-		expect(cmd).toContain("-e DB_USER=app_user");
-		expect(cmd).toContain(
-			'pg_dump -Fc --no-acl --no-owner -h localhost -U "$DB_USER"',
-		);
+		expect(cmd).toContain("-U app_user");
+		expect(cmd).toContain("pg_dump -Fc --no-acl --no-owner");
+		expect(cmd).toContain(" --no-password my-db_prod");
+	});
+
+	it("does not require a shell or gzip inside the container", () => {
+		const builders = [
+			getPostgresBackupCommand("db", "user"),
+			getMariadbBackupCommand("db", "user", "pw"),
+			getMysqlBackupCommand("db", "pw"),
+			getMongoBackupCommand("db", "user", "pw"),
+			getLibsqlBackupCommand("db"),
+			getPostgresRestoreCommand("db", "user"),
+			getMariadbRestoreCommand("db", "user", "pw"),
+			getMysqlRestoreCommand("db", "pw"),
+			getMongoRestoreCommand("db", "user", "pw"),
+		];
+		for (const cmd of builders) {
+			expect(cmd).not.toMatch(/\b(?:bash|sh)\b\s+-c/);
+			expect(cmd).not.toContain("| gzip");
+		}
 	});
 });

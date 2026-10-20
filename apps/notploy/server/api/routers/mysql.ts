@@ -30,11 +30,13 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@notploy/server/services/permission";
+import { assertServiceMoveAllowed } from "@notploy/server/services/service-move";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
+import { withQuotaAudit } from "@/server/api/utils/quota";
 import {
 	apiChangeMySqlStatus,
 	apiCreateMySql,
@@ -390,9 +392,14 @@ export const mysqlRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, mysqlId, {
 				service: ["create"],
 			});
-			const service = await updateMySqlById(mysqlId, {
-				...rest,
-			});
+			const service = await withQuotaAudit(
+				ctx,
+				{ type: "service", id: mysqlId, name: rest.appName },
+				() =>
+					updateMySqlById(mysqlId, {
+						...rest,
+					}),
+			);
 
 			if (!service) {
 				throw new TRPCError({
@@ -477,6 +484,15 @@ export const mysqlRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, input.mysqlId, {
 				service: ["create"],
 			});
+
+			await withQuotaAudit(ctx, { type: "service", id: input.mysqlId }, () =>
+				assertServiceMoveAllowed({
+					ctx,
+					serviceType: "mysql",
+					serviceId: input.mysqlId,
+					targetEnvironmentId: input.targetEnvironmentId,
+				}),
+			);
 
 			const updatedMysql = await db
 				.update(mysqlTable)

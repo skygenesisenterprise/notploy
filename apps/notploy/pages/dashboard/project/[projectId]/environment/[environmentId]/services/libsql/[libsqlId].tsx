@@ -21,6 +21,7 @@ import { ShowInternalLibsqlCredentials } from "@/components/dashboard/libsql/gen
 import { UpdateLibsql } from "@/components/dashboard/libsql/update-libsql";
 import { ContainerFreeMonitoring } from "@/components/dashboard/monitoring/free/container/show-free-container-monitoring";
 import { ContainerPaidMonitoring } from "@/components/dashboard/monitoring/paid/container/show-paid-container-monitoring";
+import { MoveService } from "@/components/dashboard/shared/move-service";
 import { ShowDatabaseAdvancedSettings } from "@/components/dashboard/shared/show-database-advanced-settings";
 import { TransferService } from "@/components/dashboard/shared/transfer-service";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
@@ -88,6 +89,17 @@ const Libsql = (
 											id={libsqlId}
 											type="libsql"
 											serverId={data?.serverId}
+										/>
+									)}
+									{(auth?.role === "owner" || auth?.canCreateServices) && (
+										<MoveService
+											id={libsqlId}
+											type="libsql"
+											currentEnvironmentId={
+												typeof environmentId === "string"
+													? environmentId
+													: undefined
+											}
 										/>
 									)}
 									{(auth?.role === "owner" || auth?.canDeleteServices) && (

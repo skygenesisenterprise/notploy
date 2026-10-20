@@ -10,6 +10,7 @@ import { Client, type ConnectConfig } from "ssh2";
 import { WebSocketServer } from "ws";
 import { getDockerHost } from "../utils/docker";
 import { canAccessTerminalOverWss } from "./authorize";
+import { createCleanup } from "./cleanup";
 import {
 	parseResizeMessage,
 	parseTerminalSize,
@@ -56,7 +57,7 @@ export const getPublicIpWithFallback = async () => {
 
 export const getLocalServerIp = async () => {
 	try {
-		const command = `ip addr show | grep -E "inet (192\.168\.|10\.|172\.1[6-9]\.|172\.2[0-9]\.|172\.3[0-1]\.)" | head -n1 | awk '{print $2}' | cut -d/ -f1`;
+		const command = `ip addr show | grep -E "inet (192.168.|10.|172.1[6-9].|172.2[0-9].|172.3[0-1].)" | head -n1 | awk '{print $2}' | cut -d/ -f1`;
 		const { stdout } = await execAsync(command);
 		const ip = stdout.trim();
 		return (
@@ -190,6 +191,18 @@ export const setupTerminalWebSocketServer = (
 		const conn = new Client();
 		let _stdout = "";
 		let _stderr = "";
+		let shellStream: import("ssh2").ClientChannel | null = null;
+
+		// Closing the browser tab must tear down the SSH connection even if the
+		// shell was never opened (slow host, auth delay). `createCleanup` is
+		// idempotent because close, error and remote close can race.
+		const cleanup = createCleanup(
+			() => shellStream?.end(),
+			() => conn.end(),
+		);
+
+		ws.on("close", cleanup);
+		ws.on("error", cleanup);
 
 		ws.send("Connecting...\n");
 
@@ -199,20 +212,35 @@ export const setupTerminalWebSocketServer = (
 				ws.send("\x1bc");
 
 				conn.shell({ cols, rows }, (err, stream) => {
-					if (err) throw err;
+					if (err) {
+						if (ws.readyState === ws.OPEN) {
+							ws.send(`Unable to open terminal: ${err.message}`);
+							ws.close();
+						}
+						cleanup();
+						return;
+					}
 
+					shellStream = stream;
 					stream
 						.on("close", (code: number, _signal: string) => {
-							ws.send(`\nContainer closed with code: ${code}\n`);
-							conn.end();
+							if (ws.readyState === ws.OPEN) {
+								ws.send(`\nContainer closed with code: ${code}\n`);
+							}
+							cleanup();
+							ws.close();
 						})
 						.on("data", (data: string) => {
 							_stdout += data.toString();
-							ws.send(data.toString());
+							if (ws.readyState === ws.OPEN) {
+								ws.send(data.toString());
+							}
 						})
 						.stderr.on("data", (data) => {
 							_stderr += data.toString();
-							ws.send(data.toString());
+							if (ws.readyState === ws.OPEN) {
+								ws.send(data.toString());
+							}
 							console.error("Error: ", data.toString());
 						});
 
@@ -232,32 +260,33 @@ export const setupTerminalWebSocketServer = (
 							}
 							stream.write(text);
 						} catch (error) {
-							// @ts-ignore
-							const errorMessage = error?.message as unknown as string;
-							ws.send(errorMessage);
+							if (ws.readyState === ws.OPEN) {
+								// @ts-ignore
+								const errorMessage = error?.message as unknown as string;
+								ws.send(errorMessage);
+							}
 						}
-					});
-
-					ws.on("close", () => {
-						stream.end();
 					});
 				});
 			})
 			.on("error", (err) => {
-				if (err.level === "client-authentication") {
-					if (isLocalServer) {
-						ws.send(
-							`Authentication failed: Please run the command below on your server to allow access. Make sure to run it as the same user as the one configured in connection settings:${COMMAND_TO_ALLOW_LOCAL_ACCESS}\nAfter running the command, reopen this window to reconnect. This procedure is required only once.`,
-						);
+				if (ws.readyState === ws.OPEN) {
+					if (err.level === "client-authentication") {
+						if (isLocalServer) {
+							ws.send(
+								`Authentication failed: Please run the command below on your server to allow access. Make sure to run it as the same user as the one configured in connection settings:${COMMAND_TO_ALLOW_LOCAL_ACCESS}\nAfter running the command, reopen this window to reconnect. This procedure is required only once.`,
+							);
+						} else {
+							ws.send(
+								`Authentication failed: Unauthorized private SSH key or username.\n❌  Error: ${err.message} ${err.level}`,
+							);
+						}
 					} else {
-						ws.send(
-							`Authentication failed: Unauthorized private SSH key or username.\n❌  Error: ${err.message} ${err.level}`,
-						);
+						ws.send(`SSH connection error: ${err.message} ❌ `);
 					}
-				} else {
-					ws.send(`SSH connection error: ${err.message} ❌ `);
 				}
-				conn.end();
+				cleanup();
+				ws.close();
 			})
 			.connect(connectionDetails);
 	});

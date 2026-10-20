@@ -4,14 +4,13 @@ import {
 	getServiceContainerCommand,
 } from "../backups/utils";
 
-// User-controlled values are passed to the container via `docker exec -e` and
-// read as "$VAR" inside a single-quoted inner script, so they never enter the
-// inner command text. See the matching note in backups/utils.ts.
+// Same constraint as backups: no shell is required inside the database image.
+// Values are escaped for the outer shell and passed as structured argv.
 export const getPostgresRestoreCommand = (
 	database: string,
 	databaseUser: string,
 ) => {
-	return `docker exec -e DB_NAME=${quote([database])} -e DB_USER=${quote([databaseUser])} -i $CONTAINER_ID sh -c 'pg_restore -U "$DB_USER" -d "$DB_NAME" -O --clean --if-exists'`;
+	return `docker exec -i $CONTAINER_ID pg_restore -U ${quote([databaseUser])} -d ${quote([database])} -O --clean --if-exists`;
 };
 
 export const getMariadbRestoreCommand = (
@@ -19,14 +18,14 @@ export const getMariadbRestoreCommand = (
 	databaseUser: string,
 	databasePassword: string,
 ) => {
-	return `docker exec -e DB_NAME=${quote([database])} -e DB_USER=${quote([databaseUser])} -e DB_PASS=${quote([databasePassword])} -i $CONTAINER_ID sh -c 'mariadb -u "$DB_USER" -p"$DB_PASS" "$DB_NAME"'`;
+	return `docker exec -e MYSQL_PWD=${quote([databasePassword])} -i $CONTAINER_ID mariadb -u ${quote([databaseUser])} ${quote([database])}`;
 };
 
 export const getMysqlRestoreCommand = (
 	database: string,
 	databasePassword: string,
 ) => {
-	return `docker exec -e DB_NAME=${quote([database])} -e DB_PASS=${quote([databasePassword])} -i $CONTAINER_ID sh -c 'mysql -u root -p"$DB_PASS" "$DB_NAME"'`;
+	return `docker exec -e MYSQL_PWD=${quote([databasePassword])} -i $CONTAINER_ID mysql -u root ${quote([database])}`;
 };
 
 export const getMongoRestoreCommand = (
@@ -34,7 +33,7 @@ export const getMongoRestoreCommand = (
 	databaseUser: string,
 	databasePassword: string,
 ) => {
-	return `docker exec -e DB_NAME=${quote([database])} -e DB_USER=${quote([databaseUser])} -e DB_PASS=${quote([databasePassword])} -i $CONTAINER_ID sh -c 'mongorestore --username "$DB_USER" --password "$DB_PASS" --authenticationDatabase admin --db "$DB_NAME" --archive --drop'`;
+	return `docker exec -i $CONTAINER_ID mongorestore --username ${quote([databaseUser])} --password ${quote([databasePassword])} --authenticationDatabase admin --db ${quote([database])} --archive --drop`;
 };
 
 export const getComposeSearchCommand = (

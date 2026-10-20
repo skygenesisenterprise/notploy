@@ -16,6 +16,10 @@ import { eq } from "drizzle-orm";
 import { quote } from "shell-quote";
 import type { z } from "zod";
 import { validUniqueServerAppName } from "./project";
+import {
+	assertServiceQuotaChange,
+	hasResourceLimitChange,
+} from "./project-quota";
 
 export type Redis = typeof redis.$inferSelect;
 
@@ -80,6 +84,18 @@ export const updateRedisById = async (
 	redisData: Partial<Redis>,
 ) => {
 	const { appName, ...rest } = redisData;
+
+	if (hasResourceLimitChange(rest)) {
+		const current = await findRedisById(redisId);
+		await assertServiceQuotaChange({
+			projectId: current.environment.project.projectId,
+			serviceType: "redis",
+			serviceId: redisId,
+			current,
+			changes: rest,
+		});
+	}
+
 	const result = await db
 		.update(redis)
 		.set({

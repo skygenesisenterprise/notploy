@@ -32,6 +32,7 @@ import { ShowBackups } from "@/components/dashboard/database/backups/show-backup
 import { ComposeFreeMonitoring } from "@/components/dashboard/monitoring/free/container/show-free-compose-monitoring";
 import { ComposePaidMonitoring } from "@/components/dashboard/monitoring/paid/container/show-paid-compose-monitoring";
 import { AssignComposeNetworks } from "@/components/dashboard/networks/assign-compose-networks";
+import { MoveService } from "@/components/dashboard/shared/move-service";
 import { TransferService } from "@/components/dashboard/shared/transfer-service";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { AdvanceBreadcrumb } from "@/components/shared/advance-breadcrumb";
@@ -123,6 +124,17 @@ const Service = (
 												id={composeId}
 												type="compose"
 												serverId={data?.serverId}
+											/>
+										)}
+										{permissions?.service.create && (
+											<MoveService
+												id={composeId}
+												type="compose"
+												currentEnvironmentId={
+													typeof environmentId === "string"
+														? environmentId
+														: undefined
+												}
 											/>
 										)}
 										{permissions?.service.delete && (

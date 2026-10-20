@@ -30,11 +30,13 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@notploy/server/services/permission";
+import { assertServiceMoveAllowed } from "@notploy/server/services/service-move";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { audit } from "@/server/api/utils/audit";
+import { withQuotaAudit } from "@/server/api/utils/quota";
 import {
 	apiChangeMongoStatus,
 	apiCreateMongo,
@@ -394,9 +396,14 @@ export const mongoRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, mongoId, {
 				service: ["create"],
 			});
-			const service = await updateMongoById(mongoId, {
-				...rest,
-			});
+			const service = await withQuotaAudit(
+				ctx,
+				{ type: "service", id: mongoId, name: rest.appName },
+				() =>
+					updateMongoById(mongoId, {
+						...rest,
+					}),
+			);
 
 			if (!service) {
 				throw new TRPCError({
@@ -474,6 +481,15 @@ export const mongoRouter = createTRPCRouter({
 			await checkServicePermissionAndAccess(ctx, input.mongoId, {
 				service: ["create"],
 			});
+
+			await withQuotaAudit(ctx, { type: "service", id: input.mongoId }, () =>
+				assertServiceMoveAllowed({
+					ctx,
+					serviceType: "mongo",
+					serviceId: input.mongoId,
+					targetEnvironmentId: input.targetEnvironmentId,
+				}),
+			);
 
 			const updatedMongo = await db
 				.update(mongoTable)
