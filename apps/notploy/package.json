@@ -170,7 +170,7 @@
 		"@notploy/sdk": "workspace:*",
 		"@tailwindcss/postcss": "^4.3.1",
 		"@tailwindcss/vite": "^4.3.3",
-		"@types/adm-zip": "^0.5.7",
+		"@types/adm-zip": "^0.6.0",
 		"@types/bcrypt": "5.0.2",
 		"@types/dompurify": "^3.2.0",
 		"@types/js-cookie": "^3.0.6",
