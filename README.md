@@ -8,6 +8,15 @@
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/CONTRIBUTING.md)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/GUkDugVh34)
 
+<div align="center">
+  <a href="https://notploy.com">
+    <img src=".github/sponsors/logo.png" alt="Notploy - Deploy and operate applications on infrastructure you control" width="100%"  />
+  </a>
+  </br>
+  </br>
+</div>
+<br />
+
 > Deploy and operate applications on infrastructure you own.
 
 **Notploy** is an open-source, self-hostable platform for deploying and operating applications. It provides a web control plane for application and database deployments, Docker Compose projects, servers and clusters. Run it on your own infrastructure with the full Notploy suite, access it from the **Desktop** client, use the **Voyager** mobile app on the go, or leverage [Notploy Cloud](https://app.notploy.com) for a managed experience.
