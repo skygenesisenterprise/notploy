@@ -96,9 +96,7 @@ See the [feature guide](https://docs.notploy.com/docs/core/features) and [deploy
 The easiest way to install Notploy:
 
 ```bash
-git clone https://github.com/skygenesisenterprise/notploy.git
-cd notploy
-make install
+curl -sSL https://notploy.com/install.sh | sh
 ```
 
 After installation, open [http://localhost:3000](http://localhost:3000) to complete setup.
