@@ -15,7 +15,6 @@
   </br>
   </br>
 </div>
-<br />
 
 > Deploy and operate applications on infrastructure you own.
 
