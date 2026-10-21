@@ -89,7 +89,7 @@
 		"@trpc/client": "^11.10.0",
 		"@trpc/next": "^11.10.0",
 		"@trpc/react-query": "^11.10.0",
-		"@trpc/server": "^11.10.0",
+		"@trpc/server": "^11.19.0",
 		"@tryghost/content-api": "^1.11.21",
 		"@uiw/codemirror-theme-github": "^4.23.12",
 		"@uiw/react-codemirror": "^4.23.12",
