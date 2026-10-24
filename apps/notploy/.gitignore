@@ -57,4 +57,4 @@ yarn-error.log*
 *.lockb
 *.rdb
 .idea
-core.146
+core.*

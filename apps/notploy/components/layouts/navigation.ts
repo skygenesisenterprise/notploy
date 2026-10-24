@@ -230,35 +230,25 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 		label: "Overview",
 		environments: ["self", "cloud", "console"],
 		items: [
-			{ label: "Home", href: "/dashboard/home", icon: House },
+			// Self-hosted and Cloud keep their existing flat overview.
+			{
+				label: "Home",
+				href: "/dashboard/home",
+				icon: House,
+				environments: ["self", "cloud"],
+			},
 			{
 				label: "Projects",
 				href: "/dashboard/projects",
 				icon: Folder,
+				environments: ["self", "cloud"],
 			},
-			// Observability is available to self-hosted operators and to the
-			// platform operator console; Cloud keeps its managed monitoring views.
 			{
 				label: "Monitoring",
 				href: "/dashboard/monitoring",
 				icon: BarChartHorizontalBigIcon,
-				environments: ["self", "console"],
+				environments: ["self"],
 			},
-			// Console operator overview: response before workload lifecycle.
-			{
-				label: "Incidents",
-				href: "/dashboard/incidents",
-				icon: TriangleAlert,
-				environments: ["console"],
-			},
-			{
-				label: "Operations",
-				href: "/dashboard/operations",
-				icon: Activity,
-				environments: ["console"],
-			},
-			// Self-hosted and Cloud workspaces manage their own services; the
-			// operator console works at the platform level instead.
 			{
 				label: "Services",
 				href: "/dashboard/overview",
@@ -272,7 +262,34 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/deployments",
 				icon: Rocket,
 				activeTab: null,
+				environments: ["self", "cloud"],
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
+			},
+			// Console overview follows a manager's scan: situation, exceptions,
+			// live operations, trends, demand, changes, then the portfolio.
+			{
+				label: "Home",
+				href: "/dashboard/home",
+				icon: House,
+				environments: ["console"],
+			},
+			{
+				label: "Incidents",
+				href: "/dashboard/incidents",
+				icon: TriangleAlert,
+				environments: ["console"],
+			},
+			{
+				label: "Operations",
+				href: "/dashboard/operations",
+				icon: Activity,
+				environments: ["console"],
+			},
+			{
+				label: "Monitoring",
+				href: "/dashboard/monitoring",
+				icon: BarChartHorizontalBigIcon,
+				environments: ["console"],
 			},
 			{
 				label: "Traffic",
@@ -280,6 +297,20 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				icon: TrendingUp,
 				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.traffic.read,
+			},
+			{
+				label: "Deployments",
+				href: "/dashboard/deployments",
+				icon: Rocket,
+				activeTab: null,
+				environments: ["console"],
+				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
+			},
+			{
+				label: "Projects",
+				href: "/dashboard/projects",
+				icon: Folder,
+				environments: ["console"],
 			},
 		],
 	},
@@ -350,10 +381,9 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 			{ ...SHARED_ITEMS.sso, environments: ["cloud"], minLicense: "enterprise" },
 			{ ...SHARED_ITEMS.schedules, environments: ["cloud"], minLicense: "pro" },
 			{ ...SHARED_ITEMS.auditLogs, environments: ["cloud"], minLicense: "enterprise" },
-			// Console infrastructure, ordered like the self-hosted infrastructure
-			// pole: fleet, container runtime, orchestration, exposure, trust,
-			// supply chain and data. Console-only pages sit next to the self
-			// category they extend.
+			// Console infrastructure reads like a manager's asset map: capacity,
+			// availability, workloads, engines, network and edge, trust, supply
+			// chain, then data.
 			{
 				label: "Servers",
 				href: "/dashboard/settings/servers",
@@ -362,10 +392,9 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.server.read,
 			},
 			{
-				label: "Compute",
-				href: "/dashboard/docker",
-				icon: BlocksIcon,
-				activeTab: null,
+				label: "Clusters",
+				href: "/dashboard/swarm",
+				icon: Waypoints,
 				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
@@ -377,9 +406,10 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
-				label: "Clusters",
-				href: "/dashboard/swarm",
-				icon: Waypoints,
+				label: "Compute",
+				href: "/dashboard/docker",
+				icon: BlocksIcon,
+				activeTab: null,
 				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
@@ -390,6 +420,7 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
+			{ ...SHARED_ITEMS.dnsProviders, label: "DNS", environments: ["console"] },
 			{
 				label: "Web Server",
 				href: "/dashboard/settings/server",
@@ -410,7 +441,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "Registries",
 				environments: ["console"],
 			},
-			{ ...SHARED_ITEMS.dnsProviders, label: "DNS", environments: ["console"] },
 			{
 				label: "Storage",
 				href: "/dashboard/storage",
@@ -463,7 +493,9 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				environments: ["cloud"],
 			},
 			{ ...SHARED_ITEMS.sessions, environments: ["cloud"] },
-			// Console organization/cloud
+			// Console organization follows a manager's governance view: tenants
+			// and applications, digital domains, consumption and capacity,
+			// commercial health, shared operations, then the public site.
 			{
 				label: "Workspaces",
 				href: "/dashboard/workspaces",
@@ -477,9 +509,21 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				environments: ["console"],
 			},
 			{
+				label: "Domains",
+				href: "/dashboard/domains",
+				icon: Link2,
+				environments: ["console"],
+			},
+			{
 				label: "Usage",
 				href: "/dashboard/usage",
 				icon: ChartPie,
+				environments: ["console"],
+			},
+			{
+				label: "Capacity",
+				href: "/dashboard/capacity",
+				icon: Gauge,
 				environments: ["console"],
 			},
 			{
@@ -488,6 +532,18 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				icon: CreditCard,
 				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
+			},
+			{
+				label: "Platform Services",
+				href: "/dashboard/platform-services",
+				icon: Layers,
+				environments: ["console"],
+			},
+			{
+				label: "Maintenance",
+				href: "/dashboard/maintenance",
+				icon: Wrench,
+				environments: ["console"],
 			},
 			{
 				label: "Community",
@@ -506,30 +562,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "Careers",
 				href: "/dashboard/website/careers",
 				icon: Briefcase,
-				environments: ["console"],
-			},
-			{
-				label: "Capacity",
-				href: "/dashboard/capacity",
-				icon: Gauge,
-				environments: ["console"],
-			},
-			{
-				label: "Maintenance",
-				href: "/dashboard/maintenance",
-				icon: Wrench,
-				environments: ["console"],
-			},
-			{
-				label: "Domains",
-				href: "/dashboard/domains",
-				icon: Link2,
-				environments: ["console"],
-			},
-			{
-				label: "Platform Services",
-				href: "/dashboard/platform-services",
-				icon: Layers,
 				environments: ["console"],
 			},
 		],
