@@ -237,11 +237,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				icon: Folder,
 			},
 			{
-				label: "Monitoring",
-				href: "/dashboard/monitoring",
-				icon: BarChartHorizontalBigIcon,
-			},
-			{
 				label: "Services",
 				href: "/dashboard/overview",
 				icon: LayoutGrid,
