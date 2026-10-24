@@ -6,10 +6,9 @@ import {
 import { describe, expect, it } from "vitest";
 
 describe("resolveWebAuthnRequestContext", () => {
-	it("derives the relying party from the auth base URL", () => {
+	it("derives the relying party from the request origin", () => {
 		expect(
 			resolveWebAuthnRequestContext({
-				baseURL: "https://notploy.example.com/api/auth",
 				requestOrigin: "https://notploy.example.com",
 			}),
 		).toEqual({
@@ -21,16 +20,32 @@ describe("resolveWebAuthnRequestContext", () => {
 	it("keeps the port in the expected origin", () => {
 		expect(
 			resolveWebAuthnRequestContext({
-				baseURL: "http://localhost:3000",
 				requestOrigin: "http://localhost:3000",
 			}),
 		).toEqual({ rpID: "localhost", origin: "http://localhost:3000" });
 	});
 
-	it("prefers an explicitly configured relying party ID", () => {
+	it("accepts a host that differs from BETTER_AUTH_URL", () => {
+		// The dashboard proxied through a tunnel or reached as 127.0.0.1 still
+		// runs the ceremony on that host, so it is the relying party.
 		expect(
 			resolveWebAuthnRequestContext({
-				baseURL: "https://internal.notploy.local",
+				requestOrigin: "https://notploy.ngrok-free.app",
+			}),
+		).toEqual({
+			rpID: "notploy.ngrok-free.app",
+			origin: "https://notploy.ngrok-free.app",
+		});
+		expect(
+			resolveWebAuthnRequestContext({
+				requestOrigin: "http://127.0.0.1:3000",
+			}),
+		).toEqual({ rpID: "127.0.0.1", origin: "http://127.0.0.1:3000" });
+	});
+
+	it("keeps an explicitly configured relying party ID", () => {
+		expect(
+			resolveWebAuthnRequestContext({
 				configuredRpID: "notploy.example.com",
 				requestOrigin: "https://notploy.example.com",
 			}),
@@ -40,20 +55,23 @@ describe("resolveWebAuthnRequestContext", () => {
 		});
 	});
 
-	it("rejects an origin outside the relying party", () => {
+	it("accepts a pinned relying party that covers a subdomain", () => {
 		expect(
 			resolveWebAuthnRequestContext({
-				baseURL: "https://notploy.example.com",
-				requestOrigin: "https://evil.example.net",
+				configuredRpID: "notploy.example.com",
+				requestOrigin: "https://app.notploy.example.com",
 			}),
-		).toBeNull();
+		).toEqual({
+			rpID: "notploy.example.com",
+			origin: "https://app.notploy.example.com",
+		});
 	});
 
-	it("rejects a subdomain that is not the relying party", () => {
+	it("rejects a pinned relying party that does not cover the origin", () => {
 		expect(
 			resolveWebAuthnRequestContext({
-				baseURL: "https://notploy.example.com",
-				requestOrigin: "https://app.notploy.example.com",
+				configuredRpID: "notploy.example.com",
+				requestOrigin: "https://evil.example.net",
 			}),
 		).toBeNull();
 	});
@@ -61,32 +79,15 @@ describe("resolveWebAuthnRequestContext", () => {
 	it("rejects plain HTTP outside loopback", () => {
 		expect(
 			resolveWebAuthnRequestContext({
-				baseURL: "http://notploy.example.com",
 				requestOrigin: "http://notploy.example.com",
 			}),
 		).toBeNull();
 	});
 
 	it("rejects a missing or malformed request origin", () => {
+		expect(resolveWebAuthnRequestContext({})).toBeNull();
 		expect(
-			resolveWebAuthnRequestContext({
-				baseURL: "https://notploy.example.com",
-			}),
-		).toBeNull();
-		expect(
-			resolveWebAuthnRequestContext({
-				baseURL: "https://notploy.example.com",
-				requestOrigin: "not a url",
-			}),
-		).toBeNull();
-	});
-
-	it("rejects an unusable base URL", () => {
-		expect(
-			resolveWebAuthnRequestContext({
-				baseURL: "not a url",
-				requestOrigin: "https://notploy.example.com",
-			}),
+			resolveWebAuthnRequestContext({ requestOrigin: "not a url" }),
 		).toBeNull();
 	});
 });

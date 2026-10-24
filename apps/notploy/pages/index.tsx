@@ -10,10 +10,11 @@ import {
 	startAuthentication,
 } from "@simplewebauthn/browser";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { Fingerprint } from "lucide-react";
+import { Fingerprint, Loader2 } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import QRCode from "qrcode";
 import { type ReactElement, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -51,8 +52,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import {
+	getSecurityKeyQrLoginStatus,
+	getTwoFactorMethod,
 	isCeremonyCancellation,
 	requestWebAuthnTwoFactorOptions,
+	type TwoFactorMethod,
+	startSecurityKeyQrLogin,
+	verifySecurityKeyBackupCode,
 	verifyWebAuthnTwoFactor,
 	type WebAuthnTwoFactorOptions,
 } from "@/lib/webauthn-two-factor";
@@ -82,12 +88,17 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 	const [isTwoFactorLoading, setIsTwoFactorLoading] = useState(false);
 	const [isBackupCodeLoading, setIsBackupCodeLoading] = useState(false);
 	const [isTwoFactor, setIsTwoFactor] = useState(false);
+	const [twoFactorMethod, setTwoFactorMethod] =
+		useState<TwoFactorMethod | null>(null);
 	const [isWebAuthnSupported, setIsWebAuthnSupported] = useState(false);
 	const [securityKeyOptions, setSecurityKeyOptions] =
 		useState<WebAuthnTwoFactorOptions | null>(null);
 	const [hasSecurityKey, setHasSecurityKey] = useState(false);
 	const [hasNoSecurityKey, setHasNoSecurityKey] = useState(false);
 	const [isSecurityKeyLoading, setIsSecurityKeyLoading] = useState(false);
+	const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+	const [qrExpired, setQrExpired] = useState(false);
+	const [qrNonce, setQrNonce] = useState(0);
 	const [error, setError] = useState<string | null>(null);
 	const [twoFactorCode, setTwoFactorCode] = useState("");
 	const [isBackupCodeModalOpen, setIsBackupCodeModalOpen] = useState(false);
@@ -134,13 +145,96 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 		setHasNoSecurityKey(error?.code === "NO_SECURITY_KEY");
 	}, []);
 
+	// Reads the factor the account chose after its password. The panel shows
+	// exactly that factor: codes, or the security key.
+	const loadTwoFactorMethod = useCallback(async () => {
+		const { summary } = await getTwoFactorMethod();
+		setTwoFactorMethod(summary?.method ?? null);
+	}, []);
+
 	// The password step left a pending two-factor token, so a challenge can be
 	// requested before the user chooses a factor. Accounts without a key keep
 	// the code form only.
 	useEffect(() => {
 		if (!isTwoFactor || !isWebAuthnSupported) return;
+		if (twoFactorMethod === "totp") {
+			setSecurityKeyOptions(null);
+			setHasSecurityKey(false);
+			setHasNoSecurityKey(false);
+			return;
+		}
 		loadSecurityKeyOptions().catch(() => setSecurityKeyOptions(null));
-	}, [isTwoFactor, isWebAuthnSupported, loadSecurityKeyOptions]);
+	}, [
+		isTwoFactor,
+		isWebAuthnSupported,
+		twoFactorMethod,
+		loadSecurityKeyOptions,
+	]);
+
+	// Security-key mode completes the password step by scanning a QR code with a
+	// phone already signed in to the account. The waiting browser polls until
+	// the phone approves, then receives its session cookie.
+	useEffect(() => {
+		if (!isTwoFactor || twoFactorMethod !== "securityKey") {
+			setQrCodeUrl(null);
+			setQrExpired(false);
+			return;
+		}
+
+		let cancelled = false;
+		let timer: ReturnType<typeof setTimeout> | undefined;
+		let requestId: string | null = null;
+		let failures = 0;
+
+		const poll = async () => {
+			if (cancelled || !requestId) return;
+			const { status, token, error } = await getSecurityKeyQrLoginStatus(requestId);
+			if (cancelled) return;
+
+			if (status === "approved" && token) {
+				toast.success("Logged in successfully");
+				router.push("/dashboard/home");
+				return;
+			}
+			if (status === "expired") {
+				setQrExpired(true);
+				return;
+			}
+
+			// A transient failure (network, dev server reload) must not remove the
+			// QR while it is still valid on screen; only repeated failures give up.
+			failures = error ? failures + 1 : 0;
+			if (failures >= 5) {
+				setQrExpired(true);
+				return;
+			}
+			timer = setTimeout(poll, 2000);
+		};
+
+		(async () => {
+			const { request, error } = await startSecurityKeyQrLogin();
+			if (cancelled) return;
+			if (error || !request) {
+				setQrExpired(true);
+				toast.error(error?.message ?? "Could not prepare the QR code");
+				return;
+			}
+
+			requestId = request.requestId;
+			const qr = await QRCode.toDataURL(request.url, { margin: 1, width: 240 });
+			if (cancelled) return;
+			setQrCodeUrl(qr);
+			setQrExpired(false);
+			timer = setTimeout(poll, 1500);
+		})().catch(() => {
+			if (!cancelled) setQrExpired(true);
+		});
+
+		return () => {
+			cancelled = true;
+			if (timer) clearTimeout(timer);
+		};
+	}, [isTwoFactor, twoFactorMethod, qrNonce, router]);
 
 	const onSecurityKeySubmit = async () => {
 		if (!securityKeyOptions) return;
@@ -208,9 +302,12 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 			if (data && "twoFactorRedirect" in data && data.twoFactorRedirect) {
 				setTwoFactorCode("");
 				setSecurityKeyOptions(null);
+				setHasSecurityKey(false);
 				setHasNoSecurityKey(false);
+				setTwoFactorMethod(null);
 				setIsTwoFactor(true);
-				toast.info("Please enter your 2FA code or use a security key");
+				await loadTwoFactorMethod();
+				toast.info("Please complete your second factor");
 				return;
 			}
 
@@ -224,6 +321,8 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 	};
 	const onTwoFactorSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		// Key-only accounts have no code input: Enter must not reach this path.
+		if (twoFactorMethod === "securityKey") return;
 		if (twoFactorCode.length !== 6) {
 			toast.error("Please enter a valid 6-digit code");
 			return;
@@ -259,6 +358,28 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 
 		setIsBackupCodeLoading(true);
 		try {
+			// A key-only account has its own single-use codes: better-auth's are
+			// tied to an authenticator app it does not have.
+			const { token, error: securityKeyError } =
+				twoFactorMethod === "securityKey"
+					? await verifySecurityKeyBackupCode(backupCode.trim())
+					: { token: null, error: null };
+
+			if (twoFactorMethod === "securityKey") {
+				if (securityKeyError || !token) {
+					const message =
+						securityKeyError?.message ??
+						"This backup code is invalid or was already used.";
+					toast.error(message);
+					setError(message);
+					return;
+				}
+
+				toast.success("Logged in successfully");
+				router.push("/dashboard/home");
+				return;
+			}
+
 			const { error } = await authClient.twoFactor.verifyBackupCode({
 				code: backupCode.trim(),
 			});
@@ -378,41 +499,41 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 							autoComplete="on"
 						>
 							<div className="flex flex-col gap-2">
-								<Label htmlFor="totp-code">2FA Code</Label>
-								<InputOTP
-									id="totp-code"
-									name="totp"
-									value={twoFactorCode}
-									onChange={setTwoFactorCode}
-									maxLength={6}
-									pattern={REGEXP_ONLY_DIGITS}
-									autoFocus
-								>
-									<InputOTPGroup>
-										<InputOTPSlot index={0} />
-										<InputOTPSlot index={1} />
-										<InputOTPSlot index={2} />
-									</InputOTPGroup>
-									<InputOTPSeparator />
-									<InputOTPGroup>
-										<InputOTPSlot index={3} />
-										<InputOTPSlot index={4} />
-										<InputOTPSlot index={5} />
-									</InputOTPGroup>
-								</InputOTP>
-								<CardDescription>
-									Enter the 6-digit code from your authenticator app
-								</CardDescription>{" "}
-								<button
-									type="button"
-									onClick={() => setIsBackupCodeModalOpen(true)}
-									className="text-sm text-muted-foreground hover:underline self-start mt-2"
-								>
-									Lost access to your authenticator app?
-								</button>
-								{isWebAuthnSupported && hasSecurityKey && (
+								{twoFactorMethod === "securityKey" ? (
 									<>
-										<div className="flex items-center gap-3 my-1">
+										<Label>Scan to approve</Label>
+										{qrExpired ? (
+											<div className="flex flex-col items-center gap-2 rounded-lg border p-4">
+												<CardDescription>
+													This QR code expired.
+												</CardDescription>
+												<Button
+													type="button"
+													variant="outline"
+													onClick={() => setQrNonce((nonce) => nonce + 1)}
+												>
+													Show a new QR code
+												</Button>
+											</div>
+										) : qrCodeUrl ? (
+											<div className="flex flex-col items-center gap-2 rounded-lg border p-4">
+												{/** biome-ignore lint/performance/noImgElement: generated data URL */}
+												<img
+													src={qrCodeUrl}
+													alt="QR code to approve this sign-in"
+													className="size-44 rounded bg-white p-2"
+												/>
+												<CardDescription className="text-center">
+													Scan with your phone while signed in to this account to
+													approve the sign-in.
+												</CardDescription>
+											</div>
+										) : (
+											<div className="flex items-center justify-center rounded-lg border p-6">
+												<Loader2 className="size-5 animate-spin text-muted-foreground" />
+											</div>
+										)}
+										<div className="my-1 flex items-center gap-3">
 											<span className="h-px flex-1 bg-border" />
 											<span className="text-xs uppercase text-muted-foreground">
 												or
@@ -428,19 +549,84 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 											onClick={onSecurityKeySubmit}
 										>
 											<Fingerprint className="size-4" />
-											Use a security key
-										</Button>{" "}
-									<CardDescription>
-										Use a hardware key or a security key stored in your browser or
-										password manager (Bitwarden, 1Password, iCloud Keychain).
-									</CardDescription>
+											Use a security key on this device
+										</Button>
+										{hasNoSecurityKey && (
+											<CardDescription>
+												No security key could be used for this sign-in. Use one
+												of your backup codes instead.
+											</CardDescription>
+										)}
 									</>
-								)}
-								{isWebAuthnSupported && hasNoSecurityKey && (
-									<CardDescription>
-										No security key is registered on this account. After signing
-										in, add one from Profile → Security to use it next time.
-									</CardDescription>
+								) : (
+									<>
+										<Label htmlFor="totp-code">2FA Code</Label>
+										<InputOTP
+											id="totp-code"
+											name="totp"
+											value={twoFactorCode}
+											onChange={setTwoFactorCode}
+											maxLength={6}
+											pattern={REGEXP_ONLY_DIGITS}
+											autoFocus
+										>
+											<InputOTPGroup>
+												<InputOTPSlot index={0} />
+												<InputOTPSlot index={1} />
+												<InputOTPSlot index={2} />
+											</InputOTPGroup>
+											<InputOTPSeparator />
+											<InputOTPGroup>
+												<InputOTPSlot index={3} />
+												<InputOTPSlot index={4} />
+												<InputOTPSlot index={5} />
+											</InputOTPGroup>
+										</InputOTP>
+										<CardDescription>
+											Enter the 6-digit code from your authenticator app
+										</CardDescription>{" "}
+										<button
+											type="button"
+											onClick={() => setIsBackupCodeModalOpen(true)}
+											className="text-sm text-muted-foreground hover:underline self-start mt-2"
+										>
+											Lost access to your authenticator app?
+										</button>
+										{isWebAuthnSupported && hasSecurityKey && (
+											<>
+												<div className="flex items-center gap-3 my-1">
+													<span className="h-px flex-1 bg-border" />
+													<span className="text-xs uppercase text-muted-foreground">
+														or
+													</span>
+													<span className="h-px flex-1 bg-border" />
+												</div>
+												<Button
+													variant="outline"
+													className="w-full"
+													type="button"
+													disabled={!securityKeyOptions}
+													isLoading={isSecurityKeyLoading}
+													onClick={onSecurityKeySubmit}
+												>
+													<Fingerprint className="size-4" />
+													Use a security key
+												</Button>{" "}
+												<CardDescription>
+													Use a hardware key or a security key stored in your
+													browser or password manager (Bitwarden, 1Password,
+													iCloud Keychain).
+												</CardDescription>
+											</>
+										)}
+										{isWebAuthnSupported && hasNoSecurityKey && (
+											<CardDescription>
+												No security key is registered on this account. After
+												signing in, add one from Profile → Security to use it
+												next time.
+											</CardDescription>
+										)}
+									</>
 								)}
 							</div>
 
@@ -452,6 +638,9 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 									onClick={() => {
 										setIsTwoFactor(false);
 										setTwoFactorCode("");
+										setTwoFactorMethod(null);
+										setQrCodeUrl(null);
+										setQrExpired(false);
 										setSecurityKeyOptions(null);
 										setHasSecurityKey(false);
 										setHasNoSecurityKey(false);
@@ -460,13 +649,23 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 								>
 									Back
 								</Button>
-								<Button
-									className="w-full"
-									type="submit"
-									isLoading={isTwoFactorLoading}
-								>
-									Verify
-								</Button>
+								{twoFactorMethod === "securityKey" ? (
+									<Button
+										className="w-full"
+										type="button"
+										onClick={() => setIsBackupCodeModalOpen(true)}
+									>
+										Use a backup code
+									</Button>
+								) : (
+									<Button
+										className="w-full"
+										type="submit"
+										isLoading={isTwoFactorLoading}
+									>
+										Verify
+									</Button>
+								)}
 							</div>
 						</form>
 

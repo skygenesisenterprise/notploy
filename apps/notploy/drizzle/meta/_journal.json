@@ -1520,6 +1520,20 @@
       "when": 1792519280511,
       "tag": "0217_absent_argent",
       "breakpoints": true
+    },
+    {
+      "idx": 218,
+      "version": "7",
+      "when": 1792534000000,
+      "tag": "0218_two_factor_method",
+      "breakpoints": true
+    },
+    {
+      "idx": 219,
+      "version": "7",
+      "when": 1792538000000,
+      "tag": "0219_security_key_login_request",
+      "breakpoints": true
     }
   ]
 }

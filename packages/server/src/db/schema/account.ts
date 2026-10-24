@@ -6,6 +6,7 @@ import {
 	pgTable,
 	text,
 	timestamp,
+	uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 import { network } from "./network";
@@ -260,6 +261,55 @@ export const securityKeyRelations = relations(securityKey, ({ one }) => ({
 		references: [user.id],
 	}),
 }));
+
+/**
+ * A pending sign-in awaiting phone approval: the login page shows a QR code
+ * pointing at `/approve/<id>`, and a session already signed in as the same
+ * user marks it approved. The request never carries the password; it only
+ * completes the two-factor step the password already unlocked.
+ */
+export const securityKeyLoginRequest = pgTable(
+	"security_key_login_request",
+	{
+		id: text("id").primaryKey(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		// pending | approved | consumed | expired
+		status: text("status").notNull().default("pending"),
+		createdAt: timestamp("created_at"),
+		expiresAt: timestamp("expires_at").notNull(),
+		approvedAt: timestamp("approved_at"),
+	},
+	(table) => [
+		index("security_key_login_request_user_id_idx").on(table.userId),
+	],
+);
+
+/**
+ * Recovery codes for an account whose second factor is a security key.
+ *
+ * Only the hash is stored: a database leak must not hand out a way past the
+ * factor. A code is single use (`usedAt`) and only completes the pending
+ * two-factor step, so it never replaces the password.
+ */
+export const securityKeyBackupCode = pgTable(
+	"security_key_backup_code",
+	{
+		id: text("id").primaryKey(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		codeHash: text("code_hash").notNull(),
+		createdAt: timestamp("created_at"),
+		used: boolean("used").notNull().default(false),
+		usedAt: timestamp("used_at"),
+	},
+	(table) => [
+		index("security_key_backup_code_user_id_idx").on(table.userId),
+		uniqueIndex("security_key_backup_code_hash_idx").on(table.codeHash),
+	],
+);
 
 export const apikey = pgTable("apikey", {
 	id: text("id").primaryKey(),

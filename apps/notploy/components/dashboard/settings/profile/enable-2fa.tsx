@@ -116,7 +116,7 @@ Generated on: ${DATE_PLACEHOLDER}
 ${BACKUP_CODES_PLACEHOLDER}
 `;
 
-export const Enable2FA = () => {
+export const Enable2FA = ({ label = "Enable 2FA" }: { label?: string }) => {
 	const utils = api.useUtils();
 	const [data, setData] = useState<TwoFactorSetupData | null>(null);
 	const [backupCodes, setBackupCodes] = useState<string[]>([]);
@@ -300,7 +300,7 @@ export const Enable2FA = () => {
 			<DialogTrigger asChild>
 				<Button variant="ghost">
 					<Fingerprint className="size-4 text-muted-foreground" />
-					Enable 2FA
+					{label}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-xl">

@@ -1,3 +1,4 @@
+import { createHash, randomInt } from "node:crypto";
 import { base64 } from "@better-auth/utils/base64";
 import {
 	type AuthenticationResponseJSON,
@@ -8,11 +9,13 @@ import {
 	verifyRegistrationResponse,
 	type WebAuthnCredential,
 } from "@simplewebauthn/server";
-import type { BetterAuthPlugin } from "better-auth";
+import type { BetterAuthPlugin, GenericEndpointContext } from "better-auth";
 import {
 	APIError,
 	createAuthEndpoint,
+	createAuthMiddleware,
 	freshSessionMiddleware,
+	getSessionFromCtx,
 	sessionMiddleware,
 } from "better-auth/api";
 import { expireCookie, setSessionCookie } from "better-auth/cookies";
@@ -32,14 +35,49 @@ const CHALLENGE_TTL_SECONDS = 5 * 60;
 
 /** Better-auth model backed by the `security_key` table. */
 const SECURITY_KEY_MODEL = "securityKey";
+/** Better-auth model backed by the `security_key_backup_code` table. */
+const BACKUP_CODE_MODEL = "securityKeyBackupCode";
+/** Better-auth model backed by the `security_key_login_request` table. */
+const LOGIN_REQUEST_MODEL = "securityKeyLoginRequest";
 const MAX_SECURITY_KEYS_PER_USER = 10;
+/** How long the phone has to approve the QR code shown after the password. */
+const LOGIN_REQUEST_TTL_SECONDS = 10 * 60;
+
+/** Values of `user.twoFactorMethod`. */
+const TOTP_METHOD = "totp";
+const SECURITY_KEY_METHOD = "securityKey";
+
+const BACKUP_CODE_COUNT = 10;
+const BACKUP_CODE_LENGTH = 10;
+/** Ambiguity-free alphabet: no `0`/`O`, no `1`/`I`/`L`. */
+const BACKUP_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
 export const WEBAUTHN_TWO_FACTOR_NO_KEY_CODE = "NO_SECURITY_KEY";
 export const WEBAUTHN_TWO_FACTOR_NO_KEY_MESSAGE =
 	"No security key is registered for this account. Use an authenticator code instead.";
+export const SECURITY_KEY_REQUIRED_CODE = "SECURITY_KEY_REQUIRED";
+export const SECURITY_KEY_DISABLED_CODE = "SECURITY_KEY_DISABLED";
+export const TOTP_SETUP_REQUIRED_CODE = "TOTP_SETUP_REQUIRED";
+export const LAST_SECURITY_KEY_CODE = "LAST_SECURITY_KEY";
+export const BACKUP_CODES_UNAVAILABLE_CODE = "BACKUP_CODES_UNAVAILABLE";
+export const QR_LOGIN_UNAVAILABLE_CODE = "QR_LOGIN_UNAVAILABLE";
+export const QR_LOGIN_REQUEST_INVALID_CODE = "QR_LOGIN_REQUEST_INVALID";
+
+export type TwoFactorMethod = typeof TOTP_METHOD | typeof SECURITY_KEY_METHOD;
+
+/** What the account must present after its password. */
+export interface TwoFactorMethodSummary {
+	/** `null` until the account explicitly picks a factor (legacy accounts). */
+	method: TwoFactorMethod | null;
+	hasSecurityKey: boolean;
+	hasTotp: boolean;
+	backupCodesRemaining: number;
+}
 
 const INVALID_CHALLENGE_MESSAGE =
 	"This security key request expired. Start the sign-in again.";
+const SECURITY_KEY_REQUIRED_MESSAGE =
+	"This account signs in with a security key. Use your security key or a backup code.";
 
 export interface WebAuthnRequestContext {
 	/** Relying party ID: the host the credential is scoped to. */
@@ -80,34 +118,46 @@ const isLoopbackHost = (hostname: string) =>
 
 /**
  * Resolves the relying party ID and the origin an assertion must match.
- * Returns `null` when the request cannot be trusted: no origin, a host outside
- * the relying party, plain HTTP outside loopback, or an unparsable base URL.
+ *
+ * WebAuthn scopes a credential to the host the browser opened, so the request
+ * origin is authoritative: a dashboard reached through a reverse proxy, a
+ * tunnel or `127.0.0.1` instead of the configured `BETTER_AUTH_URL` must still
+ * be able to register and use security keys. A configured relying party ID is
+ * honoured when it covers the origin.
+ * Returns `null` when the request cannot be trusted: no origin, a missing
+ * secure context (plain HTTP outside loopback), a pinned relying party that
+ * does not cover the origin, or an unparsable origin.
  */
 export const resolveWebAuthnRequestContext = (input: {
-	baseURL?: string;
 	configuredRpID?: string;
 	requestOrigin?: string | null;
 }): WebAuthnRequestContext | null => {
-	let rpID = input.configuredRpID;
-	if (!rpID && input.baseURL) {
-		try {
-			rpID = new URL(input.baseURL).hostname;
-		} catch {
-			return null;
-		}
-	}
-	if (!rpID || !input.requestOrigin) return null;
+	if (!input.requestOrigin) return null;
 
+	let origin: URL;
 	try {
-		const origin = new URL(input.requestOrigin);
-		if (origin.hostname !== rpID) return null;
-		if (origin.protocol !== "https:" && !isLoopbackHost(origin.hostname)) {
-			return null;
-		}
-		return { rpID, origin: origin.origin };
+		origin = new URL(input.requestOrigin);
 	} catch {
 		return null;
 	}
+
+	// Browsers only expose WebAuthn on a secure context: HTTPS, or plain HTTP
+	// on loopback (`localhost`, `127.0.0.1`, `[::1]`).
+	if (origin.protocol !== "https:" && !isLoopbackHost(origin.hostname)) {
+		return null;
+	}
+
+	const rpID = input.configuredRpID;
+	if (rpID) {
+		// A relying party ID may be the origin itself or one of its parents, so
+		// a pinned ID keeps credentials usable across its subdomains.
+		const matchesRp =
+			origin.hostname === rpID || origin.hostname.endsWith(`.${rpID}`);
+		if (!matchesRp) return null;
+		return { rpID, origin: origin.origin };
+	}
+
+	return { rpID: origin.hostname, origin: origin.origin };
 };
 
 /** Splits the comma-separated `transports` column stored on the credential. */
@@ -146,6 +196,203 @@ export const toSecurityKeySummary = (
 	aaguid: row.aaguid,
 });
 
+interface BackupCodeRow {
+	id: string;
+	codeHash: string;
+	used: boolean;
+	usedAt: Date | string | null;
+}
+
+interface LoginRequestRow {
+	id: string;
+	userId: string;
+	status: string;
+	expiresAt: Date | string;
+}
+
+const findLoginRequest = async (
+	ctx: GenericEndpointContext,
+	requestId: string,
+) =>
+	(await ctx.context.adapter.findOne({
+		model: LOGIN_REQUEST_MODEL,
+		where: [{ field: "id", value: requestId }],
+	})) as LoginRequestRow | null;
+
+const isExpired = (expiresAt: Date | string) =>
+	new Date(expiresAt).getTime() <= Date.now();
+
+const invalidLoginRequest = () =>
+	new APIError("BAD_REQUEST", {
+		code: QR_LOGIN_REQUEST_INVALID_CODE,
+		message: "This sign-in request expired or was already used. Start again.",
+	});
+
+/** Removes formatting so `abcde-fghij` and `ABCDE FGHIJ` match the same code. */
+const normalizeBackupCode = (code: string) =>
+	code.replace(/[\s-]/g, "").toUpperCase();
+
+const hashBackupCode = (code: string) =>
+	createHash("sha256").update(normalizeBackupCode(code)).digest("hex");
+
+/** Codes are shown once, in `XXXXX-XXXXX` form, and only their hash is stored. */
+const generateBackupCodes = () =>
+	Array.from({ length: BACKUP_CODE_COUNT }, () => {
+		let raw = "";
+		for (let index = 0; index < BACKUP_CODE_LENGTH; index++) {
+			raw += BACKUP_CODE_ALPHABET[randomInt(BACKUP_CODE_ALPHABET.length)];
+		}
+		return `${raw.slice(0, 5)}-${raw.slice(5)}`;
+	});
+
+const findBackupCodes = async (
+	ctx: GenericEndpointContext,
+	userId: string,
+): Promise<BackupCodeRow[]> =>
+	(await ctx.context.adapter.findMany({
+		model: BACKUP_CODE_MODEL,
+		where: [{ field: "userId", value: userId }],
+	})) as BackupCodeRow[];
+
+/** Replaces every code at once: the previous set stops working immediately. */
+const replaceBackupCodes = async (
+	ctx: GenericEndpointContext,
+	userId: string,
+) => {
+	const codes = generateBackupCodes();
+	await ctx.context.adapter.deleteMany({
+		model: BACKUP_CODE_MODEL,
+		where: [{ field: "userId", value: userId }],
+	});
+	for (const code of codes) {
+		await ctx.context.adapter.create({
+			model: BACKUP_CODE_MODEL,
+			data: {
+				userId,
+				codeHash: hashBackupCode(code),
+				createdAt: new Date(),
+				used: false,
+			},
+		});
+	}
+	return codes;
+};
+
+const listSecurityKeys = async (ctx: GenericEndpointContext, userId: string) =>
+	(await ctx.context.adapter.findMany({
+		model: SECURITY_KEY_MODEL,
+		where: [{ field: "userId", value: userId }],
+	})) as SecurityKeyRow[];
+
+/** Whether the account has a verified authenticator-app secret. */
+const hasVerifiedTotp = async (
+	ctx: GenericEndpointContext,
+	userId: string,
+) => {
+	const record = (await ctx.context.adapter.findOne({
+		model: "twoFactor",
+		where: [{ field: "userId", value: userId }],
+	})) as { verified?: boolean } | null;
+	return !!record && record.verified !== false;
+};
+
+const readMethod = (user: unknown): TwoFactorMethod | null => {
+	const method = (user as { twoFactorMethod?: string | null } | null)
+		?.twoFactorMethod;
+	return method === TOTP_METHOD || method === SECURITY_KEY_METHOD ? method : null;
+};
+
+/** The user a password step left pending, read from the signed 2FA cookie. */
+const resolvePendingTwoFactorUser = async (ctx: GenericEndpointContext) => {
+	const cookie = ctx.context.createAuthCookie(TWO_FACTOR_COOKIE_NAME);
+	const token = await ctx.getSignedCookie(cookie.name, ctx.context.secret);
+	if (!token) return null;
+	const pending = await ctx.context.internalAdapter.findVerificationValue(token);
+	if (!pending) return null;
+	const user = await ctx.context.internalAdapter.findUserById(pending.value);
+	return user ? { user, token } : null;
+};
+
+/**
+ * Makes the security key the account's second factor. Called when the first key
+ * is registered, so choosing "security key" during setup needs no extra step,
+ * and when an account switches from authenticator codes. Backup codes are
+ * issued with it: losing the only key must not lock the account out.
+ */
+const enableSecurityKeyTwoFactor = async (
+	ctx: GenericEndpointContext,
+	userId: string,
+	/** Codes are reissued only when two-factor was off. */
+	issueBackupCodes = true,
+) => {
+	await ctx.context.internalAdapter.updateUser(userId, {
+		twoFactorEnabled: true,
+		twoFactorMethod: SECURITY_KEY_METHOD,
+	});
+	return issueBackupCodes ? replaceBackupCodes(ctx, userId) : undefined;
+};
+
+/**
+ * Reads the method straight from the database: the user snapshot on the session
+ * is not refreshed by every update, and this decision must not be stale.
+ */
+const readStoredMethod = async (ctx: GenericEndpointContext, userId: string) =>
+	readMethod(await ctx.context.internalAdapter.findUserById(userId));
+
+/**
+ * Ends the pending password step: consumes the single-use token, creates the
+ * session and sets its cookie. Shared by the key assertion and the backup code
+ * so both complete the exact same sign-in.
+ */
+const completeTwoFactorSignIn = async (
+	ctx: GenericEndpointContext,
+	userId: string,
+	twoFactorToken: string,
+) => {
+	const pending =
+		await ctx.context.internalAdapter.consumeVerificationValue(twoFactorToken);
+	const twoFactorCookie = ctx.context.createAuthCookie(TWO_FACTOR_COOKIE_NAME);
+	if (!pending || pending.value !== userId) {
+		expireCookie(ctx, twoFactorCookie);
+		throw invalidChallenge();
+	}
+
+	const user = await ctx.context.internalAdapter.findUserById(userId);
+	if (!user) throw invalidChallenge();
+
+	const dontRememberMe = await ctx.getSignedCookie(
+		ctx.context.authCookies.dontRememberToken.name,
+		ctx.context.secret,
+	);
+	const session = await ctx.context.internalAdapter.createSession(
+		userId,
+		!!dontRememberMe,
+	);
+	if (!session) {
+		throw new APIError("INTERNAL_SERVER_ERROR", {
+			code: "FAILED_TO_CREATE_SESSION",
+			message: "The session could not be created.",
+		});
+	}
+	await setSessionCookie(ctx, { session, user });
+	expireCookie(ctx, twoFactorCookie);
+
+	// Only the session token: the client reloads the session itself and the
+	// user row carries credentials the browser must not receive.
+	return ctx.json({ token: session.token }, { status: 200 });
+};
+
+/** Rejects the security-key endpoints when the account chose OTP codes. */
+const assertSecurityKeyMethod = (user: unknown) => {
+	if (readMethod(user) === TOTP_METHOD) {
+		throw new APIError("BAD_REQUEST", {
+			code: SECURITY_KEY_DISABLED_CODE,
+			message:
+				"This account signs in with authenticator codes. Change the two-factor method to use a security key.",
+		});
+	}
+};
+
 const invalidChallenge = () =>
 	new APIError("UNAUTHORIZED", {
 		code: "INVALID_TWO_FACTOR_CHALLENGE",
@@ -164,12 +411,10 @@ const contextInvalid = () =>
 		message: "Security keys are not available for this origin.",
 	});
 
-const resolveContext = (ctx: {
-	context: { baseURL?: string };
-	headers?: Headers;
-}) =>
+const resolveContext = (ctx: { headers?: Headers }) =>
 	resolveWebAuthnRequestContext({
-		baseURL: ctx.context.baseURL,
+		// The origin the browser ran the ceremony for; the relying party ID is
+		// derived from it unless the deployment pins one.
 		requestOrigin: ctx.headers?.get("origin"),
 	});
 
@@ -186,6 +431,18 @@ const resolveContext = (ctx: {
 export const webauthnTwoFactor = (): BetterAuthPlugin => ({
 	id: "webauthn-two-factor",
 	schema: {
+		// The factor the account must present after its password. Written by
+		// this plugin only (`input: false`); better-auth exposes the field on the
+		// user row so the adapter can read and update it.
+		user: {
+			fields: {
+				twoFactorMethod: {
+					type: "string",
+					required: false,
+					input: false,
+				},
+			},
+		},
 		securityKey: {
 			fields: {
 				name: { type: "string", required: false },
@@ -202,6 +459,32 @@ export const webauthnTwoFactor = (): BetterAuthPlugin => ({
 				transports: { type: "string", required: false },
 				createdAt: { type: "date", required: false },
 				aaguid: { type: "string", required: false },
+			},
+		},
+		securityKeyBackupCode: {
+			fields: {
+				userId: {
+					type: "string",
+					required: true,
+					references: { model: "user", field: "id", onDelete: "cascade" },
+				},
+				codeHash: { type: "string", required: true },
+				createdAt: { type: "date", required: false },
+				used: { type: "boolean", required: false },
+				usedAt: { type: "date", required: false },
+			},
+		},
+		securityKeyLoginRequest: {
+			fields: {
+				userId: {
+					type: "string",
+					required: true,
+					references: { model: "user", field: "id", onDelete: "cascade" },
+				},
+				status: { type: "string", required: false },
+				createdAt: { type: "date", required: false },
+				expiresAt: { type: "date", required: true },
+				approvedAt: { type: "date", required: false },
 			},
 		},
 	},
@@ -229,6 +512,9 @@ export const webauthnTwoFactor = (): BetterAuthPlugin => ({
 					pending.value,
 				);
 				if (!user) throw invalidChallenge();
+				// The account may have switched to authenticator codes: its keys are
+				// then no longer a valid second factor.
+				assertSecurityKeyMethod(user);
 
 				const credentials = (await ctx.context.adapter.findMany({
 					model: SECURITY_KEY_MODEL,
@@ -333,6 +619,11 @@ export const webauthnTwoFactor = (): BetterAuthPlugin => ({
 					throw invalidChallenge();
 				}
 
+				const pendingUser =
+					await ctx.context.internalAdapter.findUserById(userId);
+				if (!pendingUser) throw invalidChallenge();
+				assertSecurityKeyMethod(pendingUser);
+
 				const response = ctx.body
 					.response as unknown as AuthenticationResponseJSON;
 				if (typeof response?.id !== "string" || !response.id) {
@@ -394,40 +685,9 @@ export const webauthnTwoFactor = (): BetterAuthPlugin => ({
 					update: { counter: newCounter },
 				});
 
-				// Consume the pending two-factor token only once the assertion is
-				// valid, so a failed attempt can be retried with another key.
-				const pending =
-					await ctx.context.internalAdapter.consumeVerificationValue(
-						twoFactorToken,
-					);
-				if (!pending || pending.value !== userId) {
-					expireCookie(ctx, twoFactorCookie);
-					throw invalidChallenge();
-				}
-
-				const user = await ctx.context.internalAdapter.findUserById(userId);
-				if (!user) throw invalidChallenge();
-
-				const dontRememberMe = await ctx.getSignedCookie(
-					ctx.context.authCookies.dontRememberToken.name,
-					ctx.context.secret,
-				);
-				const session = await ctx.context.internalAdapter.createSession(
-					userId,
-					!!dontRememberMe,
-				);
-				if (!session) {
-					throw new APIError("INTERNAL_SERVER_ERROR", {
-						code: "FAILED_TO_CREATE_SESSION",
-						message: "The session could not be created.",
-					});
-				}
-				await setSessionCookie(ctx, { session, user });
-				expireCookie(ctx, twoFactorCookie);
-
-				// Only the session token: the client reloads the session itself and
-				// the user row carries credentials the browser must not receive.
-				return ctx.json({ token: session.token }, { status: 200 });
+				// The pending token is consumed only once the assertion is valid, so a
+				// failed attempt can be retried with another key.
+				return completeTwoFactorSignIn(ctx, userId, twoFactorToken);
 			},
 		),
 
@@ -627,7 +887,28 @@ export const webauthnTwoFactor = (): BetterAuthPlugin => ({
 					},
 				})) as SecurityKeyRow;
 
-				return ctx.json(toSecurityKeySummary(created), { status: 200 });
+				// A first key makes the security key the account's second factor right
+				// away, so choosing it during setup needs no extra switch. The backup
+				// codes are returned exactly once, here, for the user to store.
+				const currentUser =
+					(await ctx.context.internalAdapter.findUserById(session.user.id)) as {
+						twoFactorEnabled?: boolean | null;
+					} | null;
+				const alreadyEnabled = currentUser?.twoFactorEnabled === true;
+				const backupCodes = await enableSecurityKeyTwoFactor(
+					ctx,
+					session.user.id,
+					!alreadyEnabled,
+				);
+
+				return ctx.json(
+					{
+						...toSecurityKeySummary(created),
+						twoFactorEnabled: alreadyEnabled || !!backupCodes,
+						backupCodes,
+					},
+					{ status: 200 },
+				);
 			},
 		),
 
@@ -686,6 +967,20 @@ export const webauthnTwoFactor = (): BetterAuthPlugin => ({
 					});
 				}
 
+				// Removing the last key of a key-only account would leave it with no
+				// usable second factor: the backup codes alone are a recovery path,
+				// not a factor the user can enrol again.
+				if ((await readStoredMethod(ctx, session.user.id)) === SECURITY_KEY_METHOD) {
+					const keys = await listSecurityKeys(ctx, session.user.id);
+					if (keys.length <= 1) {
+						throw new APIError("BAD_REQUEST", {
+							code: LAST_SECURITY_KEY_CODE,
+							message:
+								"Register another security key before removing this one.",
+						});
+					}
+				}
+
 				await ctx.context.adapter.delete({
 					model: SECURITY_KEY_MODEL,
 					where: [{ field: "id", value: key.id }],
@@ -694,5 +989,401 @@ export const webauthnTwoFactor = (): BetterAuthPlugin => ({
 				return ctx.json({ success: true }, { status: 200 });
 			},
 		),
+
+		/**
+		 * Reports the account's chosen second factor. Read with the session (settings
+		 * page) or with the pending two-factor cookie (sign-in page, before a
+		 * session exists), which is how the login form knows what to ask for.
+		 */
+		getTwoFactorMethod: createAuthEndpoint(
+			"/webauthn-2fa/method",
+			{ method: "GET" },
+			async (ctx) => {
+				const session = await getSessionFromCtx(ctx);
+				let user = session?.user ?? null;
+				if (!user) {
+					const pending = await resolvePendingTwoFactorUser(ctx);
+					user = pending?.user ?? null;
+				}
+				if (!user) {
+					throw new APIError("UNAUTHORIZED", {
+						code: "SESSION_REQUIRED",
+						message: "Sign in to read your two-factor method.",
+					});
+				}
+
+				const [keys, backupCodes, hasTotp] = await Promise.all([
+					listSecurityKeys(ctx, user.id),
+					findBackupCodes(ctx, user.id),
+					hasVerifiedTotp(ctx, user.id),
+				]);
+
+				const summary: TwoFactorMethodSummary = {
+					method: await readStoredMethod(ctx, user.id),
+					hasSecurityKey: keys.length > 0,
+					hasTotp,
+					backupCodesRemaining: backupCodes.filter((code) => !code.used)
+						.length,
+				};
+				return ctx.json(summary, { status: 200 });
+			},
+		),
+
+		/**
+		 * Switches the second factor. Choosing the security key requires a
+		 * registered key; choosing authenticator codes requires a completed TOTP
+		 * setup, otherwise the settings page runs that setup first.
+		 */
+		setTwoFactorMethod: createAuthEndpoint(
+			"/webauthn-2fa/method",
+			{
+				method: "POST",
+				use: [freshSessionMiddleware],
+				body: z.object({
+					method: z.enum([TOTP_METHOD, SECURITY_KEY_METHOD]),
+				}),
+			},
+			async (ctx) => {
+				const session = ctx.context.session;
+				if (!session) {
+					throw new APIError("UNAUTHORIZED", {
+						code: "SESSION_REQUIRED",
+						message: "Sign in again to change your two-factor method.",
+					});
+				}
+				const userId = session.user.id;
+
+				if (ctx.body.method === SECURITY_KEY_METHOD) {
+					const keys = await listSecurityKeys(ctx, userId);
+					if (keys.length === 0) {
+						throw new APIError("BAD_REQUEST", {
+							code: WEBAUTHN_TWO_FACTOR_NO_KEY_CODE,
+							message:
+								"Register a security key before making it your second factor.",
+						});
+					}
+
+					const stored =
+						(await ctx.context.internalAdapter.findUserById(userId)) as {
+							twoFactorEnabled?: boolean | null;
+						} | null;
+					const alreadyEnabled = stored?.twoFactorEnabled === true;
+					// Switching from authenticator codes needs a fresh set: those codes
+					// belong to better-auth and no longer complete the sign-in.
+					const unused = (await findBackupCodes(ctx, userId)).filter(
+						(row) => !row.used,
+					);
+					const backupCodes = await enableSecurityKeyTwoFactor(
+						ctx,
+						userId,
+						!alreadyEnabled || unused.length === 0,
+					);
+
+					return ctx.json(
+						{ method: SECURITY_KEY_METHOD, backupCodes },
+						{ status: 200 },
+					);
+				}
+
+				if (!(await hasVerifiedTotp(ctx, userId))) {
+					throw new APIError("BAD_REQUEST", {
+						code: TOTP_SETUP_REQUIRED_CODE,
+						message:
+							"Set up an authenticator app before making it your second factor.",
+					});
+				}
+				await ctx.context.internalAdapter.updateUser(userId, {
+					twoFactorEnabled: true,
+					twoFactorMethod: TOTP_METHOD,
+				});
+				return ctx.json({ method: TOTP_METHOD }, { status: 200 });
+			},
+		),
+
+		countSecurityKeyBackupCodes: createAuthEndpoint(
+			"/webauthn-2fa/backup-codes",
+			{ method: "GET", use: [sessionMiddleware] },
+			async (ctx) => {
+				const session = ctx.context.session;
+				if (!session) {
+					throw new APIError("UNAUTHORIZED", {
+						code: "SESSION_REQUIRED",
+						message: "Sign in to view your backup codes.",
+					});
+				}
+
+				const codes = await findBackupCodes(ctx, session.user.id);
+				return ctx.json(
+					{ remaining: codes.filter((code) => !code.used).length },
+					{ status: 200 },
+				);
+			},
+		),
+
+		/** Replaces the whole set: the codes shown before stop working. */
+		generateSecurityKeyBackupCodes: createAuthEndpoint(
+			"/webauthn-2fa/backup-codes",
+			{ method: "POST", use: [freshSessionMiddleware] },
+			async (ctx) => {
+				const session = ctx.context.session;
+				if (!session) {
+					throw new APIError("UNAUTHORIZED", {
+						code: "SESSION_REQUIRED",
+						message: "Sign in again to regenerate your backup codes.",
+					});
+				}
+				if ((await readStoredMethod(ctx, session.user.id)) !== SECURITY_KEY_METHOD) {
+					throw new APIError("BAD_REQUEST", {
+						code: BACKUP_CODES_UNAVAILABLE_CODE,
+						message:
+							"Backup codes exist only while a security key is your second factor.",
+					});
+				}
+
+				const backupCodes = await replaceBackupCodes(ctx, session.user.id);
+				return ctx.json({ backupCodes }, { status: 200 });
+			},
+		),
+
+		/**
+		 * Completes a pending sign-in with a recovery code. Like the key itself it
+		 * only works after the password, and each code is single use.
+		 */
+		verifySecurityKeyBackupCode: createAuthEndpoint(
+			"/webauthn-2fa/backup-codes/verify",
+			{ method: "POST", body: z.object({ code: z.string().min(1) }) },
+			async (ctx) => {
+				const pending = await resolvePendingTwoFactorUser(ctx);
+				if (!pending) throw invalidChallenge();
+
+				const codeHash = hashBackupCode(ctx.body.code);
+				const row = (await ctx.context.adapter.findOne({
+					model: BACKUP_CODE_MODEL,
+					where: [
+						{ field: "userId", value: pending.user.id },
+						{ field: "codeHash", value: codeHash },
+						{ field: "used", value: false },
+					],
+				})) as BackupCodeRow | null;
+				if (!row) {
+					throw new APIError("UNAUTHORIZED", {
+						code: "INVALID_BACKUP_CODE",
+						message: "This backup code is invalid or was already used.",
+					});
+				}
+
+				// Conditional on `used: false` so two parallel requests cannot both
+				// redeem the same code.
+				const redeemed = await ctx.context.adapter.incrementOne({
+					model: BACKUP_CODE_MODEL,
+					where: [
+						{ field: "id", value: row.id },
+						{ field: "used", value: false },
+					],
+					increment: {},
+					set: { used: true, usedAt: new Date() },
+				});
+				if (!redeemed) {
+					throw new APIError("CONFLICT", {
+						code: "BACKUP_CODE_ALREADY_USED",
+						message: "This backup code was already used. Try another one.",
+					});
+				}
+
+				return completeTwoFactorSignIn(
+					ctx,
+					pending.user.id,
+					pending.token,
+				);
+			},
+		),
+
+		/**
+		 * Starts the QR sign-in shown in security-key mode. The QR encodes the
+		 * `/approve/<id>` page; a phone already signed in as the same account opens
+		 * it and approves, and the waiting browser completes its session.
+		 */
+		startSecurityKeyQrLogin: createAuthEndpoint(
+			"/webauthn-2fa/qr",
+			{ method: "POST" },
+			async (ctx) => {
+				const pending = await resolvePendingTwoFactorUser(ctx);
+				if (!pending) throw invalidChallenge();
+				if (readMethod(pending.user) !== SECURITY_KEY_METHOD) {
+					throw new APIError("BAD_REQUEST", {
+						code: QR_LOGIN_UNAVAILABLE_CODE,
+						message:
+							"QR approval is only available when a security key is the second factor.",
+					});
+				}
+
+				const expiresAt = new Date(
+					Date.now() + LOGIN_REQUEST_TTL_SECONDS * 1000,
+				);
+				// The adapter owns id generation: its warning makes clear that an `id`
+				// passed in `data` is ignored, so the request id is the created row's.
+				const created = (await ctx.context.adapter.create({
+					model: LOGIN_REQUEST_MODEL,
+					data: {
+						userId: pending.user.id,
+						status: "pending",
+						createdAt: new Date(),
+						expiresAt,
+					},
+				})) as { id: string };
+				const requestId = created.id;
+
+				// Prefer the origin the browser used: a phone on the LAN must reach the
+				// same address, while `baseURL` may be localhost.
+				const origin = (
+					ctx.headers?.get("origin") ?? ctx.context.baseURL
+				).replace(/\/$/, "");
+
+				return ctx.json(
+					{
+						requestId,
+						url: `${origin}/approve/${requestId}`,
+						expiresAt: expiresAt.toISOString(),
+					},
+					{ status: 200 },
+				);
+			},
+		),
+
+		/** Polled by the waiting browser; finishing here sets its session cookie. */
+		getSecurityKeyQrLoginStatus: createAuthEndpoint(
+			"/webauthn-2fa/qr/status",
+			{ method: "POST", body: z.object({ requestId: z.string().min(1) }) },
+			async (ctx) => {
+				const pending = await resolvePendingTwoFactorUser(ctx);
+				if (!pending) throw invalidChallenge();
+
+				const request = await findLoginRequest(ctx, ctx.body.requestId);
+				if (!request || request.userId !== pending.user.id) {
+					throw invalidLoginRequest();
+				}
+				if (request.status === "consumed") throw invalidLoginRequest();
+
+				if (request.status !== "approved" && isExpired(request.expiresAt)) {
+					await ctx.context.adapter.update({
+						model: LOGIN_REQUEST_MODEL,
+						where: [{ field: "id", value: request.id }],
+						update: { status: "expired" },
+					});
+					return ctx.json({ status: "expired" }, { status: 200 });
+				}
+				if (request.status !== "approved") {
+					return ctx.json({ status: "pending" }, { status: 200 });
+				}
+
+				await ctx.context.adapter.update({
+					model: LOGIN_REQUEST_MODEL,
+					where: [{ field: "id", value: request.id }],
+					update: { status: "consumed" },
+				});
+				return completeTwoFactorSignIn(
+					ctx,
+					pending.user.id,
+					pending.token,
+				);
+			},
+		),
+
+		/** Called by the signed-in phone that scanned the QR code. */
+		approveSecurityKeyQrLogin: createAuthEndpoint(
+			"/webauthn-2fa/qr/approve",
+			{
+				method: "POST",
+				use: [sessionMiddleware],
+				body: z.object({ requestId: z.string().min(1) }),
+			},
+			async (ctx) => {
+				const session = ctx.context.session;
+				if (!session) {
+					throw new APIError("UNAUTHORIZED", {
+						code: "SESSION_REQUIRED",
+						message: "Sign in on this device to approve a sign-in.",
+					});
+				}
+
+				const request = await findLoginRequest(ctx, ctx.body.requestId);
+				if (
+					!request ||
+					request.status === "consumed" ||
+					isExpired(request.expiresAt)
+				) {
+					throw invalidLoginRequest();
+				}
+				if (request.userId !== session.user.id) {
+					throw new APIError("FORBIDDEN", {
+						code: "QR_LOGIN_NOT_OWNER",
+						message: "This sign-in request belongs to another account.",
+					});
+				}
+				if (request.status === "approved") {
+					return ctx.json({ status: "approved" }, { status: 200 });
+				}
+
+				await ctx.context.adapter.update({
+					model: LOGIN_REQUEST_MODEL,
+					where: [{ field: "id", value: request.id }],
+					update: { status: "approved", approvedAt: new Date() },
+				});
+				return ctx.json({ status: "approved" }, { status: 200 });
+			},
+		),
+	},
+	hooks: {
+		before: [
+			{
+				matcher: (ctx) =>
+					ctx.path === "/two-factor/verify-totp" ||
+					ctx.path === "/two-factor/verify-backup-code",
+				handler: createAuthMiddleware(async (ctx) => {
+					// A signed-in user verifying a factor from the settings page is not
+					// signing in: only the pending password step follows the mode.
+					if (await getSessionFromCtx(ctx)) return;
+					const pending = await resolvePendingTwoFactorUser(ctx);
+
+					if (!pending) return;
+					if (readMethod(pending.user) !== SECURITY_KEY_METHOD) return;
+					throw new APIError("UNAUTHORIZED", {
+						code: SECURITY_KEY_REQUIRED_CODE,
+						message: SECURITY_KEY_REQUIRED_MESSAGE,
+					});
+				}),
+			},
+		],
+		after: [
+			{
+				matcher: (ctx) => ctx.path === "/two-factor/verify-totp",
+				handler: createAuthMiddleware(async (ctx) => {
+					// Completing a TOTP setup while signed in makes authenticator codes
+					// the account's chosen factor.
+					const session = await getSessionFromCtx(ctx);
+					if (!session) return;
+					await ctx.context.internalAdapter.updateUser(session.user.id, {
+						twoFactorEnabled: true,
+						twoFactorMethod: TOTP_METHOD,
+					});
+				}),
+			},
+			{
+				matcher: (ctx) => ctx.path === "/two-factor/disable",
+				handler: createAuthMiddleware(async (ctx) => {
+					// better-auth clears `twoFactorEnabled` and its TOTP record; the
+					// chosen method and this plugin's recovery codes go with it.
+					const session = await getSessionFromCtx(ctx);
+					if (!session) return;
+					await ctx.context.internalAdapter.updateUser(session.user.id, {
+						twoFactorMethod: null,
+					});
+					await ctx.context.adapter.deleteMany({
+						model: BACKUP_CODE_MODEL,
+						where: [{ field: "userId", value: session.user.id }],
+					});
+				}),
+			},
+		],
 	},
 });

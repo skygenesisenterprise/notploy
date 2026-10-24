@@ -42,6 +42,10 @@ export const user = pgTable("user", {
 	createdAt: timestamp("created_at").defaultNow(),
 	// Auth
 	twoFactorEnabled: boolean("two_factor_enabled"),
+	// Second factor the account asked for: `totp` (authenticator codes) or
+	// `securityKey` (WebAuthn). Null on accounts that never chose one, e.g. a
+	// legacy TOTP account or an account whose two-factor is disabled.
+	twoFactorMethod: text("two_factor_method"),
 	email: text("email").notNull().unique(),
 	emailVerified: boolean("email_verified").notNull(),
 	image: text("image"),

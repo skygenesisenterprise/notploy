@@ -8,12 +8,11 @@ import {
 	UserRound,
 } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
-import { useRouter } from "next/router";
 import type { ReactElement } from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import superjson from "superjson";
 import { ShowApiKeys } from "@/components/dashboard/settings/api/show-api-keys";
-import { ShowConnectEditor } from "@/components/dashboard/settings/api/show-connect-editor";
 import { LinkingAccount } from "@/components/dashboard/settings/linking-account/linking-account";
 import { Configure2FA } from "@/components/dashboard/settings/profile/configure-2fa";
 import { Enable2FA } from "@/components/dashboard/settings/profile/enable-2fa";
@@ -22,6 +21,7 @@ import { ProfileForm } from "@/components/dashboard/settings/profile/profile-for
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -31,12 +31,17 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getFallbackAvatarInitials } from "@/lib/utils";
+import { cn, getFallbackAvatarInitials } from "@/lib/utils";
+import {
+	getTwoFactorMethod,
+	setTwoFactorMethod,
+	type TwoFactorMethod,
+	type TwoFactorMethodSummary,
+} from "@/lib/webauthn-two-factor";
 import { appRouter } from "@/server/api/root";
 import { api } from "@/utils/api";
 
 const Page = () => {
-	const router = useRouter();
 	const [activeSection, setActiveSection] = useState("identity");
 	const {
 		data: membership,
@@ -52,9 +57,70 @@ const Page = () => {
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 	const { data: permissions } = api.user.getPermissions.useQuery();
 
+	const utils = api.useUtils();
 	const user = membership?.user;
 	const fullName = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
 	const canReadApiKeys = !!permissions?.api.read;
+
+	// The factor the account must present after its password. `null` covers
+	// accounts that never picked one (legacy TOTP accounts, 2FA disabled).
+	const twoFactorMethod =
+		user?.twoFactorMethod === "securityKey"
+			? "securityKey"
+			: user?.twoFactorMethod === "totp"
+				? "totp"
+				: null;
+	const isSecurityKeyMethod = twoFactorMethod === "securityKey";
+	const isTotpMethod = twoFactorMethod === "totp";
+	const twoFactorDescription = !user?.twoFactorEnabled
+		? "Two-factor authentication is not configured. Choose how you verify your sign-in."
+		: isSecurityKeyMethod
+			? "A security key is required after your password."
+			: isTotpMethod
+				? "An authenticator code is required after your password."
+				: "Both factors are currently accepted after your password.";
+
+	// What is actually enrolled (a key, an authenticator secret), so the card can
+	// offer to switch to a factor that already exists instead of re-creating it.
+	const [twoFactorSummary, setTwoFactorSummary] =
+		useState<TwoFactorMethodSummary | null>(null);
+	const [switchingMethod, setSwitchingMethod] =
+		useState<TwoFactorMethod | null>(null);
+
+	const refreshTwoFactorSummary = useCallback(async () => {
+		try {
+			const { summary } = await getTwoFactorMethod();
+			setTwoFactorSummary(summary);
+		} catch {
+			setTwoFactorSummary(null);
+		}
+	}, []);
+
+	useEffect(() => {
+		void refreshTwoFactorSummary();
+	}, [refreshTwoFactorSummary, user?.twoFactorEnabled, user?.twoFactorMethod]);
+
+	const handleSwitchMethod = async (method: TwoFactorMethod) => {
+		setSwitchingMethod(method);
+		try {
+			const result = await setTwoFactorMethod(method);
+			if (result.error) {
+				toast.error(
+					result.error.message || "Could not change the two-factor method",
+				);
+				return;
+			}
+
+			toast.success(
+				method === "securityKey"
+					? "Security key required after your password"
+					: "Authenticator codes required after your password",
+			);
+			await utils.user.get.invalidate();
+		} finally {
+			setSwitchingMethod(null);
+		}
+	};
 
 	useEffect(() => {
 		const syncSectionFromHash = () => {
@@ -205,50 +271,104 @@ const Page = () => {
 									Review the security of your personal account.
 								</p>
 							</div>
-							<div className="grid gap-4 lg:grid-cols-2">
+							<div className="grid gap-4">
 								<Card>
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2 text-lg">
 											<ShieldCheck className="size-5 text-muted-foreground" />
 											Two-factor authentication
 										</CardTitle>
-										<CardDescription>
-											{user.twoFactorEnabled
-												? "Authenticator codes or a security key are required after your password."
-												: "Two-factor authentication is not configured."}
-										</CardDescription>
+										<CardDescription>{twoFactorDescription}</CardDescription>
 									</CardHeader>
-									<CardContent className="flex flex-wrap gap-2 border-t pt-5">
-										{user.twoFactorEnabled ? (
-											<>
-												<Configure2FA />
-												<ManageSecurityKeys />
-											</>
-										) : (
-											<Enable2FA />
+									<CardContent className="space-y-3 border-t pt-5">
+										{user.twoFactorEnabled && twoFactorMethod === null && (
+											<p className="text-sm text-muted-foreground">
+												Pick one of the two factors so every sign-in asks for
+												the same thing.
+											</p>
 										)}
-									</CardContent>
-								</Card>
-								<Card>
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2 text-lg">
-											<UserRound className="size-5 text-muted-foreground" />
-											Sessions
-										</CardTitle>
-										<CardDescription>
-											Review and revoke the devices signed in to your account.
-										</CardDescription>
-									</CardHeader>
-									<CardContent className="flex flex-wrap gap-2 border-t pt-5">
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() =>
-												router.push("/dashboard/settings/sessions")
-											}
-										>
-											Manage sessions
-										</Button>
+										<div className="grid gap-3 sm:grid-cols-2">
+											<div
+												className={cn(
+													"flex flex-col gap-2 rounded-lg border p-3",
+													isTotpMethod && "border-primary/60 bg-primary/5",
+												)}
+											>
+												<div className="flex items-center justify-between gap-2">
+													<p className="font-medium">Authenticator app</p>
+													{isTotpMethod && (
+														<Badge variant="outline">Current</Badge>
+													)}
+												</div>
+												<p className="text-sm text-muted-foreground">
+													Approve each sign-in with a 6-digit code from an app
+													such as 1Password, Authy or Google Authenticator.
+												</p>
+												<div className="mt-auto pt-2">
+													{isTotpMethod ? (
+														<Configure2FA />
+													) : user.twoFactorEnabled &&
+														twoFactorSummary?.hasTotp ? (
+														<Button
+															variant="outline"
+															size="sm"
+															isLoading={switchingMethod === "totp"}
+															onClick={() => handleSwitchMethod("totp")}
+														>
+															Use codes
+														</Button>
+													) : (
+														<Enable2FA
+															label={
+																user.twoFactorEnabled
+																	? "Set up codes"
+																	: "Choose codes"
+															}
+														/>
+													)}
+												</div>
+											</div>
+											<div
+												className={cn(
+													"flex flex-col gap-2 rounded-lg border p-3",
+													isSecurityKeyMethod &&
+														"border-primary/60 bg-primary/5",
+												)}
+											>
+												<div className="flex items-center justify-between gap-2">
+													<p className="font-medium">Security key</p>
+													{isSecurityKeyMethod && (
+														<Badge variant="outline">Current</Badge>
+													)}
+												</div>
+												<p className="text-sm text-muted-foreground">
+													Approve each sign-in with a hardware key or a passkey
+													stored in your browser or password manager. Recovery
+													codes are issued with it.
+												</p>
+												<div className="mt-auto pt-2">
+													{isSecurityKeyMethod ? (
+														<ManageSecurityKeys
+															onChanged={refreshTwoFactorSummary}
+														/>
+													) : user.twoFactorEnabled &&
+														twoFactorSummary?.hasSecurityKey ? (
+														<Button
+															variant="outline"
+															size="sm"
+															isLoading={switchingMethod === "securityKey"}
+															onClick={() => handleSwitchMethod("securityKey")}
+														>
+															Use security key
+														</Button>
+													) : (
+														<ManageSecurityKeys
+															onChanged={refreshTwoFactorSummary}
+														/>
+													)}
+												</div>
+											</div>
+										</div>
 									</CardContent>
 								</Card>
 							</div>
@@ -262,12 +382,11 @@ const Page = () => {
 								<div className="mb-4">
 									<h2 className="text-xl font-semibold">Developer access</h2>
 									<p className="text-sm text-muted-foreground">
-										Manage personal API keys and connect your developer tools.
+										Manage the API keys that authenticate your tools.
 									</p>
 								</div>
-								<div className="grid gap-4 xl:grid-cols-2">
+								<div className="grid gap-4">
 									<ShowApiKeys />
-									<ShowConnectEditor />
 								</div>
 							</TabsContent>
 						)}

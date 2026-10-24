@@ -56,26 +56,12 @@ type PermissionsOutput =
 /**
  * Deployment environments a navigation node can target.
  *
- * - `self`    self-hosted Notploy, organised as three poles (Overview,
- *             Infrastructure, Organization) around the instance's own
- *             projects, substrate and organisation.
- * - `cloud`   managed Notploy Cloud, presenting managed services.
- * - `console` platform operator console (reserved). Spans both the self-hosted
- *             control plane and the managed Cloud activity, organised as four
- *             poles (Overview, Platform, Cloud, Infrastructure). Enabling it
- *             only requires passing `environment: "console"` to
- *             `createNavigation`.
+ * - `self`    self-hosted Notploy
+ * - `cloud`   managed Notploy Cloud
+ * - `console` platform operator console
  */
 export type NavigationEnvironment = "self" | "cloud" | "console";
 
-/**
- * Dynamic data consumed by `isEnabled` predicates (permissions, roles, ...).
- *
- * Environment visibility is deliberately absent here: it is declared on each
- * node through `environments`, so *where a destination exists* (functional
- * visibility) stays separate from *whether the current user may see it*
- * (access control).
- */
 /**
  * Workspace licence tiers, from the free plan up to a managed Enterprise
  * agreement. Cloud resolves one per workspace; self-hosted instances are
@@ -146,9 +132,7 @@ export type Navigation = {
 };
 
 /**
- * Destinations that appear under different headings depending on the
- * environment are declared once here and reused, so their href, icon and
- * permission gate are never duplicated across sections.
+ * Destinations shared across environments.
  */
 const SHARED_ITEMS = {
 	certificates: {
@@ -237,22 +221,14 @@ const SHARED_ITEMS = {
 } satisfies Record<string, NavigationItem>;
 
 /**
- * Single source of truth for every environment. The tree is authored once and
- * the same definition is filtered twice, in two independent passes:
- *
- *   1. environment visibility (`environments` on sections, groups and items);
- *   2. access control (`isEnabled` reading permissions/roles).
- *
- * A node without `environments` is visible everywhere; a node with an empty
- * `items` array can still contribute `groups`.
+ * Navigation tree organized into three sections: Overview, Infrastructure, Organization
+ * with environment-specific items for self, cloud and console.
  */
 const NAVIGATION_SECTIONS: NavigationSection[] = [
 	{
-		id: "home",
+		id: "overview",
 		label: "Overview",
-		// Self-hosted and Cloud share this Overview; the Console declares its own
-		// (see the console-overview section below), so it must not leak here.
-		environments: ["self", "cloud"],
+		environments: ["self", "cloud", "console"],
 		items: [
 			{ label: "Home", href: "/dashboard/home", icon: House },
 			{
@@ -266,7 +242,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				icon: BarChartHorizontalBigIcon,
 			},
 			{
-				// Applications, Compose stacks and managed databases share this view.
 				label: "Services",
 				href: "/dashboard/overview",
 				icon: LayoutGrid,
@@ -280,54 +255,73 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				activeTab: null,
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
 			},
-			// Cloud surfaces Schedules under its Infrastructure pole instead.
 			{ ...SHARED_ITEMS.schedules, environments: ["self"] },
+			{
+				label: "Incidents",
+				href: "/dashboard/incidents",
+				icon: TriangleAlert,
+				environments: ["console"],
+			},
+			{
+				label: "Operations",
+				href: "/dashboard/operations",
+				icon: Activity,
+				environments: ["console"],
+			},
+			{
+				label: "Traffic",
+				href: "/dashboard/website/traffic",
+				icon: TrendingUp,
+				environments: ["console"],
+				isEnabled: ({ permissions }) => !!permissions?.traffic.read,
+			},
 		],
 	},
 	{
 		id: "infrastructure",
 		label: "Infrastructure",
-		environments: ["self"],
+		environments: ["self", "cloud", "console"],
 		items: [
-			// Fleet: the machines the workloads run on.
+			// Self-hosted fleet & runtime
 			{
 				label: "Servers",
 				href: "/dashboard/settings/servers",
 				icon: Server,
+				environments: ["self"],
 				isEnabled: ({ permissions }) => !!permissions?.server.read,
 			},
-			// Compute: the container runtime.
 			{
 				label: "Docker",
 				href: "/dashboard/docker",
 				icon: BlocksIcon,
 				activeTab: null,
+				environments: ["self"],
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
 				label: "Swarm",
 				href: "/dashboard/swarm",
 				icon: Waypoints,
+				environments: ["self"],
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
-			// Networking: how the workloads are exposed.
 			{
 				label: "Networks",
 				href: "/dashboard/networks",
 				icon: Network,
+				environments: ["self"],
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
 				label: "Traefik Manager",
 				href: "/dashboard/traefik",
 				icon: GalleryVerticalEnd,
+				environments: ["self"],
 				isEnabled: ({ permissions }) => !!permissions?.traefikFiles.read,
 			},
-			// Trust: the certificates terminating TLS at the edge.
 			SHARED_ITEMS.certificates,
 			SHARED_ITEMS.sso,
 			SHARED_ITEMS.secretsManager,
-			// Connected providers: the external services the instance relies on.
 			SHARED_ITEMS.gitProviders,
 			SHARED_ITEMS.containerRegistries,
 			SHARED_ITEMS.dnsProviders,
@@ -336,223 +330,47 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "AI Providers",
 				href: "/dashboard/settings/ai",
 				icon: BotIcon,
+				environments: ["self"],
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,
 			},
-		],
-	},
-	// Cloud groups its destinations under Infrastructure and Settings, which
-	// complete the shared Overview (`home`) section above.
-	{
-		id: "cloud-infrastructure",
-		label: "Infrastructure",
-		environments: ["cloud"],
-		items: [
-			SHARED_ITEMS.gitProviders,
-			{ ...SHARED_ITEMS.containerRegistries, minLicense: "pro" },
-			SHARED_ITEMS.dnsProviders,
-			{ ...SHARED_ITEMS.objectStorage, minLicense: "pro" },
-			SHARED_ITEMS.certificates,
-			{ ...SHARED_ITEMS.secretsManager, minLicense: "pro" },
-			{ ...SHARED_ITEMS.sso, minLicense: "enterprise" },
-			{ ...SHARED_ITEMS.auditLogs, minLicense: "enterprise" },
-			{ ...SHARED_ITEMS.schedules, minLicense: "pro" },
-			SHARED_ITEMS.notifications,
-		],
-	},
-	{
-		id: "cloud-settings",
-		label: "Settings",
-		environments: ["cloud"],
-		items: [
-			{ ...SHARED_ITEMS.tags, label: "Workspace & Tags", minLicense: "pro" },
-			{ ...SHARED_ITEMS.teamAccess, minLicense: "pro" },
-			{ ...SHARED_ITEMS.apiKeys, minLicense: "pro" },
-			{
-				label: "Billing",
-				href: "/dashboard/settings/billing",
-				icon: CreditCard,
-				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
-			},
-			{ label: "Profile", href: "/dashboard/settings/profile", icon: User },
-			SHARED_ITEMS.sessions,
-		],
-	},
-	// Self-hosted groups everything that belongs to the instance's own
-	// organisation: its members and access control, plus the instance-level
-	// governance and settings. The connected providers (git, registries, DNS,
-	// object storage, AI) live under Infrastructure instead, next to the
-	// substrate they plug into. Cloud spreads the same destinations across its
-	// Infrastructure and Settings poles.
-	{
-		id: "organization",
-		label: "Organization",
-		environments: ["self"],
-		items: [
-			// Members and access control.
-			{
-				label: "Users",
-				href: "/dashboard/settings/users",
-				icon: Users,
-				isEnabled: ({ permissions }) => !!permissions?.member.read,
-			},
-			SHARED_ITEMS.sessions,
-			// Governance.
-			SHARED_ITEMS.auditLogs,
-			SHARED_ITEMS.tags,
-			SHARED_ITEMS.notifications,
-			// Instance-level settings.
-			{
-				label: "Web Server",
-				href: "/dashboard/settings/server",
-				icon: PanelsTopLeft,
-				isEnabled: ({ permissions }) => !!permissions?.organization.update,
-			},
-		],
-	},
-	// Platform operator console. A single surface that spans both the
-	// self-hosted control plane and the managed Cloud activity, so it is
-	// organised as four poles: a synthetic Overview, the cross-cutting
-	// Platform, the Cloud business, and the technical Infrastructure.
-	//
-	// Reserved: nothing renders these sections until `createNavigation` is
-	// called with `environment: "console"`. Destinations without a page yet
-	// are declared with the path they will live at, so the tree stays complete
-	// without duplicating the same decision across several places.
-	{
-		id: "console-overview",
-		label: "Overview",
-		environments: ["console"],
-		items: [
-			{ label: "Home", href: "/dashboard/home", icon: House },
-			// Observability, from proactive watch to reactive response.
-			{
-				label: "Monitoring",
-				href: "/dashboard/monitoring",
-				icon: BarChartHorizontalBigIcon,
-			},
-			{
-				label: "Incidents",
-				href: "/dashboard/incidents",
-				icon: TriangleAlert,
-			},
-			{
-				label: "Operations",
-				href: "/dashboard/operations",
-				icon: Activity,
-			},
-			{
-				label: "Traffic",
-				href: "/dashboard/website/traffic",
-				icon: TrendingUp,
-				isEnabled: ({ permissions }) => !!permissions?.traffic.read,
-			},
-		],
-	},
-	{
-		id: "console-platform",
-		label: "Platform",
-		environments: ["console"],
-		items: [
-			// Workload lifecycle: from source project to running services.
-			{ label: "Projects", href: "/dashboard/projects", icon: Folder },
-			{
-				label: "Deployments",
-				href: "/dashboard/deployments",
-				icon: Rocket,
-				activeTab: null,
-				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
-			},
-			{
-				label: "Services",
-				href: "/dashboard/overview",
-				icon: LayoutGrid,
-				activeTab: null,
-				isEnabled: ({ permissions }) => !!permissions?.service.read,
-			},
-			// Execution: the runtime hosting workloads, on top of the fleet.
+			// Cloud infrastructure
+			{ ...SHARED_ITEMS.gitProviders, environments: ["cloud"] },
+			{ ...SHARED_ITEMS.containerRegistries, environments: ["cloud"], minLicense: "pro" },
+			{ ...SHARED_ITEMS.dnsProviders, environments: ["cloud"] },
+			{ ...SHARED_ITEMS.objectStorage, environments: ["cloud"], minLicense: "pro" },
+			{ ...SHARED_ITEMS.certificates, environments: ["cloud"] },
+			{ ...SHARED_ITEMS.secretsManager, environments: ["cloud"], minLicense: "pro" },
+			{ ...SHARED_ITEMS.sso, environments: ["cloud"], minLicense: "enterprise" },
+			{ ...SHARED_ITEMS.auditLogs, environments: ["cloud"], minLicense: "enterprise" },
+			{ ...SHARED_ITEMS.schedules, environments: ["cloud"], minLicense: "pro" },
+			{ ...SHARED_ITEMS.notifications, environments: ["cloud"] },
+			// Console infrastructure/platform runtime
+			{ ...SHARED_ITEMS.gitProviders, label: "Git", environments: ["console"] },
+			{ ...SHARED_ITEMS.containerRegistries, label: "Registries", environments: ["console"] },
+			{ ...SHARED_ITEMS.dnsProviders, label: "DNS", environments: ["console"] },
+			{ ...SHARED_ITEMS.certificates, environments: ["console"] },
+			{ ...SHARED_ITEMS.secretsManager, label: "Secrets", environments: ["console"] },
+			{ ...SHARED_ITEMS.sso, environments: ["console"] },
+			{ ...SHARED_ITEMS.objectStorage, environments: ["console"] },
 			{
 				label: "Runtime",
 				href: "/dashboard/containers",
 				icon: Boxes,
+				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
 				label: "Servers",
 				href: "/dashboard/settings/servers",
 				icon: Server,
+				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.server.read,
 			},
-			// Supply chain: where code and images come from.
-			{ ...SHARED_ITEMS.gitProviders, label: "Git" },
-			{ ...SHARED_ITEMS.containerRegistries, label: "Registries" },
-			// Exposure: how traffic reaches the workloads.
-			{ ...SHARED_ITEMS.dnsProviders, label: "DNS" },
-			// Trust: the identities workloads run under.
-			SHARED_ITEMS.certificates,
-			{ ...SHARED_ITEMS.secretsManager, label: "Secrets" },
-			SHARED_ITEMS.sso,
-			// Data: what the workloads persist.
-			SHARED_ITEMS.objectStorage,
-			// Cross-cutting platform resources.
-			{
-				label: "Platform Services",
-				href: "/dashboard/platform-services",
-				icon: Layers,
-			},
-			{
-				label: "Web Server",
-				href: "/dashboard/settings/server",
-				icon: PanelsTopLeft,
-				isEnabled: ({ permissions }) => !!permissions?.organization.update,
-			},
-		],
-	},
-	{
-		id: "console-cloud",
-		label: "Cloud",
-		environments: ["console"],
-		items: [
-			// The business: workspaces and the applications they run.
-			{ label: "Workspaces", href: "/dashboard/workspaces", icon: Building2 },
-			{
-				label: "Applications",
-				href: "/dashboard/applications",
-				icon: AppWindow,
-			},
-			// The economics: consumption and revenue.
-			{ label: "Usage", href: "/dashboard/usage", icon: ChartPie },
-			{
-				label: "Billing",
-				href: "/dashboard/settings/billing",
-				icon: CreditCard,
-				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
-			},
-			// Website (`web/apps/website`) surfaces. Links only for now: the
-			// management pages land later, like the other reserved destinations.
-			{
-				label: "Community",
-				href: "/dashboard/website/community",
-				icon: HeartHandshake,
-				isEnabled: ({ permissions }) => !!permissions?.community.read,
-			},
-			{ label: "Blog", href: "/dashboard/website/blog", icon: Newspaper },
-			{
-				label: "Careers",
-				href: "/dashboard/website/careers",
-				icon: Briefcase,
-			},
-		],
-	},
-	{
-		id: "console-infrastructure",
-		label: "Infrastructure",
-		environments: ["console"],
-		items: [
-			// Topology: the substrate running the workloads.
 			{
 				label: "Clusters",
 				href: "/dashboard/swarm",
 				icon: Waypoints,
+				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
@@ -560,20 +378,142 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/docker",
 				icon: BlocksIcon,
 				activeTab: null,
+				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
-			{ label: "Storage", href: "/dashboard/storage", icon: Database },
-			// Connectivity: how the workloads are reached.
 			{
-				label: "Networking",
+				label: "Storage",
+				href: "/dashboard/storage",
+				icon: Database,
+				environments: ["console"],
+			},
+			{
+				label: "Networks",
 				href: "/dashboard/networks",
 				icon: Network,
+				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
-			{ label: "Domains", href: "/dashboard/domains", icon: Link2 },
-			// Operations: the activities that sustain the substrate.
-			{ label: "Capacity", href: "/dashboard/capacity", icon: Gauge },
-			{ label: "Maintenance", href: "/dashboard/maintenance", icon: Wrench },
+			{
+				label: "Domains",
+				href: "/dashboard/domains",
+				icon: Link2,
+				environments: ["console"],
+			},
+			{
+				label: "Capacity",
+				href: "/dashboard/capacity",
+				icon: Gauge,
+				environments: ["console"],
+			},
+			{
+				label: "Maintenance",
+				href: "/dashboard/maintenance",
+				icon: Wrench,
+				environments: ["console"],
+			},
+			{
+				label: "Platform Services",
+				href: "/dashboard/platform-services",
+				icon: Layers,
+				environments: ["console"],
+			},
+			{
+				label: "Web Server",
+				href: "/dashboard/settings/server",
+				icon: PanelsTopLeft,
+				environments: ["console"],
+				isEnabled: ({ permissions }) => !!permissions?.organization.update,
+			},
+		],
+	},
+	{
+		id: "organization",
+		label: "Organization",
+		environments: ["self", "cloud", "console"],
+		items: [
+			// Self-hosted organization
+			{
+				label: "Users",
+				href: "/dashboard/settings/users",
+				icon: Users,
+				environments: ["self"],
+				isEnabled: ({ permissions }) => !!permissions?.member.read,
+			},
+			{ ...SHARED_ITEMS.sessions, environments: ["self"] },
+			{ ...SHARED_ITEMS.auditLogs, environments: ["self"] },
+			{ ...SHARED_ITEMS.tags, environments: ["self"] },
+			{ ...SHARED_ITEMS.notifications, environments: ["self"] },
+			{
+				label: "Web Server",
+				href: "/dashboard/settings/server",
+				icon: PanelsTopLeft,
+				environments: ["self"],
+				isEnabled: ({ permissions }) => !!permissions?.organization.update,
+			},
+			// Cloud organization/settings
+			{ ...SHARED_ITEMS.tags, label: "Workspace & Tags", environments: ["cloud"], minLicense: "pro" },
+			{ ...SHARED_ITEMS.teamAccess, environments: ["cloud"], minLicense: "pro" },
+			{ ...SHARED_ITEMS.apiKeys, environments: ["cloud"], minLicense: "pro" },
+			{
+				label: "Billing",
+				href: "/dashboard/settings/billing",
+				icon: CreditCard,
+				environments: ["cloud"],
+				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
+			},
+			{
+				label: "Profile",
+				href: "/dashboard/settings/profile",
+				icon: User,
+				environments: ["cloud"],
+			},
+			{ ...SHARED_ITEMS.sessions, environments: ["cloud"] },
+			// Console organization/cloud
+			{
+				label: "Workspaces",
+				href: "/dashboard/workspaces",
+				icon: Building2,
+				environments: ["console"],
+			},
+			{
+				label: "Applications",
+				href: "/dashboard/applications",
+				icon: AppWindow,
+				environments: ["console"],
+			},
+			{
+				label: "Usage",
+				href: "/dashboard/usage",
+				icon: ChartPie,
+				environments: ["console"],
+			},
+			{
+				label: "Billing",
+				href: "/dashboard/settings/billing",
+				icon: CreditCard,
+				environments: ["console"],
+				isEnabled: ({ permissions }) => !!permissions?.billing?.read,
+			},
+			{
+				label: "Community",
+				href: "/dashboard/website/community",
+				icon: HeartHandshake,
+				environments: ["console"],
+				isEnabled: ({ permissions }) => !!permissions?.community.read,
+			},
+			{
+				label: "Blog",
+				href: "/dashboard/website/blog",
+				icon: Newspaper,
+				environments: ["console"],
+			},
+			{
+				label: "Careers",
+				href: "/dashboard/website/careers",
+				icon: Briefcase,
+				environments: ["console"],
+			},
 		],
 	},
 ];
@@ -586,7 +526,7 @@ const EXTERNAL_LINKS: ExternalNavigationItem[] = [
 	},
 	{
 		label: "Support",
-		href: "https://support.skygenesisenterprise.com/",
+		href: "https://discord.gg/GUkDugVh34",
 		icon: CircleHelp,
 	},
 ];

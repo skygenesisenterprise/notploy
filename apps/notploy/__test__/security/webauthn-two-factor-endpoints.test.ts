@@ -19,6 +19,8 @@ const createAuth = () => {
 		verification: [],
 		twoFactor: [],
 		securityKey: [],
+		securityKeyBackupCode: [],
+		securityKeyLoginRequest: [],
 	};
 
 	return betterAuth({
@@ -374,6 +376,23 @@ describe("Security key management endpoints", () => {
 		expect(await keys.json()).toEqual([]);
 	});
 
+	it("refuses to remove the last key of a key-only account", async () => {
+		const key = await createSecurityKeyRow(auth, userId);
+		const method = await request(auth, "/webauthn-2fa/method", {
+			cookie: sessionJar.header(),
+			body: { method: "securityKey" },
+		});
+		expect(method.status).toBe(200);
+
+		const response = await request(auth, "/webauthn-2fa/keys/delete", {
+			cookie: sessionJar.header(),
+			body: { id: key.id },
+		});
+		expect(response.status).toBe(400);
+		const body = (await response.json()) as { code?: string };
+		expect(body.code).toBe("LAST_SECURITY_KEY");
+	});
+
 	it("removes only keys belonging to the account", async () => {
 		const key = await createSecurityKeyRow(auth, userId);
 		const other = await signUp(auth, OTHER_EMAIL);
@@ -400,5 +419,314 @@ describe("Security key management endpoints", () => {
 			cookie: sessionJar.header(),
 		});
 		expect(await keys.json()).toEqual([]);
+	});
+});
+
+describe("Two-factor method and recovery codes", () => {
+	let auth: Auth;
+
+	const enableSecurityKeyMethod = async (sessionJar: CookieJar) => {
+		const response = await request(auth, "/webauthn-2fa/method", {
+			cookie: sessionJar.header(),
+			body: { method: "securityKey" },
+		});
+		expect(response.status).toBe(200);
+		return (await response.json()) as { method: string; backupCodes?: string[] };
+	};
+
+	beforeEach(() => {
+		auth = createAuth();
+	});
+
+	it("requires a session to read or change the method", async () => {
+		const read = await request(auth, "/webauthn-2fa/method", { method: "GET" });
+		expect(read.status).toBe(401);
+
+		const write = await request(auth, "/webauthn-2fa/method", {
+			body: { method: "securityKey" },
+		});
+		expect(write.status).toBe(401);
+	});
+
+	it("exposes the pending account to the sign-in page", async () => {
+		const { jar } = await createUserWithPendingTwoFactor(auth);
+
+		const response = await request(auth, "/webauthn-2fa/method", {
+			method: "GET",
+			cookie: jar.header(),
+		});
+		expect(response.status).toBe(200);
+		expect(await response.json()).toEqual({
+			method: null,
+			hasSecurityKey: false,
+			hasTotp: false,
+			backupCodesRemaining: 0,
+		});
+	});
+
+	it("refuses the security key before a key is registered", async () => {
+		const { sessionJar } = await createUserWithPendingTwoFactor(auth);
+
+		const response = await request(auth, "/webauthn-2fa/method", {
+			cookie: sessionJar.header(),
+			body: { method: "securityKey" },
+		});
+		expect(response.status).toBe(400);
+		expect((await response.json()) as { code?: string }).toMatchObject({
+			code: "NO_SECURITY_KEY",
+		});
+	});
+
+	it("enables two-factor with the key and issues recovery codes", async () => {
+		const { userId, jar: sessionJar } = await signUp(auth, EMAIL);
+		await createSecurityKeyRow(auth, userId);
+
+		const body = await enableSecurityKeyMethod(sessionJar);
+		expect(body.method).toBe("securityKey");
+		expect(body.backupCodes).toHaveLength(10);
+
+		const context = await auth.$context;
+		const user = (await context.internalAdapter.findUserById(userId)) as {
+			twoFactorEnabled?: boolean;
+			twoFactorMethod?: string | null;
+		} | null;
+		expect(user?.twoFactorEnabled).toBe(true);
+		expect(user?.twoFactorMethod).toBe("securityKey");
+
+		const count = await request(auth, "/webauthn-2fa/backup-codes", {
+			method: "GET",
+			cookie: sessionJar.header(),
+		});
+		expect(await count.json()).toEqual({ remaining: 10 });
+	});
+
+	it("completes the pending sign-in with a single-use recovery code", async () => {
+		const { userId, jar, sessionJar } =
+			await createUserWithPendingTwoFactor(auth);
+		await createSecurityKeyRow(auth, userId);
+
+		const { backupCodes } = await enableSecurityKeyMethod(sessionJar);
+		expect(backupCodes).toHaveLength(10);
+		const [code] = backupCodes ?? [];
+		if (!code) throw new Error("no backup code was issued");
+
+		const unknown = await request(auth, "/webauthn-2fa/backup-codes/verify", {
+			cookie: jar.header(),
+			body: { code: "AAAAA-AAAAA" },
+		});
+		expect(unknown.status).toBe(401);
+		expect((await unknown.json()) as { code?: string }).toMatchObject({
+			code: "INVALID_BACKUP_CODE",
+		});
+
+		const accepted = await request(auth, "/webauthn-2fa/backup-codes/verify", {
+			cookie: jar.header(),
+			body: { code },
+		});
+		expect(accepted.status).toBe(200);
+		jar.absorb(accepted);
+		expect(jar.names().some((name) => name.includes("session_token"))).toBe(
+			true,
+		);
+
+		const remaining = await request(auth, "/webauthn-2fa/backup-codes", {
+			method: "GET",
+			cookie: jar.header(),
+		});
+		expect(await remaining.json()).toEqual({ remaining: 9 });
+
+		// A fresh password step cannot redeem the code a second time.
+		const signIn = await request(auth, "/sign-in/email", {
+			body: { email: EMAIL, password: PASSWORD },
+		});
+		const retryJar = new CookieJar().absorb(signIn);
+		const reused = await request(auth, "/webauthn-2fa/backup-codes/verify", {
+			cookie: retryJar.header(),
+			body: { code },
+		});
+		expect(reused.status).toBe(401);
+	});
+
+	it("blocks authenticator codes for a key-only account", async () => {
+		const { userId, jar, sessionJar } =
+			await createUserWithPendingTwoFactor(auth);
+		await createSecurityKeyRow(auth, userId);
+		await enableSecurityKeyMethod(sessionJar);
+
+		const response = await request(auth, "/two-factor/verify-totp", {
+			cookie: jar.header(),
+			body: { code: "123456" },
+		});
+		expect(response.status).toBe(401);
+		expect((await response.json()) as { code?: string }).toMatchObject({
+			code: "SECURITY_KEY_REQUIRED",
+		});
+
+		const backupCode = await request(
+			auth,
+			"/two-factor/verify-backup-code",
+			{ cookie: jar.header(), body: { code: "AAAAA-AAAAA" } },
+		);
+		expect(backupCode.status).toBe(401);
+		expect((await backupCode.json()) as { code?: string }).toMatchObject({
+			code: "SECURITY_KEY_REQUIRED",
+		});
+	});
+
+	it("rejects the security key when authenticator codes are chosen", async () => {
+		const { userId, jar, sessionJar } =
+			await createUserWithPendingTwoFactor(auth);
+		await createSecurityKeyRow(auth, userId);
+
+		const context = await auth.$context;
+		await context.adapter.create({
+			model: "twoFactor",
+			data: {
+				secret: "encrypted-secret",
+				backupCodes: "[]",
+				userId,
+				verified: true,
+			},
+		});
+
+		const switched = await request(auth, "/webauthn-2fa/method", {
+			cookie: sessionJar.header(),
+			body: { method: "totp" },
+		});
+		expect(switched.status).toBe(200);
+
+		const response = await request(auth, "/webauthn-2fa/generate-options", {
+			cookie: jar.header(),
+		});
+		expect(response.status).toBe(400);
+		expect((await response.json()) as { code?: string }).toMatchObject({
+			code: "SECURITY_KEY_DISABLED",
+		});
+	});
+});
+
+describe("QR sign-in approval", () => {
+	let auth: Auth;
+
+	beforeEach(() => {
+		auth = createAuth();
+	});
+
+	const startQr = async (jar: CookieJar) => {
+		const response = await request(auth, "/webauthn-2fa/qr", {
+			cookie: jar.header(),
+		});
+		expect(response.status).toBe(200);
+		return (await response.json()) as { requestId: string; url: string };
+	};
+
+	const enableKey = async (
+		sessionJar: CookieJar,
+	): Promise<void> => {
+		const response = await request(auth, "/webauthn-2fa/method", {
+			cookie: sessionJar.header(),
+			body: { method: "securityKey" },
+		});
+		expect(response.status).toBe(200);
+	};
+
+	it("requires the pending password step to start", async () => {
+		const response = await request(auth, "/webauthn-2fa/qr");
+		expect(response.status).toBe(401);
+	});
+
+	it("starts a QR request for a security-key account", async () => {
+		const { userId, jar, sessionJar } =
+			await createUserWithPendingTwoFactor(auth);
+		await createSecurityKeyRow(auth, userId);
+		await enableKey(sessionJar);
+
+		const body = await startQr(jar);
+		expect(body.requestId.length).toBeGreaterThan(20);
+		expect(body.url).toContain(`/approve/${body.requestId}`);
+	});
+
+	it("keeps QR approval out of authenticator-code accounts", async () => {
+		const { userId, jar } = await createUserWithPendingTwoFactor(auth);
+		const context = await auth.$context;
+		await context.adapter.update({
+			model: "user",
+			where: [{ field: "id", value: userId }],
+			update: { twoFactorMethod: "totp" },
+		});
+
+		const response = await request(auth, "/webauthn-2fa/qr", {
+			cookie: jar.header(),
+		});
+		expect(response.status).toBe(400);
+		expect((await response.json()) as { code?: string }).toMatchObject({
+			code: "QR_LOGIN_UNAVAILABLE",
+		});
+	});
+
+	it("approves only from a session of the same account", async () => {
+		const { userId, jar, sessionJar } =
+			await createUserWithPendingTwoFactor(auth);
+		await createSecurityKeyRow(auth, userId);
+		await enableKey(sessionJar);
+		const { requestId } = await startQr(jar);
+
+		const anonymous = await request(auth, "/webauthn-2fa/qr/approve", {
+			body: { requestId },
+		});
+		expect(anonymous.status).toBe(401);
+
+		const other = await signUp(auth, OTHER_EMAIL);
+		const foreign = await request(auth, "/webauthn-2fa/qr/approve", {
+			cookie: other.jar.header(),
+			body: { requestId },
+		});
+		expect(foreign.status).toBe(403);
+		expect((await foreign.json()) as { code?: string }).toMatchObject({
+			code: "QR_LOGIN_NOT_OWNER",
+		});
+
+		const approved = await request(auth, "/webauthn-2fa/qr/approve", {
+			cookie: sessionJar.header(),
+			body: { requestId },
+		});
+		expect(approved.status).toBe(200);
+	});
+
+	it("completes the waiting browser once approved", async () => {
+		const { userId, jar, sessionJar } =
+			await createUserWithPendingTwoFactor(auth);
+		await createSecurityKeyRow(auth, userId);
+		await enableKey(sessionJar);
+		const { requestId } = await startQr(jar);
+
+		const pending = await request(auth, "/webauthn-2fa/qr/status", {
+			cookie: jar.header(),
+			body: { requestId },
+		});
+		expect(await pending.json()).toEqual({ status: "pending" });
+
+		await request(auth, "/webauthn-2fa/qr/approve", {
+			cookie: sessionJar.header(),
+			body: { requestId },
+		});
+
+		const finished = await request(auth, "/webauthn-2fa/qr/status", {
+			cookie: jar.header(),
+			body: { requestId },
+		});
+		expect(finished.status).toBe(200);
+		jar.absorb(finished);
+		expect(jar.names().some((name) => name.includes("session_token"))).toBe(
+			true,
+		);
+
+		// The request is single use: the pending sign-in no longer exists, so a
+		// replay is refused as an invalid challenge rather than completed again.
+		const replay = await request(auth, "/webauthn-2fa/qr/status", {
+			cookie: jar.header(),
+			body: { requestId },
+		});
+		expect(replay.status).toBe(401);
 	});
 });
