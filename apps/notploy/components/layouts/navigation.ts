@@ -255,7 +255,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				activeTab: null,
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
 			},
-			{ ...SHARED_ITEMS.schedules, environments: ["self"] },
 			{
 				label: "Incidents",
 				href: "/dashboard/incidents",
@@ -319,13 +318,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				environments: ["self"],
 				isEnabled: ({ permissions }) => !!permissions?.traefikFiles.read,
 			},
-			SHARED_ITEMS.certificates,
-			SHARED_ITEMS.sso,
-			SHARED_ITEMS.secretsManager,
-			SHARED_ITEMS.gitProviders,
-			SHARED_ITEMS.containerRegistries,
-			SHARED_ITEMS.dnsProviders,
-			SHARED_ITEMS.objectStorage,
 			{
 				label: "AI Providers",
 				href: "/dashboard/settings/ai",
@@ -333,6 +325,14 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				environments: ["self"],
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,
 			},
+			// Self-hosted infrastructure
+			{ ...SHARED_ITEMS.certificates, environments: ["self"] },
+			{ ...SHARED_ITEMS.sso, environments: ["self"] },
+			{ ...SHARED_ITEMS.secretsManager, environments: ["self"] },
+			{ ...SHARED_ITEMS.gitProviders, environments: ["self"] },
+			{ ...SHARED_ITEMS.containerRegistries, environments: ["self"] },
+			{ ...SHARED_ITEMS.dnsProviders, environments: ["self"] },
+			{ ...SHARED_ITEMS.objectStorage, environments: ["self"] },
 			// Cloud infrastructure
 			{ ...SHARED_ITEMS.gitProviders, environments: ["cloud"] },
 			{ ...SHARED_ITEMS.containerRegistries, environments: ["cloud"], minLicense: "pro" },
@@ -341,9 +341,8 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 			{ ...SHARED_ITEMS.certificates, environments: ["cloud"] },
 			{ ...SHARED_ITEMS.secretsManager, environments: ["cloud"], minLicense: "pro" },
 			{ ...SHARED_ITEMS.sso, environments: ["cloud"], minLicense: "enterprise" },
-			{ ...SHARED_ITEMS.auditLogs, environments: ["cloud"], minLicense: "enterprise" },
 			{ ...SHARED_ITEMS.schedules, environments: ["cloud"], minLicense: "pro" },
-			{ ...SHARED_ITEMS.notifications, environments: ["cloud"] },
+			{ ...SHARED_ITEMS.auditLogs, environments: ["cloud"], minLicense: "enterprise" },
 			// Console infrastructure/platform runtime
 			{ ...SHARED_ITEMS.gitProviders, label: "Git", environments: ["console"] },
 			{ ...SHARED_ITEMS.containerRegistries, label: "Registries", environments: ["console"] },
@@ -455,6 +454,7 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 			{ ...SHARED_ITEMS.tags, label: "Workspace & Tags", environments: ["cloud"], minLicense: "pro" },
 			{ ...SHARED_ITEMS.teamAccess, environments: ["cloud"], minLicense: "pro" },
 			{ ...SHARED_ITEMS.apiKeys, environments: ["cloud"], minLicense: "pro" },
+			{ ...SHARED_ITEMS.notifications, environments: ["cloud"] },
 			{
 				label: "Billing",
 				href: "/dashboard/settings/billing",

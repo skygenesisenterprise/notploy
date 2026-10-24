@@ -139,6 +139,13 @@ services:
       target: ${NOTPLOY_FLAVOR:-selfhosted}
     image: ${NOTPLOY_IMAGE:-ghcr.io/skygenesisenterprise/notploy}:${NOTPLOY_VERSION:-latest}
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=notploy-network"
+      - "traefik.http.routers.notploy-app.rule=Host(`${NOTPLOY_APP_HOST:-app.notploy.localhost}`)"
+      - "traefik.http.routers.notploy-app.entrypoints=web"
+      - "traefik.http.routers.notploy-app.service=notploy-app"
+      - "traefik.http.services.notploy-app.loadbalancer.server.port=3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -159,6 +166,8 @@ services:
       # Redis backs the control plane queues and cache (see the `redis` service).
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-notploy-insecure-default-change-me}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://${NOTPLOY_APP_HOST:-app.notploy.localhost}}
+      BETTER_AUTH_TRUSTED_ORIGINS: ${BETTER_AUTH_TRUSTED_ORIGINS:-http://${NOTPLOY_APP_HOST:-app.notploy.localhost},http://localhost:3000,http://127.0.0.1:3000}
       # Cloud flavor (FLAVOR=cloud / NOTPLOY_FLAVOR=cloud) sets this to true.
       IS_CLOUD: ${IS_CLOUD:-false}
       # --- Instance identity (PKI) ------------------------------------------
@@ -232,6 +241,14 @@ services:
       target: dev
     image: notploy-dev:local
     working_dir: /usr/src/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=notploy-network"
+      # Route the cloud-style domain to the dev app to better match prod (app.notploy.com)
+      - "traefik.http.routers.notploy-dev-app.rule=Host(`app.notploy.localhost`)"
+      - "traefik.http.routers.notploy-dev-app.entrypoints=web"
+      - "traefik.http.routers.notploy-dev-app.service=notploy-dev-app"
+      - "traefik.http.services.notploy-dev-app.loadbalancer.server.port=3000"
     # entrypoint.sh waits for PostgreSQL, applies migrations and starts the dev
     # server (Next client + tRPC API).
     environment:
@@ -245,9 +262,10 @@ services:
       # Redis backs the control plane queues and cache (see the `redis` service).
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-notploy-insecure-default-change-me}
-      # Explicit base URL so better-auth does not warn (and derive origins
-      # from the request) in the dev stack, which always runs on localhost.
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      # Use app.notploy.localhost in cloud dev to closer match prod (app.notploy.com)
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-${NOTPLOY_DEV_BASE_URL:-http://app.notploy.localhost}}
+      # Also trust both domains for auth in dev
+      BETTER_AUTH_TRUSTED_ORIGINS: ${BETTER_AUTH_TRUSTED_ORIGINS:-http://app.notploy.localhost,http://localhost:3000,http://127.0.0.1:3000}
       # Keep the dev logs free of Next.js' telemetry opt-out reminder.
       NEXT_TELEMETRY_DISABLED: "1"
       # Same flavor switch as production, so `NOTPLOY_FLAVOR=cloud make docker-dev`

@@ -144,6 +144,11 @@ export const CloudHome = () => {
 						{model.statusGroups.map((group) => (
 							<StatusGroupPanel key={group.id} group={group} />
 						))}
+						<PlanUsagePanel
+							rows={model.usage}
+							usageState={model.usageState}
+							onBillingHref="/dashboard/settings/billing"
+						/>
 					</div>
 					<div className="space-y-4 xl:col-span-5">
 						<RecentActivityPanel
@@ -157,11 +162,6 @@ export const CloudHome = () => {
 									All deployments <ArrowRight className="size-3.5" aria-hidden />
 								</Link>
 							}
-						/>
-						<PlanUsagePanel
-							rows={model.usage}
-							usageState={model.usageState}
-							onBillingHref="/dashboard/settings/billing"
 						/>
 					</div>
 				</section>
