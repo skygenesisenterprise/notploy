@@ -37,7 +37,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.44",
     "@ai-sdk/azure": "^3.0.30",
-    "@ai-sdk/cohere": "^3.0.21",
+    "@ai-sdk/cohere": "^4.0.63",
     "@ai-sdk/deepinfra": "^2.0.34",
     "@ai-sdk/mistral": "3.0.67",
     "@ai-sdk/openai": "^3.0.29",
