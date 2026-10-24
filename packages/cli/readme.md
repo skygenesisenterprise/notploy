@@ -10,7 +10,10 @@
 
 > Manage a Notploy instance from the terminal, a script or a CI pipeline.
 
-**Notploy CLI** (`@notploy/cli`) is the official command-line interface for Notploy. It connects to a local, self-hosted or remote Notploy instance, stores credentials in named profiles, exposes **604 generated API commands across 57 command groups**, and adds developer workflows such as `doctor`, `server info`, profile management and a validated optional project manifest.
+**Notploy CLI** (`@notploy/cli`) is the official command-line interface for Notploy. It has two clearly separated roles:
+
+- **Application management** — connect to a local, self-hosted or remote Notploy instance with named profiles, **717 generated API commands across 63 command groups**, and developer workflows such as `doctor`, `server info`, profile management and a validated optional project manifest.
+- **Cloud platform administration** — inspect, diagnose, update and recover the Notploy Cloud instance itself from its host over SSH, through `notploy cloud`. Installation stays with the official `install.sh --cloud`; these commands then own the lifecycle. They never call the Notploy API, so they keep working while the platform, its web UI or its API is being updated.
 
 The CLI is designed for automation first: machine-readable JSON stays on stdout, diagnostics go to stderr, exit codes are stable, requests have explicit timeouts, and credentials are never printed by default.
 
@@ -47,6 +50,14 @@ The CLI is designed for automation first: machine-readable JSON stays on stdout,
     - [Auth commands](#auth-commands)
     - [Doctor](#doctor)
     - [Server info](#server-info)
+    - [Cloud administration](#cloud-administration)
+      - [Cloud prerequisites and supported deployments](#cloud-prerequisites-and-supported-deployments)
+      - [Cloud status, version and doctor](#cloud-status-version-and-doctor)
+      - [Checking and simulating an update](#checking-and-simulating-an-update)
+      - [Applying an update](#applying-an-update)
+      - [Backups, migrations and rollback limits](#backups-migrations-and-rollback-limits)
+      - [Recovering from a failed update](#recovering-from-a-failed-update)
+      - [Cloud automation and JSON](#cloud-automation-and-json)
     - [Examples](#examples)
   - [JSON output and exit codes](#json-output-and-exit-codes)
     - [JSON mode](#json-mode)
@@ -74,6 +85,8 @@ The CLI is designed for automation first: machine-readable JSON stays on stdout,
     - [Does it work with self-hosted instances?](#does-it-work-with-self-hosted-instances)
     - [Where are my credentials stored?](#where-are-my-credentials-stored)
     - [Why did a command return exit code 4?](#why-did-a-command-return-exit-code-4)
+    - [How do I update Notploy Cloud?](#how-do-i-update-notploy-cloud)
+    - [Why is notploy cloud rollback refused?](#why-is-notploy-cloud-rollback-refused)
     - [How do I report a bug?](#how-do-i-report-a-bug)
   - [Related resources](#related-resources)
     - [Official](#official)
@@ -94,7 +107,9 @@ The CLI is designed for automation first: machine-readable JSON stays on stdout,
 
 ⏱️ **Predictable HTTP behavior** — every request has a configurable timeout (`--timeout` or `NOTPLOY_TIMEOUT`), and network, HTTP, tRPC and validation errors are normalized.
 
-🧩 **API coverage without hand-written HTTP** — 604 commands are generated from the maintained Notploy OpenAPI specification. Arrays, objects, enums, nullable fields and required options are understood by the CLI.
+🧩 **API coverage without hand-written HTTP** — 717 commands are generated from the maintained Notploy OpenAPI specification. Arrays, objects, enums, nullable fields and required options are understood by the CLI.
+
+🛠️ **Platform lifecycle included** — `notploy cloud` detects the Cloud installation on its host, verifies published artifacts, takes a verified database backup, applies a controlled Swarm update, and records every step in a durable journal. It does not depend on the API it is updating.
 
 🩺 **Diagnosable** — `notploy doctor` checks configuration, permissions, manifest validity, connectivity, authentication and timeouts before your pipeline fails halfway through a deployment.
 
@@ -109,6 +124,18 @@ The CLI is designed for automation first: machine-readable JSON stays on stdout,
 - Select a profile per command or through `NOTPLOY_PROFILE`.
 - Verify credentials without changing the selected profile.
 - Use environment variables for CI jobs that never write credentials to disk.
+
+### Administer the Cloud platform
+
+- Detect the Cloud installation, its deployment mode, version, image and instance identity.
+- Check the state of the `notploy`, `notploy-postgres` and `notploy-traefik` components.
+- Resolve the published Cloud release and verify the image digest and cosign signature.
+- Simulate an update without touching data, services or configuration.
+- Apply an update with a mandatory database backup, deterministic steps and post-deployment health checks.
+- Inspect the operation journal, diagnose a failure and assess an image rollback.
+- Run diagnostics that never expose secrets and never require the web UI or API.
+
+These commands are deliberately separate from the application commands below: `notploy cloud update` manages the platform that hosts Notploy, while `notploy application deploy` manages a customer application through the API.
 
 ### Operate
 
@@ -265,6 +292,11 @@ Environment variables are the preferred authentication mechanism for CI and ephe
 | `NOTPLOY_ENVIRONMENT_ID` | Environment identifier fallback |
 | `NOTPLOY_APPLICATION_ID` | Application identifier fallback |
 | `NOTPLOY_SERVER_ID` | Server identifier fallback |
+| `NOTPLOY_CLOUD_STATE_DIR` | Cloud journal, lock and backup directory (default `/etc/notploy/cli`) |
+| `NOTPLOY_CONFIG_PATH` | Installation directory used to derive the Cloud state directory (default `/etc/notploy`) |
+| `NOTPLOY_OPERATOR` | Operator name recorded in Cloud operation journals |
+| `NOTPLOY_REGISTRY_TOKEN` | Token for a private Cloud image mirror (GHCR uses `GITHUB_TOKEN` when set) |
+| `GITHUB_TOKEN` | Raises the GitHub Releases API rate limit and authenticates GHCR pulls |
 | `NO_COLOR` / `FORCE_COLOR` | Standard color controls (also `--no-ansi`) |
 | `CI` | Set to `true` to disable prompts |
 
@@ -298,6 +330,8 @@ The CLI stores user configuration outside the package directory, so global insta
 | Windows | `%APPDATA%\notploy\config.json` |
 
 Set `NOTPLOY_CONFIG_DIR` to override the directory. The CLI creates the directory with mode `0700` and the config file with mode `0600` where the filesystem supports POSIX permissions. Credentials are stored as plain JSON in that file, not in an OS keychain, so protect the file like any other developer credential.
+
+Cloud maintenance state is separate: journals, the maintenance lock and database backups live in `/etc/notploy/cli` on the Cloud host by default. Override that with `--state-dir` or `NOTPLOY_CLOUD_STATE_DIR` (for tests or a non-standard installation). Cloud commands never read or write the API profile file, and do not require credentials.
 
 If you used CLI `1.0.0`, its package-local `config.json` is still read for compatibility. Run `notploy auth` to write credentials to the new user-level location.
 
@@ -439,6 +473,194 @@ notploy server info --json
 ```
 
 This reports the resolved profile and URL, request latency, the CLI's expected API specification version and command count, the authenticated user and the server clock (when available). It never prints the API key.
+
+### Cloud administration
+
+`notploy cloud` administers the installation that hosts Notploy Cloud itself. It is intentionally **not** part of the generated API surface and does not use `NOTPLOY_URL` or an API key: it talks to the host's Docker daemon, reads the installation state under `/etc/notploy`, and resolves published artifacts from GitHub Releases and the container registry. An operator can therefore keep diagnosing, updating and recovering a Cloud instance over SSH while its web UI or API is down, broken or being replaced.
+
+Application, project, environment, deployment and database commands are unchanged. They continue to operate through the Notploy API and are never redirected to platform maintenance.
+
+> **Installation itself is delegated to the official installer.** The CLI does not download or execute a remote script with elevated privileges. Install Cloud with the published `install.sh --cloud` flow, then use `notploy cloud` for its lifecycle. The CLI validates the resulting installation before changing anything.
+
+#### Cloud prerequisites and supported deployments
+
+| Requirement | Detail |
+| --- | --- |
+| Host | The Cloud server itself (or a reachable Docker Swarm manager) |
+| Node.js | 20.19 or later for the CLI |
+| Docker | Docker CLI and a reachable daemon; Docker Swarm must be active and this node must be a manager |
+| Installation | Notploy Cloud created by `install.sh --cloud`, with the `notploy` and `notploy-postgres` Swarm services and the `notploy-traefik` container |
+| Privileges | A normal account with Docker socket access is enough. `sudo -n` is used only when the daemon is not directly reachable, and every privileged action is explained. Root is not required by default |
+| Network | HTTPS access to `api.github.com` and `ghcr.io` for `--check`, `--dry-run`, `doctor` (unless `--offline`) and updates |
+| Signature tool | `cosign` for keyless signature verification. Without it, an update is refused unless `--allow-unsigned-artifact` explicitly accepts digest-only verification |
+| State directory | `/etc/notploy/cli` by default (journals, lock and backups). Override with `--state-dir` or `NOTPLOY_CLOUD_STATE_DIR` |
+| Backup tooling | `pg_dump`/`pg_restore` inside the official PostgreSQL container; a running `notploy-postgres` container is mandatory for updates |
+
+Supported deployment modes:
+
+| Mode | Status | Behavior |
+| --- | --- | --- |
+| Docker Swarm (`install.sh --cloud`) | **Supported** | Full `status`, `version`, `doctor`, `update`, `logs`, `recover` and image rollback |
+| Docker Compose (repository stack) | **Detected, read-only** | `status`, `version` and `doctor` report it. `update` refuses and points to the documented `docker compose pull && docker compose up -d` procedure. Compose lifecycle belongs to Compose |
+| Kubernetes / other orchestrators | **Unsupported** | Commands fail explicitly; the CLI never simulates a successful operation |
+| Notploy Self or Console | **Refused** | Cloud maintenance never mutates another product. Self and Console keep their existing workflows |
+
+The detected product comes from `/etc/notploy/identity/identity.json`, then from `NOTPLOY_PRODUCT`/`NOTPLOY_FLAVOR`/`IS_CLOUD`, then from the image repository name.
+
+#### Cloud status, version and doctor
+
+```bash
+# Local, read-only state: product, deployment, versions, services, identity, disk, lock.
+notploy cloud status
+notploy cloud status --json
+
+# Also resolve the newest published release (network).
+notploy cloud status --check --json
+
+# Installed vs published version only.
+notploy cloud version
+notploy cloud version --check --json
+
+# Full diagnostics. Never modifies the installation and never prints secrets.
+notploy cloud doctor
+notploy cloud doctor --offline --json
+```
+
+Example JSON fields from `notploy cloud status --json`:
+
+```json
+{
+  "detected": true,
+  "product": "cloud",
+  "deployment": "swarm",
+  "configDir": "/etc/notploy",
+  "installedVersion": "1.1.5",
+  "releaseTag": "v1.1.5-cloud",
+  "image": "ghcr.io/skygenesisenterprise/notploy-cloud:v1.1.5-cloud",
+  "services": [{ "name": "notploy", "healthy": true }],
+  "identity": { "present": true, "product": "cloud" },
+  "lock": { "active": false, "stale": false },
+  "updateAvailable": true
+}
+```
+
+`cloud doctor` checks Docker and Swarm access, the detected product and deployment, the installed version, `/etc/notploy` and identity key permissions, the three services, the health endpoint, the release source, the registry digest, disk space, backup capability, the maintenance lock and the last operation. Exit code is `0` when no check fails and `1` when a critical check fails; warnings do not fail the command. `--offline` skips release, registry and health checks, which is useful during an outage.
+
+#### Checking and simulating an update
+
+```bash
+notploy cloud update --check
+notploy cloud update --check --json
+notploy cloud update --dry-run
+notploy cloud update --dry-run --json --to 1.2.0
+```
+
+`--check` resolves, without changing anything:
+
+- the installed version (`RELEASE_TAG` or the image tag);
+- the newest published Cloud release (`vX.Y.Z-cloud`) and its source URL;
+- version compatibility and whether a newer release exists;
+- the target image digest, platform and compressed size from the registry;
+- compatibility blockers and warnings.
+
+`--dry-run` adds the local preflight: Docker/Swarm manager state, PostgreSQL backup capability, free disk space for the image and the dump, the maintenance lock, the service readiness and, when the target image is already present locally, the pending migration count. It does **not** pull the image, create a backup, write to the installation, or acquire the lock.
+
+Both modes report what they **cannot** verify. A dry run is a point-in-time assessment, not a guarantee of success. When the artifact is not present locally, the migration journal cannot be read without downloading it, and the plan says so explicitly.
+
+#### Applying an update
+
+```bash
+notploy cloud update                    # interactive confirmation
+notploy cloud update --yes              # explicit non-interactive confirmation
+notploy cloud update --yes --json       # one JSON document on stdout
+notploy cloud update --yes --to 1.2.0   # a specific published release
+```
+
+`notploy cloud update` executes a fixed, journaled order:
+
+1. Verify the installation identity, product, deployment, source and target versions, and compatibility.
+2. Verify technical prerequisites: Docker, Swarm manager role, `notploy` service, PostgreSQL container.
+3. Acquire the maintenance lock, refusing a concurrent operation.
+4. Check free disk space, then create and verify a PostgreSQL custom-format backup under the state directory. **No backup means no update.**
+5. Resolve the release manifest to an immutable digest and pull `image@sha256:…`.
+6. Verify the pulled image carries that digest, then verify its cosign keyless signature against the Notploy `docker-publish.yml` workflow identity.
+7. Inspect the new image's migration journal and the applied migration count when available.
+8. Update only the `notploy` service, pinning the digest and setting `RELEASE_TAG` to the target tag. PostgreSQL and Traefik are never restarted by this step.
+9. Wait for Swarm convergence (bounded timeout, rollback/paused detected immediately).
+10. Probe `/api/trpc/settings.health` and verify the running image digest and release tag.
+11. Record the final migration count and mark the journal succeeded. Any failure is reported as a failure; success is never declared for a partial rollout.
+
+Migrations are **not** a second, parallel mechanism: the new container's existing entrypoint runs the Drizzle migrator, exactly as on a normal boot. The CLI verifies backup readiness and migration state around that step and never invokes a migration blindly. The artifact is signed at its digest by `.github/workflows/docker-publish.yml`; the tag alone is never trusted.
+
+Useful flags:
+
+| Flag | Meaning |
+| --- | --- |
+| `--check` / `--dry-run` | Read-only assessment; mutually exclusive |
+| `--to <version>` | Target a **published** Cloud release; arbitrary tags are refused |
+| `--image <reference>` | Mirror repository; the digest is still resolved and verified |
+| `--yes` | Skip the interactive confirmation (required in CI) |
+| `--allow-major` | Allow a cross-major update (blocked by default) |
+| `--allow-unsigned-artifact` | Accept digest-only verification when cosign is unavailable. Logged in the journal; the service is not changed before verification |
+| `--min-free-gb <n>` | Extra free-space requirement in GiB |
+| `--wait-timeout <seconds>` | Swarm convergence timeout (default 300) |
+| `--health-timeout <seconds>` | Post-update health timeout (default 90) |
+| `--force-unlock` | Clear a **stale** maintenance lock after inspection |
+| `--state-dir <path>` | Alternate journal/backup directory |
+
+Compatibility rules: this CLI manages Cloud releases at or above `1.0.0`, requires a newer version than the installed one, and blocks a cross-major update unless `--allow-major` is passed. If the installed version cannot be determined, the update is blocked rather than guessed. CLI versions and Cloud versions are released independently; the CLI resolves only `-cloud` releases, never the self-hosted `-app` line.
+
+#### Backups, migrations and rollback limits
+
+- Each update creates `<state-dir>/backups/notploy-<timestamp>.dump` (PostgreSQL custom format, mode `0600`) and verifies its header before touching the service. The CLI never deletes old backups automatically.
+- The backup is a recovery artifact, not a licence to roll back blindly. Restoring it is destructive and is **never** performed by `doctor`, `recover`, `status` or `rollback --plan`.
+- An image rollback is possible only when the journal records a previous image and the update applied **zero** migrations. If migrations were applied, or their counts are unknown, the CLI refuses: running older code against a newer schema is not a rollback.
+- A complete restore is a documented manual procedure: stop the application, restore the verified dump with `pg_restore`, start the previous image, then re-run the health checks. The `recover` and `rollback --plan` outputs print the exact command with the recorded backup path.
+
+#### Recovering from a failed update
+
+```bash
+notploy cloud logs                                  # newest operation journal
+notploy cloud logs --operation op-20261024120000-1234
+notploy cloud logs --json
+notploy cloud recover                               # read-only assessment + manual steps
+notploy cloud rollback --plan                       # image rollback feasibility, read-only
+notploy cloud rollback --confirm 1.1.5              # explicitly confirmed image rollback
+```
+
+A failed update:
+
+- leaves the journal in `failed` state with the failing step and redacted error;
+- releases the lock;
+- prints the journal id, the previous image, the backup path and the commands to inspect Swarm tasks and application logs;
+- does **not** roll back automatically, because the new version may already have migrated the database.
+
+An interrupted update (Ctrl-C/SIGINT) is journaled as `interrupted` before the process exits with code `130`. To continue, inspect the journal and re-run the same update: the operation is idempotent (fresh backup, digest and signature verification again, same target) and does not replay a migration blindly. The CLI never guesses which steps to skip.
+
+#### Cloud automation and JSON
+
+`--json` keeps exactly one JSON document on stdout; progress and diagnostics go to stderr. `cloud update --json` returns the operation outcome, including `operationId`, `journalPath`, `backupPath` and, on failure, `recovery`. Cloud commands do not need an API profile, so they can run before `notploy auth` and during an API outage.
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+notploy cloud doctor --json > doctor.json
+notploy cloud update --check --json | jq -e '.updateAvailable == true'
+notploy cloud update --yes --json > update.json
+jq -e '.status == "succeeded"' update.json
+```
+
+Cloud-specific exit codes use the same contract as the rest of the CLI:
+
+| Code | Cloud meaning |
+| --- | --- |
+| `0` | Success, already up to date, or diagnostics with no failure |
+| `1` | Update failed at runtime (convergence, health check, migration outcome) or a critical doctor check failed |
+| `2` | Blocked precondition, invalid usage, concurrent lock, insufficient disk, missing backup capability or refused rollback |
+| `4` | Release index, registry, artifact verification or download failure |
+| `5` | A Docker or HTTP operation timed out |
+| `130` | Interrupted; the journal records the interruption and the lock is released |
 
 ### Examples
 
@@ -652,37 +874,42 @@ Use `--json` for machine-readable output and send human diagnostics to stderr. A
 
 ## Generated command reference
 
-The checked-in specification currently generates **604 commands in 57 groups**. Counts reflect `openapi.json` at the time of writing; use `notploy <group> --help` for the authoritative surface of your installed version.
+The checked-in specification currently generates **717 commands in 63 API groups**. Counts reflect `openapi.json` at the time of writing; use `notploy <group> --help` for the authoritative surface of your installed version.
+
+The `cloud` group (`notploy cloud …`) is hand-written platform administration, not generated from the API specification, so it is not included in these counts. `doctor`, `server info`, `auth` and `profile` are likewise hand-written.
 
 | Group | Commands | Group | Commands |
 | --- | ---: | --- | ---: |
-| `settings` | 52 | `notification` | 41 |
+| `settings` | 57 | `notification` | 41 |
 | `application` | 32 | `compose` | 31 |
-| `user` | 26 | `server` | 19 |
-| `docker` | 18 | `mariadb` | 16 |
-| `mongo` | 16 | `mysql` | 16 |
-| `postgres` | 16 | `redis` | 16 |
-| `ai` | 14 | `libsql` | 14 |
-| `backup` | 12 | `patch` | 12 |
-| `dns-provider` | 11 | `organization` | 11 |
-| `project` | 11 | `sso` | 11 |
-| `domain` | 10 | `forward-auth` | 10 |
-| `stripe` | 10 | `deployment` | 9 |
-| `network` | 9 | `docker-volume` | 8 |
-| `gitea` | 8 | `tag` | 8 |
-| `bitbucket` | 7 | `environment` | 7 |
-| `gitlab` | 7 | `registry` | 7 |
-| `ssh-key` | 7 | `vault-provider` | 7 |
-| `custom-role` | 6 | `destination` | 6 |
-| `github` | 6 | `license-key` | 6 |
+| `user` | 25 | `server` | 21 |
+| `docker` | 20 | `registry` | 17 |
+| `mariadb` | 16 | `mongo` | 16 |
+| `mysql` | 16 | `postgres` | 16 |
+| `redis` | 16 | `sso` | 16 |
+| `dns-provider` | 15 | `object-storage` | 15 |
+| `stripe` | 15 | `ai` | 14 |
+| `community` | 14 | `libsql` | 14 |
+| `vault-provider` | 13 | `backup` | 12 |
+| `patch` | 12 | `status` | 12 |
+| `deployment` | 11 | `domain` | 11 |
+| `organization` | 11 | `project` | 11 |
+| `traffic` | 11 | `forward-auth` | 10 |
+| `network` | 10 | `network-provider` | 9 |
+| `onion` | 9 | `certificates` | 8 |
+| `docker-volume` | 8 | `gitea` | 8 |
+| `tag` | 8 | `bitbucket` | 7 |
+| `destination` | 7 | `environment` | 7 |
+| `gitlab` | 7 | `ssh-key` | 7 |
+| `custom-role` | 6 | `github` | 6 |
 | `mounts` | 6 | `schedule` | 6 |
-| `volume-backups` | 6 | `certificates` | 5 |
+| `volume-backups` | 6 | `swarm` | 5 |
 | `cluster` | 4 | `git-provider` | 4 |
 | `port` | 4 | `preview-deployment` | 4 |
 | `redirects` | 4 | `security` | 4 |
-| `swarm` | 4 | `whitelabeling` | 4 |
-| `docker-disk-usage` | 3 | `docker-image` | 3 |
-| `overview` | 3 | `scim` | 3 |
+| `whitelabeling` | 4 | `docker-disk-usage` | 3 |
+| `docker-image` | 3 | `overview` | 3 |
+| `scim` | 3 | `operational-event` | 2 |
 | `rollback` | 2 | `admin` | 1 |
 | `audit-log` | 1 | | |
 
@@ -690,11 +917,16 @@ The checked-in specification currently generates **604 commands in 57 groups**. 
 
 The CLI is intentionally honest about what it can promise:
 
-- Every command maps to an endpoint in the maintained Notploy OpenAPI specification. If an endpoint is absent from the specification, the CLI does not invent it.
+- **Application commands** map to an endpoint in the maintained Notploy OpenAPI specification. If an endpoint is absent from the specification, the CLI does not invent it.
+- **Cloud commands** operate locally on the host: they detect the installation, read the audit journal, talk to Docker, GitHub Releases and the registry. They never require the Notploy API, so they remain usable during an outage or while the platform is being updated.
+- Cloud installation itself stays with `install.sh --cloud`. The CLI does not download and execute a remote script with elevated privileges; it validates and manages the resulting installation.
+- Cloud updates support the official Docker Swarm deployment. Compose stacks are detected read-only, and Kubernetes or other orchestrators fail explicitly rather than reporting a simulated success.
+- An automatic Cloud rollback is deliberately not implemented. An image rollback is only offered when the recorded update applied no database migration; otherwise the CLI refuses and prints the manual restore procedure. Restoring data is never automatic.
+- Cross-major Cloud updates and updates without a verifiable artifact signature are blocked by default and require explicit, journaled flags.
 - Different Notploy versions may expose different endpoint sets. A `404` includes a compatibility hint; `notploy doctor` and `notploy server info` help identify the connection.
 - `application deploy` starts a deployment. A dedicated `--wait` helper and log-follow mode are not part of this release; use the generated deployment and log endpoints to poll or inspect status where your server supports it.
 - The TypeScript SDK is a separate deliverable (`@notploy/sdk`). The CLI does not expose its internals as a programming interface.
-- Generated output is checked in and verified with `pnpm generate:check`; hand-written behavior belongs in `src/commands`, not in the generated file.
+- Generated output is checked in and verified with `pnpm generate:check`; hand-written behavior belongs in `src/commands` and `src/cloud`, not in the generated file.
 
 ## Development
 
@@ -745,9 +977,19 @@ packages/cli/
 │   ├── commands/
 │   │   ├── auth.ts               # auth and auth status/logout
 │   │   ├── profile.ts            # profile add/list/show/use/remove
-│   │   ├── doctor.ts             # diagnostics
+│   │   ├── doctor.ts             # API diagnostics
 │   │   ├── server-info.ts        # server info (hand-written)
 │   │   └── run.ts                # shared generated-command runner
+│   ├── cloud/
+│   │   ├── commands.ts           # notploy cloud status/version/doctor/update/logs/recover/rollback
+│   │   ├── docker.ts             # injection-safe Docker CLI runner and privilege detection
+│   │   ├── environment.ts        # read-only Swarm/Compose installation discovery
+│   │   ├── release.ts            # -cloud release resolution and version compatibility
+│   │   ├── registry.ts           # OCI manifest/digest resolution
+│   │   ├── journal.ts            # operation journal, maintenance lock, state directory
+│   │   ├── preflight.ts          # disk, backups, migration counts, convergence and health probes
+│   │   ├── update.ts             # update planning, execution and rollback assessment
+│   │   └── doctor.ts             # Cloud status and diagnostics
 │   ├── generated/
 │   │   ├── commands.ts           # generated API commands (do not edit)
 │   │   └── meta.ts               # spec version/hash and counts (do not edit)
@@ -755,6 +997,7 @@ packages/cli/
 │   ├── credentials.ts            # prompts and verified profile saving
 │   ├── errors.ts                 # exit codes, normalization, redaction
 │   ├── http.ts                   # shared Axios client and timeouts
+│   ├── interrupt.ts              # synchronous SIGINT hook for maintenance journals
 │   ├── output.ts                 # JSON/human stdout and stderr contract
 │   ├── project-config.ts         # notploy.yaml parser and validation
 │   └── version.ts                # package version / User-Agent
@@ -791,7 +1034,13 @@ The suite covers:
 - YAML parsing, manifest validation and environment overlays;
 - deterministic generation and stale-output detection;
 - generated command types and reserved-name failures;
-- end-to-end CLI runs against a local mock API, including JSON stdout, exit codes `2`–`5`, profile isolation, schema coercion, `doctor`, `server info` and `notploy.yaml`.
+- end-to-end CLI runs against a local mock API, including JSON stdout, exit codes `2`–`5`, profile isolation, schema coercion, `doctor`, `server info` and `notploy.yaml`;
+- Cloud installation detection (Swarm Cloud, Self and Compose), installed-version parsing and the exclusion of non-Cloud products;
+- Cloud release resolution, up-to-date detection, cross-major refusal, digest pinning and signature requirements;
+- update success and failure paths: download, digest mismatch, insufficient disk, invalid backup, migration/convergence failure, failed restart, negative health check, interrupted journal and concurrent lock;
+- journal-backed rollback refusal after migrations and secret redaction in errors and journals.
+
+The Cloud tests inject a fake command runner and fetch implementation: they never require a real Docker daemon, registry, GitHub access or Cloud installation.
 
 Run everything before opening a pull request:
 
@@ -820,7 +1069,15 @@ In a user-level `config.json` under the OS-appropriate configuration directory, 
 
 ### Why did a command return exit code 4?
 
-Exit code `4` means the request reached the API layer but failed: DNS/connection errors, `404`, `429`, `5xx`, or another server-side failure. The human message on stderr includes a hint. Run `notploy doctor` to distinguish configuration, authentication and connectivity problems. Exit code `3` specifically means authentication/authorization failed.
+Exit code `4` means the request reached the API layer but failed: DNS/connection errors, `404`, `429`, `5xx`, or another server-side failure. The human message on stderr includes a hint. Run `notploy doctor` to distinguish configuration, authentication and connectivity problems. Exit code `3` specifically means authentication/authorization failed. For `notploy cloud`, exit code `4` means the release index, registry, artifact verification or download failed; the service was not changed.
+
+### How do I update Notploy Cloud?
+
+Run `notploy cloud update --dry-run` on the Cloud host first, then `notploy cloud update`. The CLI checks the installation, takes a verified PostgreSQL backup, resolves the target release to an immutable digest, verifies its cosign signature, updates only the `notploy` Swarm service and probes the health endpoint. It does not need the API or the web UI. See [Cloud administration](#cloud-administration).
+
+### Why is `notploy cloud rollback` refused?
+
+An image rollback is only safe when the update did not apply any database migration. When migrations were applied, or their counts are unknown, the CLI refuses to run older code against a newer schema. `notploy cloud rollback --plan` explains the exact reason and prints the manual database restore procedure. Restoring a dump is destructive and always requires an operator.
 
 ### How do I report a bug?
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { CommanderError, program } from "commander";
+import { registerCloudCommands } from "./cloud/commands.js";
 import { registerAuthCommand } from "./commands/auth.js";
 import { registerDoctorCommand } from "./commands/doctor.js";
 import { registerProfileCommand } from "./commands/profile.js";
@@ -8,6 +9,7 @@ import { registerServerInfoCommand } from "./commands/server-info.js";
 import { collectSecretValues } from "./config.js";
 import { CliError, ExitCode, normalizeError, redactSecrets } from "./errors.js";
 import { registerGeneratedCommands } from "./generated/commands.js";
+import { runInterruptHandler } from "./interrupt.js";
 import {
 	configureOutput,
 	printError,
@@ -55,6 +57,7 @@ registerProfileCommand(program);
 registerDoctorCommand(program);
 registerGeneratedCommands(program);
 registerServerInfoCommand(program);
+registerCloudCommands(program);
 
 function isHelpOrVersion(error: CommanderError): boolean {
 	return (
@@ -97,6 +100,9 @@ async function main(): Promise<void> {
 }
 
 process.on("SIGINT", () => {
+	// Let an in-flight maintenance operation persist ``interrupted`` and release
+	// its lock before the process exits.
+	runInterruptHandler();
 	printLine("");
 	writeStderr("Interrupted.\n");
 	process.exit(ExitCode.Interrupted);

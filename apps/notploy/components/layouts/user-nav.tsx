@@ -102,10 +102,11 @@ export const UserNav = ({
 				<DropdownMenuLabel className="px-2 py-1 text-[11px] font-semibold tracking-wider text-muted-foreground/70 uppercase">
 					Account
 				</DropdownMenuLabel>
-				{/* Self-hosted keeps Profile here: its Organization pole exposes the
-				    member pages, and the signed-in user has nowhere else to edit their
-				    own account. Cloud surfaces Profile in its Settings section. */}
-				{environment === "self" && (
+				{/* Self-hosted and the operator console keep Profile here: their
+				    navigation exposes member/platform pages, and the signed-in user has
+				    nowhere else to edit their own account. Cloud surfaces Profile in
+				    its Settings section. */}
+				{(environment === "self" || environment === "console") && (
 					<DropdownMenuItem
 						className="cursor-pointer gap-2"
 						onSelect={() => router.push("/dashboard/settings/profile")}

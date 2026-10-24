@@ -1,7 +1,7 @@
 {
 	"name": "@notploy/cli",
 	"description": "A CLI to manage notploy server remotely",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"author": "Sky Genesis Enterprise",
 	"licenses": [
 		{

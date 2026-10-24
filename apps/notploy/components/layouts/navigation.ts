@@ -236,20 +236,15 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/projects",
 				icon: Folder,
 			},
+			// Observability is available to self-hosted operators and to the
+			// platform operator console; Cloud keeps its managed monitoring views.
 			{
-				label: "Services",
-				href: "/dashboard/overview",
-				icon: LayoutGrid,
-				activeTab: null,
-				isEnabled: ({ permissions }) => !!permissions?.service.read,
+				label: "Monitoring",
+				href: "/dashboard/monitoring",
+				icon: BarChartHorizontalBigIcon,
+				environments: ["self", "console"],
 			},
-			{
-				label: "Deployments",
-				href: "/dashboard/deployments",
-				icon: Rocket,
-				activeTab: null,
-				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
-			},
+			// Console operator overview: response before workload lifecycle.
 			{
 				label: "Incidents",
 				href: "/dashboard/incidents",
@@ -261,6 +256,23 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				href: "/dashboard/operations",
 				icon: Activity,
 				environments: ["console"],
+			},
+			// Self-hosted and Cloud workspaces manage their own services; the
+			// operator console works at the platform level instead.
+			{
+				label: "Services",
+				href: "/dashboard/overview",
+				icon: LayoutGrid,
+				activeTab: null,
+				environments: ["self", "cloud"],
+				isEnabled: ({ permissions }) => !!permissions?.service.read,
+			},
+			{
+				label: "Deployments",
+				href: "/dashboard/deployments",
+				icon: Rocket,
+				activeTab: null,
+				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
 			},
 			{
 				label: "Traffic",
@@ -338,34 +350,16 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 			{ ...SHARED_ITEMS.sso, environments: ["cloud"], minLicense: "enterprise" },
 			{ ...SHARED_ITEMS.schedules, environments: ["cloud"], minLicense: "pro" },
 			{ ...SHARED_ITEMS.auditLogs, environments: ["cloud"], minLicense: "enterprise" },
-			// Console infrastructure/platform runtime
-			{ ...SHARED_ITEMS.gitProviders, label: "Git", environments: ["console"] },
-			{ ...SHARED_ITEMS.containerRegistries, label: "Registries", environments: ["console"] },
-			{ ...SHARED_ITEMS.dnsProviders, label: "DNS", environments: ["console"] },
-			{ ...SHARED_ITEMS.certificates, environments: ["console"] },
-			{ ...SHARED_ITEMS.secretsManager, label: "Secrets", environments: ["console"] },
-			{ ...SHARED_ITEMS.sso, environments: ["console"] },
-			{ ...SHARED_ITEMS.objectStorage, environments: ["console"] },
-			{
-				label: "Runtime",
-				href: "/dashboard/containers",
-				icon: Boxes,
-				environments: ["console"],
-				isEnabled: ({ permissions }) => !!permissions?.docker.read,
-			},
+			// Console infrastructure, ordered like the self-hosted infrastructure
+			// pole: fleet, container runtime, orchestration, exposure, trust,
+			// supply chain and data. Console-only pages sit next to the self
+			// category they extend.
 			{
 				label: "Servers",
 				href: "/dashboard/settings/servers",
 				icon: Server,
 				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.server.read,
-			},
-			{
-				label: "Clusters",
-				href: "/dashboard/swarm",
-				icon: Waypoints,
-				environments: ["console"],
-				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
 				label: "Compute",
@@ -376,10 +370,18 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
-				label: "Storage",
-				href: "/dashboard/storage",
-				icon: Database,
+				label: "Runtime",
+				href: "/dashboard/containers",
+				icon: Boxes,
 				environments: ["console"],
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
+			},
+			{
+				label: "Clusters",
+				href: "/dashboard/swarm",
+				icon: Waypoints,
+				environments: ["console"],
+				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
 				label: "Networks",
@@ -389,36 +391,33 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				isEnabled: ({ permissions }) => !!permissions?.docker.read,
 			},
 			{
-				label: "Domains",
-				href: "/dashboard/domains",
-				icon: Link2,
-				environments: ["console"],
-			},
-			{
-				label: "Capacity",
-				href: "/dashboard/capacity",
-				icon: Gauge,
-				environments: ["console"],
-			},
-			{
-				label: "Maintenance",
-				href: "/dashboard/maintenance",
-				icon: Wrench,
-				environments: ["console"],
-			},
-			{
-				label: "Platform Services",
-				href: "/dashboard/platform-services",
-				icon: Layers,
-				environments: ["console"],
-			},
-			{
 				label: "Web Server",
 				href: "/dashboard/settings/server",
 				icon: PanelsTopLeft,
 				environments: ["console"],
 				isEnabled: ({ permissions }) => !!permissions?.organization.update,
 			},
+			{ ...SHARED_ITEMS.certificates, environments: ["console"] },
+			{ ...SHARED_ITEMS.sso, environments: ["console"] },
+			{
+				...SHARED_ITEMS.secretsManager,
+				label: "Secrets",
+				environments: ["console"],
+			},
+			{ ...SHARED_ITEMS.gitProviders, label: "Git", environments: ["console"] },
+			{
+				...SHARED_ITEMS.containerRegistries,
+				label: "Registries",
+				environments: ["console"],
+			},
+			{ ...SHARED_ITEMS.dnsProviders, label: "DNS", environments: ["console"] },
+			{
+				label: "Storage",
+				href: "/dashboard/storage",
+				icon: Database,
+				environments: ["console"],
+			},
+			{ ...SHARED_ITEMS.objectStorage, environments: ["console"] },
 		],
 	},
 	{
@@ -507,6 +506,30 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				label: "Careers",
 				href: "/dashboard/website/careers",
 				icon: Briefcase,
+				environments: ["console"],
+			},
+			{
+				label: "Capacity",
+				href: "/dashboard/capacity",
+				icon: Gauge,
+				environments: ["console"],
+			},
+			{
+				label: "Maintenance",
+				href: "/dashboard/maintenance",
+				icon: Wrench,
+				environments: ["console"],
+			},
+			{
+				label: "Domains",
+				href: "/dashboard/domains",
+				icon: Link2,
+				environments: ["console"],
+			},
+			{
+				label: "Platform Services",
+				href: "/dashboard/platform-services",
+				icon: Layers,
 				environments: ["console"],
 			},
 		],

@@ -63,7 +63,19 @@ export const useWorkspaceOverview = ({
 		isError: permissionsQuery.isError,
 	};
 
+	// Newest successful read across every source this hook owns. The console
+	// home shows it so its "last updated" label describes real data.
+	const lastUpdatedAt = Math.max(
+		permissionsQuery.dataUpdatedAt,
+		statsQuery.dataUpdatedAt,
+		servicesQuery.dataUpdatedAt,
+		deploymentsQuery.dataUpdatedAt,
+		serversQuery.dataUpdatedAt,
+		eventsQuery.dataUpdatedAt,
+	);
+
 	return {
+		lastUpdatedAt,
 		permissions,
 		permissionsState,
 		canReadServices,

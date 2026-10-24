@@ -909,10 +909,11 @@ export default function Page({ children }: Props) {
 							<div className="px-3 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden">
 								{whitelabeling.footerText}
 							</div>
-						)}
-						{/* Cloud surfaces its own product version elsewhere, so the
-						    self-hosted build tag is hidden under the account block. */}
-						{!isCloud && notployVersion && (
+						)}{" "}
+						{/* Cloud surfaces its own product version elsewhere. Self-hosted and
+						    the operator console both show the build version under the account
+						    block. */}
+						{environment !== "cloud" && notployVersion && (
 							<div className="px-3 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden">
 								Version {notployVersion}
 							</div>

@@ -68,6 +68,9 @@ export function timeoutError(message: string, hint?: string): CliError {
 const SECRET_KEY_PATTERN =
 	/(x-api-key|authorization|api[_-]?key|token|password|secret)(\s*[:=]\s*)([^\s,;"'}]+)/gi;
 const BEARER_PATTERN = /\b(Bearer)\s+[A-Za-z0-9._~+/=-]+/gi;
+/** Credentials embedded in a database connection string. */
+const DATABASE_URL_PATTERN =
+	/(\b(?:postgres|postgresql|mysql|mariadb|redis|mongodb(?:\+srv)?):\/\/[^:/@\s]+:)([^@\s/]+)(@)/gi;
 
 function escapeRegExp(value: string): string {
 	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -90,6 +93,7 @@ export function redactSecrets(text: string, secrets: string[] = []): string {
 	}
 	return result
 		.replace(BEARER_PATTERN, "$1 [REDACTED]")
+		.replace(DATABASE_URL_PATTERN, "$1[REDACTED]$3")
 		.replace(SECRET_KEY_PATTERN, (_match, key, separator) => {
 			return `${key}${separator}[REDACTED]`;
 		});
