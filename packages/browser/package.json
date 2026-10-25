@@ -1,0 +1,46 @@
+{
+	"name": "@notploy/browser",
+	"version": "0.1.0",
+	"description": "Notploy Browser — official browser extension for quick access to Notploy projects and deployments.",
+	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/skygenesisenterprise/notploy.git",
+		"directory": "packages/browser"
+	},
+	"bugs": {
+		"url": "https://github.com/skygenesisenterprise/notploy/issues"
+	},
+	"homepage": "https://github.com/skygenesisenterprise/notploy/tree/master/packages/browser#readme",
+	"publishConfig": {
+		"access": "public"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"scripts": {
+		"build": "node esbuild.mjs",
+		"dev": "node esbuild.mjs --watch",
+		"prebuild": "pnpm run clean",
+		"clean": "rm -rf dist",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"package": "pnpm run build && node scripts/package.mjs",
+		"manifest:check": "node scripts/check-manifest.mjs"
+	},
+	"dependencies": {
+		"@notploy/sdk": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.15",
+		"@types/chrome": "^0.1.33",
+		"@types/node": "^24.4.0",
+		"esbuild": "0.28.2",
+		"typescript": "^7.0.2",
+		"vitest": "^4.1.6"
+	}
+}

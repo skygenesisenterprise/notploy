@@ -1,0 +1,33 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["ES2022", "DOM", "DOM.Iterable"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"types": ["node", "chrome"],
+		"outDir": "./dist",
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true
+	},
+	"include": [
+		"src/**/*",
+		"tests/**/*",
+		"esbuild.mjs",
+		"scripts/**/*",
+		"vitest.config.mts"
+	],
+	"exclude": ["node_modules", "dist"]
+}

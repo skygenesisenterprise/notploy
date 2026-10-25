@@ -1,0 +1,245 @@
+name: Browser Release
+
+# Packages the official Notploy browser extension and attaches the versioned
+# ZIP to a GitHub Release.
+#
+#   git tag v0.1.0-browser
+#   git push origin v0.1.0-browser      -> verify, package, GitHub Release
+#
+#   Actions -> Browser Release -> Run workflow
+#                                      -> verify and package only, never releases
+#
+# Publishing is **tag only**. A tag is the one thing that cannot be pushed to a
+# branch by accident, it carries the version, and it is durable evidence of who
+# released what. The trigger below only matches `v<major>.<minor>.<patch>-browser`,
+# and the resolved version must equal both `packages/browser/package.json` and
+# `packages/browser/manifest.json`, so a release can never be cut from a branch
+# or from a tag that disagrees with the tree it points at. A manual dispatch
+# deliberately never releases for the same reason.
+#
+# The other tag workflows ignore this tag on purpose: `v1.2.3-browser` names no
+# image in docker-publish.yml's catalog and no package in node-release.yml, so
+# `v1.2.3-browser` reaches registries nowhere and only this file acts on it.
+#
+# There is no store upload step: signing, accounts, and store review are not
+# configured yet (see `packages/browser/README.md`). The ZIP is the exact
+# reviewable artifact, installed via `chrome://extensions` → Developer mode →
+# Load unpacked (`dist/`) or unpacked from the ZIP.
+
+on:
+  push:
+    tags:
+      - "v*.*.*-browser"
+  workflow_dispatch:
+
+concurrency:
+  group: browser-release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24.4.0"
+  PNPM_VERSION: "10.22.0"
+  BROWSER_DIR: packages/browser
+  BROWSER_FILTER: "@notploy/browser"
+
+jobs:
+  release:
+    name: Verify, package, release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      # Creating the GitHub Release that carries the ZIP.
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        # Scoped to the extension and the SDK it bundles: the two projects are
+        # the whole build, and installing the rest of the monorepo would only
+        # slow the release down.
+        run: pnpm install --frozen-lockfile --filter "${{ env.BROWSER_FILTER }}..."
+
+      - name: Resolve the release version
+        id: release
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          BROWSER_DIR: ${{ env.BROWSER_DIR }}
+        run: |
+          set -euo pipefail
+
+          pkg_version="$(node -p "require('./$BROWSER_DIR/package.json').version")"
+          manifest_version="$(node -p "require('./$BROWSER_DIR/manifest.json').version")"
+          publish=false
+
+          if [[ "$manifest_version" != "$pkg_version" ]]; then
+            echo "::error::$BROWSER_DIR/manifest.json is $manifest_version but $BROWSER_DIR/package.json is $pkg_version. Keep both in sync, commit, then re-tag."
+            exit 1
+          fi
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            # A manual run exercises the same build without releasing: the
+            # version is simply what the manifests already say.
+            version="$pkg_version"
+          else
+            if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-browser$ ]]; then
+              echo "::error::Unsupported release tag: $RELEASE_TAG"
+              exit 1
+            fi
+
+            version="${RELEASE_TAG#v}"
+            version="${version%-browser}"
+
+            if [[ "$version" != "$pkg_version" ]]; then
+              echo "::error::$BROWSER_DIR/package.json is $pkg_version but $RELEASE_TAG announces $version. Bump the manifests, commit them, then re-tag."
+              exit 1
+            fi
+
+            publish=true
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
+          echo "Releasing $BROWSER_DIR@$version (publish=$publish)"
+
+      - name: Warn about missing release documents
+        env:
+          BROWSER_DIR: ${{ env.BROWSER_DIR }}
+        run: |
+          set -euo pipefail
+
+          # The GitHub Release renders a README, and users read install steps
+          # from it — its absence is worth a warning rather than a silent gap.
+          for document in README.md LICENSE; do
+            if [[ ! -f "$BROWSER_DIR/$document" ]]; then
+              echo "::warning::$BROWSER_DIR/$document is missing; the release will ship without it."
+            fi
+          done
+
+      - name: Build the SDK
+        # The extension imports @notploy/sdk, whose export map points at dist/:
+        # with no compiled SDK the typecheck cannot even resolve the module, so
+        # this has to run before anything that reads the extension's source.
+        run: pnpm --filter "@notploy/sdk" run build
+
+      - name: Verify the extension
+        id: verify
+        env:
+          BROWSER_FILTER: ${{ env.BROWSER_FILTER }}
+        run: |
+          set -euo pipefail
+
+          # Nothing else in the repository gates on these, and a published
+          # version cannot be replaced: run the checks here rather than trust
+          # that they passed somewhere upstream.
+          pnpm --filter "$BROWSER_FILTER" run typecheck
+          pnpm --filter "$BROWSER_FILTER" run lint
+          pnpm --filter "$BROWSER_FILTER" run test
+          pnpm --filter "$BROWSER_FILTER" run manifest:check
+
+      - name: Package the extension
+        id: package
+        env:
+          BROWSER_FILTER: ${{ env.BROWSER_FILTER }}
+          BROWSER_DIR: ${{ env.BROWSER_DIR }}
+        run: |
+          set -euo pipefail
+
+          # `package` is the same script a maintainer runs locally, so CI and
+          # a hand-built ZIP cannot drift apart. It rebuilds `dist/`, checks
+          # the manifest version, scans `dist/` for secret-shaped strings, and
+          # produces `notploy-browser-<version>.zip` (zip binary or python3
+          # fallback — both exist on ubuntu-latest).
+          pnpm --filter "$BROWSER_FILTER" run package
+
+          zip="$(find "$BROWSER_DIR" -maxdepth 1 -name 'notploy-browser-*.zip' -print -quit)"
+          if [[ -z "$zip" ]]; then
+            echo "::error::No notploy-browser-*.zip was produced in $BROWSER_DIR"
+            exit 1
+          fi
+
+          echo "zip=$zip" >> "$GITHUB_OUTPUT"
+          echo "Contents of dist/:"
+          ls -R "$BROWSER_DIR/dist" | sed 's/^/  /'
+          echo "Contents of $zip:"
+          unzip -l "$zip" | sed 's/^/  /'
+
+      - name: Upload the ZIP
+        if: ${{ !cancelled() && steps.package.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: notploy-browser-${{ steps.release.outputs.version }}
+          path: ${{ steps.package.outputs.zip }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Create the GitHub Release
+        if: steps.release.outputs.publish == 'true' && steps.package.outcome == 'success'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Notploy Browser ${{ steps.release.outputs.version }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: ${{ steps.package.outputs.zip }}
+          body: |
+            ## Notploy Browser
+
+            Version `${{ steps.release.outputs.version }}` as a reviewable ZIP
+            (no store upload — signing, accounts, and store review are not
+            configured yet).
+
+            Install it unpacked in Chromium (Chrome / Edge / Brave 114+):
+
+            ```bash
+            unzip notploy-browser-${{ steps.release.outputs.version }}.zip -d notploy-browser
+            # chrome://extensions → Developer mode → Load unpacked → notploy-browser/
+            ```
+
+            The ZIP attached below is the exact artifact that was verified
+            (`typecheck`, `lint`, `test`, `manifest:check`) by this workflow.
+
+      - name: Summarize the release
+        if: always()
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          PUBLISH_REQUESTED: ${{ steps.release.outputs.publish }}
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+          PACKAGE_OUTCOME: ${{ steps.package.outcome }}
+        run: |
+          result_for() {
+            case "$1" in
+              success) printf 'success' ;;
+              failure) printf 'failed' ;;
+              skipped) printf 'skipped' ;;
+              cancelled) printf 'cancelled' ;;
+              *) printf 'not run' ;;
+            esac
+          }
+
+          {
+            echo "### Notploy Browser ${VERSION:-unresolved}"
+            echo
+            echo "| Step | Result |"
+            echo "| --- | --- |"
+            echo "| Verify (typecheck, lint, test, manifest:check) | $(result_for "$VERIFY_OUTCOME") |"
+            echo "| Package | $(result_for "$PACKAGE_OUTCOME") |"
+            echo "| Release | $([ "$PUBLISH_REQUESTED" = "true" ] && printf 'requested' || printf 'not requested (manual run)') |"
+            echo
+            echo "No store upload: the ZIP is the release artifact."
+          } >> "$GITHUB_STEP_SUMMARY"

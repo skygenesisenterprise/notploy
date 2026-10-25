@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Notploy Settings</title>
+<link rel="stylesheet" href="options.css" />
+</head>
+<body>
+<main class="page">
+<header><h1>Notploy settings</h1><p class="muted">Configure the Notploy instances this extension may talk to. HTTPS is required except on localhost.</p></header>
+<section class="card">
+<h2>Add instance</h2>
+<label class="label" for="name">Name</label>
+<input id="name" class="input" placeholder="Notploy Cloud" autocomplete="off" />
+<label class="label" for="url">Instance URL</label>
+<input id="url" class="input" placeholder="https://notploy.example.com" inputmode="url" autocomplete="off" />
+<label class="label" for="kind">Kind</label>
+<select id="kind" class="input">
+<option value="cloud">Notploy Cloud</option>
+<option value="self-hosted" selected>Self-hosted</option>
+<option value="local">Local</option>
+<option value="custom">Custom</option>
+</select>
+<p class="error" id="addError" role="alert"></p>
+<div class="actions"><button id="addBtn" class="btn" type="button">Add instance</button></div>
+</section>
+<section class="card">
+<h2>Instances</h2>
+<div id="instances"></div>
+</section>
+<section class="card">
+<h2>Sign in</h2>
+<p class="muted">Generate a key in the dashboard under <strong>Settings → API Keys</strong>, then paste it for the selected instance. Keys are stored only in this browser (<code>chrome.storage.local</code>), never synced or logged.</p>
+<label class="label" for="token">API key</label>
+<input id="token" class="input" type="password" placeholder="npk_…" autocomplete="off" />
+<p class="error" id="loginError" role="alert"></p>
+<div class="actions">
+<button id="loginBtn" class="btn" type="button">Connect</button>
+<button id="logoutBtn" class="btn secondary" type="button">Sign out</button>
+<button id="testBtn" class="btn secondary" type="button">Test connection</button>
+<button id="keysBtn" class="btn secondary" type="button">Open API keys page</button>
+</div>
+<p class="muted" id="status"></p>
+</section>
+<section class="card">
+<h2>Security</h2>
+<ul class="muted">
+<li>Permissions: <code>storage</code> only. Network access is granted per instance via optional host permissions.</li>
+<li>No content scripts, no history or page-content collection.</li>
+<li>Tokens live in <code>chrome.storage.local</code> — convenient, not a vault. Sign out on shared machines.</li>
+</ul>
+</section>
+</main>
+<script type="module" src="options.js"></script>
+</body>
+</html>

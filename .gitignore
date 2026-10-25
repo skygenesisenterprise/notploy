@@ -85,6 +85,9 @@ dist
 # VS Code extension packages
 *.vsix
 
+# Browser extension packages
+notploy-browser-*.zip
+
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js

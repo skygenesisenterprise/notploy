@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Notploy</title>
+<link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+<main id="app" class="app" aria-live="polite">
+<header class="header">
+<div class="brand"><span class="dot" aria-hidden="true"></span><strong>Notploy</strong></div>
+<div class="header-actions">
+<select id="instanceSelect" class="select" aria-label="Active Notploy instance"></select>
+<button id="refreshBtn" class="icon-btn" type="button" title="Refresh" aria-label="Refresh">⟳</button>
+<button id="optionsBtn" class="icon-btn" type="button" title="Settings" aria-label="Open settings">⚙</button>
+</div>
+</header>
+<div id="banner" class="banner" hidden></div>
+<section id="content" class="content"></section>
+<footer class="footer">
+<button id="openDashboardBtn" class="link" type="button">Open dashboard</button>
+<span id="version" class="muted"></span>
+</footer>
+</main>
+<script type="module" src="popup.js"></script>
+</body>
+</html>
