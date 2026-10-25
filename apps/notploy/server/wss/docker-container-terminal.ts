@@ -1,5 +1,9 @@
 import type http from "node:http";
-import { findServerById, IS_CLOUD, validateRequest } from "@notploy/server";
+import {
+	findServerById,
+	isManagedCloud,
+	validateRequest,
+} from "@notploy/server";
 import { spawn } from "node-pty";
 import { Client } from "ssh2";
 import { WebSocketServer } from "ws";
@@ -168,7 +172,7 @@ export const setupDockerContainerTerminalWebSocketServer = (
 						privateKey: server.sshKey?.privateKey,
 					});
 			} else {
-				if (IS_CLOUD) {
+				if (isManagedCloud()) {
 					ws.send("This feature is not available in the cloud version.");
 					ws.close();
 					return;

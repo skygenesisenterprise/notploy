@@ -1,0 +1,245 @@
+[variables]
+main_domain = "${domain}"
+grafana_admin_password = "${password:32}"
+prometheus_retention = "15d"
+scrape_interval = "15s"
+
+[config]
+env = [
+  "GF_SECURITY_ADMIN_USER=admin",
+  "GF_SECURITY_ADMIN_PASSWORD=${grafana_admin_password}",
+  "GF_USERS_ALLOW_SIGN_UP=false",
+  "GF_AUTH_ANONYMOUS_ENABLED=false",
+  "PROMETHEUS_RETENTION=${prometheus_retention}",
+]
+
+# Grafana is the only service with a public domain by default.
+# Prometheus, Node Exporter and cAdvisor stay on the private
+# notploy-observability network and are never exposed publicly.
+[[config.domains]]
+serviceName = "grafana"
+port = 3_000
+host = "${main_domain}"
+
+[[config.mounts]]
+serviceName = "prometheus"
+filePath = "prometheus.yml"
+content = """
+# Notploy Observability Stack v1 — Prometheus configuration.
+# https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+
+global:
+  scrape_interval: ${scrape_interval}
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'notploy-observability'
+
+rule_files:
+  - "/etc/prometheus/notploy-alerts.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          notploy_component: 'prometheus'
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          notploy_component: 'host'
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          notploy_component: 'container'
+
+  # Example: scrape the Docker daemon when metrics are enabled on the host.
+  # - job_name: 'docker'
+  #   static_configs:
+  #     - targets: ['host.docker.internal:9323']
+"""
+
+[[config.mounts]]
+serviceName = "prometheus"
+filePath = "notploy-alerts.yml"
+content = """
+# Notploy Observability Stack v1 — base alert rules.
+# Tune thresholds per environment; file is versioned with the blueprint
+# and never overwritten silently on update.
+groups:
+  - name: notploy-targets
+    interval: 30s
+    rules:
+      - alert: NotployTargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Scrape target {{ $labels.job }} is down"
+
+  - name: notploy-hosts
+    interval: 1m
+    rules:
+      - alert: NotployHighCpu
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+
+      - alert: NotployHighMemory
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+
+      - alert: NotployLowDisk
+        expr: (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+"""
+
+[[config.mounts]]
+serviceName = "grafana"
+filePath = "provisioning/datasources/datasource.yml"
+content = """
+apiVersion: 1
+datasources:
+  - name: 'Notploy Prometheus'
+    type: 'prometheus'
+    uid: 'notploy-prometheus'
+    access: 'proxy'
+    url: 'http://prometheus:9090'
+    isDefault: true
+    editable: false
+"""
+
+[[config.mounts]]
+serviceName = "grafana"
+filePath = "provisioning/dashboards/dashboard.yml"
+content = """
+apiVersion: 1
+providers:
+  - name: 'Notploy'
+    folder: 'Notploy'
+    type: 'file'
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: '/etc/grafana/dashboards'
+"""
+
+[[config.mounts]]
+serviceName = "grafana"
+filePath = "dashboards/notploy-host-overview.json"
+content = """
+{
+  "title": "Notploy Host Overview",
+  "uid": "notploy-host-overview",
+  "version": 1,
+  "schemaVersion": 39,
+  "tags": ["notploy", "hosts", "prometheus"],
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "CPU usage %",
+      "datasource": { "type": "prometheus", "uid": "notploy-prometheus" },
+      "targets": [
+        {
+          "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "cpu"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Memory usage %",
+      "datasource": { "type": "prometheus", "uid": "notploy-prometheus" },
+      "targets": [
+        {
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+          "legendFormat": "{{ instance }}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Disk usage % (root)",
+      "datasource": { "type": "prometheus", "uid": "notploy-prometheus" },
+      "targets": [
+        {
+          "expr": "(1 - (node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})) * 100",
+          "legendFormat": "{{ instance }}"
+        }
+      ]
+    }
+  ]
+}
+"""
+
+[[config.mounts]]
+serviceName = "grafana"
+filePath = "dashboards/notploy-container-overview.json"
+content = """
+{
+  "title": "Notploy Container Overview",
+  "uid": "notploy-container-overview",
+  "version": 1,
+  "schemaVersion": 39,
+  "tags": ["notploy", "containers", "prometheus"],
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Container CPU usage",
+      "datasource": { "type": "prometheus", "uid": "notploy-prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total[5m]))",
+          "legendFormat": "{{ name }}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Container memory (bytes)",
+      "datasource": { "type": "prometheus", "uid": "notploy-prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (name) (container_memory_usage_bytes)",
+          "legendFormat": "{{ name }}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Running containers",
+      "datasource": { "type": "prometheus", "uid": "notploy-prometheus" },
+      "targets": [
+        {
+          "expr": "count(container_start_time_seconds)",
+          "legendFormat": "containers"
+        }
+      ]
+    }
+  ]
+}
+"""

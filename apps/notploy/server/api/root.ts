@@ -32,6 +32,7 @@ import { networkRouter } from "./routers/network";
 import { networkProviderRouter } from "./routers/network-provider";
 import { notificationRouter } from "./routers/notification";
 import { objectStorageRouter } from "./routers/object-storage";
+import { observabilityRouter } from "./routers/observability";
 import { onionRouter } from "./routers/onion";
 import { operationalEventRouter } from "./routers/operational-event";
 import { organizationRouter } from "./routers/organization";
@@ -104,6 +105,7 @@ export const appRouter = createTRPCRouter({
 	mysql: mysqlRouter,
 	notification: notificationRouter,
 	objectStorage: objectStorageRouter,
+	observability: observabilityRouter,
 	onion: onionRouter,
 	operationalEvent: operationalEventRouter,
 	port: portRouter,

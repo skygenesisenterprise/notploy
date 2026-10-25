@@ -1,5 +1,5 @@
 import fs, { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { paths } from "@notploy/server/constants";
 import { db } from "@notploy/server/db";
 import { network, patch } from "@notploy/server/db/schema";
@@ -9,6 +9,7 @@ import { eq, inArray } from "drizzle-orm";
 import { quote } from "shell-quote";
 import { parse, stringify } from "yaml";
 import { execAsyncRemote } from "../process/execAsync";
+import { toDockerHostPath } from "./host-path";
 import { cloneBitbucketRepository } from "../providers/bitbucket";
 import { cloneGitRepository } from "../providers/git";
 import { cloneGiteaRepository } from "../providers/gitea";
@@ -126,6 +127,8 @@ exit 1;
 			`;
 		}
 
+		await remapLocalBindMountsToHostPaths(composeConverted, compose);
+
 		const composeString = stringify(composeConverted, { lineWidth: 1000 });
 		const encodedContent = encodeBase64(composeString);
 		return `echo "${encodedContent}" | base64 -d > "${path}";`;
@@ -139,6 +142,87 @@ exit 1;
 		`;
 	}
 };
+/**
+ * Rewrite local bind-mount sources to the path the Docker daemon resolves.
+ *
+ * The daemon resolves bind sources on its own host, not in this container: when
+ * the configuration tree is bind-mounted at the same path (regular install)
+ * the paths agree and nothing changes, but when it lives in a Docker volume
+ * (development stack) the daemon would otherwise receive a path that does not
+ * exist on the host and answer by creating an empty directory there — the
+ * container then fails to start with a "not a directory" mount error and the
+ * deployment flips to error immediately. See `toDockerHostPath`.
+ *
+ * Only the file written for the deploy is rewritten, never the stored compose
+ * source, and remote servers are skipped: their files are written over SSH on
+ * the remote itself, so the remote daemon already resolves those paths.
+ */
+export const remapLocalBindMountsToHostPaths = async (
+	spec: ComposeSpecification,
+	compose: Compose,
+): Promise<void> => {
+	if (compose.serverId) {
+		return;
+	}
+	const { COMPOSE_PATH } = paths(false);
+	const projectDir = join(COMPOSE_PATH, compose.appName, "code");
+	const composeDir =
+		compose.sourceType === "raw" || !compose.composePath
+			? projectDir
+			: join(projectDir, dirname(compose.composePath));
+
+	for (const service of Object.values(spec.services ?? {})) {
+		if (!service?.volumes || !Array.isArray(service.volumes)) {
+			continue;
+		}
+		for (let i = 0; i < service.volumes.length; i++) {
+			const entry = service.volumes[i];
+			if (typeof entry === "string") {
+				service.volumes[i] = await remapShortVolumeSource(entry, composeDir);
+			} else if (entry && typeof entry === "object") {
+				if (entry.type === "bind" && typeof entry.source === "string") {
+					entry.source = await remapBindSource(entry.source, composeDir);
+				}
+			}
+		}
+	}
+};
+
+// In short syntax a bare name addresses a named volume: only sources starting
+// with "." or "/" reach the host filesystem (compose-spec § volumes).
+const remapShortVolumeSource = async (
+	entry: string,
+	composeDir: string,
+): Promise<string> => {
+	const separatorIndex = entry.indexOf(":");
+	if (separatorIndex <= 0) {
+		return entry;
+	}
+	const source = entry.slice(0, separatorIndex);
+	if (!source.startsWith(".") && !source.startsWith("/")) {
+		return entry;
+	}
+	const mapped = await remapBindSource(source, composeDir);
+	return mapped === source ? entry : `${mapped}${entry.slice(separatorIndex)}`;
+};
+
+const remapBindSource = async (
+	source: string,
+	composeDir: string,
+): Promise<string> => {
+	if (!source || source.startsWith("~")) {
+		return source;
+	}
+	const resolved = source.startsWith("/")
+		? source
+		: resolve(composeDir, source);
+	const { BASE_PATH } = paths(false);
+	if (resolved !== BASE_PATH && !resolved.startsWith(`${BASE_PATH}/`)) {
+		return source;
+	}
+	return toDockerHostPath(resolved, null);
+};
+
 export const applyComposeFilePatch = async (
 	compose: Compose,
 ): Promise<ComposeSpecification | null> => {

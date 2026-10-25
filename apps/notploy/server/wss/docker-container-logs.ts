@@ -1,5 +1,9 @@
 import type http from "node:http";
-import { findServerById, IS_CLOUD, validateRequest } from "@notploy/server";
+import {
+	findServerById,
+	isManagedCloud,
+	validateRequest,
+} from "@notploy/server";
 import {
 	createRedactingLineBuffer,
 	safeErrorMessage,
@@ -185,7 +189,7 @@ export const setupDockerContainerLogsWebSocketServer = (
 						privateKey: server.sshKey?.privateKey,
 					});
 			} else {
-				if (IS_CLOUD) {
+				if (isManagedCloud()) {
 					ws.send("This feature is not available in the cloud version.");
 					cleanup();
 					ws.close();

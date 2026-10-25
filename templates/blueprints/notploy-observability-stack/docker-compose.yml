@@ -1,0 +1,67 @@
+services:
+  prometheus:
+    image: prom/prometheus:v3.3.1
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-15d}"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ../files/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../files/notploy-alerts.yml:/etc/prometheus/notploy-alerts.yml
+      - prometheus-data:/prometheus
+    logging:
+      options:
+        max-size: 50m
+        max-file: "3"
+
+  node-exporter:
+    image: prom/node-exporter:v1.9.1
+    restart: unless-stopped
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - /:/host:ro,rslave
+    logging:
+      options:
+        max-size: 20m
+        max-file: "3"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.52.1
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    logging:
+      options:
+        max-size: 20m
+        max-file: "3"
+
+  grafana:
+    image: grafana/grafana-oss:12.4.0
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ../files/provisioning/datasources/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ../files/provisioning/dashboards/dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
+      - ../files/dashboards/notploy-host-overview.json:/etc/grafana/dashboards/notploy-host-overview.json
+      - ../files/dashboards/notploy-container-overview.json:/etc/grafana/dashboards/notploy-container-overview.json
+    logging:
+      options:
+        max-size: 50m
+        max-file: "3"
+
+volumes:
+  prometheus-data:
+    name: notploy-observability-prometheus-data
+  grafana-storage:
+    name: notploy-observability-grafana-storage
+

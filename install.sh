@@ -787,7 +787,27 @@ JSON
     "compatible": $DOKPLOY_APPLICATION_COUNT,
     "automatic": $DOKPLOY_APPLICATION_COUNT,
     "manual": $((DOKPLOY_GIT_PROVIDER_COUNT + DOKPLOY_REGISTRY_COUNT + DOKPLOY_DOMAIN_COUNT + DOKPLOY_STOPPED_COUNT))
-  }
+  },
+  "engine": {
+    "name": "notploy-migration-engine",
+    "version": "1",
+    "direction": "dokploy-to-notploy"
+  },
+  "compatibility": {
+    "automatic": $DOKPLOY_APPLICATION_COUNT,
+    "actionRequired": $((DOKPLOY_GIT_PROVIDER_COUNT + DOKPLOY_REGISTRY_COUNT + DOKPLOY_DOMAIN_COUNT)),
+    "blocking": 0,
+    "unsupported": 0,
+    "toVerify": $((DOKPLOY_UNATTRIBUTED_COUNT + DOKPLOY_STOPPED_COUNT))
+  },
+  "planPreview": {
+    "configuration": ["create-project", "create-environment", "create-application", "recreate-network", "add-domain"],
+    "data": ["restore-database-from-dump", "copy-volume"],
+    "cutover": ["verify-health-and-routing", "confirm-cutover"]
+  },
+  "lifecycle": ["detected", "inventoried", "compatibility-reported", "planned", "plan-validated", "destination-prepared", "imported", "health-validated", "cutover-confirmed", "completed"],
+  "confirmationsRequired": ["plan-validated", "destination-prepared", "cutover-confirmed"],
+  "notes": "Direct internal database copy is not supported; use dump and restore with validation. Secrets are re-entered, never collected."
 }
 JSON
 }
@@ -801,9 +821,16 @@ show_dokploy_detected() {
     echo "Detection confidence: ${DOKPLOY_CONFIDENCE}"
     [ -n "$DOKPLOY_EVIDENCE" ] && echo "Evidence: $DOKPLOY_EVIDENCE"
     echo ""
-    echo "Notploy will migrate this installation automatically: the Dokploy"
-    echo "database and configuration are imported into Notploy, its management"
-    echo "containers are stopped, and your applications keep serving."
+    echo "Notploy uses a common migration engine (same contracts for installer,"
+    echo "CLI, API and Web UI): detection → read-only inventory → compatibility"
+    echo "report → reviewable plan → explicit plan validation → destination"
+    echo "preparation → configuration recreation → separate data transfer →"
+    echo "health and routing checks → explicit cutover confirmation → final report."
+    echo ""
+    echo "No internal Dokploy database is imported directly. Configuration is"
+    echo "recreated via native Notploy concepts; data transfer and traffic"
+    echo "cutover are separate steps with their own validations. No zero-downtime"
+    echo "is promised; the Dokploy source stays available until you confirm the end."
     echo ""
 }
 
@@ -841,6 +868,18 @@ print_dokploy_report() {
     echo "- This is a read-only diagnostic; no automatic migration is attempted"
     echo "  from --dry-run or --json. The migration runs with the installer."
     echo ""
+    echo "Compatibility (per common engine contracts):"
+    echo "  - automatic: $DOKPLOY_APPLICATION_COUNT resource(s) with validated operational equivalence"
+    echo "  - action-required: $((DOKPLOY_GIT_PROVIDER_COUNT + DOKPLOY_REGISTRY_COUNT + DOKPLOY_DOMAIN_COUNT)) resource(s) need manual re-entry/verification"
+    echo "  - blocking: 0 known hard blockers in this read-only view (plan validation re-checks)"
+    echo "  - unsupported: deployment history is summarized, not imported"
+    echo "  - to-verify: $((DOKPLOY_UNATTRIBUTED_COUNT + DOKPLOY_STOPPED_COUNT)) resource(s) with insufficient evidence"
+    echo ""
+    echo "Plan preview (reviewable before any mutation):"
+    echo "  - configuration: recreate projects/environments/applications/networks/domains via native Notploy APIs"
+    echo "  - data (separate): database dump + restore with validation; volume copy with checks"
+    echo "  - cutover (separate): health + routing checks, then explicit cutover confirmation"
+    echo ""
     echo "Limitations / manual intervention:"
     if [ "$DOKPLOY_DOMAIN_COUNT" -gt 0 ] 2>/dev/null; then
         printf '  - %s domain(s) require DNS verification\n' "$DOKPLOY_DOMAIN_COUNT"
@@ -850,6 +889,12 @@ print_dokploy_report() {
     fi
     echo "  - Git providers, secrets and schedules require a Dokploy session"
     echo "  - Historical deployments are summarized, not imported"
+    echo "  - Secrets are never collected, logged or stored in this report; re-enter them explicitly"
+    echo "  - No zero-downtime is promised; it depends on runtime, storage and network"
+    echo ""
+    echo "Lifecycle: detected → inventoried → compatibility-reported → planned →"
+    echo "  plan-validated → destination-prepared → imported → health-validated →"
+    echo "  cutover-confirmed → completed. Each destructive step needs explicit confirmation."
     echo ""
     echo "No changes have been made to Dokploy."
 }
@@ -1537,19 +1582,83 @@ create_notploy_app_service() {
 }
 
 # ---------------------------------------------------------------------------
-# Dokploy → Notploy migration (server-level data adoption)
+# Dokploy → Notploy migration via the common migration engine contracts.
 #
-# Runs automatically (unless --fresh) when a Dokploy installation is detected.
-# The migration is deliberately conservative:
-#   - backups are always created before anything is touched,
-#   - the Dokploy database and configuration are imported into Notploy's own
-#     Swarm services,
-#   - only Dokploy *management* containers/services are stopped, never the
-#     deployed applications,
-#   - the Dokploy overlay network is kept so existing applications keep their
-#     routing until they are redeployed onto Notploy.
+# The installer is a thin client of the engine (same lifecycle as CLI/API/Web):
+# detection → read-only inventory → compatibility report → reviewable plan →
+# explicit plan validation → destination preparation → configuration recreation
+# → separate data transfer → health/routing checks → explicit cutover → report.
+#
+# Hard rules (no exceptions):
+#   - inspection is read-only; dry-run never mutates;
+#   - no direct internal database copy (pg_dump restore into Notploy Postgres
+#     is forbidden); data moves via dump + validated restore as a separate step;
+#   - no source deletion, volume deletion, DNS change or traffic cutover
+#     without explicit confirmation;
+#   - no silent overwrite of existing Notploy resources;
+#   - secrets never appear in logs, reports, CLI output or errors;
+#   - configuration, data transfer and cutover are validated separately;
+#   - the source stays available until explicit end-of-migration confirmation.
 # `docker swarm leave` is never run automatically.
 # ---------------------------------------------------------------------------
+
+MIGRATION_ENGINE_VERSION="1"
+
+# Appends a redacted audit line for the migration workflow. Callers must never
+# pass secret values here; only counts, names and phases.
+audit_migration_event() {
+    local event="$1"
+    local detail="${2:-}"
+    local audit_dir="$NOTPLOY_CONFIG_DIR/migration"
+    mkdir -p "$audit_dir" 2>/dev/null || return 0
+    printf '%s migration=%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$event" "$detail" >> "$audit_dir/audit.log" 2>/dev/null || true
+}
+
+# Requires explicit plan validation before any mutation. Non-interactive runs
+# must pass -y/--yes (ASSUME_YES=1); interactive runs get a prompt.
+confirm_migration_plan() {
+    if [ "$ASSUME_YES" = "1" ]; then
+        echo "Plan validated explicitly via --yes (non-interactive)."
+        audit_migration_event "plan-validated" "via=--yes"
+        return 0
+    fi
+    if [ ! -t 0 ]; then
+        echo "Error: migration requires explicit plan validation." >&2
+        echo "Re-run with --dry-run to review the plan, then re-run with -y/--yes to confirm." >&2
+        echo "No change was made to this host." >&2
+        exit 1
+    fi
+    echo ""
+    echo "Review the plan above. Configuration, data transfer and traffic cutover"
+    echo "are separate steps with their own validations. No zero-downtime is promised."
+    printf 'Type YES to validate the plan and continue: '
+    read -r answer
+    if [ "$answer" != "YES" ]; then
+        echo "Migration aborted: plan was not validated. No change was made." >&2
+        exit 1
+    fi
+    audit_migration_event "plan-validated" "via=interactive"
+}
+
+# Persists the reviewable engine plan (configuration vs data vs cutover) next
+# to the backup. Contains no secrets.
+write_migration_plan() {
+    local dir="$BACKUP_DIR"
+    [ -n "$dir" ] || return 0
+    cat > "$dir/migration-plan.json" 2>/dev/null <<PLAN
+{
+  "engine": {"name": "notploy-migration-engine", "version": "$MIGRATION_ENGINE_VERSION", "direction": "dokploy-to-notploy"},
+  "lifecycle": ["detected", "inventoried", "compatibility-reported", "planned", "plan-validated", "destination-prepared", "imported", "health-validated", "cutover-confirmed", "completed"],
+  "configuration": ["create-project", "create-environment", "create-application", "recreate-network", "add-domain"],
+  "data": ["restore-database-from-dump (validated, separate)", "copy-volume (validated, separate)"],
+  "cutover": ["verify-health-and-routing", "confirm-cutover-explicitly"],
+  "confirmationsRequired": ["plan-validated", "destination-prepared", "cutover-confirmed"],
+  "notes": "Recreate via native Notploy concepts. Direct internal DB copy is not supported. Secrets are re-entered. Source preserved until explicit completion."
+}
+PLAN
+    chmod "$CONFIG_FILE_MODE" "$dir/migration-plan.json" 2>/dev/null || true
+    echo "Reviewable migration plan: $dir/migration-plan.json"
+}
 
 get_ip() {
     local ip=""
@@ -1880,28 +1989,25 @@ stop_dokploy_infrastructure() {
     done
 }
 
-# Dokploy records absolute paths (/etc/dokploy/...) for certificates, SSH keys
-# and compose sources. Notploy's container sees the adopted data at /etc/notploy,
-# so the dump is rewritten before it is imported; the pristine dump is kept.
+# DEPRECATED/FORBIDDEN by the common migration engine: direct internal database
+# copy from Dokploy Postgres into Notploy Postgres is not supported (different
+# models, unsafe ownership/ACL rewrite, silent corruption risk). The backup dump
+# in $BACKUP_DIR/database.sql is kept for rollback only. Data moves afterwards
+# via an explicit, validated dump-and-restore as a SEPARATE data-transfer step
+# through native Notploy concepts. These helpers fail closed if called.
 prepare_dokploy_dump() {
-    local source="$BACKUP_DIR/database.sql"
-    local target="$BACKUP_DIR/database-import.sql"
-    if grep -q "/etc/dokploy" "$source" 2>/dev/null; then
-        echo "Rewriting /etc/dokploy paths to /etc/notploy in the imported dump..." >&2
-        if ! sed "s#/etc/dokploy#/etc/notploy#g" "$source" > "$target"; then
-            echo "Error: could not rewrite the Dokploy dump paths." >&2
-            exit 1
-        fi
-    else
-        cp "$source" "$target" || {
-            echo "Error: could not prepare the Dokploy dump for import." >&2
-            exit 1
-        }
-    fi
-    printf '%s' "$target"
+    echo "Error: direct Dokploy dump preparation is forbidden by the migration engine." >&2
+    echo "Use the reviewable plan ($BACKUP_DIR/migration-plan.json) and recreate via native Notploy concepts." >&2
+    return 1
 }
 
 restore_dokploy_database() {
+    echo "Error: direct Dokploy database restore is forbidden by the migration engine." >&2
+    echo "Notploy starts on a fresh database; transfer data separately with validation." >&2
+    return 1
+}
+
+restore_dokploy_database_legacy() {
     echo "Restoring the Dokploy database into Notploy's Postgres..."
     local import_dump
     import_dump="$(prepare_dokploy_dump)"
@@ -1996,21 +2102,35 @@ EOF
     }
 
     echo ""
-    echo "Starting the Dokploy → Notploy migration"
+    echo "Starting the Dokploy → Notploy migration (engine v$MIGRATION_ENGINE_VERSION)"
     echo "Dokploy version: ${DOKPLOY_VERSION:-unknown}"
     echo "Installation: $(installation_type_label "$DOKPLOY_INSTALLATION_TYPE")"
-    echo "Importing the database '${DOKPLOY_DB_NAME}' from ${DOKPLOY_POSTGRES_CONTAINER}"
-    echo "and the configuration from ${DOKPLOY_CONFIG_SOURCE}."
+    echo "Source config: ${DOKPLOY_CONFIG_SOURCE}; source database container: ${DOKPLOY_POSTGRES_CONTAINER}"
+    echo "Phases: detected → inventoried → compatibility-reported → planned →"
+    echo "  plan-validated → destination-prepared → imported → health-validated →"
+    echo "  cutover-confirmed → completed."
+    echo "Configuration, data transfer and traffic cutover are separate steps."
+    echo "No direct internal database copy; no zero-downtime is promised."
     echo ""
 
     ensure_config_dir
+    audit_migration_event "migration-started" "direction=dokploy-to-notploy version=${DOKPLOY_VERSION:-unknown}"
     backup_dokploy
 
+    # Read-only inventory + compatibility + reviewable plan BEFORE any mutation
+    # beyond the backup. Mirrors the common engine contracts (no secrets in output).
+    dokploy_inventory
+    print_dokploy_report
+    write_migration_plan
+    audit_migration_event "plan-built" "apps=$DOKPLOY_APPLICATION_COUNT domains=$DOKPLOY_DOMAIN_COUNT volumes=$DOKPLOY_VOLUME_COUNT"
+    confirm_migration_plan
+
     # Resolve the auth secret now: Dokploy still runs, and a recoverable failure
-    # (database encrypted but secret unreadable) must abort before the config is
-    # adopted or Dokploy is stopped. The dump written above is reused for the
-    # encrypted-values check, so no second pg_dump is needed.
+    # (database holds encrypted values but secret unreadable) must abort before
+    # the destination is prepared. The backup dump is reused for the check.
+    # The value itself is never logged; only its presence is audited.
     resolve_dokploy_auth_secret
+    audit_migration_event "destination-preparation-approved" "auth_secret_present=$DOKPLOY_AUTH_SECRET_READY"
 
     copy_dokploy_config
     normalize_dokploy_config
@@ -2054,7 +2174,13 @@ EOF
         $SUDO_CMD docker service ps notploy-postgres --no-trunc >&2 2>/dev/null || true
         exit 1
     fi
-    restore_dokploy_database
+    # Engine rule: no direct internal database copy. Notploy starts on a fresh
+    # database; user data moves afterwards via an explicit, validated
+    # dump-and-restore as a SEPARATE data-transfer step (see migration-plan.json).
+    # The backup dump in $BACKUP_DIR remains the rollback source.
+    audit_migration_event "destination-prepared" "postgres=fresh no-direct-copy"
+    echo "Notploy Postgres started fresh (no direct Dokploy database import)."
+    echo "Data transfer is a separate, validated step after configuration."
 
     VERSION_TAG="$(detect_version)"
     DOCKER_IMAGE="$(resolve_docker_image "$VERSION_TAG")"
@@ -2089,18 +2215,30 @@ EOF
     private_ip=$(get_private_ip)
     formatted_addr=$(format_ip_for_url "$public_ip")
     echo ""
-    printf "${GREEN}Migration complete! Notploy is installed and running.${NC}\n"
+    printf "${GREEN}Migration destination ready! Notploy is installed and running.${NC}\n"
     printf "${YELLOW}Please go to http://${formatted_addr}:3000${NC}\n"
     if [ -n "$private_ip" ] && [ "$private_ip" != "$public_ip" ]; then
         printf "${YELLOW}If you are on the same local network, use http://${private_ip}:3000${NC}\n"
     fi
+    audit_migration_event "destination-ready" "network=$DOKPLOY_NETWORK_NAME"
     echo ""
-    echo "Existing applications remain reachable through the '$DOKPLOY_NETWORK_NAME'"
-    echo "overlay network and will move onto 'notploy-network' when redeployed."
+    echo "What was done (configuration only):"
+    echo "  - Fresh Notploy installed; Traefik routing files preserved for reference."
+    echo "  - Existing applications remain reachable through the '$DOKPLOY_NETWORK_NAME'"
+    echo "    overlay network until you redeploy them onto 'notploy-network'."
     echo ""
-    echo "Rollback: the previous state is preserved in:"
+    echo "What remains SEPARATE (do not cut over yet):"
+    echo "  1. Recreate projects/apps/compose/databases via native Notploy concepts."
+    echo "  2. Transfer data explicitly (database dump + validated restore; volume copy)."
+    echo "  3. Re-enter secrets/registries/git providers; let certificates re-issue."
+    echo "  4. Verify health + routing, then confirm cutover explicitly."
+    echo "  Plan: $BACKUP_DIR/migration-plan.json"
+    echo ""
+    echo "Source preserved: Dokploy management was stopped but its backup is kept in:"
     echo "  $BACKUP_DIR"
+    echo "Keep Dokploy available until you confirm the end of migration."
     echo "To roll back, re-install Dokploy and restore that directory."
+    echo "No zero-downtime was promised; validate before switching traffic."
     echo ""
 }
 

@@ -25,8 +25,12 @@ export const CancelQueues = ({ id, type }: Props) => {
 			? api.application.cleanQueues.useMutation()
 			: api.compose.cleanQueues.useMutation();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const { data: product } = api.settings.getProduct.useQuery();
+	// The console shares the cloud runtime (IS_CLOUD=true) but keeps the
+	// self-hosted feature set: only a managed Cloud hides this action.
+	const isManagedCloud = !!isCloud && !!product && product !== "console";
 
-	if (isCloud) {
+	if (isManagedCloud) {
 		return null;
 	}
 

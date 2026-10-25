@@ -82,7 +82,13 @@ const Service = (
 	const { data: auth } = api.user.get.useQuery();
 	const { data: permissions } = api.user.getPermissions.useQuery();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const { data: product } = api.settings.getProduct.useQuery();
 	const { data: serverIp } = api.settings.getIp.useQuery();
+	// The console shares the cloud runtime (IS_CLOUD=true) but deliberately
+	// keeps the self-hosted feature set: the cloud-only paid monitoring must
+	// never show there. While the product is still loading, default to the
+	// self-hosted behavior to avoid flashing the cloud version.
+	const isManagedCloud = !!isCloud && !!product && product !== "console";
 	const { data: environments } = api.environment.byProjectId.useQuery({
 		projectId: data?.environment?.projectId || "",
 	});
@@ -213,8 +219,8 @@ const Service = (
 											{data?.sourceType !== "raw" && (
 												<TabsTrigger value="patches">Patches</TabsTrigger>
 											)}
-											{permissions?.monitoring.read &&
-												((data?.serverId && isCloud) || !data?.server) && (
+									{permissions?.monitoring.read &&
+										((data?.serverId && isManagedCloud) || !data?.server) && (
 													<TabsTrigger value="monitoring">
 														Monitoring
 													</TabsTrigger>
@@ -280,7 +286,7 @@ const Service = (
 										<TabsContent value="monitoring">
 											<div className="pt-2.5">
 												<div className="flex flex-col border rounded-lg ">
-													{data?.serverId && isCloud ? (
+													{data?.serverId && isManagedCloud ? (
 														<ComposePaidMonitoring
 															serverId={data?.serverId || ""}
 															baseUrl={`${data?.serverId ? `http://${data?.server?.ipAddress}:${data?.server?.metricsConfig?.server?.port}` : "http://localhost:4500"}`}

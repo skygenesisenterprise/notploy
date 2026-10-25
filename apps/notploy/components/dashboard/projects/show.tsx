@@ -58,7 +58,6 @@ import { ProjectEnvironment } from "./project-environment";
 export const ShowProjects = () => {
 	const utils = api.useUtils();
 	const router = useRouter();
-	const { data: isCloud } = api.settings.isCloud.useQuery();
 	const { data, isPending } = api.project.all.useQuery();
 	const { data: auth } = api.user.get.useQuery();
 	const { data: permissions } = api.user.getPermissions.useQuery();

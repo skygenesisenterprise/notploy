@@ -35,8 +35,11 @@ export const DialogAction = ({
 					<AlertDialogTitle>
 						{title ?? "Are you absolutely sure?"}
 					</AlertDialogTitle>
-					<AlertDialogDescription>
-						{description ?? "This action cannot be undone."}
+					{/* asChild + div: callers may pass block content (e.g. a
+					div with an AlertBlock), which is invalid inside the
+					default <p> and causes hydration errors. */}
+					<AlertDialogDescription asChild>
+						<div>{description ?? "This action cannot be undone."}</div>
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

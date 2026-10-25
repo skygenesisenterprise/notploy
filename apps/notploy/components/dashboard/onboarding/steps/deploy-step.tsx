@@ -35,8 +35,16 @@ export const DeployStep = ({ environmentId, onNext, plainTitle }: Props) => {
 		? "text-xl font-semibold tracking-tight"
 		: `${displayFont.className} text-4xl sm:text-5xl leading-[1.05] tracking-tight`;
 	const { data: isCloud = true } = api.settings.isCloud.useQuery();
+	const { data: webServerSettings } =
+		api.settings.getWebServerSettings.useQuery();
 	const { data: servers } = api.server.withSSHKey.useQuery();
 	const serverId = servers?.[0]?.serverId;
+	// Same fallback as the template dialog: with no remote server configured,
+	// self-hosted deploys locally by default instead of blocking.
+	// Development bypass: never block the onboarding deploy in dev.
+	const requiresServer =
+		process.env.NODE_ENV !== "development" &&
+		(isCloud || (!!webServerSettings?.remoteServersOnly && !!serverId));
 
 	const [deploying, setDeploying] = useState<Deploying | null>(null);
 	const [starting, setStarting] = useState<string | null>(null);
@@ -74,7 +82,7 @@ export const DeployStep = ({ environmentId, onNext, plainTitle }: Props) => {
 			? application?.applicationStatus
 			: compose?.composeStatus;
 
-	if (!environmentId || (isCloud && !serverId)) {
+	if (!environmentId || (requiresServer && !serverId)) {
 		return (
 			<div className="flex flex-col gap-8">
 				<div className="flex flex-col gap-4">
@@ -84,7 +92,7 @@ export const DeployStep = ({ environmentId, onNext, plainTitle }: Props) => {
 					<h1 className={titleClassName}>Deploy something.</h1>
 				</div>
 				<AlertBlock type="info" className="max-w-md">
-					{isCloud
+					{requiresServer
 						? "You'll need a project and a connected server before deploying — you can do that anytime from the dashboard."
 						: "You'll need a project before deploying — you can do that anytime from the dashboard."}
 				</AlertBlock>

@@ -16,6 +16,7 @@ const LOGO_MIME_TYPES: Record<string, string> = {
 	svg: "image/svg+xml",
 	webp: "image/webp",
 	gif: "image/gif",
+	ico: "image/x-icon",
 };
 
 /**

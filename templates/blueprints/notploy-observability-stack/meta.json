@@ -1,0 +1,24 @@
+{
+  "id": "notploy-observability-stack",
+  "name": "Notploy Observability Stack",
+  "version": "1.0.0",
+  "description": "Official Notploy managed observability stack by Sky Genesis Enterprise: Prometheus metrics collection with versioned alert rules, Grafana visualization with provisioned Notploy dashboards, and host/container exporters. Private by default, data persists across restarts and updates.",
+  "logo": "notploy-observability.svg",
+  "links": {
+    "github": "https://github.com/skygenesisenterprise/notploy",
+    "website": "https://notploy.com/",
+    "docs": "https://notploy.com/docs/core/monitoring"
+  },
+  "tags": [
+    "monitoring",
+    "observability",
+    "prometheus",
+    "grafana",
+    "metrics",
+    "alerting",
+    "notploy"
+  ],
+  "seoTitle": "Notploy Observability Stack (Prometheus + Grafana)",
+  "seoDescription": "Official Notploy managed monitoring: Prometheus, Grafana, host and container exporters with versioned dashboards and alert rules.",
+  "newConfig": true
+}

@@ -169,7 +169,11 @@ void app.prepare().then(async () => {
 			await sendNotployRestartNotifications();
 		}
 
-		if (!IS_CLOUD) {
+		// Same condition as the queue backend: the local worker must run
+		// whenever jobs are queued locally (including dev runs with
+		// IS_CLOUD=true), otherwise Deploy acknowledges the job and nothing
+		// ever executes.
+		if (!IS_CLOUD || process.env.NODE_ENV !== "production") {
 			console.log("Starting Deployment Worker");
 			const { startDeploymentWorker } = await import("./queues/queueSetup");
 			await startDeploymentWorker();

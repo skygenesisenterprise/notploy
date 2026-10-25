@@ -65,3 +65,38 @@ For your services you should see something like this:
 
 This is feature only available on Cloud Version of Notploy.
 
+### Prometheus + Grafana observability
+
+Notploy integrates with Prometheus (metrics collection) and Grafana
+(visualization) in two modes. See the architecture decision
+`docs/adr/0001-prometheus-grafana-observability.md` for boundaries and the
+compatibility matrix.
+
+- **Managed stack**: deploy the `notploy-observability-stack` blueprint for an
+official, versioned Prometheus + Grafana + exporters setup. Prometheus and the
+exporters stay private by default; only Grafana is exposed through your
+Notploy domain. Data lives in `prometheus-data` and `grafana-storage` volumes
+and survives restarts and updates. Dashboards and alert rules are versioned —
+duplicate them in Grafana before customizing.
+- **External stack**: in the Monitoring page, section *External
+observability*, test your own Prometheus and Grafana URLs. Prometheus works
+standalone; Grafana is optional and only adds dashboards and deep links.
+Connection testing is a configuration action (server management permission);
+reading targets and dashboards needs only monitoring permission. Credentials
+are sent per request and never stored by these endpoints.
+
+The console distinguishes `unconfigured`, `healthy`, `degraded`,
+`unreachable` and `stale` states and shows the last scrape time. Absent
+metrics are displayed as *no data* — never as zeros or a healthy state.
+
+#### Troubleshooting
+
+- **Target down / unreachable**: verify the exporter is running and reachable
+from Prometheus (`Status → Targets`), and that host metrics run on Linux.
+- **Stale data**: samples older than the freshness threshold (120s) are
+flagged stale; check scrape intervals and clock skew.
+- **401/403 from a backend**: credentials are rejected — rotate them, and
+never embed `user:password@` in the URL.
+- **Dashboard incompatible**: dashboards carry a version; import or duplicate
+instead of editing provisioned files in place.
+

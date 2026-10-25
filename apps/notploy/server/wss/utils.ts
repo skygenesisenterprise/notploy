@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execAsync, IS_CLOUD, paths } from "@notploy/server";
+import { execAsync, isManagedCloud, paths } from "@notploy/server";
 
 /**
  * Validates that the container ID matches Docker's expected format.
@@ -106,7 +106,7 @@ export const parseResizeMessage = (data: string) => {
 };
 
 export const getShell = () => {
-	if (IS_CLOUD) {
+	if (isManagedCloud()) {
 		return "NO_AVAILABLE";
 	}
 	switch (os.platform()) {

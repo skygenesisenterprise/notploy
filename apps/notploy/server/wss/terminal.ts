@@ -2,7 +2,7 @@ import type http from "node:http";
 import {
 	execAsync,
 	findServerById,
-	IS_CLOUD,
+	isManagedCloud,
 	validateRequest,
 } from "@notploy/server";
 import { publicIpv4, publicIpv6 } from "public-ip";
@@ -113,7 +113,7 @@ export const setupTerminalWebSocketServer = (
 		const isLocalServer = serverId === "local";
 
 		if (isLocalServer) {
-			if (IS_CLOUD) {
+			if (isManagedCloud()) {
 				ws.send("This feature is not available in the cloud version.");
 				ws.close();
 				return;

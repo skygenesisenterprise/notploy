@@ -43,12 +43,11 @@ export const ComposeActions = ({ composeId }: Props) => {
 						title="Deploy Compose"
 						description="Are you sure you want to deploy this compose?"
 						type="default"
-						onClick={async () => {
-							await deploy({
+						onClick={async () => {							await deploy({
 								composeId: composeId,
-							})
-								.then(() => {
-									toast.success("Compose deployed successfully");
+						})
+							.then(() => {
+								toast.success("Deployment started — follow the progress in Deployments");
 									refetch();
 									router.push(
 										`/dashboard/project/${data?.environment.projectId}/environment/${data?.environmentId}/services/compose/${composeId}?tab=deployments`,
@@ -87,12 +86,11 @@ export const ComposeActions = ({ composeId }: Props) => {
 						title="Rebuild Compose"
 						description="Are you sure you want to rebuild this compose?"
 						type="default"
-						onClick={async () => {
-							await redeploy({
+						onClick={async () => {							await redeploy({
 								composeId: composeId,
 							})
-								.then(() => {
-									toast.success("Compose rebuilt successfully");
+							.then(() => {
+								toast.success("Rebuild started — follow the progress in Deployments");
 									refetch();
 								})
 								.catch(() => {

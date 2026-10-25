@@ -5,7 +5,7 @@ import {
 	filterEnvironmentServices,
 	findEnvironmentById,
 	findEnvironmentsByProjectId,
-	IS_CLOUD,
+	isManagedCloud,
 	updateEnvironmentById,
 } from "@notploy/server";
 import { db } from "@notploy/server/db";
@@ -39,7 +39,9 @@ export const environmentRouter = createTRPCRouter({
 		.mutation(async ({ input, ctx }) => {
 			try {
 				await checkEnvironmentCreationPermission(ctx, input.projectId);
-				if (IS_CLOUD) {
+				// Mode management: plan limits only apply to managed Cloud.
+				// Self-hosted and console (operator surface) have full access.
+				if (isManagedCloud()) {
 					await assertEnvironmentLimit(
 						ctx.session.activeOrganizationId,
 						input.projectId,

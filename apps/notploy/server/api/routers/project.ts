@@ -87,13 +87,17 @@ export const projectRouter = createTRPCRouter({
 			try {
 				await checkProjectAccess(ctx, "create");
 
-				const admin = await findUserById(ctx.user.ownerId);
-
-				if (admin.serversQuantity === 0 && IS_BILLING_GATED) {
-					throw new TRPCError({
-						code: "NOT_FOUND",
-						message: "No servers available, Please subscribe to a plan",
-					});
+				// Mode management: self-hosted and console (operator surface)
+				// always have full access. Only managed Cloud requires an
+				// active subscription (servers quota) to create projects.
+				if (IS_BILLING_GATED) {
+					const admin = await findUserById(ctx.user.ownerId);
+					if (admin.serversQuantity === 0) {
+						throw new TRPCError({
+							code: "NOT_FOUND",
+							message: "No servers available, Please subscribe to a plan",
+						});
+					}
 				}
 
 				const project = await createProject(

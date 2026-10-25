@@ -1,6 +1,10 @@
 import { spawn } from "node:child_process";
 import type http from "node:http";
-import { findServerById, IS_CLOUD, validateRequest } from "@notploy/server";
+import {
+	findServerById,
+	isManagedCloud,
+	validateRequest,
+} from "@notploy/server";
 import { encodeBase64 } from "@notploy/server/utils/docker/utils";
 import {
 	createRedactingLineBuffer,
@@ -164,7 +168,7 @@ export const setupDeploymentLogsWebSocketServer = (
 						privateKey: server.sshKey?.privateKey,
 					});
 			} else {
-				if (IS_CLOUD) {
+				if (isManagedCloud()) {
 					ws.send("This feature is not available in the cloud version.");
 					ws.close();
 					cleanup();

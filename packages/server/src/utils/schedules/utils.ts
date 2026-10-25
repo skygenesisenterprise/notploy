@@ -1,6 +1,7 @@
 import { createWriteStream } from "node:fs";
 import path from "node:path";
-import { IS_CLOUD, paths } from "@notploy/server/constants";
+import { paths } from "@notploy/server/constants";
+import { isManagedCloud } from "@notploy/server/services/instance-identity";
 import type { Schedule } from "@notploy/server/db/schema/schedule";
 import {
 	createDeploymentSchedule,
@@ -113,7 +114,7 @@ export const runCommand = async (scheduleId: string) => {
 				});
 
 				try {
-					if (IS_CLOUD) {
+					if (isManagedCloud()) {
 						writeStream.write(
 							"This feature is not available in the cloud version.",
 						);

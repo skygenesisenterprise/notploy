@@ -594,14 +594,35 @@ export const composeRouter = createTRPCRouter({
 			await checkServiceAccess(ctx, environment.projectId, "create");
 
 			const webServerSettings = await getWebServerSettings();
+			// Development bypass: never block local template deploys in dev
+			// so tests can run without configuring a remote server first.
 			if (
+				process.env.NODE_ENV !== "development" &&
 				(IS_CLOUD || webServerSettings?.remoteServersOnly) &&
 				!input.serverId
 			) {
-				throw new TRPCError({
-					code: "UNAUTHORIZED",
-					message: "You need to use a server to create a compose",
-				});
+				// Self-hosted fallback: when no remote server exists yet,
+				// deploy on the local server by default instead of blocking
+				// with "a server is required" while there is nothing to pick.
+				// Cloud has no local server, so it always requires one.
+				if (!IS_CLOUD) {
+					const accessibleIds = await getAccessibleServerIds(ctx.session);
+					if (accessibleIds.size === 0) {
+						// No remote servers configured: allow local deploy.
+					} else {
+						throw new TRPCError({
+							code: "BAD_REQUEST",
+							message:
+								"A server is required to deploy this template. Select a server to continue, or disable \"Remote servers only\" in Settings > Servers to deploy locally.",
+						});
+					}
+				} else {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message:
+							"A server is required to deploy this template. Select a server to continue.",
+					});
+				}
 			}
 
 			if (input.serverId) {

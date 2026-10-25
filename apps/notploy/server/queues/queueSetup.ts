@@ -109,8 +109,13 @@ const globalForQueue = globalThis as unknown as {
 	__notployDeploymentQueue?: DeploymentQueue;
 };
 
+// Managed Cloud production delegates deployments to an external service, so
+// the queue is a no-op there. Everywhere else — including development runs
+// with IS_CLOUD=true — a real local worker processes deployments. Without
+// this, Deploy would acknowledge the queued job and never run anything.
+const useNoopQueue = IS_CLOUD && process.env.NODE_ENV === "production";
 if (!globalForQueue.__notployDeploymentQueue) {
-	globalForQueue.__notployDeploymentQueue = !IS_CLOUD
+	globalForQueue.__notployDeploymentQueue = !useNoopQueue
 		? isRedisEnabled()
 			? createBullMqQueue()
 			: createInMemoryQueue()

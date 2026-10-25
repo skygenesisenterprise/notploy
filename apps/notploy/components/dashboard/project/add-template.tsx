@@ -105,6 +105,16 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 		}
 	}, [customBaseUrl]);
 
+	const [serverId, setServerId] = useState<string | undefined>(undefined);
+
+	// Reset the server picker each time the dialog opens so a stale
+	// selection from another project can't leak into this deploy.
+	useEffect(() => {
+		if (open) {
+			setServerId(undefined);
+		}
+	}, [open]);
+
 	const {
 		data,
 		isLoading: isLoadingTemplates,
@@ -117,7 +127,20 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 		},
 	);
 	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const { data: webServerSettings } =
+		api.settings.getWebServerSettings.useQuery();
 	const { data: servers } = api.server.withSSHKey.useQuery();
+	const hasServersEarly = (servers?.length ?? 0) > 0;
+	// Default to the local server when no remote server exists yet, even if
+	// "Remote servers only" is enabled: otherwise there is nothing to pick
+	// and every template deploy is blocked.
+	// Development bypass: always offer the local server in dev so tests are
+	// never blocked by a missing remote server (inlined by Next.js).
+	const isDev = process.env.NODE_ENV === "development";
+	const showLocalOption =
+		isDev ||
+		(!isCloud && (!webServerSettings?.remoteServersOnly || !hasServersEarly));
+	const requiresServer = !showLocalOption;
 	const { data: tags, isPending: isLoadingTags } = api.compose.getTags.useQuery(
 		{ baseUrl: customBaseUrl },
 		{
@@ -163,7 +186,6 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 			},
 		});
 
-	const [serverId, setServerId] = useState<string | undefined>(undefined);
 	const { mutateAsync, isPending, error, isError } =
 		api.compose.deployTemplate.useMutation();
 
@@ -181,11 +203,15 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 			return matchesTags && matchesQuery && matchesBookmarks;
 		}) || [];
 
-	const hasServers = servers && servers.length > 0;
-	// Show dropdown logic based on cloud environment
-	// Cloud: show only if there are remote servers (no Notploy option)
-	// Self-hosted: show only if there are remote servers (Notploy is default, hide if no remote servers)
-	const shouldShowServerDropdown = hasServers;
+	const hasServers = hasServersEarly;
+	// The confirmation dialog (with the server picker) is only needed when
+	// there is at least one remote server to choose from. With zero servers
+	// the card's Create button deploys straight away (local server by
+	// default) instead of opening a second dialog with nothing to pick.
+	const shouldShowServerDropdown = hasServers || requiresServer;
+	const effectiveServerId =
+		serverId === "notploy" ? undefined : serverId;
+	const isServerSelectionValid = !requiresServer || !!effectiveServerId;
 
 	const handleToggleBookmark = async (
 		e: React.MouseEvent,
@@ -193,6 +219,49 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 	) => {
 		e.stopPropagation();
 		await toggleBookmark({ templateId });
+	};
+
+	// One-click deploy used when no server picker is needed (local deploy by
+	// default): clicking "Create" deploys the template immediately instead
+	// of opening a second confirmation dialog.
+	const [deployingTemplateId, setDeployingTemplateId] = useState<string | null>(
+		null,
+	);
+	const handleDirectCreate = async (template: { id: string; name: string }) => {
+		// No picker is shown in this path (zero servers to choose from), so
+		// always attempt the deploy and let the API return a proper error
+		// in the setups where local deploy is not allowed (cloud).
+		if (hasServers && !isServerSelectionValid) {
+			toast.error("Select a server to deploy this template");
+			return;
+		}
+		setDeployingTemplateId(template.id);
+		const promise = mutateAsync({
+			serverId: effectiveServerId,
+			environmentId,
+			id: template.id,
+			baseUrl: customBaseUrl,
+		});
+		toast.promise(promise, {
+			loading: "Setting up...",
+			success: () => {
+				utils.environment.one.invalidate({
+					environmentId,
+				});
+				setOpen(false);
+				return `${template.name} template created successfully`;
+			},
+			error: () => {
+				return `An error occurred deploying ${template.name} template`;
+			},
+		});
+		try {
+			await promise;
+		} catch {
+			// The error toast above already reports the failure.
+		} finally {
+			setDeployingTemplateId(null);
+		}
 	};
 
 	return (
@@ -501,6 +570,7 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 													)}
 												</div>
 											)}
+											{hasServers ? (
 											<AlertDialog>
 												<AlertDialogTrigger asChild>
 													<Button
@@ -519,11 +589,11 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 														<AlertDialogTitle>
 															Are you absolutely sure?
 														</AlertDialogTitle>
-														<AlertDialogDescription>
-															This will create an application from the{" "}
-															{template?.name} template and add it to your
-															project.
-														</AlertDialogDescription>
+													<AlertDialogDescription>
+														This will create an application from the{" "}
+														{template?.name} template and add it to your
+														project.
+													</AlertDialogDescription>
 
 														{shouldShowServerDropdown && (
 															<div>
@@ -532,7 +602,7 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 																		<TooltipTrigger asChild>
 																			<Label className="break-all w-fit flex flex-row gap-1 items-center pb-2 pt-3.5">
 																				Select a Server{" "}
-																				{!isCloud ? "(Optional)" : ""}
+																				{showLocalOption ? "(Optional)" : "(Required)"}
 																				<HelpCircle className="size-4 text-muted-foreground" />
 																			</Label>
 																		</TooltipTrigger>
@@ -542,32 +612,30 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 																			side="top"
 																		>
 																			<span>
-																				If no server is selected, the
-																				application will be deployed on the
-																				server where the user is logged in.
+																				{showLocalOption
+																					? "If no server is selected, the application will be deployed on the server where the user is logged in."
+																				: "This environment requires a server. Select where this template will be deployed."}
 																			</span>
 																		</TooltipContent>
 																	</Tooltip>
 																</TooltipProvider>
 
 																<Select
+																	value={serverId ?? (showLocalOption ? "notploy" : "")}
 																	onValueChange={(e) => {
 																		setServerId(e);
 																	}}
-																	defaultValue={
-																		!isCloud ? "notploy" : undefined
-																	}
 																>
 																	<SelectTrigger>
 																		<SelectValue
 																			placeholder={
-																				!isCloud ? "Notploy" : "Select a Server"
+																				showLocalOption ? "Notploy" : "Select a Server"
 																			}
 																		/>
 																	</SelectTrigger>
 																	<SelectContent>
 																		<SelectGroup>
-																			{!isCloud && (
+																			{showLocalOption && (
 																				<SelectItem value="notploy">
 																					<span className="flex items-center gap-2 justify-between w-full">
 																						<span>Notploy</span>
@@ -592,24 +660,31 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 																			))}
 																			<SelectLabel>
 																				Servers (
-																				{servers?.length + (!isCloud ? 1 : 0)})
+																				{servers?.length + (showLocalOption ? 1 : 0)})
 																			</SelectLabel>
 																		</SelectGroup>
 																	</SelectContent>
-																</Select>
+																</Select>																	{requiresServer && !isServerSelectionValid && (
+																	<p className="text-sm text-destructive mt-2">
+																		Please select a server to continue.
+																	</p>
+																)}
 															</div>
 														)}
 													</AlertDialogHeader>
 													<AlertDialogFooter>
-														<AlertDialogCancel>Cancel</AlertDialogCancel>
-														<AlertDialogAction
-															disabled={isPending}
-															onClick={async () => {
+														<AlertDialogCancel>Cancel</AlertDialogCancel>													<AlertDialogAction
+														disabled={isPending || !isServerSelectionValid}
+														onClick={async (e) => {
+																if (!isServerSelectionValid) {
+																	e.preventDefault();
+																	toast.error(
+																		"Select a server to deploy this template",
+																	);
+																	return;
+																}
 																const promise = mutateAsync({
-																	serverId:
-																		serverId === "notploy"
-																			? undefined
-																			: serverId,
+																	serverId: effectiveServerId,
 																	environmentId,
 																	id: template.id,
 																	baseUrl: customBaseUrl,
@@ -635,6 +710,21 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 													</AlertDialogFooter>
 												</AlertDialogContent>
 											</AlertDialog>
+											) : (
+											<Button
+												variant="secondary"
+												size="sm"
+												className={cn(
+													"w-auto",
+													viewMode === "detailed" && "w-auto",
+												)}
+												disabled={deployingTemplateId !== null || isPending}
+												isLoading={deployingTemplateId === template.id}
+												onClick={() => handleDirectCreate(template)}
+											>
+												{deployingTemplateId === template.id ? "Creating..." : "Create"}
+											</Button>
+											)}
 										</div>
 									</div>
 								))}
