@@ -1,5 +1,6 @@
 import type { AnyCapability } from "../contracts/capability.js";
 import { deleteApplicationCapability } from "./administration.js";
+import { getConnectionStatusCapability } from "./connection.js";
 import {
   executeDeploymentCapability,
   prepareDeploymentCapability,
@@ -32,6 +33,7 @@ import { getOperationStatusCapability } from "./operations.js";
  */
 export const businessCapabilities: readonly AnyCapability[] = [
   // Discovery
+  getConnectionStatusCapability,
   listProjectsCapability,
   getProjectCapability,
   getApplicationCapability,

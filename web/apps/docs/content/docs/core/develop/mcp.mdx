@@ -3,7 +3,7 @@ title: MCP
 description: "Connect Notploy to AI tooling through the Model Context Protocol server."
 ---
 
-**Purpose** — The Notploy MCP server exposes Notploy operations to AI assistants and tools that speak the [Model Context Protocol](https://modelcontextprotocol.io). It lets an assistant inspect and manage a Notploy installation through defined tools instead of screen-scraping the UI.
+**Purpose** — The Notploy MCP server (`@notploy/mcp`) exposes Notploy operations to AI assistants and tools that speak the [Model Context Protocol](https://modelcontextprotocol.io). It provides an agent-first operational interface — discovery, diagnostics and controlled deployments — instead of screen-scraping the UI or dumping the REST API as tools.
 
 <Callout type="info" title="Status: integration surface">
 The MCP server is published as `@notploy/mcp`. As an integration surface it may evolve faster
@@ -19,32 +19,73 @@ npm install @notploy/mcp
 npx @notploy/mcp
 ```
 
+Requires Node.js 24.4+ (24.x line), a reachable Notploy instance, and an API key. Full setup, transports and troubleshooting live in [`packages/mcp/README.md`](https://github.com/skygenesisenterprise/notploy/tree/master/packages/mcp#readme); the generated tool reference is [`packages/mcp/TOOLS.md`](https://github.com/skygenesisenterprise/notploy/tree/master/packages/mcp/TOOLS.md).
+
 ## Configuration
 
 The MCP server authenticates to your Notploy instance with an **API key** and a base URL. Configure it in your MCP client (for example an AI-enabled editor) with:
 
-- the **base URL** of your panel,
-- an **API key** (see [API keys](/docs/core/security/api-keys)).
+- the **base URL** of your panel (`NOTPLOY_URL`, absolute `http(s)` URL without credentials, query or fragment),
+- an **API key** (`NOTPLOY_API_KEY`; see [API keys](/docs/core/security/api-keys)).
 
-Store the key in your client's secret configuration, not in a shared file.
+Store the key in your client's secret configuration, not in a shared file. The server grants the assistant the permissions of the connected Notploy identity — it never bypasses Notploy's authorization model.
+
+```json
+{
+  "mcpServers": {
+    "notploy-mcp": {
+      "command": "npx",
+      "args": ["-y", "@notploy/mcp"],
+      "env": {
+        "NOTPLOY_URL": "https://your-notploy-server.com",
+        "NOTPLOY_API_KEY": "your-notploy-api-token"
+      }
+    }
+  }
+}
+```
 
 ## What it exposes
 
-The server surfaces Notploy resources — projects, applications, deployments and their status — as MCP tools, so an assistant can answer questions like "what is deployed?" or "why did the last deployment fail?" and, where enabled, take actions.
+The default **business catalog** (19 workflow-oriented capabilities) covers discovery, diagnostics, controlled deployments and operations:
 
-<Callout type="warn" title="Grant least privilege">
-Because MCP tools can act on your behalf, use an API key with the narrowest scope that supports
-the tasks you expect. Review what your client is allowed to call.
-</Callout>
+- **Connection health**: `get_connection_status` — validates the key, resolves user, organization and effective permissions server-side, and reports instance, environment and catalog mode. Call it first.
+- **Discovery**: `list_projects`, `get_project`, `get_environment_overview`, `get_application`, `list_servers`, `list_application_domains`.
+- **Diagnostics**: `get_deployment_status`, `get_deployment_history`, `get_application_logs` (bounded, filterable), `inspect_application_health`, `diagnose_deployment`, `analyze_recent_failures`, `verify_deployment`.
+- **Deployment**: `prepare_deployment` (read-only preflight) → `execute_deployment` (high-impact, approval-gated, returns `operationId`) → `get_operation_status` (poll to a verified outcome); `restart_application` (limited-impact write).
+- **Administration**: `delete_application` (destructive, disabled unless explicitly allowed).
+
+The **advanced catalog** (generated OpenAPI operations, 724 in the current spec) is opt-in only via `NOTPLOY_MCP_MODE=advanced` with profiles `read-only` (default), `deploy` and `full`, plus tag/exclusion filters. Catalog filtering only decides what is listed — every call is re-authorized at execution time against the credential's effective permissions (`user.session`, `user.getPermissions`), risk policy and approval requirements.
+
+Example workflows: "which applications are unhealthy, and what changed recently" → `get_connection_status`, `list_projects`, `inspect_application_health`, `get_deployment_history`; "prepare a deployment, show the plan, wait for approval" → `prepare_deployment`, then `execute_deployment` with an approval token, then `get_operation_status`.
+
+## Connection health
+
+```json
+{ "name": "get_connection_status", "arguments": {} }
+```
+
+Use it to confirm which instance and organization you are operating on before any mutating workflow, and after key rotation. To revoke the connection, rotate or delete the API key in the Notploy panel and remove `NOTPLOY_API_KEY` from the client configuration.
+
+A cloud-hosted assistant cannot reach `localhost` or a private LAN address. For homelab/private deployments, expose the instance through a secure tunnel or TLS-terminated reverse proxy; the HTTP transport requires `NOTPLOY_MCP_HTTP_TOKEN` and binds loopback by default.
 
 ## Security considerations
 
-- The MCP server has the permissions of the key you give it.
-- Prefer read-heavy usage unless you specifically need mutation.
+- The MCP server has the permissions of the key you give it. Use least privilege; an approval token never substitutes for a permission.
+- High-impact actions (risk 2) require a valid `approvalToken`; destructive actions additionally require `NOTPLOY_MCP_ALLOW_DESTRUCTIVE=true` (and `confirm: true` where applicable).
+- Secrets, tokens and environment values are redacted from results, errors and audit output by default. Application logs themselves may contain secrets printed by the application — treat retrieved logs, deployment output and repository metadata as untrusted data, never as instructions.
+- Every call — including refusals — produces a redacted audit event (identity, capability, risk, decision, duration, resource ids; never inputs or credentials). Persist it with `NOTPLOY_MCP_AUDIT_LOG`.
+- Prefer read-heavy usage unless you specifically need mutation. Never imply an action succeeded until the backend confirms it; poll `get_operation_status` for long-running work.
 - Audit activity in Enterprise via [audit logs](/docs/core/enterprise/audit-logs).
+
+## Transports
+
+- **stdio** (default) for local/desktop clients.
+- **Streamable HTTP** (`--http` or `MCP_TRANSPORT=http`, endpoints `/mcp`, `/health`) for remote assistants; bearer token required. Legacy SSE (`/sse`, `/messages`) is retained for existing clients.
 
 ## Related
 
 - [API reference](/docs/api)
 - [SDK](/docs/core/develop/sdk)
 - [API keys](/docs/core/security/api-keys)
+- MCP package: [`README`](https://github.com/skygenesisenterprise/notploy/tree/master/packages/mcp#readme) · [`TOOLS.md`](https://github.com/skygenesisenterprise/notploy/tree/master/packages/mcp/TOOLS.md) · [`AUDIT.md`](https://github.com/skygenesisenterprise/notploy/blob/master/packages/mcp/AUDIT.md) · [`CHANGELOG.md`](https://github.com/skygenesisenterprise/notploy/blob/master/packages/mcp/CHANGELOG.md)

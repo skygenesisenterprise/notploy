@@ -142,3 +142,14 @@ The test suite runs entirely against an in-memory API double and a local HTTP se
 5. **Deployment log streaming and MCP `tasks`** — follow-up uses application-level operation polling, not protocol-level tasks or live log streaming.
 6. **Live release smoke test** — must run against a supported Notploy instance before publishing.
 7. **License metadata consistency** — `packages/mcp/package.json` declares `Apache-2.0` while the package `LICENSE` file currently contains an MIT text; the two must be reconciled before the next release.
+
+## Follow-up — 2026-10-25 (plan directeur)
+
+Follow-up work against the umbrella issue, verified with `pnpm run type-check`, `pnpm run generate:check` and `pnpm test` from `packages/mcp` (see package README for the full contract).
+
+- **License reconciled to MIT**: `README.md` (badge, FAQ, License section) now declares MIT, matching `package.json` (`"license": "MIT"`) and `LICENSE` (MIT text). The stale `Apache-2.0` references are removed.
+- **Counts reconciled**: the checked-in spec now generates **724** operations (`src/generated/meta.ts`); `README.md` and `TOOLS.md` report 724. The `604` references in the Phase 0 baseline above describe the pre-regeneration spec and are kept as history.
+- **Connection diagnostics**: new business capability `get_connection_status` (risk 0, discovery) validates the key, resolves identity/org/permissions server-side, and reports instance, environment, catalog mode, permission keys and revocation guidance. It is the documented first call before any mutating workflow. Business catalog grows from 18 to **19** capabilities; `src/server.test.ts` updated accordingly.
+- **Prompt-injection boundary documented**: `get_connection_status` and log/diagnostic capability descriptions state that retrieved Notploy content (logs, deployment output, repository metadata) is untrusted data and must never override tool policy or be executed.
+- **Distribution metadata**: new `server.json` (MCP registry source, stdio + streamable-http transports, `business` default, 19 business capabilities) and `CHANGELOG.md` (SemVer + deprecation policy). `README.md` gains a Distribution section (npm, registry, Claude, ChatGPT, private-network guidance) and a Connection health flow; `web/apps/docs/content/docs/core/develop/mcp.mdx` expanded to match the implementation instead of contradicting it.
+- **Remaining deferred items** (unchanged): console-only capability set, distributed operation store, generated-operation permission mapping (API stays authoritative by design), deployment log streaming / MCP tasks, live smoke test against a supported instance before release.

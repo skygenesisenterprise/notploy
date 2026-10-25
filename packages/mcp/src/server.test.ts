@@ -98,7 +98,7 @@ describe("MCP server", () => {
     const { client, runtime } = await connect(testConfig(), api);
     const { tools } = await client.listTools();
 
-    expect(tools).toHaveLength(18);
+    expect(tools).toHaveLength(19);
     expect(tools.map((tool) => tool.name)).toContain("list_projects");
     expect(tools.map((tool) => tool.name)).toContain("execute_deployment");
     expect(tools.map((tool) => tool.name)).not.toContain("application-create");

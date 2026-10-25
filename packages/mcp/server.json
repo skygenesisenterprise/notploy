@@ -1,0 +1,37 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2026-07-17/server.schema.json",
+  "name": "io.github.skygenesisenterprise/notploy-mcp",
+  "description": "Notploy MCP Server — agent-first operational interface for Notploy instances (discovery, diagnostics, controlled deployments). Business catalog by default; generated OpenAPI operations behind explicit opt-in advanced mode.",
+  "title": "Notploy MCP Server",
+  "version": "1.0.0",
+  "package": {
+    "name": "@notploy/mcp",
+    "version": "1.0.0",
+    "registry": "npm"
+  },
+  "transports": [
+    {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@notploy/mcp"]
+    },
+    {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:3000/mcp"
+    }
+  ],
+  "capabilities": {
+    "tools": true
+  },
+  "catalog": {
+    "modeDefault": "business",
+    "businessCapabilities": 19,
+    "advancedProfiles": ["read-only", "deploy", "full"]
+  },
+  "repository": {
+    "url": "https://github.com/skygenesisenterprise/notploy",
+    "subdirectory": "packages/mcp"
+  },
+  "homepage": "https://github.com/skygenesisenterprise/notploy/tree/master/packages/mcp#readme",
+  "license": "MIT"
+}
