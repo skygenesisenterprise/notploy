@@ -23,6 +23,20 @@ export interface HttpConfig {
   sessionTtlMs: number;
   maxSessions: number;
   maxBodyBytes: number;
+  /**
+   * Public base URL of this MCP server (e.g. https://mcp.example.com).
+   * Used for RFC 9728 protected-resource metadata and WWW-Authenticate.
+   * When unset, relative metadata paths are advertised.
+   */
+  publicBaseUrl?: string;
+  /**
+   * OAuth authorization-server issuer trusted for the remote transport.
+   * When unset, the server honestly reports bearer-only auth: no OAuth
+   * discovery is faked. ChatGPT public listing requires a real issuer.
+   */
+  oauthIssuer?: string;
+  /** Expected audience for OAuth access tokens (defaults to the resource URL). */
+  oauthAudience?: string;
 }
 
 export interface LegacyToolSelection {
@@ -234,6 +248,26 @@ function loadLimits(env: NodeJS.ProcessEnv): ExecutionLimits {
   };
 }
 
+function parseOptionalHttpUrl(name: string, value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    throw new Error(`Environment variable ${name} must be a valid absolute URL`);
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error(`Environment variable ${name} must use http:// or https://`);
+  }
+  if (url.username || url.password || url.search || url.hash) {
+    throw new Error(
+      `Environment variable ${name} must not contain credentials, query string or fragment`,
+    );
+  }
+  return `${url.origin}${url.pathname}`.replace(/\/+$/, "");
+}
+
 function loadHttp(env: NodeJS.ProcessEnv): HttpConfig {
   const token = env.NOTPLOY_MCP_HTTP_TOKEN?.trim() || undefined;
   if (token !== undefined && token.length < 16) {
@@ -266,6 +300,25 @@ function loadHttp(env: NodeJS.ProcessEnv): HttpConfig {
       1_024,
       16 * 1024 * 1024,
     ),
+    ...(parseOptionalHttpUrl("NOTPLOY_MCP_PUBLIC_BASE_URL", env.NOTPLOY_MCP_PUBLIC_BASE_URL)
+      ? {
+          publicBaseUrl: parseOptionalHttpUrl(
+            "NOTPLOY_MCP_PUBLIC_BASE_URL",
+            env.NOTPLOY_MCP_PUBLIC_BASE_URL,
+          ) as string,
+        }
+      : {}),
+    ...(parseOptionalHttpUrl("NOTPLOY_MCP_OAUTH_ISSUER", env.NOTPLOY_MCP_OAUTH_ISSUER)
+      ? {
+          oauthIssuer: parseOptionalHttpUrl(
+            "NOTPLOY_MCP_OAUTH_ISSUER",
+            env.NOTPLOY_MCP_OAUTH_ISSUER,
+          ) as string,
+        }
+      : {}),
+    ...(env.NOTPLOY_MCP_OAUTH_AUDIENCE?.trim() || undefined
+      ? { oauthAudience: (env.NOTPLOY_MCP_OAUTH_AUDIENCE as string).trim() }
+      : {}),
   };
 }
 

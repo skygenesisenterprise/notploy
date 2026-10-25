@@ -153,3 +153,13 @@ Follow-up work against the umbrella issue, verified with `pnpm run type-check`, 
 - **Prompt-injection boundary documented**: `get_connection_status` and log/diagnostic capability descriptions state that retrieved Notploy content (logs, deployment output, repository metadata) is untrusted data and must never override tool policy or be executed.
 - **Distribution metadata**: new `server.json` (MCP registry source, stdio + streamable-http transports, `business` default, 19 business capabilities) and `CHANGELOG.md` (SemVer + deprecation policy). `README.md` gains a Distribution section (npm, registry, Claude, ChatGPT, private-network guidance) and a Connection health flow; `web/apps/docs/content/docs/core/develop/mcp.mdx` expanded to match the implementation instead of contradicting it.
 - **Remaining deferred items** (unchanged): console-only capability set, distributed operation store, generated-operation permission mapping (API stays authoritative by design), deployment log streaming / MCP tasks, live smoke test against a supported instance before release.
+
+## Follow-up — ChatGPT first-class client (2026-10-25)
+
+Mission: faire de ChatGPT un client de premiere classe sans creer de package `@notploy/chatgpt`, sans dependance OpenAI/SGE/Cloudflare pour Notploy Self, sans faux OAuth ni fausses URLs.
+
+- HTTP distant: `WWW-Authenticate: Bearer resource_metadata=".../.well-known/oauth-protected-resource"` sur 401 et `GET /.well-known/oauth-protected-resource` public. Sans `NOTPLOY_MCP_OAUTH_ISSUER` il repond 404 `oauth_not_configured` (bearer-only prive/developer-mode) ; avec issuer il expose la metadata RFC 9728. Aucun authorization server invente.
+- Config: `NOTPLOY_MCP_PUBLIC_BASE_URL`, `NOTPLOY_MCP_OAUTH_ISSUER`, `NOTPLOY_MCP_OAUTH_AUDIENCE` valides, testees (`src/config.test.ts`, `src/entrypoints/http.test.ts`).
+- Docs: `CHATGPT.md` (parcours dev prive, reseau, permissions, demo, diagnostic, checklist publication honnete) et `APPS-SPEC.md` (spec UI seule, aucune ressource runtime). `README.md` lie les deux ; `TOOLS.md`/`generate:check` inchanges (724 ops, 19 capacites).
+- Verifie: `pnpm run typecheck`, `pnpm run lint:ci`, `pnpm run generate:check`, `pnpm run test` (116 tests). SDK `@modelcontextprotocol/sdk@^1.12.0` conserve, pas de migration aveugle.
+- Bloquants restants: OAuth 2.1 + DCR complet pour listing public, validations depuis ChatGPT (compte requis), URLs support/privacy reelles, smoke test live sur instance jetable.

@@ -126,6 +126,13 @@ export async function createHttpApplication(
     logger.info("MCP session closed", { sessionId, reason, kind: record.kind });
   };
 
+  const resourceMetadataUrl = `${http.publicBaseUrl ?? ""}/.well-known/oauth-protected-resource`;
+  const resourceUrl = `${http.publicBaseUrl ?? ""}/mcp`;
+
+  const wwwAuthenticate = http.oauthIssuer
+    ? `Bearer resource_metadata="${resourceMetadataUrl}"`
+    : `Bearer resource_metadata="${resourceMetadataUrl}"`;
+
   const requireAuth = async (
     c: Context<{ Bindings: HttpBindings }>,
     next: () => Promise<void>,
@@ -137,7 +144,11 @@ export async function createHttpApplication(
     const header = c.req.header("authorization");
     const match = /^Bearer\s+(\S+)$/i.exec(header ?? "");
     if (!match?.[1] || !secureEquals(http.token, match[1])) {
-      c.header("WWW-Authenticate", "Bearer");
+      // RFC 9728 discovery hint: ChatGPT and other MCP clients use
+      // resource_metadata to locate OAuth protected-resource metadata.
+      // When no OAuth issuer is configured the metadata endpoint honestly
+      // reports bearer-only auth instead of faking OAuth discovery.
+      c.header("WWW-Authenticate", wwwAuthenticate);
       return c.json(jsonRpcError(-32001, "Unauthorized"), 401);
     }
     await next();
@@ -165,6 +176,34 @@ export async function createHttpApplication(
       tools: parts.registry.size,
     }),
   );
+
+  // RFC 9728 OAuth protected-resource metadata (MCP auth discovery).
+  // Public by design: it describes how to authenticate, it never accepts
+  // credentials and never proxies to the Notploy API.
+  // When NOTPLOY_MCP_OAUTH_ISSUER is unset, this endpoint honestly reports
+  // bearer-only auth (developer/private-connector path) instead of faking
+  // an authorization server. ChatGPT public listing requires a real issuer.
+  app.get("/.well-known/oauth-protected-resource", (c) => {
+    if (!http.oauthIssuer) {
+      return c.json(
+        {
+          error: "oauth_not_configured",
+          message:
+            "This MCP server uses bearer-only auth (NOTPLOY_MCP_HTTP_TOKEN) for private/developer connectors. OAuth 2.1 with dynamic client registration is not configured; public ChatGPT listing is not available with this configuration.",
+          resource: resourceUrl,
+          bearer_methods_supported: ["header"],
+          docs: "See packages/mcp/CHATGPT.md for the supported private-connector path.",
+        },
+        404,
+      );
+    }
+    return c.json({
+      resource: resourceUrl,
+      authorization_servers: [http.oauthIssuer],
+      bearer_methods_supported: ["header"],
+      ...(http.oauthAudience ? { audience: http.oauthAudience } : {}),
+    });
+  });
 
   app.post("/mcp", async (c) => {
     try {

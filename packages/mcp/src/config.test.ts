@@ -144,4 +144,20 @@ describe("loadConfig", () => {
     expect(config.environment).toBe("console");
     expect(config.policy.maxAutomaticRisk).toBe(1);
   });
+
+  it("parses optional OAuth discovery URLs and rejects invalid ones", () => {
+    const config = loadConfig(
+      env({
+        NOTPLOY_MCP_PUBLIC_BASE_URL: "https://mcp.example.com/",
+        NOTPLOY_MCP_OAUTH_ISSUER: "https://auth.example.com",
+        NOTPLOY_MCP_OAUTH_AUDIENCE: "notploy-mcp",
+      }),
+    );
+    expect(config.http.publicBaseUrl).toBe("https://mcp.example.com");
+    expect(config.http.oauthIssuer).toBe("https://auth.example.com");
+    expect(config.http.oauthAudience).toBe("notploy-mcp");
+    expect(() =>
+      loadConfig(env({ NOTPLOY_MCP_OAUTH_ISSUER: "https://user:pass@auth.example.com" })),
+    ).toThrow(/NOTPLOY_MCP_OAUTH_ISSUER/);
+  });
 });

@@ -408,6 +408,8 @@ A destructive capability that is misdeclared as risk 1 is still treated as risk 
 - [`TOOLS.md`](TOOLS.md) — the generated reference for the 19 business capabilities and all generated API operations, with risk and profile availability.
 - `tools/list` — the live catalog, including `_meta` with mode, source, risk, permissions, environments, version and status per tool.
 - [`AUDIT.md`](AUDIT.md) — the audit of the pre-1.0 implementation, its confirmed risks and the deliverables of this redesign.
+- [`CHATGPT.md`](CHATGPT.md) — ChatGPT integration path (private connector supported, public listing blocked pending real OAuth 2.1).
+- [`APPS-SPEC.md`](APPS-SPEC.md) — optional ChatGPT UI spec (spec only, no runtime UI).
 
 ### Environment variables
 
@@ -472,6 +474,9 @@ HTTP transport:
 | `NOTPLOY_MCP_HTTP_MAX_BODY_BYTES` | `1048576` | Maximum request body size |
 | `MCP_PORT` / `PORT` | `3000` | HTTP listen port |
 | `MCP_TRANSPORT` | `stdio` | Set to `http` or `sse` to run the HTTP transport |
+| `NOTPLOY_MCP_PUBLIC_BASE_URL` | — | Public base URL for RFC 9728 metadata (e.g. `https://mcp.example.com`) |
+| `NOTPLOY_MCP_OAUTH_ISSUER` | — | OAuth authorization-server issuer; when unset, `/.well-known/oauth-protected-resource` honestly reports bearer-only auth |
+| `NOTPLOY_MCP_OAUTH_AUDIENCE` | — | Expected OAuth audience (defaults to the resource URL) |
 
 For Notploy behind Cloudflare Access or a similar proxy, pass service-token headers:
 

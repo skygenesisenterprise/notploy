@@ -4,6 +4,25 @@ All notable changes to the MCP server are documented here.
 Versioning follows SemVer for tool names and response envelopes;
 contract compatibility is described below.
 
+## [Unreleased]
+
+### Added
+
+- RFC 9728 protected-resource metadata: `GET
+  /.well-known/oauth-protected-resource` (public) + `WWW-Authenticate:
+  Bearer resource_metadata="…"` on HTTP 401. Without
+  `NOTPLOY_MCP_OAUTH_ISSUER` it honestly reports `404
+  oauth_not_configured` (bearer-only private-connector path) instead of
+  faking OAuth discovery; with an issuer it serves `resource`,
+  `authorization_servers` and `bearer_methods_supported`.
+- Config: `NOTPLOY_MCP_PUBLIC_BASE_URL`, `NOTPLOY_MCP_OAUTH_ISSUER`,
+  `NOTPLOY_MCP_OAUTH_AUDIENCE` (validated absolute URLs, no
+  credentials/query/fragment).
+- Docs: `CHATGPT.md` (private-connector path, diagnostics, honest
+  publication checklist) and `APPS-SPEC.md` (optional UI spec, no runtime
+  UI). No new `@notploy/chatgpt` package: ChatGPT stays a client of the
+  shared server.
+
 ## [1.0.0] — 2026-10-25
 
 ### Added

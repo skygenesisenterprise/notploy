@@ -97,7 +97,8 @@ describe("HTTP transport", () => {
       body: JSON.stringify(initializeBody),
     });
     expect(unauthorized.status).toBe(401);
-    expect(unauthorized.headers.get("www-authenticate")).toBe("Bearer");
+    expect(unauthorized.headers.get("www-authenticate")).toContain("Bearer");
+    expect(unauthorized.headers.get("www-authenticate")).toContain("resource_metadata");
     const unauthorizedBody = await unauthorized.text();
     expect(unauthorizedBody).not.toContain(TOKEN);
   });
@@ -162,5 +163,33 @@ describe("HTTP transport", () => {
     });
 
     expect(response.status).toBe(413);
+  });
+
+  it("honestly reports bearer-only auth when OAuth is not configured", async () => {
+    const { baseUrl } = await start(testConfig());
+
+    const response = await fetch(`${baseUrl}/.well-known/oauth-protected-resource`);
+    expect(response.status).toBe(404);
+    const body = (await response.json()) as { error?: string; resource?: string };
+    expect(body.error).toBe("oauth_not_configured");
+    expect(body.resource).toContain("/mcp");
+  });
+
+  it("serves RFC 9728 metadata when an OAuth issuer is configured", async () => {
+    const { baseUrl } = await start(
+      testConfig({
+        NOTPLOY_MCP_OAUTH_ISSUER: "https://auth.example.com",
+        NOTPLOY_MCP_PUBLIC_BASE_URL: "https://mcp.example.com",
+      }),
+    );
+
+    const response = await fetch(`${baseUrl}/.well-known/oauth-protected-resource`);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      resource?: string;
+      authorization_servers?: string[];
+    };
+    expect(body.resource).toBe("https://mcp.example.com/mcp");
+    expect(body.authorization_servers).toEqual(["https://auth.example.com"]);
   });
 });
