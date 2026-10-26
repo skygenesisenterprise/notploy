@@ -265,6 +265,7 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				environments: ["self", "cloud"],
 				isEnabled: ({ permissions }) => !!permissions?.deployment.read,
 			},
+			{ ...SHARED_ITEMS.schedules, environments: ["self"] },
 			// Console overview follows a manager's scan: situation, exceptions,
 			// live operations, trends, demand, changes, then the portfolio.
 			{
@@ -356,13 +357,6 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 				environments: ["self"],
 				isEnabled: ({ permissions }) => !!permissions?.traefikFiles.read,
 			},
-			{
-				label: "AI Providers",
-				href: "/dashboard/settings/ai",
-				icon: BotIcon,
-				environments: ["self"],
-				isEnabled: ({ permissions }) => !!permissions?.organization.update,
-			},
 			// Self-hosted infrastructure
 			{ ...SHARED_ITEMS.certificates, environments: ["self"] },
 			{ ...SHARED_ITEMS.sso, environments: ["self"] },
@@ -371,6 +365,13 @@ const NAVIGATION_SECTIONS: NavigationSection[] = [
 			{ ...SHARED_ITEMS.containerRegistries, environments: ["self"] },
 			{ ...SHARED_ITEMS.dnsProviders, environments: ["self"] },
 			{ ...SHARED_ITEMS.objectStorage, environments: ["self"] },
+			{
+				label: "AI Providers",
+				href: "/dashboard/settings/ai",
+				icon: BotIcon,
+				environments: ["self"],
+				isEnabled: ({ permissions }) => !!permissions?.organization.update,
+			},
 			// Cloud infrastructure
 			{ ...SHARED_ITEMS.gitProviders, environments: ["cloud"] },
 			{ ...SHARED_ITEMS.containerRegistries, environments: ["cloud"], minLicense: "pro" },
