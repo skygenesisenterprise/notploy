@@ -154,6 +154,13 @@ function SidebarNavigation({
 
 interface Props {
 	children: React.ReactNode;
+	/**
+	 * Human readable title of the current page, resolved by `DashboardLayout`.
+	 * Used as a standalone breadcrumb for pages that are not part of the
+	 * sidebar navigation (for example `settings/profile` on self-hosted and
+	 * console, where it is reached from the account menu).
+	 */
+	pageTitle?: string;
 }
 
 const LICENSE_META: Record<
@@ -253,8 +260,9 @@ function SidebarLogo() {
 	const isCollapsed = state === "collapsed" && !isMobile;
 	const { data: activeOrganization } = api.organization.active.useQuery();
 
-	// The Console is the internal operator surface: one workspace, branded after
-	// the company, and no self-service organization creation.
+	// The Console is the internal operator surface. It is branded after the
+	// company when no organization is active, but can manage multiple
+	// organizations like the self-hosted and Cloud surfaces.
 	const isConsole = product === "console";
 	const organizationDisplayName =
 		activeOrganization?.name ??
@@ -493,16 +501,15 @@ function SidebarLogo() {
 											})}
 										</CommandGroup>
 									</CommandList>
-									{/* Multi-organization creation belongs to Self-hosted and Cloud; the
-									    Console stays on its single workspace. */}
-									{!isConsole &&
-										(user?.role === "owner" ||
-											user?.role === "admin" ||
-											isCloud) && (
-											<div className="border-t p-1">
-												<AddOrganization />
-											</div>
-										)}
+									{/* Every product surface — Self-hosted, Cloud and Console —
+									    exposes organization creation to the same roles. */}
+									{(user?.role === "owner" ||
+										user?.role === "admin" ||
+										isCloud) && (
+										<div className="border-t p-1">
+											<AddOrganization />
+										</div>
+									)}
 								</Command>
 							</PopoverContent>
 						</Popover>
@@ -761,7 +768,7 @@ function MobileCloser() {
 	return null;
 }
 
-export default function Page({ children }: Props) {
+export default function Page({ children, pageTitle }: Props) {
 	const [defaultOpen, setDefaultOpen] = useState<boolean | undefined>(
 		undefined,
 	);
@@ -825,6 +832,14 @@ export default function Page({ children }: Props) {
 				?.href ??
 			activeNavigation.item.href)
 		: undefined;
+
+	// Pages without a navigation entry still deserve a location in the header.
+	// `DashboardLayout` falls back to the generic app name for unknown routes,
+	// which we ignore so we never show a meaningless "Notploy" crumb.
+	const standaloneTitle =
+		!activeNavigation && pageTitle && pageTitle !== "Notploy"
+			? pageTitle
+			: undefined;
 
 	if (!isLoaded) {
 		return <div className="w-full h-screen bg-background" />; // Placeholder mientras se carga
@@ -938,7 +953,7 @@ export default function Page({ children }: Props) {
 								/>
 								<Breadcrumb className="min-w-0">
 									<BreadcrumbList className="flex-nowrap">
-										{activeNavigation && (
+										{activeNavigation ? (
 											<>
 												<BreadcrumbItem>
 													<BreadcrumbLink asChild>
@@ -959,6 +974,14 @@ export default function Page({ children }: Props) {
 													</span>
 												</BreadcrumbItem>
 											</>
+										) : (
+											standaloneTitle && (
+												<BreadcrumbItem className="min-w-0">
+													<span aria-current="page" className="truncate">
+														{standaloneTitle}
+													</span>
+												</BreadcrumbItem>
+											)
 										)}
 									</BreadcrumbList>
 								</Breadcrumb>{" "}

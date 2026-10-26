@@ -169,7 +169,7 @@ export const DashboardLayout = ({ children, metaName }: Props) => {
 			<Head>
 				<title>{`${pageTitle} | ${appName}`}</title>
 			</Head>
-			<Page>{children}</Page>
+			<Page pageTitle={pageTitle}>{children}</Page>
 			{isChatEnabled && (
 				<>
 					<HubSpotWidget />
