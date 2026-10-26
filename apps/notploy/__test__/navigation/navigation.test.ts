@@ -4,9 +4,12 @@ import {
 	createNavigation,
 	findActiveNavigation,
 	isActiveRoute,
+	isNavigationItemActive,
 	type Navigation,
 	type NavigationEnvironment,
 	type NavigationItem,
+	type NavigationSection,
+	navigationSectionItems,
 } from "@/components/layouts/navigation";
 
 type NavigationOptions = Parameters<typeof createNavigation>[0];
@@ -48,10 +51,9 @@ const ALL_PERMISSIONS = permissions(
 );
 
 function itemsOf(navigation: Navigation): NavigationItem[] {
-	return navigation.sections.flatMap((section) => [
-		...section.items,
-		...(section.groups?.flatMap((group) => group.items) ?? []),
-	]);
+	return navigation.sections.flatMap((section) =>
+		navigationSectionItems(section),
+	);
 }
 
 function itemIds(navigation: Navigation): string[] {
@@ -243,6 +245,73 @@ describe("navigation environments", () => {
 			]),
 		);
 	});
+
+	it("keeps the exact self-hosted set and never leaks Cloud or Console entries", () => {
+		expect(itemIds(create("self"))).toEqual([
+			"home",
+			"projects",
+			"monitoring",
+			"services",
+			"deployments",
+			"schedules",
+			"servers",
+			"docker",
+			"swarm",
+			"networks",
+			"traefik",
+			"dnsProviders",
+			"webServer",
+			"objectStorage",
+			"certificates",
+			"sso",
+			"secrets",
+			"gitProviders",
+			"containerRegistries",
+			"aiProviders",
+			"team",
+			"sessions",
+			"auditLogs",
+			"tags",
+			"notifications",
+		]);
+	});
+
+	it("keeps the exact Console set and never leaks Self or Cloud entries", () => {
+		expect(itemIds(create("console"))).toEqual([
+			"home",
+			"projects",
+			"incidents",
+			"operations",
+			"monitoring",
+			"traffic",
+			"deployments",
+			"servers",
+			"docker",
+			"swarm",
+			"runtime",
+			"networks",
+			"dnsProviders",
+			"webServer",
+			"storage",
+			"objectStorage",
+			"certificates",
+			"sso",
+			"secrets",
+			"gitProviders",
+			"containerRegistries",
+			"workspaces",
+			"applications",
+			"domains",
+			"usage",
+			"capacity",
+			"billing",
+			"platformServices",
+			"maintenance",
+			"community",
+			"blog",
+			"careers",
+		]);
+	});
 });
 
 describe("navigation licences", () => {
@@ -399,6 +468,34 @@ describe("navigation licences", () => {
 		);
 	});
 
+	it("treats an unlicensed Cloud context as the Free baseline", () => {
+		const free = itemIds(create("cloud", { license: "free" }));
+		const unlicensed = itemIds(create("cloud", { license: null }));
+
+		expect(unlicensed).toEqual(free);
+	});
+
+	it("never applies Cloud entitlements to Self or Console", () => {
+		for (const environment of ["self", "console"] as const) {
+			const baseline = itemIds(create(environment, { license: null }));
+
+			for (const license of ["free", "pro", "enterprise"] as const) {
+				expect(itemIds(create(environment, { license }))).toEqual(baseline);
+			}
+		}
+	});
+
+	it("never renders a Cloud entry above the active licence tier", () => {
+		const rank = { free: 0, pro: 1, enterprise: 2 } as const;
+
+		for (const license of ["free", "pro", "enterprise"] as const) {
+			for (const item of itemsOf(create("cloud", { license }))) {
+				if (!item.minLicense) continue;
+				expect(rank[license]).toBeGreaterThanOrEqual(rank[item.minLicense]);
+			}
+		}
+	});
+
 	it("applies licences inside groups and removes empty groups", () => {
 		const free = create("cloud", { license: "free" });
 		const pro = create("cloud", { license: "pro" });
@@ -432,6 +529,20 @@ describe("navigation permissions", () => {
 
 	it("keeps entries that are not permission-guarded", () => {
 		const navigation = create("cloud", { permissions: undefined });
+
+		expect(itemIds(navigation)).toEqual([
+			"home",
+			"projects",
+			"sessions",
+			"profile",
+		]);
+	});
+
+	it("never lets a licence bypass permission checks", () => {
+		const navigation = create("cloud", {
+			license: "enterprise",
+			permissions: permissions(),
+		});
 
 		expect(itemIds(navigation)).toEqual([
 			"home",
@@ -513,6 +624,58 @@ describe("navigation structure", () => {
 				expect(groups).toEqual(
 					canonical.filter((group) => groups.includes(group)),
 				);
+			}
+		},
+	);
+
+	it("flattens groups in rendered order because groups are structural only", () => {
+		const item = (id: string, href: string): NavigationItem => ({
+			id,
+			label: id,
+			href,
+			icon: House,
+		});
+		const section: NavigationSection = {
+			id: "overview",
+			label: "Overview",
+			items: [item("direct", "/dashboard/home")],
+			groups: [
+				{
+					id: "first",
+					label: "First",
+					items: [
+						item("group-a", "/dashboard/projects"),
+						item("group-b", "/dashboard/deployments"),
+					],
+				},
+				{
+					id: "second",
+					label: "Second",
+					items: [item("group-c", "/dashboard/schedules")],
+				},
+			],
+		};
+
+		expect(navigationSectionItems(section).map((entry) => entry.id)).toEqual([
+			"direct",
+			"group-a",
+			"group-b",
+			"group-c",
+		]);
+	});
+
+	it.each<NavigationEnvironment>(["self", "cloud", "console"])(
+		"keeps groups nested instead of promoting them to sections in %s",
+		(environment) => {
+			const navigation = create(environment);
+			const sectionIds = navigation.sections.map((section) => section.id);
+			const groupIds = navigation.sections.flatMap((section) =>
+				section.groups?.map((group) => group.id) ?? [],
+			);
+
+			expect(sectionIds).toEqual(["overview", "infrastructure", "organization"]);
+			for (const groupId of groupIds) {
+				expect(sectionIds).not.toContain(groupId);
 			}
 		},
 	);
@@ -698,6 +861,44 @@ describe("navigation routes", () => {
 				tab: "logs",
 			}),
 		).toBeUndefined();
+	});
+
+	it("uses the same active-item helper as the breadcrumb", () => {
+		const navigation = create("self");
+		const locations = [
+			{ pathname: "/dashboard/home" },
+			{ pathname: "/dashboard/settings/certificates" },
+			{ pathname: "/dashboard/project/abc/environment/def" },
+			{ pathname: "/dashboard/docker" },
+			{ pathname: "/dashboard/docker", tab: "logs" },
+			{ pathname: "/dashboard/unknown" },
+		];
+
+		for (const location of locations) {
+			const fromBreadcrumb = findActiveNavigation(navigation, location);
+			const fromSidebar = itemsOf(navigation).find((item) =>
+				isNavigationItemActive(item, location),
+			);
+
+			expect(fromSidebar?.id).toBe(fromBreadcrumb?.item.id);
+		}
+	});
+
+	it("recognises custom activeRoutes through the shared helper", () => {
+		const item: NavigationItem = {
+			id: "custom",
+			label: "Custom",
+			href: "/dashboard/home",
+			icon: House,
+			activeRoutes: [{ href: "/dashboard/projects" }],
+		};
+
+		expect(
+			isNavigationItemActive(item, { pathname: "/dashboard/projects" }),
+		).toBe(true);
+		expect(
+			isNavigationItemActive(item, { pathname: "/dashboard/deployments" }),
+		).toBe(false);
 	});
 
 	it("supports destinations with custom activeRoutes", () => {

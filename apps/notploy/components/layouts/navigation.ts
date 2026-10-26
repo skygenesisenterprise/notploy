@@ -101,6 +101,14 @@ export type NavigationItem = {
 	isEnabled?: (opts: NavigationContext) => boolean;
 };
 
+/**
+ * A logical grouping inside a section.
+ *
+ * Groups are **structural only**: `SidebarNavigation` renders one flat list per
+ * section, so group labels are not displayed. They exist to keep the shared
+ * model readable, to scope environment/licence rules, and to preserve a stable
+ * ordering that both the sidebar and the breadcrumb consume.
+ */
 export type NavigationGroup = {
 	id: string;
 	label: string;
@@ -109,7 +117,6 @@ export type NavigationGroup = {
 	minLicense?: LicenseTier;
 	isEnabled?: (opts: NavigationContext) => boolean;
 };
-
 export type NavigationSection = {
 	id: string;
 	label: string;
@@ -413,9 +420,16 @@ type NavigationDestinationId = keyof typeof NAVIGATION_DESTINATIONS;
  * Free → Pro → Enterprise expansion explicit and forces newly added pages to
  * declare their tier instead of silently defaulting to "available to everyone".
  *
- * Entitlements only apply to the `cloud` product. Self-hosted instances are
- * unlicensed and Console is an internal operator surface, so neither is gated
- * by this table.
+ * Scope and semantics:
+ * - Only the `cloud` product is gated. Self-hosted instances are unlicensed and
+ *   Console is an internal operator surface, so neither reads this table.
+ * - `free` is the Cloud baseline (no paid subscription); it is not a gate, so a
+ *   missing licence still exposes Free destinations.
+ * - `pro` corresponds to the marketed Startup plan and `enterprise` to the
+ *   Enterprise plan. The licence tier is resolved by the sidebar from the
+ *   active organization's subscription, not from this file.
+ * - This table controls navigation visibility only. Server-side authorization
+ *   and plan limits remain authoritative for direct URL access and mutations.
  */
 const CLOUD_DESTINATION_MIN_LICENSE = {
 	home: "free",
@@ -859,6 +873,10 @@ function minLicenseForEnvironment(
  * Licence required for a placement in a given environment. Cloud reads the
  * shared entitlement matrix; Self and Console stay unlicensed unless a
  * placement explicitly opts into a tier.
+ *
+ * `free` is the baseline, so it resolves to no minimum rather than requiring a
+ * non-null licence. This keeps an unlicensed Cloud context (for example while
+ * subscription data is unavailable) on the Free menu instead of blanking it.
  */
 function requiredLicenseForPlacement(
 	placement: NavigationPlacement,
@@ -867,7 +885,8 @@ function requiredLicenseForPlacement(
 	const override = minLicenseForEnvironment(placement.minLicense, environment);
 	if (override) return override;
 	if (environment !== "cloud") return undefined;
-	return CLOUD_DESTINATION_MIN_LICENSE[placement.destination];
+	const entitlement = CLOUD_DESTINATION_MIN_LICENSE[placement.destination];
+	return entitlement === "free" ? undefined : entitlement;
 }
 
 function resolvePlacement(
@@ -997,33 +1016,51 @@ export function createNavigation(opts: {
 	return { sections, external };
 }
 
+/**
+ * Flat rendering order of a section: direct items first, then each group in
+ * declaration order. The sidebar and the breadcrumb both use this helper so
+ * they can never disagree about which entry comes first.
+ */
+export function navigationSectionItems(
+	section: NavigationSection,
+): NavigationItem[] {
+	return [
+		...section.items,
+		...(section.groups?.flatMap((group) => group.items) ?? []),
+	];
+}
+
+/**
+ * Single source of truth for whether a rendered navigation entry is active.
+ * It accounts for the item's primary route, its optional `activeRoutes`, the
+ * `activeTab` overrides and the `?tab=` query parameter.
+ */
+export function isNavigationItemActive(
+	item: NavigationItem,
+	location: { pathname: string; tab?: string },
+): boolean {
+	return [
+		{ href: item.href, activeTab: item.activeTab },
+		...(item.activeRoutes ?? []),
+	].some((route) =>
+		isActiveRoute({
+			itemUrl: route.href,
+			pathname: location.pathname,
+			activeTab: route.activeTab,
+			currentTab: location.tab,
+		}),
+	);
+}
+
 export function findActiveNavigation(
 	navigation: Navigation,
 	location: { pathname: string; tab?: string },
 ): { section: NavigationSection; item: NavigationItem } | undefined {
-	const isItemActive = (item: NavigationItem) =>
-		[
-			{ href: item.href, activeTab: item.activeTab },
-			...(item.activeRoutes ?? []),
-		].some((route) =>
-			isActiveRoute({
-				itemUrl: route.href,
-				pathname: location.pathname,
-				activeTab: route.activeTab,
-				currentTab: location.tab,
-			}),
-		);
-
 	for (const section of navigation.sections) {
-		// Rendered order: direct items first, then each group in declaration
-		// order. Keeping the same order makes the first match predictable.
-		const item = section.items.find(isItemActive);
+		const item = navigationSectionItems(section).find((candidate) =>
+			isNavigationItemActive(candidate, location),
+		);
 		if (item) return { section, item };
-
-		for (const group of section.groups ?? []) {
-			const groupItem = group.items.find(isItemActive);
-			if (groupItem) return { section, item: groupItem };
-		}
 	}
 
 	return undefined;

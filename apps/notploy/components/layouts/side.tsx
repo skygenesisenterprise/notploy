@@ -75,11 +75,12 @@ import { TimeBadge } from "../ui/time-badge";
 import {
 	createNavigation,
 	findActiveNavigation,
-	isActiveRoute,
+	isNavigationItemActive,
 	type LicenseTier,
 	type Navigation,
 	type NavigationEnvironment,
 	type NavigationItem,
+	navigationSectionItems,
 } from "./navigation";
 import { UpdateServerButton } from "./update-server";
 import { UserNav } from "./user-nav";
@@ -99,11 +100,9 @@ function SidebarNavigation({
 	const renderItems = (items: NavigationItem[]) => (
 		<SidebarMenu className="gap-0.5">
 			{items.map((item) => {
-				const isActive = isActiveRoute({
-					itemUrl: item.href,
+				const isActive = isNavigationItemActive(item, {
 					pathname,
-					activeTab: item.activeTab,
-					currentTab,
+					tab: currentTab,
 				});
 
 				return (
@@ -134,10 +133,7 @@ function SidebarNavigation({
 	return (
 		<>
 			{navigation.sections.map((section) => {
-				const items = [
-					...section.items,
-					...(section.groups?.flatMap((group) => group.items) ?? []),
-				];
+				const items = navigationSectionItems(section);
 
 				return (
 					<SidebarGroup key={section.id} className="pb-1 pt-1 first:pt-0">
@@ -827,9 +823,7 @@ export default function Page({ children, pageTitle }: Props) {
 		tab: currentTab,
 	});
 	const activeSectionHref = activeNavigation
-		? (activeNavigation.section.items[0]?.href ??
-			activeNavigation.section.groups?.flatMap((group) => group.items)[0]
-				?.href ??
+		? (navigationSectionItems(activeNavigation.section)[0]?.href ??
 			activeNavigation.item.href)
 		: undefined;
 

@@ -151,8 +151,6 @@ yarn.lock
 # pnpm-lock.yaml is intentionally NOT ignored: the root pnpm-workspace.yaml is the
 # single source of truth and the Docker builds rely on `pnpm install --frozen-lockfile`.
 
-.opencode/
-
 build/
 
 # Written by `make docker-build` / `make docker-up`: the product
@@ -161,5 +159,5 @@ build/
 .pnpm-store/
 
 .claude/
-.agents/
 skills-lock.json
+.opencode/

@@ -3,6 +3,15 @@
 # Notploy version to install and maintain
 DOCKER_VERSION="28.5.2"
 
+# Official Notploy CLI. It is published independently from the server image, so
+# installs and `update` runs refresh it from npm after the server converges.
+NOTPLOY_CLI_PACKAGE="${NOTPLOY_CLI_PACKAGE:-@notploy/cli}"
+NOTPLOY_CLI_VERSION="${NOTPLOY_CLI_VERSION:-latest}"
+NOTPLOY_CLI_HOME="${NOTPLOY_CLI_HOME:-/usr/local/lib/notploy-cli}"
+NOTPLOY_CLI_BIN="${NOTPLOY_CLI_BIN:-/usr/local/bin/notploy}"
+NOTPLOY_CLI_NODE_VERSION="${NOTPLOY_CLI_NODE_VERSION:-24.4.0}"
+NOTPLOY_CLI_PNPM_VERSION="${NOTPLOY_CLI_PNPM_VERSION:-12.15.0}"
+
 # ---------------------------------------------------------------------------
 # Installation modes
 #
@@ -98,6 +107,12 @@ Environment:
   NOTPLOY_CONFIG_GROUP       Group granted access to the config dir (optional).
   NOTPLOY_DOKPLOY_AUTH_SECRET  Dokploy's BETTER_AUTH_SECRET, to supply it explicitly
                              when it cannot be read from the running container.
+  NOTPLOY_CLI_PACKAGE        CLI package to install (default @notploy/cli).
+  NOTPLOY_CLI_VERSION        CLI version or dist-tag (default latest).
+  NOTPLOY_CLI_HOME           Managed runtime directory (default /usr/local/lib/notploy-cli).
+  NOTPLOY_CLI_BIN            CLI launcher path (default /usr/local/bin/notploy).
+  NOTPLOY_CLI_NODE_VERSION   Node.js version for the managed runtime (default 24.4.0).
+  NOTPLOY_CLI_PNPM_VERSION   pnpm version for the managed runtime (default 12.15.0).
 
 Safety:
   An active Docker Swarm that this installer did not create is never left or
@@ -197,6 +212,130 @@ require_elevation() {
 sudo_run() {
     # shellcheck disable=SC2086
     $SUDO_CMD "$@"
+}
+
+# True when the `node` already on PATH can run the Notploy CLI (>= 20.19).
+node_supports_notploy_cli() {
+    command -v node >/dev/null 2>&1 || return 1
+    node -e 'const [major, minor] = process.versions.node.split(".").map(Number); process.exit(major > 20 || (major === 20 && minor >= 19) ? 0 : 1)' >/dev/null 2>&1
+}
+
+# Provisions the managed pnpm + Node.js runtime used for the CLI. Keeping the
+# runtime under NOTPLOY_CLI_HOME avoids depending on the invoking user's shell
+# profile and keeps the CLI available for every user on the host.
+ensure_managed_cli_runtime() {
+    local pnpm_home="$NOTPLOY_CLI_HOME"
+    local pnpm_bin="$pnpm_home/bin/pnpm"
+    local node_bin="$pnpm_home/bin/node"
+
+    if ! $SUDO_CMD mkdir -p "$pnpm_home"; then
+        echo "Error: could not create $pnpm_home." >&2
+        return 1
+    fi
+
+    if [ ! -x "$pnpm_bin" ]; then
+        echo "Installing pnpm ${NOTPLOY_CLI_PNPM_VERSION} for the Notploy CLI..."
+        if ! curl -fsSL https://get.pnpm.io/install.sh | \
+            $SUDO_CMD env PNPM_HOME="$pnpm_home" PNPM_VERSION="$NOTPLOY_CLI_PNPM_VERSION" SHELL=/bin/sh sh -; then
+            echo "Error: could not install pnpm into $pnpm_home." >&2
+            return 1
+        fi
+    fi
+    if [ ! -x "$pnpm_bin" ]; then
+        echo "Error: pnpm was not installed into $pnpm_home/bin." >&2
+        return 1
+    fi
+
+    if [ ! -x "$node_bin" ]; then
+        echo "Installing Node.js ${NOTPLOY_CLI_NODE_VERSION} for the Notploy CLI..."
+        if ! $SUDO_CMD env PNPM_HOME="$pnpm_home" PATH="$pnpm_home/bin:$PATH" \
+            "$pnpm_bin" runtime set node "$NOTPLOY_CLI_NODE_VERSION" --global -y; then
+            echo "Error: could not install Node.js into $pnpm_home." >&2
+            return 1
+        fi
+    fi
+    if [ ! -x "$node_bin" ]; then
+        echo "Error: Node.js was not installed into $pnpm_home/bin." >&2
+        return 1
+    fi
+}
+
+# Installs or refreshes the official CLI and exposes it through a small launcher
+# so it keeps working even when PNPM_HOME is not present in a user's PATH.
+install_notploy_cli() {
+    local cli_spec="$NOTPLOY_CLI_PACKAGE@$NOTPLOY_CLI_VERSION"
+    local pnpm_home="$NOTPLOY_CLI_HOME"
+    local pnpm_bin="" node_bin="" node_dir="" cli_shim="" launcher=""
+
+    case "$NOTPLOY_CLI_PACKAGE" in
+        @*/*) ;;
+        *)
+            echo "Error: invalid NOTPLOY_CLI_PACKAGE '$NOTPLOY_CLI_PACKAGE'." >&2
+            return 1
+            ;;
+    esac
+    case "$NOTPLOY_CLI_VERSION" in
+        ""|*[!A-Za-z0-9._-]*)
+            echo "Error: invalid NOTPLOY_CLI_VERSION '$NOTPLOY_CLI_VERSION'." >&2
+            return 1
+            ;;
+    esac
+
+    if node_supports_notploy_cli && command -v pnpm >/dev/null 2>&1; then
+        node_bin="$(command -v node)"
+        pnpm_bin="$(command -v pnpm)"
+    else
+        ensure_managed_cli_runtime || return 1
+        node_bin="$pnpm_home/bin/node"
+        pnpm_bin="$pnpm_home/bin/pnpm"
+    fi
+    node_dir="$(dirname "$node_bin")"
+
+    echo "Installing or updating the official Notploy CLI ($cli_spec)..."
+    if ! $SUDO_CMD mkdir -p "$pnpm_home"; then
+        echo "Error: could not create $pnpm_home." >&2
+        return 1
+    fi
+    if ! $SUDO_CMD env PNPM_HOME="$pnpm_home" PATH="$node_dir:$PATH" \
+        "$pnpm_bin" i -g "$cli_spec"; then
+        echo "Warning: the Notploy CLI could not be installed or updated." >&2
+        echo "Run manually: sudo env PNPM_HOME=$pnpm_home $pnpm_bin i -g $cli_spec" >&2
+        return 1
+    fi
+
+    cli_shim="$pnpm_home/bin/notploy"
+    if [ ! -e "$cli_shim" ]; then
+        cli_shim="$($SUDO_CMD env PNPM_HOME="$pnpm_home" PATH="$node_dir:$PATH" \
+            "$pnpm_bin" bin -g 2>/dev/null)/notploy"
+    fi
+    if [ ! -e "$cli_shim" ]; then
+        echo "Warning: the Notploy CLI was installed but its executable was not found." >&2
+        return 1
+    fi
+
+    launcher="$(mktemp)" || return 1
+    cat > "$launcher" <<EOF
+#!/bin/sh
+# Managed by the Notploy installer. Updated on every server update.
+PATH="$node_dir:\$PATH"
+export PATH
+exec "$cli_shim" "\$@"
+EOF
+    if ! $SUDO_CMD mkdir -p "$(dirname "$NOTPLOY_CLI_BIN")" || \
+        ! $SUDO_CMD rm -f "$NOTPLOY_CLI_BIN" || \
+        ! $SUDO_CMD cp "$launcher" "$NOTPLOY_CLI_BIN" || \
+        ! $SUDO_CMD chmod 0755 "$NOTPLOY_CLI_BIN"; then
+        rm -f "$launcher"
+        echo "Warning: could not install the Notploy launcher at $NOTPLOY_CLI_BIN." >&2
+        return 1
+    fi
+    rm -f "$launcher"
+
+    if ! "$NOTPLOY_CLI_BIN" --version >/dev/null 2>&1; then
+        echo "Warning: the Notploy CLI is installed but the launcher failed to run." >&2
+        return 1
+    fi
+    echo "Notploy CLI ready: $("$NOTPLOY_CLI_BIN" --version 2>/dev/null)"
 }
 
 capabilities_for_product() {
@@ -2206,6 +2345,7 @@ EOF
 
     ensure_traefik_container
     connect_dokploy_network
+    install_notploy_cli || true
 
     GREEN="\033[0;32m"
     YELLOW="\033[1;33m"
@@ -2429,6 +2569,7 @@ install_notploy() {
     fi
 
     ensure_traefik_container
+    install_notploy_cli || true
 
     GREEN="\033[0;32m"
     YELLOW="\033[1;33m"
@@ -2491,6 +2632,7 @@ update_notploy() {
     echo "Waiting for the 'notploy' service to converge (up to 180s)..."
     if wait_for_service_convergence notploy 180; then
         echo "Notploy has been updated to version: ${VERSION_TAG}."
+        install_notploy_cli || true
     else
         echo "Error: the update did not converge to a running state within the timeout." >&2
         $SUDO_CMD docker service ps notploy --no-trunc >&2 2>/dev/null || true

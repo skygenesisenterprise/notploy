@@ -3,10 +3,10 @@
 # Regression tests for install.sh.
 #
 # There is no real Docker/Dokploy host in CI, so `docker`, `ss`, `curl`, `id`,
-# `ip` and `openssl` are mocked. The tests assert on exit codes, human output,
-# and — crucially — on which commands were executed or deliberately *not*
-# executed (see the per-case command log). install.sh is always invoked through
-# `sh` so POSIX (`dash`) compatibility is exercised too.
+# `ip`, `node`, `openssl` and `pnpm` are mocked. The tests assert on exit codes,
+# human output, and — crucially — on which commands were executed or
+# deliberately *not* executed (see the per-case command log). install.sh is
+# always invoked through `sh` so POSIX (`dash`) compatibility is exercised too.
 #
 # Usage: scripts/test-install.sh
 #        KEEP_WORK=1 scripts/test-install.sh   (keep the temp mocks/state for debugging)
@@ -347,6 +347,34 @@ case "$1" in
 esac
 MOCK
 
+cat > "$MOCKS/node" <<'MOCK'
+#!/bin/sh
+# The installer only probes node to decide whether it can host the CLI.
+case "$1" in
+    -e) exit 0 ;;
+    --version|-v) printf 'v24.4.0\n' ;;
+esac
+MOCK
+
+cat > "$MOCKS/pnpm" <<'MOCK'
+#!/bin/sh
+STATE="${MOCK_STATE:?}"
+printf 'pnpm %s\n' "$*" >> "$STATE/call.log"
+[ "$(cat "$STATE/fail_cli" 2>/dev/null)" = "1" ] && exit 1
+case "$*" in
+    i\ -g\ *|install\ -g\ *)
+        home="${PNPM_HOME:?PNPM_HOME unset}"
+        mkdir -p "$home/bin"
+        cat > "$home/bin/notploy" <<'SH'
+#!/bin/sh
+printf '1.0.3\n'
+SH
+        chmod +x "$home/bin/notploy"
+        ;;
+    'bin -g') printf '%s/bin\n' "${PNPM_HOME:?}" ;;
+esac
+MOCK
+
 chmod +x "$MOCKS"/*
 
 # --------------------------------------------------------------------------
@@ -374,9 +402,10 @@ init_state() {
     printf '0\n' > "$STATE/fail_network"
     printf '0\n' > "$STATE/fail_service"
     printf '0\n' > "$STATE/fail_service_update"
-    printf '0\n' > "$STATE/fail_pull"
-    printf '0\n' > "$STATE/fail_run"
-    printf '0\n' > "$STATE/fail_swarm_init"
+printf '0\n' > "$STATE/fail_pull"
+printf '0\n' > "$STATE/fail_run"
+printf '0\n' > "$STATE/fail_swarm_init"
+printf '0\n' > "$STATE/fail_cli"
     printf '\n' > "$STATE/update_state"
     printf '1\n' > "$STATE/desired_replicas"
     printf '1\n' > "$STATE/service_ps_running"
@@ -393,6 +422,8 @@ run_install() {
     PATH="$MOCKS:$PATH" \
     MOCK_STATE="$STATE" \
     NOTPLOY_CONFIG_PATH="$CASE_DIR/etc/notploy" \
+    NOTPLOY_CLI_HOME="$CASE_DIR/cli" \
+    NOTPLOY_CLI_BIN="$CASE_DIR/bin/notploy" \
     sh "$INSTALL" "$@"
 }
 
@@ -416,6 +447,9 @@ assert_logged "docker service create" "creates services"
 assert_file_exists "$CASE_DIR/etc/notploy/identity/instance.key" "bootstraps the identity"
 assert_contains "$OUT" "Running as root" "detects root without needing sudo"
 assert_not_logged "sudo docker" "does not invoke sudo when already root"
+assert_contains "$OUT" "Notploy CLI ready: 1.0.3" "installs the official Notploy CLI"
+assert_logged "pnpm i -g @notploy/cli@latest" "installs @notploy/cli through pnpm"
+assert_file_exists "$CASE_DIR/bin/notploy" "exposes the CLI launcher"
 
 # ==========================================================================
 # 2. Notploy already installed
@@ -544,6 +578,8 @@ NOTPLOY_VERSION=v2.0.0 run_install_capture update
 assert_rc "$RC" 0 "update succeeds when the service converges"
 assert_logged "docker service update" "updates the service"
 assert_contains "$OUT" "has been updated to version: v2.0.0" "reports the updated version"
+assert_logged "pnpm i -g @notploy/cli@latest" "refreshes the Notploy CLI on update"
+assert_contains "$OUT" "Notploy CLI ready: 1.0.3" "reports the refreshed CLI"
 
 # ==========================================================================
 # 13. Existing coherent identity is preserved
@@ -880,6 +916,18 @@ if grep -q '^notploy_auth_secret|overridesecretvalue$' "$STATE/secret_values" 2>
 else
     fail "stores the provided auth secret for Notploy"
 fi
+
+# ==========================================================================
+# 31. CLI failure does not fail an otherwise successful install
+# ==========================================================================
+echo "31. CLI failure does not fail an otherwise successful install"
+init_state
+printf '1\n' > "$STATE/fail_cli"
+run_install_capture
+assert_rc "$RC" 0 "install still succeeds when the CLI cannot be installed"
+assert_contains "$OUT" "Warning: the Notploy CLI could not be installed or updated" "warns about the CLI failure"
+assert_contains "$OUT" "is installed and the service is running" "still reports the server as installed"
+assert_file_absent "$CASE_DIR/bin/notploy" "does not leave a broken launcher"
 
 # ==========================================================================
 echo ""
