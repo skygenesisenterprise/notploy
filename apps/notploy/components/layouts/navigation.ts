@@ -569,16 +569,16 @@ const NAVIGATION_SECTIONS: readonly NavigationSectionDefinition[] = [
 				id: "compute-runtime",
 				label: "Compute & Runtime",
 				items: [
-					{ destination: "servers", environments: ["self", "console"] },
+					{ destination: "servers", environments: ["self", "cloud", "console"] },
 					{
 						destination: "docker",
-						environments: ["self", "console"],
-						label: { self: "Docker", console: "Compute" },
+						environments: ["self", "cloud", "console"],
+						label: { self: "Docker", console: "Compute", cloud: "Docker" },
 					},
 					{
 						destination: "swarm",
-						environments: ["self", "console"],
-						label: { self: "Swarm", console: "Clusters" },
+						environments: ["self", "cloud", "console"],
+						label: { self: "Swarm", console: "Clusters", cloud: "Swarm" },
 					},
 					{ destination: "runtime", environments: ["console"] },
 				],
@@ -587,8 +587,8 @@ const NAVIGATION_SECTIONS: readonly NavigationSectionDefinition[] = [
 				id: "networking-edge",
 				label: "Networking & Edge",
 				items: [
-					{ destination: "networks", environments: ["self", "console"] },
-					{ destination: "traefik", environments: ["self"] },
+					{ destination: "networks", environments: ["self", "cloud", "console"] },
+					{ destination: "traefik", environments: ["self", "cloud"] },
 					{
 						destination: "dnsProviders",
 						label: { console: "DNS" },
@@ -628,7 +628,7 @@ const NAVIGATION_SECTIONS: readonly NavigationSectionDefinition[] = [
 						destination: "containerRegistries",
 						label: { console: "Registries" },
 					},
-					{ destination: "aiProviders", environments: ["self"] },
+					{ destination: "aiProviders", environments: ["self", "cloud"] },
 				],
 			},
 		],
