@@ -117,7 +117,11 @@ export const HandleVolumeBackups = ({
 	const [keepLatestCountInput, setKeepLatestCountInput] = useState("");
 
 	const utils = api.useUtils();
-	const form = useForm({
+	const form = useForm<
+		z.input<typeof formSchema>,
+		any,
+		z.output<typeof formSchema>
+	>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: "",

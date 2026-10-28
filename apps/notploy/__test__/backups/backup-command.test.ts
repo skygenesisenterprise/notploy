@@ -39,8 +39,6 @@ describe("getBackupCommand", () => {
 		const command = buildCommand(
 			buildBackup({
 				databaseType: "mongo",
-				databaseUser: "app_user",
-				databasePassword: "pw",
 				postgres: undefined as never,
 				mongo: {
 					appName: "my-mongo",

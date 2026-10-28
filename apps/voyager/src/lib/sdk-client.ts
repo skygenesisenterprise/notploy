@@ -13,6 +13,7 @@
 import type {
   Client,
   ClientOptions,
+  Config,
   RequestOptions,
   RequestResult,
 } from '@notploy/sdk';
@@ -32,10 +33,19 @@ const DEFAULT_API_PATH = '/api';
 /**
  * Create a client configuration for a specific connection.
  */
+const createTimeoutFetch = (timeoutMs: number): typeof fetch =>
+  (input, init) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    return fetch(input, { ...init, signal: controller.signal }).finally(() =>
+      clearTimeout(timer),
+    );
+  };
+
 export function createConnectionConfig(
   connection: Connection,
   apiToken?: string,
-): ClientOptions {
+): Config {
   const baseUrl = normalizeInstanceUrl(connection.url);
   
   const headers: Record<string, string> = {
@@ -52,11 +62,7 @@ export function createConnectionConfig(
   return {
     baseUrl: `${baseUrl}${DEFAULT_API_PATH}`,
     headers,
-    timeout: connection.timeout || DEFAULT_TIMEOUT,
-    // Disable TLS validation only if explicitly allowed
-    // Note: This is NOT recommended for production and should only be
-    // used for development with self-signed certificates
-    dangerouslyDisableTLSValidation: connection.allowInsecureTls,
+    fetch: createTimeoutFetch(connection.timeout || DEFAULT_TIMEOUT),
   };
 }
 
@@ -104,7 +110,7 @@ export function normalizeInstanceUrl(input: string): string {
  */
 export class NotployClientManager {
   private clients: Map<string, Client> = new Map();
-  private configCache: Map<string, ClientOptions> = new Map();
+  private configCache: Map<string, Config> = new Map();
 
   /**
    * Get or create a client for a specific connection.
@@ -132,20 +138,19 @@ export class NotployClientManager {
   /**
    * Get the configuration for a connection.
    */
-  getConfig(connection: Connection, apiToken?: string): ClientOptions {
+  getConfig(connection: Connection, apiToken?: string): Config {
     return createConnectionConfig(connection, apiToken);
   }
 
   /**
    * Check if the configuration has changed.
    */
-  private configChanged(cacheKey: string, newConfig: ClientOptions): boolean {
+  private configChanged(cacheKey: string, newConfig: Config): boolean {
     const oldConfig = this.configCache.get(cacheKey);
     if (!oldConfig) return true;
 
     return (
       oldConfig.baseUrl !== newConfig.baseUrl ||
-      oldConfig.timeout !== newConfig.timeout ||
       JSON.stringify(oldConfig.headers) !== JSON.stringify(newConfig.headers)
     );
   }
@@ -202,7 +207,7 @@ export const clientManager = new NotployClientManager();
  * Execute a request with error handling adapted for mobile.
  */
 export async function executeRequest<T>(
-  request: Promise<RequestResult<T>>,
+  request: RequestResult<T>,
 ): Promise<{
   data?: T;
   error?: Error;
@@ -211,7 +216,7 @@ export async function executeRequest<T>(
   try {
     const result = await request;
     return {
-      data: result.data,
+      data: result.data as T | undefined,
       status: result.response?.status,
     };
   } catch (err) {
@@ -232,8 +237,8 @@ export function createRequest<T>(
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   data?: unknown,
-  options?: RequestOptions,
-): Promise<RequestResult<T>> {
+  options?: Omit<RequestOptions<T, 'fields', false>, 'url' | 'method'>,
+): RequestResult<T, unknown, false> {
   const client = clientManager.getClientWithAuth(connection, apiToken);
   
   // Note: The SDK generates specific functions for each endpoint.
@@ -243,7 +248,7 @@ export function createRequest<T>(
   return client.request<T>({
     method,
     url: fullPath,
-    data,
+    body: data,
     ...options,
   });
 }

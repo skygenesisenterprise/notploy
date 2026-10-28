@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, type ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useColor } from '@/hooks/use-color';
 import { useTranslation } from '@/hooks/use-translation';
 import { Button } from './button';
@@ -15,7 +15,7 @@ import { Button } from './button';
 // ============================================================================
 
 /** Empty view props */
-interface EmptyViewProps {
+export interface EmptyViewProps {
   /** Icon to display */
   icon?: string;
   /** Title message */
@@ -29,7 +29,7 @@ interface EmptyViewProps {
   /** Action callback */
   onAction?: () => void;
   /** Custom style */
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   /** Custom text style */
   textStyle?: any;
   /** Custom description style */

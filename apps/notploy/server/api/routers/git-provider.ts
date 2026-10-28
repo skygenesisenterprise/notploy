@@ -128,7 +128,9 @@ export const gitProviderRouter = createTRPCRouter({
 	 */
 	health: withPermission("gitProviders", "read")
 		.input(apiFindOneGitProvider)
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.query(async ({ ctx, input }) => {
 			await requireUsableGitProvider(ctx, input.gitProviderId);
 			return await getGitProviderHealth(input.gitProviderId);
@@ -139,13 +141,17 @@ export const gitProviderRouter = createTRPCRouter({
 	 * can explain a provider's limits before one is configured.
 	 */
 	descriptors: withPermission("gitProviders", "read")
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.query(() => listGitProviderDescriptors()),
 
 	/** Repositories a connection can deploy from, normalized. */
 	repositories: withPermission("gitProviders", "read")
 		.input(apiListGitProviderRepositories)
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.query(async ({ ctx, input }) => {
 			await requireUsableGitProvider(ctx, input.gitProviderId);
 			return await listGitProviderRepositories(input.gitProviderId, {
@@ -156,7 +162,9 @@ export const gitProviderRouter = createTRPCRouter({
 	/** Repository search, with a client-side fallback for providers without one. */
 	searchRepositories: withPermission("gitProviders", "read")
 		.input(apiSearchGitProviderRepositories)
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.query(async ({ ctx, input }) => {
 			await requireUsableGitProvider(ctx, input.gitProviderId);
 			return await searchGitProviderRepositories(input.gitProviderId, input.q, {
@@ -167,7 +175,9 @@ export const gitProviderRouter = createTRPCRouter({
 	/** Branches of a repository, normalized. */
 	branches: withPermission("gitProviders", "read")
 		.input(apiListGitProviderBranches)
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.query(async ({ ctx, input }) => {
 			await requireUsableGitProvider(ctx, input.gitProviderId);
 			return await listGitProviderBranches(
@@ -179,7 +189,9 @@ export const gitProviderRouter = createTRPCRouter({
 	/** Resolves a branch, tag or short sha to the commit that would be built. */
 	commit: withPermission("gitProviders", "read")
 		.input(apiGetGitProviderCommit)
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.query(async ({ ctx, input }) => {
 			await requireUsableGitProvider(ctx, input.gitProviderId);
 			return await getGitProviderCommit(
@@ -192,7 +204,9 @@ export const gitProviderRouter = createTRPCRouter({
 	/** Account the connection acts as. */
 	identity: withPermission("gitProviders", "read")
 		.input(apiFindOneGitProvider)
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.query(async ({ ctx, input }) => {
 			await requireUsableGitProvider(ctx, input.gitProviderId);
 			return await getGitProviderIdentity(input.gitProviderId);
@@ -201,7 +215,9 @@ export const gitProviderRouter = createTRPCRouter({
 	/** Whether the connection may read / write a repository. */
 	repositoryPermissions: withPermission("gitProviders", "read")
 		.input(apiListGitProviderBranches)
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.query(async ({ ctx, input }) => {
 			await requireUsableGitProvider(ctx, input.gitProviderId);
 			return await getGitProviderRepositoryPermissions(
@@ -237,7 +253,8 @@ export const gitProviderRouter = createTRPCRouter({
 			});
 		}),
 
-	allForPermissions: withPermission("member", "update").query(async ({ ctx }) => {
+	allForPermissions: withPermission("member", "update").query(
+		async ({ ctx }) => {
 			return await db.query.gitProvider.findMany({
 				columns: {
 					gitProviderId: true,
@@ -247,7 +264,8 @@ export const gitProviderRouter = createTRPCRouter({
 				orderBy: desc(gitProvider.createdAt),
 				where: eq(gitProvider.organizationId, ctx.session.activeOrganizationId),
 			});
-		}),
+		},
+	),
 
 	remove: withPermission("gitProviders", "delete")
 		.input(apiRemoveGitProvider)

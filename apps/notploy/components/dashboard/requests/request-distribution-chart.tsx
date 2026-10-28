@@ -80,7 +80,7 @@ export const RequestDistributionChart = ({
 					cursor={false}
 					content={<ChartTooltipContent indicator="line" />}
 					labelFormatter={(value) =>
-						new Date(value).toLocaleString([], {
+						new Date(value as string | number).toLocaleString([], {
 							month: "short",
 							day: "numeric",
 							hour: "2-digit",

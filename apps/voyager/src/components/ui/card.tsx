@@ -141,5 +141,3 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
   },
 });
-
-export { Card };

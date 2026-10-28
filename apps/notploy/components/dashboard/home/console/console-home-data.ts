@@ -1,5 +1,12 @@
 import { formatDistanceToNow } from "date-fns";
-import { AppWindow, BellRing, Gauge, Rocket, ServerCog, ShieldCheck } from "lucide-react";
+import {
+	AppWindow,
+	BellRing,
+	Gauge,
+	Rocket,
+	ServerCog,
+	ShieldCheck,
+} from "lucide-react";
 import type { StatusOverview } from "@/lib/status";
 import { deploymentTarget } from "../home-activity";
 import {
@@ -8,9 +15,9 @@ import {
 	metricState,
 	resolvedValue,
 	segmentTotal,
-	severityTone,
 	serviceStatusLabel,
 	serviceStatusTone,
+	severityTone,
 } from "../home-state";
 import { serverStatusGroup, workloadStatusGroup } from "../home-status";
 import type {
@@ -316,7 +323,10 @@ const numeric = (value: string | number | null | undefined): number | null => {
 	return Number.isFinite(parsed) ? parsed : null;
 };
 
-const percentage = (used: number | null, total: number | null): number | null => {
+const percentage = (
+	used: number | null,
+	total: number | null,
+): number | null => {
 	if (used === null || total === null || total <= 0) return null;
 	return Math.min(100, Math.max(0, (used / total) * 100));
 };
@@ -421,7 +431,9 @@ const statusPlatformGroup = ({
 		segments: observationSegments(components),
 		note: `${components.length} components across ${status.pages.length} status page(s): ${status.pages
 			.map((page) => page.page.name)
-			.join(", ")}. Counts reflect the observed status recorded by the status platform. "No observation" means no usable data — it is not a healthy state${
+			.join(
+				", ",
+			)}. Counts reflect the observed status recorded by the status platform. "No observation" means no usable data — it is not a healthy state${
 			neverObserved > 0
 				? `, and ${neverObserved} component(s) have never reported one`
 				: ""
@@ -468,12 +480,11 @@ const controlPlaneGroup = ({
 		description: "PostgreSQL and Traefik as probed on this host",
 	};
 
-	const runtimeDetail =
-		runtimeState.isLoading
-			? "Runtime details are loading."
-			: runtime
-				? `Runtime: Notploy ${runtime.version}, uptime ${formatDuration(runtime.uptimeSeconds)}.`
-				: "Runtime details are unavailable.";
+	const runtimeDetail = runtimeState.isLoading
+		? "Runtime details are loading."
+		: runtime
+			? `Runtime: Notploy ${runtime.version}, uptime ${formatDuration(runtime.uptimeSeconds)}.`
+			: "Runtime details are unavailable.";
 	const scopeNote = `${runtimeDetail} Probes run against this instance's own host; they do not cover the whole Cloud fleet.`;
 
 	if (!isOperator) {
@@ -537,7 +548,11 @@ const backupHref = (backup: BackupRunLike): string | undefined => {
 };
 
 const incidentSeverity = (severity: string): ConsoleSeverity =>
-	severity === "critical" ? "critical" : severity === "major" ? "warning" : "info";
+	severity === "critical"
+		? "critical"
+		: severity === "major"
+			? "warning"
+			: "info";
 
 const eventSeverity = (severity: string): ConsoleSeverity =>
 	severity === "critical"
@@ -582,8 +597,7 @@ export const buildConsoleCapacity = ({
 			state: "restricted",
 			message:
 				"The monitoring read permission is required to measure compute capacity.",
-			note:
-				"Capacity is only shown when the monitoring agent actually reported a sample.",
+			note: "Capacity is only shown when the monitoring agent actually reported a sample.",
 		};
 	}
 	if (monitoringState.isLoading) {
@@ -595,8 +609,7 @@ export const buildConsoleCapacity = ({
 			state: "unavailable",
 			message:
 				"The monitoring query failed, so compute capacity is unknown for now.",
-			note:
-				"Capacity is only shown when the monitoring agent actually reported a sample.",
+			note: "Capacity is only shown when the monitoring agent actually reported a sample.",
 		};
 	}
 
@@ -607,8 +620,12 @@ export const buildConsoleCapacity = ({
 			return point ? { dataset, point } : null;
 		})
 		.filter(
-			(entry): entry is { dataset: MonitoringDatasetLike; point: MonitoringPointLike } =>
-				entry !== null,
+			(
+				entry,
+			): entry is {
+				dataset: MonitoringDatasetLike;
+				point: MonitoringPointLike;
+			} => entry !== null,
 		);
 	const failed = datasets.filter((dataset) => dataset.error).length;
 	const sampledTimes = reporting
@@ -630,8 +647,7 @@ export const buildConsoleCapacity = ({
 				datasets.length === 0
 					? undefined
 					: "No monitored server reported a metrics sample.",
-			note:
-				"No measurement is presented as zero: without a sample, CPU, memory and storage stay unknown.",
+			note: "No measurement is presented as zero: without a sample, CPU, memory and storage stay unknown.",
 		};
 	}
 
@@ -672,10 +688,7 @@ export const buildConsoleCapacity = ({
 				percentage: round(perServerMemory),
 			});
 		}
-		if (
-			usedPercent !== null &&
-			usedPercent >= saturationThreshold
-		) {
+		if (usedPercent !== null && usedPercent >= saturationThreshold) {
 			saturated.push({
 				serverId: dataset.serverId,
 				name: dataset.name,
@@ -735,15 +748,14 @@ export const buildConsoleCapacity = ({
 		totalServers: datasets.length,
 		sampledAt: sampledTimes.at(-1) ?? null,
 		oldestSampleAt: sampledTimes[0] ?? null,
-		saturated: saturated.sort((left, right) => right.percentage - left.percentage),
-		note:
-			"Latest sample reported by each monitored server. CPU is weighted by cores; memory and storage are summed. No projection is extrapolated from these figures.",
+		saturated: saturated.sort(
+			(left, right) => right.percentage - left.percentage,
+		),
+		note: "Latest sample reported by each monitored server. CPU is weighted by cores; memory and storage are summed. No projection is extrapolated from these figures.",
 	};
 };
 
-const resourceLabel = (
-	resource: ConsoleSaturatedServer["resource"],
-): string =>
+const resourceLabel = (resource: ConsoleSaturatedServer["resource"]): string =>
 	resource === "cpu" ? "CPU" : resource === "memory" ? "Memory" : "Storage";
 
 /* -------------------------------------------------------------------------- */
@@ -900,7 +912,8 @@ export const buildConsoleAttention = ({
 			for (const maintenance of page.maintenances) {
 				const ongoing = maintenance.state === "in_progress";
 				const scheduled =
-					maintenance.state === "scheduled" && isoTime(maintenance.endAt) >= now;
+					maintenance.state === "scheduled" &&
+					isoTime(maintenance.endAt) >= now;
 				if (!ongoing && !scheduled) continue;
 				items.push({
 					id: `maintenance-${page.page.slug}-${maintenance.id}`,
@@ -1019,7 +1032,9 @@ export const buildConsoleAttention = ({
 				severity: "critical",
 				title: `Workload failed · ${service.name}`,
 				description: `${service.projectName} / ${service.environmentName}${
-					service.serverName ? ` · ${service.serverName}` : " · no server recorded"
+					service.serverName
+						? ` · ${service.serverName}`
+						: " · no server recorded"
 				}`,
 				resource: service.serverName ?? undefined,
 				state: serviceStatusLabel(service.status),
@@ -1219,10 +1234,9 @@ export const buildConsoleAttention = ({
 					certificate.status === "expired"
 						? `Certificate expired · ${certificate.name}`
 						: `Certificate expires soon · ${certificate.name}`,
-				description:
-					certificate.server?.name
-						? `Target server ${certificate.server.name}`
-						: "No target server recorded",
+				description: certificate.server?.name
+					? `Target server ${certificate.server.name}`
+					: "No target server recorded",
 				resource: certificate.server?.name ?? undefined,
 				state: certificate.status,
 				meta:
@@ -1275,7 +1289,10 @@ export const buildConsoleAttention = ({
 		});
 	} else {
 		const availability = traffic.http.availability;
-		if (availability.state === "unavailable" || availability.state === "partial") {
+		if (
+			availability.state === "unavailable" ||
+			availability.state === "partial"
+		) {
 			items.push({
 				id: "traffic-availability",
 				severity: "warning",
@@ -1446,7 +1463,8 @@ export const buildConsoleDependencies = ({
 	if (!canReadServices) {
 		return {
 			state: "restricted",
-			message: "The service read permission is required to see workload placement.",
+			message:
+				"The service read permission is required to see workload placement.",
 			servers: [],
 			unassigned: 0,
 			impactedComponents: [],
@@ -1476,7 +1494,9 @@ export const buildConsoleDependencies = ({
 	const placement = new Map<string, ConsoleDependencyServer>();
 	// Seed with the registered fleet so a server with no workload is still a
 	// truthful dependency edge (it simply hosts nothing yet).
-	for (const server of servers as Array<ServerLike & { serverId?: string; name?: string }>) {
+	for (const server of servers as Array<
+		ServerLike & { serverId?: string; name?: string }
+	>) {
 		if (!server.serverId || !server.name) continue;
 		placement.set(server.serverId, {
 			serverId: server.serverId,
@@ -1528,8 +1548,7 @@ export const buildConsoleDependencies = ({
 		state: "available",
 		servers: [...placement.values()]
 			.sort(
-				(left, right) =>
-					right.failed - left.failed || right.total - left.total,
+				(left, right) => right.failed - left.failed || right.total - left.total,
 			)
 			.slice(0, 6),
 		unassigned,
@@ -1570,7 +1589,9 @@ export const buildConsoleActivity = ({
 
 	if (isOperator && status && status.configured && !status.error) {
 		for (const page of status.pages) {
-			for (const incident of page.incidents) {
+			for (const incident of page.incidents.filter(
+				(entry) => entry.state !== "resolved",
+			)) {
 				if (!withinLast(incident.updatedAt, now, 14 * DAY)) continue;
 				items.push({
 					id: `status-incident-${page.page.slug}-${incident.id}`,
@@ -1687,8 +1708,7 @@ export const buildConsoleActivity = ({
 		};
 	}
 
-	const deploymentUnavailable =
-		canReadDeployments && activityState.isError;
+	const deploymentUnavailable = canReadDeployments && activityState.isError;
 	const eventsUnavailable = eventsState.isError;
 	if (
 		(isOperator && statusState.isLoading) ||
@@ -1764,7 +1784,11 @@ export const buildConsoleHomeModel = (
 	const now = isoTime(nowInput ?? new Date().toISOString());
 	const effectiveNow = Number.isFinite(now) ? now : Date.now();
 	const statsMetricState = metricState(statsState);
-	const platformGroup = statusPlatformGroup({ status, statusState, isOperator });
+	const platformGroup = statusPlatformGroup({
+		status,
+		statusState,
+		isOperator,
+	});
 	const controlPlane = controlPlaneGroup({
 		isOperator,
 		infrastructure,
@@ -1774,7 +1798,8 @@ export const buildConsoleHomeModel = (
 	});
 	const platformSegments = platformGroup.segments;
 	const operationalComponents =
-		platformSegments.find((segment) => segment.id === "operational")?.value ?? 0;
+		platformSegments.find((segment) => segment.id === "operational")?.value ??
+		0;
 	const totalComponents = segmentTotal(platformSegments);
 	const unobservedComponents =
 		platformSegments.find((segment) => segment.id === "unknown")?.value ?? 0;
@@ -1791,7 +1816,11 @@ export const buildConsoleHomeModel = (
 		monitoringState,
 		canReadMonitoring,
 	});
-	const attention = buildConsoleAttention({ data, capacity, now: effectiveNow });
+	const attention = buildConsoleAttention({
+		data,
+		capacity,
+		now: effectiveNow,
+	});
 	const dependencies = buildConsoleDependencies({
 		services,
 		servicesState,
@@ -1925,7 +1954,7 @@ export const buildConsoleHomeModel = (
 			description:
 				capacity.state === "available"
 					? `${capacity.reportingServers} reporting · latest sample`
-					: capacity.message ?? "Measured by the monitoring agent",
+					: (capacity.message ?? "Measured by the monitoring agent"),
 			tone:
 				cpuResource?.percentage !== null &&
 				(cpuResource?.percentage ?? 0) >= saturationThreshold

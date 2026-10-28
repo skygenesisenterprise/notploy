@@ -9,7 +9,12 @@ import {
 	RefreshCw,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { type Control, useForm } from "react-hook-form";
+import {
+	type Control,
+	type FieldValues,
+	type Path,
+	useForm,
+} from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { AlertBlock } from "@/components/shared/alert-block";
@@ -135,18 +140,18 @@ interface Props {
 	scheduleType?: "application" | "compose" | "server" | "notploy-server";
 }
 
-export const ScheduleFormField = ({
+export const ScheduleFormField = <TFieldValues extends FieldValues>({
 	name,
 	formControl,
 }: {
-	name: string;
-	formControl: Control<any>;
+	name: Path<TFieldValues>;
+	formControl: Control<TFieldValues, any, any>;
 }) => {
 	const [selectedOption, setSelectedOption] = useState("");
 
 	return (
 		<FormField
-			control={formControl}
+			control={formControl as Control<any>}
 			name={name}
 			render={({ field }) => (
 				<FormItem>
@@ -221,7 +226,11 @@ export const HandleSchedules = ({ id, scheduleId, scheduleType }: Props) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [cacheType, setCacheType] = useState<CacheType>("cache");
 	const utils = api.useUtils();
-	const form = useForm({
+	const form = useForm<
+		z.input<typeof formSchema>,
+		any,
+		z.output<typeof formSchema>
+	>({
 		resolver: standardSchemaResolver(formSchema),
 		defaultValues: {
 			name: "",

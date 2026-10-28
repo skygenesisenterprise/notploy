@@ -209,8 +209,7 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 	// the card's Create button deploys straight away (local server by
 	// default) instead of opening a second dialog with nothing to pick.
 	const shouldShowServerDropdown = hasServers || requiresServer;
-	const effectiveServerId =
-		serverId === "notploy" ? undefined : serverId;
+	const effectiveServerId = serverId === "notploy" ? undefined : serverId;
 	const isServerSelectionValid = !requiresServer || !!effectiveServerId;
 
 	const handleToggleBookmark = async (
@@ -571,159 +570,172 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 												</div>
 											)}
 											{hasServers ? (
-											<AlertDialog>
-												<AlertDialogTrigger asChild>
-													<Button
-														variant="secondary"
-														size="sm"
-														className={cn(
-															"w-auto",
-															viewMode === "detailed" && "w-auto",
-														)}
-													>
-														Create
-													</Button>
-												</AlertDialogTrigger>
-												<AlertDialogContent>
-													<AlertDialogHeader>
-														<AlertDialogTitle>
-															Are you absolutely sure?
-														</AlertDialogTitle>
-													<AlertDialogDescription>
-														This will create an application from the{" "}
-														{template?.name} template and add it to your
-														project.
-													</AlertDialogDescription>
-
-														{shouldShowServerDropdown && (
-															<div>
-																<TooltipProvider delayDuration={0}>
-																	<Tooltip>
-																		<TooltipTrigger asChild>
-																			<Label className="break-all w-fit flex flex-row gap-1 items-center pb-2 pt-3.5">
-																				Select a Server{" "}
-																				{showLocalOption ? "(Optional)" : "(Required)"}
-																				<HelpCircle className="size-4 text-muted-foreground" />
-																			</Label>
-																		</TooltipTrigger>
-																		<TooltipContent
-																			className="z-999 w-[300px]"
-																			align="start"
-																			side="top"
-																		>
-																			<span>
-																				{showLocalOption
-																					? "If no server is selected, the application will be deployed on the server where the user is logged in."
-																				: "This environment requires a server. Select where this template will be deployed."}
-																			</span>
-																		</TooltipContent>
-																	</Tooltip>
-																</TooltipProvider>
-
-																<Select
-																	value={serverId ?? (showLocalOption ? "notploy" : "")}
-																	onValueChange={(e) => {
-																		setServerId(e);
-																	}}
-																>
-																	<SelectTrigger>
-																		<SelectValue
-																			placeholder={
-																				showLocalOption ? "Notploy" : "Select a Server"
-																			}
-																		/>
-																	</SelectTrigger>
-																	<SelectContent>
-																		<SelectGroup>
-																			{showLocalOption && (
-																				<SelectItem value="notploy">
-																					<span className="flex items-center gap-2 justify-between w-full">
-																						<span>Notploy</span>
-																						<span className="text-muted-foreground text-xs self-center">
-																							Default
-																						</span>
-																					</span>
-																				</SelectItem>
-																			)}
-																			{servers?.map((server) => (
-																				<SelectItem
-																					key={server.serverId}
-																					value={server.serverId}
-																				>
-																					<span className="flex items-center gap-2 justify-between w-full">
-																						<span>{server.name}</span>
-																						<span className="text-muted-foreground text-xs self-center">
-																							{server.ipAddress}
-																						</span>
-																					</span>
-																				</SelectItem>
-																			))}
-																			<SelectLabel>
-																				Servers (
-																				{servers?.length + (showLocalOption ? 1 : 0)})
-																			</SelectLabel>
-																		</SelectGroup>
-																	</SelectContent>
-																</Select>																	{requiresServer && !isServerSelectionValid && (
-																	<p className="text-sm text-destructive mt-2">
-																		Please select a server to continue.
-																	</p>
-																)}
-															</div>
-														)}
-													</AlertDialogHeader>
-													<AlertDialogFooter>
-														<AlertDialogCancel>Cancel</AlertDialogCancel>													<AlertDialogAction
-														disabled={isPending || !isServerSelectionValid}
-														onClick={async (e) => {
-																if (!isServerSelectionValid) {
-																	e.preventDefault();
-																	toast.error(
-																		"Select a server to deploy this template",
-																	);
-																	return;
-																}
-																const promise = mutateAsync({
-																	serverId: effectiveServerId,
-																	environmentId,
-																	id: template.id,
-																	baseUrl: customBaseUrl,
-																});
-																toast.promise(promise, {
-																	loading: "Setting up...",
-																	success: () => {
-																		// Invalidate the project query to refresh the environment data
-																		utils.environment.one.invalidate({
-																			environmentId,
-																		});
-																		setOpen(false);
-																		return `${template.name} template created successfully`;
-																	},
-																	error: () => {
-																		return `An error occurred deploying ${template.name} template`;
-																	},
-																});
-															}}
+												<AlertDialog>
+													<AlertDialogTrigger asChild>
+														<Button
+															variant="secondary"
+															size="sm"
+															className={cn(
+																"w-auto",
+																viewMode === "detailed" && "w-auto",
+															)}
 														>
-															Confirm
-														</AlertDialogAction>
-													</AlertDialogFooter>
-												</AlertDialogContent>
-											</AlertDialog>
+															Create
+														</Button>
+													</AlertDialogTrigger>
+													<AlertDialogContent>
+														<AlertDialogHeader>
+															<AlertDialogTitle>
+																Are you absolutely sure?
+															</AlertDialogTitle>
+															<AlertDialogDescription>
+																This will create an application from the{" "}
+																{template?.name} template and add it to your
+																project.
+															</AlertDialogDescription>
+
+															{shouldShowServerDropdown && (
+																<div>
+																	<TooltipProvider delayDuration={0}>
+																		<Tooltip>
+																			<TooltipTrigger asChild>
+																				<Label className="break-all w-fit flex flex-row gap-1 items-center pb-2 pt-3.5">
+																					Select a Server{" "}
+																					{showLocalOption
+																						? "(Optional)"
+																						: "(Required)"}
+																					<HelpCircle className="size-4 text-muted-foreground" />
+																				</Label>
+																			</TooltipTrigger>
+																			<TooltipContent
+																				className="z-999 w-[300px]"
+																				align="start"
+																				side="top"
+																			>
+																				<span>
+																					{showLocalOption
+																						? "If no server is selected, the application will be deployed on the server where the user is logged in."
+																						: "This environment requires a server. Select where this template will be deployed."}
+																				</span>
+																			</TooltipContent>
+																		</Tooltip>
+																	</TooltipProvider>
+																	<Select
+																		value={
+																			serverId ??
+																			(showLocalOption ? "notploy" : "")
+																		}
+																		onValueChange={(e) => {
+																			setServerId(e);
+																		}}
+																	>
+																		<SelectTrigger>
+																			<SelectValue
+																				placeholder={
+																					showLocalOption
+																						? "Notploy"
+																						: "Select a Server"
+																				}
+																			/>
+																		</SelectTrigger>
+																		<SelectContent>
+																			<SelectGroup>
+																				{showLocalOption && (
+																					<SelectItem value="notploy">
+																						<span className="flex items-center gap-2 justify-between w-full">
+																							<span>Notploy</span>
+																							<span className="text-muted-foreground text-xs self-center">
+																								Default
+																							</span>
+																						</span>
+																					</SelectItem>
+																				)}
+																				{servers?.map((server) => (
+																					<SelectItem
+																						key={server.serverId}
+																						value={server.serverId}
+																					>
+																						<span className="flex items-center gap-2 justify-between w-full">
+																							<span>{server.name}</span>
+																							<span className="text-muted-foreground text-xs self-center">
+																								{server.ipAddress}
+																							</span>
+																						</span>
+																					</SelectItem>
+																				))}
+																				<SelectLabel>
+																					Servers (
+																					{(servers?.length ?? 0) +
+																						(showLocalOption ? 1 : 0)}
+																					)
+																				</SelectLabel>
+																			</SelectGroup>
+																		</SelectContent>
+																	</Select>{" "}
+																	{requiresServer &&
+																		!isServerSelectionValid && (
+																			<p className="text-sm text-destructive mt-2">
+																				Please select a server to continue.
+																			</p>
+																		)}
+																</div>
+															)}
+														</AlertDialogHeader>
+														<AlertDialogFooter>
+															<AlertDialogCancel>Cancel</AlertDialogCancel>{" "}
+															<AlertDialogAction
+																disabled={isPending || !isServerSelectionValid}
+																onClick={async (e) => {
+																	if (!isServerSelectionValid) {
+																		e.preventDefault();
+																		toast.error(
+																			"Select a server to deploy this template",
+																		);
+																		return;
+																	}
+																	const promise = mutateAsync({
+																		serverId: effectiveServerId,
+																		environmentId,
+																		id: template.id,
+																		baseUrl: customBaseUrl,
+																	});
+																	toast.promise(promise, {
+																		loading: "Setting up...",
+																		success: () => {
+																			// Invalidate the project query to refresh the environment data
+																			utils.environment.one.invalidate({
+																				environmentId,
+																			});
+																			setOpen(false);
+																			return `${template.name} template created successfully`;
+																		},
+																		error: () => {
+																			return `An error occurred deploying ${template.name} template`;
+																		},
+																	});
+																}}
+															>
+																Confirm
+															</AlertDialogAction>
+														</AlertDialogFooter>
+													</AlertDialogContent>
+												</AlertDialog>
 											) : (
-											<Button
-												variant="secondary"
-												size="sm"
-												className={cn(
-													"w-auto",
-													viewMode === "detailed" && "w-auto",
-												)}
-												disabled={deployingTemplateId !== null || isPending}
-												isLoading={deployingTemplateId === template.id}
-												onClick={() => handleDirectCreate(template)}
-											>
-												{deployingTemplateId === template.id ? "Creating..." : "Create"}
-											</Button>
+												<Button
+													variant="secondary"
+													size="sm"
+													className={cn(
+														"w-auto",
+														viewMode === "detailed" && "w-auto",
+													)}
+													disabled={deployingTemplateId !== null || isPending}
+													isLoading={deployingTemplateId === template.id}
+													onClick={() => handleDirectCreate(template)}
+												>
+													{deployingTemplateId === template.id
+														? "Creating..."
+														: "Create"}
+												</Button>
 											)}
 										</div>
 									</div>

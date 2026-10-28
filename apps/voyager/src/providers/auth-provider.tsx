@@ -15,7 +15,7 @@ import { secureStorage } from '@/services/secure-storage';
 import { instanceStorage } from '@/services/instance-storage';
 import { clientManager } from '@/lib/sdk-client';
 import type { AuthStatus, UserSession, AuthMethod } from '@/types/domain';
-import { userSession } from '@notploy/sdk';
+import { userSession as fetchUserSession } from '@notploy/sdk';
 
 // ============================================================================
 // Types
@@ -122,10 +122,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Use the SDK to check the session
       const client = clientManager.getClientWithAuth(instance, token);
-      const response = await userSession({ client });
+      const response = await fetchUserSession({ client });
 
       if (response.data) {
-        setUserSession(response.data as UserSession);
+        setUserSession(response.data as unknown as UserSession);
         setAuthMethod('api-key');
         return true;
       }

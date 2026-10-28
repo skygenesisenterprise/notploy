@@ -1,5 +1,9 @@
+import type { IncomingMessage } from "node:http";
 import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const asRequest = (chunks: Buffer[]) =>
+	Readable.from(chunks) as unknown as IncomingMessage;
 
 const mocks = vi.hoisted(() => ({
 	insertReturning: vi.fn(),
@@ -200,27 +204,27 @@ describe("readRawWebhookBody", () => {
 		const body = '{"ref":"refs/heads/main"}';
 
 		await expect(
-			readRawWebhookBody(Readable.from([Buffer.from(body)])),
+			readRawWebhookBody(asRequest([Buffer.from(body)])),
 		).resolves.toBe(body);
 	});
 
 	it("reassembles multi-chunk bodies", async () => {
 		await expect(
 			readRawWebhookBody(
-				Readable.from([Buffer.from("{\"a\":"), Buffer.from("1}")]),
+				asRequest([Buffer.from("{\"a\":"), Buffer.from("1}")]),
 			),
 		).resolves.toBe('{"a":1}');
 	});
 
 	it("rejects an empty body", async () => {
-		await expect(readRawWebhookBody(Readable.from([]))).rejects.toMatchObject({
+		await expect(readRawWebhookBody(asRequest([]))).rejects.toMatchObject({
 			status: 400,
 		});
 	});
 
 	it("rejects an oversized body", async () => {
 		const promise = readRawWebhookBody(
-			Readable.from([Buffer.from("0123456789"), Buffer.from("0123456789")]),
+			asRequest([Buffer.from("0123456789"), Buffer.from("0123456789")]),
 			10,
 		);
 

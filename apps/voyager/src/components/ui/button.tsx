@@ -26,7 +26,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'dan
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 /** Button props */
-interface ButtonProps extends TouchableOpacityProps {
+export interface ButtonProps extends TouchableOpacityProps {
   /** Button text */
   children: React.ReactNode;
   /** Button variant */

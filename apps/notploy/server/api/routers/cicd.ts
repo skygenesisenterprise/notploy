@@ -1,10 +1,10 @@
 import {
 	createDeployment,
-	IS_CLOUD,
-	QUEUED_GITHUB_STATUS,
 	findCicdDeploymentByDeploymentId,
 	findCicdDeploymentByExternalId,
 	getCicdDeploymentView,
+	IS_CLOUD,
+	QUEUED_GITHUB_STATUS,
 	readDeploymentLogs,
 	resolveCicdTarget,
 	toGithubDeploymentStatus,
@@ -17,28 +17,28 @@ import {
 	apiCicdList,
 	apiCicdResolve,
 	apiCreateCicdToken,
-	applications,
 	apikey,
+	applications,
 	cicdDeployments,
 	deployments,
 	environments,
 	projects,
 } from "@notploy/server/db/schema";
 import {
-	type CicdAction,
-	type CicdTokenScope,
 	assertCicdTarget,
 	buildCicdApiKeyMetadata,
+	type CicdAction,
+	type CicdTokenScope,
 	parseCicdTokenScope,
 	resolveCicdActions,
 } from "@notploy/server/lib/cicd-scope";
 import { findApplicationById } from "@notploy/server/services/application";
 import { findDeploymentById } from "@notploy/server/services/deployment";
 import {
-	type PermissionCtx,
 	checkPermission,
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
+	type PermissionCtx,
 } from "@notploy/server/services/permission";
 import { createApiKey } from "@notploy/server/services/user";
 import { TRPCError } from "@trpc/server";
@@ -100,6 +100,13 @@ const authorizeCicdDeployment = async (
 		});
 	}
 
+	if (!metadata.projectId) {
+		throw new TRPCError({
+			code: "NOT_FOUND",
+			message: "Deployment not found",
+		});
+	}
+
 	assertCicdTarget(ctx.cicd.scope, input.action, {
 		projectId: metadata.projectId,
 		environmentId: metadata.environmentId,
@@ -123,10 +130,7 @@ const authorizeCicdDeployment = async (
  * member record rather than the session so a role change takes effect on the
  * next call.
  */
-const assertProjectAccess = async (
-	ctx: PermissionCtx,
-	projectId: string,
-) => {
+const assertProjectAccess = async (ctx: PermissionCtx, projectId: string) => {
 	const project = await db.query.projects.findFirst({
 		where: eq(projects.projectId, projectId),
 		columns: { projectId: true, organizationId: true },
@@ -139,9 +143,10 @@ const assertProjectAccess = async (
 		});
 	}
 
-	const member = await findMemberByUserId(ctx.user.id, {
-		organizationId: ctx.session.activeOrganizationId,
-	});
+	const member = await findMemberByUserId(
+		ctx.user.id,
+		ctx.session.activeOrganizationId,
+	);
 
 	if (
 		member.role !== "owner" &&
@@ -493,7 +498,7 @@ export const cicdRouter = createTRPCRouter({
 			});
 			const deployment = await findDeploymentById(input.deploymentId);
 
-			if (deployment.status !== "queued" && deployment.status !== "running") {
+			if (deployment.status !== "running") {
 				throw new TRPCError({
 					code: "BAD_REQUEST",
 					message: `Cannot cancel a deployment with status "${deployment.status}"`,
@@ -504,13 +509,16 @@ export const cicdRouter = createTRPCRouter({
 				await cleanQueuesByApplication(deployment.applicationId);
 				await db
 					.update(applications)
-					.set({ status: "idle" })
+					.set({ applicationStatus: "idle" })
 					.where(eq(applications.applicationId, deployment.applicationId));
 			}
 
 			await db
 				.update(deployments)
-				.set({ status: "cancelled", finishedAt: new Date() })
+				.set({
+					status: "cancelled",
+					finishedAt: new Date().toISOString(),
+				})
 				.where(eq(deployments.deploymentId, input.deploymentId));
 
 			await audit(ctx, {
@@ -676,7 +684,9 @@ export const cicdRouter = createTRPCRouter({
 				limit: z.coerce.number().int().min(1).max(100).default(25),
 			}),
 		)
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.query(async ({ ctx, input }) => {
 			await assertProjectAccess(ctx, input.projectId);
 
@@ -703,7 +713,9 @@ export const cicdRouter = createTRPCRouter({
 	/** Dashboard: CI/CD tokens of a project. */
 	tokens: protectedProcedure
 		.input(z.object({ projectId: z.string().min(1) }))
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.query(async ({ ctx, input }) => {
 			await assertProjectAccess(ctx, input.projectId);
 			return listCicdTokens(ctx.session.activeOrganizationId, input.projectId);
@@ -718,7 +730,9 @@ export const cicdRouter = createTRPCRouter({
 	 */
 	createToken: protectedProcedure
 		.input(apiCreateCicdToken)
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.mutation(async ({ ctx, input }) => {
 			await assertProjectAccess(ctx, input.projectId);
 			await checkPermission(ctx, { api: ["read"] });
@@ -728,19 +742,20 @@ export const cicdRouter = createTRPCRouter({
 				columns: { projectId: true, organizationId: true },
 			});
 			if (!project) {
-				throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
 			}
 
 			if (input.environmentIds?.length) {
 				const found = await db
 					.select({ environmentId: environments.environmentId })
 					.from(environments)
+					.innerJoin(projects, eq(environments.projectId, projects.projectId))
 					.where(
 						and(
-							eq(
-								environments.organizationId,
-								ctx.session.activeOrganizationId,
-							),
+							eq(projects.organizationId, ctx.session.activeOrganizationId),
 							inArray(environments.environmentId, input.environmentIds),
 						),
 					);
@@ -756,12 +771,14 @@ export const cicdRouter = createTRPCRouter({
 				const found = await db
 					.select({ applicationId: applications.applicationId })
 					.from(applications)
+					.innerJoin(
+						environments,
+						eq(applications.environmentId, environments.environmentId),
+					)
+					.innerJoin(projects, eq(environments.projectId, projects.projectId))
 					.where(
 						and(
-							eq(
-								applications.organizationId,
-								ctx.session.activeOrganizationId,
-							),
+							eq(projects.organizationId, ctx.session.activeOrganizationId),
 							inArray(applications.applicationId, input.applicationIds),
 						),
 					);
@@ -832,7 +849,9 @@ export const cicdRouter = createTRPCRouter({
 
 	revokeToken: protectedProcedure
 		.input(z.object({ apiKeyId: z.string().min(1) }))
-		.meta({ openapi: { enabled: false } })
+		.meta({
+			openapi: { enabled: false, method: "GET", path: "/internal/hidden" },
+		})
 		.mutation(async ({ ctx, input }) => {
 			const record = await db.query.apikey.findFirst({
 				where: eq(apikey.id, input.apiKeyId),
@@ -878,11 +897,8 @@ const createDeploymentId = async (input: {
 	try {
 		const deployment = await createDeployment({
 			applicationId: input.applicationId,
-			titleLog: input.titleLog,
-			descriptionLog: input.descriptionLog,
-			appName: input.appName,
-			type: "deploy",
-			applicationType: "application",
+			title: input.titleLog,
+			description: input.descriptionLog,
 		});
 		return deployment.deploymentId;
 	} catch {

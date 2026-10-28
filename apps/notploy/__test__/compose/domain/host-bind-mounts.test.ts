@@ -46,7 +46,7 @@ volumes:
 const decodeWrittenCompose = (command: string) => {
 	const match = command.match(/echo "([A-Za-z0-9+/=]+)" \| base64 -d/);
 	expect(match).not.toBeNull();
-	return parse(Buffer.from(match![1], "base64").toString("utf8"));
+	return parse(Buffer.from(match?.[1] ?? "", "base64").toString("utf8"));
 };
 
 describe("writeDomainsToCompose local bind-mount remapping", () => {

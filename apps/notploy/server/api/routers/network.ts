@@ -31,7 +31,7 @@ import { audit } from "../utils/audit";
 
 const assertServerAccess = async (
 	session: Parameters<typeof getAccessibleServerIds>[0],
-	serverId?: string,
+	serverId?: string | null,
 ) => {
 	if (!serverId) {
 		if (IS_CLOUD) {

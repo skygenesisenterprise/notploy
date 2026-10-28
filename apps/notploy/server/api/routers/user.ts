@@ -585,7 +585,11 @@ export const userRouter = createTRPCRouter({
 			// published REST surface: the response is metadata about every key a
 			// user holds, and an API key is enough to fetch it. Callers that do
 			// want the public endpoint get `user.createApiKey`/`user.deleteApiKey`.
-			openapi: { enabled: false },
+			openapi: {
+				enabled: false,
+				method: "GET",
+				path: "/internal/hidden",
+			},
 		})
 		.query(async ({ ctx }) => {
 			const organizationId = ctx.session.activeOrganizationId;

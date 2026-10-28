@@ -20,6 +20,7 @@ const baseSettings: WebServerSettings = {
 	id: "",
 	https: false,
 	certificateType: "none",
+	customCertResolver: null,
 	host: null,
 	serverIp: null,
 	letsEncryptEmail: null,

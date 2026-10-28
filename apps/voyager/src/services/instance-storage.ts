@@ -361,6 +361,7 @@ export class InstanceStorageService {
         ...connection,
         active: connection.id === activeId,
         hasCredential: hasToken,
+        hasToken,
         status: 'unknown',
         isChecking: false,
       });

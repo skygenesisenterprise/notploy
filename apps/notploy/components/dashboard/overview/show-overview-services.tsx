@@ -338,7 +338,7 @@ export const ShowOverviewServices = () => {
 		const idKey = ID_KEY_BY_TYPE[service.type];
 		if (!actions || !idKey) return;
 		try {
-			await actions[action].mutateAsync({ [idKey]: service.id });
+			await actions[action].mutateAsync({ [idKey]: service.id } as never);
 			toast.success(
 				action === "deploy"
 					? `${service.name} queued for deployment`

@@ -22,9 +22,9 @@
  * ```
  */
 
-export * from "./generated/index";
-export { client } from "./generated/client.gen";
-export { createClient, createConfig, mergeHeaders } from "./generated/client";
+export * from "./generated/index.js";
+export { client } from "./generated/client.gen.js";
+export { createClient, createConfig, mergeHeaders } from "./generated/client/index.js";
 export type {
 	Client,
 	ClientOptions,
@@ -32,4 +32,4 @@ export type {
 	RequestOptions,
 	RequestResult,
 	ResponseStyle,
-} from "./generated/client";
+} from "./generated/client/index.js";

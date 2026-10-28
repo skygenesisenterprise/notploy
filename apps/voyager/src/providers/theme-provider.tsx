@@ -8,7 +8,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { AppSettings, Theme as ThemeType } from '@/types/domain';
 
 // ============================================================================
 // Theme Types

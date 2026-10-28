@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, type ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, type StyleProp, type ViewStyle } from 'react-native';
 import { useColor } from '@/hooks/use-color';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -14,13 +14,13 @@ import { useTranslation } from '@/hooks/use-translation';
 // ============================================================================
 
 /** Loading view props */
-interface LoadingViewProps {
+export interface LoadingViewProps {
   /** Loading message */
   message?: string;
   /** Whether to show the activity indicator */
   showSpinner?: boolean;
   /** Custom style */
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   /** Custom text style */
   textStyle?: any;
   /** Custom spinner color */

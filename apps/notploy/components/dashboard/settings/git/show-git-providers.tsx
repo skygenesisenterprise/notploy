@@ -30,12 +30,12 @@ import { cn } from "@/lib/utils";
 import { api, type RouterOutputs } from "@/utils/api";
 import { GitCapabilityMatrix } from "./git-capability-matrix";
 import {
+	type GitProviderType,
 	gitHealthLabels,
 	gitProviderEndpoint,
 	gitProviderIcon,
 	gitProviderIsSelfHosted,
 	gitProviderLabel,
-	type GitProviderType,
 	isGitProviderType,
 } from "./git-provider-meta";
 import { HandleGitProvider } from "./handle-git-provider";
@@ -76,8 +76,7 @@ const healthStyles: Record<string, string> = {
 		"border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-400",
 	misconfigured:
 		"border-orange-500/25 bg-orange-500/10 text-orange-600 dark:text-orange-400",
-	unreachable:
-		"border-red-500/25 bg-red-500/10 text-red-600 dark:text-red-400",
+	unreachable: "border-red-500/25 bg-red-500/10 text-red-600 dark:text-red-400",
 	checking: "border-border bg-muted/40 text-muted-foreground",
 };
 
@@ -177,11 +176,16 @@ const GitProviderRow = ({
 	onToggleShare,
 	onRemove,
 }: RowProps) => {
-	const { data: health, isPending, isError, isFetching, refetch } =
-		api.gitProvider.health.useQuery(
-			{ gitProviderId: provider.gitProviderId },
-			{ retry: false, refetchOnWindowFocus: false },
-		);
+	const {
+		data: health,
+		isPending,
+		isError,
+		isFetching,
+		refetch,
+	} = api.gitProvider.health.useQuery(
+		{ gitProviderId: provider.gitProviderId },
+		{ retry: false, refetchOnWindowFocus: false },
+	);
 
 	const ProviderIcon = gitProviderIcon(provider.providerType);
 	const endpoint = gitProviderEndpoint(provider);
@@ -202,9 +206,7 @@ const GitProviderRow = ({
 
 			<div className="flex min-w-0 flex-1 flex-col gap-1">
 				<div className="flex min-w-0 flex-wrap items-center gap-2">
-					<span className="truncate text-sm font-medium">
-						{provider.name}
-					</span>
+					<span className="truncate text-sm font-medium">{provider.name}</span>
 					{!provider.isOwner && (
 						<Badge variant="secondary" className="text-xs">
 							<Users className="mr-1 size-3" />
@@ -389,7 +391,7 @@ export const ShowGitProviders = () => {
 										<GitProviderRow
 											key={provider.gitProviderId}
 											provider={provider}
-											canEdit={!!permissions?.gitProviders.update}
+											canEdit={!!permissions?.gitProviders.create}
 											canDelete={!!permissions?.gitProviders.delete}
 											isOrgAdmin={isOrgAdmin}
 											isToggling={isToggling}

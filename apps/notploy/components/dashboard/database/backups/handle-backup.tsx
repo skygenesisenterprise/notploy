@@ -227,7 +227,7 @@ export const HandleBackup = ({
 			? api.backup.update.useMutation()
 			: api.backup.create.useMutation();
 
-	const form = useForm({
+	const form = useForm<z.input<typeof Schema>, any, z.output<typeof Schema>>({
 		defaultValues: {
 			database:
 				databaseType === "web-server"

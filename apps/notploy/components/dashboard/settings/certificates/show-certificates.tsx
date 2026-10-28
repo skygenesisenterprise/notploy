@@ -137,7 +137,7 @@ export const ShowCertificates = () => {
 					certificate.commonName,
 					certificate.issuer,
 					certificate.certificatePath,
-					...certificate.subjectAltNames,
+					...(certificate.subjectAltNames ?? []),
 					certificate.server?.name ?? "",
 				]
 					.filter(Boolean)
@@ -199,15 +199,15 @@ export const ShowCertificates = () => {
 			},
 			{
 				id: "hosts",
-				accessorFn: (row) => row.subjectAltNames.join(", "),
+				accessorFn: (row) => (row.subjectAltNames ?? []).join(", "),
 				header: ({ column }) => (
 					<SortableHeader column={column} title="Hosts" />
 				),
 				enableSorting: false,
 				cell: ({ row }) =>
-					row.original.subjectAltNames.length ? (
+					(row.original.subjectAltNames ?? []).length ? (
 						<span className="block max-w-64 truncate">
-							{row.original.subjectAltNames.join(", ")}
+							{(row.original.subjectAltNames ?? []).join(", ")}
 						</span>
 					) : (
 						<span className="text-muted-foreground">Not available</span>
@@ -237,7 +237,9 @@ export const ShowCertificates = () => {
 					<SortableHeader column={column} title="Chain" />
 				),
 				cell: ({ row }) => {
-					const chainCount = countChainCertificates(row.certificateData);
+					const chainCount = countChainCertificates(
+						row.original.certificateData,
+					);
 					return chainCount > 1 ? (
 						<Badge variant="outline">{chainCount} certificates</Badge>
 					) : (
@@ -574,9 +576,9 @@ export const CertificateSummary = ({
 
 				<section className="space-y-2">
 					<h3 className="font-medium">Hosts</h3>
-					{certificate.subjectAltNames.length ? (
+					{(certificate.subjectAltNames ?? []).length ? (
 						<div className="flex flex-wrap gap-2">
-							{certificate.subjectAltNames.map((host) => (
+							{(certificate.subjectAltNames ?? []).map((host) => (
 								<Badge key={host} variant="outline">
 									{host}
 								</Badge>

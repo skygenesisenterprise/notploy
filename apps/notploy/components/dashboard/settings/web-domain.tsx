@@ -1,8 +1,8 @@
+import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
 import {
 	INVALID_HOSTNAME_MESSAGE,
 	VALID_HOSTNAME_REGEX,
 } from "@notploy/server/utils/hostname-validation";
-import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
 import { GlobeIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -63,7 +63,7 @@ export const WebDomain = () => {
 		})
 			.then(async (result) => {
 				await refetch();
-				const internalDns = result?.internalDns;
+				const internalDns = result === true ? null : result?.internalDns;
 				if (internalDns?.status === "no-provider") {
 					toast.warning(
 						"Domain saved, but no Notploy Internal DNS provider is configured",

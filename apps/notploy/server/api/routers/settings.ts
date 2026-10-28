@@ -880,7 +880,8 @@ export const settingsRouter = createTRPCRouter({
 						const match = key.match(
 							/^traefik\.http\.routers\.([^.]+)\.(?:rule|entrypoints|service|middlewares|tls(?:\..*)?)$/i,
 						);
-						if (match) routerNames.add(match[1]);
+						const routerName = match?.[1];
+						if (routerName) routerNames.add(routerName);
 					}
 					for (const name of routerNames) {
 						const prefix = `traefik.http.routers.${name}.`;

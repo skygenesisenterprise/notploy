@@ -18,8 +18,8 @@ import type {
   ConnectionInput,
   ConnectionUpdate,
   ConnectionSummary,
-  InstanceWithAuth,
 } from '@/types/domain';
+import type { InstanceWithAuth } from '@/services/instance-storage';
 
 // ============================================================================
 // Types
@@ -74,7 +74,7 @@ const InstancesContext = createContext<InstancesContextValue | undefined>(undefi
  */
 export function InstancesProvider({ children }: { children: React.ReactNode }) {
   const [instances, setInstances] = useState<ConnectionSummary[]>([]);
-  const [activeInstance, setActiveInstance] = useState<ConnectionSummary | undefined>();
+  const [activeInstance, setActiveInstanceState] = useState<ConnectionSummary | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | undefined>();
 
@@ -91,10 +91,10 @@ export function InstancesProvider({ children }: { children: React.ReactNode }) {
         const active = await instanceStorage.getActive();
         if (active) {
           const activeSummary = summaries.find((i) => i.id === active.id);
-          setActiveInstance(activeSummary);
+          setActiveInstanceState(activeSummary);
         } else if (summaries.length > 0) {
           // If no active instance, use the first one
-          setActiveInstance(summaries[0]);
+          setActiveInstanceState(summaries[0]);
         }
       } catch (err) {
         setError(err as Error);
@@ -123,9 +123,9 @@ export function InstancesProvider({ children }: { children: React.ReactNode }) {
       const active = await instanceStorage.getActive();
       if (active) {
         const activeSummary = summaries.find((i) => i.id === active.id);
-        setActiveInstance(activeSummary);
+        setActiveInstanceState(activeSummary);
       } else if (summaries.length > 0) {
-        setActiveInstance(summaries[0]);
+        setActiveInstanceState(summaries[0]);
       }
     } catch (err) {
       setError(err as Error);

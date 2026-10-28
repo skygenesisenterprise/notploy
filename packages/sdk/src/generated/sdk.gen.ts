@@ -5,8 +5,8 @@ import {
 	formDataBodySerializer,
 	type Options as Options2,
 	type TDataShape,
-} from "./client";
-import { client } from "./client.gen";
+} from "./client/index.js";
+import { client } from "./client.gen.js";
 import type {
 	AdminSetupMonitoringData,
 	AdminSetupMonitoringErrors,
@@ -1817,7 +1817,7 @@ import type {
 	WhitelabelingUpdateData,
 	WhitelabelingUpdateErrors,
 	WhitelabelingUpdateResponses,
-} from "./types.gen";
+} from "./types.gen.js";
 
 export type Options<
 	TData extends TDataShape = TDataShape,

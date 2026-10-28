@@ -146,7 +146,7 @@ function getTranslation(key: string): string {
     if (typeof current === 'string') {
       return current;
     }
-    const value = current[part];
+    const value: string | TranslationDictionary | undefined = current[part];
     if (value === undefined) {
       return key;
     }
@@ -196,4 +196,4 @@ export function t(key: string, options?: Record<string, string>): string {
   return translation;
 }
 
-export type { TranslationDictionary, TFunction };
+export type { TranslationDictionary };

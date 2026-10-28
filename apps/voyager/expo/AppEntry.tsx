@@ -16,7 +16,7 @@ import { AppProvider } from '@/providers/app-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { InstancesProvider } from '@/providers/instances-provider';
 import { AuthProvider } from '@/providers/auth-provider';
-import { Router } from '@/app/_layout';
+import RootLayout from '../app/_layout';
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -43,7 +43,7 @@ export default function App() {
               <InstancesProvider>
                 <AuthProvider>
                   <StatusBar style="auto" />
-                  <Router />
+                  <RootLayout />
                   {/* React Query Devtools - only in development */}
                   {__DEV__ && <ReactQueryDevtools initialIsOpen={false} />}
                 </AuthProvider>

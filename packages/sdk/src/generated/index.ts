@@ -605,7 +605,7 @@ export {
 	whitelabelingGetPublic,
 	whitelabelingReset,
 	whitelabelingUpdate,
-} from "./sdk.gen";
+} from "./sdk.gen.js";
 export type {
 	AdminSetupMonitoringData,
 	AdminSetupMonitoringError,
@@ -3628,4 +3628,4 @@ export type {
 	WhitelabelingUpdateErrors,
 	WhitelabelingUpdateResponse,
 	WhitelabelingUpdateResponses,
-} from "./types.gen";
+} from "./types.gen.js";

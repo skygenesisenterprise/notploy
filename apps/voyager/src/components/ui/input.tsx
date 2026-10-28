@@ -26,7 +26,7 @@ export type InputVariant = 'default' | 'outline' | 'filled';
 export type InputSize = 'sm' | 'md' | 'lg';
 
 /** Input props */
-interface InputProps extends TextInputProps {
+export interface InputProps extends TextInputProps {
   /** Input label */
   label?: string;
   /** Input variant */

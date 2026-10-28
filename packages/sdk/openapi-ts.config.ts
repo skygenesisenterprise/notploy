@@ -6,6 +6,9 @@ export default defineConfig({
 	input: "./openapi.json",
 	output: {
 		path: "./src/generated",
+		module: {
+			extension: ".js",
+		},
 		postProcess: ["biome:format"],
 	},
 	plugins: ["@hey-api/client-fetch", "@hey-api/sdk", "@hey-api/typescript"],

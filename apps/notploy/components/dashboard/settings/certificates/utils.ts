@@ -53,6 +53,7 @@ export const describeExpiration = (certificate: {
 
 /** Presentation for one certificate of a bundled chain. */
 export const describeChainEntry = (entry: {
+	index: number;
 	isLeaf: boolean;
 	unparsable: boolean;
 	commonName: string | null;

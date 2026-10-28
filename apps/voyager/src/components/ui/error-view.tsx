@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, type ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useColor } from '@/hooks/use-color';
 import { useTranslation } from '@/hooks/use-translation';
 import { Button } from './button';
@@ -15,7 +15,7 @@ import { Button } from './button';
 // ============================================================================
 
 /** Error view props */
-interface ErrorViewProps {
+export interface ErrorViewProps {
   /** Error message */
   message?: string;
   /** Error description */
@@ -27,7 +27,7 @@ interface ErrorViewProps {
   /** Retry button text */
   retryText?: string;
   /** Custom style */
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   /** Custom text style */
   textStyle?: any;
   /** Custom description style */

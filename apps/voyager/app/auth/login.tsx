@@ -143,7 +143,8 @@ export default function LoginScreen() {
             {instances.map((i) => (
               <TouchableOpacity
                 key={i.id}
-                style={[\n                  styles.instanceItem,
+                style={[
+                  styles.instanceItem,
                   instanceId === i.id && styles.instanceItemSelected,
                   { borderColor: color.border },
                 ]}

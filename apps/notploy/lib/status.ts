@@ -15,15 +15,23 @@
  * - `STATUS_TOKEN` administration token carrying the `read`, `write` and
  *                  `publish` scopes.
  */
-import {
-	StatusPublisher,
-	StatusPublisherError,
-} from "@notploy/status";
+
 import type {
 	AdminComponentDto,
 	AdminIncidentDto,
 	AdminMaintenanceDto,
 	AdminPageDto,
+} from "@notploy/status";
+import { StatusPublisher, StatusPublisherError } from "@notploy/status";
+
+export type {
+	AdminComponentDto,
+	AdminIncidentDto,
+	AdminMaintenanceDto,
+	AdminPageDto,
+	IncidentSeverity,
+	IncidentState,
+	MaintenanceState,
 } from "@notploy/status";
 
 /** Everything the console knows about one status page. */
@@ -47,7 +55,10 @@ const trimTrailingSlashes = (value: string): string =>
 	value.trim().replace(/\/+$/, "");
 
 /** Connection settings, or `null` when the integration is not configured. */
-export const getStatusConnection = (): { baseUrl: string; token: string } | null => {
+export const getStatusConnection = (): {
+	baseUrl: string;
+	token: string;
+} | null => {
 	const baseUrl = process.env.STATUS_URL
 		? trimTrailingSlashes(process.env.STATUS_URL)
 		: null;

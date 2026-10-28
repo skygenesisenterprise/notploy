@@ -3,12 +3,12 @@ import {
 	OPERATOR_ONLY_MESSAGE,
 	buildConsoleHomeModel,
 	type ConsoleHomeData,
+	type ConsoleServiceLike,
 } from "@/components/dashboard/home/console/console-home-data";
 import type {
 	DeploymentFeedLike,
 	OperationalEventFeedLike,
 	ServerLike,
-	WorkloadLike,
 	WorkspaceCounts,
 } from "@/components/dashboard/home/types";
 
@@ -25,7 +25,10 @@ const stats: WorkspaceCounts = {
 	status: { running: 3, error: 0, idle: 0 },
 };
 
-const services: WorkloadLike[] = [{ status: "done" }, { status: "done" }];
+const services = [
+	{ status: "done" },
+	{ status: "done" },
+] as ConsoleServiceLike[];
 const servers: ServerLike[] = [
 	{ serverStatus: "active" },
 	{ serverStatus: "inactive" },
@@ -135,6 +138,18 @@ const base: ConsoleHomeData = {
 		traefik: { status: "unhealthy" },
 	},
 	infrastructureState: settled,
+	backups: undefined,
+	backupsState: settled,
+	canReadBackups: false,
+	certificates: undefined,
+	certificatesState: settled,
+	canReadCertificates: false,
+	monitoring: undefined,
+	monitoringState: settled,
+	canReadMonitoring: false,
+	traffic: undefined,
+	trafficState: settled,
+	canReadTraffic: false,
 };
 
 const group = (model: ReturnType<typeof buildConsoleHomeModel>, id: string) => {
@@ -281,7 +296,9 @@ describe("buildConsoleHomeModel", () => {
 	it("lists open incidents as operational activity and ignores resolved ones", () => {
 		const model = buildConsoleHomeModel(base);
 		expect(model.activity.state).toBe("available");
-		expect(model.activity.items.map((item) => item.id)).toEqual(["incident-i-1"]);
+		expect(model.activity.items.map((item) => item.id)).toEqual([
+			"status-incident-cloud-i-1",
+		]);
 		expect(model.activity.items[0]).toMatchObject({
 			href: "/dashboard/incidents",
 			tone: "critical",

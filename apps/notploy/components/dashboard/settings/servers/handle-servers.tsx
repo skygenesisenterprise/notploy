@@ -93,7 +93,7 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 	const isPending = isCreating || isUpdating;
 	const error = serverId ? updateError : createError;
 	const isError = serverId ? isUpdateError : isCreateError;
-	const form = useForm<Schema>({
+	const form = useForm<z.input<typeof Schema>, any, z.output<typeof Schema>>({
 		defaultValues: {
 			description: "",
 			name: "",
@@ -392,8 +392,8 @@ export const HandleServers = ({ serverId, asButton = false }: Props) => {
 										</FormControl>
 										<FormDescription>
 											Used once to add Notploy&apos;s SSH key to this account.
-											The password is not stored. The account must be root or have
-											passwordless sudo access.
+											The password is not stored. The account must be root or
+											have passwordless sudo access.
 										</FormDescription>
 										<FormMessage />
 									</FormItem>

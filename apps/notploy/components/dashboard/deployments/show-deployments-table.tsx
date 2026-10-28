@@ -1,13 +1,7 @@
 "use client";
 
 import type { inferRouterOutputs } from "@trpc/server";
-import {
-	ArrowDown,
-	ArrowUp,
-	Loader2,
-	RefreshCw,
-	Rocket,
-} from "lucide-react";
+import { ArrowDown, ArrowUp, Loader2, RefreshCw, Rocket } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -181,7 +175,7 @@ export function ShowDeploymentsTable() {
 					<Select
 						value={statusFilter}
 						onValueChange={(value) => {
-							setStatusFilter(value);
+							setStatusFilter(value as "all" | DeploymentStatus);
 							setPage(0);
 						}}
 					>
@@ -204,7 +198,10 @@ export function ShowDeploymentsTable() {
 							setPage(0);
 						}}
 					>
-						<SelectTrigger className="w-[145px]" aria-label="Filter by service type">
+						<SelectTrigger
+							className="w-[145px]"
+							aria-label="Filter by service type"
+						>
 							<SelectValue placeholder="Service type" />
 						</SelectTrigger>
 						<SelectContent>
@@ -220,7 +217,9 @@ export function ShowDeploymentsTable() {
 					onClick={() => void refetch()}
 					disabled={isFetching}
 				>
-					<RefreshCw className={`mr-2 size-4 ${isFetching ? "animate-spin" : ""}`} />
+					<RefreshCw
+						className={`mr-2 size-4 ${isFetching ? "animate-spin" : ""}`}
+					/>
 					Refresh
 				</Button>
 			</div>
@@ -236,7 +235,11 @@ export function ShowDeploymentsTable() {
 						Unable to load deployments
 					</p>
 					<p className="mt-1 text-muted-foreground">{error.message}</p>
-					<Button className="mt-4" variant="outline" onClick={() => void refetch()}>
+					<Button
+						className="mt-4"
+						variant="outline"
+						onClick={() => void refetch()}
+					>
 						Retry
 					</Button>
 				</div>
@@ -335,7 +338,9 @@ export function ShowDeploymentsTable() {
 													{getDuration(deployment, now)}
 												</TableCell>
 												<TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-													{formatDate(deployment.startedAt ?? deployment.createdAt)}
+													{formatDate(
+														deployment.startedAt ?? deployment.createdAt,
+													)}
 												</TableCell>
 												<TableCell>
 													<Button
@@ -385,10 +390,8 @@ export function ShowDeploymentsTable() {
 								</SelectContent>
 							</Select>
 							<span>
-								{(data?.total ?? 0) === 0
-									? 0
-									: page * pageSize + 1}
-								–{Math.min((page + 1) * pageSize, data?.total ?? 0)} of{" "}
+								{(data?.total ?? 0) === 0 ? 0 : page * pageSize + 1}–
+								{Math.min((page + 1) * pageSize, data?.total ?? 0)} of{" "}
 								{data?.total ?? 0}
 							</span>
 						</div>

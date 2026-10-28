@@ -10,9 +10,15 @@ import {
 	IS_CLOUD,
 } from "@notploy/server";
 import { TRPCError } from "@trpc/server";
+import type Dockerode from "dockerode";
 import { z } from "zod";
 import { createTRPCRouter, withPermission } from "../trpc";
 import { containerIdRegex } from "./docker";
+
+const getContainerSpec = (taskTemplate: Dockerode.TaskSpec | undefined) =>
+	taskTemplate && "ContainerSpec" in taskTemplate
+		? taskTemplate.ContainerSpec
+		: undefined;
 
 export const swarmRouter = createTRPCRouter({
 	getConsole: withPermission("docker", "read")
@@ -127,7 +133,7 @@ export const swarmRouter = createTRPCRouter({
 				return {
 					id: service.ID,
 					name: spec?.Name ?? service.ID,
-					image: spec?.TaskTemplate?.ContainerSpec?.Image ?? null,
+					image: getContainerSpec(spec?.TaskTemplate)?.Image ?? null,
 					mode: mode?.Global
 						? "global"
 						: mode?.Replicated
