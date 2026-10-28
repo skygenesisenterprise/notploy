@@ -354,8 +354,8 @@ importers:
         specifier: ^3.9.17
         version: 3.9.17(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       node-os-utils:
-        specifier: 2.0.1
-        version: 2.0.1
+        specifier: 3.1.0
+        version: 3.1.0
       node-pty:
         specifier: 1.1.0
         version: 1.1.0
@@ -1125,8 +1125,8 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       node-os-utils:
-        specifier: 2.0.1
-        version: 2.0.1
+        specifier: 3.1.0
+        version: 3.1.0
       node-pty:
         specifier: 1.1.0
         version: 1.1.0
@@ -14642,9 +14642,9 @@ packages:
       '@types/node':
         optional: true
 
-  node-os-utils@2.0.1:
-    resolution: {integrity: sha512-rH2N3qHZETLhdgTGhMMCE8zU3gsWO4we1MFtrSiAI7tYWrnJRc6dk2PseV4co3Lb0v/MbRONLQI2biHQYbpTpg==}
-    engines: {node: '>=18.0.0'}
+  node-os-utils@3.1.0:
+    resolution: {integrity: sha512-Fe4LMHLkhSeHwtVIF2J6CnkUnJm8JyjnDYBp/u2pqA7GyoIp5XanIJPxojw0BGg/Olv99zlrYVWW7p0WIdE00Q==}
+    engines: {node: '>=12.22.0'}
 
   node-pty@1.1.0:
     resolution: {integrity: sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg==}
@@ -33430,7 +33430,7 @@ snapshots:
       '@types/express': 4.17.25
       '@types/node': 22.20.5
 
-  node-os-utils@2.0.1: {}
+  node-os-utils@3.1.0: {}
 
   node-pty@1.1.0:
     dependencies:
