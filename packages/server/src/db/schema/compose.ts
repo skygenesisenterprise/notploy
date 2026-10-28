@@ -266,8 +266,8 @@ export const apiUpdateCompose = createSchema
 		composeId: z.string(),
 		composeFile: z.string().optional(),
 		command: z.string().optional(),
-	})
-	.omit({ serverId: true });
+		serverId: z.string().min(1).nullable().optional(),
+	});
 
 export const apiSaveEnvironmentVariablesCompose = createSchema
 	.pick({

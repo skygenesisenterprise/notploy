@@ -22,6 +22,7 @@ export * from "./services/cluster";
 export * from "./services/community";
 export * from "./services/compose";
 export * from "./services/deployment";
+export * from "./services/deployment-target";
 export * from "./services/destination";
 export * from "./services/dns-provider";
 export * from "./services/docker";

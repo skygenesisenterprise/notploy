@@ -51,6 +51,16 @@ Build servers are particularly useful when you want to:
 
 You can configure an application to use a build server by selecting it in the application's **Advanced** settings. The built image will be pushed to a Docker registry, and then pulled by your deployment server(s) for deployment.
 
+## Selecting a deployment target
+
+Each application and Docker Compose service has a **Deployment Target** setting (General tab). It lists only connected deployment servers (`serverType: "deploy"`) that belong to your organization and that you are authorized to use. Build-only servers are never listed as runtime targets.
+
+- The Notploy instance stays the **control plane** (UI, API, orchestration, status). The selected server is the **execution target** (containers, volumes, networking, Traefik routes).
+- Deploy, redeploy, restart, stop/start, removal, logs and rollback all run against the configured target. Changing the target affects the next operation; deployment history records the target used for each attempt.
+- Existing services keep their current target (or local execution) until you change it. Changing the target does not migrate volumes by itself — use **Transfer to another server** when data must move.
+- Validation runs server-side before dispatch: the target must belong to your organization, be accessible to you, be enabled, have the deployment role, and have an SSH key connected. Failures return actionable errors and never silently fall back to local execution.
+- Docker Compose supports deployment targets but not dedicated build servers. Applications support both: the build server (Advanced settings) must be paired with a registry so the deployment target can pull the image.
+
 ## Features
 
 1. **Enter the terminal**: Allows you to access the terminal of the remote server.

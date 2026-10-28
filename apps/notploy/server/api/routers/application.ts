@@ -14,6 +14,8 @@ import {
 	getWebServerSettings,
 	IS_CLOUD,
 	isManagedCloud,
+	validateBuildServer,
+	validateDeploymentTarget,
 	mechanizeDockerContainer,
 	readConfig,
 	readRemoteConfig,
@@ -119,14 +121,11 @@ export const applicationRouter = createTRPCRouter({
 				}
 
 				if (input.serverId) {
-					const accessibleIds = await getAccessibleServerIds(ctx.session);
-					if (!accessibleIds.has(input.serverId)) {
-						throw new TRPCError({
-							code: "UNAUTHORIZED",
-							message: "You are not authorized to access this server",
+						await validateDeploymentTarget({
+							serverId: input.serverId,
+							session: ctx.session,
 						});
 					}
-				}
 
 				const newApplication = await createApplication(input);
 
@@ -460,6 +459,18 @@ export const applicationRouter = createTRPCRouter({
 				deployment: ["create"],
 			});
 			const application = await findApplicationById(input.applicationId);
+			if (application.serverId) {
+					await validateDeploymentTarget({
+						serverId: application.serverId,
+						session: ctx.session,
+					});
+				}
+			if (application.buildServerId) {
+					await validateBuildServer({
+						buildServerId: application.buildServerId,
+						session: ctx.session,
+					});
+				}
 			const jobData: DeploymentJob = {
 				applicationId: input.applicationId,
 				titleLog: input.title || "Rebuild deployment",
@@ -774,15 +785,32 @@ export const applicationRouter = createTRPCRouter({
 				service: ["create"],
 			});
 
-			if (input.buildServerId) {
-				const accessibleIds = await getAccessibleServerIds(ctx.session);
-				if (!accessibleIds.has(input.buildServerId)) {
-					throw new TRPCError({
-						code: "UNAUTHORIZED",
-						message: "You are not authorized to access this build server",
+			if (input.buildServerId !== undefined) {
+					await validateBuildServer({
+						buildServerId: input.buildServerId,
+						session: ctx.session,
 					});
 				}
-			}
+
+			if (input.serverId !== undefined) {
+					const webServerSettings = await getWebServerSettings();
+					const allowLocal = !(
+						IS_CLOUD || webServerSettings?.remoteServersOnly
+					);
+					if (!allowLocal && !input.serverId) {
+						throw new TRPCError({
+							code: "BAD_REQUEST",
+							message:
+								"A deployment server must be selected for this application.",
+						});
+					}
+					if (input.serverId) {
+						await validateDeploymentTarget({
+							serverId: input.serverId,
+							session: ctx.session,
+						});
+					}
+				}
 
 			const { applicationId, ...rest } = input;
 			const updateApp = await withQuotaAudit(
@@ -837,6 +865,18 @@ export const applicationRouter = createTRPCRouter({
 				deployment: ["create"],
 			});
 			const application = await findApplicationById(input.applicationId);
+			if (application.serverId) {
+					await validateDeploymentTarget({
+						serverId: application.serverId,
+						session: ctx.session,
+					});
+				}
+			if (application.buildServerId) {
+					await validateBuildServer({
+						buildServerId: application.buildServerId,
+						session: ctx.session,
+					});
+				}
 			const jobData: DeploymentJob = {
 				applicationId: input.applicationId,
 				titleLog: input.title || "Manual deployment",

@@ -218,6 +218,7 @@ export const createDeployment = async (
 				logPath: logFilePath,
 				description: deployment.description || "",
 				startedAt: new Date().toISOString(),
+				...(application.serverId && { serverId: application.serverId }),
 				...(application.buildServerId && {
 					buildServerId: application.buildServerId,
 				}),
@@ -378,6 +379,7 @@ echo "Initializing deployment\n" >> ${logFilePath};
 				status: "running",
 				logPath: logFilePath,
 				startedAt: new Date().toISOString(),
+				...(compose.serverId && { serverId: compose.serverId }),
 			})
 			.returning();
 		if (deploymentCreate.length === 0 || !deploymentCreate[0]) {

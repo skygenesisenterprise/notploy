@@ -5,7 +5,10 @@ import Dockerode from "dockerode";
 export const getRemoteDocker = async (serverId?: string | null) => {
 	if (!serverId) return docker;
 	const server = await findServerById(serverId);
-	if (!server.sshKeyId) return docker;
+	if (!server.sshKeyId)
+		throw new Error(
+			`Deployment server "${server.name}" is not connected over SSH. Connect it before running workload operations.`,
+		);
 	const dockerode = new Dockerode({
 		host: server.ipAddress,
 		port: server.port,

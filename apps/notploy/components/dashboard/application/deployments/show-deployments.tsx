@@ -351,6 +351,14 @@ export const ShowDeployments = ({
 									<div className="flex w-full flex-col items-start gap-2 sm:w-auto sm:max-w-[300px] sm:items-end sm:justify-start">
 										<div className="text-sm capitalize text-muted-foreground flex flex-wrap items-center gap-2">
 											<DateTooltip date={deployment.createdAt} />
+											<Badge variant="outline" className="text-[10px]">
+												{"server" in deployment && deployment.server
+													? `Target: ${deployment.server.name}`
+													: "Target: local"}
+											{"buildServer" in deployment &&
+												deployment.buildServer &&
+												` · Built on ${deployment.buildServer.name}`}
+											</Badge>
 											{deployment.startedAt && deployment.finishedAt && (
 												<Badge
 													variant="outline"
@@ -501,7 +509,11 @@ export const ShowDeployments = ({
 					</div>
 				)}
 				<ShowDeployment
-					serverId={activeLog?.buildServerId || serverId}
+					serverId={
+						(activeLog as unknown as { buildServerId?: string | null })?.buildServerId ||
+						(activeLog as unknown as { serverId?: string | null })?.serverId ||
+						serverId
+					}
 					open={Boolean(activeLog && activeLog.logPath !== null)}
 					onClose={() => setActiveLog(null)}
 					logPath={activeLog?.logPath || ""}

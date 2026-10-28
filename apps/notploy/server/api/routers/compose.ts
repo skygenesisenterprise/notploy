@@ -17,6 +17,7 @@ import {
 	findProjectById,
 	findServerById,
 	getAccessibleServerIds,
+	validateDeploymentTarget,
 	getComposeContainer,
 	getContainerLogs,
 	getWebServerSettings,
@@ -112,14 +113,11 @@ export const composeRouter = createTRPCRouter({
 				}
 
 				if (input.serverId) {
-					const accessibleIds = await getAccessibleServerIds(ctx.session);
-					if (!accessibleIds.has(input.serverId)) {
-						throw new TRPCError({
-							code: "UNAUTHORIZED",
-							message: "You are not authorized to access this server",
+						await validateDeploymentTarget({
+							serverId: input.serverId,
+							session: ctx.session,
 						});
 					}
-				}
 
 				const newService = await createCompose({
 					...input,
@@ -195,10 +193,27 @@ export const composeRouter = createTRPCRouter({
 
 	update: protectedProcedure
 		.input(apiUpdateCompose)
-		.mutation(async ({ input, ctx }) => {
-			await checkServicePermissionAndAccess(ctx, input.composeId, {
+		.mutation(async ({ input, ctx }) => {				await checkServicePermissionAndAccess(ctx, input.composeId, {
 				service: ["create"],
-			});
+				});
+			if (input.serverId !== undefined) {
+					const webServerSettings = await getWebServerSettings();
+					const allowLocal = !(
+						IS_CLOUD || webServerSettings?.remoteServersOnly
+					);
+					if (!allowLocal && !input.serverId) {
+						throw new TRPCError({
+							code: "BAD_REQUEST",
+							message: "A deployment server must be selected for this compose service.",
+						});
+					}
+					if (input.serverId) {
+						await validateDeploymentTarget({
+							serverId: input.serverId,
+							session: ctx.session,
+						});
+					}
+				}
 			const updated = await updateCompose(input.composeId, input);
 			await audit(ctx, {
 				action: "update",
@@ -421,6 +436,12 @@ export const composeRouter = createTRPCRouter({
 				deployment: ["create"],
 			});
 			const compose = await findComposeById(input.composeId);
+			if (compose.serverId) {
+					await validateDeploymentTarget({
+						serverId: compose.serverId,
+						session: ctx.session,
+					});
+				}
 
 			const jobData: DeploymentJob = {
 				composeId: input.composeId,
@@ -472,6 +493,12 @@ export const composeRouter = createTRPCRouter({
 				deployment: ["create"],
 			});
 			const compose = await findComposeById(input.composeId);
+			if (compose.serverId) {
+					await validateDeploymentTarget({
+						serverId: compose.serverId,
+						session: ctx.session,
+					});
+				}
 			const jobData: DeploymentJob = {
 				composeId: input.composeId,
 				titleLog: input.title || "Rebuild deployment",

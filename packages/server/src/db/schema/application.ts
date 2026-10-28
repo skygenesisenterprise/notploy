@@ -554,5 +554,5 @@ export const apiUpdateApplication = createSchema
 	.partial()
 	.extend({
 		applicationId: z.string().min(1),
+		serverId: z.string().min(1).nullable().optional(),
 	})
-	.omit({ serverId: true });

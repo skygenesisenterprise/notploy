@@ -221,6 +221,22 @@ export const deploymentRouter = createTRPCRouter({
 				orderBy: desc(deployments.createdAt),
 				with: {
 					rollback: true,
+					server: {
+						columns: {
+							serverId: true,
+							name: true,
+							ipAddress: true,
+							serverType: true,
+						},
+					},
+					buildServer: {
+						columns: {
+							serverId: true,
+							name: true,
+							ipAddress: true,
+							serverType: true,
+						},
+					},
 				},
 			});
 			return deploymentsList;
