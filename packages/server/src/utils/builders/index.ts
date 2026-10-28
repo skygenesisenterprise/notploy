@@ -188,7 +188,13 @@ export const mechanizeDockerContainer = async (
 			},
 		});
 	} catch (error) {
-		console.log(error);
+		const message = error instanceof Error ? error.message : String(error);
+		const statusCode = (error as { statusCode?: number })?.statusCode;
+		const isExpectedMissingService =
+			statusCode === 404 || message.includes("no such service");
+		if (!isExpectedMissingService) {
+			console.log(error);
+		}
 		if (authConfig) {
 			await docker.createService(authConfig, settings);
 		} else {

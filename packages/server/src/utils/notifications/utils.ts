@@ -94,7 +94,6 @@ export const sendDiscordNotification = async (
 			);
 		}
 	} catch (err) {
-		console.log("error", err);
 		throw new Error(
 			`Failed to send discord notification ${err instanceof Error ? err.message : "Unknown error"}`,
 		);
@@ -128,9 +127,7 @@ export const sendTelegramNotification = async (
 	} catch (err) {
 		console.log(err);
 	}
-};
-
-export const sendSlackNotification = async (
+};export const sendSlackNotification = async (
 	connection: typeof slack.$inferInsert,
 	message: any,
 ) => {
@@ -146,7 +143,6 @@ export const sendSlackNotification = async (
 			);
 		}
 	} catch (err) {
-		console.log("error", err);
 		throw new Error(
 			`Failed to send slack notification ${err instanceof Error ? err.message : "Unknown error"}`,
 		);

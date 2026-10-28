@@ -157,6 +157,7 @@ services:
         condition: service_started
     environment:
       NODE_ENV: production
+      NODE_NO_WARNINGS: "1"
       PORT: 3000
       HOST: 0.0.0.0
       # Internal service name — never localhost from inside the container.
@@ -253,6 +254,7 @@ services:
     # server (Next client + tRPC API).
     environment:
       NODE_ENV: development
+      NODE_NO_WARNINGS: "1"
       NOTPLOY_MODE: development
       PORT: 3000
       HOST: 0.0.0.0

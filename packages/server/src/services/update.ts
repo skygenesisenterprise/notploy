@@ -317,17 +317,25 @@ const fetchSelfHostedReleases = async (): Promise<SelfHostedRelease[]> => {
  * reachable. On failure it keeps serving the last known releases so a GitHub
  * outage never makes an up-to-date install look obsolete.
  */
+let lastReleasesWarningAt = 0;
+const RELEASES_WARNING_THROTTLE_MS = 60 * 60 * 1000;
+
 const getLatestSelfHostedRelease = async (): Promise<SelfHostedRelease | null> => {
 	try {
 		return getLatestOf(await fetchSelfHostedReleases());
 	} catch (error) {
 		// The update check is best-effort: an unreachable or rate-limited GitHub
-		// must never surface as a server error in the logs on every call.
-		console.warn(
-			`Could not fetch releases from GitHub: ${
-				error instanceof Error ? error.message : String(error)
-			}`,
-		);
+		// must never spam the logs. Warn at most once an hour, debug otherwise.
+		const now = Date.now();
+		const detail = error instanceof Error ? error.message : String(error);
+		if (now - lastReleasesWarningAt > RELEASES_WARNING_THROTTLE_MS) {
+			lastReleasesWarningAt = now;
+			console.warn(
+				`Could not fetch releases from GitHub (${detail}). Check outbound network/DNS if this persists; using cached releases.`,
+			);
+		} else {
+			console.debug(`Could not fetch releases from GitHub (${detail}).`);
+		}
 		return getLatestOf(releasesCache?.releases ?? []);
 	}
 };
