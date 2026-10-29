@@ -68,11 +68,7 @@ export interface PublisherIncidentInput {
 	title: string;
 	description?: string;
 	severity?: "minor" | "major" | "critical";
-	state?:
-		| "investigating"
-		| "identified"
-		| "monitoring"
-		| "resolved";
+	state?: "investigating" | "identified" | "monitoring" | "resolved";
 	visibility?: "public" | "private";
 	published?: boolean;
 	componentIds?: string[];
@@ -198,22 +194,22 @@ export class StatusPublisher {
 		return this.request(
 			"POST",
 			`/api/v1/admin/pages/${encodeURIComponent(input.pageRef)}/incidents`,
-		{
-			title: input.title,
-			description: input.description ?? "",
-			severity: input.severity ?? "minor",
-			state: input.state,
-			visibility: input.visibility ?? "private",
-			published: input.published ?? false,
-			componentIds: input.componentIds ?? [],
-			correlationKey: input.correlationKey,
-			update: input.updateMessage
-				? { message: input.updateMessage }
-				: undefined,
-		},
-		randomKey(),
-	);
-}
+			{
+				title: input.title,
+				description: input.description ?? "",
+				severity: input.severity ?? "minor",
+				state: input.state,
+				visibility: input.visibility ?? "private",
+				published: input.published ?? false,
+				componentIds: input.componentIds ?? [],
+				correlationKey: input.correlationKey,
+				update: input.updateMessage
+					? { message: input.updateMessage }
+					: undefined,
+			},
+			randomKey(),
+		);
+	}
 
 	/** Publish (or withdraw) an incident. */
 	publish(
@@ -379,7 +375,9 @@ export class StatusPublisher {
 	}
 
 	/** Full timeline of an incident, internal entries included. */
-	getIncidentTimeline(incidentId: string): Promise<{ items: TimelineEventDto[] }> {
+	getIncidentTimeline(
+		incidentId: string,
+	): Promise<{ items: TimelineEventDto[] }> {
 		return this.request(
 			"GET",
 			`/api/v1/admin/incidents/${encodeURIComponent(incidentId)}/timeline`,
@@ -459,5 +457,6 @@ export class StatusPublisher {
 	}
 }
 
-export const createStatusPublisher = (options: StatusPublisherOptions): StatusPublisher =>
-	new StatusPublisher(options);
+export const createStatusPublisher = (
+	options: StatusPublisherOptions,
+): StatusPublisher => new StatusPublisher(options);

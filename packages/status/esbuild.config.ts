@@ -23,7 +23,7 @@ try {
 			index: "src/index.ts",
 			api: "src/api/index.ts",
 			client: "src/integration/client.ts",
-			"server": "src/platform.ts",
+			server: "src/platform.ts",
 			// Bundled so the production status image can seed its catalog without
 			// shipping the monorepo or a TypeScript runner:
 			//   docker compose --profile status exec status node engine-dist/seed.js

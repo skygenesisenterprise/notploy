@@ -1,64 +1,62 @@
 {
-  "expo": {
-    "name": "Notploy Voyager",
-    "slug": "notploy-voyager",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#1a1a2e"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.notploy.voyager",
-      "buildNumber": "1.0.0"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1a1a2e"
-      },
-      "package": "com.notploy.voyager",
-      "versionCode": 1
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-build-properties",
-        {
-          "ios": {
-            "usesIcloudStorage": true
-          },
-          "android": {
-            "compileSdkVersion": 34
-          }
-        }
-      ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#1a1a2e",
-          "modes": ["alert", "badge", "sound"]
-        }
-      ]
-    ],
-    "experiments": {
-      "tsconfigPaths": true
-    },
-    "extra": {
-      "eas": {
-        "projectId": "notploy-voyager"
-      }
-    }
-  }
+	"expo": {
+		"name": "Notploy Voyager",
+		"slug": "notploy-voyager",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/icon.png",
+		"userInterfaceStyle": "automatic",
+		"splash": {
+			"image": "./assets/splash.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#1a1a2e"
+		},
+		"assetBundlePatterns": ["**/*"],
+		"ios": {
+			"supportsTablet": true,
+			"bundleIdentifier": "com.notploy.voyager",
+			"buildNumber": "1.0.0"
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/adaptive-icon.png",
+				"backgroundColor": "#1a1a2e"
+			},
+			"package": "com.notploy.voyager",
+			"versionCode": 1
+		},
+		"web": {
+			"favicon": "./assets/favicon.png"
+		},
+		"plugins": [
+			"expo-router",
+			[
+				"expo-build-properties",
+				{
+					"ios": {
+						"usesIcloudStorage": true
+					},
+					"android": {
+						"compileSdkVersion": 34
+					}
+				}
+			],
+			[
+				"expo-notifications",
+				{
+					"icon": "./assets/notification-icon.png",
+					"color": "#1a1a2e",
+					"modes": ["alert", "badge", "sound"]
+				}
+			]
+		],
+		"experiments": {
+			"tsconfigPaths": true
+		},
+		"extra": {
+			"eas": {
+				"projectId": "notploy-voyager"
+			}
+		}
+	}
 }

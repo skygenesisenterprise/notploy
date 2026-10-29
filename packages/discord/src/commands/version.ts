@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
-import { baseEmbed, warningEmbed } from "../utils/embeds.js";
 import { truncate } from "../integrations/github/events.js";
 import type { Command } from "../types/index.js";
+import { baseEmbed, warningEmbed } from "../utils/embeds.js";
 
 export const versionCommand: Command = {
 	data: new SlashCommandBuilder()
@@ -16,9 +16,7 @@ export const versionCommand: Command = {
 			const embed = baseEmbed()
 				.setTitle(`Notploy ${release.tagName}`)
 				.setURL(release.url)
-				.setDescription(
-					truncate(release.body?.trim() || `Latest release: ${release.name}`),
-				)
+				.setDescription(truncate(release.body?.trim() || `Latest release: ${release.name}`))
 				.addFields({ name: "Release", value: `[View on GitHub](${release.url})` });
 			if (release.publishedAt) embed.setTimestamp(new Date(release.publishedAt));
 			await interaction.editReply({ embeds: [embed] });

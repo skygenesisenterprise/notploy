@@ -15,9 +15,9 @@ import type {
 } from "../core/schemas";
 import { conflict, notFound } from "../errors";
 import type { EventInput, MaintenanceRow } from "../store/repositories";
+import { requireComponent } from "./components";
 import type { Actor, StatusContext } from "./context";
 import { requirePage } from "./pages";
-import { requireComponent } from "./components";
 import { adminMaintenanceDto } from "./public";
 
 export const requireMaintenance = (
@@ -214,7 +214,11 @@ export const changeMaintenanceState = (
 		);
 	}
 	const timestamp = ctx.now();
-	ctx.repos.maintenances.update(maintenanceId, { state: input.state }, timestamp);
+	ctx.repos.maintenances.update(
+		maintenanceId,
+		{ state: input.state },
+		timestamp,
+	);
 	const typeByState: Record<string, string> = {
 		in_progress: "maintenance_started",
 		completed: "maintenance_completed",
@@ -261,7 +265,8 @@ export const setMaintenancePublish = (
 ) => {
 	const row = requireMaintenance(ctx, maintenanceId);
 	const timestamp = ctx.now();
-	const visibility = input.visibility ?? (row.visibility as "public" | "private");
+	const visibility =
+		input.visibility ?? (row.visibility as "public" | "private");
 	const published = input.published && visibility !== "private";
 	ctx.repos.maintenances.update(
 		maintenanceId,

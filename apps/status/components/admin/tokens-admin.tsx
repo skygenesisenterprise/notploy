@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import type { AdminTokenDto, TokenScope } from "@notploy/status";
+import * as React from "react";
 import { adminRequest } from "@/lib/admin-client";
 import { useAdminResource } from "@/lib/use-admin";
 import { useAdminToken } from "./admin-token-provider";
@@ -44,10 +44,14 @@ export const TokensAdmin = () => {
 		setBusy(true);
 		setError(null);
 		try {
-			const result = await adminRequest<{ value: string }>(token, "/admin/tokens", {
-				method: "POST",
-				body: JSON.stringify({ name, scopes }),
-			});
+			const result = await adminRequest<{ value: string }>(
+				token,
+				"/admin/tokens",
+				{
+					method: "POST",
+					body: JSON.stringify({ name, scopes }),
+				},
+			);
 			setCreated(result.value);
 			setName("");
 			tokens.reload();
@@ -63,7 +67,9 @@ export const TokensAdmin = () => {
 			return;
 		}
 		try {
-			await adminRequest(token, `/admin/tokens/${tokenId}`, { method: "DELETE" });
+			await adminRequest(token, `/admin/tokens/${tokenId}`, {
+				method: "DELETE",
+			});
 			tokens.reload();
 		} catch (cause) {
 			setError(cause instanceof Error ? cause.message : "Request failed");
@@ -115,7 +121,10 @@ export const TokensAdmin = () => {
 				</ul>
 			</Card>
 
-			<Card title="Create a token" description="Grant only the scopes you need.">
+			<Card
+				title="Create a token"
+				description="Grant only the scopes you need."
+			>
 				<form onSubmit={submit} className="flex flex-col gap-3">
 					<Field label="Name">
 						<Input

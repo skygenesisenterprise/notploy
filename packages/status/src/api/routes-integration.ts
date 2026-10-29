@@ -9,19 +9,18 @@
 import { Hono } from "hono";
 import { componentStateSchema, ingestEventSchema } from "../core/schemas";
 import { notFound } from "../errors";
-import type { StatusContext } from "../services/context";
+import { setComponentObservedState } from "../services/components";
+import type { Actor, StatusContext } from "../services/context";
 import {
 	getComponentObservedState,
 	ingestMonitoringEvent,
 } from "../services/ingest";
-import { setComponentObservedState } from "../services/components";
-import type { Actor } from "../services/context";
 import {
 	authenticate,
 	readJson,
 	requireActorScope,
-	withIdempotency,
 	type Variables,
+	withIdempotency,
 } from "./middleware";
 
 export const integrationRoutes = (
@@ -38,8 +37,12 @@ export const integrationRoutes = (
 			id: null,
 			label: input.source,
 		}) as Actor;
-		return withIdempotency(ctx, c, "integration:events", JSON.stringify(body), () =>
-			c.json(ingestMonitoringEvent(ctx, input, actor), 202),
+		return withIdempotency(
+			ctx,
+			c,
+			"integration:events",
+			JSON.stringify(body),
+			() => c.json(ingestMonitoringEvent(ctx, input, actor), 202),
 		);
 	});
 

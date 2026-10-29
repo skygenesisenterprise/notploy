@@ -10,20 +10,22 @@
 import { Hono } from "hono";
 import { newRequestId } from "../core/ids";
 import type { StatusContext } from "../services/context";
+import { healthzHandler, readyzHandler } from "./health";
 import {
 	corsPolicy,
 	errorResponse,
 	notFoundResponse,
+	rateLimit,
 	type Variables,
 } from "./middleware";
-import { publicRoutes } from "./routes-public";
+import { buildOpenApiDocument } from "./openapi";
 import { adminRoutes } from "./routes-admin";
 import { integrationRoutes } from "./routes-integration";
-import { healthzHandler, readyzHandler } from "./health";
-import { buildOpenApiDocument } from "./openapi";
-import { rateLimit } from "./middleware";
+import { publicRoutes } from "./routes-public";
 
-export const createStatusApi = (ctx: StatusContext): Hono<{ Variables: Variables }> => {
+export const createStatusApi = (
+	ctx: StatusContext,
+): Hono<{ Variables: Variables }> => {
 	const app = new Hono<{ Variables: Variables }>();
 
 	app.use("*", async (c, next) => {

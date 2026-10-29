@@ -353,6 +353,7 @@ export function DataTable({
 						{total} {total === 1 ? "entry" : "entries"} total
 					</span>
 					<div className="flex flex-wrap items-center gap-3">
+						{/* biome-ignore lint/a11y/noLabelWithoutControl: label wraps the Radix Select trigger button (a labelable element), so they are associated */}
 						<label className="flex items-center gap-2 whitespace-nowrap">
 							<span>Rows per page</span>
 							<Select

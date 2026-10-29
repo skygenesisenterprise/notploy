@@ -40,14 +40,16 @@ describe("Notploy catalog", () => {
 		expect(result.existing).toEqual([]);
 
 		const page = buildPublicPage(ctx, result.page);
-		expect(page.components.map((component) => component.name)).toEqual(EXPECTED);
-		expect(new Set(page.components.map((component) => component.groupName))).toEqual(
-			new Set(["Platform", "Integrations", "Web presence"]),
+		expect(page.components.map((component) => component.name)).toEqual(
+			EXPECTED,
 		);
+		expect(
+			new Set(page.components.map((component) => component.groupName)),
+		).toEqual(new Set(["Platform", "Integrations", "Web presence"]));
 		// Every seeded component is published, so the page is coherent at once.
-		expect(page.components.every((component) => component.status === "operational")).toBe(
-			true,
-		);
+		expect(
+			page.components.every((component) => component.status === "operational"),
+		).toBe(true);
 		// The catalog's page settings are applied on creation.
 		expect(resolveSettings(result.page).staleAfterSeconds).toBe(900);
 	});
@@ -76,7 +78,9 @@ describe("Notploy catalog", () => {
 		const second = seedCatalog(ctx, NOTPLOY_STATUS_CATALOG);
 		expect(second.created).toEqual([]);
 		expect(second.existing).toEqual(EXPECTED);
-		expect(ctx.repos.components.listByPage(page.id)).toHaveLength(EXPECTED.length);
+		expect(ctx.repos.components.listByPage(page.id)).toHaveLength(
+			EXPECTED.length,
+		);
 
 		const edited = ctx.repos.components.findById(api.id);
 		expect(edited?.description).toBe("Curated by an operator");

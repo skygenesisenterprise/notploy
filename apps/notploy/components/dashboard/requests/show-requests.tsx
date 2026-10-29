@@ -91,8 +91,7 @@ export const ShowRequests = () => {
 	}, [logCleanupStatus]);
 
 	return (
-		<>
-			<div className="w-full">
+		<div className="w-full">
 				<Card className="h-full bg-sidebar  p-2.5 rounded-xl  max-w-8xl mx-auto">
 					<div className="rounded-xl bg-background shadow-md ">
 						<CardHeader className="">
@@ -266,6 +265,5 @@ export const ShowRequests = () => {
 					</div>
 				</Card>
 			</div>
-		</>
 	);
 };

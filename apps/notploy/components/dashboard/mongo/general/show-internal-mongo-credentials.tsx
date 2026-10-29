@@ -15,8 +15,7 @@ export const ShowInternalMongoCredentials = ({ mongoId }: Props) => {
 	const { mutateAsync: changePassword } =
 		api.mongo.changePassword.useMutation();
 	return (
-		<>
-			<div className="flex w-full flex-col gap-5 ">
+		<div className="flex w-full flex-col gap-5 ">
 				<Card className="bg-background">
 					<CardHeader>
 						<CardTitle className="text-xl">Internal Credentials</CardTitle>
@@ -69,6 +68,5 @@ export const ShowInternalMongoCredentials = ({ mongoId }: Props) => {
 					</CardContent>
 				</Card>
 			</div>
-		</>
 	);
 };

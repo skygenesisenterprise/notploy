@@ -12,4 +12,6 @@ const config = loadConfig();
 const document = buildOpenApiDocument(config.publicUrl);
 const target = resolve(process.cwd(), "openapi.json");
 writeFileSync(target, `${JSON.stringify(document, null, 2)}\n`, "utf8");
-process.stdout.write(`openapi.json written (${Object.keys(document.paths).length} paths)\n`);
+process.stdout.write(
+	`openapi.json written (${Object.keys(document.paths).length} paths)\n`,
+);

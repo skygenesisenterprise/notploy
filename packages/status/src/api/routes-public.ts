@@ -6,10 +6,8 @@
  * (covered by `tests/isolation.test.ts`).
  */
 import { Hono } from "hono";
-import {
-	historyQuerySchema,
-	paginationSchema,
-} from "../core/schemas";
+import { buildRssFeed } from "../api/rss";
+import { historyQuerySchema, paginationSchema } from "../core/schemas";
 import { notFound } from "../errors";
 import type { StatusContext } from "../services/context";
 import {
@@ -18,12 +16,11 @@ import {
 	getPublicStatus,
 	listPages,
 	listPublicHistory,
-	listPublicIncidentUpdates,
 	listPublicIncidents,
+	listPublicIncidentUpdates,
 	listPublicMaintenances,
 	listPublicUptime,
 } from "../services/public";
-import { buildRssFeed } from "../api/rss";
 import { rateLimit } from "./middleware";
 
 const parse = <T>(
@@ -69,14 +66,24 @@ export const publicRoutes = (ctx: StatusContext): Hono => {
 	});
 
 	app.get("/pages/:slug/incidents", (c) => {
-		const query = parse(paginationSchema.extend({
-			status: c.req.query("status") as "active" | "resolved" | "all" | undefined,
-		}), {
-			limit: c.req.query("limit"),
-			cursor: c.req.query("cursor"),
-			status: c.req.query("status"),
-		});
-		const status = query.status === "resolved" || query.status === "active" ? query.status : "active";
+		const query = parse(
+			paginationSchema.extend({
+				status: c.req.query("status") as
+					| "active"
+					| "resolved"
+					| "all"
+					| undefined,
+			}),
+			{
+				limit: c.req.query("limit"),
+				cursor: c.req.query("cursor"),
+				status: c.req.query("status"),
+			},
+		);
+		const status =
+			query.status === "resolved" || query.status === "active"
+				? query.status
+				: "active";
 		return c.json(
 			listPublicIncidents(ctx, c.req.param("slug"), {
 				status,
@@ -104,7 +111,12 @@ export const publicRoutes = (ctx: StatusContext): Hono => {
 			cursor: c.req.query("cursor"),
 		});
 		return c.json(
-			listPublicIncidentUpdates(ctx, c.req.param("slug"), c.req.param("incidentId"), query),
+			listPublicIncidentUpdates(
+				ctx,
+				c.req.param("slug"),
+				c.req.param("incidentId"),
+				query,
+			),
 		);
 	});
 

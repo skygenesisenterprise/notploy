@@ -64,9 +64,9 @@ export const HandlePorts = ({
 			enabled: !!portId,
 		},
 	);
-	const { mutateAsync, isPending, error, isError } = portId
-		? api.port.update.useMutation()
-		: api.port.create.useMutation();
+	const updateMutation = api.port.update.useMutation();
+	const createMutation = api.port.create.useMutation();
+	const { mutateAsync, isPending, error, isError } = portId ? updateMutation : createMutation;
 
 	const form = useForm<AddPort>({
 		defaultValues: {

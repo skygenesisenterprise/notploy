@@ -91,6 +91,7 @@ const VaultProviderSchema = z
 			.min(1, { message: "Name is required" })
 			.regex(/^[a-zA-Z0-9_-]+$/, {
 				message:
+					// biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template
 					"Only letters, numbers, dashes and underscores (used in ${{vault.<name>.<secret>}})",
 			}),
 		providerType: z.enum(PROVIDER_TYPES),
@@ -611,9 +612,9 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 		{ enabled: !!vaultProviderId && isOpen },
 	);
 
-	const { mutateAsync, isPending, error, isError } = vaultProviderId
-		? api.vaultProvider.update.useMutation()
-		: api.vaultProvider.create.useMutation();
+	const updateMutation = api.vaultProvider.update.useMutation();
+	const createMutation = api.vaultProvider.create.useMutation();
+	const { mutateAsync, isPending, error, isError } = vaultProviderId ? updateMutation : createMutation;
 
 	const { mutateAsync: testConnection, isPending: isTesting } =
 		api.vaultProvider.testConnection.useMutation();
@@ -835,6 +836,7 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 					</DialogTitle>
 					<DialogDescription>
 						Reference secrets in your environment variables with{" "}
+						{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 						<code>{"${{vault.<name>.<secret>}}"}</code>. Secrets are fetched at
 						deploy time and never stored in Notploy.
 					</DialogDescription>
@@ -976,6 +978,7 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 								</div>
 								<FormDescription>
 									Reference format:{" "}
+									{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 									<code>{"${{vault.<name>.path/to/secret:FIELD}}"}</code>
 								</FormDescription>
 							</>
@@ -1153,13 +1156,16 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 								{providerType === "aws" ? (
 									<FormDescription>
 										Reference format:{" "}
+										{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 										<code>{"${{vault.<name>.secret-name}}"}</code> or{" "}
+										{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 										<code>{"${{vault.<name>.secret-name:field}}"}</code> for
 										JSON secrets
 									</FormDescription>
 								) : (
 									<FormDescription>
 										Reference format:{" "}
+										{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 										<code>{"${{vault.<name>./path/to/parameter}}"}</code>.
 										SecureString parameters are decrypted automatically.
 										Resolution requires <code>ssm:GetParameters</code>.
@@ -1233,6 +1239,7 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 								<FormDescription>
 									App Registration with the "Key Vault Secrets User" role on the
 									vault. Reference format:{" "}
+									{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 									<code>{"${{vault.<name>.secret-name}}"}</code>
 								</FormDescription>
 							</>
@@ -1378,9 +1385,12 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 								/>
 								<FormDescription>
 									Reference format:{" "}
+									{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 									<code>{"${{vault.<name>.secret-name}}"}</code>,{" "}
+									{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 									<code>{"${{vault.<name>.folder/secret-name}}"}</code> for
 									secrets in a path, or{" "}
+									{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 									<code>{"${{vault.<name>.secret-name:field}}"}</code> for JSON
 									secrets
 								</FormDescription>
@@ -1462,6 +1472,7 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 											</FormControl>
 											<FormDescription>
 												Self-hosted Phase defaults to{" "}
+												{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 												<code>{"${HTTP_PROTOCOL}${HOST}/service/public"}</code>
 											</FormDescription>
 											<FormMessage />
@@ -1470,6 +1481,7 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 								/>
 								<FormDescription>
 									Reference format:{" "}
+									{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 									<code>{"${{vault.<name>.SECRET_KEY}}"}</code>
 								</FormDescription>
 							</>
@@ -1531,7 +1543,9 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 								)}
 							/>
 							<FormDescription>
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								Reference format: <code>{"${{vault.<name>.secret-id}}"}</code> or{" "}
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								<code>{"${{vault.<name>.secret-id:field}}"}</code> for JSON
 								payloads.
 							</FormDescription>
@@ -1632,7 +1646,9 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 								)}
 							/>
 							<FormDescription>
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								Reference format: <code>{"${{vault.<name>.display-name}}"}</code>,
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								the secret OCID, or <code>{"${{vault.<name>.name:field}}"}</code> for
 								JSON payloads.
 							</FormDescription>
@@ -1671,7 +1687,9 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 							</div>
 							<FormDescription>
 								1Password Secrets Automation Connect server. Reference format:{" "}
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								<code>{"${{vault.<name>.vaultId/itemId}}"}</code> for the password
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								field, or <code>{"${{vault.<name>.vaultId/itemId/field}}"}</code>.
 							</FormDescription>
 						</>
@@ -1757,6 +1775,7 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 								)}
 							/>
 							<FormDescription>
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								Reference format: <code>{"${{vault.<name>.SECRET_KEY}}"}</code>.
 							</FormDescription>
 						</>
@@ -1813,7 +1832,9 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 								)}
 							/>
 							<FormDescription>
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								Reference format: <code>{"${{vault.<name>.secret-name}}"}</code> for
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								single-key secrets or <code>{"${{vault.<name>.secret-name:key}}"}</code>
 								for multi-key ones.
 							</FormDescription>
@@ -1843,6 +1864,7 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 								)}
 							/>
 							<FormDescription>
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								Reference format: <code>{"${{vault.<name>.file-name}}"}</code>.
 								Discovery lists the files in the mount path plus the Swarm
 								secrets and configs reachable through the Docker socket.
@@ -1880,7 +1902,9 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 							/>
 							<FormDescription>
 								Any JSON or text endpoint. Reference format:{" "}
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								<code>{"${{vault.<name>.path/to/document}}"}</code>, or{" "}
+								{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 								<code>{"${{vault.<name>.path/to/document:field}}"}</code> to pick a
 								value inside a JSON document. Notploy issues{" "}
 								<code>GET</code> requests with the token as
@@ -1927,9 +1951,9 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 										<div
 											key={project.projectId}
 											className="flex flex-col gap-1.5"
-										>
+										>											{/* biome-ignore lint/a11y/noLabelWithoutControl: label wraps the Radix Checkbox button (a labelable element), so they are associated */}
 											<label className="flex flex-row items-center gap-2 text-sm cursor-pointer">
-												<Checkbox
+											<Checkbox
 													checked={!!assignment}
 													onCheckedChange={() =>
 														toggleProject(project.projectId)
@@ -1938,13 +1962,14 @@ export const HandleVaultProvider = ({ vaultProviderId }: Props) => {
 												{project.name}
 											</label>
 											{assignment && (
-												<div className="flex flex-row flex-wrap gap-3 pl-6">
-													{project.environments?.map((environment) => (
+												<div className="flex flex-row flex-wrap gap-3 pl-6">													{project.environments?.map((environment) => (
 														<label
 															key={environment.environmentId}
+															htmlFor={`vault-env-${project.projectId}-${environment.environmentId}`}
 															className="flex flex-row items-center gap-1.5 text-xs text-muted-foreground cursor-pointer"
 														>
 															<Checkbox
+																id={`vault-env-${project.projectId}-${environment.environmentId}`}
 																checked={assignment.environmentIds.includes(
 																	environment.environmentId,
 																)}

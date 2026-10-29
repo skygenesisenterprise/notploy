@@ -50,37 +50,69 @@ export const DeleteService = ({ id, type }: Props) => {
 	const canDelete = permissions?.service.delete ?? false;
 	const [isOpen, setIsOpen] = useState(false);
 
-	const queryMap = {
-		postgres: () =>
-			api.postgres.one.useQuery({ postgresId: id }, { enabled: !!id }),
-		redis: () => api.redis.one.useQuery({ redisId: id }, { enabled: !!id }),
-		mysql: () => api.mysql.one.useQuery({ mysqlId: id }, { enabled: !!id }),
-		mariadb: () =>
-			api.mariadb.one.useQuery({ mariadbId: id }, { enabled: !!id }),
-		libsql: () => api.libsql.one.useQuery({ libsqlId: id }, { enabled: !!id }),
-		application: () =>
-			api.application.one.useQuery({ applicationId: id }, { enabled: !!id }),
-		mongo: () => api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id }),
-		compose: () =>
-			api.compose.one.useQuery({ composeId: id }, { enabled: !!id }),
+	const postgresQuery = api.postgres.one.useQuery(
+		{ postgresId: id },
+		{ enabled: !!id && type === "postgres" },
+	);
+	const redisQuery = api.redis.one.useQuery(
+		{ redisId: id },
+		{ enabled: !!id && type === "redis" },
+	);
+	const mysqlQuery = api.mysql.one.useQuery(
+		{ mysqlId: id },
+		{ enabled: !!id && type === "mysql" },
+	);
+	const mariadbQuery = api.mariadb.one.useQuery(
+		{ mariadbId: id },
+		{ enabled: !!id && type === "mariadb" },
+	);
+	const libsqlQuery = api.libsql.one.useQuery(
+		{ libsqlId: id },
+		{ enabled: !!id && type === "libsql" },
+	);
+	const applicationQuery = api.application.one.useQuery(
+		{ applicationId: id },
+		{ enabled: !!id && type === "application" },
+	);
+	const mongoQuery = api.mongo.one.useQuery(
+		{ mongoId: id },
+		{ enabled: !!id && type === "mongo" },
+	);
+	const composeQuery = api.compose.one.useQuery(
+		{ composeId: id },
+		{ enabled: !!id && type === "compose" },
+	);
+	const serviceQueries = {
+		postgres: postgresQuery,
+		redis: redisQuery,
+		mysql: mysqlQuery,
+		mariadb: mariadbQuery,
+		libsql: libsqlQuery,
+		application: applicationQuery,
+		mongo: mongoQuery,
+		compose: composeQuery,
 	};
-	const { data } = queryMap[type]
-		? queryMap[type]()
-		: api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id });
+	const { data } = serviceQueries[type] ?? mongoQuery;
 
-	const mutationMap = {
-		postgres: () => api.postgres.remove.useMutation(),
-		redis: () => api.redis.remove.useMutation(),
-		mysql: () => api.mysql.remove.useMutation(),
-		mariadb: () => api.mariadb.remove.useMutation(),
-		libsql: () => api.libsql.remove.useMutation(),
-		application: () => api.application.delete.useMutation(),
-		mongo: () => api.mongo.remove.useMutation(),
-		compose: () => api.compose.delete.useMutation(),
+	const postgresMutation = api.postgres.remove.useMutation();
+	const redisMutation = api.redis.remove.useMutation();
+	const mysqlMutation = api.mysql.remove.useMutation();
+	const mariadbMutation = api.mariadb.remove.useMutation();
+	const libsqlMutation = api.libsql.remove.useMutation();
+	const applicationMutation = api.application.delete.useMutation();
+	const mongoMutation = api.mongo.remove.useMutation();
+	const composeMutation = api.compose.delete.useMutation();
+	const serviceMutations = {
+		postgres: postgresMutation,
+		redis: redisMutation,
+		mysql: mysqlMutation,
+		mariadb: mariadbMutation,
+		libsql: libsqlMutation,
+		application: applicationMutation,
+		mongo: mongoMutation,
+		compose: composeMutation,
 	};
-	const { mutateAsync, isPending } = mutationMap[type]
-		? mutationMap[type]()
-		: api.mongo.remove.useMutation();
+	const { mutateAsync, isPending } = serviceMutations[type] ?? mongoMutation;
 	const { push } = useRouter();
 	const form = useForm<DeleteCompose>({
 		defaultValues: {

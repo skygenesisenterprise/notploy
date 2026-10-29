@@ -9,22 +9,22 @@
  * admin and integration APIs answer 503, the public page stays up.
  */
 import type { Hono } from "hono";
+import { createStatusApi } from "./api/app";
+import type { Variables } from "./api/middleware";
+import { createSnapshotApi } from "./api/snapshot-api";
 import type { StatusConfig } from "./config";
 import { loadConfig } from "./config";
 import type { PublicPageDto } from "./core/dto";
-import { createStatusApi } from "./api/app";
-import { createSnapshotApi } from "./api/snapshot-api";
-import type { Variables } from "./api/middleware";
+import {
+	type OutboxWorkerHandle,
+	startOutboxWorker,
+} from "./operations/outbox-worker";
+import { startUptimeSampler } from "./operations/uptime-sampler";
 import {
 	createStatusContext,
 	readSnapshot,
 	type StatusContext,
 } from "./services/context";
-import {
-	startOutboxWorker,
-	type OutboxWorkerHandle,
-} from "./operations/outbox-worker";
-import { startUptimeSampler } from "./operations/uptime-sampler";
 
 export interface StatusPlatform {
 	config: StatusConfig;

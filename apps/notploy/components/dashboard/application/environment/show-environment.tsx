@@ -44,21 +44,44 @@ interface Props {
 export const ShowEnvironment = ({ id, type }: Props) => {
 	const { data: permissions } = api.user.getPermissions.useQuery();
 	const canWrite = permissions?.envVars.write ?? false;
-	const queryMap = {
-		compose: () =>
-			api.compose.one.useQuery({ composeId: id }, { enabled: !!id }),
-		libsql: () => api.libsql.one.useQuery({ libsqlId: id }, { enabled: !!id }),
-		mariadb: () =>
-			api.mariadb.one.useQuery({ mariadbId: id }, { enabled: !!id }),
-		mongo: () => api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id }),
-		mysql: () => api.mysql.one.useQuery({ mysqlId: id }, { enabled: !!id }),
-		postgres: () =>
-			api.postgres.one.useQuery({ postgresId: id }, { enabled: !!id }),
-		redis: () => api.redis.one.useQuery({ redisId: id }, { enabled: !!id }),
+	const composeQuery = api.compose.one.useQuery(
+		{ composeId: id },
+		{ enabled: !!id && type === "compose" },
+	);
+	const libsqlQuery = api.libsql.one.useQuery(
+		{ libsqlId: id },
+		{ enabled: !!id && type === "libsql" },
+	);
+	const mariadbQuery = api.mariadb.one.useQuery(
+		{ mariadbId: id },
+		{ enabled: !!id && type === "mariadb" },
+	);
+	const mongoQuery = api.mongo.one.useQuery(
+		{ mongoId: id },
+		{ enabled: !!id && type === "mongo" },
+	);
+	const mysqlQuery = api.mysql.one.useQuery(
+		{ mysqlId: id },
+		{ enabled: !!id && type === "mysql" },
+	);
+	const postgresQuery = api.postgres.one.useQuery(
+		{ postgresId: id },
+		{ enabled: !!id && type === "postgres" },
+	);
+	const redisQuery = api.redis.one.useQuery(
+		{ redisId: id },
+		{ enabled: !!id && type === "redis" },
+	);
+	const serviceQueries = {
+		compose: composeQuery,
+		libsql: libsqlQuery,
+		mariadb: mariadbQuery,
+		mongo: mongoQuery,
+		mysql: mysqlQuery,
+		postgres: postgresQuery,
+		redis: redisQuery,
 	};
-	const { data, refetch } = queryMap[type]
-		? queryMap[type]()
-		: api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id });
+	const { data, refetch } = serviceQueries[type] ?? mongoQuery;
 	const [isEnvVisible, setIsEnvVisible] = useState(true);
 	const completionSource = useEnvCompletionSource({
 		projectEnv: data?.environment?.project?.env,
@@ -67,18 +90,23 @@ export const ShowEnvironment = ({ id, type }: Props) => {
 		environmentId: data?.environment?.environmentId,
 	});
 
-	const mutationMap = {
-		compose: () => api.compose.saveEnvironment.useMutation(),
-		libsql: () => api.libsql.saveEnvironment.useMutation(),
-		mariadb: () => api.mariadb.saveEnvironment.useMutation(),
-		mongo: () => api.mongo.saveEnvironment.useMutation(),
-		mysql: () => api.mysql.saveEnvironment.useMutation(),
-		postgres: () => api.postgres.saveEnvironment.useMutation(),
-		redis: () => api.redis.saveEnvironment.useMutation(),
+	const composeMutation = api.compose.saveEnvironment.useMutation();
+	const libsqlMutation = api.libsql.saveEnvironment.useMutation();
+	const mariadbMutation = api.mariadb.saveEnvironment.useMutation();
+	const mongoMutation = api.mongo.saveEnvironment.useMutation();
+	const mysqlMutation = api.mysql.saveEnvironment.useMutation();
+	const postgresMutation = api.postgres.saveEnvironment.useMutation();
+	const redisMutation = api.redis.saveEnvironment.useMutation();
+	const serviceMutations = {
+		compose: composeMutation,
+		libsql: libsqlMutation,
+		mariadb: mariadbMutation,
+		mongo: mongoMutation,
+		mysql: mysqlMutation,
+		postgres: postgresMutation,
+		redis: redisMutation,
 	};
-	const { mutateAsync, isPending } = mutationMap[type]
-		? mutationMap[type]()
-		: api.mongo.saveEnvironment.useMutation();
+	const { mutateAsync, isPending } = serviceMutations[type] ?? mongoMutation;
 
 	const form = useForm<EnvironmentSchema>({
 		defaultValues: {

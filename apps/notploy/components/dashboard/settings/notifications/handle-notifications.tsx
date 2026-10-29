@@ -280,42 +280,42 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 	const { mutateAsync: testPushoverConnection, isPending: isLoadingPushover } =
 		api.notification.testPushoverConnection.useMutation();
 
-	const customMutation = notificationId
-		? api.notification.updateCustom.useMutation()
-		: api.notification.createCustom.useMutation();
-	const slackMutation = notificationId
-		? api.notification.updateSlack.useMutation()
-		: api.notification.createSlack.useMutation();
-	const telegramMutation = notificationId
-		? api.notification.updateTelegram.useMutation()
-		: api.notification.createTelegram.useMutation();
-	const discordMutation = notificationId
-		? api.notification.updateDiscord.useMutation()
-		: api.notification.createDiscord.useMutation();
-	const emailMutation = notificationId
-		? api.notification.updateEmail.useMutation()
-		: api.notification.createEmail.useMutation();
-	const resendMutation = notificationId
-		? api.notification.updateResend.useMutation()
-		: api.notification.createResend.useMutation();
-	const gotifyMutation = notificationId
-		? api.notification.updateGotify.useMutation()
-		: api.notification.createGotify.useMutation();
-	const ntfyMutation = notificationId
-		? api.notification.updateNtfy.useMutation()
-		: api.notification.createNtfy.useMutation();
-	const mattermostMutation = notificationId
-		? api.notification.updateMattermost.useMutation()
-		: api.notification.createMattermost.useMutation();
-	const larkMutation = notificationId
-		? api.notification.updateLark.useMutation()
-		: api.notification.createLark.useMutation();
-	const teamsMutation = notificationId
-		? api.notification.updateTeams.useMutation()
-		: api.notification.createTeams.useMutation();
-	const pushoverMutation = notificationId
-		? api.notification.updatePushover.useMutation()
-		: api.notification.createPushover.useMutation();
+	const updateCustomMutation = api.notification.updateCustom.useMutation();
+	const createCustomMutation = api.notification.createCustom.useMutation();
+	const customMutation = notificationId ? updateCustomMutation : createCustomMutation;
+	const updateSlackMutation = api.notification.updateSlack.useMutation();
+	const createSlackMutation = api.notification.createSlack.useMutation();
+	const slackMutation = notificationId ? updateSlackMutation : createSlackMutation;
+	const updateTelegramMutation = api.notification.updateTelegram.useMutation();
+	const createTelegramMutation = api.notification.createTelegram.useMutation();
+	const telegramMutation = notificationId ? updateTelegramMutation : createTelegramMutation;
+	const updateDiscordMutation = api.notification.updateDiscord.useMutation();
+	const createDiscordMutation = api.notification.createDiscord.useMutation();
+	const discordMutation = notificationId ? updateDiscordMutation : createDiscordMutation;
+	const updateEmailMutation = api.notification.updateEmail.useMutation();
+	const createEmailMutation = api.notification.createEmail.useMutation();
+	const emailMutation = notificationId ? updateEmailMutation : createEmailMutation;
+	const updateResendMutation = api.notification.updateResend.useMutation();
+	const createResendMutation = api.notification.createResend.useMutation();
+	const resendMutation = notificationId ? updateResendMutation : createResendMutation;
+	const updateGotifyMutation = api.notification.updateGotify.useMutation();
+	const createGotifyMutation = api.notification.createGotify.useMutation();
+	const gotifyMutation = notificationId ? updateGotifyMutation : createGotifyMutation;
+	const updateNtfyMutation = api.notification.updateNtfy.useMutation();
+	const createNtfyMutation = api.notification.createNtfy.useMutation();
+	const ntfyMutation = notificationId ? updateNtfyMutation : createNtfyMutation;
+	const updateMattermostMutation = api.notification.updateMattermost.useMutation();
+	const createMattermostMutation = api.notification.createMattermost.useMutation();
+	const mattermostMutation = notificationId ? updateMattermostMutation : createMattermostMutation;
+	const updateLarkMutation = api.notification.updateLark.useMutation();
+	const createLarkMutation = api.notification.createLark.useMutation();
+	const larkMutation = notificationId ? updateLarkMutation : createLarkMutation;
+	const updateTeamsMutation = api.notification.updateTeams.useMutation();
+	const createTeamsMutation = api.notification.createTeams.useMutation();
+	const teamsMutation = notificationId ? updateTeamsMutation : createTeamsMutation;
+	const updatePushoverMutation = api.notification.updatePushover.useMutation();
+	const createPushoverMutation = api.notification.createPushover.useMutation();
+	const pushoverMutation = notificationId ? updatePushoverMutation : createPushoverMutation;
 
 	const form = useForm({
 		defaultValues: {
@@ -1105,7 +1105,7 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 																	if (value === "") {
 																		field.onChange(undefined);
 																	} else {
-																		const port = Number.parseInt(value);
+																		const port = Number.parseInt(value, 10);
 																		if (port > 0 && port < 65536) {
 																			field.onChange(port);
 																		}
@@ -1365,7 +1365,7 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 															onChange={(e) => {
 																const value = e.target.value;
 																if (value) {
-																	const port = Number.parseInt(value);
+																	const port = Number.parseInt(value, 10);
 																	if (port > 0 && port < 10) {
 																		field.onChange(port);
 																	}
@@ -1467,7 +1467,7 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 															onChange={(e) => {
 																const value = e.target.value;
 																if (value) {
-																	const port = Number.parseInt(value);
+																	const port = Number.parseInt(value, 10);
 																	if (port > 0 && port <= 5) {
 																		field.onChange(port);
 																	}
@@ -1629,8 +1629,7 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 								)}
 
 								{type === "lark" && (
-									<>
-										<FormField
+									<FormField
 											control={form.control}
 											name="webhookUrl"
 											render={({ field }) => (
@@ -1646,12 +1645,10 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 												</FormItem>
 											)}
 										/>
-									</>
 								)}
 
 								{type === "teams" && (
-									<>
-										<FormField
+									<FormField
 											control={form.control}
 											name="webhookUrl"
 											render={({ field }) => (
@@ -1672,7 +1669,6 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 												</FormItem>
 											)}
 										/>
-									</>
 								)}
 								{type === "pushover" && (
 									<>
@@ -1718,7 +1714,7 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 																if (value === "" || value === "-") {
 																	field.onChange(0);
 																} else {
-																	const priority = Number.parseInt(value);
+																	const priority = Number.parseInt(value, 10);
 																	if (
 																		!Number.isNaN(priority) &&
 																		priority >= -2 &&
@@ -1758,7 +1754,7 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 																		if (value === "") {
 																			field.onChange(undefined);
 																		} else {
-																			const retry = Number.parseInt(value);
+																			const retry = Number.parseInt(value, 10);
 																			if (!Number.isNaN(retry)) {
 																				field.onChange(retry);
 																			}
@@ -1792,7 +1788,7 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 																		if (value === "") {
 																			field.onChange(undefined);
 																		} else {
-																			const expire = Number.parseInt(value);
+																			const expire = Number.parseInt(value, 10);
 																			if (!Number.isNaN(expire)) {
 																				field.onChange(expire);
 																			}

@@ -9,9 +9,9 @@ import { newId } from "../core/ids";
 import type { CreatePageInput, UpdatePageInput } from "../core/schemas";
 import { badRequest, notFound } from "../errors";
 import type { PageRow } from "../store/repositories";
-import { adminPageDto } from "./public";
-import { resolveSettings, mergeSettings } from "./settings";
 import type { Actor, StatusContext } from "./context";
+import { adminPageDto } from "./public";
+import { mergeSettings, resolveSettings } from "./settings";
 
 /** Resolve a page by id (`pg_...`) or by public slug. */
 export const requirePage = (ctx: StatusContext, ref: string): PageRow => {
@@ -33,10 +33,13 @@ export const createPage = (
 		throw badRequest(`A status page with slug "${input.slug}" already exists`);
 	}
 	const timestamp = ctx.now();
-	const settings = mergeSettings(resolveSettings({ ...emptyPage() } as PageRow), {
-		...(input.settings ?? {}),
-		severityToStatus: input.settings?.severityToStatus ?? {},
-	});
+	const settings = mergeSettings(
+		resolveSettings({ ...emptyPage() } as PageRow),
+		{
+			...(input.settings ?? {}),
+			severityToStatus: input.settings?.severityToStatus ?? {},
+		},
+	);
 	const row: PageRow = {
 		id: newId("pg"),
 		slug: input.slug,
@@ -76,9 +79,9 @@ export const updatePage = (
 	const current = resolveSettings(row);
 	const merged = input.settings
 		? mergeSettings(current, {
-			...(input.settings ?? {}),
-			severityToStatus: input.settings?.severityToStatus ?? {},
-		})
+				...(input.settings ?? {}),
+				severityToStatus: input.settings?.severityToStatus ?? {},
+			})
 		: current;
 	ctx.repos.pages.update(
 		row.id,

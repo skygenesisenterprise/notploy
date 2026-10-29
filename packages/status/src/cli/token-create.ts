@@ -17,7 +17,9 @@ const readFlag = (name: string): string | undefined => {
 };
 
 const name = readFlag("name");
-const scopes = readFlag("scopes")?.split(",").map((scope) => scope.trim());
+const scopes = readFlag("scopes")
+	?.split(",")
+	.map((scope) => scope.trim());
 
 if (!name || !scopes || scopes.length === 0) {
 	process.stderr.write(

@@ -2,8 +2,6 @@ import copy from "copy-to-clipboard";
 import { formatDistanceToNow } from "date-fns";
 import {
 	Boxes,
-	CircleAlert,
-	Clock3,
 	Container as ContainerIcon,
 	Copy,
 	Ellipsis,

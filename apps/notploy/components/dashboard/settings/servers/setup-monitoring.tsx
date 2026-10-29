@@ -80,16 +80,15 @@ const Schema = z.object({
 type Schema = z.infer<typeof Schema>;
 
 export const SetupMonitoring = ({ serverId }: Props) => {
-	const { data: serverData } = serverId
-		? api.server.one.useQuery(
-				{
-					serverId: serverId || "",
-				},
-				{
-					enabled: !!serverId,
-				},
-			)
-		: { data: null };
+	const serverQuery = api.server.one.useQuery(
+		{
+			serverId: serverId || "",
+		},
+		{
+			enabled: !!serverId,
+		},
+	);
+	const { data: serverData } = serverId ? serverQuery : { data: null };
 
 	const { data: webServerSettings } =
 		api.settings.getWebServerSettings.useQuery(undefined, {
@@ -209,9 +208,9 @@ export const SetupMonitoring = ({ serverId }: Props) => {
 			: []),
 	];
 
-	const { mutateAsync } = serverId
-		? api.server.setupMonitoring.useMutation()
-		: api.admin.setupMonitoring.useMutation();
+	const serverSetupMutation = api.server.setupMonitoring.useMutation();
+	const adminSetupMutation = api.admin.setupMonitoring.useMutation();
+	const { mutateAsync } = serverId ? serverSetupMutation : adminSetupMutation;
 
 	const generateToken = () => {
 		const array = new Uint8Array(64);

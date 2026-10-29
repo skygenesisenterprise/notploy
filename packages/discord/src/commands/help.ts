@@ -1,6 +1,6 @@
 import { MessageFlags, SlashCommandBuilder } from "discord.js";
-import { baseEmbed } from "../utils/embeds.js";
 import type { Command } from "../types/index.js";
+import { baseEmbed } from "../utils/embeds.js";
 
 /**
  * Builds the `/help` command around the live command registry so new commands

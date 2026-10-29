@@ -85,7 +85,13 @@ export const loadConfig = (
 			.map((origin) => origin.trim())
 			.filter((origin) => origin.length > 0),
 		rateLimit: {
-			windowMs: intEnv(env, "STATUS_RATE_LIMIT_WINDOW_MS", 60_000, 1000, 3_600_000),
+			windowMs: intEnv(
+				env,
+				"STATUS_RATE_LIMIT_WINDOW_MS",
+				60_000,
+				1000,
+				3_600_000,
+			),
 			publicMax: intEnv(env, "STATUS_RATE_LIMIT_PUBLIC_MAX", 240, 1, 100_000),
 			adminMax: intEnv(env, "STATUS_RATE_LIMIT_ADMIN_MAX", 120, 1, 100_000),
 		},

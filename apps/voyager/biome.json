@@ -1,31 +1,25 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
-  "linter": {
-    "rules": {
-      "recommended": true,
-      "correctness": {
-        "noUnusedVariables": "error",
-        "noUnusedImports": "error",
-        "noUnusedPrivateClassMembers": "error"
-      },
-      "style": {
-        "useShorthandFunctionType": "error"
-      },
-      "nursery": {
-        "useTopLevelAwait": "error"
-      }
-    }
-  },
-  "formatter": {
-    "indentStyle": "tab",
-    "lineWidth": 100,
-    "formatWithErrors": false
-  },
-  "files": {
-    "include": ["**/*.{ts,tsx,js,jsx,json}"],
-    "ignore": ["node_modules", "dist", "web-build"]
-  }
+	"$schema": "../../node_modules/@biomejs/biome/configuration_schema.json",
+	"files": {
+		"includes": ["**/*.{ts,tsx,js,jsx,json}", "!**/node_modules", "!**/dist", "!**/web-build"]
+	},
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"formatter": {
+		"indentStyle": "tab",
+		"lineWidth": 100,
+		"formatWithErrors": false
+	},
+	"linter": {
+		"rules": {
+			"preset": "recommended",
+			"correctness": {
+				"noUnusedVariables": "error",
+				"noUnusedImports": "error",
+				"noUnusedPrivateClassMembers": "error"
+			},
+			"style": {
+				"useShorthandFunctionType": "error"
+			}
+		}
+	}
 }

@@ -214,11 +214,9 @@ const MySql = (
 																}
 															/>
 														) : (
-															<>
-																<ContainerFreeMonitoring
+															<ContainerFreeMonitoring
 																	appName={data?.appName || ""}
 																/>
-															</>
 														)}
 													</div>
 												</div>

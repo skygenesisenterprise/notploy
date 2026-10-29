@@ -336,7 +336,7 @@
 				// bridge's absence means the preload failed to load — the one
 				// failure this page can meaningfully report.
 				const bridge = window.notploy;
-				if (!bridge || !bridge.connections) {
+				if (!bridge?.connections) {
 					document.getElementById("add-status").textContent =
 						"The desktop bridge is unavailable. Restart Notploy.";
 					return;
@@ -347,19 +347,6 @@
 				const addStatus = document.getElementById("add-status");
 				const form = document.getElementById("add-form");
 				const submit = document.getElementById("add-submit");
-
-				const escape = (value) =>
-					String(value ?? "").replace(
-						/[&<>"']/g,
-						(ch) =>
-							({
-								"&": "&amp;",
-								"<": "&lt;",
-								">": "&gt;",
-								'"': "&quot;",
-								"'": "&#39;",
-							})[ch],
-					);
 
 				const STATUS_LABELS = {
 					connected: "Connected",

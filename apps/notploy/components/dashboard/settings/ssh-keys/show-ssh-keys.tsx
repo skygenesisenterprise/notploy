@@ -40,8 +40,7 @@ export const ShowDestinations = () => {
 								<Loader2 className="animate-spin size-4" />
 							</div>
 						) : (
-							<>
-								{data?.length === 0 ? (
+							data?.length === 0 ? (
 									<div className="flex flex-col items-center gap-3  min-h-[25vh] justify-center">
 										<KeyRound className="size-8 self-center text-muted-foreground" />
 										<span className="text-base text-muted-foreground text-center">
@@ -127,8 +126,7 @@ export const ShowDestinations = () => {
 											</div>
 										)}
 									</div>
-								)}
-							</>
+								)
 						)}
 					</CardContent>
 				</div>

@@ -1,6 +1,5 @@
-import * as React from "react";
-import Link from "next/link";
 import { ServerCog } from "lucide-react";
+import Link from "next/link";
 import { StatusPageView } from "@/components/status-page";
 import { defaultPageSlug, loadStatusPage } from "@/lib/data";
 
@@ -13,7 +12,10 @@ export default function HomePage() {
 	if (!data) {
 		return (
 			<div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col items-center justify-center gap-4 px-4 text-center">
-				<ServerCog className="size-8 text-muted-foreground" aria-hidden="true" />
+				<ServerCog
+					className="size-8 text-muted-foreground"
+					aria-hidden="true"
+				/>
 				<h1 className="text-xl font-semibold">No status page configured</h1>
 				<p className="text-sm text-muted-foreground">
 					Create the first status page from the administration console, then

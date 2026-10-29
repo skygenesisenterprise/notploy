@@ -3,10 +3,16 @@ import { zfd } from "zod-form-data";
 
 if (typeof window === "undefined") {
 	void (async () => {
-		const undici = await import("undici");
-		globalThis.File = undici.File as any;
-		// @ts-ignore
-		globalThis.FileList = undici.FileList as any;
+		// undici v8 no longer exports File/FileList: rely on Node natives.
+		if (typeof globalThis.File === "undefined") {
+			const { File } = await import("node:buffer");
+			globalThis.File = File as any;
+		}
+		if (typeof (globalThis as any).FileList === "undefined") {
+			// FileList is DOM-only; provide a minimal stub so SSR
+			// `instanceof FileList` checks don't crash.
+			(globalThis as any).FileList = class FileList extends Array {};
+		}
 	})();
 }
 

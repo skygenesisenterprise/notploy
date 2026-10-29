@@ -104,8 +104,7 @@ export const verifySecret = (secret: string, storedHash: string): boolean => {
 export const scopeAllows = (
 	granted: readonly TokenScope[],
 	required: TokenScope,
-): boolean =>
-	granted.includes("admin") || granted.includes(required);
+): boolean => granted.includes("admin") || granted.includes(required);
 
 export const parseScopes = (json: string): TokenScope[] => {
 	try {
@@ -113,7 +112,9 @@ export const parseScopes = (json: string): TokenScope[] => {
 		if (!Array.isArray(parsed)) {
 			return [];
 		}
-		return parsed.filter((value): value is TokenScope => typeof value === "string");
+		return parsed.filter(
+			(value): value is TokenScope => typeof value === "string",
+		);
 	} catch {
 		return [];
 	}

@@ -37,7 +37,7 @@ import { CommunitySourcesPanel } from "./community-sources";
 import {
 	COMMUNITY_RANGE_PRESETS,
 	COMMUNITY_SOURCE_STATUS_LABELS,
-	CommunityFilterState,
+	type CommunityFilterState,
 	DEFAULT_COMMUNITY_FILTERS,
 	formatRelative,
 	isCommunityDataStale,

@@ -1,8 +1,7 @@
-import * as React from "react";
 import type { PublicHistoryEntryDto } from "@notploy/status";
 import { History } from "lucide-react";
-import { categoryLabel, severityTone } from "@/lib/view-model";
 import { cn } from "@/lib/utils";
+import { categoryLabel, severityTone } from "@/lib/view-model";
 import { EmptyState } from "./empty-state";
 import { RelativeTime } from "./relative-time";
 

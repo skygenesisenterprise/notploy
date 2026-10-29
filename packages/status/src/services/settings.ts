@@ -5,9 +5,14 @@
  * `resolveSettings` so defaults are applied in exactly one place and the
  * state engine always receives a complete configuration.
  */
-import type { PageRow } from "../store/repositories";
-import type { GlobalStatus, IncidentSeverity, PageSettings } from "../core/types";
+
 import { DEFAULT_SEVERITY_TO_STATUS } from "../core/status-engine";
+import type {
+	GlobalStatus,
+	IncidentSeverity,
+	PageSettings,
+} from "../core/types";
+import type { PageRow } from "../store/repositories";
 
 export const DEFAULT_PAGE_SETTINGS: PageSettings = {
 	staleAfterSeconds: 120,
@@ -28,13 +33,10 @@ export const resolveSettings = (row: PageRow): PageSettings => {
 		stored = {};
 	}
 	const severityToStatus: Record<IncidentSeverity, GlobalStatus> = {
-		minor:
-			stored.severityToStatus?.minor ?? DEFAULT_SEVERITY_TO_STATUS.minor,
-		major:
-			stored.severityToStatus?.major ?? DEFAULT_SEVERITY_TO_STATUS.major,
+		minor: stored.severityToStatus?.minor ?? DEFAULT_SEVERITY_TO_STATUS.minor,
+		major: stored.severityToStatus?.major ?? DEFAULT_SEVERITY_TO_STATUS.major,
 		critical:
-			stored.severityToStatus?.critical ??
-			DEFAULT_SEVERITY_TO_STATUS.critical,
+			stored.severityToStatus?.critical ?? DEFAULT_SEVERITY_TO_STATUS.critical,
 	};
 	return {
 		staleAfterSeconds:
@@ -54,7 +56,10 @@ export const resolveSettings = (row: PageRow): PageSettings => {
 };
 
 /** Patch shape accepted by `mergeSettings` (severity mapping stays partial). */
-export type PageSettingsPatch = Omit<Partial<PageSettings>, "severityToStatus"> & {
+export type PageSettingsPatch = Omit<
+	Partial<PageSettings>,
+	"severityToStatus"
+> & {
 	severityToStatus?: Partial<Record<IncidentSeverity, GlobalStatus>>;
 };
 

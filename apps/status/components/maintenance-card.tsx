@@ -1,7 +1,6 @@
-import * as React from "react";
 import type { PublicMaintenanceDto } from "@notploy/status";
-import { formatDateTime, maintenanceStateLabel } from "@/lib/view-model";
 import { cn } from "@/lib/utils";
+import { formatDateTime, maintenanceStateLabel } from "@/lib/view-model";
 import { RelativeTime } from "./relative-time";
 
 const stateTone: Record<string, string> = {
@@ -32,8 +31,8 @@ export const MaintenanceCard = ({
 			<p className="text-sm text-muted-foreground">{maintenance.description}</p>
 		) : null}
 		<p className="text-xs text-muted-foreground">
-			{formatDateTime(maintenance.startAt)} → {formatDateTime(maintenance.endAt)} (
-			{maintenance.timeZone}) · starts{" "}
+			{formatDateTime(maintenance.startAt)} →{" "}
+			{formatDateTime(maintenance.endAt)} ({maintenance.timeZone}) · starts{" "}
 			<RelativeTime iso={maintenance.startAt} />
 		</p>
 	</article>

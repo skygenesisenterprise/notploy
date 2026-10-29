@@ -3,8 +3,8 @@ import type {
 	CommunityResources,
 	NotificationConfig,
 	NotificationEventType,
-	OnboardingConfig,
 	NotployApiConfig,
+	OnboardingConfig,
 } from "../types/index.js";
 import { ConfigurationError } from "../utils/errors.js";
 
@@ -47,20 +47,14 @@ function withDefault(value: string | undefined, fallback: string): string {
 
 /** Resolves the official resource URLs, allowing env overrides. */
 export function resolveResources(env: NodeJS.ProcessEnv): CommunityResources {
-	const githubRepository = withDefault(
-		env.GITHUB_REPOSITORY,
-		DEFAULT_RESOURCES.githubRepository,
-	);
+	const githubRepository = withDefault(env.GITHUB_REPOSITORY, DEFAULT_RESOURCES.githubRepository);
 	return {
 		website: withDefault(env.NOTPLOY_WEBSITE_URL, DEFAULT_RESOURCES.website),
 		docs: withDefault(env.NOTPLOY_DOCS_URL, DEFAULT_RESOURCES.docs),
 		status: withDefault(env.NOTPLOY_STATUS_URL, DEFAULT_RESOURCES.status),
 		templates: withDefault(env.NOTPLOY_TEMPLATES_URL, DEFAULT_RESOURCES.templates),
 		cloud: withDefault(env.NOTPLOY_CLOUD_URL, DEFAULT_RESOURCES.cloud),
-		discordInvite: withDefault(
-			env.NOTPLOY_DISCORD_INVITE,
-			DEFAULT_RESOURCES.discordInvite,
-		),
+		discordInvite: withDefault(env.NOTPLOY_DISCORD_INVITE, DEFAULT_RESOURCES.discordInvite),
 		githubRepository,
 		githubUrl: `https://github.com/${githubRepository}`,
 	};

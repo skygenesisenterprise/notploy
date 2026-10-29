@@ -29,11 +29,7 @@ export type GlobalStatus = PublicComponentStatus;
  * Raw state reported by a monitoring source. `unknown` means "no usable data":
  * it is explicitly NOT an implicit green.
  */
-export type ObservedStatus =
-	| "operational"
-	| "degraded"
-	| "outage"
-	| "unknown";
+export type ObservedStatus = "operational" | "degraded" | "outage" | "unknown";
 
 /** Severity of an incident. */
 export type IncidentSeverity = "minor" | "major" | "critical";
@@ -46,7 +42,11 @@ export type IncidentState =
 	| "resolved";
 
 /** Lifecycle of a planned maintenance. */
-export type MaintenanceState = "scheduled" | "in_progress" | "completed" | "cancelled";
+export type MaintenanceState =
+	| "scheduled"
+	| "in_progress"
+	| "completed"
+	| "cancelled";
 
 /** Whether an object is visible on the public page. */
 export type Visibility = "public" | "private";

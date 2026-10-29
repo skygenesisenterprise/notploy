@@ -1,13 +1,19 @@
 /**
  * Loading View Component for Notploy Voyager
- * 
+ *
  * Displays a loading indicator with optional message.
  */
 
-import React from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, type StyleProp, type ViewStyle } from 'react-native';
-import { useColor } from '@/hooks/use-color';
-import { useTranslation } from '@/hooks/use-translation';
+import {
+	ActivityIndicator,
+	type StyleProp,
+	StyleSheet,
+	Text,
+	View,
+	type ViewStyle,
+} from "react-native";
+import { useColor } from "@/hooks/use-color";
+import { useTranslation } from "@/hooks/use-translation";
 
 // ============================================================================
 // Types
@@ -15,16 +21,16 @@ import { useTranslation } from '@/hooks/use-translation';
 
 /** Loading view props */
 export interface LoadingViewProps {
-  /** Loading message */
-  message?: string;
-  /** Whether to show the activity indicator */
-  showSpinner?: boolean;
-  /** Custom style */
-  style?: StyleProp<ViewStyle>;
-  /** Custom text style */
-  textStyle?: any;
-  /** Custom spinner color */
-  spinnerColor?: string;
+	/** Loading message */
+	message?: string;
+	/** Whether to show the activity indicator */
+	showSpinner?: boolean;
+	/** Custom style */
+	style?: StyleProp<ViewStyle>;
+	/** Custom text style */
+	textStyle?: any;
+	/** Custom spinner color */
+	spinnerColor?: string;
 }
 
 // ============================================================================
@@ -35,30 +41,23 @@ export interface LoadingViewProps {
  * Loading view component.
  */
 export function LoadingView({
-  message,
-  showSpinner = true,
-  style,
-  textStyle,
-  spinnerColor,
+	message,
+	showSpinner = true,
+	style,
+	textStyle,
+	spinnerColor,
 }: LoadingViewProps) {
-  const color = useColor();
-  const t = useTranslation();
+	const color = useColor();
+	const _t = useTranslation();
 
-  return (
-    <View style={[styles.container, style]}>
-      {showSpinner && (
-        <ActivityIndicator
-          size="large"
-          color={spinnerColor || color.primary}
-        />
-      )}
-      {message && (
-        <Text style={[styles.message, { color: color.mutedForeground }, textStyle]}>
-          {message}
-        </Text>
-      )}
-    </View>
-  );
+	return (
+		<View style={[styles.container, style]}>
+			{showSpinner && <ActivityIndicator size="large" color={spinnerColor || color.primary} />}
+			{message && (
+				<Text style={[styles.message, { color: color.mutedForeground }, textStyle]}>{message}</Text>
+			)}
+		</View>
+	);
 }
 
 // ============================================================================
@@ -66,14 +65,14 @@ export function LoadingView({
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-  },
-  message: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
+	container: {
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 16,
+	},
+	message: {
+		fontSize: 14,
+		textAlign: "center",
+	},
 });

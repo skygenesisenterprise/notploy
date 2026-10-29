@@ -1,8 +1,8 @@
 "use client";
 
-import * as React from "react";
-import Link from "next/link";
 import type { AdminPageDto } from "@notploy/status";
+import Link from "next/link";
+import * as React from "react";
 import { adminRequest } from "@/lib/admin-client";
 import { useAdminResource } from "@/lib/use-admin";
 import { StatusBadge } from "../status-badge";

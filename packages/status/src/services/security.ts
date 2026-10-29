@@ -7,9 +7,7 @@
  * integration holds a scoped token like any other client, so the status
  * platform never depends on a Console session.
  */
-import type { CreateTokenInput } from "../core/schemas";
-import type { TokenScope } from "../core/types";
-import { badRequest, notFound, unauthorized } from "../errors";
+
 import {
 	generateToken,
 	hashSecret,
@@ -17,6 +15,9 @@ import {
 	parseToken,
 	verifySecret,
 } from "../auth/tokens";
+import type { CreateTokenInput } from "../core/schemas";
+import type { TokenScope } from "../core/types";
+import { badRequest, notFound, unauthorized } from "../errors";
 import type { Actor, StatusContext } from "./context";
 import { adminTokenDto } from "./public";
 

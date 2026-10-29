@@ -10,16 +10,16 @@
  * security boundary, so the UI can never display an internal field.
  */
 import {
-	type PublicHistoryEntryDto,
-	type PublicIncidentDto,
-	type PublicMaintenanceDto,
-	type PublicPageDto,
 	getPublicIncident,
 	getPublicPage,
 	listPages,
 	listPublicHistory,
 	listPublicIncidents,
 	listPublicMaintenances,
+	type PublicHistoryEntryDto,
+	type PublicIncidentDto,
+	type PublicMaintenanceDto,
+	type PublicPageDto,
 } from "@notploy/status";
 import { getPlatform } from "./engine";
 
@@ -68,10 +68,15 @@ export const resolvePublicPage = (slug: string): PublicPageDto | null => {
 export const listActiveIncidents = (slug: string): PublicIncidentDto[] => {
 	const platform = getPlatform();
 	if (!platform.ctx) {
-		return platform.snapshot.find((page) => page.slug === slug)?.activeIncidents ?? [];
+		return (
+			platform.snapshot.find((page) => page.slug === slug)?.activeIncidents ??
+			[]
+		);
 	}
-	return listPublicIncidents(platform.ctx, slug, { status: "active", limit: 50 })
-		.items;
+	return listPublicIncidents(platform.ctx, slug, {
+		status: "active",
+		limit: 50,
+	}).items;
 };
 
 export const listResolvedIncidents = (
@@ -92,8 +97,8 @@ export const listScheduledMaintenances = (
 	const platform = getPlatform();
 	if (!platform.ctx) {
 		return (
-			platform.snapshot.find((page) => page.slug === slug)?.scheduledMaintenances ??
-			[]
+			platform.snapshot.find((page) => page.slug === slug)
+				?.scheduledMaintenances ?? []
 		);
 	}
 	return listPublicMaintenances(platform.ctx, slug, { limit: 20 }).items;

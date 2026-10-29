@@ -15,8 +15,8 @@
  */
 import type { CatalogComponent, StatusCatalog } from "../core/catalog";
 import type { PageRow } from "../store/repositories";
-import type { Actor, StatusContext } from "./context";
 import { createComponent } from "./components";
+import type { Actor, StatusContext } from "./context";
 import { createPage } from "./pages";
 
 export interface SeedResult {

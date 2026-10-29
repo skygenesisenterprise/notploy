@@ -238,8 +238,7 @@ export const ManageSecurityKeys = ({
 	};
 
 	return (
-		<>
-			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 				<DialogTrigger asChild>
 					<Button variant="outline">
 						<Fingerprint className="size-4 text-muted-foreground" />
@@ -487,6 +486,5 @@ export const ManageSecurityKeys = ({
 					</div>
 				</DialogContent>
 			</Dialog>
-		</>
 	);
 };

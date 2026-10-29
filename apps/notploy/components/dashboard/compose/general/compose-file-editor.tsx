@@ -108,8 +108,7 @@ export const ComposeFileEditor = ({ composeId }: Props) => {
 	}, [form, onSubmit, isPending]);
 
 	return (
-		<>
-			<div className="w-full flex flex-col gap-4 ">
+		<div className="w-full flex flex-col gap-4 ">
 				<div className="flex items-center justify-between">
 					<div>
 						<h3 className="text-lg font-medium">Compose File</h3>
@@ -178,6 +177,5 @@ services:
 					)}
 				</div>
 			</div>
-		</>
 	);
 };

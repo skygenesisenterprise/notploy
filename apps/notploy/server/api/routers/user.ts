@@ -117,7 +117,7 @@ export const userRouter = createTRPCRouter({
 			return memberResult;
 		}),
 	session: publicProcedure.query(async ({ ctx }) => {
-		if (!ctx.user || !ctx.session || !ctx.session.activeOrganizationId) {
+		if (!ctx.user || !ctx.session?.activeOrganizationId) {
 			return null;
 		}
 		return {

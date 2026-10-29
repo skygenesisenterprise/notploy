@@ -1,8 +1,4 @@
-import {
-	type ChatInputCommandInteraction,
-	MessageFlags,
-	PermissionFlagsBits,
-} from "discord.js";
+import { type ChatInputCommandInteraction, MessageFlags, PermissionFlagsBits } from "discord.js";
 import { errorEmbed } from "./embeds.js";
 
 /** Whether the invoking member has the Administrator permission. */
@@ -31,10 +27,7 @@ export async function requirePermission(
 
 	await interaction.reply({
 		embeds: [
-			errorEmbed(
-				"Missing permission",
-				`You need the **${label}** permission to run this command.`,
-			),
+			errorEmbed("Missing permission", `You need the **${label}** permission to run this command.`),
 		],
 		flags: MessageFlags.Ephemeral,
 	});

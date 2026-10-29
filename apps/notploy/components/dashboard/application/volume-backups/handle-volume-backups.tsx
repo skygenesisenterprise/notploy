@@ -200,9 +200,9 @@ export const HandleVolumeBackups = ({
 		}
 	}, [form, volumeBackup, volumeBackupId]);
 
-	const { mutateAsync, isPending } = volumeBackupId
-		? api.volumeBackups.update.useMutation()
-		: api.volumeBackups.create.useMutation();
+	const updateMutation = api.volumeBackups.update.useMutation();
+	const createMutation = api.volumeBackups.create.useMutation();
+	const { mutateAsync, isPending } = volumeBackupId ? updateMutation : createMutation;
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		if (!id && !volumeBackupId) return;

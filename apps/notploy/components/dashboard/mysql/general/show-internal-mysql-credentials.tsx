@@ -15,8 +15,7 @@ export const ShowInternalMysqlCredentials = ({ mysqlId }: Props) => {
 	const { mutateAsync: changePassword } =
 		api.mysql.changePassword.useMutation();
 	return (
-		<>
-			<div className="flex w-full flex-col gap-5 ">
+		<div className="flex w-full flex-col gap-5 ">
 				<Card className="bg-background">
 					<CardHeader>
 						<CardTitle className="text-xl">Internal Credentials</CardTitle>
@@ -93,6 +92,5 @@ export const ShowInternalMysqlCredentials = ({ mysqlId }: Props) => {
 					</CardContent>
 				</Card>
 			</div>
-		</>
 	);
 };

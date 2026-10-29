@@ -32,6 +32,7 @@ export function WhitelabelingPreview({ config }: WhitelabelingPreviewProps) {
 					{/* Simulated sidebar header */}
 					<div className="flex items-center gap-3 p-4 border-b bg-sidebar">
 						{config.logoUrl ? (
+							// biome-ignore lint/performance/noImgElement: user-provided logo URL, next/image cannot optimize it
 							<img
 								src={config.logoUrl}
 								alt="Preview Logo"

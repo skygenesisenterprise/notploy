@@ -26,27 +26,55 @@ export const ShowVolumes = ({ id, type }: Props) => {
 	const canCreate = permissions?.volume.create ?? false;
 	const canDelete = permissions?.volume.delete ?? false;
 
-	if (!canRead) return null;
+	const isActive = !!id && canRead;
 
-	const queryMap = {
-		application: () =>
-			api.application.one.useQuery({ applicationId: id }, { enabled: !!id }),
-		compose: () =>
-			api.compose.one.useQuery({ composeId: id }, { enabled: !!id }),
-		libsql: () => api.libsql.one.useQuery({ libsqlId: id }, { enabled: !!id }),
-		mariadb: () =>
-			api.mariadb.one.useQuery({ mariadbId: id }, { enabled: !!id }),
-		mongo: () => api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id }),
-		mysql: () => api.mysql.one.useQuery({ mysqlId: id }, { enabled: !!id }),
-		postgres: () =>
-			api.postgres.one.useQuery({ postgresId: id }, { enabled: !!id }),
-		redis: () => api.redis.one.useQuery({ redisId: id }, { enabled: !!id }),
+	const applicationQuery = api.application.one.useQuery(
+		{ applicationId: id },
+		{ enabled: isActive && type === "application" },
+	);
+	const composeQuery = api.compose.one.useQuery(
+		{ composeId: id },
+		{ enabled: isActive && type === "compose" },
+	);
+	const libsqlQuery = api.libsql.one.useQuery(
+		{ libsqlId: id },
+		{ enabled: isActive && type === "libsql" },
+	);
+	const mariadbQuery = api.mariadb.one.useQuery(
+		{ mariadbId: id },
+		{ enabled: isActive && type === "mariadb" },
+	);
+	const mongoQuery = api.mongo.one.useQuery(
+		{ mongoId: id },
+		{ enabled: isActive && type === "mongo" },
+	);
+	const mysqlQuery = api.mysql.one.useQuery(
+		{ mysqlId: id },
+		{ enabled: isActive && type === "mysql" },
+	);
+	const postgresQuery = api.postgres.one.useQuery(
+		{ postgresId: id },
+		{ enabled: isActive && type === "postgres" },
+	);
+	const redisQuery = api.redis.one.useQuery(
+		{ redisId: id },
+		{ enabled: isActive && type === "redis" },
+	);
+	const serviceQueries = {
+		application: applicationQuery,
+		compose: composeQuery,
+		libsql: libsqlQuery,
+		mariadb: mariadbQuery,
+		mongo: mongoQuery,
+		mysql: mysqlQuery,
+		postgres: postgresQuery,
+		redis: redisQuery,
 	};
-	const { data, refetch } = queryMap[type]
-		? queryMap[type]()
-		: api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id });
+	const { data, refetch } = serviceQueries[type] ?? mongoQuery;
 	const { mutateAsync: deleteVolume, isPending: isRemoving } =
 		api.mounts.remove.useMutation();
+
+	if (!canRead) return null;
 
 	return (
 		<Card className="bg-background">

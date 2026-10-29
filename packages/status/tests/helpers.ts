@@ -27,9 +27,7 @@ export interface Harness {
 }
 
 /** In-memory database + frozen clock, isolated from the working directory. */
-export const createHarness = (
-	start = "2026-01-01T09:00:00.000Z",
-): Harness => {
+export const createHarness = (start = "2026-01-01T09:00:00.000Z"): Harness => {
 	let current = start;
 	const ctx = createStatusContext({
 		db: openDatabase({ file: ":memory:" }),

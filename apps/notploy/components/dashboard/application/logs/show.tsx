@@ -147,8 +147,7 @@ export const ShowDockerLogs = ({ appName, serverId, serviceId }: Props) => {
 									))}
 								</div>
 							) : (
-								<>
-									{services?.map((container) => (
+								services?.map((container) => (
 										<SelectItem
 											key={container.containerId}
 											value={container.containerId}
@@ -162,8 +161,7 @@ export const ShowDockerLogs = ({ appName, serverId, serviceId }: Props) => {
 												? ` ${container.currentState}`
 												: ""}
 										</SelectItem>
-									))}
-								</>
+									))
 							)}
 
 							<SelectLabel>Containers ({containersLength})</SelectLabel>

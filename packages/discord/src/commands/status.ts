@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
-import { COLORS, baseEmbed } from "../utils/embeds.js";
 import type { Command } from "../types/index.js";
+import { baseEmbed, COLORS } from "../utils/embeds.js";
 
 export const statusCommand: Command = {
 	data: new SlashCommandBuilder()
@@ -10,10 +10,7 @@ export const statusCommand: Command = {
 	async execute(interaction, { notploy, github, config, logger }) {
 		await interaction.deferReply();
 
-		const [status, release] = await Promise.all([
-			notploy.getStatus(),
-			github.getLatestRelease(),
-		]);
+		const [status, release] = await Promise.all([notploy.getStatus(), github.getLatestRelease()]);
 
 		const embed = baseEmbed().setTitle("Notploy status");
 		embed.setColor(status.reachable ? COLORS.success : COLORS.neutral);

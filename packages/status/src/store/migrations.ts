@@ -245,9 +245,9 @@ export interface MigrationRecord {
 
 /** Read the list of already-applied migration versions. */
 export const appliedVersions = (db: DatabaseSync): Set<number> => {
-	const rows = db
-		.prepare("SELECT version FROM schema_migrations")
-		.all() as { version: number }[];
+	const rows = db.prepare("SELECT version FROM schema_migrations").all() as {
+		version: number;
+	}[];
 	return new Set(rows.map((row) => row.version));
 };
 
@@ -269,11 +269,7 @@ export const runMigrations = (db: DatabaseSync): number[] => {
 			db.exec(migration.up);
 			db.prepare(
 				"INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)",
-			).run(
-				migration.version,
-				migration.name,
-				new Date().toISOString(),
-			);
+			).run(migration.version, migration.name, new Date().toISOString());
 			db.exec("COMMIT");
 			applied.push(migration.version);
 		} catch (error) {

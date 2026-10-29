@@ -1,12 +1,12 @@
+import type { Client } from "discord.js";
+import { GitHubIntegration } from "../integrations/github/index.js";
+import { NotployIntegration } from "../integrations/notploy/index.js";
 import type { BotConfig, BotServices } from "../types/index.js";
 import type { Logger } from "../utils/logger.js";
 import { createLogger } from "../utils/logger.js";
-import { GitHubIntegration } from "../integrations/github/index.js";
-import { NotployIntegration } from "../integrations/notploy/index.js";
 import { CommunityService } from "./community.js";
 import { NotificationService } from "./notifications.js";
 import { RoleService } from "./roles.js";
-import type { Client } from "discord.js";
 
 /**
  * Builds the service container injected into commands and events.

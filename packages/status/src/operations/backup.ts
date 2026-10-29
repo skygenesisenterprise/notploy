@@ -8,7 +8,13 @@
  * Restore is deliberately a documented manual step (stop the app, copy the
  * file back) — see README.md.
  */
-import { mkdirSync, readdirSync, rmSync, statSync, copyFileSync } from "node:fs";
+import {
+	copyFileSync,
+	mkdirSync,
+	readdirSync,
+	rmSync,
+	statSync,
+} from "node:fs";
 import { join, resolve } from "node:path";
 import type { StatusConfig } from "../config";
 import { openDatabase } from "../store/db";
@@ -35,10 +41,17 @@ export const listBackups = (config: StatusConfig): string[] => {
 export const createBackup = (config: StatusConfig): BackupResult => {
 	mkdirSync(config.backupDir, { recursive: true });
 	const timestamp = new Date();
-	const name = `status-${timestamp.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}.db`;
+	const name = `status-${timestamp
+		.toISOString()
+		.replace(/[-:]/g, "")
+		.replace(/\.\d+Z$/, "Z")}.db`;
 	const destination = join(config.backupDir, name);
 	// VACUUM INTO produces a defragmented, transactionally consistent copy.
-	const db = openDatabase({ file: config.databaseFile, readOnly: true, migrate: false });
+	const db = openDatabase({
+		file: config.databaseFile,
+		readOnly: true,
+		migrate: false,
+	});
 	try {
 		db.exec(`VACUUM INTO '${destination.replace(/'/g, "''")}'`);
 	} finally {
@@ -53,7 +66,10 @@ export const createBackup = (config: StatusConfig): BackupResult => {
 };
 
 /** Restore a backup over the live database file (manual operator step). */
-export const restoreBackup = (config: StatusConfig, backupName: string): string => {
+export const restoreBackup = (
+	config: StatusConfig,
+	backupName: string,
+): string => {
 	if (!BACKUP_PATTERN.test(backupName)) {
 		throw new Error(`Invalid backup name: ${backupName}`);
 	}
@@ -71,4 +87,5 @@ const pruneBackups = (config: StatusConfig): void => {
 	}
 };
 
-export const backupDirPath = (config: StatusConfig): string => resolve(config.backupDir);
+export const backupDirPath = (config: StatusConfig): string =>
+	resolve(config.backupDir);

@@ -1159,6 +1159,7 @@ function PermissionEditor({
 								{actions.map((action) => {
 									const actionMeta = ACTION_META[resource]?.[action];
 									return (
+										// biome-ignore lint/a11y/useSemanticElements: row contains a nested Switch button so it cannot be a native button; keyboard support is provided via tabIndex and onKeyDown
 										<div
 											key={action}
 											role="button"

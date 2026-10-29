@@ -1,6 +1,5 @@
-import * as React from "react";
-import Link from "next/link";
 import { Rss, Webhook } from "lucide-react";
+import Link from "next/link";
 
 export const Subscribe = ({ slug }: { slug: string }) => (
 	<section className="status-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">

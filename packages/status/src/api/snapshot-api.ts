@@ -9,8 +9,9 @@
  * fabricates an "operational" answer.
  */
 import { Hono } from "hono";
-import type { PublicPageDto } from "../core/dto";
 import type { StatusConfig } from "../config";
+import type { PublicPageDto } from "../core/dto";
+import { healthzHandler } from "./health";
 import {
 	corsPolicy,
 	errorResponse,
@@ -18,7 +19,6 @@ import {
 	rateLimit,
 	type Variables,
 } from "./middleware";
-import { healthzHandler } from "./health";
 
 const unavailable = (message: string): Response =>
 	Response.json(
@@ -141,7 +141,8 @@ export const createSnapshotApi = (
 				{
 					error: {
 						code: "not_found",
-						message: "Only currently active incidents are available from the snapshot",
+						message:
+							"Only currently active incidents are available from the snapshot",
 					},
 				},
 				404,
@@ -167,10 +168,14 @@ export const createSnapshotApi = (
 		unavailable("Administration is unavailable while storage is degraded"),
 	);
 	app.all("/api/v1/integration/*", () =>
-		unavailable("Integration ingestion is unavailable while storage is degraded"),
+		unavailable(
+			"Integration ingestion is unavailable while storage is degraded",
+		),
 	);
 	app.all("/api/v1/integration", () =>
-		unavailable("Integration ingestion is unavailable while storage is degraded"),
+		unavailable(
+			"Integration ingestion is unavailable while storage is degraded",
+		),
 	);
 
 	return app;

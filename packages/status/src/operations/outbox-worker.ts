@@ -29,7 +29,10 @@ export const startOutboxWorker = (
 		try {
 			const summary = await dispatchOutbox(ctx);
 			if (summary.due > 0) {
-				ctx.log.debug("outbox_cycle", summary as unknown as Record<string, unknown>);
+				ctx.log.debug(
+					"outbox_cycle",
+					summary as unknown as Record<string, unknown>,
+				);
 			}
 		} catch (error) {
 			ctx.log.warn("outbox_cycle_failed", {

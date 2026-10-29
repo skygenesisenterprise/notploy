@@ -45,7 +45,11 @@ export const statusTone = (status: GlobalStatus): Tone => {
 };
 
 export const severityLabel = (severity: IncidentSeverity): string =>
-	severity === "critical" ? "Critical" : severity === "major" ? "Major" : "Minor";
+	severity === "critical"
+		? "Critical"
+		: severity === "major"
+			? "Major"
+			: "Minor";
 
 export const severityTone = (severity: IncidentSeverity): Tone =>
 	severity === "critical" ? "red" : severity === "major" ? "orange" : "amber";
@@ -69,7 +73,8 @@ export const maintenanceStateLabel = (state: MaintenanceState): string =>
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(" ");
 
-export const componentStatusTone = (status: GlobalStatus): Tone => statusTone(status);
+export const componentStatusTone = (status: GlobalStatus): Tone =>
+	statusTone(status);
 
 export const componentStatusLabel = (status: GlobalStatus): string => {
 	switch (status) {
@@ -113,7 +118,8 @@ export const describeFreshness = (input: {
 	if (input.serverStale) {
 		return {
 			kind: "stale-data",
-			label: "Some components have not reported recent data — their last known state is shown.",
+			label:
+				"Some components have not reported recent data — their last known state is shown.",
 			tone: "amber",
 		};
 	}

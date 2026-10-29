@@ -9,11 +9,11 @@
  */
 import type {
 	ComponentCategory,
+	EventType,
 	GlobalStatus,
 	IncidentSeverity,
 	IncidentState,
 	MaintenanceState,
-	EventType,
 	PublicComponentStatus,
 } from "./types";
 

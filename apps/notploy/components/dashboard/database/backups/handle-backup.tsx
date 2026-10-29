@@ -222,10 +222,10 @@ export const HandleBackup = ({
 		},
 	);
 	const [cacheType, setCacheType] = useState<CacheType>("cache");
+	const updateBackupMutation = api.backup.update.useMutation();
+	const createBackupMutation = api.backup.create.useMutation();
 	const { mutateAsync: createBackup, isPending: isCreatingPostgresBackup } =
-		backupId
-			? api.backup.update.useMutation()
-			: api.backup.create.useMutation();
+		backupId ? updateBackupMutation : createBackupMutation;
 
 	const form = useForm<z.input<typeof Schema>, any, z.output<typeof Schema>>({
 		defaultValues: {

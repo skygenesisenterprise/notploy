@@ -76,26 +76,38 @@ export const sendResendNotification = async (
 			`Failed to send Resend notification ${err instanceof Error ? err.message : "Unknown error"}`,
 		);
 	}
-};
-
-export const sendDiscordNotification = async (
+};export const sendDiscordNotification = async (
 	connection: typeof discord.$inferInsert,
 	embed: any,
 ) => {
+	let response: Response;
 	try {
-		const response = await fetch(connection.webhookUrl, {
+		response = await fetch(connection.webhookUrl, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ embeds: [embed] }),
 		});
-		if (!response.ok) {
-			throw new Error(
-				`Failed to send discord notification ${response.statusText}`,
-			);
-		}
 	} catch (err) {
 		throw new Error(
-			`Failed to send discord notification ${err instanceof Error ? err.message : "Unknown error"}`,
+			`Failed to send discord notification: could not reach the webhook URL (${err instanceof Error ? err.message : "Unknown error"}). Check that the Notploy server has outbound HTTPS access and that the URL is correct.`,
+		);
+	}
+	if (!response.ok) {
+		let detail = "";
+		try {
+			const text = await response.text();
+			if (text) {
+				detail = `: ${text.length > 300 ? `${text.slice(0, 300)}\u2026` : text}`;
+			} else if (response.statusText) {
+				detail = `: ${response.statusText}`;
+			}
+		} catch {
+			if (response.statusText) {
+				detail = `: ${response.statusText}`;
+			}
+		}
+		throw new Error(
+			`Failed to send discord notification: Discord answered HTTP ${response.status}${detail}`,
 		);
 	}
 };

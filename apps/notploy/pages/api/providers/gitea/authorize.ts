@@ -17,7 +17,7 @@ export default async function handler(
 		}
 
 		const gitea = await findGitea(giteaId as string);
-		if (!gitea || !gitea.clientId || !gitea.redirectUri) {
+		if (!gitea?.clientId || !gitea.redirectUri) {
 			return redirectWithError(res, "Incomplete OAuth configuration");
 		}
 

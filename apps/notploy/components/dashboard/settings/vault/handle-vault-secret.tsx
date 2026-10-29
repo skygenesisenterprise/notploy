@@ -46,6 +46,7 @@ const buildSchema = (isEdit: boolean) =>
 			.min(1, { message: "Name is required" })
 			.regex(/^[a-zA-Z0-9._-]+$/, {
 				message:
+					// biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template
 					"Only letters, numbers, dots, dashes and underscores (used in ${{vault.<name>.<secret>}})",
 			}),
 		value: isEdit ? z.string() : z.string().min(1, { message: "Value is required" }),
@@ -130,6 +131,7 @@ export const HandleVaultSecret = ({ vaultProviderId, secret, trigger }: Props) =
 					<DialogDescription>
 						Store a secret directly in Notploy, encrypted at rest. Reference it
 						in an environment variable with{" "}
+						{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 						<code>{"${{vault.<name>.<secret>}}"}</code>.
 					</DialogDescription>
 				</DialogHeader>
@@ -150,6 +152,7 @@ export const HandleVaultSecret = ({ vaultProviderId, secret, trigger }: Props) =
 									</FormControl>
 									<FormDescription>
 										The name used after the provider, e.g.{" "}
+										{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 										<code>{"${{vault.my-provider.DATABASE_URL}}"}</code>.
 									</FormDescription>
 									<FormMessage />

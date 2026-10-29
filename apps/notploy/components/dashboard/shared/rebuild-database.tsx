@@ -23,16 +23,22 @@ interface Props {
 export const RebuildDatabase = ({ id, type }: Props) => {
 	const utils = api.useUtils();
 
-	const mutationMap = {
-		libsql: () => api.libsql.rebuild.useMutation(),
-		mariadb: () => api.mariadb.rebuild.useMutation(),
-		mongo: () => api.mongo.rebuild.useMutation(),
-		mysql: () => api.mysql.rebuild.useMutation(),
-		postgres: () => api.postgres.rebuild.useMutation(),
-		redis: () => api.redis.rebuild.useMutation(),
+	const libsqlMutation = api.libsql.rebuild.useMutation();
+	const mariadbMutation = api.mariadb.rebuild.useMutation();
+	const mongoMutation = api.mongo.rebuild.useMutation();
+	const mysqlMutation = api.mysql.rebuild.useMutation();
+	const postgresMutation = api.postgres.rebuild.useMutation();
+	const redisMutation = api.redis.rebuild.useMutation();
+	const serviceMutations = {
+		libsql: libsqlMutation,
+		mariadb: mariadbMutation,
+		mongo: mongoMutation,
+		mysql: mysqlMutation,
+		postgres: postgresMutation,
+		redis: redisMutation,
 	};
 
-	const { mutateAsync, isPending } = mutationMap[type]();
+	const { mutateAsync, isPending } = serviceMutations[type];
 
 	const handleRebuild = async () => {
 		try {

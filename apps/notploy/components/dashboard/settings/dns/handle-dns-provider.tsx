@@ -386,9 +386,9 @@ export const HandleDnsProvider = ({
 		{ enabled: !!dnsProviderId && isOpen },
 	);
 
-	const { mutateAsync, isPending, error, isError } = dnsProviderId
-		? api.dnsProvider.update.useMutation()
-		: api.dnsProvider.create.useMutation();
+	const updateMutation = api.dnsProvider.update.useMutation();
+	const createMutation = api.dnsProvider.create.useMutation();
+	const { mutateAsync, isPending, error, isError } = dnsProviderId ? updateMutation : createMutation;
 
 	const { mutateAsync: testConnection, isPending: isTesting } =
 		api.dnsProvider.testConnection.useMutation();

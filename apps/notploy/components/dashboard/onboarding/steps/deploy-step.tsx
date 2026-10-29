@@ -286,9 +286,9 @@ export const DeployStep = ({ environmentId, onNext, plainTitle }: Props) => {
 								isLoading={starting === template.id}
 								onClick={() => handleTemplate(template.id)}
 								className="justify-start"
-							>
+							>								{/* biome-ignore lint/performance/noImgElement: dynamic template logo URL, next/image cannot optimize it */}
 								<img
-									src={`/api/templates/${template.id}/${template.logo}`}
+								src={`/api/templates/${template.id}/${template.logo}`}
 									alt={template.name}
 									className="size-4 object-contain shrink-0"
 								/>

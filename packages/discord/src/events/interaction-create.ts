@@ -35,9 +35,7 @@ export async function handleInteractionCreate(
 		});
 
 		const payload = {
-			embeds: [
-				errorEmbed("Command failed", "Something went wrong while running this command."),
-			],
+			embeds: [errorEmbed("Command failed", "Something went wrong while running this command.")],
 			flags: MessageFlags.Ephemeral as const,
 		};
 

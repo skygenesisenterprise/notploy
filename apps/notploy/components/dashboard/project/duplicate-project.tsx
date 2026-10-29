@@ -236,8 +236,7 @@ export const DuplicateProject = ({
 					)}
 
 					{duplicateType === "existing-environment" && (
-						<>
-							{allProjects?.filter((p) => p.projectId !== environmentId)
+						allProjects?.filter((p) => p.projectId !== environmentId)
 								.length === 0 ? (
 								<div className="flex flex-col items-center justify-center gap-2 py-4 text-center">
 									<p className="text-sm text-muted-foreground">
@@ -299,8 +298,7 @@ export const DuplicateProject = ({
 										</div>
 									)}
 								</>
-							)}
-						</>
+							)
 					)}
 
 					<div className="grid gap-2">

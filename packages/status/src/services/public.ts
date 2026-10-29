@@ -11,18 +11,19 @@ import type {
 	AdminComponentDto,
 	AdminIncidentDto,
 	AdminMaintenanceDto,
+	AdminPageDto,
 	AuditLogDto,
 	PaginatedDto,
-	AdminPageDto,
 	PublicComponentDto,
+	PublicComponentUptimeDto,
 	PublicHistoryEntryDto,
 	PublicIncidentDto,
 	PublicIncidentUpdateDto,
 	PublicMaintenanceDto,
-	PublicComponentUptimeDto,
 	PublicPageDto,
 	TimelineEventDto,
 } from "../core/dto";
+import type { HistoryQuery } from "../core/schemas";
 import {
 	computePageStatus,
 	type EngineComponent,
@@ -37,19 +38,18 @@ import type {
 	IncidentState,
 	MaintenanceState,
 } from "../core/types";
+import { notFound } from "../errors";
 import {
-	decodeCursor,
-	encodeCursor,
+	type AuditRow,
 	type ComponentRow,
+	decodeCursor,
 	type EventRow,
+	encodeCursor,
 	type IncidentRow,
 	type MaintenanceRow,
 	type PageRow,
 	type TokenRow,
-	type AuditRow,
 } from "../store/repositories";
-import { notFound } from "../errors";
-import type { HistoryQuery } from "../core/schemas";
 import type { StatusContext } from "./context";
 import { resolveSettings } from "./settings";
 import { emptyComponentUptime, getUptimeForComponents } from "./uptime";
@@ -77,9 +77,12 @@ export const toEngineInputs = (
 		components: components.map((component) => ({
 			id: component.id,
 			visibility:
-				component.visibility === "private" ? ("private" as const) : ("public" as const),
+				component.visibility === "private"
+					? ("private" as const)
+					: ("public" as const),
 			parentId: component.parent_id,
-			observedStatus: component.observed_status as EngineComponent["observedStatus"],
+			observedStatus:
+				component.observed_status as EngineComponent["observedStatus"],
 			observedAt: component.observed_at,
 			lastPublishedStatus:
 				component.last_published_status as EngineComponent["lastPublishedStatus"],
@@ -91,7 +94,9 @@ export const toEngineInputs = (
 			state: incident.state as IncidentState,
 			published: incident.published === 1,
 			visibility:
-				incident.visibility === "private" ? ("private" as const) : ("public" as const),
+				incident.visibility === "private"
+					? ("private" as const)
+					: ("public" as const),
 			componentIds: ctx.repos.incidents.componentIds(incident.id),
 		})),
 		maintenances: maintenances.map((maintenance) => ({
@@ -123,9 +128,14 @@ export const publicIncidentDto = (
 ): PublicIncidentDto => {
 	const updates = options.includeUpdates
 		? ctx.repos.events
-			.listBySubject(row.page_id, "incident", row.id, options.updateLimit ?? 100)
-			.filter((event) => event.visibility === "public")
-			.map(publicUpdateDto)
+				.listBySubject(
+					row.page_id,
+					"incident",
+					row.id,
+					options.updateLimit ?? 100,
+				)
+				.filter((event) => event.visibility === "public")
+				.map(publicUpdateDto)
 		: [];
 	return {
 		id: row.id,
@@ -158,9 +168,7 @@ export const publicMaintenanceDto = (
 
 /* ------------------------------- admin views ----------------------------- */
 
-export const adminComponentDto = (
-	row: ComponentRow,
-): AdminComponentDto => ({
+export const adminComponentDto = (row: ComponentRow): AdminComponentDto => ({
 	id: row.id,
 	pageId: row.page_id,
 	name: row.name,
@@ -256,7 +264,9 @@ export const auditLogDto = (row: AuditRow): AuditLogDto => ({
 	action: row.action,
 	subjectType: row.subject_type,
 	subjectId: row.subject_id,
-	detail: row.detail_json ? (JSON.parse(row.detail_json) as Record<string, unknown>) : null,
+	detail: row.detail_json
+		? (JSON.parse(row.detail_json) as Record<string, unknown>)
+		: null,
 	requestId: row.request_id,
 });
 
@@ -277,7 +287,10 @@ export const timelineEventDto = (row: EventRow): TimelineEventDto => ({
 const pageEngine = (
 	ctx: StatusContext,
 	row: PageRow,
-): { engine: ReturnType<typeof computePageStatus>; settings: ReturnType<typeof resolveSettings> } => {
+): {
+	engine: ReturnType<typeof computePageStatus>;
+	settings: ReturnType<typeof resolveSettings>;
+} => {
 	const settings = resolveSettings(row);
 	const inputs = toEngineInputs(ctx, row.id);
 	const engine = computePageStatus({
@@ -289,7 +302,10 @@ const pageEngine = (
 	return { engine, settings };
 };
 
-export const buildPublicPage = (ctx: StatusContext, row: PageRow): PublicPageDto => {
+export const buildPublicPage = (
+	ctx: StatusContext,
+	row: PageRow,
+): PublicPageDto => {
 	const { engine, settings } = pageEngine(ctx, row);
 	const statusByComponent = new Map(
 		engine.componentStatuses.map((status) => [status.componentId, status]),
@@ -321,15 +337,21 @@ export const buildPublicPage = (ctx: StatusContext, row: PageRow): PublicPageDto
 
 	const activeIncidents = ctx.repos.incidents
 		.listByPage(row.id)
-		.filter((incident) => isPubliclyVisibleIncident(incident) && incident.state !== "resolved")
-		.map((incident) => publicIncidentDto(ctx, incident, { includeUpdates: true }));
+		.filter(
+			(incident) =>
+				isPubliclyVisibleIncident(incident) && incident.state !== "resolved",
+		)
+		.map((incident) =>
+			publicIncidentDto(ctx, incident, { includeUpdates: true }),
+		);
 
 	const scheduledMaintenances = ctx.repos.maintenances
 		.listByPage(row.id)
 		.filter(
 			(maintenance) =>
 				isPubliclyVisibleMaintenance(maintenance) &&
-				(maintenance.state === "scheduled" || maintenance.state === "in_progress"),
+				(maintenance.state === "scheduled" ||
+					maintenance.state === "in_progress"),
 		)
 		.map((maintenance) => publicMaintenanceDto(ctx, maintenance));
 
@@ -351,12 +373,18 @@ export const buildPublicPage = (ctx: StatusContext, row: PageRow): PublicPageDto
 export const buildAllPublicPages = (ctx: StatusContext): PublicPageDto[] =>
 	ctx.repos.pages.list().map((row) => buildPublicPage(ctx, row));
 
-export const getPublicPage = (ctx: StatusContext, slug: string): PublicPageDto | null => {
+export const getPublicPage = (
+	ctx: StatusContext,
+	slug: string,
+): PublicPageDto | null => {
 	const row = ctx.repos.pages.findBySlug(slug);
 	return row ? buildPublicPage(ctx, row) : null;
 };
 
-export const requirePublicPage = (ctx: StatusContext, slug: string): PublicPageDto => {
+export const requirePublicPage = (
+	ctx: StatusContext,
+	slug: string,
+): PublicPageDto => {
 	const page = getPublicPage(ctx, slug);
 	if (!page) {
 		throw notFound(`Status page "${slug}" does not exist`);
@@ -387,7 +415,9 @@ export const getPublicStatus = (
 	};
 };
 
-export const listPages = (ctx: StatusContext): Array<{
+export const listPages = (
+	ctx: StatusContext,
+): Array<{
 	slug: string;
 	name: string;
 	description: string;
@@ -433,7 +463,11 @@ export const listPublicUptime = (
 export const listPublicIncidents = (
 	ctx: StatusContext,
 	slug: string,
-	query: { status?: "active" | "resolved" | "all"; limit: number; cursor?: string },
+	query: {
+		status?: "active" | "resolved" | "all";
+		limit: number;
+		cursor?: string;
+	},
 ): PaginatedDto<PublicIncidentDto> => {
 	const page = ctx.repos.pages.findBySlug(slug);
 	if (!page) {
@@ -461,12 +495,14 @@ export const listPublicIncidents = (
 	const nextCursor =
 		rows.length > query.limit && slice.length > 0
 			? encodeCursor({
-				createdAt: slice[slice.length - 1]?.started_at ?? "",
-				id: slice[slice.length - 1]?.id ?? "",
-			})
+					createdAt: slice[slice.length - 1]?.started_at ?? "",
+					id: slice[slice.length - 1]?.id ?? "",
+				})
 			: null;
 	return {
-		items: slice.map((row) => publicIncidentDto(ctx, row, { includeUpdates: true })),
+		items: slice.map((row) =>
+			publicIncidentDto(ctx, row, { includeUpdates: true }),
+		),
 		nextCursor,
 	};
 };
@@ -484,7 +520,10 @@ export const getPublicIncident = (
 	if (!row || row.page_id !== page.id || !isPubliclyVisibleIncident(row)) {
 		return null;
 	}
-	return publicIncidentDto(ctx, row, { includeUpdates: true, updateLimit: 200 });
+	return publicIncidentDto(ctx, row, {
+		includeUpdates: true,
+		updateLimit: 200,
+	});
 };
 
 export const listPublicIncidentUpdates = (
@@ -548,7 +587,8 @@ export const listPublicMaintenances = (
 		// what is upcoming or running.
 		rows = rows.filter(
 			(maintenance) =>
-				maintenance.state === "scheduled" || maintenance.state === "in_progress",
+				maintenance.state === "scheduled" ||
+				maintenance.state === "in_progress",
 		);
 	}
 	if (cursor) {
@@ -586,21 +626,28 @@ export const listPublicHistory = (
 		.listByPage(page.id)
 		.filter((maintenance) => isPubliclyVisibleMaintenance(maintenance));
 
-	const incidentById = new Map(incidents.map((incident) => [incident.id, incident]));
+	const incidentById = new Map(
+		incidents.map((incident) => [incident.id, incident]),
+	);
 	const maintenanceById = new Map(
 		maintenances.map((maintenance) => [maintenance.id, maintenance]),
 	);
 
-	let subjectIds = [...incidents.map((incident) => incident.id), ...maintenances.map((m) => m.id)];
+	let subjectIds = [
+		...incidents.map((incident) => incident.id),
+		...maintenances.map((m) => m.id),
+	];
 	if (query.componentId) {
 		subjectIds = subjectIds.filter((subjectId) => {
 			const incident = incidentById.get(subjectId);
 			if (incident) {
-				return ctx.repos.incidents.componentIds(subjectId).includes(query.componentId as string);
+				return ctx.repos.incidents
+					.componentIds(subjectId)
+					.includes(query.componentId as string);
 			}
-			return ctx.repos.maintenances.componentIds(subjectId).includes(
-				query.componentId as string,
-			);
+			return ctx.repos.maintenances
+				.componentIds(subjectId)
+				.includes(query.componentId as string);
 		});
 	}
 	if (query.state) {

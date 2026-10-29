@@ -1,16 +1,18 @@
 import type { Channel, Client } from "discord.js";
-import type { BotConfig, NotificationEventType } from "../types/index.js";
 import {
-	type GitHubEvent,
 	buildGitHubNotificationEmbed,
 	eventType,
+	type GitHubEvent,
 } from "../integrations/github/events.js";
 import type { GitHubIntegration } from "../integrations/github/index.js";
+import type { BotConfig, NotificationEventType } from "../types/index.js";
 import type { Logger } from "../utils/logger.js";
 
 /** A channel able to receive a message with embeds. */
 type SendableChannel = Channel & {
-	send: (options: { embeds: ReturnType<typeof buildGitHubNotificationEmbed>[] }) => Promise<unknown>;
+	send: (options: {
+		embeds: ReturnType<typeof buildGitHubNotificationEmbed>[];
+	}) => Promise<unknown>;
 };
 
 function isSendable(channel: Channel): channel is SendableChannel {

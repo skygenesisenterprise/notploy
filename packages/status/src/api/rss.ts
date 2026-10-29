@@ -4,7 +4,10 @@
  * public incidents appear, with the same projection as the API.
  */
 import type { StatusContext } from "../services/context";
-import { isPubliclyVisibleIncident, publicIncidentDto } from "../services/public";
+import {
+	isPubliclyVisibleIncident,
+	publicIncidentDto,
+} from "../services/public";
 
 const escapeXml = (value: string): string =>
 	value
@@ -14,7 +17,10 @@ const escapeXml = (value: string): string =>
 		.replace(/"/g, "&quot;")
 		.replace(/'/g, "&apos;");
 
-export const buildRssFeed = (ctx: StatusContext, slug: string): string | null => {
+export const buildRssFeed = (
+	ctx: StatusContext,
+	slug: string,
+): string | null => {
 	const page = ctx.repos.pages.findBySlug(slug);
 	if (!page) {
 		return null;

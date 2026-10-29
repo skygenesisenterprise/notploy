@@ -122,6 +122,7 @@ const getServiceIcon = (
 ) => {
 	if (service.icon) {
 		return (
+			// biome-ignore lint/performance/noImgElement: dynamic service icon URL, next/image cannot optimize it
 			<img
 				src={service.icon}
 				alt=""

@@ -75,7 +75,10 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 					"200": ok("Pages with their computed global status", {
 						type: "object",
 						properties: {
-							items: { type: "array", items: { $ref: "#/components/schemas/PageSummary" } },
+							items: {
+								type: "array",
+								items: { $ref: "#/components/schemas/PageSummary" },
+							},
 						},
 					}),
 					"429": errors("Rate limited"),
@@ -85,9 +88,18 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 		"/api/v1/pages/{slug}": {
 			get: {
 				summary: "Full public state of one status page",
-				parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: {
-					"200": ok("Public page projection", { $ref: "#/components/schemas/PublicPage" }),
+					"200": ok("Public page projection", {
+						$ref: "#/components/schemas/PublicPage",
+					}),
 					"404": errors("Unknown page"),
 				},
 			},
@@ -95,7 +107,14 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 		"/api/v1/pages/{slug}/status": {
 			get: {
 				summary: "Global status indicator only",
-				parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: {
 					"200": ok("Global status", {
 						type: "object",
@@ -114,12 +133,22 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 		"/api/v1/pages/{slug}/components": {
 			get: {
 				summary: "Public components",
-				parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: {
 					"200": ok("Visible components only", {
 						type: "object",
 						properties: {
-							items: { type: "array", items: { $ref: "#/components/schemas/PublicComponent" } },
+							items: {
+								type: "array",
+								items: { $ref: "#/components/schemas/PublicComponent" },
+							},
 						},
 					}),
 				},
@@ -129,23 +158,52 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			get: {
 				summary: "Active or resolved public incidents",
 				parameters: [
-					{ name: "slug", in: "path", required: true, schema: { type: "string" } },
-					{ name: "status", in: "query", schema: { type: "string", enum: ["active", "resolved", "all"] } },
-					{ name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100 } },
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+					{
+						name: "status",
+						in: "query",
+						schema: { type: "string", enum: ["active", "resolved", "all"] },
+					},
+					{
+						name: "limit",
+						in: "query",
+						schema: { type: "integer", minimum: 1, maximum: 100 },
+					},
 					{ name: "cursor", in: "query", schema: { type: "string" } },
 				],
-				responses: { "200": ok("Paginated incidents", { $ref: "#/components/schemas/PaginatedIncidents" }) },
+				responses: {
+					"200": ok("Paginated incidents", {
+						$ref: "#/components/schemas/PaginatedIncidents",
+					}),
+				},
 			},
 		},
 		"/api/v1/pages/{slug}/incidents/{incidentId}": {
 			get: {
 				summary: "Public incident detail with its public timeline",
 				parameters: [
-					{ name: "slug", in: "path", required: true, schema: { type: "string" } },
-					{ name: "incidentId", in: "path", required: true, schema: { type: "string" } },
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+					{
+						name: "incidentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
 				],
 				responses: {
-					"200": ok("Incident detail", { $ref: "#/components/schemas/PublicIncident" }),
+					"200": ok("Incident detail", {
+						$ref: "#/components/schemas/PublicIncident",
+					}),
 					"404": errors("Unknown or non-public incident"),
 				},
 			},
@@ -154,8 +212,18 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			get: {
 				summary: "Paginated public updates of an incident",
 				parameters: [
-					{ name: "slug", in: "path", required: true, schema: { type: "string" } },
-					{ name: "incidentId", in: "path", required: true, schema: { type: "string" } },
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+					{
+						name: "incidentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
 					{ name: "limit", in: "query", schema: { type: "integer" } },
 					{ name: "cursor", in: "query", schema: { type: "string" } },
 				],
@@ -166,18 +234,37 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			get: {
 				summary: "Daily uptime rollup of the public components (90 days)",
 				parameters: [
-					{ name: "slug", in: "path", required: true, schema: { type: "string" } },
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
 					{ name: "componentId", in: "query", schema: { type: "string" } },
 				],
-				responses: { "200": ok("Daily uptime per component", { type: "object" }) },
+				responses: {
+					"200": ok("Daily uptime per component", { type: "object" }),
+				},
 			},
 		},
 		"/api/v1/pages/{slug}/maintenances": {
 			get: {
 				summary: "Scheduled or in-progress public maintenances",
 				parameters: [
-					{ name: "slug", in: "path", required: true, schema: { type: "string" } },
-					{ name: "status", in: "query", schema: { type: "string", enum: ["scheduled", "in_progress", "completed", "all"] } },
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+					{
+						name: "status",
+						in: "query",
+						schema: {
+							type: "string",
+							enum: ["scheduled", "in_progress", "completed", "all"],
+						},
+					},
 					{ name: "limit", in: "query", schema: { type: "integer" } },
 					{ name: "cursor", in: "query", schema: { type: "string" } },
 				],
@@ -188,9 +275,22 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			get: {
 				summary: "Combined public history (incidents and maintenances)",
 				parameters: [
-					{ name: "slug", in: "path", required: true, schema: { type: "string" } },
-					{ name: "from", in: "query", schema: { type: "string", format: "date-time" } },
-					{ name: "to", in: "query", schema: { type: "string", format: "date-time" } },
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+					{
+						name: "from",
+						in: "query",
+						schema: { type: "string", format: "date-time" },
+					},
+					{
+						name: "to",
+						in: "query",
+						schema: { type: "string", format: "date-time" },
+					},
 					{ name: "componentId", in: "query", schema: { type: "string" } },
 					{ name: "state", in: "query", schema: { type: "string" } },
 					{ name: "limit", in: "query", schema: { type: "integer" } },
@@ -202,15 +302,28 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 		"/api/v1/pages/{slug}/feed.xml": {
 			get: {
 				summary: "RSS 2.0 feed of published incidents",
-				parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: { "200": { description: "RSS XML" } },
 			},
 		},
 		"/api/v1/openapi.json": {
-			get: { summary: "This document", responses: { "200": ok("OpenAPI document", { type: "object" }) } },
+			get: {
+				summary: "This document",
+				responses: { "200": ok("OpenAPI document", { type: "object" }) },
+			},
 		},
 		"/healthz": {
-			get: { summary: "Liveness probe", responses: { "200": ok("Process alive", { type: "object" }) } },
+			get: {
+				summary: "Liveness probe",
+				responses: { "200": ok("Process alive", { type: "object" }) },
+			},
 		},
 		"/readyz": {
 			get: {
@@ -225,27 +338,47 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			get: {
 				summary: "List pages including internal settings (read)",
 				security: [{ bearerAuth: ["read"] }],
-				responses: { "200": ok("Pages", { type: "object" }), "401": errors("Missing credentials") },
+				responses: {
+					"200": ok("Pages", { type: "object" }),
+					"401": errors("Missing credentials"),
+				},
 			},
 			post: {
 				summary: "Create a status page (write)",
 				security: [{ bearerAuth: ["write"] }],
 				parameters: [idempotencyHeader],
 				requestBody: jsonBody({ $ref: "#/components/schemas/CreatePage" }),
-				responses: { "201": ok("Created page", { type: "object" }), "409": errors("Slug taken") },
+				responses: {
+					"201": ok("Created page", { type: "object" }),
+					"409": errors("Slug taken"),
+				},
 			},
 		},
 		"/api/v1/admin/pages/{ref}": {
 			get: {
 				summary: "Internal page view (read)",
 				security: [{ bearerAuth: ["read"] }],
-				parameters: [{ name: "ref", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "ref",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: { "200": ok("Page", { type: "object" }) },
 			},
 			patch: {
 				summary: "Update page name, description or settings (write)",
 				security: [{ bearerAuth: ["write"] }],
-				parameters: [{ name: "ref", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "ref",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "200": ok("Updated page", { type: "object" }) },
 			},
@@ -254,13 +387,27 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			get: {
 				summary: "All components including private ones (read)",
 				security: [{ bearerAuth: ["read"] }],
-				parameters: [{ name: "ref", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "ref",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: { "200": ok("Components", { type: "object" }) },
 			},
 			post: {
 				summary: "Create a component (write)",
 				security: [{ bearerAuth: ["write"] }],
-				parameters: [{ name: "ref", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "ref",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "201": ok("Created component", { type: "object" }) },
 			},
@@ -269,14 +416,28 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			patch: {
 				summary: "Update a component (write)",
 				security: [{ bearerAuth: ["write"] }],
-				parameters: [{ name: "componentId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "componentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "200": ok("Updated component", { type: "object" }) },
 			},
 			delete: {
 				summary: "Delete a component (write)",
 				security: [{ bearerAuth: ["write"] }],
-				parameters: [{ name: "componentId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "componentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: { "200": ok("Deleted", { type: "object" }) },
 			},
 		},
@@ -284,43 +445,93 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			get: {
 				summary: "Incidents including drafts (read)",
 				security: [{ bearerAuth: ["read"] }],
-				parameters: [{ name: "ref", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "ref",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: { "200": ok("Incidents", { type: "object" }) },
 			},
 			post: {
-				summary: "Create an incident (write; publish requires the publish scope)",
+				summary:
+					"Create an incident (write; publish requires the publish scope)",
 				security: [{ bearerAuth: ["write"] }],
-				parameters: [idempotencyHeader, { name: "ref", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					idempotencyHeader,
+					{
+						name: "ref",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ $ref: "#/components/schemas/CreateIncident" }),
-				responses: { "201": ok("Created incident", { type: "object" }), "409": errors("Correlation conflict") },
+				responses: {
+					"201": ok("Created incident", { type: "object" }),
+					"409": errors("Correlation conflict"),
+				},
 			},
 		},
 		"/api/v1/admin/incidents/{incidentId}": {
 			get: {
 				summary: "Internal incident view (read)",
 				security: [{ bearerAuth: ["read"] }],
-				parameters: [{ name: "incidentId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "incidentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: { "200": ok("Incident", { type: "object" }) },
 			},
 			patch: {
 				summary: "Update an incident (write)",
 				security: [{ bearerAuth: ["write"] }],
-				parameters: [{ name: "incidentId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "incidentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "200": ok("Updated incident", { type: "object" }) },
 			},
 			delete: {
 				summary: "Delete an unpublished incident (write)",
 				security: [{ bearerAuth: ["write"] }],
-				parameters: [{ name: "incidentId", in: "path", required: true, schema: { type: "string" } }],
-				responses: { "200": ok("Deleted", { type: "object" }), "409": errors("Published incidents must be unpublished first") },
+				parameters: [
+					{
+						name: "incidentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
+				responses: {
+					"200": ok("Deleted", { type: "object" }),
+					"409": errors("Published incidents must be unpublished first"),
+				},
 			},
 		},
 		"/api/v1/admin/incidents/{incidentId}/timeline": {
 			get: {
 				summary: "Full internal timeline including internal updates (read)",
 				security: [{ bearerAuth: ["read"] }],
-				parameters: [{ name: "incidentId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "incidentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: { "200": ok("Timeline", { type: "object" }) },
 			},
 		},
@@ -328,7 +539,15 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			post: {
 				summary: "Transition state or resolve (publish)",
 				security: [{ bearerAuth: ["publish"] }],
-				parameters: [idempotencyHeader, { name: "incidentId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					idempotencyHeader,
+					{
+						name: "incidentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "200": ok("Updated incident", { type: "object" }) },
 			},
@@ -337,7 +556,15 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			post: {
 				summary: "Append a timeline update (publish)",
 				security: [{ bearerAuth: ["publish"] }],
-				parameters: [idempotencyHeader, { name: "incidentId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					idempotencyHeader,
+					{
+						name: "incidentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "200": ok("Updated incident", { type: "object" }) },
 			},
@@ -346,7 +573,15 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			post: {
 				summary: "Publish or withdraw an incident (publish)",
 				security: [{ bearerAuth: ["publish"] }],
-				parameters: [idempotencyHeader, { name: "incidentId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					idempotencyHeader,
+					{
+						name: "incidentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "200": ok("Updated incident", { type: "object" }) },
 			},
@@ -355,13 +590,28 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			get: {
 				summary: "Maintenances including drafts (read)",
 				security: [{ bearerAuth: ["read"] }],
-				parameters: [{ name: "ref", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "ref",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: { "200": ok("Maintenances", { type: "object" }) },
 			},
 			post: {
 				summary: "Schedule a maintenance (publish)",
 				security: [{ bearerAuth: ["publish"] }],
-				parameters: [idempotencyHeader, { name: "ref", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					idempotencyHeader,
+					{
+						name: "ref",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "201": ok("Created maintenance", { type: "object" }) },
 			},
@@ -370,14 +620,28 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			patch: {
 				summary: "Update a maintenance (write)",
 				security: [{ bearerAuth: ["write"] }],
-				parameters: [{ name: "maintenanceId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "maintenanceId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "200": ok("Updated maintenance", { type: "object" }) },
 			},
 			delete: {
 				summary: "Delete an unpublished maintenance (write)",
 				security: [{ bearerAuth: ["write"] }],
-				parameters: [{ name: "maintenanceId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "maintenanceId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: { "200": ok("Deleted", { type: "object" }) },
 			},
 		},
@@ -385,7 +649,14 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			post: {
 				summary: "Start, complete or cancel (publish)",
 				security: [{ bearerAuth: ["publish"] }],
-				parameters: [{ name: "maintenanceId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "maintenanceId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "200": ok("Updated maintenance", { type: "object" }) },
 			},
@@ -394,7 +665,14 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			post: {
 				summary: "Publish or withdraw a maintenance (publish)",
 				security: [{ bearerAuth: ["publish"] }],
-				parameters: [{ name: "maintenanceId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "maintenanceId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "200": ok("Updated maintenance", { type: "object" }) },
 			},
@@ -409,14 +687,23 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 				summary: "Create a credential; the value is returned once (tokens)",
 				security: [{ bearerAuth: ["tokens"] }],
 				requestBody: jsonBody({ $ref: "#/components/schemas/CreateToken" }),
-				responses: { "201": ok("Created token with one-time value", { type: "object" }) },
+				responses: {
+					"201": ok("Created token with one-time value", { type: "object" }),
+				},
 			},
 		},
 		"/api/v1/admin/tokens/{tokenId}": {
 			delete: {
 				summary: "Revoke a credential (tokens)",
 				security: [{ bearerAuth: ["tokens"] }],
-				parameters: [{ name: "tokenId", in: "path", required: true, schema: { type: "string" } }],
+				parameters: [
+					{
+						name: "tokenId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+				],
 				responses: { "200": ok("Revoked token", { type: "object" }) },
 			},
 		},
@@ -446,7 +733,8 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 		},
 		"/api/v1/integration/events": {
 			post: {
-				summary: "Ingest a monitoring alert (ingest): deduplicated, correlated, debounced",
+				summary:
+					"Ingest a monitoring alert (ingest): deduplicated, correlated, debounced",
 				security: [{ bearerAuth: ["ingest"] }],
 				parameters: [idempotencyHeader],
 				requestBody: jsonBody({ $ref: "#/components/schemas/IngestEvent" }),
@@ -458,8 +746,18 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 				summary: "Known state of a component (read)",
 				security: [{ bearerAuth: ["read"] }],
 				parameters: [
-					{ name: "slug", in: "path", required: true, schema: { type: "string" } },
-					{ name: "componentId", in: "path", required: true, schema: { type: "string" } },
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+					{
+						name: "componentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
 				],
 				responses: { "200": ok("Component state", { type: "object" }) },
 			},
@@ -467,8 +765,18 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 				summary: "Report the observed state of a component (ingest)",
 				security: [{ bearerAuth: ["ingest"] }],
 				parameters: [
-					{ name: "slug", in: "path", required: true, schema: { type: "string" } },
-					{ name: "componentId", in: "path", required: true, schema: { type: "string" } },
+					{
+						name: "slug",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
+					{
+						name: "componentId",
+						in: "path",
+						required: true,
+						schema: { type: "string" },
+					},
 				],
 				requestBody: jsonBody({ type: "object", additionalProperties: true }),
 				responses: { "200": ok("Updated state", { type: "object" }) },
@@ -517,7 +825,10 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 					id: { type: "string" },
 					title: { type: "string" },
 					severity: { type: "string", enum: ["minor", "major", "critical"] },
-					state: { type: "string", enum: ["investigating", "identified", "monitoring", "resolved"] },
+					state: {
+						type: "string",
+						enum: ["investigating", "identified", "monitoring", "resolved"],
+					},
 					startedAt: { type: "string", format: "date-time" },
 					resolvedAt: { type: "string", format: "date-time", nullable: true },
 					componentIds: { type: "array", items: { type: "string" } },
@@ -536,8 +847,14 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 					generatedAt: { type: "string", format: "date-time" },
 					updatedAt: { type: "string", format: "date-time" },
 					refreshIntervalSeconds: { type: "integer" },
-					components: { type: "array", items: { $ref: "#/components/schemas/PublicComponent" } },
-					activeIncidents: { type: "array", items: { $ref: "#/components/schemas/PublicIncident" } },
+					components: {
+						type: "array",
+						items: { $ref: "#/components/schemas/PublicComponent" },
+					},
+					activeIncidents: {
+						type: "array",
+						items: { $ref: "#/components/schemas/PublicIncident" },
+					},
 					scheduledMaintenances: { type: "array", items: { type: "object" } },
 				},
 			},
@@ -553,7 +870,10 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 			PaginatedIncidents: {
 				type: "object",
 				properties: {
-					items: { type: "array", items: { $ref: "#/components/schemas/PublicIncident" } },
+					items: {
+						type: "array",
+						items: { $ref: "#/components/schemas/PublicIncident" },
+					},
 					nextCursor: { type: "string", nullable: true },
 				},
 			},
@@ -574,7 +894,10 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 					title: { type: "string" },
 					description: { type: "string" },
 					severity: { type: "string", enum: ["minor", "major", "critical"] },
-					state: { type: "string", enum: ["investigating", "identified", "monitoring", "resolved"] },
+					state: {
+						type: "string",
+						enum: ["investigating", "identified", "monitoring", "resolved"],
+					},
 					visibility: { type: "string", enum: ["public", "private"] },
 					published: { type: "boolean" },
 					componentIds: { type: "array", items: { type: "string" } },
@@ -589,7 +912,10 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 					name: { type: "string" },
 					scopes: {
 						type: "array",
-						items: { type: "string", enum: ["read", "write", "publish", "ingest", "tokens", "admin"] },
+						items: {
+							type: "string",
+							enum: ["read", "write", "publish", "ingest", "tokens", "admin"],
+						},
 					},
 				},
 			},
@@ -597,14 +923,23 @@ export const buildOpenApiDocument = (publicUrl: string): OpenApiDocument => ({
 				type: "object",
 				required: ["pageSlug", "correlationKey", "title"],
 				properties: {
-					eventId: { type: "string", description: "Client-side idempotency key" },
+					eventId: {
+						type: "string",
+						description: "Client-side idempotency key",
+					},
 					pageSlug: { type: "string" },
 					componentId: { type: "string" },
-					correlationKey: { type: "string", description: "Groups repeated alerts into one incident" },
+					correlationKey: {
+						type: "string",
+						description: "Groups repeated alerts into one incident",
+					},
 					title: { type: "string" },
 					message: { type: "string" },
 					severity: { type: "string", enum: ["minor", "major", "critical"] },
-					observedStatus: { type: "string", enum: ["operational", "degraded", "outage", "unknown"] },
+					observedStatus: {
+						type: "string",
+						enum: ["operational", "degraded", "outage", "unknown"],
+					},
 					source: { type: "string" },
 					updateComponentState: { type: "boolean" },
 				},

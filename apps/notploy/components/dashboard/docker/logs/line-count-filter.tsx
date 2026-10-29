@@ -53,7 +53,7 @@ export function LineCountFilter({
 		setInputValue(input);
 
 		// Extract numbers from input and convert
-		const numValue = Number.parseInt(input.replace(/[^0-9]/g, ""));
+		const numValue = Number.parseInt(input.replace(/[^0-9]/g, ""), 10);
 		if (!Number.isNaN(numValue)) {
 			pendingValueRef.current = numValue;
 			debouncedValueChange(numValue);
@@ -71,7 +71,7 @@ export function LineCountFilter({
 			return;
 		}
 
-		const numValue = Number.parseInt(selectedValue);
+		const numValue = Number.parseInt(selectedValue, 10);
 		if (
 			!Number.isNaN(numValue) &&
 			numValue > 0 &&
@@ -124,7 +124,7 @@ export function LineCountFilter({
 								if (e.key === "Enter") {
 									e.preventDefault();
 									const numValue = Number.parseInt(
-										inputValue.replace(/[^0-9]/g, ""),
+										inputValue.replace(/[^0-9]/g, ""), 10
 									);
 									if (
 										!Number.isNaN(numValue) &&

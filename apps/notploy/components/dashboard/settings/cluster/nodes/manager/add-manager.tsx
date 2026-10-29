@@ -20,8 +20,7 @@ export const AddManager = ({ serverId }: Props) => {
 	});
 
 	return (
-		<>
-			<CardContent className="sm:max-w-4xl  flex flex-col gap-4 px-0">
+		<CardContent className="sm:max-w-4xl  flex flex-col gap-4 px-0">
 				<DialogHeader>
 					<DialogTitle>Add a new manager</DialogTitle>
 					<DialogDescription>Add a new manager</DialogDescription>
@@ -75,6 +74,5 @@ export const AddManager = ({ serverId }: Props) => {
 					</>
 				)}
 			</CardContent>
-		</>
 	);
 };

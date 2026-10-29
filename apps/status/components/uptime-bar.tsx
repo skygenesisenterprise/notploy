@@ -1,14 +1,17 @@
-import * as React from "react";
 import type { PublicComponentUptimeDto } from "@notploy/status";
+import { cn } from "@/lib/utils";
 import {
 	componentStatusLabel,
 	componentStatusTone,
 	formatUptimePercent,
 } from "@/lib/view-model";
-import { cn } from "@/lib/utils";
 
-const barClass = (status: PublicComponentUptimeDto["days"][number]["status"]): string =>
-	status === null ? "dot-neutral opacity-40" : `dot-${componentStatusTone(status)}`;
+const barClass = (
+	status: PublicComponentUptimeDto["days"][number]["status"],
+): string =>
+	status === null
+		? "dot-neutral opacity-40"
+		: `dot-${componentStatusTone(status)}`;
 
 /**
  * One segment per day over the window (oldest first). A day without data is

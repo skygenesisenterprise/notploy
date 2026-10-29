@@ -1,9 +1,8 @@
-import * as React from "react";
 import type { PublicIncidentDto } from "@notploy/status";
-import { incidentStateLabel, severityTone } from "@/lib/view-model";
 import { cn } from "@/lib/utils";
-import { SeverityBadge, toneTextClass } from "./status-badge";
+import { incidentStateLabel, severityTone } from "@/lib/view-model";
 import { RelativeTime } from "./relative-time";
+import { SeverityBadge, toneTextClass } from "./status-badge";
 
 const borderTone: Record<string, string> = {
 	green: "border-l-[var(--status-operational)]",

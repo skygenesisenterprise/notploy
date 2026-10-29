@@ -31,7 +31,6 @@ import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
@@ -197,8 +196,7 @@ export const ShowProjects = () => {
 	}, [data, debouncedSearchQuery, sortBy, selectedTagIds]);
 
 	return (
-		<>
-			<div className="w-full">
+		<div className="w-full">
 				<Card className="h-full bg-sidebar p-2.5 rounded-xl  ">
 					<div className="rounded-xl bg-background shadow-md ">
 						<div className="flex justify-between gap-4 w-full items-center flex-wrap p-6">
@@ -392,6 +390,7 @@ export const ShowProjects = () => {
 																				<DropdownMenuLabel className="font-normal">
 																					Actions
 																				</DropdownMenuLabel>
+																				{/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation wrapper inside dropdown menu, not interactive */}
 																				<div
 																					onClick={(e) => e.stopPropagation()}
 																				>
@@ -399,6 +398,7 @@ export const ShowProjects = () => {
 																						projectId={project.projectId}
 																					/>
 																				</div>
+																				{/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation wrapper inside dropdown menu, not interactive */}
 																				<div
 																					onClick={(e) => e.stopPropagation()}
 																				>
@@ -407,6 +407,7 @@ export const ShowProjects = () => {
 																					/>
 																				</div>
 
+																				{/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation wrapper inside dropdown menu, not interactive */}
 																				<div
 																					onClick={(e) => e.stopPropagation()}
 																				>
@@ -508,6 +509,5 @@ export const ShowProjects = () => {
 					</div>
 				</Card>
 			</div>
-		</>
 	);
 };

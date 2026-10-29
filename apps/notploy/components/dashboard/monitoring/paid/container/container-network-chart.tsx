@@ -119,7 +119,7 @@ export const ContainerNetworkChart = ({ data }: Props) => {
 						<ChartTooltip
 							cursor={false}
 							content={({ active, payload, label }) => {
-								if (active && payload && payload.length) {
+								if (active && payload?.length) {
 									const data = payload?.[0]?.payload;
 									return (
 										<div className="rounded-lg border bg-background p-2 shadow-xs">

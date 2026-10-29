@@ -1,18 +1,17 @@
 /**
  * Lib Index
- * 
+ *
  * Exports all utilities from the lib directory.
  */
 
+export * from "./sdk-client";
 export {
-  NotployClientManager,
-  clientManager,
-  createConnectionConfig,
-  normalizeInstanceUrl,
-  executeRequest,
-  createRequest,
-  detectCapabilities,
-  validateInstanceUrl,
-} from './sdk-client';
-
-export * from './sdk-client';
+	clientManager,
+	createConnectionConfig,
+	createRequest,
+	detectCapabilities,
+	executeRequest,
+	NotployClientManager,
+	normalizeInstanceUrl,
+	validateInstanceUrl,
+} from "./sdk-client";

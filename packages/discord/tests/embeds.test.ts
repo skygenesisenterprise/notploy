@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-	COLORS,
 	baseEmbed,
+	COLORS,
 	errorEmbed,
 	formatLinks,
 	infoEmbed,

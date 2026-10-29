@@ -133,6 +133,7 @@
 }
 
 body[data-scroll-locked] [data-slot="sidebar-inset"] {
+	/* biome-ignore lint/complexity/noImportantStyles: scroll-lock must win over component styles */
 	overflow: hidden !important;
 }
 
@@ -319,10 +320,12 @@ body[data-scroll-locked] [data-slot="sidebar-inset"] {
 
 @layer utilities {
 	.xterm-viewport {
+		/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 		border-radius: 0.75rem /* 12px */ !important;
 	}
 
 	.xterm .xterm-viewport {
+		/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 		overflow-y: auto !important;
 	}
 
@@ -387,7 +390,9 @@ body[data-scroll-locked] [data-slot="sidebar-inset"] {
 		}
 
 		.swagger-ui .info {
+			/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 			margin: 0px !important;
+			/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 			padding-top: 1rem !important;
 		}
 	}
@@ -419,7 +424,9 @@ body[data-scroll-locked] [data-slot="sidebar-inset"] {
 }
 
 .xterm-bg-257.xterm-fg-257 {
+	/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 	background-color: var(--terminal-paste) !important;
+	/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 	color: currentColor !important;
 }
 
@@ -431,15 +438,19 @@ body[data-scroll-locked] [data-slot="sidebar-inset"] {
 /* HubSpot Widget - Force light color-scheme to prevent white background */
 #hubspot-messages-iframe-container,
 #hubspot-messages-iframe-container * {
+	/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 	background-color: transparent !important;
+	/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 	color-scheme: light !important;
 }
 
 #hubspot-messages-iframe-container .hs-shadow-container {
+	/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 	display: none !important;
 }
 
 #hubspot-conversations-iframe {
+	/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 	color-scheme: light !important;
 }
 
@@ -551,6 +562,7 @@ body[data-scroll-locked] [data-slot="sidebar-inset"] {
 	@media (prefers-reduced-motion: reduce) {
 		.t-panel-slide-x,
 		.t-panel-track {
+			/* biome-ignore lint/complexity/noImportantStyles: vendor/scroll-lock override requires !important to win */
 			transition: none !important;
 		}
 	}

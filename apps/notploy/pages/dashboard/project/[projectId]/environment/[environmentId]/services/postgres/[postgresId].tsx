@@ -222,11 +222,9 @@ const Postgresql = (
 															}
 														/>
 													) : (
-														<>
-															<ContainerFreeMonitoring
+														<ContainerFreeMonitoring
 																appName={data?.appName || ""}
 															/>
-														</>
 													)}
 												</div>
 											</div>

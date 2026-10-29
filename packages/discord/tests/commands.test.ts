@@ -4,14 +4,7 @@ import { createCommands, serializeCommands } from "../src/commands/index.js";
 describe("command registry", () => {
 	it("contains the V1 community commands", () => {
 		const commands = createCommands();
-		expect([...commands.keys()]).toEqual([
-			"about",
-			"docs",
-			"links",
-			"status",
-			"version",
-			"help",
-		]);
+		expect([...commands.keys()]).toEqual(["about", "docs", "links", "status", "version", "help"]);
 	});
 
 	it("derives /help from the full registry, including itself", () => {

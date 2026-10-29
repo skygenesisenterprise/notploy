@@ -85,13 +85,13 @@ const deliverWebhook = async (
 	row: OutboxRow,
 ): Promise<{ ok: boolean; error?: string }> => {
 	const payload = row.payload_json;
-	const subscriptions = ctx.repos.webhookSubscriptions.listActive().filter(
-		(subscription) => {
+	const subscriptions = ctx.repos.webhookSubscriptions
+		.listActive()
+		.filter((subscription) => {
 			const events = JSON.parse(subscription.events_json) as string[];
 			const eventName = (JSON.parse(payload) as { event?: string }).event ?? "";
 			return events.includes("*") || events.includes(eventName);
-		},
-	);
+		});
 	if (subscriptions.length === 0) {
 		// Nothing subscribed: the entry is considered delivered (no provider to
 		// retry against) but explicitly recorded as such.
@@ -101,7 +101,8 @@ const deliverWebhook = async (
 	if (!ctx.config.secretKey) {
 		return {
 			ok: false,
-			error: "STATUS_SECRET_KEY is not configured; webhook delivery is disabled",
+			error:
+				"STATUS_SECRET_KEY is not configured; webhook delivery is disabled",
 		};
 	}
 	const timestamp = ctx.now();
@@ -189,8 +190,12 @@ export const dispatchOutbox = async (
 };
 
 /** Re-queue a parked entry (operator action, also exposed via the CLI). */
-export const replayOutboxEntry = (ctx: StatusContext, outboxId: string): void => {
-	const row = ctx.repos.outbox.listDue(plusSeconds(ctx.now(), 3600 * 24 * 365), 10_000)
+export const replayOutboxEntry = (
+	ctx: StatusContext,
+	outboxId: string,
+): void => {
+	const row = ctx.repos.outbox
+		.listDue(plusSeconds(ctx.now(), 3600 * 24 * 365), 10_000)
 		.find((entry) => entry.id === outboxId);
 	if (!row) {
 		throw notFound(`Outbox entry "${outboxId}" not found or already delivered`);

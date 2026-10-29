@@ -203,8 +203,7 @@ export const ShowDeployment = ({
 							/>
 						))
 					) : (
-						<>
-							{optionalErrors.length > 0 ? (
+						optionalErrors.length > 0 ? (
 								optionalErrors.map((log: LogLine, index: number) => (
 									<TerminalLine
 										key={`extra-${log.rawTimestamp ?? ""}-${index}`}
@@ -216,8 +215,7 @@ export const ShowDeployment = ({
 								<div className="flex justify-center items-center h-full text-muted-foreground">
 									<Loader2 className="h-6 w-6 animate-spin" />
 								</div>
-							)}
-						</>
+							)
 					)}
 				</div>
 			</DialogContent>

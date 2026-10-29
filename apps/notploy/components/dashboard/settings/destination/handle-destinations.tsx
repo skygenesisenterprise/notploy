@@ -74,9 +74,9 @@ export const HandleDestinations = ({ destinationId }: Props) => {
 	const { data: servers } = api.server.withSSHKey.useQuery();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 
-	const { mutateAsync, isError, error, isPending } = destinationId
-		? api.destination.update.useMutation()
-		: api.destination.create.useMutation();
+	const updateMutation = api.destination.update.useMutation();
+	const createMutation = api.destination.create.useMutation();
+	const { mutateAsync, isError, error, isPending } = destinationId ? updateMutation : createMutation;
 
 	const { data: destination } = api.destination.one.useQuery(
 		{

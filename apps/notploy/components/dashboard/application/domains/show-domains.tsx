@@ -94,24 +94,24 @@ export const ShowDomains = ({ id, type }: Props) => {
 	const { data: permissions } = api.user.getPermissions.useQuery();
 	const canCreateDomain = permissions?.domain.create ?? false;
 	const canDeleteDomain = permissions?.domain.delete ?? false;
+	const applicationQuery = api.application.one.useQuery(
+		{
+			applicationId: id,
+		},
+		{
+			enabled: !!id && type === "application",
+		},
+	);
+	const composeQuery = api.compose.one.useQuery(
+		{
+			composeId: id,
+		},
+		{
+			enabled: !!id && type === "compose",
+		},
+	);
 	const { data: application } =
-		type === "application"
-			? api.application.one.useQuery(
-					{
-						applicationId: id,
-					},
-					{
-						enabled: !!id,
-					},
-				)
-			: api.compose.one.useQuery(
-					{
-						composeId: id,
-					},
-					{
-						enabled: !!id,
-					},
-				);
+		type === "application" ? applicationQuery : composeQuery;
 	const [validationStates, setValidationStates] = useState<ValidationStates>(
 		{},
 	);
@@ -130,27 +130,24 @@ export const ShowDomains = ({ id, type }: Props) => {
 	const [rowSelection, setRowSelection] = useState({});
 	const { data: ip } = api.settings.getIp.useQuery();
 
-	const {
-		data,
-		refetch,
-		isLoading: isLoadingDomains,
-	} = type === "application"
-		? api.domain.byApplicationId.useQuery(
-				{
-					applicationId: id,
-				},
-				{
-					enabled: !!id,
-				},
-			)
-		: api.domain.byComposeId.useQuery(
-				{
-					composeId: id,
-				},
-				{
-					enabled: !!id,
-				},
-			);
+	const byApplicationQuery = api.domain.byApplicationId.useQuery(
+		{
+			applicationId: id,
+		},
+		{
+			enabled: !!id && type === "application",
+		},
+	);
+	const byComposeQuery = api.domain.byComposeId.useQuery(
+		{
+			composeId: id,
+		},
+		{
+				enabled: !!id && type === "compose",
+		},
+	);
+	const { data, refetch, isLoading: isLoadingDomains } =
+		type === "application" ? byApplicationQuery : byComposeQuery;
 	// A Tor Onion Service is another address the application answers on, so it is
 	// listed with the DNS domains instead of living in its own section.
 	const { data: onionServices, isLoading: isLoadingOnionServices } =

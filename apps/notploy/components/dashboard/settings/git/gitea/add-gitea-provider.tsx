@@ -107,7 +107,7 @@ export const AddGiteaProvider = () => {
 			})) as unknown as GiteaProviderResponse;
 
 			// Check if we have a giteaId from the response
-			if (!result || !result.giteaId) {
+			if (!result?.giteaId) {
 				toast.error("Failed to get Gitea ID from response");
 				return;
 			}

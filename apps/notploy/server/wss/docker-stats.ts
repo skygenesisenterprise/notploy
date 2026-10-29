@@ -185,7 +185,7 @@ export const setupDockerStatsMonitoringSocketServer = (
 				}
 
 				const container = containers[0];
-				if (!container || container?.State !== "running") {
+				if (container?.State !== "running") {
 					const remoteNode = await findRemoteSwarmNode(appName, appType);
 					stopCollector();
 					ws.close(

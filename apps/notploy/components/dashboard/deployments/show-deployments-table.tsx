@@ -304,8 +304,8 @@ export function ShowDeploymentsTable() {
 												</TableCell>
 												<TableCell>
 													{service ? (
-														<div className="flex items-center gap-2">
-															{service.icon ? (
+														<div className="flex items-center gap-2">															{service.icon ? (
+																// biome-ignore lint/performance/noImgElement: dynamic service icon URL, next/image cannot optimize it
 																<img
 																	src={service.icon}
 																	alt=""

@@ -96,8 +96,7 @@ export const ShowExternalMysqlCredentials = ({ mysqlId }: Props) => {
 		getIp,
 	]);
 	return (
-		<>
-			<div className="flex w-full flex-col gap-5 ">
+		<div className="flex w-full flex-col gap-5 ">
 				<Card className="bg-background">
 					<CardHeader>
 						<CardTitle className="text-xl">External Credentials</CardTitle>
@@ -169,6 +168,5 @@ export const ShowExternalMysqlCredentials = ({ mysqlId }: Props) => {
 					</CardContent>
 				</Card>
 			</div>
-		</>
 	);
 };

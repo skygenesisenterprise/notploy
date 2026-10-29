@@ -38,18 +38,11 @@ export const ShowPatches = ({ id, type }: Props) => {
 	const { data: patches, isPending: isPatchesLoading } =
 		api.patch.byEntityId.useQuery({ id, type }, { enabled: !!id });
 
-	const mutationMap = {
-		application: () => api.patch.delete.useMutation(),
-		compose: () => api.patch.delete.useMutation(),
-	};
-
 	const ensureRepo = api.patch.ensureRepo.useMutation();
 
 	const togglePatch = api.patch.toggleEnabled.useMutation();
 
-	const { mutateAsync } = mutationMap[type]
-		? mutationMap[type]()
-		: api.patch.delete.useMutation();
+	const { mutateAsync } = api.patch.delete.useMutation();
 
 	const handleCloseEditor = () => {
 		setSelectedFile(null);

@@ -178,10 +178,7 @@ export const TemplateGenerator = ({ environmentId }: Props) => {
 					</div>
 					<Scoped>
 						<nav aria-label="Checkout Steps" className="group my-4">
-							<ol
-								className="flex items-center justify-between gap-2"
-								aria-orientation="horizontal"
-							>
+							<ol className="flex items-center justify-between gap-2">
 								{stepper.all.map((step, index, array) => (
 									<React.Fragment key={step.id}>
 										<li className="flex items-center gap-4 shrink-0">

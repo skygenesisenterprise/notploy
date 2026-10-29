@@ -61,6 +61,7 @@ const redirectPresets = [
 		redirect: {
 			regex: "^https?://(?:www.)?(.+)",
 			permanent: true,
+			// biome-ignore lint/suspicious/noTemplateCurlyInString: Traefik replacement syntax, ${1} is a regex backreference evaluated by the proxy
 			replacement: "https://www.${1}",
 		},
 	},
@@ -70,6 +71,7 @@ const redirectPresets = [
 		redirect: {
 			regex: "^https?://www.(.+)",
 			permanent: true,
+			// biome-ignore lint/suspicious/noTemplateCurlyInString: Traefik replacement syntax, ${1} is a regex backreference evaluated by the proxy
 			replacement: "https://${1}",
 		},
 	},
@@ -100,9 +102,9 @@ export const HandleRedirect = ({
 
 	const utils = api.useUtils();
 
-	const { mutateAsync, isPending, error, isError } = redirectId
-		? api.redirects.update.useMutation()
-		: api.redirects.create.useMutation();
+	const updateMutation = api.redirects.update.useMutation();
+	const createMutation = api.redirects.create.useMutation();
+	const { mutateAsync, isPending, error, isError } = redirectId ? updateMutation : createMutation;
 
 	const form = useForm({
 		defaultValues: {

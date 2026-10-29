@@ -72,6 +72,8 @@ describe("bearer authentication", () => {
 		expect(verifyBearer(ctx, undefined)).toBeNull();
 		expect(verifyBearer(ctx, created.value)).toBeNull();
 		expect(verifyBearer(ctx, `Bearer ${created.value}extra`)).toBeNull();
-		expect(verifyBearer(ctx, "Bearer nps_tok_aaaaaaaaaaaa_zzzzzzzzzzzzzzzz")).toBeNull();
+		expect(
+			verifyBearer(ctx, "Bearer nps_tok_aaaaaaaaaaaa_zzzzzzzzzzzzzzzz"),
+		).toBeNull();
 	});
 });

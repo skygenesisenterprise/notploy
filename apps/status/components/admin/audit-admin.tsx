@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import type { AuditLogDto } from "@notploy/status";
 import { useAdminResource } from "@/lib/use-admin";
 import { formatDateTime } from "@/lib/view-model";

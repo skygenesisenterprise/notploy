@@ -14,9 +14,9 @@ import type {
 import type { ObservedStatus } from "../core/types";
 import { badRequest, notFound } from "../errors";
 import type { ComponentRow } from "../store/repositories";
-import { adminComponentDto } from "./public";
-import { requirePage } from "./pages";
 import type { Actor, StatusContext } from "./context";
+import { requirePage } from "./pages";
+import { adminComponentDto } from "./public";
 
 /** Load a component, ensuring it belongs to the expected page. */
 export const requireComponent = (
@@ -72,8 +72,7 @@ export const createComponent = (
 		}
 	}
 	const timestamp = ctx.now();
-	const observedAt =
-		input.observedStatus !== "unknown" ? timestamp : null;
+	const observedAt = input.observedStatus !== "unknown" ? timestamp : null;
 	const row: ComponentRow = {
 		id: newId("cmp"),
 		page_id: page.id,
@@ -179,7 +178,9 @@ export const listComponentsInternal = (
 	const page = requirePage(ctx, ref);
 	const rows = ctx.repos.components.listByPage(page.id);
 	return rows
-		.filter((row) => options.includePrivate !== false || row.visibility === "public")
+		.filter(
+			(row) => options.includePrivate !== false || row.visibility === "public",
+		)
 		.map(adminComponentDto);
 };
 

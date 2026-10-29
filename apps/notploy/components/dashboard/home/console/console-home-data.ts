@@ -4,7 +4,6 @@ import {
 	BellRing,
 	Gauge,
 	Rocket,
-	ServerCog,
 	ShieldCheck,
 } from "lucide-react";
 import type { StatusOverview } from "@/lib/status";
@@ -395,7 +394,7 @@ const statusPlatformGroup = ({
 				"The status platform query failed. No availability can be reported until it answers again.",
 		};
 	}
-	if (!status || !status.configured) {
+	if (!status?.configured) {
 		return {
 			...base,
 			state: "unavailable",
@@ -448,7 +447,7 @@ const pageStatusGroups = ({
 	status: StatusOverview | undefined;
 	isOperator: boolean;
 }): HomeStatusGroup[] => {
-	if (!isOperator || !status || !status.configured || status.error) return [];
+	if (!isOperator || !status?.configured || status.error) return [];
 	// A single page is already described by the aggregate panel above.
 	if (status.pages.length < 2) return [];
 	return status.pages.map((page) => ({
@@ -828,7 +827,7 @@ export const buildConsoleAttention = ({
 			value: "Unavailable",
 			tone: "critical",
 		});
-	} else if (!status || !status.configured) {
+	} else if (!status?.configured) {
 		coverage.push({
 			id: "status",
 			label: "Status platform",
@@ -1523,7 +1522,7 @@ export const buildConsoleDependencies = ({
 	}
 
 	const impactedComponents: ConsoleImpactedComponent[] = [];
-	if (isOperator && status && status.configured && !status.error) {
+	if (isOperator && status?.configured && !status.error) {
 		for (const page of status.pages) {
 			const openIncidents = page.incidents.filter(
 				(incident) => incident.state !== "resolved",
@@ -1587,7 +1586,7 @@ export const buildConsoleActivity = ({
 	const items: TimedActivityItem[] = [];
 	const issues: string[] = [];
 
-	if (isOperator && status && status.configured && !status.error) {
+	if (isOperator && status?.configured && !status.error) {
 		for (const page of status.pages) {
 			for (const incident of page.incidents.filter(
 				(entry) => entry.state !== "resolved",
@@ -1968,7 +1967,7 @@ export const buildConsoleHomeModel = (
 	const limitations: string[] = [];
 	if (!isOperator) {
 		limitations.push(OPERATOR_ONLY_MESSAGE);
-	} else if (!status || !status.configured) {
+	} else if (!status?.configured) {
 		limitations.push(
 			"Platform availability is not reported: no status instance is connected to this console (STATUS_URL / STATUS_TOKEN).",
 		);

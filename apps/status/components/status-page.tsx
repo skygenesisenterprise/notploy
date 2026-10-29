@@ -1,11 +1,10 @@
-import * as React from "react";
-import Link from "next/link";
 import type {
 	PublicIncidentDto,
 	PublicMaintenanceDto,
 	PublicPageDto,
 } from "@notploy/status";
 import { AlertTriangle, CalendarClock, DatabaseZap } from "lucide-react";
+import Link from "next/link";
 import { EmptyState } from "./empty-state";
 import { IncidentCard } from "./incident-card";
 import { LiveStatus } from "./live-status";
@@ -42,8 +41,8 @@ export const StatusPageView = ({
 				<div className="flex items-start gap-2.5 rounded-xl border border-border px-4 py-3 text-sm tone-amber">
 					<DatabaseZap className="mt-0.5 size-4" aria-hidden="true" />
 					<span>
-						Live storage is unavailable — this page serves the last known
-						public state.
+						Live storage is unavailable — this page serves the last known public
+						state.
 					</span>
 				</div>
 			) : null}

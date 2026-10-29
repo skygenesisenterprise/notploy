@@ -47,35 +47,62 @@ interface RollbackConfigFormProps {
 export const RollbackConfigForm = ({ id, type }: RollbackConfigFormProps) => {
 	const [isLoading, setIsLoading] = useState(false);
 
-	const queryMap = {
-		postgres: () =>
-			api.postgres.one.useQuery({ postgresId: id }, { enabled: !!id }),
-		redis: () => api.redis.one.useQuery({ redisId: id }, { enabled: !!id }),
-		mysql: () => api.mysql.one.useQuery({ mysqlId: id }, { enabled: !!id }),
-		mariadb: () =>
-			api.mariadb.one.useQuery({ mariadbId: id }, { enabled: !!id }),
-		application: () =>
-			api.application.one.useQuery({ applicationId: id }, { enabled: !!id }),
-		mongo: () => api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id }),
-		libsql: () => api.libsql.one.useQuery({ libsqlId: id }, { enabled: !!id }),
+	const postgresQuery = api.postgres.one.useQuery(
+		{ postgresId: id },
+		{ enabled: !!id && type === "postgres" },
+	);
+	const redisQuery = api.redis.one.useQuery(
+		{ redisId: id },
+		{ enabled: !!id && type === "redis" },
+	);
+	const mysqlQuery = api.mysql.one.useQuery(
+		{ mysqlId: id },
+		{ enabled: !!id && type === "mysql" },
+	);
+	const mariadbQuery = api.mariadb.one.useQuery(
+		{ mariadbId: id },
+		{ enabled: !!id && type === "mariadb" },
+	);
+	const applicationQuery = api.application.one.useQuery(
+		{ applicationId: id },
+		{ enabled: !!id && type === "application" },
+	);
+	const mongoQuery = api.mongo.one.useQuery(
+		{ mongoId: id },
+		{ enabled: !!id && type === "mongo" },
+	);
+	const libsqlQuery = api.libsql.one.useQuery(
+		{ libsqlId: id },
+		{ enabled: !!id && type === "libsql" },
+	);
+	const serviceQueries = {
+		postgres: postgresQuery,
+		redis: redisQuery,
+		mysql: mysqlQuery,
+		mariadb: mariadbQuery,
+		application: applicationQuery,
+		mongo: mongoQuery,
+		libsql: libsqlQuery,
 	};
-	const { data, refetch } = queryMap[type]
-		? queryMap[type]()
-		: api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id });
+	const { data, refetch } = serviceQueries[type] ?? mongoQuery;
 
-	const mutationMap = {
-		postgres: () => api.postgres.update.useMutation(),
-		redis: () => api.redis.update.useMutation(),
-		mysql: () => api.mysql.update.useMutation(),
-		mariadb: () => api.mariadb.update.useMutation(),
-		application: () => api.application.update.useMutation(),
-		mongo: () => api.mongo.update.useMutation(),
-		libsql: () => api.libsql.update.useMutation(),
+	const postgresMutation = api.postgres.update.useMutation();
+	const redisMutation = api.redis.update.useMutation();
+	const mysqlMutation = api.mysql.update.useMutation();
+	const mariadbMutation = api.mariadb.update.useMutation();
+	const applicationMutation = api.application.update.useMutation();
+	const mongoMutation = api.mongo.update.useMutation();
+	const libsqlMutation = api.libsql.update.useMutation();
+	const serviceMutations = {
+		postgres: postgresMutation,
+		redis: redisMutation,
+		mysql: mysqlMutation,
+		mariadb: mariadbMutation,
+		application: applicationMutation,
+		mongo: mongoMutation,
+		libsql: libsqlMutation,
 	};
-
-	const { mutateAsync } = mutationMap[type]
-		? mutationMap[type]()
-		: api.mongo.update.useMutation();
+	const { mutateAsync } = serviceMutations[type] ?? mongoMutation;
 
 	const form = useForm<any>({
 		resolver: zodResolver(rollbackConfigFormSchema),

@@ -11,10 +11,7 @@
  * `status: null` and excluded from the ratio, matching the engine's rule that
  * absence of data is never proof of health.
  */
-import type {
-	PublicComponentUptimeDto,
-	PublicUptimeDayDto,
-} from "../core/dto";
+import type { PublicComponentUptimeDto, PublicUptimeDayDto } from "../core/dto";
 import type { ComponentStatusResult } from "../core/status-engine";
 import { computePageStatus, worstStatus } from "../core/status-engine";
 import type { PublicComponentStatus } from "../core/types";
@@ -27,8 +24,8 @@ import {
 } from "../core/uptime";
 import type { UptimeDailyRow } from "../store/repositories";
 import type { StatusContext } from "./context";
-import { resolveSettings } from "./settings";
 import { toEngineInputs } from "./public";
+import { resolveSettings } from "./settings";
 
 const mergeBucket = (
 	existing: UptimeDailyRow | null,
@@ -76,7 +73,14 @@ export const recordDailyUptime = (
 		}
 		const existing = ctx.repos.uptimeDaily.find(status.componentId, day);
 		ctx.repos.uptimeDaily.upsert(
-			mergeBucket(existing, pageId, status.componentId, day, status.status, now),
+			mergeBucket(
+				existing,
+				pageId,
+				status.componentId,
+				day,
+				status.status,
+				now,
+			),
 		);
 	}
 };
@@ -183,7 +187,10 @@ export const getUptimeForComponents = (
  * Record one observation per page without touching `updated_at` or the
  * snapshot: this is the sampler's entry point, not a publication.
  */
-export const sampleUptime = (ctx: StatusContext, now: string = ctx.now()): void => {
+export const sampleUptime = (
+	ctx: StatusContext,
+	now: string = ctx.now(),
+): void => {
 	for (const page of ctx.repos.pages.list()) {
 		const settings = resolveSettings(page);
 		const result = computePageStatus({

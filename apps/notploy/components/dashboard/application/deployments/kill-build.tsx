@@ -20,10 +20,9 @@ interface Props {
 }
 
 export const KillBuild = ({ id, type }: Props) => {
-	const { mutateAsync, isPending } =
-		type === "application"
-			? api.application.killBuild.useMutation()
-			: api.compose.killBuild.useMutation();
+	const applicationMutation = api.application.killBuild.useMutation();
+	const composeMutation = api.compose.killBuild.useMutation();
+	const { mutateAsync, isPending } = type === "application" ? applicationMutation : composeMutation;
 
 	return (
 		<AlertDialog>

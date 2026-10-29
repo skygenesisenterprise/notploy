@@ -20,9 +20,9 @@
  */
 
 import type { IpcMain, IpcMainInvokeEvent } from "electron";
-import {
-	type ConnectionKind,
-	type ConnectionUpdate,
+import type {
+	ConnectionKind,
+	ConnectionUpdate,
 } from "@/shared/domain";
 import type {
 	AppInfo,

@@ -168,7 +168,7 @@ export const ShowEnvironment = ({ applicationId }: Props) => {
 										target="_blank"
 										rel="noopener noreferrer"
 									>
-										here
+										Docker documentation
 									</a>
 									.
 								</span>
@@ -191,7 +191,7 @@ export const ShowEnvironment = ({ applicationId }: Props) => {
 										target="_blank"
 										rel="noopener noreferrer"
 									>
-										here
+										Docker documentation
 									</a>
 									.
 								</span>

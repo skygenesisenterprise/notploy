@@ -282,15 +282,15 @@ export const ShowImport = ({ composeId }: Props) => {
 														<h3 className="text-lg font-semibold">Mounts</h3>
 													</div>
 													<div className="grid grid-cols-1 gap-2">
-														{templateInfo.template.mounts.map(
-															(mount, index) => (
-																<div
-																	key={index}
-																	className="rounded-lg border bg-card p-2 font-mono text-sm hover:bg-accent cursor-pointer transition-colors"
-																	onClick={() => handleShowMountContent(mount)}
-																>
-																	{mount.filePath}
-																</div>
+														{templateInfo.template.mounts.map(																(mount, index) => (
+																	<button
+																		type="button"
+																		key={index}
+																		className="rounded-lg border bg-card p-2 font-mono text-sm hover:bg-accent cursor-pointer transition-colors w-full text-left"
+																		onClick={() => handleShowMountContent(mount)}
+																	>
+																		{mount.filePath}
+																	</button>
 															),
 														)}
 													</div>

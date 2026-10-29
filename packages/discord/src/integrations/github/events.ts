@@ -1,6 +1,6 @@
-import { EmbedBuilder } from "discord.js";
-import { COLORS, baseEmbed } from "../../utils/embeds.js";
+import type { EmbedBuilder } from "discord.js";
 import type { NotificationEventType } from "../../types/index.js";
+import { baseEmbed, COLORS } from "../../utils/embeds.js";
 import type { GitHubRelease } from "./index.js";
 
 export interface ReleaseEvent {
@@ -102,9 +102,7 @@ export function buildGitHubNotificationEmbed(event: GitHubEvent): EmbedBuilder {
 		case "pullRequests": {
 			const embed = baseEmbed()
 				.setColor(event.action === "merged" ? COLORS.success : COLORS.brand)
-				.setTitle(
-					`Pull request ${ACTION_LABEL[event.action] ?? event.action}: #${event.number}`,
-				)
+				.setTitle(`Pull request ${ACTION_LABEL[event.action] ?? event.action}: #${event.number}`)
 				.setURL(event.url)
 				.setDescription(truncate(event.title))
 				.addFields({

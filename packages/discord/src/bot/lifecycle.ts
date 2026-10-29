@@ -1,11 +1,11 @@
 import { Events } from "discord.js";
-import type { BotConfig, BotServices } from "../types/index.js";
-import { type Logger, createLogger } from "../utils/logger.js";
 import { handleGuildMemberAdd } from "../events/guild-member-add.js";
 import { handleInteractionCreate } from "../events/interaction-create.js";
 import { handleReady } from "../events/ready.js";
 import { createServices } from "../services/index.js";
-import { type NotployClient, createClient } from "./client.js";
+import type { BotConfig, BotServices } from "../types/index.js";
+import { createLogger, type Logger } from "../utils/logger.js";
+import { createClient, type NotployClient } from "./client.js";
 
 /**
  * Top-level bot orchestrator: owns the Discord client, the service container

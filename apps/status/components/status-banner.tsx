@@ -1,7 +1,6 @@
-import * as React from "react";
 import type { GlobalStatus } from "@notploy/status";
-import { statusLabel, statusTone, type FreshnessState } from "@/lib/view-model";
 import { cn } from "@/lib/utils";
+import { type FreshnessState, statusLabel, statusTone } from "@/lib/view-model";
 import { dotClass, toneClass } from "./status-badge";
 
 interface StatusBannerProps {
@@ -33,7 +32,11 @@ export const StatusBanner = ({ status, updatedLabel }: StatusBannerProps) => {
 	);
 };
 
-export const FreshnessNotice = ({ freshness }: { freshness: FreshnessState }) => {
+export const FreshnessNotice = ({
+	freshness,
+}: {
+	freshness: FreshnessState;
+}) => {
 	if (freshness.kind === "live") {
 		return null;
 	}

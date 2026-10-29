@@ -65,9 +65,9 @@ export const HandleTag = ({ tagId, onCreated }: HandleTagProps) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const colorInputRef = useRef<HTMLInputElement>(null);
 
-	const { mutateAsync, error, isError } = tagId
-		? api.tag.update.useMutation()
-		: api.tag.create.useMutation();
+	const updateMutation = api.tag.update.useMutation();
+	const createMutation = api.tag.create.useMutation();
+	const { mutateAsync, error, isError } = tagId ? updateMutation : createMutation;
 
 	const { data: tag } = api.tag.one.useQuery(
 		{

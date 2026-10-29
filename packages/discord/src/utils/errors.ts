@@ -1,4 +1,4 @@
-import { type ChatInputCommandInteraction, type InteractionReplyOptions } from "discord.js";
+import type { ChatInputCommandInteraction, InteractionReplyOptions } from "discord.js";
 
 /** Thrown when required environment configuration is missing or invalid. */
 export class ConfigurationError extends Error {

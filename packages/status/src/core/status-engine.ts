@@ -44,12 +44,14 @@ export const STATUS_RANK: Record<PublicComponentStatus, number> = {
 };
 
 /** Default mapping incident severity → public status. */
-export const DEFAULT_SEVERITY_TO_STATUS: Record<IncidentSeverity, GlobalStatus> =
-	{
-		minor: "degraded_performance",
-		major: "partial_outage",
-		critical: "major_outage",
-	};
+export const DEFAULT_SEVERITY_TO_STATUS: Record<
+	IncidentSeverity,
+	GlobalStatus
+> = {
+	minor: "degraded_performance",
+	major: "partial_outage",
+	critical: "major_outage",
+};
 
 /** Worst (highest-rank) status of the provided list. */
 export const worstStatus = (
@@ -150,7 +152,9 @@ const resolveSeverityToStatus = (
 
 /** Active = unresolved, published and public. Everything else stays internal. */
 export const isActivePublicIncident = (incident: EngineIncident): boolean =>
-	incident.state !== "resolved" && incident.published && incident.visibility === "public";
+	incident.state !== "resolved" &&
+	incident.published &&
+	incident.visibility === "public";
 
 /** An in-progress, published, public maintenance. */
 export const isActivePublicMaintenance = (
@@ -179,7 +183,9 @@ export const computePageStatus = ({
 	const activeIncidents = incidents.filter(isActivePublicIncident);
 	const activeMaintenances = maintenances.filter(isActivePublicMaintenance);
 
-	const byId = new Map(components.map((component) => [component.id, component]));
+	const byId = new Map(
+		components.map((component) => [component.id, component]),
+	);
 	const childrenOf = new Map<string, EngineComponent[]>();
 	for (const component of components) {
 		if (component.parentId && byId.has(component.parentId)) {

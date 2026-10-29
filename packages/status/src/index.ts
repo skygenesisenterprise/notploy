@@ -12,150 +12,153 @@
  * platform has no dependency on Notploy Console and keeps serving the last
  * known public state when the control plane (or its own storage) is down.
  */
-export * from "./core/types";
-export * from "./core/dto";
+
 export {
-	NOTPLOY_STATUS_CATALOG,
+	generateToken,
+	hashSecret,
+	parseScopes,
+	parseToken,
+	scopeAllows,
+	verifySecret,
+} from "./auth/tokens";
+export { loadConfig, type StatusConfig } from "./config";
+export {
 	type CatalogComponent,
+	NOTPLOY_STATUS_CATALOG,
 	type StatusCatalog,
 } from "./core/catalog";
+export * from "./core/dto";
+export { newId, newRequestId, newTokenValue } from "./core/ids";
 export * from "./core/schemas";
 export * from "./core/status-engine";
-export { newId, newTokenValue, newRequestId } from "./core/ids";
 export {
-	nowIso,
+	intervalsOverlap,
 	isIsoDate,
 	isOlderThan,
-	intervalsOverlap,
-	plusSeconds,
 	isValidTimeZone,
+	nowIso,
+	plusSeconds,
 } from "./core/time";
+export * from "./core/types";
 export {
+	availabilityPercent,
+	daysBetween,
+	dayWindow,
+	formatUptime,
+	isAvailable,
 	UPTIME_WINDOW_DAYS,
 	utcDay,
-	dayWindow,
-	daysBetween,
-	isAvailable,
-	availabilityPercent,
-	formatUptime,
 } from "./core/uptime";
-
-export { loadConfig, type StatusConfig } from "./config";
 export { StatusError } from "./errors";
+// Re-export the StatusPublisher client for backwards compatibility
 export {
-	createStatusContext,
-	readSnapshot,
-	type StatusContext,
-	type Actor,
-} from "./services/context";
-export { openDatabase, getSchemaVersion, pingDatabase } from "./store/db";
-export { MIGRATIONS, runMigrations, rollbackLastMigration } from "./store/migrations";
-export { resolveSettings, DEFAULT_PAGE_SETTINGS } from "./services/settings";
-export {
-	createPage,
-	updatePage,
-	listPagesInternal,
-	requirePage,
-} from "./services/pages";
-export {
-	seedCatalog,
-	type SeedResult,
-	type SeedOptions,
-} from "./services/seed";
-export {
-	createComponent,
-	updateComponent,
-	deleteComponent,
-	listComponentsInternal,
-	setComponentObservedState,
-	requireComponent,
-} from "./services/components";
-export {
-	createIncident,
-	updateIncident,
-	changeIncidentState,
-	addIncidentUpdate,
-	setIncidentPublish,
-	deleteIncident,
-	requireIncident,
-} from "./services/incidents";
-export {
-	createMaintenance,
-	updateMaintenance,
-	changeMaintenanceState,
-	setMaintenancePublish,
-	deleteMaintenance,
-	requireMaintenance,
-} from "./services/maintenances";
-export {
-	createTokenRecord,
-	listTokenRecords,
-	revokeTokenRecord,
-	verifyBearer,
-	requireScope,
-} from "./services/security";
-export {
-	ingestMonitoringEvent,
-	getComponentObservedState,
-} from "./services/ingest";
-export {
-	createWebhookSubscription,
-	listWebhookSubscriptions,
-	dispatchOutbox,
-	replayOutboxEntry,
-} from "./services/outbox";
-export {
-	buildPublicPage,
-	buildAllPublicPages,
-	getPublicPage,
-	getPublicStatus,
-	listPages,
-	listPublicIncidents,
-	getPublicIncident,
-	listPublicIncidentUpdates,
-	listPublicMaintenances,
-	listPublicHistory,
-	listPublicUptime,
-	listTimeline,
-} from "./services/public";
-export {
-	recordDailyUptime,
-	sampleUptime,
-	getComponentUptime,
-	getUptimeForComponents,
-	emptyComponentUptime,
-	type UptimeQuery,
-} from "./services/uptime";
-export {
-	createStatusPlatform,
-	type StatusPlatform,
-} from "./platform";
+	createStatusPublisher,
+	type ListOptions,
+	type PublisherIncidentInput,
+	type PublisherIncidentPatch,
+	type PublisherMaintenancePatch,
+	StatusPublisher,
+	StatusPublisherError,
+	type StatusPublisherOptions,
+} from "./integration/client";
 export { createBackup, listBackups } from "./operations/backup";
 export {
-	startOutboxWorker,
 	type OutboxWorkerHandle,
+	startOutboxWorker,
 } from "./operations/outbox-worker";
 export {
 	startUptimeSampler,
 	type UptimeSamplerHandle,
 } from "./operations/uptime-sampler";
 export {
-	generateToken,
-	hashSecret,
-	parseToken,
-	verifySecret,
-	scopeAllows,
-	parseScopes,
-} from "./auth/tokens";
-
-// Re-export the StatusPublisher client for backwards compatibility
+	createStatusPlatform,
+	type StatusPlatform,
+} from "./platform";
 export {
-	StatusPublisher,
-	StatusPublisherError,
-	createStatusPublisher,
-	type StatusPublisherOptions,
-	type PublisherIncidentInput,
-	type PublisherIncidentPatch,
-	type PublisherMaintenancePatch,
-	type ListOptions,
-} from "./integration/client";
+	createComponent,
+	deleteComponent,
+	listComponentsInternal,
+	requireComponent,
+	setComponentObservedState,
+	updateComponent,
+} from "./services/components";
+export {
+	type Actor,
+	createStatusContext,
+	readSnapshot,
+	type StatusContext,
+} from "./services/context";
+export {
+	addIncidentUpdate,
+	changeIncidentState,
+	createIncident,
+	deleteIncident,
+	requireIncident,
+	setIncidentPublish,
+	updateIncident,
+} from "./services/incidents";
+export {
+	getComponentObservedState,
+	ingestMonitoringEvent,
+} from "./services/ingest";
+export {
+	changeMaintenanceState,
+	createMaintenance,
+	deleteMaintenance,
+	requireMaintenance,
+	setMaintenancePublish,
+	updateMaintenance,
+} from "./services/maintenances";
+export {
+	createWebhookSubscription,
+	dispatchOutbox,
+	listWebhookSubscriptions,
+	replayOutboxEntry,
+} from "./services/outbox";
+export {
+	createPage,
+	listPagesInternal,
+	requirePage,
+	updatePage,
+} from "./services/pages";
+export {
+	buildAllPublicPages,
+	buildPublicPage,
+	getPublicIncident,
+	getPublicPage,
+	getPublicStatus,
+	listPages,
+	listPublicHistory,
+	listPublicIncidents,
+	listPublicIncidentUpdates,
+	listPublicMaintenances,
+	listPublicUptime,
+	listTimeline,
+} from "./services/public";
+export {
+	createTokenRecord,
+	listTokenRecords,
+	requireScope,
+	revokeTokenRecord,
+	verifyBearer,
+} from "./services/security";
+export {
+	type SeedOptions,
+	type SeedResult,
+	seedCatalog,
+} from "./services/seed";
+export { DEFAULT_PAGE_SETTINGS, resolveSettings } from "./services/settings";
+export {
+	emptyComponentUptime,
+	getComponentUptime,
+	getUptimeForComponents,
+	recordDailyUptime,
+	sampleUptime,
+	type UptimeQuery,
+} from "./services/uptime";
+export { getSchemaVersion, openDatabase, pingDatabase } from "./store/db";
+export {
+	MIGRATIONS,
+	rollbackLastMigration,
+	runMigrations,
+} from "./store/migrations";

@@ -9,14 +9,18 @@
  */
 import { createHash } from "node:crypto";
 import type { Context, MiddlewareHandler } from "hono";
-import { StatusError } from "../errors";
 import { newRequestId } from "../core/ids";
-import { badRequest, tooManyRequests, unauthorized } from "../errors";
+import {
+	badRequest,
+	StatusError,
+	tooManyRequests,
+	unauthorized,
+} from "../errors";
 import type { StatusContext } from "../services/context";
 import {
+	type AuthenticatedActor,
 	requireScope,
 	verifyBearer,
-	type AuthenticatedActor,
 } from "../services/security";
 
 export type Variables = {
@@ -47,8 +51,14 @@ export const corsPolicy = (ctx: StatusContext): MiddlewareHandler => {
 		if (origin && (allowAll || allowed.includes(origin))) {
 			c.header("access-control-allow-origin", allowAll ? "*" : origin);
 			c.header("vary", "Origin");
-			c.header("access-control-allow-methods", "GET, POST, PATCH, DELETE, OPTIONS");
-			c.header("access-control-allow-headers", "authorization, content-type, idempotency-key");
+			c.header(
+				"access-control-allow-methods",
+				"GET, POST, PATCH, DELETE, OPTIONS",
+			);
+			c.header(
+				"access-control-allow-headers",
+				"authorization, content-type, idempotency-key",
+			);
 			c.header("access-control-max-age", "600");
 		}
 		if (c.req.method === "OPTIONS") {
@@ -70,7 +80,10 @@ export const rateLimit = (
 	bucket: "public" | "admin",
 ): MiddlewareHandler => {
 	const windows = new Map<string, RateWindow>();
-	const max = bucket === "admin" ? ctx.config.rateLimit.adminMax : ctx.config.rateLimit.publicMax;
+	const max =
+		bucket === "admin"
+			? ctx.config.rateLimit.adminMax
+			: ctx.config.rateLimit.publicMax;
 	const windowMs = ctx.config.rateLimit.windowMs;
 	return async (c, next) => {
 		const now = Date.now();
@@ -115,7 +128,8 @@ export const requireActorScope = (
 	scope: Parameters<typeof requireScope>[1],
 ): MiddlewareHandler<{ Variables: Variables }> => {
 	return async (c, next) => {
-		const actor = c.get("actor") ?? verifyBearer(ctx, c.req.header("authorization"));
+		const actor =
+			c.get("actor") ?? verifyBearer(ctx, c.req.header("authorization"));
 		requireScope(actor, scope);
 		c.set("actor", actor);
 		await next();

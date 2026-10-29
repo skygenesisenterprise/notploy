@@ -15,8 +15,7 @@ export const ShowInternalPostgresCredentials = ({ postgresId }: Props) => {
 	const { mutateAsync: changePassword } =
 		api.postgres.changePassword.useMutation();
 	return (
-		<>
-			<div className="flex w-full flex-col gap-5 ">
+		<div className="flex w-full flex-col gap-5 ">
 				<Card className="bg-background">
 					<CardHeader>
 						<CardTitle className="text-xl">Internal Credentials</CardTitle>
@@ -71,7 +70,6 @@ export const ShowInternalPostgresCredentials = ({ postgresId }: Props) => {
 					</CardContent>
 				</Card>
 			</div>
-		</>
 	);
 };
 // ReplyError: MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-w

@@ -21,10 +21,9 @@ interface Props {
 
 export const ClearDeployments = ({ id, type }: Props) => {
 	const utils = api.useUtils();
-	const { mutateAsync, isPending } =
-		type === "application"
-			? api.application.clearDeployments.useMutation()
-			: api.compose.clearDeployments.useMutation();
+	const applicationMutation = api.application.clearDeployments.useMutation();
+	const composeMutation = api.compose.clearDeployments.useMutation();
+	const { mutateAsync, isPending } = type === "application" ? applicationMutation : composeMutation;
 
 	return (
 		<AlertDialog>

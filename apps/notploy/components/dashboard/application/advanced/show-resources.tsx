@@ -105,35 +105,63 @@ interface Props {
 type AddResources = z.infer<typeof addResourcesSchema>;
 
 export const ShowResources = ({ id, type }: Props) => {
-	const queryMap = {
-		application: () =>
-			api.application.one.useQuery({ applicationId: id }, { enabled: !!id }),
-		libsql: () => api.libsql.one.useQuery({ libsqlId: id }, { enabled: !!id }),
-		mariadb: () =>
-			api.mariadb.one.useQuery({ mariadbId: id }, { enabled: !!id }),
-		mongo: () => api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id }),
-		mysql: () => api.mysql.one.useQuery({ mysqlId: id }, { enabled: !!id }),
-		postgres: () =>
-			api.postgres.one.useQuery({ postgresId: id }, { enabled: !!id }),
-		redis: () => api.redis.one.useQuery({ redisId: id }, { enabled: !!id }),
+	const applicationQuery = api.application.one.useQuery(
+		{ applicationId: id },
+		{ enabled: !!id && type === "application" },
+	);
+	const libsqlQuery = api.libsql.one.useQuery(
+		{ libsqlId: id },
+		{ enabled: !!id && type === "libsql" },
+	);
+	const mariadbQuery = api.mariadb.one.useQuery(
+		{ mariadbId: id },
+		{ enabled: !!id && type === "mariadb" },
+	);
+	const mongoQuery = api.mongo.one.useQuery(
+		{ mongoId: id },
+		{ enabled: !!id && type === "mongo" },
+	);
+	const mysqlQuery = api.mysql.one.useQuery(
+		{ mysqlId: id },
+		{ enabled: !!id && type === "mysql" },
+	);
+	const postgresQuery = api.postgres.one.useQuery(
+		{ postgresId: id },
+		{ enabled: !!id && type === "postgres" },
+	);
+	const redisQuery = api.redis.one.useQuery(
+		{ redisId: id },
+		{ enabled: !!id && type === "redis" },
+	);
+	const serviceQueries = {
+		application: applicationQuery,
+		libsql: libsqlQuery,
+		mariadb: mariadbQuery,
+		mongo: mongoQuery,
+		mysql: mysqlQuery,
+		postgres: postgresQuery,
+		redis: redisQuery,
 	};
-	const { data, refetch } = queryMap[type]
-		? queryMap[type]()
-		: api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id });
+	const { data, refetch } = serviceQueries[type] ?? mongoQuery;
 
-	const mutationMap = {
-		application: () => api.application.update.useMutation(),
-		libsql: () => api.libsql.update.useMutation(),
-		mariadb: () => api.mariadb.update.useMutation(),
-		mongo: () => api.mongo.update.useMutation(),
-		mysql: () => api.mysql.update.useMutation(),
-		postgres: () => api.postgres.update.useMutation(),
-		redis: () => api.redis.update.useMutation(),
+	const applicationMutation = api.application.update.useMutation();
+	const libsqlMutation = api.libsql.update.useMutation();
+	const mariadbMutation = api.mariadb.update.useMutation();
+	const mongoMutation = api.mongo.update.useMutation();
+	const mysqlMutation = api.mysql.update.useMutation();
+	const postgresMutation = api.postgres.update.useMutation();
+	const redisMutation = api.redis.update.useMutation();
+	const serviceMutations = {
+		application: applicationMutation,
+		libsql: libsqlMutation,
+		mariadb: mariadbMutation,
+		mongo: mongoMutation,
+		mysql: mysqlMutation,
+		postgres: postgresMutation,
+		redis: redisMutation,
 	};
 
-	const { mutateAsync, isPending } = mutationMap[type]
-		? mutationMap[type]()
-		: api.mongo.update.useMutation();
+	const { mutateAsync, isPending } = serviceMutations[type] ?? mongoMutation;
 
 	const form = useForm({
 		defaultValues: {
@@ -217,6 +245,7 @@ export const ShowResources = ({ id, type }: Props) => {
 								render={({ field }) => {
 									return (
 										<FormItem>
+											{/* biome-ignore lint/a11y/noStaticElementInteractions: preventDefault wrapper to keep label clicks from focusing inputs, not interactive */}
 											<div
 												className="flex items-center gap-2"
 												onClick={(e) => e.preventDefault()}
@@ -256,6 +285,7 @@ export const ShowResources = ({ id, type }: Props) => {
 								name="memoryReservation"
 								render={({ field }) => (
 									<FormItem>
+										{/* biome-ignore lint/a11y/noStaticElementInteractions: preventDefault wrapper to keep label clicks from focusing inputs, not interactive */}
 										<div
 											className="flex items-center gap-2"
 											onClick={(e) => e.preventDefault()}
@@ -296,6 +326,7 @@ export const ShowResources = ({ id, type }: Props) => {
 								render={({ field }) => {
 									return (
 										<FormItem>
+											{/* biome-ignore lint/a11y/noStaticElementInteractions: preventDefault wrapper to keep label clicks from focusing inputs, not interactive */}
 											<div
 												className="flex items-center gap-2"
 												onClick={(e) => e.preventDefault()}
@@ -336,6 +367,7 @@ export const ShowResources = ({ id, type }: Props) => {
 								render={({ field }) => {
 									return (
 										<FormItem>
+											{/* biome-ignore lint/a11y/noStaticElementInteractions: preventDefault wrapper to keep label clicks from focusing inputs, not interactive */}
 											<div
 												className="flex items-center gap-2"
 												onClick={(e) => e.preventDefault()}

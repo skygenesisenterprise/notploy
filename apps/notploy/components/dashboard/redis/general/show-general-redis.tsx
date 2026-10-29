@@ -66,8 +66,7 @@ export const ShowGeneralRedis = ({ redisId }: Props) => {
 	);
 
 	return (
-		<>
-			<div className="flex w-full flex-col gap-5 ">
+		<div className="flex w-full flex-col gap-5 ">
 				<Card className="bg-background">
 					<CardHeader>
 						<CardTitle className="text-xl">Deploy Settings</CardTitle>
@@ -264,6 +263,5 @@ export const ShowGeneralRedis = ({ redisId }: Props) => {
 					filteredLogs={filteredLogs}
 				/>
 			</div>
-		</>
 	);
 };

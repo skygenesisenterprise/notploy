@@ -15,8 +15,7 @@ export const ShowInternalRedisCredentials = ({ redisId }: Props) => {
 	const { mutateAsync: changePassword } =
 		api.redis.changePassword.useMutation();
 	return (
-		<>
-			<div className="flex w-full flex-col gap-5 ">
+		<div className="flex w-full flex-col gap-5 ">
 				<Card className="bg-background">
 					<CardHeader>
 						<CardTitle className="text-xl">Internal Credentials</CardTitle>
@@ -67,6 +66,5 @@ export const ShowInternalRedisCredentials = ({ redisId }: Props) => {
 					</CardContent>
 				</Card>
 			</div>
-		</>
 	);
 };

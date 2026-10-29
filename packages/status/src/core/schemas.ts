@@ -6,6 +6,7 @@
  * source of truth for the OpenAPI document.
  */
 import { z } from "zod";
+import { isIsoDate, isValidTimeZone } from "./time";
 import type {
 	ComponentCategory,
 	IncidentSeverity,
@@ -15,7 +16,6 @@ import type {
 	TokenScope,
 	Visibility,
 } from "./types";
-import { isIsoDate, isValidTimeZone } from "./time";
 
 export const PUBLIC_STATUSES = [
 	"operational",
@@ -135,9 +135,9 @@ export const updatePageSchema = z
 		settings: pageSettingsSchema.partial().optional(),
 	})
 	.strict()
-.refine((value) => Object.keys(value).length > 0, {
-	message: "at least one field is required",
-});
+	.refine((value) => Object.keys(value).length > 0, {
+		message: "at least one field is required",
+	});
 
 export const createComponentSchema = z
 	.object({
@@ -165,9 +165,9 @@ export const updateComponentSchema = z
 		observedStatus: observedStatusSchema.optional(),
 	})
 	.strict()
-.refine((value) => Object.keys(value).length > 0, {
-	message: "at least one field is required",
-});
+	.refine((value) => Object.keys(value).length > 0, {
+		message: "at least one field is required",
+	});
 
 export const createIncidentSchema = z
 	.object({
@@ -200,9 +200,9 @@ export const updateIncidentSchema = z
 		componentIds: z.array(z.string().min(1)).max(50).optional(),
 	})
 	.strict()
-.refine((value) => Object.keys(value).length > 0, {
-	message: "at least one field is required",
-});
+	.refine((value) => Object.keys(value).length > 0, {
+		message: "at least one field is required",
+	});
 
 export const incidentStateChangeSchema = z
 	.object({
@@ -255,10 +255,10 @@ export const createMaintenanceSchema = z
 			.optional(),
 	})
 	.strict()
-.refine((ctx) => Date.parse(ctx.endAt) > Date.parse(ctx.startAt), {
-	message: "endAt must be after startAt",
-	path: ["endAt"],
-});
+	.refine((ctx) => Date.parse(ctx.endAt) > Date.parse(ctx.startAt), {
+		message: "endAt must be after startAt",
+		path: ["endAt"],
+	});
 
 export const updateMaintenanceSchema = z
 	.object({
@@ -276,9 +276,9 @@ export const updateMaintenanceSchema = z
 		visibility: visibilitySchema.optional(),
 	})
 	.strict()
-.refine((value) => Object.keys(value).length > 0, {
-	message: "at least one field is required",
-});
+	.refine((value) => Object.keys(value).length > 0, {
+		message: "at least one field is required",
+	});
 
 export const maintenanceStateChangeSchema = z
 	.object({
@@ -293,9 +293,9 @@ export const createTokenSchema = z
 		scopes: z.array(tokenScopeSchema).min(1).max(6),
 	})
 	.strict()
-.refine((ctx) => new Set(ctx.scopes).size === ctx.scopes.length, {
-	message: "scopes must be unique",
-});
+	.refine((ctx) => new Set(ctx.scopes).size === ctx.scopes.length, {
+		message: "scopes must be unique",
+	});
 
 /**
  * Monitoring event received from an external source (Notploy Console, the Go
@@ -345,7 +345,9 @@ export type CreateComponentInput = z.infer<typeof createComponentSchema>;
 export type UpdateComponentInput = z.infer<typeof updateComponentSchema>;
 export type CreateIncidentInput = z.infer<typeof createIncidentSchema>;
 export type UpdateIncidentInput = z.infer<typeof updateIncidentSchema>;
-export type IncidentStateChangeInput = z.infer<typeof incidentStateChangeSchema>;
+export type IncidentStateChangeInput = z.infer<
+	typeof incidentStateChangeSchema
+>;
 export type IncidentUpdateInput = z.infer<typeof incidentUpdateSchema>;
 export type MaintenanceStateChangeInput = z.infer<
 	typeof maintenanceStateChangeSchema

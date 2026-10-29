@@ -1,6 +1,5 @@
-import * as React from "react";
-import Link from "next/link";
 import { History, Rss, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 interface SiteHeaderProps {
 	name: string;
@@ -9,7 +8,11 @@ interface SiteHeaderProps {
 	showAdmin?: boolean;
 }
 
-export const SiteHeader = ({ name, slug, showAdmin = true }: SiteHeaderProps) => (
+export const SiteHeader = ({
+	name,
+	slug,
+	showAdmin = true,
+}: SiteHeaderProps) => (
 	<header className="flex flex-wrap items-center justify-between gap-4 border-b border-border py-5">
 		<Link href={`/p/${slug}`} className="flex items-center gap-2.5">
 			<span

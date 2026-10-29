@@ -204,6 +204,7 @@ export const VaultImportDialog = ({
 					<DialogTitle>Import secrets from a provider</DialogTitle>
 					<DialogDescription>
 						Select the secrets to import as{" "}
+						{/* biome-ignore lint/suspicious/noTemplateCurlyInString: vault ${{...}} reference syntax shown as documentation, not a JS template */}
 						<code>{"${{vault.<provider>.<secret>}}"}</code> references. They are
 						resolved at deploy time and the values never reach Notploy. Secrets
 						already defined below are skipped unless you check them explicitly.

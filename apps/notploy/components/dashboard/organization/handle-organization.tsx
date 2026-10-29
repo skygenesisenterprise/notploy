@@ -70,9 +70,9 @@ export function AddOrganization({
 			refetchOnWindowFocus: false,
 		},
 	);
-	const { mutateAsync, isPending } = organizationId
-		? api.organization.update.useMutation()
-		: api.organization.create.useMutation();
+	const updateMutation = api.organization.update.useMutation();
+	const createMutation = api.organization.create.useMutation();
+	const { mutateAsync, isPending } = organizationId ? updateMutation : createMutation;
 
 	const form = useForm<OrganizationFormValues>({
 		resolver: zodResolver(organizationSchema),

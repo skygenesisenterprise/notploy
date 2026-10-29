@@ -257,10 +257,12 @@ export const createRepositories = (db: DatabaseSync) => {
 				row.updated_at,
 			);
 		},
-		findById: (id: string) => one<PageRow>("SELECT * FROM status_pages WHERE id = ?", id),
+		findById: (id: string) =>
+			one<PageRow>("SELECT * FROM status_pages WHERE id = ?", id),
 		findBySlug: (slug: string) =>
 			one<PageRow>("SELECT * FROM status_pages WHERE slug = ?", slug),
-		list: (): PageRow[] => many<PageRow>("SELECT * FROM status_pages ORDER BY created_at ASC"),
+		list: (): PageRow[] =>
+			many<PageRow>("SELECT * FROM status_pages ORDER BY created_at ASC"),
 		update: (
 			id: string,
 			fields: { name?: string; description?: string; settings_json?: string },
@@ -314,7 +316,8 @@ export const createRepositories = (db: DatabaseSync) => {
 				row.updated_at,
 			);
 		},
-		findById: (id: string) => one<ComponentRow>("SELECT * FROM components WHERE id = ?", id),
+		findById: (id: string) =>
+			one<ComponentRow>("SELECT * FROM components WHERE id = ?", id),
 		listByPage: (pageId: string): ComponentRow[] =>
 			many<ComponentRow>(
 				"SELECT * FROM components WHERE page_id = ? ORDER BY position ASC, created_at ASC",
@@ -338,7 +341,9 @@ export const createRepositories = (db: DatabaseSync) => {
 			>,
 			now: string,
 		) => {
-			const entries = Object.entries(fields).filter(([, value]) => value !== undefined);
+			const entries = Object.entries(fields).filter(
+				([, value]) => value !== undefined,
+			);
 			const sets = entries.map(([key]) => `${key} = ?`);
 			sets.push("updated_at = ?");
 			run(
@@ -385,7 +390,8 @@ export const createRepositories = (db: DatabaseSync) => {
 				row.updated_at,
 			);
 		},
-		findById: (id: string) => one<IncidentRow>("SELECT * FROM incidents WHERE id = ?", id),
+		findById: (id: string) =>
+			one<IncidentRow>("SELECT * FROM incidents WHERE id = ?", id),
 		listByPage: (pageId: string): IncidentRow[] =>
 			many<IncidentRow>(
 				"SELECT * FROM incidents WHERE page_id = ? ORDER BY started_at DESC, id DESC",
@@ -408,7 +414,9 @@ export const createRepositories = (db: DatabaseSync) => {
 			>,
 			now: string,
 		) => {
-			const entries = Object.entries(fields).filter(([, value]) => value !== undefined);
+			const entries = Object.entries(fields).filter(
+				([, value]) => value !== undefined,
+			);
 			const sets = entries.map(([key]) => `${key} = ?`);
 			sets.push("updated_at = ?");
 			run(
@@ -439,9 +447,13 @@ export const createRepositories = (db: DatabaseSync) => {
 				pageId,
 				correlationKey,
 			),
-		findRecentByCorrelation: (pageId: string, correlationKey: string, since: string) =>
+		findRecentByCorrelation: (
+			pageId: string,
+			correlationKey: string,
+			since: string,
+		) =>
 			one<IncidentRow>(
-				`SELECT * FROM incidents WHERE page_id = ? AND correlation_key = ? AND created_at >= ? ORDER BY created_at DESC LIMIT 1`,
+				"SELECT * FROM incidents WHERE page_id = ? AND correlation_key = ? AND created_at >= ? ORDER BY created_at DESC LIMIT 1",
 				pageId,
 				correlationKey,
 				since,
@@ -499,7 +511,9 @@ export const createRepositories = (db: DatabaseSync) => {
 			>,
 			now: string,
 		) => {
-			const entries = Object.entries(fields).filter(([, value]) => value !== undefined);
+			const entries = Object.entries(fields).filter(
+				([, value]) => value !== undefined,
+			);
 			const sets = entries.map(([key]) => `${key} = ?`);
 			sets.push("updated_at = ?");
 			run(
@@ -510,7 +524,10 @@ export const createRepositories = (db: DatabaseSync) => {
 			);
 		},
 		replaceComponents: (maintenanceId: string, componentIds: string[]) => {
-			run("DELETE FROM maintenance_components WHERE maintenance_id = ?", maintenanceId);
+			run(
+				"DELETE FROM maintenance_components WHERE maintenance_id = ?",
+				maintenanceId,
+			);
 			for (const componentId of componentIds) {
 				run(
 					"INSERT INTO maintenance_components (maintenance_id, component_id) VALUES (?, ?)",
@@ -560,7 +577,7 @@ export const createRepositories = (db: DatabaseSync) => {
 			offset = 0,
 		): EventRow[] =>
 			many<EventRow>(
-				`SELECT * FROM events WHERE page_id = ? AND subject_type = ? AND subject_id = ? ORDER BY created_at ASC, id ASC LIMIT ? OFFSET ?`,
+				"SELECT * FROM events WHERE page_id = ? AND subject_type = ? AND subject_id = ? ORDER BY created_at ASC, id ASC LIMIT ? OFFSET ?",
 				pageId,
 				subjectType,
 				subjectId,
@@ -618,7 +635,11 @@ export const createRepositories = (db: DatabaseSync) => {
 			);
 		},
 		deleteBySubject: (subjectType: string, subjectId: string) => {
-			run("DELETE FROM events WHERE subject_type = ? AND subject_id = ?", subjectType, subjectId);
+			run(
+				"DELETE FROM events WHERE subject_type = ? AND subject_id = ?",
+				subjectType,
+				subjectId,
+			);
 		},
 	};
 
@@ -639,11 +660,16 @@ export const createRepositories = (db: DatabaseSync) => {
 				row.revoked_at,
 			);
 		},
-		findById: (id: string) => one<TokenRow>("SELECT * FROM api_tokens WHERE id = ?", id),
+		findById: (id: string) =>
+			one<TokenRow>("SELECT * FROM api_tokens WHERE id = ?", id),
 		list: (): TokenRow[] =>
 			many<TokenRow>("SELECT * FROM api_tokens ORDER BY created_at DESC"),
 		revoke: (id: string, now: string) => {
-			run("UPDATE api_tokens SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL", now, id);
+			run(
+				"UPDATE api_tokens SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL",
+				now,
+				id,
+			);
 		},
 		touch: (id: string, now: string) => {
 			run("UPDATE api_tokens SET last_used_at = ? WHERE id = ?", now, id);
@@ -670,17 +696,25 @@ export const createRepositories = (db: DatabaseSync) => {
 			);
 		},
 		list: (limit: number, offset: number): AuditRow[] =>
-			many<AuditRow>("SELECT * FROM audit_log ORDER BY at DESC, id DESC LIMIT ? OFFSET ?", limit, offset),
+			many<AuditRow>(
+				"SELECT * FROM audit_log ORDER BY at DESC, id DESC LIMIT ? OFFSET ?",
+				limit,
+				offset,
+			),
 	};
 
 	/* ----------------------------- idempotency ----------------------------- */
 
 	const idempotency = {
 		find: (key: string, scope: string) =>
-			one<IdempotencyRow>("SELECT * FROM idempotency_keys WHERE key = ? AND scope = ?", key, scope),
+			one<IdempotencyRow>(
+				"SELECT * FROM idempotency_keys WHERE key = ? AND scope = ?",
+				key,
+				scope,
+			),
 		insert: (row: IdempotencyRow) => {
 			run(
-				`INSERT INTO idempotency_keys (key, scope, request_hash, status_code, response_json, created_at) VALUES (?, ?, ?, ?, ?, ?)`,
+				"INSERT INTO idempotency_keys (key, scope, request_hash, status_code, response_json, created_at) VALUES (?, ?, ?, ?, ?, ?)",
 				row.key,
 				row.scope,
 				row.request_hash,
@@ -695,10 +729,13 @@ export const createRepositories = (db: DatabaseSync) => {
 
 	const ingestLog = {
 		findByDedupHash: (dedupHash: string) =>
-			one<IngestLogRow>("SELECT * FROM ingest_log WHERE dedup_hash = ?", dedupHash),
+			one<IngestLogRow>(
+				"SELECT * FROM ingest_log WHERE dedup_hash = ?",
+				dedupHash,
+			),
 		insert: (row: IngestLogRow) => {
 			run(
-				`INSERT INTO ingest_log (id, event_id, dedup_hash, source, received_at, result, incident_id, payload_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+				"INSERT INTO ingest_log (id, event_id, dedup_hash, source, received_at, result, incident_id, payload_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
 				row.id,
 				row.event_id,
 				row.dedup_hash,
@@ -732,7 +769,10 @@ export const createRepositories = (db: DatabaseSync) => {
 			);
 		},
 		findByDedupKey: (dedupKey: string) =>
-			one<OutboxRow>("SELECT * FROM notification_outbox WHERE dedup_key = ?", dedupKey),
+			one<OutboxRow>(
+				"SELECT * FROM notification_outbox WHERE dedup_key = ?",
+				dedupKey,
+			),
 		listDue: (now: string, limit: number): OutboxRow[] =>
 			many<OutboxRow>(
 				`SELECT * FROM notification_outbox WHERE status IN ('pending', 'retry') AND next_attempt_at <= ? ORDER BY next_attempt_at ASC LIMIT ?`,
@@ -747,7 +787,13 @@ export const createRepositories = (db: DatabaseSync) => {
 				id,
 			);
 		},
-		markRetry: (id: string, attempts: number, nextAttemptAt: string, error: string, now: string) => {
+		markRetry: (
+			id: string,
+			attempts: number,
+			nextAttemptAt: string,
+			error: string,
+			now: string,
+		) => {
 			run(
 				`UPDATE notification_outbox SET status = 'retry', attempts = ?, next_attempt_at = ?, last_error = ?, updated_at = ? WHERE id = ?`,
 				attempts,
@@ -797,14 +843,22 @@ export const createRepositories = (db: DatabaseSync) => {
 				row.updated_at,
 			);
 		},
-		listForComponent: (componentId: string, fromDay: string, toDay: string): UptimeDailyRow[] =>
+		listForComponent: (
+			componentId: string,
+			fromDay: string,
+			toDay: string,
+		): UptimeDailyRow[] =>
 			many<UptimeDailyRow>(
 				"SELECT * FROM component_uptime_daily WHERE component_id = ? AND day >= ? AND day <= ? ORDER BY day ASC",
 				componentId,
 				fromDay,
 				toDay,
 			),
-		listForPage: (pageId: string, fromDay: string, toDay: string): UptimeDailyRow[] =>
+		listForPage: (
+			pageId: string,
+			fromDay: string,
+			toDay: string,
+		): UptimeDailyRow[] =>
 			many<UptimeDailyRow>(
 				"SELECT * FROM component_uptime_daily WHERE page_id = ? AND day >= ? AND day <= ? ORDER BY day ASC",
 				pageId,
@@ -816,7 +870,7 @@ export const createRepositories = (db: DatabaseSync) => {
 	const webhookSubscriptions = {
 		insert: (row: WebhookSubscriptionRow) => {
 			run(
-				`INSERT INTO webhook_subscriptions (id, url, events_json, active, created_at) VALUES (?, ?, ?, ?, ?)`,
+				"INSERT INTO webhook_subscriptions (id, url, events_json, active, created_at) VALUES (?, ?, ?, ?, ?)",
 				row.id,
 				row.url,
 				row.events_json,
@@ -825,7 +879,9 @@ export const createRepositories = (db: DatabaseSync) => {
 			);
 		},
 		listActive: (): WebhookSubscriptionRow[] =>
-			many<WebhookSubscriptionRow>("SELECT * FROM webhook_subscriptions WHERE active = 1"),
+			many<WebhookSubscriptionRow>(
+				"SELECT * FROM webhook_subscriptions WHERE active = 1",
+			),
 	};
 
 	return {

@@ -1,5 +1,3 @@
-import * as React from "react";
-
 export const SiteFooter = ({ name }: { name: string }) => (
 	<footer className="mt-12 flex flex-col gap-1.5 border-t border-border py-8 text-xs text-muted-foreground">
 		<p>

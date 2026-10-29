@@ -1,6 +1,6 @@
-import { Client, Collection } from "discord.js";
-import type { BotConfig, Command } from "../types/index.js";
+import { Client, type Collection } from "discord.js";
 import { createCommands } from "../commands/index.js";
+import type { BotConfig, Command } from "../types/index.js";
 import { createIntents } from "./intents.js";
 
 /**

@@ -7,8 +7,9 @@
  * storage. Neither endpoint discloses paths, versions of dependencies or any
  * infrastructure detail.
  */
-import { getSchemaVersion, pingDatabase } from "../store/db";
+
 import type { StatusContext } from "../services/context";
+import { getSchemaVersion, pingDatabase } from "../store/db";
 
 export const healthzHandler = (): Response =>
 	Response.json(

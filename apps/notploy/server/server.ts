@@ -6,7 +6,6 @@ import {
 	IS_CLOUD,
 	initCancelDeployments,
 	initCronJobs,
-	isExternalJobsEnabled,
 	initializeNetwork,
 	initSchedules,
 	initializeSwarm,

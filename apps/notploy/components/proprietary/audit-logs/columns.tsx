@@ -99,16 +99,17 @@ const RESOURCE_LABELS: Record<string, string> = {
 };
 
 function MetadataCell({ metadata }: { metadata: string | null }) {
-	if (!metadata)
-		return <span className="text-muted-foreground text-sm">—</span>;
-
 	const formatted = React.useMemo(() => {
+		if (!metadata) return "";
 		try {
 			return JSON.stringify(JSON.parse(metadata), null, 2);
 		} catch {
 			return metadata;
 		}
 	}, [metadata]);
+
+	if (!metadata)
+		return <span className="text-muted-foreground text-sm">—</span>;
 
 	return (
 		<Dialog>

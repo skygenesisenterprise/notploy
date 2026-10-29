@@ -55,9 +55,9 @@ export const HandleSecurity = ({
 		},
 	);
 
-	const { mutateAsync, isPending, error, isError } = securityId
-		? api.security.update.useMutation()
-		: api.security.create.useMutation();
+	const updateMutation = api.security.update.useMutation();
+	const createMutation = api.security.create.useMutation();
+	const { mutateAsync, isPending, error, isError } = securityId ? updateMutation : createMutation;
 
 	const form = useForm<AddSecurity>({
 		defaultValues: {

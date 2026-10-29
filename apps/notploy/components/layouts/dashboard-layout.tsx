@@ -171,9 +171,7 @@ export const DashboardLayout = ({ children, metaName }: Props) => {
 			</Head>
 			<Page pageTitle={pageTitle}>{children}</Page>
 			{isChatEnabled && (
-				<>
-					<HubSpotWidget />
-				</>
+				<HubSpotWidget />
 			)}
 
 			{haveRootAccess === true && <ImpersonationBar />}

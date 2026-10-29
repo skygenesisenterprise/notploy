@@ -133,8 +133,7 @@ export const ShowDeployments = ({
 		const mostRecentDeployment = deployments[0];
 
 		if (
-			!mostRecentDeployment ||
-			mostRecentDeployment.status !== "running" ||
+			mostRecentDeployment?.status !== "running" ||
 			!mostRecentDeployment.startedAt
 		) {
 			return null;

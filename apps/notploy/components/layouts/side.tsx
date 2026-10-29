@@ -400,6 +400,7 @@ function SidebarLogo() {
 															</div>
 														</div>
 
+														{/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation wrapper around action button, not interactive */}
 														<div
 															className="flex shrink-0 items-center gap-2"
 															onClick={(e) => e.stopPropagation()}

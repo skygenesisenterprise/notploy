@@ -1,21 +1,20 @@
 /**
  * App Provider for Notploy Voyager
- * 
+ *
  * Root provider that combines all app-level providers.
  */
 
-import React from 'react';
-
+import type React from "react";
+import { AuthProvider } from "./auth-provider";
+import { InstancesProvider } from "./instances-provider";
 // Re-export all providers
-import { ThemeProvider } from './theme-provider';
-import { InstancesProvider } from './instances-provider';
-import { AuthProvider } from './auth-provider';
+import { ThemeProvider } from "./theme-provider";
 
 /**
  * App provider props.
  */
 interface AppProviderProps {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }
 
 /**
@@ -23,18 +22,16 @@ interface AppProviderProps {
  * Combines all the app-level providers into a single component.
  */
 export function AppProvider({ children }: AppProviderProps) {
-  return (
-    <ThemeProvider>
-      <InstancesProvider>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </InstancesProvider>
-    </ThemeProvider>
-  );
+	return (
+		<ThemeProvider>
+			<InstancesProvider>
+				<AuthProvider>{children}</AuthProvider>
+			</InstancesProvider>
+		</ThemeProvider>
+	);
 }
 
+export { useAuth } from "./auth-provider";
+export { useInstances } from "./instances-provider";
 // Re-export hooks for convenience
-export { useTheme, useColor, useIsDark } from './theme-provider';
-export { useInstances } from './instances-provider';
-export { useAuth } from './auth-provider';
+export { useColor, useIsDark, useTheme } from "./theme-provider";

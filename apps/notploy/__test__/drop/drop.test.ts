@@ -23,9 +23,14 @@ vi.mock("@notploy/server/constants", async (importOriginal) => {
 });
 
 if (typeof window === "undefined") {
-	const undici = require("undici");
-	globalThis.File = undici.File as any;
-	globalThis.FileList = undici.FileList as any;
+	// undici v8 no longer exports File/FileList: rely on Node natives.
+	if (typeof globalThis.File === "undefined") {
+		const { File } = require("node:buffer");
+		globalThis.File = File as any;
+	}
+	if (typeof (globalThis as any).FileList === "undefined") {
+		(globalThis as any).FileList = class FileList extends Array {};
+	}
 }
 
 const baseApp: ApplicationNested = {

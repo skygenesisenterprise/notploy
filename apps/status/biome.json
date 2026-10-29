@@ -10,6 +10,11 @@
 		"includes": ["**", "!**/.next", "!**/dist", "!node_modules"],
 		"maxSize": 2097152
 	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"formatter": {
 		"indentStyle": "tab",

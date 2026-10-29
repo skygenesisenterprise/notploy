@@ -21,10 +21,10 @@ import type { IngestEventInput } from "../core/schemas";
 import { minuteBucket } from "../core/time";
 import { notFound } from "../errors";
 import type { IncidentRow } from "../store/repositories";
-import type { Actor, StatusContext } from "./context";
-import { resolveSettings } from "./settings";
-import { requirePage } from "./pages";
 import { setComponentObservedState } from "./components";
+import type { Actor, StatusContext } from "./context";
+import { requirePage } from "./pages";
+import { resolveSettings } from "./settings";
 
 export interface IngestOutcome {
 	/** `duplicate`: eventId already processed. */
@@ -107,10 +107,8 @@ export const ingestMonitoringEvent = (
 		return { outcome, incidentId, published, ingestId };
 	};
 
-	const openIncident: IncidentRow | null = ctx.repos.incidents.findOpenByCorrelation(
-		page.id,
-		input.correlationKey,
-	);
+	const openIncident: IncidentRow | null =
+		ctx.repos.incidents.findOpenByCorrelation(page.id, input.correlationKey);
 	if (openIncident) {
 		ctx.repos.events.insert({
 			id: newId("evt"),

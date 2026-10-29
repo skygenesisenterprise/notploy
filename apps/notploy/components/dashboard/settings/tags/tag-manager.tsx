@@ -40,8 +40,7 @@ export const TagManager = () => {
 								<Loader2 className="animate-spin size-4" />
 							</div>
 						) : (
-							<>
-								{!tags || tags.length === 0 ? (
+							!tags || tags.length === 0 ? (
 									<div className="flex flex-col items-center gap-3 min-h-[25vh] justify-center">
 										<TagIcon className="size-6 text-muted-foreground" />
 										<span className="text-base text-muted-foreground text-center">
@@ -113,8 +112,7 @@ export const TagManager = () => {
 											</div>
 										)}
 									</div>
-								)}
-							</>
+								)
 						)}
 					</CardContent>
 				</div>

@@ -34,8 +34,6 @@
   "scripts": {
     "t": "jest",
     "test": "tsc --noEmit && jest --verbose",
-    "lint": "eslint . --ext .ts",
-    "lint-fix": "eslint . --ext .ts --fix",
     "format": "prettier --write ./src ./test ./examples",
     "build": "pnpm test && rimraf dist && pnpm run build:cjs && pnpm run build:esm",
     "build:cjs": "tsc -p tsconfig.build.cjs.json",

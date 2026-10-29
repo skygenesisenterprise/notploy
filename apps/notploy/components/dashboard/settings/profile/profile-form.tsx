@@ -167,8 +167,7 @@ export const ProfileForm = () => {
 						<Loader2 className="animate-spin size-4" />
 					</div>
 				) : (
-					<>
-						<Form {...form}>
+					<Form {...form}>
 							<form
 								onSubmit={form.handleSubmit(onSubmit)}
 								className="grid gap-4"
@@ -290,9 +289,9 @@ export const ProfileForm = () => {
 																		value="upload"
 																		className="sr-only"
 																	/>
-																</FormControl>
-																<div
-																	className="upload-avatar h-12 w-12 rounded-full border border-dashed border-muted-foreground hover:border-primary transition-colors flex items-center justify-center bg-muted/50 hover:bg-muted overflow-hidden"
+																</FormControl>																	<button
+																	type="button"
+																	className="upload-avatar h-12 w-12 rounded-full border border-dashed border-muted-foreground hover:border-primary transition-colors flex items-center justify-center bg-muted/50 hover:bg-muted overflow-hidden cursor-pointer"
 																	onClick={() =>
 																		document
 																			.getElementById("avatar-upload")
@@ -321,7 +320,7 @@ export const ProfileForm = () => {
 																			/>
 																		</svg>
 																	)}
-																</div>
+																</button>
 																<input
 																	id="avatar-upload"
 																	type="file"
@@ -356,8 +355,8 @@ export const ProfileForm = () => {
 																		value="color"
 																		className="sr-only"
 																	/>
-																</FormControl>
-																<div
+																</FormControl>																	<button
+																	type="button"
 																	className="color-avatar h-12 w-12 rounded-full border hover:p-px hover:border-primary transition-colors flex items-center justify-center overflow-hidden cursor-pointer"
 																	style={{
 																		backgroundColor: isSolidColorAvatar(
@@ -371,7 +370,7 @@ export const ProfileForm = () => {
 																	{!isSolidColorAvatar(field.value) && (
 																		<Palette className="h-5 w-5 text-muted-foreground" />
 																	)}
-																</div>
+																</button>
 																<input
 																	ref={colorInputRef}
 																	type="color"
@@ -442,7 +441,6 @@ export const ProfileForm = () => {
 								</div>
 							</form>
 						</Form>
-					</>
 				)}
 			</CardContent>
 		</Card>

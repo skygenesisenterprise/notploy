@@ -1,7 +1,7 @@
 import type { Client, GuildMember } from "discord.js";
 import type { BotConfig } from "../types/index.js";
-import type { Logger } from "../utils/logger.js";
 import { infoEmbed } from "../utils/embeds.js";
+import type { Logger } from "../utils/logger.js";
 
 /**
  * Community onboarding: grants the configured member role and posts a welcome
@@ -49,7 +49,10 @@ export class RoleService {
 		try {
 			const channel = await this.client.channels.fetch(channelId);
 			if (!channel || typeof (channel as { send?: unknown }).send !== "function") return;
-			const sendable = channel as { send: (options: unknown) => Promise<unknown>; toString: () => string };
+			const sendable = channel as {
+				send: (options: unknown) => Promise<unknown>;
+				toString: () => string;
+			};
 			await sendable.send({
 				content: `Welcome <@${member.id}>!`,
 				embeds: [

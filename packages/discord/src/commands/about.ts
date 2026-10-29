@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
-import { baseEmbed } from "../utils/embeds.js";
 import type { Command } from "../types/index.js";
+import { baseEmbed } from "../utils/embeds.js";
 
 export const aboutCommand: Command = {
 	data: new SlashCommandBuilder()

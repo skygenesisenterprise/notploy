@@ -1127,7 +1127,7 @@ const EnvironmentPage = (
 							</div>
 						</div>
 						<CardContent className="space-y-2 py-8 border-t gap-4 flex flex-col min-h-[60vh]">
-							<>
+							
 								<div className="flex flex-col gap-4 2xl:flex-row 2xl:items-center 2xl:justify-between">
 									<div className="flex items-center gap-4">
 										<div className="flex items-center gap-2">
@@ -1661,6 +1661,7 @@ const EnvironmentPage = (
 																		<StatusTooltip status={service.status} />
 																	</div>
 
+																	{/* biome-ignore lint/a11y/noStaticElementInteractions: selection card with nested Checkbox; keyboard users toggle via the checkbox itself */}
 																	<div
 																		className={cn(
 																			"absolute -left-3 -bottom-3 size-9 translate-y-1 rounded-full p-0 transition-all duration-200 z-10 bg-background border",
@@ -1831,7 +1832,7 @@ const EnvironmentPage = (
 										</div>
 									)}
 								</div>
-							</>
+							
 						</CardContent>
 					</div>
 				</Card>

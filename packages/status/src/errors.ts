@@ -6,15 +6,7 @@
  * traces, driver errors, paths) never travel with them.
  */
 
-export type StatusCode =
-	| 400
-	| 401
-	| 403
-	| 404
-	| 409
-	| 422
-	| 429
-	| 503;
+export type StatusCode = 400 | 401 | 403 | 404 | 409 | 422 | 429 | 503;
 
 export class StatusError extends Error {
 	readonly status: StatusCode;
@@ -35,8 +27,10 @@ export class StatusError extends Error {
 	}
 }
 
-export const badRequest = (message: string, details?: Record<string, unknown>) =>
-	new StatusError(400, "bad_request", message, details);
+export const badRequest = (
+	message: string,
+	details?: Record<string, unknown>,
+) => new StatusError(400, "bad_request", message, details);
 
 export const unauthorized = (message = "Missing or invalid credentials") =>
 	new StatusError(401, "unauthorized", message);
@@ -50,8 +44,10 @@ export const notFound = (message = "Not found") =>
 export const conflict = (message: string, details?: Record<string, unknown>) =>
 	new StatusError(409, "conflict", message, details);
 
-export const unprocessable = (message: string, details?: Record<string, unknown>) =>
-	new StatusError(422, "unprocessable", message, details);
+export const unprocessable = (
+	message: string,
+	details?: Record<string, unknown>,
+) => new StatusError(422, "unprocessable", message, details);
 
 export const tooManyRequests = (message = "Too many requests") =>
 	new StatusError(429, "rate_limited", message);

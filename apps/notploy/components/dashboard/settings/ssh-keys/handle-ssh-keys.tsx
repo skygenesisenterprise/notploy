@@ -48,9 +48,9 @@ export const HandleSSHKeys = ({ sshKeyId }: Props) => {
 		},
 	);
 
-	const { mutateAsync, isError, error, isPending } = sshKeyId
-		? api.sshKey.update.useMutation()
-		: api.sshKey.create.useMutation();
+	const updateMutation = api.sshKey.update.useMutation();
+	const createMutation = api.sshKey.create.useMutation();
+	const { mutateAsync, isError, error, isPending } = sshKeyId ? updateMutation : createMutation;
 
 	const generateMutation = api.sshKey.generate.useMutation();
 

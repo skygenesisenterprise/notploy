@@ -140,6 +140,7 @@ export const SignupShowcase = () => {
 	};
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: hover/focus pause for the showcase carousel, not a click target
 		<div
 			className="relative"
 			onMouseEnter={() => setPaused(true)}

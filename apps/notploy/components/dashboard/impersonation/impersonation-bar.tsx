@@ -148,7 +148,7 @@ export const ImpersonationBar = () => {
 
 	return (
 		<TooltipProvider>
-			<>
+			
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button
@@ -461,7 +461,7 @@ export const ImpersonationBar = () => {
 						)}
 					</div>
 				</div>
-			</>
+			
 		</TooltipProvider>
 	);
 };

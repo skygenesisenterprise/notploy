@@ -20,9 +20,9 @@ import type {
 } from "../core/schemas";
 import { badRequest, conflict, notFound } from "../errors";
 import type { EventInput, IncidentRow } from "../store/repositories";
+import { requireComponent } from "./components";
 import type { Actor, StatusContext } from "./context";
 import { requirePage } from "./pages";
-import { requireComponent } from "./components";
 import { adminIncidentDto } from "./public";
 
 export const requireIncident = (
@@ -245,7 +245,8 @@ export const changeIncidentState = (
 		subject_id: incidentId,
 		type: resolved ? "incident_resolved" : "incident_state_changed",
 		visibility: publicFace ? "public" : "internal",
-		message: input.message ?? `Status changed to ${input.state.replace("_", " ")}`,
+		message:
+			input.message ?? `Status changed to ${input.state.replace("_", " ")}`,
 		state: input.state,
 		severity: row.severity,
 		actor_type: actor.type,
@@ -265,7 +266,12 @@ export const changeIncidentState = (
 		throw notFound("Incident disappeared during state change");
 	}
 	if (publicFace) {
-		notify(ctx, updated, resolved ? "incident.resolved" : "incident.updated", eventId);
+		notify(
+			ctx,
+			updated,
+			resolved ? "incident.resolved" : "incident.updated",
+			eventId,
+		);
 	}
 	return adminIncidentDto(ctx, updated);
 };
@@ -288,7 +294,9 @@ export const addIncidentUpdate = (
 		ctx.repos.incidents.update(incidentId, { state: input.state }, timestamp);
 	}
 	const publicFace =
-		input.visibility === "public" && row.published === 1 && row.visibility === "public";
+		input.visibility === "public" &&
+		row.published === 1 &&
+		row.visibility === "public";
 	const eventId = insertEvent(ctx, {
 		page_id: row.page_id,
 		subject_type: "incident",
@@ -335,7 +343,8 @@ export const setIncidentPublish = (
 ) => {
 	const row = requireIncident(ctx, incidentId);
 	const timestamp = ctx.now();
-	const visibility = input.visibility ?? (row.visibility as "public" | "private");
+	const visibility =
+		input.visibility ?? (row.visibility as "public" | "private");
 	const published = input.published && visibility !== "private";
 	ctx.repos.incidents.update(
 		incidentId,

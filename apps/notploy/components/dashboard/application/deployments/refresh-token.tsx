@@ -18,10 +18,9 @@ interface Props {
 	type: "application" | "compose";
 }
 export const RefreshToken = ({ id, type }: Props) => {
-	const { mutateAsync } =
-		type === "application"
-			? api.application.refreshToken.useMutation()
-			: api.compose.refreshToken.useMutation();
+	const applicationMutation = api.application.refreshToken.useMutation();
+	const composeMutation = api.compose.refreshToken.useMutation();
+	const { mutateAsync } = type === "application" ? applicationMutation : composeMutation;
 	const utils = api.useUtils();
 	return (
 		<AlertDialog>

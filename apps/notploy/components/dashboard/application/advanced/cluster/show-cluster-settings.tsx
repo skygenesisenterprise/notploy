@@ -48,35 +48,59 @@ const AddRedirectSchema = z.object({
 type AddCommand = z.infer<typeof AddRedirectSchema>;
 
 export const ShowClusterSettings = ({ id, type }: Props) => {
-	const queryMap = {
-		application: () =>
-			api.application.one.useQuery({ applicationId: id }, { enabled: !!id }),
-		mariadb: () =>
-			api.mariadb.one.useQuery({ mariadbId: id }, { enabled: !!id }),
-		mongo: () => api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id }),
-		mysql: () => api.mysql.one.useQuery({ mysqlId: id }, { enabled: !!id }),
-		postgres: () =>
-			api.postgres.one.useQuery({ postgresId: id }, { enabled: !!id }),
-		redis: () => api.redis.one.useQuery({ redisId: id }, { enabled: !!id }),
+	const applicationQuery = api.application.one.useQuery(
+		{ applicationId: id },
+		{ enabled: !!id && type === "application" },
+	);
+	const mariadbQuery = api.mariadb.one.useQuery(
+		{ mariadbId: id },
+		{ enabled: !!id && type === "mariadb" },
+	);
+	const mongoQuery = api.mongo.one.useQuery(
+		{ mongoId: id },
+		{ enabled: !!id && type === "mongo" },
+	);
+	const mysqlQuery = api.mysql.one.useQuery(
+		{ mysqlId: id },
+		{ enabled: !!id && type === "mysql" },
+	);
+	const postgresQuery = api.postgres.one.useQuery(
+		{ postgresId: id },
+		{ enabled: !!id && type === "postgres" },
+	);
+	const redisQuery = api.redis.one.useQuery(
+		{ redisId: id },
+		{ enabled: !!id && type === "redis" },
+	);
+	const serviceQueries = {
+		application: applicationQuery,
+		mariadb: mariadbQuery,
+		mongo: mongoQuery,
+		mysql: mysqlQuery,
+		postgres: postgresQuery,
+		redis: redisQuery,
 	};
-	const { data, refetch } = queryMap[type]
-		? queryMap[type]()
-		: api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id });
+	const { data, refetch } = serviceQueries[type] ?? mongoQuery;
 	const { data: registries } = api.registry.all.useQuery();
 
-	const mutationMap = {
-		application: () => api.application.update.useMutation(),
-		libsql: () => api.libsql.update.useMutation(),
-		mariadb: () => api.mariadb.update.useMutation(),
-		mongo: () => api.mongo.update.useMutation(),
-		mysql: () => api.mysql.update.useMutation(),
-		postgres: () => api.postgres.update.useMutation(),
-		redis: () => api.redis.update.useMutation(),
+	const applicationMutation = api.application.update.useMutation();
+	const libsqlMutation = api.libsql.update.useMutation();
+	const mariadbMutation = api.mariadb.update.useMutation();
+	const mongoMutation = api.mongo.update.useMutation();
+	const mysqlMutation = api.mysql.update.useMutation();
+	const postgresMutation = api.postgres.update.useMutation();
+	const redisMutation = api.redis.update.useMutation();
+	const serviceMutations = {
+		application: applicationMutation,
+		libsql: libsqlMutation,
+		mariadb: mariadbMutation,
+		mongo: mongoMutation,
+		mysql: mysqlMutation,
+		postgres: postgresMutation,
+		redis: redisMutation,
 	};
 
-	const { mutateAsync, isPending } = mutationMap[type]
-		? mutationMap[type]()
-		: api.mongo.update.useMutation();
+	const { mutateAsync, isPending } = serviceMutations[type] ?? mongoMutation;
 
 	const form = useForm<AddCommand>({
 		defaultValues: {
@@ -178,8 +202,7 @@ export const ShowClusterSettings = ({ id, type }: Props) => {
 						</div>
 
 						{type === "application" && (
-							<>
-								{registries && registries?.length === 0 ? (
+							registries && registries?.length === 0 ? (
 									<div className="pt-10">
 										<div className="flex flex-col items-center gap-3">
 											<Server className="size-8 text-muted-foreground" />
@@ -197,8 +220,7 @@ export const ShowClusterSettings = ({ id, type }: Props) => {
 										</div>
 									</div>
 								) : (
-									<>
-										<FormField
+									<FormField
 											control={form.control}
 											name="registryId"
 											render={({ field }) => (
@@ -231,9 +253,7 @@ export const ShowClusterSettings = ({ id, type }: Props) => {
 												</FormItem>
 											)}
 										/>
-									</>
-								)}
-							</>
+								)
 						)}
 
 						<div className="flex justify-end">

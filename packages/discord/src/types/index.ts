@@ -1,6 +1,6 @@
 import type { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import type { NotployIntegration } from "../integrations/notploy/index.js";
 import type { GitHubIntegration } from "../integrations/github/index.js";
+import type { NotployIntegration } from "../integrations/notploy/index.js";
 import type { CommunityService } from "../services/community.js";
 import type { NotificationService } from "../services/notifications.js";
 import type { RoleService } from "../services/roles.js";

@@ -16,12 +16,12 @@ import { dirname } from "node:path";
 import type { DatabaseSync } from "node:sqlite";
 import type { StatusConfig } from "../config";
 import { loadConfig } from "../config";
-import { newId } from "../core/ids";
-import { nowIso } from "../core/time";
-import { computePageStatus } from "../core/status-engine";
 import type { PublicPageDto } from "../core/dto";
-import { createRepositories, type Repositories } from "../store/repositories";
+import { newId } from "../core/ids";
+import { computePageStatus } from "../core/status-engine";
+import { nowIso } from "../core/time";
 import { openDatabase } from "../store/db";
+import { createRepositories, type Repositories } from "../store/repositories";
 import { buildAllPublicPages } from "./public";
 import { recordDailyUptime } from "./uptime";
 
@@ -68,7 +68,8 @@ export interface Logger {
 export const createLogger = (level: StatusConfig["logLevel"]): Logger => {
 	const order = { debug: 10, info: 20, warn: 30, error: 40 };
 	const threshold = order[level];
-	const emit = (severity: "debug" | "info" | "warn" | "error") =>
+	const emit =
+		(severity: "debug" | "info" | "warn" | "error") =>
 		(message: string, data?: Record<string, unknown>) => {
 			if (order[severity] < threshold) {
 				return;
@@ -183,11 +184,7 @@ export const createStatusContext = (
 			const pages = buildAllPublicPages(ctx);
 			writeFileAtomic(
 				config.snapshotFile,
-				JSON.stringify(
-					{ version: 1, generatedAt: now(), pages },
-					null,
-					2,
-				),
+				JSON.stringify({ version: 1, generatedAt: now(), pages }, null, 2),
 			);
 		} catch (error) {
 			log.warn("snapshot_write_failed", {
@@ -230,8 +227,7 @@ export const createStatusContext = (
 				id: maintenance.id,
 				state: maintenance.state as never,
 				published: maintenance.published === 1,
-				visibility:
-					maintenance.visibility === "private" ? "private" : "public",
+				visibility: maintenance.visibility === "private" ? "private" : "public",
 				componentIds: repos.maintenances.componentIds(maintenance.id),
 			})),
 			staleAfterSeconds: settings.staleAfterSeconds,
@@ -277,7 +273,10 @@ export const readSnapshot = (
 ): { generatedAt: string; pages: PublicPageDto[] } | null => {
 	try {
 		const raw = readFileSync(path, "utf8");
-		const parsed = JSON.parse(raw) as { generatedAt?: string; pages?: PublicPageDto[] };
+		const parsed = JSON.parse(raw) as {
+			generatedAt?: string;
+			pages?: PublicPageDto[];
+		};
 		if (!parsed.generatedAt || !Array.isArray(parsed.pages)) {
 			return null;
 		}

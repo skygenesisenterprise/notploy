@@ -20,10 +20,9 @@ interface Props {
 }
 
 export const CancelQueues = ({ id, type }: Props) => {
-	const { mutateAsync, isPending } =
-		type === "application"
-			? api.application.cleanQueues.useMutation()
-			: api.compose.cleanQueues.useMutation();
+	const applicationMutation = api.application.cleanQueues.useMutation();
+	const composeMutation = api.compose.cleanQueues.useMutation();
+	const { mutateAsync, isPending } = type === "application" ? applicationMutation : composeMutation;
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 	const { data: product } = api.settings.getProduct.useQuery();
 	// The console shares the cloud runtime (IS_CLOUD=true) but keeps the

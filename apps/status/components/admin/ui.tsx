@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import type * as React from "react";
 import { cn } from "@/lib/utils";
 
 export const Card = ({
@@ -37,10 +37,13 @@ export const Field = ({
 	children: React.ReactNode;
 	hint?: string;
 }) => (
+	// biome-ignore lint/a11y/noLabelWithoutControl: the control is provided via `children` and rendered inside the label, so they are associated by nesting.
 	<label className="flex flex-col gap-1.5 text-sm">
 		<span className="font-medium">{label}</span>
 		{children}
-		{hint ? <span className="text-xs text-muted-foreground">{hint}</span> : null}
+		{hint ? (
+			<span className="text-xs text-muted-foreground">{hint}</span>
+		) : null}
 	</label>
 );
 
@@ -86,7 +89,8 @@ export const Button = ({
 			{
 				primary: "bg-primary text-primary-foreground hover:opacity-90",
 				secondary: "border border-border hover:bg-secondary",
-				danger: "border border-border text-[var(--status-critical)] hover:bg-secondary",
+				danger:
+					"border border-border text-[var(--status-critical)] hover:bg-secondary",
 				ghost: "hover:bg-secondary",
 			}[variant],
 			className,
@@ -103,11 +107,14 @@ export const Notice = ({
 	children: React.ReactNode;
 }) => (
 	<p
-		className={cn("rounded-lg px-3 py-2 text-sm", {
-			error: "tone-red",
-			success: "tone-green",
-			info: "tone-neutral",
-		}[tone])}
+		className={cn(
+			"rounded-lg px-3 py-2 text-sm",
+			{
+				error: "tone-red",
+				success: "tone-green",
+				info: "tone-neutral",
+			}[tone],
+		)}
 	>
 		{children}
 	</p>

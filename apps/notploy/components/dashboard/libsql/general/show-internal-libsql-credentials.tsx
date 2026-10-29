@@ -18,8 +18,7 @@ interface Props {
 export const ShowInternalLibsqlCredentials = ({ libsqlId }: Props) => {
 	const { data } = api.libsql.one.useQuery({ libsqlId });
 	return (
-		<>
-			<div className="flex w-full flex-col gap-5 ">
+		<div className="flex w-full flex-col gap-5 ">
 				<Card className="bg-background">
 					<CardHeader>
 						<CardTitle className="text-xl">Internal Credentials</CardTitle>
@@ -116,6 +115,5 @@ export const ShowInternalLibsqlCredentials = ({ libsqlId }: Props) => {
 					</CardContent>
 				</Card>
 			</div>
-		</>
 	);
 };

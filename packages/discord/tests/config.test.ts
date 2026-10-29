@@ -22,9 +22,7 @@ describe("loadConfig", () => {
 		const config = loadConfig(baseEnv);
 		expect(config.guildId).toBeNull();
 		expect(config.resources.githubRepository).toBe("skygenesisenterprise/notploy");
-		expect(config.resources.githubUrl).toBe(
-			"https://github.com/skygenesisenterprise/notploy",
-		);
+		expect(config.resources.githubUrl).toBe("https://github.com/skygenesisenterprise/notploy");
 		expect(config.resources.docs).toBe("https://docs.notploy.com");
 		expect(config.notifications.enabledEvents).toEqual([]);
 		expect(config.notployApi).toEqual({ baseUrl: null, apiKey: null });

@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { GitHubIntegration } from "../src/integrations/github/index.js";
 import {
-	type GitHubEvent,
 	buildGitHubNotificationEmbed,
 	eventType,
+	type GitHubEvent,
 	truncate,
 } from "../src/integrations/github/events.js";
+import { GitHubIntegration } from "../src/integrations/github/index.js";
 
 function jsonResponse(body: unknown, status = 200): Response {
 	return new Response(JSON.stringify(body), {

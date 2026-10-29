@@ -50,54 +50,77 @@ export const ShowBackups = ({
 	const [activeManualBackup, setActiveManualBackup] = useState<
 		string | undefined
 	>();
-	const queryMap =
-		backupType === "database"
-			? {
-					mariadb: () =>
-						api.mariadb.one.useQuery({ mariadbId: id }, { enabled: !!id }),
-					mongo: () =>
-						api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id }),
-					mysql: () =>
-						api.mysql.one.useQuery({ mysqlId: id }, { enabled: !!id }),
-					postgres: () =>
-						api.postgres.one.useQuery({ postgresId: id }, { enabled: !!id }),
-					libsql: () =>
-						api.libsql.one.useQuery({ libsqlId: id }, { enabled: !!id }),
-					"web-server": () => api.user.getBackups.useQuery(),
-				}
-			: {
-					compose: () =>
-						api.compose.one.useQuery({ composeId: id }, { enabled: !!id }),
-				};
 	const { data: destinations } = api.destination.all.useQuery();
 	const { data: buckets } = api.objectStorage.buckets.useQuery();
 	const hasStorage =
 		(destinations?.length ?? 0) > 0 || (buckets?.length ?? 0) > 0;
 	const key = backupType === "database" ? databaseType : "compose";
-	const query = queryMap[key as keyof typeof queryMap];
-	const { data: postgres, refetch } = query
-		? query()
-		: api.mongo.one.useQuery({ mongoId: id }, { enabled: !!id });
+	const mariadbQuery = api.mariadb.one.useQuery(
+		{ mariadbId: id },
+		{ enabled: !!id && key === "mariadb" },
+	);
+	const mongoQuery = api.mongo.one.useQuery(
+		{ mongoId: id },
+		{ enabled: !!id && (key === "mongo" || key === undefined) },
+	);
+	const mysqlQuery = api.mysql.one.useQuery(
+		{ mysqlId: id },
+		{ enabled: !!id && key === "mysql" },
+	);
+	const postgresQuery = api.postgres.one.useQuery(
+		{ postgresId: id },
+		{ enabled: !!id && key === "postgres" },
+	);
+	const libsqlQuery = api.libsql.one.useQuery(
+		{ libsqlId: id },
+		{ enabled: !!id && key === "libsql" },
+	);
+	const webServerQuery = api.user.getBackups.useQuery(undefined, {
+		enabled: key === "web-server",
+	});
+	const composeQuery = api.compose.one.useQuery(
+		{ composeId: id },
+		{ enabled: !!id && key === "compose" },
+	);
+	const serviceQueries = {
+		mariadb: mariadbQuery,
+		mongo: mongoQuery,
+		mysql: mysqlQuery,
+		postgres: postgresQuery,
+		libsql: libsqlQuery,
+		"web-server": webServerQuery,
+		compose: composeQuery,
+	};
+	const { data: postgres, refetch } =
+		serviceQueries[key as keyof typeof serviceQueries] ?? mongoQuery;
 
-	const mutationMap =
-		backupType === "database"
-			? {
-					mariadb: api.backup.manualBackupMariadb.useMutation(),
-					mongo: api.backup.manualBackupMongo.useMutation(),
-					mysql: api.backup.manualBackupMySql.useMutation(),
-					postgres: api.backup.manualBackupPostgres.useMutation(),
-					libsql: api.backup.manualBackupLibsql.useMutation(),
-					"web-server": api.backup.manualBackupWebServer.useMutation(),
-				}
-			: {
-					compose: api.backup.manualBackupCompose.useMutation(),
-				};
+	const manualBackupMariadbMutation =
+		api.backup.manualBackupMariadb.useMutation();
+	const manualBackupMongoMutation = api.backup.manualBackupMongo.useMutation();
+	const manualBackupMysqlMutation = api.backup.manualBackupMySql.useMutation();
+	const manualBackupPostgresMutation =
+		api.backup.manualBackupPostgres.useMutation();
+	const manualBackupLibsqlMutation =
+		api.backup.manualBackupLibsql.useMutation();
+	const manualBackupWebServerMutation =
+		api.backup.manualBackupWebServer.useMutation();
+	const manualBackupComposeMutation =
+		api.backup.manualBackupCompose.useMutation();
+	const serviceMutations = {
+		mariadb: manualBackupMariadbMutation,
+		mongo: manualBackupMongoMutation,
+		mysql: manualBackupMysqlMutation,
+		postgres: manualBackupPostgresMutation,
+		libsql: manualBackupLibsqlMutation,
+		"web-server": manualBackupWebServerMutation,
+		compose: manualBackupComposeMutation,
+	};
 
-	const mutation = mutationMap[key as keyof typeof mutationMap];
+	const mutation = serviceMutations[key as keyof typeof serviceMutations];
 
 	const { mutateAsync: manualBackup, isPending: isManualBackup } = mutation
 		? mutation
-		: api.backup.manualBackupMongo.useMutation();
+		: manualBackupMongoMutation;
 
 	const { mutateAsync: deleteBackup, isPending: isRemoving } =
 		api.backup.remove.useMutation();
