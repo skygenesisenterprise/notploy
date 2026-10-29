@@ -49,6 +49,7 @@
 		"dns-providers",
 		"domains",
 		"traefik",
+		"gateway-errors",
 		"---Git providers---",
 		"github",
 		"gitlab",

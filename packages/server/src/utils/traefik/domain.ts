@@ -15,6 +15,7 @@ import {
 	forwardAuthMiddlewareName,
 	removeForwardAuthMiddleware,
 } from "./forward-auth";
+import { GATEWAY_ERRORS_MIDDLEWARE_NAME } from "./gateway-errors";
 import { createPathMiddlewares, removePathMiddlewares } from "./middleware";
 import { getDomainRequirements } from "../domain-scope";
 
@@ -170,6 +171,10 @@ export const createRouterConfig = async (
 	if (isRedirectRouter) {
 		routerConfig.middlewares?.push("redirect-to-https");
 	} else {
+		// Intercept upstream 5xx responses and serve the branded gateway page.
+		// Application-owned 4xx responses (including 404) pass through untouched.
+		routerConfig.middlewares?.push(GATEWAY_ERRORS_MIDDLEWARE_NAME);
+
 		// Add path rewriting middleware if needed
 		// stripPrefix must come before addPrefix so Traefik strips the
 		// public path first, then prepends the internal path.

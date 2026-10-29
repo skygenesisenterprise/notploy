@@ -194,6 +194,10 @@ services:
       NOTPLOY_DNS_UPSTREAM: ${NOTPLOY_DNS_UPSTREAM:-1.1.1.1,8.8.8.8}
       # Share the Traefik config with the Compose-managed `traefik` service.
       NOTPLOY_CONFIG_PATH: /etc/notploy
+      # Branded gateway error pages (issue #142). The sidecar uses the same
+      # control-plane image by default so it also works offline.
+      NOTPLOY_GATEWAY_ERRORS_IMAGE: ${NOTPLOY_GATEWAY_ERRORS_IMAGE:-${NOTPLOY_IMAGE:-ghcr.io/skygenesisenterprise/notploy}:${NOTPLOY_VERSION:-latest}}
+      NOTPLOY_GATEWAY_ERRORS_COMMAND: ${NOTPLOY_GATEWAY_ERRORS_COMMAND:-}
       # Blueprints bind-mounted read-only below: they are served locally
       # instead of https://templates.notploy.com, so templates still resolve
       # when that domain is down (same setup as `notploy-dev`).
@@ -307,6 +311,10 @@ services:
       NOTPLOY_DNS_UPSTREAM: ${NOTPLOY_DNS_UPSTREAM:-1.1.1.1,8.8.8.8}
       # Share the Traefik config with the Compose-managed `traefik` service.
       NOTPLOY_CONFIG_PATH: /etc/notploy
+      # Run the gateway error sidecar from the dev image and its source tree.
+      NOTPLOY_GATEWAY_ERRORS_IMAGE: ${NOTPLOY_GATEWAY_ERRORS_IMAGE:-notploy-dev:local}
+      NOTPLOY_GATEWAY_ERRORS_COMMAND: ${NOTPLOY_GATEWAY_ERRORS_COMMAND:-pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts}
+      NOTPLOY_GATEWAY_ERRORS_WORKDIR: /usr/src/app
     ports:
       # Same host port as production: the app is always on
       # http://localhost:${NOTPLOY_PORT:-3000}.

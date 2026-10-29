@@ -48,3 +48,27 @@ try {
 } catch (error) {
 	console.log(error);
 }
+
+try {
+	esbuild
+		.build({
+			entryPoints: {
+				"gateway-errors-server":
+					"../../packages/server/src/gateway-errors/entry.ts",
+			},
+			bundle: true,
+			platform: "node",
+			format: "cjs",
+			target: "node18",
+			outExtension: { ".js": ".cjs" },
+			minify: true,
+			outdir: "dist",
+			tsconfig: "tsconfig.server.json",
+			packages: "bundle",
+		})
+		.catch(() => {
+			return process.exit(1);
+		});
+} catch (error) {
+	console.log(error);
+}

@@ -1,0 +1,93 @@
+---
+title: Gateway Error Pages
+description: "The branded pages Notploy serves when applications are unreachable, and the diagnostic codes they carry."
+---
+
+**Purpose** — When Traefik cannot deliver a request to your application, Notploy replaces the proxy's plain-text error with a branded page. Every page carries a stable diagnostic code, a request ID and a UTC timestamp so visitors and operators can talk about the same failure.
+
+## What visitors see
+
+A gateway error page is served only when the failure happens at the proxy layer. It contains:
+
+- the HTTP status and a short headline such as `Bad gateway` or `Service unavailable`, with an `Error code 502` label;
+- a Notploy diagnostic code such as `NP-1003`;
+- a request ID and the exact UTC timestamp;
+- a connection status table showing that the browser and the Notploy gateway are working while the application host is failing;
+- guidance for visitors and separate guidance for the application operator;
+- links to the documentation, status page or support when configured.
+
+The browser and gateway columns are always marked `Working` because the page itself was delivered to the visitor. The host column reflects the upstream failure behind the diagnostic code.
+
+Pages are rendered without JavaScript, are marked `noindex`, and are never cached.
+
+## Diagnostic codes
+
+| Code | Status | Meaning |
+| --- | --- | --- |
+| `NP-1001` | 404 | The hostname or path is not attached to any application. |
+| `NP-1002` | 503 | The application has no healthy instance ready to receive traffic. |
+| `NP-1003` | 502 | The connection to the application was refused or reset. |
+| `NP-1004` | 504 | The application did not respond before the gateway timeout. |
+| `NP-1033` | 502 | A tunnel or remote connector is unavailable. |
+| `NP-1052` | 502 | The gateway could not establish a trusted TLS connection. |
+| `NP-1503` | 503 | The application is intentionally offline for maintenance. |
+| `NP-1999` | 502 | An unexpected gateway error with no more specific code. |
+
+Only upstream `5xx` responses are rewritten. If your application returns its own `404` or other `4xx` page, that page is preserved.
+
+## How it works
+
+Notploy runs a small sidecar called `notploy-gateway-errors` on the `notploy-network`. Traefik uses an `errors` middleware to send upstream `5xx` responses to that sidecar, which renders the page. A low-priority catch-all router sends requests for unknown hostnames to the same sidecar and resolves them to `NP-1001`.
+
+The sidecar is created or updated when Traefik is configured and when Notploy starts. It uses the same image as the control plane by default, so no additional image needs to be pulled for normal operation.
+
+## Configuration
+
+The sidecar reads these variables from the Notploy container:
+
+| Variable | Description |
+| --- | --- |
+| `NOTPLOY_GATEWAY_BRAND_NAME` | Brand name shown in the header. Defaults to `Notploy`. |
+| `NOTPLOY_GATEWAY_DOCS_URL` | Base URL for the documentation link. |
+| `NOTPLOY_GATEWAY_STATUS_URL` | Public status page URL. |
+| `NOTPLOY_GATEWAY_SUPPORT_URL` | Support or contact URL. |
+| `NOTPLOY_GATEWAY_LOCALE` | Page language (`en`, `fr`, and similar). |
+| `IS_CLOUD` | Shows the `Cloud` label instead of `Self-hosted`. |
+
+Only absolute `http` or `https` URLs without embedded credentials are accepted. Invalid values are ignored.
+
+For special deployments you can override the sidecar image or command:
+
+```bash
+NOTPLOY_GATEWAY_ERRORS_IMAGE=node:24-alpine
+NOTPLOY_GATEWAY_ERRORS_COMMAND="node /path/to/gateway-errors-server.cjs"
+```
+
+## Correlating an error
+
+Ask the visitor for the request ID shown on the page. The same ID is returned in the `X-Notploy-Request-Id` response header and written to the sidecar logs:
+
+```bash
+docker logs notploy-gateway-errors
+```
+
+Each log entry is JSON with `requestId`, `code`, `status`, `timestamp`, `method` and the request path. Query strings and request bodies are never logged.
+
+## Verification
+
+1. Request a hostname that is not configured and confirm the branded `NP-1001` page is returned.
+2. Stop an application container while its domain is configured and confirm a `502` or `503` page is returned.
+3. Check that the request ID in the page matches the sidecar log entry.
+
+## Limitations
+
+- The page describes proxy-level failures. Application exceptions that return a `200` or their own error page are not rewritten.
+- `NP-1503` is reserved for an explicit maintenance response; Notploy does not automatically take an application offline for maintenance.
+- If the sidecar itself cannot start, Traefik falls back to its built-in plain-text error.
+
+## Related
+
+- [Traefik](/docs/core/traefik)
+- [Domains & Traefik](/docs/core/domains)
+- [Certificates](/docs/core/certificates)
+- [Logs & Monitoring](/docs/core/logs-monitoring)

@@ -25,6 +25,7 @@ import type {
 } from "./types";
 import { encodeBase64 } from "./utils";
 import { getDomainRequirements } from "../domain-scope";
+import { GATEWAY_ERRORS_MIDDLEWARE_NAME } from "../traefik/gateway-errors";
 
 export const cloneCompose = async (compose: Compose) => {
 	let command = "set -e;";
@@ -533,6 +534,8 @@ export const createDomainLabels = (
 	// run on the websecure router where the request actually lands.
 	if (isRedirectRouter) {
 		middlewares.push("redirect-to-https@file");
+	} else {
+		middlewares.push(`${GATEWAY_ERRORS_MIDDLEWARE_NAME}@file`);
 	}
 
 	// Add stripPath middleware if needed

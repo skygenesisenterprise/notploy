@@ -11,8 +11,10 @@ import type { ContainerCreateOptions, CreateServiceOptions } from "dockerode";
 import { stringify } from "yaml";
 import { paths } from "../constants";
 import { getRemoteDocker } from "../utils/servers/remote-docker";
+import { writeGatewayErrorsConfig } from "../utils/traefik/gateway-errors";
 import type { FileConfig } from "../utils/traefik/file-types";
 import type { MainTraefikConfig } from "../utils/traefik/types";
+import { setupGatewayErrors } from "./gateway-errors-setup";
 
 export const TRAEFIK_SSL_PORT =
 	Number.parseInt(process.env.TRAEFIK_SSL_PORT!, 10) || 443;
@@ -115,6 +117,9 @@ export const initializeStandaloneTraefik = async ({
 	} catch (error) {
 		console.log("Traefik Not Found: Starting ", error);
 	}
+
+	await setupGatewayErrors({ serverId });
+	await writeGatewayErrorsConfig(serverId);
 };
 
 export const initializeTraefikService = async ({
@@ -196,7 +201,7 @@ export const initializeTraefikService = async ({
 		const inspect = await service.inspect();
 
 		await service.update({
-			version: Number.parseInt(inspect.Version.Index),
+			version: Number.parseInt(inspect.Version.Index, 10),
 			...settings,
 			TaskTemplate: {
 				...settings.TaskTemplate,
@@ -208,6 +213,9 @@ export const initializeTraefikService = async ({
 		await docker.createService(settings);
 		console.log("Traefik Started ✅");
 	}
+
+	await setupGatewayErrors({ serverId });
+	await writeGatewayErrorsConfig(serverId);
 };
 
 export const createDefaultServerTraefikConfig = () => {

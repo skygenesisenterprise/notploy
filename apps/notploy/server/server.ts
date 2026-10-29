@@ -12,10 +12,12 @@ import {
 	initVolumeBackupsCronJobs,
 	sendNotployRestartNotifications,
 	setupDirectories,
+	setupGatewayErrors,
 	startCommunitySync,
 	startInternalDnsServer,
 	startTrafficCollector,
 	validateInstallation,
+	writeGatewayErrorsConfig,
 } from "@notploy/server";
 import { config } from "dotenv";
 import next from "next";
@@ -155,6 +157,8 @@ void app.prepare().then(async () => {
 		await startCommunitySync();
 		if (!IS_CLOUD) {
 			await ensureNotployNetwork();
+			await setupGatewayErrors();
+			await writeGatewayErrorsConfig();
 		}
 		if (process.env.NODE_ENV === "production" && !IS_CLOUD) {
 			createDefaultMiddlewares();
