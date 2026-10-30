@@ -1,21 +1,9 @@
-import { CallToAction } from "@/components/CallToAction";
 import { Container } from "@/components/Container";
-import { PageHero } from "@/components/pages/PageHero";
-import {
-	ProcessRail,
-	SectionHeading,
-} from "@/components/pages/PagePrimitives";
+import { FinalCta } from "@/components/marketing/FinalCta";
+import { PageIntro } from "@/components/marketing/PageIntro";
+import { PageFaq, ProcessRail, SectionHeading } from "@/components/pages/PagePrimitives";
+import { links } from "@/lib/content/links";
 import { Button } from "@/components/ui/button";
-import {
-	IconApi,
-	IconArrowRight,
-	IconBrandGithub,
-	IconBrandVscode,
-	IconDeviceDesktop,
-	IconPlug,
-	IconRobot,
-	IconTerminal2,
-} from "@tabler/icons-react";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -23,178 +11,178 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Integrations",
 	description:
-		"Notploy fits into the workflows you already use: GitHub, VS Code, CLI, API, SDK, MCP for AI agents, desktop and future providers — one infrastructure platform, many ways to work with it.",
-	alternates: {
-		canonical: "https://notploy.com/integrations",
-	},
+		"Git providers, container registries, identity providers, DNS, object storage, CLI, API, SDK and MCP — the documented ways to connect Notploy to the tools you already use.",
+	alternates: { canonical: "https://notploy.com/integrations" },
 };
 
-const integrations = [
+interface Integration {
+	title: string;
+	description: string;
+	items: string[];
+	href?: string;
+	docsLabel?: string;
+}
+
+const integrations: Integration[] = [
 	{
-		icon: IconBrandGithub,
-		title: "GitHub",
-		tagline: "Commit to production",
+		title: "Git providers",
 		description:
-			"Connect a repository, push to a branch, and let Notploy build and deploy automatically through webhooks. Preview environments and rollback stay one click away.",
-		flow: ["Push to GitHub", "Notploy builds", "App updated"],
+			"Connect a repository and deploy on push: GitHub, GitLab, Gitea and Bitbucket.",
+		href: links.docs.home,
+		docsLabel: "Git provider documentation",
+		items: ["GitHub", "GitLab", "Gitea", "Bitbucket"],
 	},
 	{
-		icon: IconBrandVscode,
-		title: "VS Code",
-		tagline: "Deploy without leaving your editor",
+		title: "Container registries",
 		description:
-			"Work on your code and drive your Notploy projects from the editor you already use, instead of switching to a browser tab for every operational action.",
-		flow: ["Edit in VS Code", "Trigger deploy", "Watch it ship"],
+			"Deploy images you already build, with credentials stored for private registries.",
+		items: ["Docker Hub", "Private registries", "Registry-based rollbacks"],
 	},
 	{
-		icon: IconTerminal2,
-		title: "CLI",
-		tagline: "Infrastructure from the terminal",
+		title: "Identity & access",
 		description:
-			"Script deployments, inspect applications and manage projects straight from your shell — in local development, in CI pipelines or over SSH.",
-		flow: ["notploy deploy", "Build runs", "Logs streamed"],
+			"Single sign-on and provisioning where the commercial offer includes them.",
+		href: links.docs.sso,
+		docsLabel: "SSO documentation",
+		items: ["OIDC / SAML providers", "SCIM provisioning", "Roles and API keys"],
 	},
 	{
-		icon: IconApi,
-		title: "API & SDK",
-		tagline: "Automate everything",
+		title: "DNS & certificates",
 		description:
-			"A REST API and a TypeScript SDK expose the same operations as the dashboard, so provisioning, deployments and reporting fit into your own systems.",
-		flow: ["Your system", "API call", "Infrastructure changes"],
+			"Point domains at services and let the routing layer handle TLS.",
+		items: ["Custom domains", "Automatic certificates", "DNS provider adapters"],
 	},
 	{
-		icon: IconRobot,
-		title: "MCP",
-		tagline: "Controlled access for AI agents",
+		title: "Storage & backups",
 		description:
-			"The Model Context Protocol server lets AI tools and agents operate your Notploy infrastructure through a controlled, permission-aware interface instead of raw credentials.",
-		flow: ["AI agent", "MCP server", "Scoped Notploy actions"],
+			"Send database and volume backups to storage you control.",
+		items: ["S3-compatible destinations", "Scheduled backups", "Restore workflows"],
 	},
 	{
-		icon: IconDeviceDesktop,
-		title: "Desktop",
-		tagline: "A native surface for operators",
+		title: "Automation surfaces",
 		description:
-			"A dedicated desktop experience for working with Notploy day to day — notifications, quick actions and a place that lives outside the browser.",
-		flow: ["Desktop app", "Connected to your instance", "Operate anywhere"],
+			"Drive the platform from your own systems instead of the dashboard.",
+		href: links.docs.ai,
+		docsLabel: "AI & MCP documentation",
+		items: ["REST API", "CLI", "TypeScript SDK", "Webhooks & CI", "MCP server"],
 	},
 ];
 
 const workflow = [
 	{
-		title: "A branch is pushed",
+		title: "A change lands",
 		description:
-			"A developer pushes a branch. A webhook notifies Notploy of the change.",
-		label: "GitHub",
+			"A push reaches your Git provider, or your pipeline calls the API.",
+		label: "Git or CI",
 	},
 	{
-		title: "Notploy builds",
+		title: "Notploy plans the release",
 		description:
-			"The platform builds the application, resolves configuration and secrets, and prepares the release.",
+			"Configuration, environment and secrets are resolved before anything is built.",
+		label: "Plan",
+	},
+	{
+		title: "The release is built and scheduled",
+		description:
+			"An image is built and containers are scheduled on the servers you connected.",
 		label: "Build",
 	},
 	{
-		title: "Infrastructure updates",
+		title: "Traffic moves, operations continue",
 		description:
-			"Containers are scheduled on your servers or Swarm cluster; routing and TLS are updated automatically.",
-		label: "Deploy",
+			"Routing and TLS update; logs, metrics and rollbacks stay available.",
+		label: "Live",
+	},
+];
+
+const faqs = [
+	{
+		question: "Are all integrations available in every edition?",
+		answer:
+			"Not necessarily. Identity providers, audit features and support belong to the commercial offer, and some adapters depend on the release. The documentation feature matrix is the reference.",
 	},
 	{
-		title: "The app serves traffic",
-		description:
-			"The new version serves traffic. Logs, metrics and rollbacks are available from the dashboard, CLI or API.",
-		label: "Live",
+		question: "Can I request an integration?",
+		answer:
+			"Yes. Open a discussion on GitHub or contact us with the provider and the workflow you need. Requests are triaged in public.",
+	},
+	{
+		question: "Do integrations require outbound internet access?",
+		answer:
+			"Integrations that call an external provider do. A self-hosted installation without those providers keeps working locally; the documentation lists what each integration requires.",
 	},
 ];
 
 export default function IntegrationsPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			<PageHero
-				badge="Integrations"
-				badgeDetail="GitHub · CLI · API · MCP"
+		<main>
+			<PageIntro
+				eyebrow="Integrations"
 				title="Fits"
 				highlight="the way you work"
-				description="Notploy is not only a web dashboard. It is an infrastructure platform you can drive from GitHub, your editor, your terminal, your own systems and even AI agents — without changing how your team works."
+				description="Notploy is not only a dashboard. It connects to your repositories, your identity provider and your automation, so the platform fits into existing workflows instead of replacing them."
 				actions={
 					<>
-						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
-							<Link href="/platform">
-								Explore the platform
-								<IconArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-							</Link>
+						<Button className="rounded-full px-6" asChild>
+							<Link href="/platform">Explore the platform</Link>
 						</Button>
-						<Button
-							variant="outline"
-							className="w-full rounded-full px-6 sm:w-auto"
-							asChild
-						>
-							<Link href="https://docs.notploy.com/docs/core" target="_blank">
-								Documentation
+						<Button variant="outline" className="rounded-full px-6" asChild>
+							<Link href={links.github.discussions} target="_blank" rel="noreferrer">
+								Request an integration
 								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
 							</Link>
 						</Button>
 					</>
 				}
 				links={[
-					{ href: "/templates", label: "Deploy a template" },
-					{ href: "/community", label: "Request an integration" },
-					{
-						href: "https://docs.notploy.com/docs/core/ai",
-						label: "AI & MCP docs",
-						external: true,
-					},
+					{ href: links.docs.home, label: "Documentation", external: true },
+					{ href: links.docs.ai, label: "AI & MCP", external: true },
+					{ href: "/community", label: "Community" },
 				]}
 			/>
 
-			<section
-				aria-labelledby="ways-to-work-with-notploy"
-				className="pb-20 sm:pb-28"
-			>
+			<section aria-labelledby="integration-list" className="py-20 sm:py-24">
 				<Container>
 					<SectionHeading
-						id="ways-to-work-with-notploy"
-						title="Ways to work with Notploy"
-						description="Each integration solves a concrete workflow, not a checkbox."
+						id="integration-list"
+						title="Ways to connect Notploy"
+						description="Each connector solves a concrete workflow; availability is documented per integration."
+						align="left"
 					/>
 
-					<div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 border-l border-t border-border/40 sm:grid-cols-2">
+					<div className="mt-12 grid border-l border-t border-border/40 sm:grid-cols-2 lg:grid-cols-3">
 						{integrations.map((integration) => (
 							<div
 								key={integration.title}
-								className="group flex flex-col border-b border-r border-border/40 p-6 transition-colors hover:bg-card sm:p-8"
+								className="flex flex-col border-b border-r border-border/40 px-6 py-7"
 							>
-								<div className="flex items-start justify-between gap-4">
-									<integration.icon
-										className="h-7 w-7 text-primary"
-										stroke={1.5}
-										aria-hidden="true"
-									/>
-									<span className="text-sm text-muted-foreground">
-										{integration.title}
-									</span>
-								</div>
-								<h3 className="mt-5 text-xl font-semibold text-foreground">
-									{integration.tagline}
+								<h3 className="text-base font-semibold text-foreground">
+									{integration.title}
 								</h3>
-								<p className="mt-3 text-base leading-relaxed text-muted-foreground">
+								<p className="mt-2 text-base leading-relaxed text-muted-foreground">
 									{integration.description}
 								</p>
-								<div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-									{integration.flow.map((step, index) => (
-										<span key={step} className="flex items-center gap-2">
-											<span className="rounded-full bg-secondary px-3 py-1">
-												{step}
-											</span>
-											{index < integration.flow.length - 1 && (
-												<IconArrowRight
-													className="h-3.5 w-3.5 text-primary"
-													aria-hidden="true"
-												/>
-											)}
-										</span>
+								<ul className="mt-4 flex flex-1 flex-wrap gap-2">
+									{integration.items.map((item) => (
+										<li
+											key={item}
+											className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground"
+										>
+											{item}
+										</li>
 									))}
-								</div>
+								</ul>
+								{integration.href && (
+									<a
+										href={integration.href}
+										target="_blank"
+										rel="noreferrer"
+										className="mt-4 inline-flex items-center gap-1 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+									>
+										{integration.docsLabel}
+										<ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+									</a>
+								)}
 							</div>
 						))}
 					</div>
@@ -202,47 +190,20 @@ export default function IntegrationsPage() {
 			</section>
 
 			<ProcessRail
-				id="a-concrete-workflow"
+				id="integration-workflow"
 				title="A concrete workflow"
-				description="How a change in your codebase reaches production on infrastructure you own."
+				description="How a change reaches production on infrastructure you control."
 				steps={workflow}
 			/>
 
-			<section aria-labelledby="more-integrations-on-the-way" className="py-20 sm:py-28">
-				<Container>
-					<div className="mx-auto grid max-w-6xl gap-8 rounded-2xl border border-border/50 bg-card p-8 sm:p-12 lg:grid-cols-[1.4fr_0.6fr] lg:items-end">
-						<div>
-							<h2
-								id="more-integrations-on-the-way"
-								className="font-display text-3xl tracking-tight text-foreground sm:text-4xl"
-							>
-								More integrations on the way
-							</h2>
-							<p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-								Notploy is built around reusable provider adapters, so new
-								sources, editors and automation targets land without
-								redesigning the platform. Have a workflow in mind? Propose it.
-							</p>
-						</div>
-						<div className="flex flex-col gap-3">
-							<Button className="w-full rounded-full" asChild>
-								<Link href="/community">Join the community</Link>
-							</Button>
-							<Button variant="outline" className="w-full rounded-full" asChild>
-								<Link
-									href="https://github.com/skygenesisenterprise/notploy"
-									target="_blank"
-								>
-									<IconPlug className="mr-2 h-4 w-4" aria-hidden="true" />
-									Request an integration
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</Container>
-			</section>
+			<PageFaq
+				id="integration-faqs"
+				title="Integration questions"
+				description="Availability, requests and network requirements."
+				faqs={faqs}
+			/>
 
-			<CallToAction />
-		</div>
+			<FinalCta />
+		</main>
 	);
 }

@@ -1,96 +1,93 @@
-import { CallToAction } from "@/components/CallToAction";
 import { Container } from "@/components/Container";
-import { layers } from "@/components/home/content";
-import { PageHero } from "@/components/pages/PageHero";
-import { PlatformDomains } from "@/components/pages/PlatformDomains";
-import {
-	CellGrid,
-	ChoicePanels,
-	PageFaq,
-	SectionHeading,
-} from "@/components/pages/PagePrimitives";
-import { Reveal } from "@/components/home/Reveal";
+import { EditionPaths } from "@/components/marketing/EditionPaths";
+import { FinalCta } from "@/components/marketing/FinalCta";
+import { Lifecycle } from "@/components/marketing/Lifecycle";
+import { PageIntro } from "@/components/marketing/PageIntro";
+import { Topology } from "@/components/marketing/Topology";
+import { PageFaq } from "@/components/pages/PagePrimitives";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import {
-	IconApi,
-	IconArrowRight,
-	IconCube,
-	IconStack2,
-} from "@tabler/icons-react";
-import { ArrowUpRight } from "lucide-react";
+import { links } from "@/lib/content/links";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
 	title: "Platform",
 	description:
-		"Notploy Platform is the set of capabilities behind the Notploy ecosystem: application deployment, servers, Docker, Swarm, networking, DNS, TLS, storage, secrets, registries, monitoring, schedules and APIs.",
-	alternates: {
-		canonical: "https://notploy.com/platform",
-	},
+		"The Notploy platform in one control plane: workloads, infrastructure, operations, networking, access and automation — on infrastructure you control or as a managed service.",
+	alternates: { canonical: "https://notploy.com/platform" },
 };
 
-const designPrinciples = [
+const domains = [
 	{
-		icon: IconStack2,
-		title: "One control plane",
+		title: "Workloads",
 		description:
-			"Applications, databases, servers, domains and users are managed from a single interface — no stitching together five separate tools.",
+			"Applications built from Git or a Docker image, Docker Compose stacks, databases and scheduled jobs.",
 	},
 	{
-		icon: IconApi,
-		title: "Everything is scriptable",
+		title: "Infrastructure",
 		description:
-			"The dashboard and the API expose the same operations, so anything you can click, you can automate in CI or with your own tooling.",
+			"The local server, remote servers over SSH, Docker Swarm clusters, volumes and container registries.",
 	},
 	{
-		icon: IconCube,
-		title: "Built on open standards",
+		title: "Operations",
 		description:
-			"Docker, Compose, Traefik and OIDC — Notploy builds on technologies your team already knows instead of inventing proprietary abstractions.",
+			"Deployment history and rollback, container and deployment logs, metrics, upstream health and backups.",
+	},
+	{
+		title: "Networking",
+		description:
+			"Domains, Traefik routing, TLS certificates and internal service networks.",
+	},
+	{
+		title: "Access",
+		description:
+			"Organisations, projects, roles, API keys, single sign-on and audit logs where available.",
+	},
+	{
+		title: "Automation",
+		description:
+			"REST API, CLI, SDK, webhooks, CI triggers and an MCP server for agent-driven operations.",
 	},
 ];
 
-const platformFaqs = [
+const faqs = [
 	{
-		question:
-			"What is the difference between Notploy Platform, Self and Cloud?",
+		question: "What is the difference between the platform, Self and Cloud?",
 		answer:
-			"Notploy Platform is the shared set of capabilities — deployment, infrastructure, networking, security and operations. Notploy Self is the open-source edition you run yourself; Notploy Cloud is the managed service operated by Notploy. Both run the same platform capabilities.",
+			"Notploy is one platform. Self and Cloud are the two ways to run it: with Self you operate the control plane on your own servers; with Cloud, Notploy operates it for you. The capabilities are documented once, in the platform documentation.",
 	},
 	{
-		question: "Do I need Kubernetes to use Notploy?",
+		question: "Do I need Kubernetes?",
 		answer:
-			"No. Notploy is built on Docker and Docker Swarm, with Traefik handling routing and certificates. You get clustering and load balancing without operating a Kubernetes stack.",
+			"No. Notploy runs on Docker, uses Docker Swarm for multi-node deployments and Traefik for routing and certificates.",
 	},
 	{
-		question: "Can I use Notploy with my existing infrastructure?",
+		question: "Can I use my existing servers?",
 		answer:
-			"Yes. Notploy runs on any Linux server and can manage remote servers over SSH, so it fits into existing VPS, bare-metal and homelab environments rather than requiring a specific provider.",
+			"Yes. Any Linux server with Docker can host Notploy, and remote servers are added over SSH. Existing VPS, bare-metal and homelab setups are supported.",
 	},
 	{
-		question: "Is every platform capability available in both Self and Cloud?",
+		question: "Where is the authoritative list of capabilities?",
 		answer:
-			"The core capabilities are shared. Operational responsibilities differ: with Self you run and upgrade the control plane yourself, while Cloud operates it for you. See the Self and Cloud pages for details.",
+			"The documentation ships a feature matrix and a limitations page. They are the reference for what a given release and edition support; marketing pages link to them instead of restating them loosely.",
 	},
 ];
 
 export default function PlatformPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			<PageHero
-				badge="Platform"
-				badgeDetail="Open standards · Docker · Traefik"
+		<main>
+			<PageIntro
+				eyebrow="Platform"
 				title="One control plane for"
 				highlight="every layer"
-				description="Notploy Platform is the common set of capabilities shared by Notploy Self and Notploy Cloud: deploying applications, managing servers and clusters, routing traffic, protecting secrets and operating everything through one API. Easy by default, transparent by design."
+				description="Notploy covers the lifecycle of a service: the infrastructure it runs on, the deployment that puts it there, and the operations that keep it healthy. You keep ownership of the machines and the data."
 				actions={
 					<>
 						<Button className="w-full rounded-full px-6 sm:w-auto" asChild>
 							<Link href="/self">
-								Deploy with Notploy Self
-								<IconArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+								Install Notploy Self
+								<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
 							</Link>
 						</Button>
 						<Button
@@ -98,167 +95,73 @@ export default function PlatformPage() {
 							className="w-full rounded-full px-6 sm:w-auto"
 							asChild
 						>
-							<Link href="/cloud">
-								Explore Notploy Cloud
-								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
-							</Link>
+							<Link href="/cloud">Explore Notploy Cloud</Link>
 						</Button>
 					</>
 				}
 				links={[
-					{ href: "/integrations", label: "Ways to work with Notploy" },
-					{ href: "/pricing", label: "Pricing" },
-					{
-						href: "https://docs.notploy.com/docs/core/architecture",
-						label: "Architecture docs",
-						external: true,
-					},
+					{ href: "/capabilities", label: "Capabilities" },
+					{ href: links.docs.architecture, label: "Architecture docs", external: true },
+					{ href: links.docs.featureMatrix, label: "Feature matrix", external: true },
 				]}
 			/>
 
-			<section
-				aria-labelledby="capabilities-by-operational-domain"
-				className="pb-20 sm:pb-28"
-			>
-				<Container>
-					<SectionHeading
-						id="capabilities-by-operational-domain"
-						title="Capabilities by operational domain"
-						description="The platform covers the full lifecycle of an application, from the first commit to day-two operations. Each domain stands on its own, but they are designed to work together."
-					/>
-					<PlatformDomains />
-				</Container>
-			</section>
+			<Container className="py-20 sm:py-24">
+				<div className="max-w-2xl">
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+						Domains
+					</p>
+					<h2 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
+						What the platform covers
+					</h2>
+					<p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+						Six areas, documented together. Availability of individual features
+						depends on the release, the edition and the integrations you
+						configure.
+					</p>
+				</div>
 
-			<section
-				aria-labelledby="how-the-platform-fits-together"
-				className="py-20 sm:py-28"
-			>
-				<Container>
-					<SectionHeading
-						id="how-the-platform-fits-together"
-						title="How the platform fits together"
-						description="Notploy is infrastructure-first: the platform manages the machinery — servers, containers, routing, certificates, storage — while you keep ownership of it."
-					/>
+				<ul className="mt-12 grid border-l border-t border-border/40 sm:grid-cols-2 lg:grid-cols-3">
+					{domains.map((domain) => (
+						<li
+							key={domain.title}
+							className="border-b border-r border-border/40 px-6 py-7"
+						>
+							<h3 className="text-base font-semibold text-foreground">
+								{domain.title}
+							</h3>
+							<p className="mt-2 text-base leading-relaxed text-muted-foreground">
+								{domain.description}
+							</p>
+						</li>
+					))}
+				</ul>
 
-					<div className="mx-auto mt-12 max-w-4xl space-y-3">
-						{layers.map((layer, index) => {
-							const isPlatform = layer.layer === "Notploy";
-							return (
-								<Reveal key={layer.title} delay={index * 0.08}>
-									<div
-										className={cn(
-											"grid gap-4 rounded-2xl border p-6 sm:grid-cols-[160px_1fr] sm:items-center sm:p-8",
-											isPlatform
-												? "border-primary bg-primary text-primary-foreground"
-												: "border-border/50 bg-card",
-										)}
-									>
-										<p
-											className={cn(
-												"text-sm font-medium",
-												isPlatform
-													? "text-primary-foreground/75"
-													: "text-muted-foreground",
-											)}
-										>
-											{layer.layer}
-										</p>
-										<div>
-											<h3
-												className={cn(
-													"font-display text-xl tracking-tight sm:text-2xl",
-													isPlatform
-														? "text-primary-foreground"
-														: "text-foreground",
-												)}
-											>
-												{layer.title}
-											</h3>
-											<p
-												className={cn(
-													"mt-2 text-base leading-relaxed",
-													isPlatform
-														? "text-primary-foreground/75"
-														: "text-muted-foreground",
-												)}
-											>
-												{layer.description}
-											</p>
-										</div>
-									</div>
-								</Reveal>
-							);
-						})}
-					</div>
+				<p className="mt-6 text-sm text-muted-foreground">
+					<a
+						href={links.docs.limitations}
+						target="_blank"
+						rel="noreferrer"
+						className="inline-flex items-center gap-1 underline-offset-4 hover:text-foreground hover:underline"
+					>
+						Read the documented limitations
+						<ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+					</a>
+				</p>
+			</Container>
 
-					<div className="mt-8 text-center">
-						<Button variant="outline" className="rounded-full" asChild>
-							<Link
-								href="https://docs.notploy.com/docs/core/architecture"
-								target="_blank"
-							>
-								Read the architecture documentation
-								<ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
-							</Link>
-						</Button>
-					</div>
-				</Container>
-			</section>
-
-			<CellGrid
-				id="design-principles"
-				title="How the platform is built"
-				description="The decisions behind the product, visible in every screen and every endpoint."
-				items={designPrinciples}
-				columns={3}
-			/>
-
-			<ChoicePanels
-				id="one-platform-two-ways-to-run-it"
-				title="One platform, two ways to run it"
-				description="The capabilities are the same. What changes is who operates the control plane — you, or Notploy."
-				panels={[
-					{
-						name: "Notploy Self",
-						tagline: "You operate the platform",
-						description:
-							"The open-source edition. You install it on infrastructure you own and keep full control over updates, data and network boundaries.",
-						bullets: [
-							"Apache-2.0 and free to self-host",
-							"Run on any Linux server with Docker",
-							"Keep data, secrets and backups inside your boundary",
-							"Extend it, script it and audit it",
-						],
-						cta: "Explore Self",
-						href: "/self",
-					},
-					{
-						name: "Notploy Cloud",
-						tagline: "Notploy operates it for you",
-						description:
-							"The managed service operated by Notploy. The control plane is run and upgraded for you, with support and availability commitments.",
-						bullets: [
-							"Control plane hosted and monitored for you",
-							"Always on a supported release",
-							"Support with response commitments",
-							"Same platform capabilities as Self",
-						],
-						cta: "Explore Cloud",
-						href: "/cloud",
-						highlighted: true,
-					},
-				]}
-			/>
+			<Lifecycle />
+			<Topology />
+			<EditionPaths />
 
 			<PageFaq
 				id="platform-faqs"
-				title="Platform FAQs"
-				description="How the shared platform relates to the two editions."
-				faqs={platformFaqs}
+				title="Platform questions"
+				description="How the shared platform relates to the two operating models."
+				faqs={faqs}
 			/>
 
-			<CallToAction />
-		</div>
+			<FinalCta />
+		</main>
 	);
 }

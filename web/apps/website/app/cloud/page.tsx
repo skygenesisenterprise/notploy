@@ -1,6 +1,6 @@
-import { CallToAction } from "@/components/CallToAction";
+import { FinalCta } from "@/components/marketing/FinalCta";
 import { Container } from "@/components/Container";
-import { PageHero } from "@/components/pages/PageHero";
+import { PageIntro } from "@/components/marketing/PageIntro";
 import {
 	CellGrid,
 	ChoicePanels,
@@ -132,7 +132,7 @@ const cloudFaqs = [
 export default function CloudPage() {
 	return (
 		<div className="min-h-screen bg-background">
-			<PageHero
+			<PageIntro
 				badge="Notploy Cloud"
 				badgeDetail="Managed by Notploy"
 				title="Notploy,"
@@ -182,7 +182,7 @@ export default function CloudPage() {
 						</div>
 					))}
 				</div>
-			</PageHero>
+			</PageIntro>
 
 			<section
 				aria-labelledby="a-managed-service-not-a-hosted-copy"
@@ -321,7 +321,7 @@ export default function CloudPage() {
 				faqs={cloudFaqs}
 			/>
 
-			<CallToAction />
+			<FinalCta />
 		</div>
 	);
 }

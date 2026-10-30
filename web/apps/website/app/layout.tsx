@@ -65,9 +65,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 			<body>
 				{/* Traffic Manager instrumentation (no-op without the env vars). */}
 				<NotployTraffic />
+				<a
+					href="#main-content"
+					className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+				>
+					Skip to content
+				</a>
 				<div className="flex h-full flex-col">
 					<Header />
-					{children}
+					<div id="main-content" tabIndex={-1}>
+						{children}
+					</div>
 					<Footer />
 				</div>
 			</body>

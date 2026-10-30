@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import type { ReactNode } from "react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Container } from "../Container";
 import AnimatedGridPattern from "../ui/animated-grid-pattern";
@@ -17,6 +17,8 @@ export interface PageHeroProps {
 	badge?: string;
 	badgeDetail?: string;
 	badgeHref?: string;
+	/** Small uppercase label above the headline ("European application infrastructure"). */
+	eyebrow?: string;
 	/** Plain lead-in of the headline. Keep it short enough for two lines. */
 	title: string;
 	/** Final words of the headline, drawn in the primary colour. */
@@ -46,6 +48,7 @@ export function PageHero({
 	badge,
 	badgeDetail,
 	badgeHref,
+	eyebrow,
 	title,
 	highlight,
 	description,
@@ -79,7 +82,10 @@ export function PageHero({
 	return (
 		<section className="relative overflow-hidden">
 			<div className="relative flex items-center justify-center overflow-hidden py-20 sm:py-24 lg:py-28">
-				<div className="pointer-events-none absolute inset-0" aria-hidden="true">
+				<div
+					className="pointer-events-none absolute inset-0"
+					aria-hidden="true"
+				>
 					{!reduceMotion && (
 						<AnimatedGridPattern
 							numSquares={24}
@@ -104,7 +110,9 @@ export function PageHero({
 									<Link
 										href={badgeHref}
 										target={badgeHref.startsWith("http") ? "_blank" : undefined}
-										rel={badgeHref.startsWith("http") ? "noreferrer" : undefined}
+										rel={
+											badgeHref.startsWith("http") ? "noreferrer" : undefined
+										}
 										className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-border/60 bg-card px-4 py-1.5 text-sm text-muted-foreground transition-colors hover:border-border hover:text-foreground"
 									>
 										{badgeContent}
@@ -117,18 +125,30 @@ export function PageHero({
 							</motion.div>
 						)}
 
+						{eyebrow && (
+							<p className="mx-auto mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+								{eyebrow}
+							</p>
+						)}
+
 						<motion.h1
 							{...fadeIn}
 							transition={{ duration: 0.55, delay: 0.06, ease: "easeOut" }}
 							className={cn(
-								"mx-auto mt-8 w-full max-w-4xl font-display leading-[1.05] tracking-tight",
+								"mx-auto w-full max-w-4xl font-display leading-[1.05] tracking-tight",
+								eyebrow ? "mt-3" : "mt-8",
 								compact
 									? "text-3xl sm:text-4xl lg:text-5xl"
 									: "text-4xl sm:text-6xl lg:text-7xl",
 							)}
 						>
-							<span className={highlight ? "text-muted-foreground" : "text-foreground"}>
-								{title}{highlight ? " " : ""}
+							<span
+								className={
+									highlight ? "text-muted-foreground" : "text-foreground"
+								}
+							>
+								{title}
+								{highlight ? " " : ""}
 							</span>
 							{highlight && (
 								<span className="relative whitespace-nowrap text-primary">
@@ -169,7 +189,10 @@ export function PageHero({
 						{links && links.length > 0 && (
 							<div className="mt-6 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
 								{links.map((link, index) => (
-									<span key={link.href} className="inline-flex items-center gap-4">
+									<span
+										key={link.href}
+										className="inline-flex items-center gap-4"
+									>
 										<Link
 											href={link.href}
 											target={link.external ? "_blank" : undefined}

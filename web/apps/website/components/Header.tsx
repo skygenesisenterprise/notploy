@@ -1,15 +1,15 @@
 "use client";
 
-import { EXTERNAL_LINKS, navGroups, primaryNav } from "@/lib/site-navigation";
+import { links } from "@/lib/content/links";
+import { navGroups, resourceNav } from "@/lib/site-navigation";
 import { cn } from "@/lib/utils";
 import { Popover, Transition } from "@headlessui/react";
-import { ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Container } from "./Container";
-import GithubStars from "./GithubStars";
 import { trackGAEvent } from "./analitycs";
 import { Logo } from "./shared/Logo";
 import { Button } from "./ui/button";
@@ -23,9 +23,7 @@ import {
 	navigationMenuTriggerStyle,
 } from "./ui/navigation-menu";
 
-/** Instant access to the product overview and plans, outside the dropdowns. */
-const PRIMARY_LINKS = primaryNav;
-
+const RESOURCE_LINKS = resourceNav;
 const MOBILE_GROUPS = navGroups;
 
 function MobileNavLink({
@@ -100,7 +98,7 @@ function MobileNavigation() {
 				<>
 					<BodyScrollLock lock={open} />
 					<Popover.Button
-						className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-foreground transition-colors hover:border-border ui-not-focus-visible:outline-none md:hidden"
+						className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-foreground transition-colors hover:border-border ui-not-focus-visible:outline-none lg:hidden"
 						aria-label="Toggle navigation"
 					>
 						<MobileNavIcon open={open} />
@@ -125,19 +123,8 @@ function MobileNavigation() {
 						>
 							<Popover.Panel
 								as="div"
-								className="absolute inset-x-0 top-full z-50 mt-3 flex origin-top flex-col rounded-2xl border border-border/60 bg-card p-3 shadow-xl max-h-[80vh] overflow-y-auto"
+								className="absolute inset-x-0 top-full z-50 mt-3 flex max-h-[80vh] origin-top flex-col overflow-y-auto rounded-2xl border border-border/60 bg-card p-3 shadow-xl"
 							>
-								<div className="grid grid-cols-2 gap-1 pb-1">
-									{PRIMARY_LINKS.map((link) => (
-										<MobileNavLink
-											key={link.href}
-											href={link.href}
-											onNavigate={close}
-										>
-											{link.label}
-										</MobileNavLink>
-									))}
-								</div>
 								{MOBILE_GROUPS.map((group) => (
 									<div key={group.title} className="py-1">
 										<p className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -155,10 +142,25 @@ function MobileNavigation() {
 										))}
 									</div>
 								))}
+								<div className="py-1">
+									<p className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+										Resources
+									</p>
+									{RESOURCE_LINKS.map((item) => (
+										<MobileNavLink
+											key={item.href}
+											href={item.href}
+											target={item.external ? "_blank" : undefined}
+											onNavigate={close}
+										>
+											{item.label}
+										</MobileNavLink>
+									))}
+								</div>
 								<div className="mt-2 grid gap-2 border-t border-border/60 pt-3">
 									<Button variant="outline" className="w-full rounded-full" asChild>
 										<Link
-											href={EXTERNAL_LINKS.app}
+											href={links.app.signIn}
 											target="_blank"
 											rel="noreferrer"
 											onClick={close}
@@ -167,12 +169,7 @@ function MobileNavigation() {
 										</Link>
 									</Button>
 									<Button className="w-full rounded-full" asChild>
-										<Link
-											href={EXTERNAL_LINKS.appRegister}
-											target="_blank"
-											rel="noreferrer"
-											onClick={close}
-										>
+										<Link href="/self" onClick={close}>
 											Get started
 											<ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
 										</Link>
@@ -234,7 +231,10 @@ export function Header() {
 	return (
 		<header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
 			<Container>
-				<nav className="relative z-50 flex h-16 items-center justify-between gap-4">
+				<nav
+					aria-label="Main"
+					className="relative z-50 flex h-16 items-center justify-between gap-4"
+				>
 					{/* Brand */}
 					<Link
 						href="/"
@@ -248,7 +248,7 @@ export function Header() {
 					</Link>
 
 					{/* Navigation */}
-					<div className="hidden items-center md:flex">
+					<div className="hidden items-center lg:flex">
 						<NavigationMenu>
 							<NavigationMenuList className="gap-1">
 								{navGroups.map((group) => (
@@ -280,25 +280,27 @@ export function Header() {
 									</NavigationMenuItem>
 								))}
 
-								<span
-									className="mx-1 h-4 w-px bg-border"
-									aria-hidden="true"
-								/>
+								<span className="mx-1 h-4 w-px bg-border" aria-hidden="true" />
 
-								{PRIMARY_LINKS.map((link) => (
+								{RESOURCE_LINKS.map((link) => (
 									<NavigationMenuItem key={link.href}>
 										<NavigationMenuLink asChild>
 											<Link
 												href={link.href}
+												target={link.external ? "_blank" : undefined}
+												rel={link.external ? "noreferrer" : undefined}
 												className={cn(
 													navigationMenuTriggerStyle(),
-													"h-9 rounded-full bg-transparent px-3 text-sm",
-													pathname === link.href
-														? "text-foreground"
-														: "text-muted-foreground",
+													"h-9 gap-1 rounded-full bg-transparent px-3 text-sm text-muted-foreground",
 												)}
 											>
 												{link.label}
+												{link.external && (
+													<ArrowUpRight
+														className="h-3.5 w-3.5"
+														aria-hidden="true"
+													/>
+												)}
 											</Link>
 										</NavigationMenuLink>
 									</NavigationMenuItem>
@@ -309,28 +311,22 @@ export function Header() {
 
 					{/* Actions */}
 					<div className="flex shrink-0 items-center gap-2">
-						<GithubStars className="max-md:hidden" />
 						<Button
 							variant="ghost"
-							className="rounded-full max-md:hidden"
+							className="rounded-full max-lg:hidden"
 							asChild
 						>
 							<Link
-								href={EXTERNAL_LINKS.app}
-								aria-label="Sign in to Notploy Cloud"
+								href={links.app.signIn}
+								aria-label="Sign in to your Notploy instance"
 								target="_blank"
 								rel="noreferrer"
 							>
 								Sign in
 							</Link>
 						</Button>
-						<Button className="rounded-full max-md:hidden" asChild>
-							<Link
-								href={EXTERNAL_LINKS.appRegister}
-								aria-label="Get started with Notploy Cloud"
-								target="_blank"
-								rel="noreferrer"
-							>
+						<Button className="rounded-full max-lg:hidden" asChild>
+							<Link href="/self" aria-label="Get started with Notploy Self">
 								<span className="inline-flex items-center">
 									Get started
 									<ChevronRight

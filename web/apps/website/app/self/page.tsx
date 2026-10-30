@@ -1,6 +1,6 @@
-import { CallToAction } from "@/components/CallToAction";
+import { FinalCta } from "@/components/marketing/FinalCta";
 import { Container } from "@/components/Container";
-import { PageHero } from "@/components/pages/PageHero";
+import { PageIntro } from "@/components/marketing/PageIntro";
 import {
 	CellGrid,
 	PageFaq,
@@ -158,7 +158,7 @@ const selfFaqs = [
 export default function SelfPage() {
 	return (
 		<div className="min-h-screen bg-background">
-			<PageHero
+			<PageIntro
 				badge="Notploy Self"
 				badgeDetail="Open source · Apache-2.0"
 				badgeHref="https://github.com/skygenesisenterprise/notploy"
@@ -246,7 +246,7 @@ export default function SelfPage() {
 				faqs={selfFaqs}
 			/>
 
-			<CallToAction />
+			<FinalCta />
 		</div>
 	);
 }

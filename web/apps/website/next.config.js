@@ -24,6 +24,18 @@ const nextConfig = {
 							destination: "/notploy-vs-:slug",
 							permanent: true,
 						},
+						// Retired routes from the previous information architecture.
+						// Server builds redirect them; the static export has no redirects.
+						{
+							source: "/terms",
+							destination: "/terms-of-service",
+							permanent: true,
+						},
+						{
+							source: "/lp/deployment-platform",
+							destination: "/platform",
+							permanent: true,
+						},
 					];
 				},
 			}),

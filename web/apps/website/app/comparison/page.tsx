@@ -1,11 +1,10 @@
-import { CallToAction } from "@/components/CallToAction";
+import { FinalCta } from "@/components/marketing/FinalCta";
 import { Container } from "@/components/Container";
-import { PageHero } from "@/components/pages/PageHero";
+import { PageIntro } from "@/components/marketing/PageIntro";
 import {
 	SectionHeading,
 	SplitFeatureList,
 } from "@/components/pages/PagePrimitives";
-import { Testimonials } from "@/components/Testimonials";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/home/Reveal";
 import { Activity, ArrowRight, ArrowUpRight, GitBranch, Gauge, Users } from "lucide-react";
@@ -87,7 +86,7 @@ const whyNotploy = [
 export default function ComparisonPage() {
 	return (
 		<div className="min-h-screen bg-background">
-			<PageHero
+			<PageIntro
 				badge="Comparisons"
 				badgeDetail="Open source · Self-hosted"
 				title="Notploy"
@@ -171,9 +170,7 @@ export default function ComparisonPage() {
 				}
 			/>
 
-			<Testimonials />
-
-			<CallToAction />
+			<FinalCta />
 		</div>
 	);
 }
