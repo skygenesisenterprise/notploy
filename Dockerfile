@@ -33,6 +33,11 @@
 FROM node:24.4.0-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+# Compile native addons (node-pty, bcrypt, ssh2, cpu-features) against the
+# headers already shipped in the Node image. Without this node-gyp downloads
+# node-v24.4.0-headers.tar.gz from nodejs.org during pnpm install, which fails
+# on networks that only allow the npm registry and breaks the dev build.
+ENV npm_config_nodedir=/usr/local
 RUN npm install -g pnpm@10.22.0
 # openssl signs the local instance identity at container start (see
 # entrypoint.sh) with the same code path as install.sh; ca-certificates keeps
