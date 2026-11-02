@@ -43,7 +43,7 @@
 		"generate:openapi": "tsx scripts/generate-openapi.ts"
 	},
 	"dependencies": {
-		"hono": "^4.11.7",
+		"hono": "^4.13.14",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
