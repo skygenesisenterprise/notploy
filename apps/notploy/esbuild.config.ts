@@ -64,7 +64,6 @@ try {
 			minify: true,
 			outdir: "dist",
 			tsconfig: "tsconfig.server.json",
-			packages: "bundle",
 		})
 		.catch(() => {
 			return process.exit(1);

@@ -172,6 +172,7 @@
 		"@tailwindcss/vite": "^4.3.3",
 		"@types/adm-zip": "^0.6.0",
 		"@types/bcrypt": "5.0.2",
+		"@types/dockerode": "3.3.23",
 		"@types/dompurify": "^3.2.0",
 		"@types/js-cookie": "^3.0.6",
 		"@types/lodash": "4.17.4",

@@ -1,4 +1,3 @@
-import { loadStripe } from "@stripe/stripe-js";
 import clsx from "clsx";
 import {
 	AlertTriangle,
@@ -28,10 +27,6 @@ import {
 	calculatePriceStartup,
 	STARTUP_SERVERS_INCLUDED,
 } from "@/utils/plans";
-
-const stripePromise = loadStripe(
-	process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
-);
 
 export {
 	calculatePrice,
@@ -136,7 +131,6 @@ export const ShowBilling = () => {
 		tier: "legacy" | "hobby" | "startup",
 		productId: string,
 	) => {
-		const stripe = await stripePromise;
 		const serverQuantity =
 			tier === "startup"
 				? startupServerQuantity
@@ -144,16 +138,22 @@ export const ShowBilling = () => {
 					? hobbyServerQuantity
 					: hobbyServerQuantity;
 		if (data && data.subscriptions.length === 0) {
-			createCheckoutSession({
-				tier,
-				productId,
-				serverQuantity,
-				isAnnual,
-			}).then(async (session) => {
-				await stripe?.redirectToCheckout({
-					sessionId: session.sessionId,
+			try {
+				const session = await createCheckoutSession({
+					tier,
+					productId,
+					serverQuantity,
+					isAnnual,
 				});
-			});
+				if (!session.url) {
+					throw new Error("Stripe did not return a checkout URL");
+				}
+				window.location.assign(session.url);
+			} catch (error) {
+				toast.error(
+					error instanceof Error ? error.message : "Error starting checkout",
+				);
+			}
 		}
 	};
 

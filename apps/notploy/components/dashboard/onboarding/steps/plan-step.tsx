@@ -1,4 +1,3 @@
-import { loadStripe } from "@stripe/stripe-js";
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -10,10 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { api } from "@/utils/api";
 import { displayFont } from "../font";
-
-const stripePromise = loadStripe(
-	process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
-);
 
 type Tier = "hobby" | "startup";
 
@@ -74,14 +69,16 @@ export const PlanStep = ({ onNext }: Props) => {
 		if (!productId) return;
 		setLoading(`checkout:${tier}`);
 		try {
-			const stripe = await stripePromise;
 			const session = await createCheckoutSession({
 				tier,
 				productId,
 				serverQuantity: tier === "startup" ? STARTUP_SERVERS_INCLUDED : 1,
 				isAnnual: false,
 			});
-			await stripe?.redirectToCheckout({ sessionId: session.sessionId });
+			if (!session.url) {
+				throw new Error("Stripe did not return a checkout URL");
+			}
+			window.location.assign(session.url);
 		} catch {
 			toast.error("Error starting checkout");
 			setLoading(null);

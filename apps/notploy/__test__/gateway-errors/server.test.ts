@@ -123,7 +123,7 @@ describe("gateway error server", () => {
 		await fetch(`${baseUrl}/__notploy_error?status=504&secret=value`);
 
 		expect(logs).toHaveLength(1);
-		const record = logs[0];
+		const record = logs[0]!;
 		expect(record.event).toBe("gateway_error");
 		expect(record.code).toBe("NP-1004");
 		expect(record.status).toBe(504);

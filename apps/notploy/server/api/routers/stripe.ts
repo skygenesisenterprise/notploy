@@ -477,7 +477,7 @@ export const stripeRouter = createTRPCRouter({
 				cancel_url: `${WEBSITE_URL}/dashboard/settings/billing`,
 			});
 
-			return { sessionId: session.id };
+			return { sessionId: session.id, url: session.url };
 		}),
 	createCustomerPortalSession: withPermission("billing", "manage").mutation(
 		async ({ ctx }) => {
