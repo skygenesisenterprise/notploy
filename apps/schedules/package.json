@@ -9,7 +9,7 @@
 	},
 	"dependencies": {
 		"@notploy/server": "workspace:*",
-		"@hono/node-server": "^1.14.3",
+		"@hono/node-server": "^2.1.5",
 		"@hono/zod-validator": "0.9.1",
 		"bullmq": "5.67.3",
 		"dotenv": "^16.4.5",
