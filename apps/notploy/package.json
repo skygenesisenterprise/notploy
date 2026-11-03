@@ -193,7 +193,7 @@
 		"electron": "^44.4.5",
 		"electron-builder": "^26.15.3",
 		"esbuild": "0.28.2",
-		"lint-staged": "^15.5.2",
+		"lint-staged": "^17.6.0",
 		"memfs": "^4.17.2",
 		"simple-icons": "^16.14.0",
 		"tailwindcss": "^4.3.1",
