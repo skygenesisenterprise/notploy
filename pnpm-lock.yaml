@@ -232,10 +232,10 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.14.3
-        version: 1.19.17(hono@4.13.13)
+        version: 1.19.17(hono@4.13.14)
       '@hono/zod-validator':
         specifier: 0.9.1
-        version: 0.9.1(hono@4.13.13)(zod@4.6.7)
+        version: 0.9.1(hono@4.13.14)(zod@4.6.7)
       '@notploy/server':
         specifier: workspace:*
         version: link:../../packages/server
@@ -243,11 +243,11 @@ importers:
         specifier: ^16.4.5
         version: 16.4.5
       hono:
-        specifier: ^4.11.7
-        version: 4.13.13
+        specifier: ^4.13.14
+        version: 4.13.14
       inngest:
         specifier: 3.40.1
-        version: 3.40.1(express@5.3.0(supports-color@8.1.1))(fastify@5.12.7)(h3@1.15.1)(hono@4.13.13)(koa@3.2.1)(next@16.3.4(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(supports-color@8.1.1)(typescript@7.0.2)
+        version: 3.40.1(express@5.3.0(supports-color@8.1.1))(fastify@5.12.7)(h3@1.15.1)(hono@4.13.14)(koa@3.2.1)(next@16.3.4(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(supports-color@8.1.1)(typescript@7.0.2)
       pino:
         specifier: 9.4.0
         version: 9.4.0
@@ -744,10 +744,10 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.14.3
-        version: 1.19.17(hono@4.13.13)
+        version: 1.19.17(hono@4.13.14)
       '@hono/zod-validator':
         specifier: 0.9.1
-        version: 0.9.1(hono@4.13.13)(zod@4.6.7)
+        version: 0.9.1(hono@4.13.14)(zod@4.6.7)
       '@notploy/server':
         specifier: workspace:*
         version: link:../../packages/server
@@ -761,8 +761,8 @@ importers:
         specifier: 0.45.1
         version: 0.45.1(@opentelemetry/api@1.9.1)(@types/pg@8.6.1)(kysely@0.29.6)(postgres@3.4.9)
       hono:
-        specifier: ^4.11.7
-        version: 4.13.13
+        specifier: ^4.13.14
+        version: 4.13.14
       ioredis:
         specifier: 5.4.1
         version: 5.4.1(supports-color@8.1.1)
@@ -1114,7 +1114,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.19.13
-        version: 1.19.17(hono@4.13.13)
+        version: 1.19.17(hono@4.13.14)
       '@modelcontextprotocol/sdk':
         specifier: ^1.12.0
         version: 1.32.1(supports-color@8.1.1)(zod@3.25.76)
@@ -1122,8 +1122,8 @@ importers:
         specifier: ^1.9.0
         version: 1.20.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       hono:
-        specifier: ^4.12.12
-        version: 4.13.13
+        specifier: ^4.13.14
+        version: 4.13.14
       zod:
         specifier: ^3.25.28
         version: 3.25.76
@@ -1436,8 +1436,8 @@ importers:
   packages/status:
     dependencies:
       hono:
-        specifier: ^4.11.7
-        version: 4.13.13
+        specifier: ^4.13.14
+        version: 4.13.14
       zod:
         specifier: ^4.3.6
         version: 4.6.7
@@ -12118,8 +12118,8 @@ packages:
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
-  hono@4.13.13:
-    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
+  hono@4.13.14:
+    resolution: {integrity: sha512-yhRLQ21U6qa9Hsu2N7Qcbh8tE+WKEcoErjIo56LeSGiGXGp9sA7UpE86Ui9uexb61KakiGwuHMn2QdV7w6i6kQ==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@4.1.0:
@@ -20542,13 +20542,13 @@ snapshots:
 
   '@hey-api/types@0.1.4': {}
 
-  '@hono/node-server@1.19.17(hono@4.13.13)':
+  '@hono/node-server@1.19.17(hono@4.13.14)':
     dependencies:
-      hono: 4.13.13
+      hono: 4.13.14
 
-  '@hono/zod-validator@0.9.1(hono@4.13.13)(zod@4.6.7)':
+  '@hono/zod-validator@0.9.1(hono@4.13.14)(zod@4.6.7)':
     dependencies:
-      hono: 4.13.13
+      hono: 4.13.14
       zod: 4.6.7
 
   '@hookform/resolvers@5.9.2(@sinclair/typebox@0.27.12)(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(joi@17.13.8)(react-hook-form@7.90.0(@types/react@18.3.5)(react@19.2.7))(zod@4.6.7)':
@@ -21321,7 +21321,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.32.1(supports-color@8.1.1)(zod@3.25.76)':
     dependencies:
-      '@hono/node-server': 1.19.17(hono@4.13.13)
+      '@hono/node-server': 1.19.17(hono@4.13.14)
       ajv: 8.20.0
       ajv-formats: 3.0.1
       content-type: 1.0.5
@@ -21331,7 +21331,7 @@ snapshots:
       eventsource-parser: 3.1.1
       express: 5.3.0(supports-color@8.1.1)
       express-rate-limit: 8.7.1(express@5.3.0(supports-color@8.1.1))(supports-color@8.1.1)
-      hono: 4.13.13
+      hono: 4.13.14
       jose: 6.2.12
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -21343,7 +21343,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.32.1(supports-color@8.1.1)(zod@4.6.7)':
     dependencies:
-      '@hono/node-server': 1.19.17(hono@4.13.13)
+      '@hono/node-server': 1.19.17(hono@4.13.14)
       ajv: 8.20.0
       ajv-formats: 3.0.1
       content-type: 1.0.5
@@ -21353,7 +21353,7 @@ snapshots:
       eventsource-parser: 3.1.1
       express: 5.3.0(supports-color@8.1.1)
       express-rate-limit: 8.7.1(express@5.3.0(supports-color@8.1.1))(supports-color@8.1.1)
-      hono: 4.13.13
+      hono: 4.13.14
       jose: 6.2.12
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -29728,7 +29728,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.13.13: {}
+  hono@4.13.14: {}
 
   hosted-git-info@4.1.0:
     dependencies:
@@ -29904,7 +29904,7 @@ snapshots:
 
   inline-style-parser@0.2.7: {}
 
-  inngest@3.40.1(express@5.3.0(supports-color@8.1.1))(fastify@5.12.7)(h3@1.15.1)(hono@4.13.13)(koa@3.2.1)(next@16.3.4(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(supports-color@8.1.1)(typescript@7.0.2):
+  inngest@3.40.1(express@5.3.0(supports-color@8.1.1))(fastify@5.12.7)(h3@1.15.1)(hono@4.13.14)(koa@3.2.1)(next@16.3.4(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(supports-color@8.1.1)(typescript@7.0.2):
     dependencies:
       '@bufbuild/protobuf': 2.16.0
       '@inngest/ai': 0.1.8
@@ -29932,7 +29932,7 @@ snapshots:
       express: 5.3.0(supports-color@8.1.1)
       fastify: 5.12.7
       h3: 1.15.1
-      hono: 4.13.13
+      hono: 4.13.14
       koa: 3.2.1
       next: 16.3.4(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       typescript: 7.0.2
