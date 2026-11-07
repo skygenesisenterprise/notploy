@@ -53,7 +53,7 @@
 		"@ai-sdk/anthropic": "^4.0.91",
 		"@ai-sdk/azure": "^4.0.112",
 		"@ai-sdk/cohere": "^4.0.71",
-		"@ai-sdk/deepinfra": "^3.0.80",
+		"@ai-sdk/deepinfra": "^3.0.82",
 		"@ai-sdk/mistral": "^4.0.74",
 		"@ai-sdk/openai": "^4.0.104",
 		"@ai-sdk/openai-compatible": "^3.0.80",
