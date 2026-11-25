@@ -314,10 +314,10 @@ docker-restart: ## Restart the stack
 	$(COMPOSE_ENV) $(COMPOSE) --profile prod --profile dev --profile status restart
 
 docker-logs: ## Follow the stack logs
-	$(COMPOSE) --profile dev --profile status logs -f
+	$(COMPOSE) --profile prod --profile dev --profile status logs -f
 
 docker-ps: ## Show stack status
-	$(COMPOSE) --profile dev --profile status ps -a
+	$(COMPOSE) --profile prod --profile dev --profile status ps -a
 
 docker-config: ## Validate and print the resolved Compose configuration
 	$(COMPOSE_ENV) $(COMPOSE) --profile prod --profile dev --profile status config
