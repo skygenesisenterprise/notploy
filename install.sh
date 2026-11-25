@@ -3,27 +3,31 @@
 # Notploy version to install and maintain
 DOCKER_VERSION="28.5.2"
 
-# Official Notploy CLI. It is published independently from the server image, so
+# Official Notploy CLI. Installed by default with `npm i -g @notploy/cli`;
 # installs and `update` runs refresh it from npm after the server converges.
 NOTPLOY_CLI_PACKAGE="${NOTPLOY_CLI_PACKAGE:-@notploy/cli}"
 NOTPLOY_CLI_VERSION="${NOTPLOY_CLI_VERSION:-latest}"
-NOTPLOY_CLI_HOME="${NOTPLOY_CLI_HOME:-/usr/local/lib/notploy-cli}"
 NOTPLOY_CLI_BIN="${NOTPLOY_CLI_BIN:-/usr/local/bin/notploy}"
 NOTPLOY_CLI_NODE_VERSION="${NOTPLOY_CLI_NODE_VERSION:-24.4.0}"
-NOTPLOY_CLI_PNPM_VERSION="${NOTPLOY_CLI_PNPM_VERSION:-12.15.0}"
+# Private fallback runtime, used only when the host has no Node >= 20.19 + npm.
+NOTPLOY_CLI_HOME="${NOTPLOY_CLI_HOME:-/usr/local/lib/notploy-cli}"
 
 # ---------------------------------------------------------------------------
-# Installation modes
+# Editions
 #
-# `--self` (default) is free and autonomous: a local trust anchor and instance
-# identity are generated on this host, with no contact with Notploy services.
-# `--cloud` and `--console` are protected products: they require a Notploy-signed
-# entitlement. A local flag is not a security boundary, so these modes fail
-# closed when no verifiable entitlement is provided.
+# There are exactly two editions: `self` (default, self-hosted) and `cloud`.
+# Both run the SAME single Docker image (`notploy`); the edition is a runtime
+# decision (NOTPLOY_PRODUCT / NOTPLOY_FLAVOR / IS_CLOUD), never a second image.
+# The two roles of that image (`client` on 3000 and `api` on 4000) share one
+# Swarm network, notploy-network, together with the deployed applications.
+#
+# `--self` generates a local trust anchor and identity on this host, with no
+# contact with Notploy services. `--cloud` is protected: it requires a
+# Notploy-signed entitlement and fails closed without a verifiable one.
 # ---------------------------------------------------------------------------
-# Product resolution:
-#   1. explicit NOTPLOY_PRODUCT (self | cloud | console), else
-#   2. NOTPLOY_FLAVOR (self/selfhosted | cloud | console), else
+# Edition resolution:
+#   1. explicit NOTPLOY_PRODUCT (self | cloud), else
+#   2. NOTPLOY_FLAVOR (self/selfhosted | cloud), else
 #   3. the legacy IS_CLOUD=true signal (cloud), else
 #   4. self-hosted.
 # ---------------------------------------------------------------------------
@@ -33,7 +37,6 @@ if [ -z "$NOTPLOY_PRODUCT" ]; then
     case "${NOTPLOY_FLAVOR:-}" in
         self | selfhosted) NOTPLOY_PRODUCT="self" ;;
         cloud) NOTPLOY_PRODUCT="cloud" ;;
-        console) NOTPLOY_PRODUCT="console" ;;
         *)
             if [ "${IS_CLOUD:-false}" = "true" ]; then
                 NOTPLOY_PRODUCT="cloud"
@@ -70,7 +73,6 @@ if [ "${NOTPLOY_SOURCE_ONLY:-0}" != "1" ]; then
         case "$1" in
             --self) NOTPLOY_PRODUCT="self" ;;
             --cloud) NOTPLOY_PRODUCT="cloud" ;;
-            --console) NOTPLOY_PRODUCT="console" ;;
             --force-identity) FORCE_IDENTITY=1 ;;
             --migrate|--migration) MIGRATION_REQUESTED="1" ;;
             --fresh|--no-migration) MIGRATION_REQUESTED="-1" ;;
@@ -80,10 +82,10 @@ if [ "${NOTPLOY_SOURCE_ONLY:-0}" != "1" ]; then
             update) ACTION="update" ;;
             -h|--help)
                 cat <<'USAGE'
-Usage: install.sh [--self|--cloud|--console] [--force-identity] [options] [update]
+Usage: install.sh [--self|--cloud] [--force-identity] [options] [update]
 
 Installation options:
-  --self|--cloud|--console   Select the Notploy product to install.
+  --self|--cloud             Select the Notploy edition (same image).
   --force-identity           Regenerate the local instance identity and PKI.
 
 Platforms:
@@ -107,12 +109,12 @@ Environment:
   NOTPLOY_CONFIG_GROUP       Group granted access to the config dir (optional).
   NOTPLOY_DOKPLOY_AUTH_SECRET  Dokploy's BETTER_AUTH_SECRET, to supply it explicitly
                              when it cannot be read from the running container.
-  NOTPLOY_CLI_PACKAGE        CLI package to install (default @notploy/cli).
+  NOTPLOY_CLI_PACKAGE        CLI package installed with npm (default @notploy/cli).
   NOTPLOY_CLI_VERSION        CLI version or dist-tag (default latest).
-  NOTPLOY_CLI_HOME           Managed runtime directory (default /usr/local/lib/notploy-cli).
   NOTPLOY_CLI_BIN            CLI launcher path (default /usr/local/bin/notploy).
-  NOTPLOY_CLI_NODE_VERSION   Node.js version for the managed runtime (default 24.4.0).
-  NOTPLOY_CLI_PNPM_VERSION   pnpm version for the managed runtime (default 12.15.0).
+  NOTPLOY_CLI_NODE_VERSION   Node.js version for a managed runtime (default 24.4.0).
+  NOTPLOY_IMAGE              Single Notploy image (default ghcr.io/skygenesisenterprise/notploy).
+  NOTPLOY_REGISTRY           Registry prefix when NOTPLOY_IMAGE is unset.
 
 Safety:
   An active Docker Swarm that this installer did not create is never left or
@@ -130,19 +132,24 @@ USAGE
 fi
 
 case "$NOTPLOY_PRODUCT" in
-    self|cloud|console) ;;
+    self|cloud) ;;
     *)
-        echo "Error: unknown product '$NOTPLOY_PRODUCT' (expected self, cloud or console)" >&2
+        echo "Error: unknown edition '$NOTPLOY_PRODUCT' (expected self or cloud)" >&2
         exit 1
         ;;
 esac
 
-# Cloud and Console share the cloud runtime behaviour, so keep IS_CLOUD in sync
-# with the product. Exported so the value also reaches the app when install.sh is
-# sourced by the container entrypoint.
-if [ "$NOTPLOY_PRODUCT" != "self" ]; then
-    export IS_CLOUD=true
+# One image for both editions: the flavour is decided at runtime, never at build
+# time. Keep all three runtime signals in sync so cloud cannot be reached with a
+# stale IS_CLOUD=true inherited from the environment. Exported as well because
+# install.sh is sourced by the container entrypoint to bootstrap the identity.
+if [ "$NOTPLOY_PRODUCT" = "self" ]; then
+    export NOTPLOY_FLAVOR=selfhosted IS_CLOUD=false
+else
+    export NOTPLOY_FLAVOR=cloud IS_CLOUD=true
 fi
+export NOTPLOY_PRODUCT
+NOTPLOY_IMAGE="${NOTPLOY_IMAGE:-${NOTPLOY_REGISTRY:-ghcr.io/skygenesisenterprise}/notploy}"
 
 NOTPLOY_CONFIG_DIR="${NOTPLOY_CONFIG_PATH:-/etc/notploy}"
 INSTANCE_IDENTITY_DIR="$NOTPLOY_CONFIG_DIR/identity"
@@ -220,52 +227,54 @@ node_supports_notploy_cli() {
     node -e 'const [major, minor] = process.versions.node.split(".").map(Number); process.exit(major > 20 || (major === 20 && minor >= 19) ? 0 : 1)' >/dev/null 2>&1
 }
 
-# Provisions the managed pnpm + Node.js runtime used for the CLI. Keeping the
-# runtime under NOTPLOY_CLI_HOME avoids depending on the invoking user's shell
-# profile and keeps the CLI available for every user on the host.
-ensure_managed_cli_runtime() {
-    local pnpm_home="$NOTPLOY_CLI_HOME"
-    local pnpm_bin="$pnpm_home/bin/pnpm"
-    local node_bin="$pnpm_home/bin/node"
+# Resolves the npm executable used to install the CLI. Globals CLI_NPM_BIN and
+# CLI_NODE_DIR are set on success. The host's Node/npm is always preferred; a
+# private runtime under NOTPLOY_CLI_HOME is only a fallback for older hosts.
+prepare_cli_runtime() {
+    CLI_NPM_BIN=""
+    CLI_NODE_DIR=""
 
-    if ! $SUDO_CMD mkdir -p "$pnpm_home"; then
-        echo "Error: could not create $pnpm_home." >&2
+    if node_supports_notploy_cli && command -v npm >/dev/null 2>&1; then
+        CLI_NPM_BIN="$(command -v npm)"
+        CLI_NODE_DIR="$(dirname "$(command -v node)")"
+        return 0
+    fi
+
+    echo "Node.js >= 20.19 with npm was not found; preparing a private runtime..."
+    if ! $SUDO_CMD mkdir -p "$NOTPLOY_CLI_HOME"; then
+        echo "Error: could not create $NOTPLOY_CLI_HOME." >&2
         return 1
     fi
-
-    if [ ! -x "$pnpm_bin" ]; then
-        echo "Installing pnpm ${NOTPLOY_CLI_PNPM_VERSION} for the Notploy CLI..."
-        if ! curl -fsSL https://get.pnpm.io/install.sh | \
-            $SUDO_CMD env PNPM_HOME="$pnpm_home" PNPM_VERSION="$NOTPLOY_CLI_PNPM_VERSION" SHELL=/bin/sh sh -; then
-            echo "Error: could not install pnpm into $pnpm_home." >&2
-            return 1
-        fi
-    fi
-    if [ ! -x "$pnpm_bin" ]; then
-        echo "Error: pnpm was not installed into $pnpm_home/bin." >&2
-        return 1
-    fi
-
-    if [ ! -x "$node_bin" ]; then
+    if [ ! -x "$NOTPLOY_CLI_HOME/bin/node" ]; then
         echo "Installing Node.js ${NOTPLOY_CLI_NODE_VERSION} for the Notploy CLI..."
-        if ! $SUDO_CMD env PNPM_HOME="$pnpm_home" PATH="$pnpm_home/bin:$PATH" \
-            "$pnpm_bin" runtime set node "$NOTPLOY_CLI_NODE_VERSION" --global -y; then
-            echo "Error: could not install Node.js into $pnpm_home." >&2
+        if ! curl -fsSL https://get.pnpm.io/install.sh | \
+            $SUDO_CMD env PNPM_HOME="$NOTPLOY_CLI_HOME" SHELL=/bin/sh sh -; then
+            echo "Error: could not provision a Node.js runtime." >&2
+            return 1
+        fi
+        if ! $SUDO_CMD env PNPM_HOME="$NOTPLOY_CLI_HOME" PATH="$NOTPLOY_CLI_HOME/bin:$PATH" \
+            "$NOTPLOY_CLI_HOME/bin/pnpm" runtime set node "$NOTPLOY_CLI_NODE_VERSION" --global -y; then
+            echo "Error: could not install Node.js into $NOTPLOY_CLI_HOME." >&2
             return 1
         fi
     fi
-    if [ ! -x "$node_bin" ]; then
-        echo "Error: Node.js was not installed into $pnpm_home/bin." >&2
-        return 1
-    fi
+    CLI_NODE_DIR="$NOTPLOY_CLI_HOME/bin"
+    for candidate in "$CLI_NODE_DIR/npm" "$CLI_NODE_DIR/npm-cli.js" \
+        "$NOTPLOY_CLI_HOME/lib/node_modules/npm/bin/npm-cli.js"; do
+        if [ -e "$candidate" ]; then
+            CLI_NPM_BIN="$candidate"
+            return 0
+        fi
+    done
+    echo "Error: npm is unavailable. Install Node.js >= 20.19 with npm first." >&2
+    return 1
 }
 
-# Installs or refreshes the official CLI and exposes it through a small launcher
-# so it keeps working even when PNPM_HOME is not present in a user's PATH.
+# Installs the official CLI with `npm i -g @notploy/cli` (the documented command)
+# and exposes it through a stable launcher so it works even outside root's PATH.
 install_notploy_cli() {
     local cli_spec="$NOTPLOY_CLI_PACKAGE@$NOTPLOY_CLI_VERSION"
-    local pnpm_home="$NOTPLOY_CLI_HOME"
-    local pnpm_bin="" node_bin="" node_dir="" cli_shim="" launcher=""
+    local cli_shim="" launcher=""
 
     case "$NOTPLOY_CLI_PACKAGE" in
         @*/*) ;;
@@ -280,33 +289,18 @@ install_notploy_cli() {
             return 1
             ;;
     esac
+    prepare_cli_runtime || return 1
 
-    if node_supports_notploy_cli && command -v pnpm >/dev/null 2>&1; then
-        node_bin="$(command -v node)"
-        pnpm_bin="$(command -v pnpm)"
-    else
-        ensure_managed_cli_runtime || return 1
-        node_bin="$pnpm_home/bin/node"
-        pnpm_bin="$pnpm_home/bin/pnpm"
-    fi
-    node_dir="$(dirname "$node_bin")"
-
-    echo "Installing or updating the official Notploy CLI ($cli_spec)..."
-    if ! $SUDO_CMD mkdir -p "$pnpm_home"; then
-        echo "Error: could not create $pnpm_home." >&2
-        return 1
-    fi
-    if ! $SUDO_CMD env PNPM_HOME="$pnpm_home" PATH="$node_dir:$PATH" \
-        "$pnpm_bin" i -g "$cli_spec"; then
+    echo "Installing or updating the official Notploy CLI: npm i -g $cli_spec"
+    if ! $SUDO_CMD env PATH="$CLI_NODE_DIR:$PATH" "$CLI_NPM_BIN" i -g "$cli_spec"; then
         echo "Warning: the Notploy CLI could not be installed or updated." >&2
-        echo "Run manually: sudo env PNPM_HOME=$pnpm_home $pnpm_bin i -g $cli_spec" >&2
+        echo "Run manually: sudo npm i -g $cli_spec" >&2
         return 1
     fi
 
-    cli_shim="$pnpm_home/bin/notploy"
-    if [ ! -e "$cli_shim" ]; then
-        cli_shim="$($SUDO_CMD env PNPM_HOME="$pnpm_home" PATH="$node_dir:$PATH" \
-            "$pnpm_bin" bin -g 2>/dev/null)/notploy"
+    cli_shim="$($SUDO_CMD env PATH="$CLI_NODE_DIR:$PATH" sh -c 'command -v notploy' 2>/dev/null)"
+    if [ -z "$cli_shim" ] || [ ! -e "$cli_shim" ]; then
+        cli_shim="$($SUDO_CMD env PATH="$CLI_NODE_DIR:$PATH" "$CLI_NPM_BIN" root -g 2>/dev/null)/bin/notploy"
     fi
     if [ ! -e "$cli_shim" ]; then
         echo "Warning: the Notploy CLI was installed but its executable was not found." >&2
@@ -317,7 +311,7 @@ install_notploy_cli() {
     cat > "$launcher" <<EOF
 #!/bin/sh
 # Managed by the Notploy installer. Updated on every server update.
-PATH="$node_dir:\$PATH"
+PATH="$CLI_NODE_DIR:\$PATH"
 export PATH
 exec "$cli_shim" "\$@"
 EOF
@@ -342,7 +336,6 @@ capabilities_for_product() {
     case "$1" in
         self) echo '["self.hosted","self.local-registry","self.offline"]' ;;
         cloud) echo '["cloud.control-plane","cloud.managed-services","cloud.fleet"]' ;;
-        console) echo '["console.instance-management","console.fleet","console.remote-management"]' ;;
     esac
 }
 
@@ -517,7 +510,7 @@ JSON
     fi
 }
 
-# Development-only escape hatch: lets a protected product (cloud/console) run
+# Development-only escape hatch: lets the protected cloud edition run
 # without a Notploy-signed entitlement on a local dev machine. It is never a
 # production downgrade: the check is ignored whenever NODE_ENV=production, so a
 # leaked environment variable cannot unlock a real host. Opt in explicitly with
@@ -1140,23 +1133,15 @@ detect_version() {
     echo "$version"
 }
 
-# Maps a release tag to the matching Notploy image reference. Kept POSIX-safe so
+# Maps a release tag to THE single Notploy image. Both editions use this image;
+# the historical `-app` tag suffix is normalised away. Kept POSIX-safe so
 # `curl ... | sh` works even where /bin/sh is dash.
 resolve_docker_image() {
-    case "$1" in
-        v[0-9]*.[0-9]*.[0-9]*-app)
-            printf 'ghcr.io/skygenesisenterprise/notploy:%s' "$1"
-            ;;
-        v[0-9]*.[0-9]*.[0-9]*)
-            printf 'ghcr.io/skygenesisenterprise/notploy:%s-app' "$1"
-            ;;
-        latest)
-            printf 'ghcr.io/skygenesisenterprise/notploy:latest'
-            ;;
-        *)
-            printf 'ghcr.io/skygenesisenterprise/notploy:%s' "$1"
-            ;;
+    local tag="$1"
+    case "$tag" in
+        *-app) tag="${tag%-app}" ;;
     esac
+    printf '%s:%s' "$NOTPLOY_IMAGE" "$tag"
 }
 
 # Function to detect if running in Proxmox LXC container
@@ -1357,7 +1342,7 @@ port_published_by_dokploy() {
 reclaim_dokploy_ports() {
     command -v docker >/dev/null 2>&1 || return 0
     local port name service
-    for port in 80 443 3000; do
+    for port in 80 443 3000 4000; do
         port_is_listening "$port" || continue
         while IFS= read -r service; do
             [ -n "$service" ] || continue
@@ -1384,7 +1369,7 @@ wait_for_required_ports_free() {
     port_check_available || return 0
     while [ "$waited" -lt "$timeout" ]; do
         busy=0
-        for port in 80 443 3000; do
+        for port in 80 443 3000 4000; do
             if port_is_listening "$port" && ! port_published_by_notploy "$port"; then
                 busy=1
             fi
@@ -1405,12 +1390,12 @@ assert_required_ports() {
     local reclaim_dokploy="${1:-0}"
     if ! port_check_available; then
         echo "Warning: 'ss' is not available; skipping the listening-port check." >&2
-        echo "Ensure ports 80, 443 and 3000 are free before continuing." >&2
+        echo "Ensure ports 80, 443, 3000 and 4000 are free before continuing." >&2
         return 0
     fi
 
     local port
-    for port in 80 443 3000; do
+    for port in 80 443 3000 4000; do
         if port_is_listening "$port"; then
             if port_published_by_notploy "$port"; then
                 echo "Port $port is served by the existing Notploy installation (reusing it)."
@@ -1421,7 +1406,7 @@ assert_required_ports() {
                 continue
             fi
             echo "Error: port $port is already in use by another service." >&2
-            echo "Notploy requires ports 80, 443 and 3000 to be available." >&2
+            echo "Notploy requires ports 80, 443, 3000 and 4000 to be available." >&2
             echo "Stop the service using port $port and re-run the installer." >&2
             exit 1
         fi
@@ -1689,8 +1674,53 @@ create_notploy_postgres_service() {
     echo "Created service 'notploy-postgres'."
 }
 
-create_notploy_app_service() {
-    local endpoint_mode="$1" product_env="$2" image="$3" release_tag_env="$4"
+# Both roles run the SAME image: NOTPLOY_ROLE chooses the role at runtime, and
+# the edition (self | cloud) is passed as environment to both. One network,
+# two roles, one image — never a second image for cloud.
+notploy_product_env() {
+    printf -- '-e NOTPLOY_PRODUCT=%s -e NOTPLOY_FLAVOR=%s -e IS_CLOUD=%s -e NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE=/etc/notploy/identity/entitlement-ca.pub' \
+        "$NOTPLOY_PRODUCT" "$NOTPLOY_FLAVOR" "$IS_CLOUD"
+}
+
+# `notploy-api` owns the host integrations (Docker socket, /etc/notploy,
+# credentials) and publishes 4000; `notploy` is the client on 3000 and proxies
+# /api/* to the API over the single notploy-network.
+create_notploy_api_service() {
+    local endpoint_mode="$1" product_env="$2" release_tag_env="$3" image="$4"
+    if service_exists notploy-api; then
+        echo "Service 'notploy-api' already exists; leaving it untouched."
+        return 0
+    fi
+    $SUDO_CMD docker service create \
+        --name notploy-api \
+        --replicas 1 \
+        --network notploy-network \
+        --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
+        --mount type=bind,source="$NOTPLOY_CONFIG_DIR",target=/etc/notploy \
+        --mount type=volume,source=notploy,target=/root/.docker \
+        --secret source=notploy_postgres_password,target=/run/secrets/postgres_password \
+        --secret source=notploy_auth_secret,target=/run/secrets/notploy_auth_secret \
+        --publish published=4000,target=4000,mode=host \
+        --update-parallelism 1 \
+        --update-order stop-first \
+        --constraint 'node.role == manager' \
+        $endpoint_mode \
+        $release_tag_env \
+        $product_env \
+        -e NOTPLOY_ROLE=api \
+        -e NOTPLOY_RUN_MIGRATIONS=1 \
+        -e NOTPLOY_TEMPLATES_DIR=/app/templates/blueprints \
+        -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
+        -e BETTER_AUTH_SECRET_FILE=/run/secrets/notploy_auth_secret \
+        "$image" >/dev/null || {
+        echo "Error: failed to create the 'notploy-api' service." >&2
+        exit 1
+    }
+    echo "Created service 'notploy-api'."
+}
+
+create_notploy_client_service() {
+    local endpoint_mode="$1" product_env="$2" release_tag_env="$3" image="$4"
     if service_exists notploy; then
         echo "Service 'notploy' already exists; leaving it untouched."
         return 0
@@ -1699,9 +1729,6 @@ create_notploy_app_service() {
         --name notploy \
         --replicas 1 \
         --network notploy-network \
-        --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
-        --mount type=bind,source="$NOTPLOY_CONFIG_DIR",target=/etc/notploy \
-        --mount type=volume,source=notploy,target=/root/.docker \
         --secret source=notploy_postgres_password,target=/run/secrets/postgres_password \
         --secret source=notploy_auth_secret,target=/run/secrets/notploy_auth_secret \
         --publish published=3000,target=3000,mode=host \
@@ -1711,13 +1738,15 @@ create_notploy_app_service() {
         $endpoint_mode \
         $release_tag_env \
         $product_env \
+        -e NOTPLOY_ROLE=client \
+        -e API_INTERNAL_URL=http://notploy-api:4000 \
         -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
         -e BETTER_AUTH_SECRET_FILE=/run/secrets/notploy_auth_secret \
         "$image" >/dev/null || {
-        echo "Error: failed to create the 'notploy' service." >&2
+        echo "Error: failed to create the 'notploy' (client) service." >&2
         exit 1
     }
-    echo "Created service 'notploy'."
+    echo "Created service 'notploy' (client)."
 }
 
 # ---------------------------------------------------------------------------
@@ -2179,7 +2208,7 @@ connect_dokploy_network() {
     [ -n "$DOKPLOY_NETWORK_NAME" ] || return 0
     echo "Joining $DOKPLOY_NETWORK_NAME so existing applications keep their routing..."
     local svc
-    for svc in notploy notploy-postgres; do
+    for svc in notploy notploy-api notploy-postgres; do
         if service_exists "$svc"; then
             $SUDO_CMD docker service update --network-add "$DOKPLOY_NETWORK_NAME" "$svc" >/dev/null 2>&1 \
                 || echo "Warning: could not attach '$svc' to $DOKPLOY_NETWORK_NAME." >&2
@@ -2325,19 +2354,28 @@ EOF
     DOCKER_IMAGE="$(resolve_docker_image "$VERSION_TAG")"
     echo "Installing Notploy version: ${VERSION_TAG} (image: ${DOCKER_IMAGE})"
 
-    product_env=""
-    if [ "$NOTPLOY_PRODUCT" != "self" ]; then
-        product_env="-e NOTPLOY_FLAVOR=$NOTPLOY_PRODUCT -e IS_CLOUD=true -e NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE=/etc/notploy/identity/entitlement-ca.pub"
-    fi
+    # Same image, two roles; the edition is runtime configuration only.
+    product_env="$(notploy_product_env)"
     release_tag_env="-e RELEASE_TAG=$VERSION_TAG"
 
-    create_notploy_app_service "$endpoint_mode" "$product_env" "$DOCKER_IMAGE" "$release_tag_env"
+    # One image, two roles. Start the API first so /api/* is proxied to a
+    # healthy backend, then the client on port 3000.
+    create_notploy_api_service "$endpoint_mode" "$product_env" "$release_tag_env" "$DOCKER_IMAGE"
+    echo "Waiting for the 'notploy-api' service to converge (up to 180s)..."
+    if ! wait_for_service_convergence notploy-api 180; then
+        echo "Error: the 'notploy-api' service did not converge within the timeout." >&2
+        $SUDO_CMD docker service ps notploy-api --no-trunc >&2 2>/dev/null || true
+        echo "Diagnose with: docker service ps notploy-api" >&2
+        exit 1
+    fi
+    echo "Service 'notploy-api' converged."
 
-    echo "Waiting for the 'notploy' service to converge (up to 180s)..."
+    create_notploy_client_service "$endpoint_mode" "$product_env" "$release_tag_env" "$DOCKER_IMAGE"
+    echo "Waiting for the 'notploy' (client) service to converge (up to 180s)..."
     if wait_for_service_convergence notploy 180; then
-        echo "Service 'notploy' converged."
+        echo "Service 'notploy' (client) converged."
     else
-        echo "Error: the 'notploy' service did not converge within the timeout." >&2
+        echo "Error: the 'notploy' (client) service did not converge within the timeout." >&2
         $SUDO_CMD docker service ps notploy --no-trunc >&2 2>/dev/null || true
         echo "Diagnose with: docker service ps notploy" >&2
         exit 1
@@ -2501,8 +2539,8 @@ install_notploy() {
     assert_required_ports
 
     VERSION_TAG="$(detect_version)"
-    # For self-hosted app image, the tag is typically vX.Y.Z-app; resolve_docker_image
-    # maps the release tag to the image published by docker-publish.yml.
+    # The single notploy image is published under the bare vX.Y.Z tag; legacy
+    # -app release tags are normalised by resolve_docker_image.
     DOCKER_IMAGE="$(resolve_docker_image "$VERSION_TAG")"
 
     echo "Installing Notploy version: ${VERSION_TAG} (image: ${DOCKER_IMAGE})"
@@ -2523,7 +2561,7 @@ install_notploy() {
     ensure_network
     ensure_config_dir
 
-    # Generate (self) or verify (cloud/console) the instance identity before the
+    # Generate (self) or verify (cloud) the instance identity before the
     # application starts, so it never boots without a trust anchor.
     bootstrap_identity
 
@@ -2535,10 +2573,8 @@ install_notploy() {
 
     create_notploy_postgres_service "$endpoint_mode"
 
-    product_env=""
-    if [ "$NOTPLOY_PRODUCT" != "self" ]; then
-        product_env="-e NOTPLOY_FLAVOR=$NOTPLOY_PRODUCT -e IS_CLOUD=true -e NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE=/etc/notploy/identity/entitlement-ca.pub"
-    fi
+    # Same image, two roles; the edition is runtime configuration only.
+    product_env="$(notploy_product_env)"
 
     release_tag_env=""
     case "$VERSION_TAG" in
@@ -2556,13 +2592,24 @@ install_notploy() {
             ;;
     esac
 
-    create_notploy_app_service "$endpoint_mode" "$product_env" "$DOCKER_IMAGE" "$release_tag_env"
+    # One image, two roles. Start the API first so /api/* is proxied to a
+    # healthy backend, then the client on port 3000.
+    create_notploy_api_service "$endpoint_mode" "$product_env" "$release_tag_env" "$DOCKER_IMAGE"
+    echo "Waiting for the 'notploy-api' service to converge (up to 180s)..."
+    if ! wait_for_service_convergence notploy-api 180; then
+        echo "Error: the 'notploy-api' service did not converge within the timeout." >&2
+        $SUDO_CMD docker service ps notploy-api --no-trunc >&2 2>/dev/null || true
+        echo "Diagnose with: docker service ps notploy-api" >&2
+        exit 1
+    fi
+    echo "Service 'notploy-api' converged."
 
-    echo "Waiting for the 'notploy' service to converge (up to 180s)..."
+    create_notploy_client_service "$endpoint_mode" "$product_env" "$release_tag_env" "$DOCKER_IMAGE"
+    echo "Waiting for the 'notploy' (client) service to converge (up to 180s)..."
     if wait_for_service_convergence notploy 180; then
-        echo "Service 'notploy' converged."
+        echo "Service 'notploy' (client) converged."
     else
-        echo "Error: the 'notploy' service did not converge within the timeout." >&2
+        echo "Error: the 'notploy' (client) service did not converge within the timeout." >&2
         $SUDO_CMD docker service ps notploy --no-trunc >&2 2>/dev/null || true
         echo "Diagnose with: docker service ps notploy" >&2
         exit 1
@@ -2610,6 +2657,9 @@ update_notploy() {
 
     VERSION_TAG="$(detect_version)"
     DOCKER_IMAGE="$(resolve_docker_image "$VERSION_TAG")"
+    # Both roles always receive the same single image and the same edition.
+    product_env="$(notploy_product_env)"
+    release_tag_env="-e RELEASE_TAG=$VERSION_TAG"
 
     echo "Preparing to update Notploy to version: ${VERSION_TAG} (image: ${DOCKER_IMAGE})"
     echo "Existing service configuration, secrets, volumes and mounts are preserved."
@@ -2623,20 +2673,34 @@ update_notploy() {
         exit 1
     fi
 
-    if ! $SUDO_CMD docker service update --image "$DOCKER_IMAGE" notploy >/dev/null 2>&1; then
-        echo "Error: 'docker service update' failed." >&2
-        echo "Recover with: docker service rollback notploy" >&2
-        exit 1
+    # Upgrades from the former single-service topology gain the API role
+    # automatically; the existing `notploy` service becomes the client.
+    if ! service_exists notploy-api; then
+        echo "Creating the 'notploy-api' role (same image, NOTPLOY_ROLE=api)..."
+        create_notploy_api_service "" "$product_env" "$release_tag_env" "$DOCKER_IMAGE"
+        $SUDO_CMD docker service update \
+            --env-add NOTPLOY_ROLE=client \
+            --env-add API_INTERNAL_URL=http://notploy-api:4000 \
+            notploy >/dev/null 2>&1 || true
     fi
 
-    echo "Waiting for the 'notploy' service to converge (up to 180s)..."
-    if wait_for_service_convergence notploy 180; then
+    for svc in notploy-api notploy; do
+        if ! $SUDO_CMD docker service update --image "$DOCKER_IMAGE" "$svc" >/dev/null 2>&1; then
+            echo "Error: updating service '$svc' failed." >&2
+            echo "Recover with: docker service rollback $svc" >&2
+            exit 1
+        fi
+    done
+
+    echo "Waiting for the 'notploy-api' and 'notploy' services to converge (up to 180s)..."
+    if wait_for_service_convergence notploy-api 180 && wait_for_service_convergence notploy 180; then
         echo "Notploy has been updated to version: ${VERSION_TAG}."
         install_notploy_cli || true
     else
         echo "Error: the update did not converge to a running state within the timeout." >&2
+        $SUDO_CMD docker service ps notploy-api --no-trunc >&2 2>/dev/null || true
         $SUDO_CMD docker service ps notploy --no-trunc >&2 2>/dev/null || true
-        echo "Recovery: 'docker service rollback notploy'" >&2
+        echo "Recovery: 'docker service rollback notploy-api' then 'docker service rollback notploy'" >&2
         echo "Note: an image rollback does not undo database schema migrations;" >&2
         echo "check the release notes if the new version changed the schema." >&2
         exit 1

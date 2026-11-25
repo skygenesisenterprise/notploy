@@ -1,50 +1,66 @@
-# Notploy — canonical Compose topology.
+# Notploy — canonical Compose topology (ZenthCloud-style role architecture).
 #
-# The topology follows ZenthCloud's profile-driven model: one service
-# definition per runtime role, with prod/dev selected by profiles and build
-# arguments rather than duplicated production/development services.
+# Exactly five services, one definition per runtime role, with prod/dev selected
+# by profiles and build arguments rather than duplicated services:
 #
-#   Production: docker compose --profile prod up -d --build
+#   GROUP 1 — DATABASE     postgres  PostgreSQL, persistent platform storage
+#   GROUP 2 — CACHE/QUEUE  redis     Cache, BullMQ queues, coordination
+#   GROUP 3 — EDGE         traefik   Router for the dashboard and deployed apps
+#   GROUP 4 — FRONTEND     client    Next.js dashboard (no database/Redis work)
+#   GROUP 5 — BACKEND      api       tRPC/OpenAPI, auth, WebSockets, workers, DNS
+#
+# No per-mode duplicate (`api-dev`, `client-dev`, …) and no second image name:
+# dev and prod use the same `notploy` image, only the mode (NOTPLOY_MODE /
+# NODE_ENV) and the build target differ. Both publish the same host ports and
+# volumes, so stop one before starting the other (`make docker-down`).
+#
+# All five services share ONE network (`notploy-network`), together with the
+# applications Notploy deploys. It is external so `docker compose down` never
+# deletes a network that deployed workloads still use; the Makefile creates it.
+#
+#   Production:  docker compose --profile prod up -d --build
 #   Development: NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development \
-#                NODE_ENV=development docker compose --profile dev up --build
+#                NODE_ENV=development docker compose --profile dev up --build --watch
 #
-# The application remains a single monolithic control-plane process (Next.js +
-# API + workers). Unlike ZenthCloud, it is not split into client/api containers.
-# Notploy-specific deployment requirements remain explicit below:
-#   - Traefik is the edge router and shares the config volume with the app.
-#   - The app controls the host Docker Engine through its socket (not DinD).
-#   - Deployed workloads and Traefik share the external notploy-network.
-#   - PostgreSQL and Redis are isolated on a private Compose network.
+# `make docker-up [self|cloud]` and `make docker-dev [...]` set the whole
+# environment; a Compose file cannot switch a build target from a profile.
 #
-# NOTPLOY_BUILD_TARGET selects the Dockerfile target:
-#   selfhosted | cloud | console | dev
-# NOTPLOY_FLAVOR remains the product/entitlement selector:
-#   selfhosted | cloud | console
+# Two editions only: `self` and `cloud`. Both run the SAME `notploy` image —
+# there is no `notploy-cloud` artifact. The edition is a runtime decision
+# (NOTPLOY_FLAVOR / NOTPLOY_PRODUCT / IS_CLOUD, plus the product entitlement),
+# never a different build target or topology.
 #
-# Production and development are mutually exclusive: they publish the same
-# host ports and use the same persistent volumes. Stop one profile before
-# starting the other.
+# One image for both application roles: `client` and `api` build the same
+# target/tag and differ only by NOTPLOY_ROLE at runtime, so the UI and backend
+# can never drift apart. Only the `api` role receives the database/Redis
+# credentials, applies migrations, and needs the host Docker socket /
+# /etc/notploy config volume (Notploy-specific, not Docker-in-Docker).
+#
+# The browser calls the client origin; Next rewrites `/api/*` to the internal
+# `api` service (API_INTERNAL_URL), while WebSockets connect to the published
+# API port using NEXT_PUBLIC_API_URL (baked into the browser bundle at build
+# time). PostgreSQL, Redis and the internal API endpoint are never published.
 
 name: notploy
 
-# Shared control-plane environment. Credentials are only injected into the
-# control-plane service; PostgreSQL and Redis remain private network services.
+# Shared control-plane configuration. Credentials are only injected into the
+# application services; PostgreSQL and Redis remain private-network services.
 x-notploy-environment: &notploy-environment
   NODE_ENV: ${NODE_ENV:-production}
   NODE_NO_WARNINGS: "1"
   TZ: ${TZ:-UTC}
-  PORT: 3000
-  HOST: 0.0.0.0
   POSTGRES_HOST: postgres
   POSTGRES_PORT: "5432"
-  DATABASE_URL: postgres://${POSTGRES_USER:-notploy}:${POSTGRES_PASSWORD:-notploy}@postgres:5432/${POSTGRES_DB:-notploy}
-  REDIS_URL: ${REDIS_URL:-redis://redis:6379}
-  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-notploy-insecure-default-change-me}
+  DATABASE_URL: postgres://${POSTGRES_USER:-notploy}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required — see .env.example}@postgres:5432/${POSTGRES_DB:-notploy}
+  # REDIS_PASSWORD is added here so the client and the API share one contract:
+  # a plain redis:// URL would fail against the password-protected Redis below.
+  REDIS_URL: redis://:${REDIS_PASSWORD:-notploy-local-redis}@redis:6379
+  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required — see .env.example}
   BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://${NOTPLOY_APP_HOST:-app.notploy.localhost}}
-  BETTER_AUTH_TRUSTED_ORIGINS: ${BETTER_AUTH_TRUSTED_ORIGINS:-http://${NOTPLOY_APP_HOST:-app.notploy.localhost},http://localhost:3000,http://127.0.0.1:3000}
+  BETTER_AUTH_TRUSTED_ORIGINS: ${BETTER_AUTH_TRUSTED_ORIGINS:-http://${NOTPLOY_APP_HOST:-app.notploy.localhost},http://api.notploy.localhost,http://localhost:3000,http://127.0.0.1:3000}
   IS_CLOUD: ${IS_CLOUD:-false}
   NOTPLOY_FLAVOR: ${NOTPLOY_FLAVOR:-selfhosted}
-  NOTPLOY_PRODUCT: ${NOTPLOY_PRODUCT:-}
+  NOTPLOY_PRODUCT: ${NOTPLOY_PRODUCT:-self}
   NOTPLOY_SKIP_IDENTITY: ${NOTPLOY_SKIP_IDENTITY:-0}
   NOTPLOY_ENTITLEMENT: ${NOTPLOY_ENTITLEMENT:-}
   NOTPLOY_ENTITLEMENT_FILE: ${NOTPLOY_ENTITLEMENT_FILE:-}
@@ -56,11 +72,34 @@ x-notploy-environment: &notploy-environment
   NOTPLOY_GATEWAY_ERRORS_IMAGE: ${NOTPLOY_GATEWAY_ERRORS_IMAGE:-${NOTPLOY_IMAGE:-ghcr.io/skygenesisenterprise/notploy}:${NOTPLOY_VERSION:-latest}}
   NOTPLOY_GATEWAY_ERRORS_COMMAND: ${NOTPLOY_GATEWAY_ERRORS_COMMAND:-}
   NOTPLOY_TEMPLATES_DIR: /app/templates/blueprints
-  NOTPLOY_ROLE: app
+  # Browser-facing API origin (WebSockets). Server-side `/api/*` calls use the
+  # internal service name instead (API_INTERNAL_URL, client service only).
+  NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+  # Optional integrations (empty values disable them).
+  OAUTH_GOOGLE_CLIENT_ID: ${OAUTH_GOOGLE_CLIENT_ID:-}
+  OAUTH_GOOGLE_CLIENT_SECRET: ${OAUTH_GOOGLE_CLIENT_SECRET:-}
+  OAUTH_GITHUB_CLIENT_ID: ${OAUTH_GITHUB_CLIENT_ID:-}
+  OAUTH_GITHUB_CLIENT_SECRET: ${OAUTH_GITHUB_CLIENT_SECRET:-}
+  OAUTH_DISCORD_CLIENT_ID: ${OAUTH_DISCORD_CLIENT_ID:-}
+  OAUTH_DISCORD_CLIENT_SECRET: ${OAUTH_DISCORD_CLIENT_SECRET:-}
+
+# Both application services build the SAME single image. The build target is
+# `platform` in production and `dev` for hot reload; the edition (self | cloud)
+# is never baked into the image — it is selected at runtime by the environment
+# below. All five services are defined once and selected by the prod/dev profiles.
+x-notploy-build: &notploy-build
+  context: .
+  dockerfile: Dockerfile
+  target: ${NOTPLOY_BUILD_TARGET:-platform}
+  args:
+    PNPM_VERSION: ${PNPM_VERSION:-12.16.1}
+    NOTPLOY_VERSION: ${NOTPLOY_VERSION:-latest}
+    NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
 
 services:
   # -------------------------------------------------------------------------
   # GROUP 1 — DATABASE
+  # No host port is published: only services on notploy-network can reach it.
   # -------------------------------------------------------------------------
   postgres:
     profiles: ["prod", "dev"]
@@ -69,13 +108,13 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-notploy}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notploy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required — see .env.example}
       POSTGRES_DB: ${POSTGRES_DB:-notploy}
       POSTGRES_INITDB_ARGS: ${POSTGRES_INITDB_ARGS:---encoding=UTF8}
     volumes:
       - notploy-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -85,23 +124,27 @@ services:
 
   # -------------------------------------------------------------------------
   # GROUP 2 — CACHE / QUEUE
-  # Redis persistence for queues/cache. It is private-network only and not exposed on the host.
+  # Append-only persistence keeps queued jobs across restarts. Internal only.
   # -------------------------------------------------------------------------
   redis:
     profiles: ["prod", "dev"]
     image: redis:7-alpine
     container_name: notploy-redis
     restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-notploy-local-redis}
     command:
-      - redis-server
-      - --appendonly
-      - "yes"
-      - --appendfsync
-      - everysec
+      - sh
+      - -c
+      - exec redis-server --appendonly yes --appendfsync everysec --requirepass "$${REDIS_PASSWORD}"
     volumes:
       - notploy-redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+        [
+          "CMD-SHELL",
+          'redis-cli --no-auth-warning -a "$${REDIS_PASSWORD}" ping | grep -q PONG',
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -111,8 +154,8 @@ services:
 
   # -------------------------------------------------------------------------
   # GROUP 3 — EDGE / REVERSE PROXY
-  # Traefik stays attached to the long-lived external workload network so it
-  # can route both Notploy-managed applications and the control plane.
+  # Traefik, the control plane and Notploy-managed deployments all share the
+  # single long-lived `notploy-network`.
   # -------------------------------------------------------------------------
   traefik:
     profiles: ["prod", "dev"]
@@ -128,39 +171,107 @@ services:
       - "${TRAEFIK_DASHBOARD_PORT:-8080}:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      # The api role writes the dynamic config here at startup.
       - notploy-config:/etc/notploy
     networks:
       - notploy
 
   # -------------------------------------------------------------------------
-  # GROUP 4 — CONTROL PLANE
-  # One service definition, one image contract. Build target and runtime mode
-  # change between prod/dev; no parallel notploy-dev service or duplicated env.
+  # GROUP 4 — FRONTEND
+  # `next start` in production, `next dev` in development. Same image as `api`,
+  # role `client`: no migrations, no workers, no host Docker socket.
   # -------------------------------------------------------------------------
-  notploy:
+  client:
     profiles: ["prod", "dev"]
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: ${NOTPLOY_BUILD_TARGET:-${NOTPLOY_FLAVOR:-selfhosted}}
-      args:
-        PNPM_VERSION: ${PNPM_VERSION:-10.22.0}
-        NOTPLOY_VERSION: ${NOTPLOY_VERSION:-latest}
+    build: *notploy-build
     image: ${NOTPLOY_IMAGE:-ghcr.io/skygenesisenterprise/notploy}:${NOTPLOY_VERSION:-latest}
+    container_name: notploy-client
     restart: unless-stopped
     environment:
       <<: *notploy-environment
-      NODE_ENV: ${NODE_ENV:-production}
+      NOTPLOY_ROLE: client
       NOTPLOY_MODE: ${NOTPLOY_MODE:-production}
       NEXT_TELEMETRY_DISABLED: "1"
-      NOTPLOY_ALLOW_UNLICENSED_DEV: ${NOTPLOY_ALLOW_UNLICENSED_DEV:-0}
+      PORT: 3000
+      HOST: 0.0.0.0
+      # Server-side proxy target for `/api/*` (internal name, never localhost).
+      API_INTERNAL_URL: http://api:4000
+      CHOKIDAR_USEPOLLING: ${DEV_POLLING:-true}
+      WATCHPACK_POLLING: ${DEV_POLLING:-true}
+    ports:
+      - "${NOTPLOY_PORT:-3000}:3000"
+    depends_on:
+      api:
+        # In development the API healthcheck stays pending while its first
+        # route compiles; the client proxies /api/* once the API is up.
+        condition: service_started
+    healthcheck:
+      # Role-aware probe baked into the image (entrypoint.sh healthcheck).
+      test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
+      interval: 30s
+      timeout: 30s
+      retries: 10
+      start_period: 180s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=notploy-network"
+      # Production: the public hostname must be set explicitly (NOTPLOY_APP_HOST).
+      - "traefik.http.routers.notploy-app.rule=Host(`${NOTPLOY_APP_HOST:-app.notploy.invalid}`)"
+      - "traefik.http.routers.notploy-app.entrypoints=web"
+      - "traefik.http.routers.notploy-app.service=notploy-app"
+      - "traefik.http.services.notploy-app.loadbalancer.server.port=3000"
+      # Development only: `make docker-dev` sets NOTPLOY_DEV_APP_HOST. In prod
+      # the rule falls back to an unresolvable host, so this router never matches.
+      - "traefik.http.routers.notploy-app-dev.rule=Host(`${NOTPLOY_DEV_APP_HOST:-app.notploy.invalid}`)"
+      - "traefik.http.routers.notploy-app-dev.entrypoints=web"
+      - "traefik.http.routers.notploy-app-dev.service=notploy-app"
+    volumes:
+      # Development hot reload: bind-mounted sources so `next dev` sees edits
+      # immediately. Inert in the production image, which runs from /app.
+      - ./apps/notploy:/usr/src/app/apps/notploy
+      - ./packages:/usr/src/app/packages
+      - ./templates:/usr/src/app/templates
+      # Dependencies and Next's dev output stay owned by the image: host
+      # node_modules holds native modules built for another platform.
+      - /usr/src/app/apps/notploy/node_modules
+      - /usr/src/app/apps/notploy/.next/dev
+    develop:
+      watch:
+        - action: rebuild
+          path: pnpm-lock.yaml
+    networks:
+      - notploy
+
+  # -------------------------------------------------------------------------
+  # GROUP 5 — BACKEND
+  # tRPC/OpenAPI, better-auth, WebSockets, BullMQ workers, cron jobs and the
+  # internal DNS server. This is the only service holding DB/Redis credentials
+  # and the only one applying migrations (once at startup by default).
+  # -------------------------------------------------------------------------
+  api:
+    profiles: ["prod", "dev"]
+    build: *notploy-build
+    image: ${NOTPLOY_IMAGE:-ghcr.io/skygenesisenterprise/notploy}:${NOTPLOY_VERSION:-latest}
+    container_name: notploy-api
+    restart: unless-stopped
+    environment:
+      <<: *notploy-environment
+      NOTPLOY_ROLE: api
+      NOTPLOY_MODE: ${NOTPLOY_MODE:-production}
+      NOTPLOY_RUN_MIGRATIONS: ${NOTPLOY_RUN_MIGRATIONS:-1}
       NOTPLOY_TEMPLATES_DIR: ${NOTPLOY_TEMPLATES_DIR:-/app/templates/blueprints}
       NOTPLOY_GATEWAY_ERRORS_COMMAND: ${NOTPLOY_GATEWAY_ERRORS_COMMAND:-}
       NOTPLOY_GATEWAY_ERRORS_WORKDIR: ${NOTPLOY_GATEWAY_ERRORS_WORKDIR:-}
+      NOTPLOY_ALLOW_UNLICENSED_DEV: ${NOTPLOY_ALLOW_UNLICENSED_DEV:-0}
+      NEXT_TELEMETRY_DISABLED: "1"
+      PORT: 4000
+      HOST: 0.0.0.0
       CHOKIDAR_USEPOLLING: ${DEV_POLLING:-false}
       WATCHPACK_POLLING: ${DEV_POLLING:-false}
     ports:
-      - "${NOTPLOY_PORT:-3000}:3000"
+      # WebSockets connect here directly (NEXT_PUBLIC_API_URL); API clients too.
+      - "${NOTPLOY_API_PORT:-4000}:4000"
+      # The DNS server runs inside this process, not as a sidecar.
       - "${NOTPLOY_DNS_HOST_PORT:-53}:53/udp"
       - "${NOTPLOY_DNS_HOST_PORT:-53}:53/tcp"
     depends_on:
@@ -173,47 +284,44 @@ services:
     healthcheck:
       test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
       interval: 30s
-      timeout: ${NOTPLOY_HEALTHCHECK_TIMEOUT:-10s}
-      retries: ${NOTPLOY_HEALTHCHECK_RETRIES:-5}
-      start_period: ${NOTPLOY_HEALTHCHECK_START_PERIOD:-90s}
+      timeout: 30s
+      retries: 10
+      start_period: 180s
     labels:
+      # Development only: `make docker-dev` sets NOTPLOY_DEV_API_HOST. The API
+      # is normally reached through the client's `/api/*` rewrite and the
+      # published port for WebSockets; this router is for local domain access.
       - "traefik.enable=true"
-      - "traefik.docker.network=notploy-network"
-      - "traefik.http.routers.notploy-app.rule=Host(`${NOTPLOY_APP_HOST:-app.notploy.localhost}`)"
-      - "traefik.http.routers.notploy-app.entrypoints=web"
-      - "traefik.http.routers.notploy-app.service=notploy-app"
-      - "traefik.http.services.notploy-app.loadbalancer.server.port=3000"
+      - "traefik.http.routers.notploy-api-dev.rule=Host(`${NOTPLOY_DEV_API_HOST:-api.notploy.invalid}`)"
+      - "traefik.http.routers.notploy-api-dev.entrypoints=web"
+      - "traefik.http.routers.notploy-api-dev.service=notploy-api"
+      - "traefik.http.services.notploy-api.loadbalancer.server.port=4000"
     volumes:
-      # Host Docker Engine integration is intentional: this is not DinD.
+      # Host Docker Engine integration is intentional: not DinD.
       - /var/run/docker.sock:/var/run/docker.sock
       - notploy-config:/etc/notploy
       - notploy-docker:/root/.docker
       - ./templates:/app/templates:ro
-      # Development source mounts are inert in the production image (/app).
-      # The dev image runs from /usr/src/app and sees edits immediately.
+      # Development hot reload. The API runs under `tsx watch` (pnpm dev:api),
+      # so synchronised source changes reload in place, packages included.
       - ./apps/notploy:/usr/src/app/apps/notploy
       - ./packages:/usr/src/app/packages
       - ./templates:/usr/src/app/templates
-      - /usr/src/app/node_modules
       - /usr/src/app/apps/notploy/node_modules
       - /usr/src/app/apps/notploy/.next
-      - /usr/src/app/packages/cli/node_modules
-      - /usr/src/app/packages/github/node_modules
-      - /usr/src/app/packages/mcp/node_modules
-      - /usr/src/app/packages/sdk/node_modules
       - /usr/src/app/packages/server/node_modules
     develop:
       watch:
+        # Sources are bind-mounted above and `tsx watch` reloads in place, so
+        # only a dependency change requires rebuilding the dev image.
         - action: rebuild
           path: pnpm-lock.yaml
     networks:
-      notploy:
-        aliases:
-          - notploy
+      - notploy
 
-# The external workload network is deliberately not owned by Compose: deployed
-# applications can outlive the Notploy stack and Traefik must keep routing them.
-# All services use this single network for a consistent topology.
+# ONE external network for the whole stack and for deployed workloads. It is
+# deliberately not owned by Compose: deployed applications outlive the stack and
+# Traefik must keep routing them. The Makefile creates it before `docker compose up`.
 networks:
   notploy:
     name: notploy-network

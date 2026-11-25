@@ -7,9 +7,10 @@
     This is the complete Windows Server installer, fully implemented in
     PowerShell. It does not delegate to install.sh: the Linux installer and
     this script are two independent entry points that share the same install
-    contract (Swarm services notploy / notploy-postgres, overlay network
-    notploy-network, Traefik container notploy-traefik, config under
-    /etc/notploy inside the Linux runtime).
+    contract (Swarm services notploy / notploy-api / notploy-postgres, overlay
+    network notploy-network, Traefik container notploy-traefik, config under
+    /etc/notploy inside the Linux runtime). The client and API services run the
+    SAME single notploy image; self and cloud are runtime editions, not images.
 
     Notploy's application, database and proxy images are Linux images. On
     Windows Server they run as Linux containers inside WSL2, which provides a
@@ -19,12 +20,13 @@
       1. verifies the host (elevated PowerShell, Windows Server 2022+),
       2. enables the WSL and VirtualMachinePlatform features,
       3. installs a WSL distribution (Ubuntu by default) in WSL2 mode,
-      4. configures mirrored networking so ports 80/443/3000 are reachable
+      4. configures mirrored networking so ports 80/443/3000/4000 are reachable
          from the LAN directly (no WSL2 NAT port-forwarding juggling),
       5. installs the Docker engine inside WSL if it is missing,
       6. opens the Windows firewall for the Notploy ports,
-      7. provisions the Notploy stack (Swarm, secrets, services, Traefik,
-         instance identity PKI) directly through the Docker engine.
+      7. provisions the Notploy stack (Swarm, secrets, client/api services,
+         Traefik, instance identity PKI) directly through the Docker engine,
+      8. installs the official CLI with `npm i -g @notploy/cli`.
 
     Native Windows containers are deliberately not supported: the published
     Notploy images (ghcr.io/skygenesisenterprise/notploy) target Linux.
@@ -33,10 +35,11 @@
     does not run there, so no migration source can exist on this host.
 
 .PARAMETER Product
-    Notploy product to install: self (default), cloud or console.
-    Cloud and console require NOTPLOY_ENTITLEMENT in the environment (or
-    NOTPLOY_ENTITLEMENT_FILE) plus NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE, and
-    fail closed without a valid signature.
+    Notploy edition to install: self (default) or cloud. Both use the SAME
+    single image; only runtime environment differs. Cloud requires
+    NOTPLOY_ENTITLEMENT in the environment (or NOTPLOY_ENTITLEMENT_FILE) plus
+    NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE, and fails closed without a valid
+    signature.
 
 .PARAMETER Action
     Install (default) or Update an existing Notploy installation.
@@ -71,7 +74,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('self', 'cloud', 'console')]
+    [ValidateSet('self', 'cloud')]
     [string]$Product = 'self',
 
     [ValidateSet('Install', 'Update')]
@@ -99,7 +102,27 @@ $script:IdentityDir = "$script:NotployConfigDir/identity"
 $script:NetworkName = 'notploy-network'
 $script:TraefikImage = 'traefik:v3.6.25'
 $script:PostgresImage = 'postgres:16'
-$script:RequiredPorts = @(80, 443, 3000)
+$script:RequiredPorts = @(80, 443, 3000, 4000)
+
+# One image for both editions; the flavour is set at runtime. Override with
+# NOTPLOY_IMAGE, or with NOTPLOY_REGISTRY when only the prefix changes.
+if ($env:NOTPLOY_IMAGE) {
+    $script:NotployImage = $env:NOTPLOY_IMAGE
+}
+elseif ($env:NOTPLOY_REGISTRY) {
+    $script:NotployImage = "$($env:NOTPLOY_REGISTRY)/notploy"
+}
+else {
+    $script:NotployImage = 'ghcr.io/skygenesisenterprise/notploy'
+}
+
+# Official CLI settings. Installation always uses `npm i -g @notploy/cli`
+# (optionally pinned to NOTPLOY_CLI_VERSION) inside the same WSL runtime.
+$script:CliPackage = if ($env:NOTPLOY_CLI_PACKAGE) { $env:NOTPLOY_CLI_PACKAGE } else { '@notploy/cli' }
+$script:CliVersion = if ($env:NOTPLOY_CLI_VERSION) { $env:NOTPLOY_CLI_VERSION } else { 'latest' }
+$script:CliHome = if ($env:NOTPLOY_CLI_HOME) { $env:NOTPLOY_CLI_HOME } else { '/usr/local/lib/notploy-cli' }
+$script:CliBin = if ($env:NOTPLOY_CLI_BIN) { $env:NOTPLOY_CLI_BIN } else { '/usr/local/bin/notploy' }
+$script:CliNodeVersion = if ($env:NOTPLOY_CLI_NODE_VERSION) { $env:NOTPLOY_CLI_NODE_VERSION } else { '24.4.0' }
 
 # --- Host prerequisites -----------------------------------------------------
 
@@ -109,6 +132,10 @@ function Assert-Administrator {
     if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         throw 'This installer must run from an elevated PowerShell (Run as administrator).'
     }
+}
+
+function Get-WindowsBuildNumber {
+    [int](Get-CimInstance -ClassName Win32_OperatingSystem).BuildNumber
 }
 
 function Assert-SupportedWindows {
@@ -250,6 +277,86 @@ service docker start
     Write-Host 'Docker engine ready inside WSL.'
 }
 
+# --- Official CLI -----------------------------------------------------------
+
+function Test-WslCliRuntime {
+    $probe = Invoke-WslRootCapture -Command "export PATH='$script:CliHome/bin:`$PATH'; command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1 && node -e `"const [major, minor] = process.versions.node.split(\`".\`").map(Number); process.exit(major > 20 || (major === 20 && minor >= 19) ? 0 : 1)`" >/dev/null 2>&1"
+    $probe.ExitCodeOk
+}
+
+function Ensure-WslCliRuntime {
+    if (Test-WslCliRuntime) { return '' }
+
+    Write-Host 'Node.js >= 20.19 with npm was not found; preparing a private runtime...'
+    Invoke-WslRoot -Command @"
+set -e
+export PNPM_HOME='$script:CliHome'
+mkdir -p "`$PNPM_HOME"
+if [ ! -x "`$PNPM_HOME/bin/pnpm" ]; then
+    curl -fsSL https://get.pnpm.io/install.sh | env PNPM_HOME="`$PNPM_HOME" SHELL=/bin/sh sh -
+fi
+if [ ! -x "`$PNPM_HOME/bin/node" ]; then
+    env PNPM_HOME="`$PNPM_HOME" PATH="`$PNPM_HOME/bin:`$PATH" "`$PNPM_HOME/bin/pnpm" runtime set node '$script:CliNodeVersion' --global -y
+fi
+"@
+
+    $npmProbe = Invoke-WslRootCapture -Command @"
+for candidate in '$script:CliHome/bin/npm' '$script:CliHome/bin/npm-cli.js' '$script:CliHome/lib/node_modules/npm/bin/npm-cli.js'; do
+    [ -e "`$candidate" ] && { printf '%s' "`$candidate"; exit 0; }
+done
+exit 1
+"@
+    if (-not $npmProbe.ExitCodeOk -or -not (($npmProbe.Output -join '').Trim())) {
+        throw 'npm is unavailable. Install Node.js >= 20.19 with npm inside WSL first.'
+    }
+    "$script:CliHome/bin"
+}
+
+function Install-NotployCli {
+    if ($script:CliPackage -notmatch '^@[^/]+/[^/]+$') {
+        throw "Invalid NOTPLOY_CLI_PACKAGE '$script:CliPackage'."
+    }
+    if ($script:CliVersion -notmatch '^[A-Za-z0-9._-]+$') {
+        throw "Invalid NOTPLOY_CLI_VERSION '$script:CliVersion'."
+    }
+
+    $nodeDir = (Invoke-WslRootCapture -Command 'dirname "$(command -v node)"').Output -join ''
+    if (-not (Test-WslCliRuntime)) { $nodeDir = Ensure-WslCliRuntime }
+    $nodeDir = $nodeDir.Trim()
+    if (-not $nodeDir) { throw 'Could not locate the Node.js runtime used for the Notploy CLI.' }
+
+    $spec = "$script:CliPackage@$script:CliVersion"
+    Write-Host "Installing or updating the official Notploy CLI: npm i -g $spec"
+    Invoke-WslRoot -Command @"
+set -e
+export PATH='$nodeDir:`$PATH'
+npm i -g '$spec'
+"@
+
+    $shimProbe = Invoke-WslRootCapture -Command @"
+set -e
+export PATH='$nodeDir:`$PATH'
+command -v notploy 2>/dev/null || printf '%s/bin/notploy' "`$(npm root -g 2>/dev/null)"
+"@
+    $shim = ($shimProbe.Output -join '').Trim()
+    if (-not $shim -or -not (Invoke-WslRootCapture -Command "[ -e '$shim' ]").ExitCodeOk) {
+        throw 'The Notploy CLI was installed but its executable was not found.'
+    }
+
+    $launcher = @"
+#!/bin/sh
+# Managed by the Notploy installer. Updated on every server update.
+PATH='$nodeDir:`$PATH'
+export PATH
+exec '$shim' "`$@"
+"@
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($launcher))
+    Invoke-WslRoot -Command "printf '%s' '$encoded' | base64 -d > '$script:CliBin' && chmod 755 '$script:CliBin'"
+
+    $version = Invoke-WslRootCapture -Command "'$script:CliBin' --version 2>/dev/null"
+    Write-Host "Notploy CLI ready: $(($version.Output -join '').Trim())"
+}
+
 # --- Windows firewall -------------------------------------------------------
 
 function Ensure-NotployFirewallRules {
@@ -257,7 +364,8 @@ function Ensure-NotployFirewallRules {
         @{ Name = 'Notploy-HTTP';       Port = 80;   Proto = 'TCP' },
         @{ Name = 'Notploy-HTTPS';      Port = 443;  Proto = 'TCP' },
         @{ Name = 'Notploy-HTTPS-UDP';  Port = 443;  Proto = 'UDP' },
-        @{ Name = 'Notploy-Panel';      Port = 3000; Proto = 'TCP' }
+        @{ Name = 'Notploy-Panel';      Port = 3000; Proto = 'TCP' },
+        @{ Name = 'Notploy-API';        Port = 4000; Proto = 'TCP' }
     )
     foreach ($rule in $rules) {
         if ($null -eq (Get-NetFirewallRule -DisplayName $rule.Name -ErrorAction SilentlyContinue)) {
@@ -291,15 +399,42 @@ function New-HexSecret {
 # --- Product / entitlement --------------------------------------------------
 
 function Resolve-Product {
-    if ($env:NOTPLOY_PRODUCT) { return $env:NOTPLOY_PRODUCT.ToLowerInvariant() }
-    switch ($env:NOTPLOY_FLAVOR) {
-        'self' { return 'self' }
-        'selfhosted' { return 'self' }
-        'cloud' { return 'cloud' }
-        'console' { return 'console' }
+    $resolved = $Product
+    if ($env:NOTPLOY_PRODUCT) { $resolved = $env:NOTPLOY_PRODUCT.ToLowerInvariant() }
+    elseif ($env:NOTPLOY_FLAVOR) {
+        switch ($env:NOTPLOY_FLAVOR.ToLowerInvariant()) {
+            'self' { $resolved = 'self' }
+            'selfhosted' { $resolved = 'self' }
+            'cloud' { $resolved = 'cloud' }
+            default { $resolved = $env:NOTPLOY_FLAVOR.ToLowerInvariant() }
+        }
     }
-    if ($env:IS_CLOUD -eq 'true') { return 'cloud' }
-    $Product
+    elseif ($env:IS_CLOUD -eq 'true') { $resolved = 'cloud' }
+
+    switch ($resolved) {
+        'self' { return 'self' }
+        'cloud' { return 'cloud' }
+        'console' { throw "Unknown edition '$resolved' (expected self or cloud). The console product no longer exists." }
+        default { throw "Unknown edition '$resolved' (expected self or cloud)." }
+    }
+}
+
+function Set-NotployEditionEnvironment {
+    # `self` maps to NOTPLOY_FLAVOR=selfhosted; `cloud` maps to cloud. Both run
+    # the same image, so this environment is the only edition selector.
+    if ($script:Product -eq 'self') {
+        $env:NOTPLOY_FLAVOR = 'selfhosted'
+        $env:IS_CLOUD = 'false'
+    }
+    else {
+        $env:NOTPLOY_FLAVOR = 'cloud'
+        $env:IS_CLOUD = 'true'
+    }
+    $env:NOTPLOY_PRODUCT = $script:Product
+}
+
+function Get-NotployProductEnv {
+    "-e NOTPLOY_PRODUCT=$script:Product -e NOTPLOY_FLAVOR=$env:NOTPLOY_FLAVOR -e IS_CLOUD=$env:IS_CLOUD -e NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE=$script:IdentityDir/entitlement-ca.pub"
 }
 
 function Test-AllowUnlicensedDev {
@@ -386,7 +521,7 @@ function Test-PortListeningInWsl {
 
 function Assert-RequiredPorts {
     if (-not (Test-SshAvailableInWsl)) {
-        Write-Warning "'ss' is not available inside WSL; skipping the listening-port check. Ensure ports 80, 443 and 3000 are free."
+        Write-Warning "'ss' is not available inside WSL; skipping the listening-port check. Ensure ports 80, 443, 3000 and 4000 are free."
         return
     }
     foreach ($port in $script:RequiredPorts) {
@@ -396,7 +531,7 @@ function Assert-RequiredPorts {
                 Write-Host "Port $port is served by the existing Notploy installation (reusing it)."
                 continue
             }
-            throw "Port $port is already in use inside the WSL runtime. Notploy requires ports 80, 443 and 3000. Stop the conflicting service and re-run."
+            throw "Port $port is already in use inside the WSL runtime. Notploy requires ports 80, 443, 3000 and 4000. Stop the conflicting service and re-run."
         }
     }
 }
@@ -416,9 +551,9 @@ then re-run this installer.
 }
 
 function Test-NotployInstalled {
-    $svc = Invoke-WslRootCapture -Command "docker service ls --format '{{.Name}}' 2>/dev/null | grep -qx 'notploy'"
+    $svc = Invoke-WslRootCapture -Command "docker service ls --format '{{.Name}}' 2>/dev/null | grep -qE '^(notploy|notploy-api)$'"
     if ($svc.ExitCodeOk) { return $true }
-    $ctr = Invoke-WslRootCapture -Command "docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qE '^notploy$'"
+    $ctr = Invoke-WslRootCapture -Command "docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qE '^(notploy|notploy-api)$'"
     $ctr.ExitCodeOk
 }
 
@@ -471,12 +606,9 @@ function Get-LatestVersion {
 
 function Resolve-DockerImage {
     param([Parameter(Mandatory)][string]$Tag)
-    switch -Wildcard ($Tag) {
-        'v[0-9]*.[0-9]*.[0-9]*-app' { return "ghcr.io/skygenesisenterprise/notploy:$Tag" }
-        'v[0-9]*.[0-9]*.[0-9]*'     { return "ghcr.io/skygenesisenterprise/notploy:$Tag-app" }
-        'latest'                    { return 'ghcr.io/skygenesisenterprise/notploy:latest' }
-        default                     { return "ghcr.io/skygenesisenterprise/notploy:$Tag" }
-    }
+    # Historical `-app` tags are normalised away: self and cloud share one image.
+    if ($Tag.EndsWith('-app')) { $Tag = $Tag.Substring(0, $Tag.Length - 4) }
+    '{0}:{1}' -f $script:NotployImage, $Tag
 }
 
 # --- Stack provisioning -----------------------------------------------------
@@ -507,8 +639,32 @@ if [ -e '$script:NotployConfigDir' ] && [ ! -d '$script:NotployConfigDir' ]; the
     echo "Error: $script:NotployConfigDir exists but is not a directory" >&2
     exit 1
 fi
-mkdir -p '$script:NotployConfigDir'
+mkdir -p '$script:NotployConfigDir/identity' '$script:NotployConfigDir/traefik/dynamic'
 chmod 700 '$script:NotployConfigDir'
+
+# Traefik was previously started with config files that the installer never
+# created. Generate a minimal, idempotent defaults file; existing admin config
+# is never overwritten.
+if [ ! -f '$script:NotployConfigDir/traefik/traefik.yml' ]; then
+    cat > '$script:NotployConfigDir/traefik/traefik.yml' <<'TRAEFIK'
+api:
+  dashboard: true
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    swarmMode: true
+    network: notploy-network
+    exposedByDefault: false
+  file:
+    directory: /etc/notploy/traefik/dynamic
+    watch: true
+TRAEFIK
+fi
 echo 'Config directory ready: $script:NotployConfigDir (mode 700)'
 "@
 }
@@ -517,7 +673,7 @@ function Install-InstanceIdentity {
     Invoke-WslRoot -Command @"
 set -e
 dir='$script:IdentityDir'
-product='$Product'
+product='$script:Product'
 force='$ForceIdentity'
 
 mkdir -p "`$dir"
@@ -572,9 +728,8 @@ key_fingerprint=`$(openssl pkey -in "`$dir/instance.key" -pubout -outform DER 2>
     | openssl dgst -sha256 | sed 's/^.*= //')
 
 case "`$product" in
-    cloud)   capabilities='["cloud.control-plane","cloud.managed-services","cloud.fleet"]' ;;
-    console) capabilities='["console.instance-management","console.fleet","console.remote-management"]' ;;
-    *)       capabilities='["self.hosted","self.local-registry","self.offline"]' ;;
+    cloud) capabilities='["cloud.control-plane","cloud.managed-services","cloud.fleet"]' ;;
+    *)     capabilities='["self.hosted","self.local-registry","self.offline"]' ;;
 esac
 
 cat > "`$dir/identity.json" <<JSON
@@ -592,9 +747,29 @@ echo "Instance identity created for product '`$product' at `$dir"
 "@
 }
 
+function Install-EntitlementPublicKey {
+    $source = $env:NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE
+    if (-not $source) { return }
+
+    $target = "$script:IdentityDir/entitlement-ca.pub"
+    $hostPath = Convert-WslPathForHostProbe -Path $source
+    if (Test-Path -LiteralPath $hostPath -PathType Leaf) {
+        $key = Get-Content -LiteralPath $hostPath -Raw
+        $encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($key))
+        Invoke-WslRoot -Command "printf '%s' '$encoded' | base64 -d > '$target' && chmod 644 '$target'"
+        return
+    }
+    if ($source -ne $target) {
+        $copy = Invoke-WslRootCapture -Command "cp '$source' '$target' && chmod 644 '$target'"
+        if (-not $copy.ExitCodeOk) {
+            throw "NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE points to an unreadable key: $source"
+        }
+    }
+}
+
 function Install-Entitlement {
     if (Test-AllowUnlicensedDev) {
-        Write-Warning "Running product '$Product' without a signed entitlement (development only)."
+        Write-Warning "Running product '$script:Product' without a signed entitlement (development only)."
         return
     }
 
@@ -603,7 +778,7 @@ function Install-Entitlement {
         $token = (Get-Content -Path $env:NOTPLOY_ENTITLEMENT_FILE -Raw).Trim()
     }
     if (-not $token) {
-        throw "Product '$Product' requires a signed entitlement. Provide NOTPLOY_ENTITLEMENT (token) or NOTPLOY_ENTITLEMENT_FILE."
+        throw "Product '$script:Product' requires a signed entitlement. Provide NOTPLOY_ENTITLEMENT (token) or NOTPLOY_ENTITLEMENT_FILE."
     }
     if (-not (Test-EntitlementToken -Token $token)) {
         throw "Refusing to install a protected product without a valid entitlement."
@@ -613,12 +788,13 @@ function Install-Entitlement {
 printf '%s\n' '$token' > '$script:IdentityDir/entitlement.token'
 chmod 600 '$script:IdentityDir/entitlement.token'
 "@
-    Write-Host "Entitlement verified for product '$Product'"
+    Write-Host "Entitlement verified for product '$script:Product'"
 }
 
 function Install-Identity {
     Install-InstanceIdentity
-    if ($Product -ne 'self') {
+    if ($script:Product -ne 'self') {
+        Install-EntitlementPublicKey
         Install-Entitlement
     }
 }
@@ -719,7 +895,49 @@ docker service create \
     Write-Host "Created service 'notploy-postgres'."
 }
 
-function New-AppService {
+# Both roles run the SAME image. NOTPLOY_ROLE selects the runtime role; the
+# self/cloud edition is passed as environment to both services.
+function New-ApiService {
+    param(
+        [Parameter(Mandatory)][string]$Image,
+        [Parameter(Mandatory)][string]$ReleaseTag
+    )
+    if (Test-ServiceExists -Service 'notploy-api') {
+        Write-Host "Service 'notploy-api' already exists; leaving it untouched."
+        return
+    }
+
+    $productEnv = Get-NotployProductEnv
+    $create = Invoke-WslRootCapture -Command @"
+docker service create \
+    --name notploy-api \
+    --replicas 1 \
+    --network $script:NetworkName \
+    --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
+    --mount type=bind,source=$script:NotployConfigDir,target=/etc/notploy \
+    --mount type=volume,source=notploy,target=/root/.docker \
+    --secret source=notploy_postgres_password,target=/run/secrets/postgres_password \
+    --secret source=notploy_auth_secret,target=/run/secrets/notploy_auth_secret \
+    --publish published=4000,target=4000,mode=host \
+    --update-parallelism 1 \
+    --update-order stop-first \
+    --constraint 'node.role == manager' \
+    $productEnv \
+    -e RELEASE_TAG=$ReleaseTag \
+    -e NOTPLOY_ROLE=api \
+    -e NOTPLOY_RUN_MIGRATIONS=1 \
+    -e NOTPLOY_TEMPLATES_DIR=/app/templates/blueprints \
+    -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
+    -e BETTER_AUTH_SECRET_FILE=/run/secrets/notploy_auth_secret \
+    '$Image' >/dev/null 2>&1
+"@
+    if (-not $create.ExitCodeOk) {
+        throw "Failed to create the 'notploy-api' service."
+    }
+    Write-Host "Created service 'notploy-api'."
+}
+
+function New-ClientService {
     param(
         [Parameter(Mandatory)][string]$Image,
         [Parameter(Mandatory)][string]$ReleaseTag
@@ -729,19 +947,12 @@ function New-AppService {
         return
     }
 
-    $productEnv = ''
-    if ($Product -ne 'self') {
-        $productEnv = "-e NOTPLOY_FLAVOR=$Product -e IS_CLOUD=true -e NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE=$script:IdentityDir/entitlement-ca.pub"
-    }
-
+    $productEnv = Get-NotployProductEnv
     $create = Invoke-WslRootCapture -Command @"
 docker service create \
     --name notploy \
     --replicas 1 \
     --network $script:NetworkName \
-    --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
-    --mount type=bind,source=$script:NotployConfigDir,target=/etc/notploy \
-    --mount type=volume,source=notploy,target=/root/.docker \
     --secret source=notploy_postgres_password,target=/run/secrets/postgres_password \
     --secret source=notploy_auth_secret,target=/run/secrets/notploy_auth_secret \
     --publish published=3000,target=3000,mode=host \
@@ -750,14 +961,16 @@ docker service create \
     --constraint 'node.role == manager' \
     $productEnv \
     -e RELEASE_TAG=$ReleaseTag \
+    -e NOTPLOY_ROLE=client \
+    -e API_INTERNAL_URL=http://notploy-api:4000 \
     -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
     -e BETTER_AUTH_SECRET_FILE=/run/secrets/notploy_auth_secret \
     '$Image' >/dev/null 2>&1
 "@
     if (-not $create.ExitCodeOk) {
-        throw "Failed to create the 'notploy' service."
+        throw "Failed to create the 'notploy' (client) service."
     }
-    Write-Host "Created service 'notploy'."
+    Write-Host "Created service 'notploy' (client)."
 }
 
 function Ensure-TraefikContainer {
@@ -827,7 +1040,7 @@ function Show-AccessSummary {
     }
     $privateIp = Get-PrivateIpInWsl
     Write-Host ''
-    Write-Host 'Notploy is installed and the service is running.' -ForegroundColor Green
+    Write-Host 'Notploy is installed and the client/API services are running.' -ForegroundColor Green
     Write-Host "Please go to http://${publicIp}:3000" -ForegroundColor Yellow
     if ($privateIp -and $privateIp -ne $publicIp) {
         Write-Host "If you are on the same local network, use http://${privateIp}:3000" -ForegroundColor Yellow
@@ -874,17 +1087,25 @@ function Invoke-Install {
         throw "The 'notploy-postgres' service did not converge."
     }
 
-    New-AppService -Image $dockerImage -ReleaseTag $versionTag
-    Write-Host "Waiting for the 'notploy' service to converge (up to 180s)..."
-    if (Wait-ServiceConvergence -Service 'notploy' -TimeoutSeconds 180) {
-        Write-Host "Service 'notploy' converged."
+    New-ApiService -Image $dockerImage -ReleaseTag $versionTag
+    Write-Host "Waiting for the 'notploy-api' service to converge (up to 180s)..."
+    if (-not (Wait-ServiceConvergence -Service 'notploy-api' -TimeoutSeconds 180)) {
+        Invoke-WslRoot -Command 'docker service ps notploy-api --no-trunc >&2 || true'
+        throw "The 'notploy-api' service did not converge within the timeout. Diagnose with: docker service ps notploy-api"
     }
-    else {
+    Write-Host "Service 'notploy-api' converged."
+
+    New-ClientService -Image $dockerImage -ReleaseTag $versionTag
+    Write-Host "Waiting for the 'notploy' (client) service to converge (up to 180s)..."
+    if (-not (Wait-ServiceConvergence -Service 'notploy' -TimeoutSeconds 180)) {
         Invoke-WslRoot -Command 'docker service ps notploy --no-trunc >&2 || true'
-        throw "The 'notploy' service did not converge within the timeout. Diagnose with: docker service ps notploy"
+        throw "The 'notploy' client service did not converge within the timeout. Diagnose with: docker service ps notploy"
     }
+    Write-Host "Service 'notploy' (client) converged."
 
     Ensure-TraefikContainer
+    try { Install-NotployCli }
+    catch { Write-Warning "The official Notploy CLI could not be installed: $($_.Exception.Message)" }
     Show-AccessSummary
 }
 
@@ -906,20 +1127,37 @@ function Invoke-Update {
         throw "Could not pull $dockerImage. Nothing was changed; the running version is untouched."
     }
 
-    $update = Invoke-WslRootCapture -Command "docker service update --image '$dockerImage' notploy >/dev/null 2>&1"
-    if (-not $update.ExitCodeOk) {
-        throw "docker service update failed. Recover with: docker service rollback notploy"
+    # Old installs had a single service. Give it the client role and create the
+    # API role from the same image; both editions stay runtime-only.
+    if (-not (Test-ServiceExists -Service 'notploy-api')) {
+        Write-Host "Creating the 'notploy-api' role (same image, NOTPLOY_ROLE=api)..."
+        New-ApiService -Image $dockerImage -ReleaseTag $versionTag
+        $productEnv = Get-NotployProductEnv
+        $roleEnv = "$productEnv -e NOTPLOY_ROLE=client -e API_INTERNAL_URL=http://notploy-api:4000"
+        Invoke-WslRoot -Command "docker service update $roleEnv notploy >/dev/null 2>&1 || true"
     }
 
-    Write-Host "Waiting for the 'notploy' service to converge (up to 180s)..."
-    if (Wait-ServiceConvergence -Service 'notploy' -TimeoutSeconds 180) {
+    $services = @('notploy-api', 'notploy')
+    foreach ($service in $services) {
+        $update = Invoke-WslRootCapture -Command "docker service update --image '$dockerImage' $service >/dev/null 2>&1"
+        if (-not $update.ExitCodeOk) {
+            throw "docker service update failed for '$service'. Recover with: docker service rollback $service"
+        }
+    }
+
+    Write-Host "Waiting for the 'notploy-api' and 'notploy' services to converge (up to 180s)..."
+    if ((Wait-ServiceConvergence -Service 'notploy-api' -TimeoutSeconds 180) -and
+        (Wait-ServiceConvergence -Service 'notploy' -TimeoutSeconds 180)) {
         Write-Host "Notploy has been updated to version: $versionTag."
+        try { Install-NotployCli }
+        catch { Write-Warning "The official Notploy CLI could not be refreshed: $($_.Exception.Message)" }
     }
     else {
+        Invoke-WslRoot -Command 'docker service ps notploy-api --no-trunc >&2 || true'
         Invoke-WslRoot -Command 'docker service ps notploy --no-trunc >&2 || true'
         throw @'
 The update did not converge to a running state within the timeout.
-Recovery: docker service rollback notploy
+Recovery: docker service rollback notploy-api and docker service rollback notploy
 Note: an image rollback does not undo database schema migrations; check the
 release notes if the new version changed the schema.
 '@
@@ -933,15 +1171,7 @@ function main {
     Assert-SupportedWindows
 
     $script:Product = Resolve-Product
-    switch ($script:Product) {
-        'self' { }
-        'cloud' { }
-        'console' { }
-        default { throw "Unknown product '$script:Product' (expected self, cloud or console)." }
-    }
-    if ($script:Product -ne 'self') {
-        $env:IS_CLOUD = 'true'
-    }
+    Set-NotployEditionEnvironment
 
     if (-not (Test-WslCliAvailable)) {
         Enable-WslHostFeatures

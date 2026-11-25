@@ -3,7 +3,7 @@
 # Regression tests for install.sh.
 #
 # There is no real Docker/Dokploy host in CI, so `docker`, `ss`, `curl`, `id`,
-# `ip`, `node`, `openssl` and `pnpm` are mocked. The tests assert on exit codes,
+# `ip`, `node`, `openssl`, `npm` and `pnpm` are mocked. The tests assert on exit codes,
 # human output, and — crucially — on which commands were executed or
 # deliberately *not* executed (see the per-case command log). install.sh is
 # always invoked through `sh` so POSIX (`dash`) compatibility is exercised too.
@@ -356,6 +356,24 @@ case "$1" in
 esac
 MOCK
 
+cat > "$MOCKS/npm" <<'MOCK'
+#!/bin/sh
+# The installer installs the official CLI with `npm i -g @notploy/cli`.
+STATE="${MOCK_STATE:?}"
+bindir="$(dirname "$0")"
+printf 'npm %s\n' "$*" >> "$STATE/call.log"
+[ "$(cat "$STATE/fail_cli" 2>/dev/null)" = "1" ] && exit 1
+case "$*" in
+    i\ -g\ *|install\ -g\ *)
+        cat > "$bindir/notploy" <<'SH'
+#!/bin/sh
+printf '1.0.3\n'
+SH
+        chmod +x "$bindir/notploy"
+        ;;
+esac
+MOCK
+
 cat > "$MOCKS/pnpm" <<'MOCK'
 #!/bin/sh
 STATE="${MOCK_STATE:?}"
@@ -448,7 +466,7 @@ assert_file_exists "$CASE_DIR/etc/notploy/identity/instance.key" "bootstraps the
 assert_contains "$OUT" "Running as root" "detects root without needing sudo"
 assert_not_logged "sudo docker" "does not invoke sudo when already root"
 assert_contains "$OUT" "Notploy CLI ready: 1.0.3" "installs the official Notploy CLI"
-assert_logged "pnpm i -g @notploy/cli@latest" "installs @notploy/cli through pnpm"
+assert_logged "npm i -g @notploy/cli@latest" "installs the official CLI through npm"
 assert_file_exists "$CASE_DIR/bin/notploy" "exposes the CLI launcher"
 
 # ==========================================================================
@@ -578,7 +596,7 @@ NOTPLOY_VERSION=v2.0.0 run_install_capture update
 assert_rc "$RC" 0 "update succeeds when the service converges"
 assert_logged "docker service update" "updates the service"
 assert_contains "$OUT" "has been updated to version: v2.0.0" "reports the updated version"
-assert_logged "pnpm i -g @notploy/cli@latest" "refreshes the Notploy CLI on update"
+assert_logged "npm i -g @notploy/cli@latest" "refreshes the Notploy CLI on update"
 assert_contains "$OUT" "Notploy CLI ready: 1.0.3" "reports the refreshed CLI"
 
 # ==========================================================================

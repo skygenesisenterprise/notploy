@@ -14,28 +14,28 @@ SHELL := /bin/bash
 # NOTPLOY_PORT is left unset on purpose so docker-compose.yml keeps resolving
 # it from .env (or from the 3000 default); pass NOTPLOY_PORT=8080 to override.
 #
-# The product (self | cloud | console) is deliberately NOT one of them: it can
-# only be chosen with a make goal, never by editing this file or .env — see
-# "Inline product flag" below. NOTPLOY_FLAVOR / NOTPLOY_PRODUCT / IS_CLOUD are
-# derived from it and must not be set by hand.
+# The edition (self | cloud) is deliberately NOT one of them: it can only be
+# chosen with a make goal, never by editing this file or .env — see "Inline
+# edition flag" below. NOTPLOY_FLAVOR / NOTPLOY_PRODUCT / IS_CLOUD are derived
+# from it and must not be set by hand.
 NOTPLOY_VERSION ?= latest
 NOTPLOY_REGISTRY ?= ghcr.io/skygenesisenterprise
-# Protected products (cloud/console) need a signed entitlement.
+# The cloud edition needs a signed entitlement.
 NOTPLOY_ENTITLEMENT ?=
 NOTPLOY_ENTITLEMENT_FILE ?=
 NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE ?=
 
-# --- Inline product flag ---------------------------------------------------
-# Select the product for one invocation, without editing .env or exporting
+# --- Inline edition flag ---------------------------------------------------
+# Select the edition for one invocation, without editing .env or exporting
 # anything. Works with docker-build, docker-up and docker-dev:
 #
 #   make docker-up -- --cloud    # cloud (requires a signed entitlement)
-#   make docker-dev console      # console (requires a signed entitlement)
+#   make docker-dev self         # self-hosted (default)
 #
 # GNU make itself rejects `make docker-dev --self` (`--self` is parsed as an
 # unknown make option before any recipe runs), hence the `--` separator or the
-# bare word. Each product maps to its Dockerfile target: self -> selfhosted,
-# cloud -> cloud and console -> console.
+# bare word. Each edition maps to its Dockerfile target: self -> selfhosted,
+# cloud -> cloud.
 #
 # --- Remembered product ----------------------------------------------------
 # Each build records the product in PRODUCT_STATE, so a later command reuses
@@ -45,13 +45,13 @@ NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE ?=
 #   make docker-up        # start the product built last, without rebuilding
 #   make docker-down      # stop the stack — the image is kept for the next start
 #
-# Precedence: inline product flag > the product recorded by the last build >
+# Precedence: inline edition flag > the edition recorded by the last build >
 # selfhosted. NOTPLOY_FLAVOR= / NOTPLOY_PRODUCT= passed by hand are rejected
-# (see the warnings below): the flavor only follows the product.
+# (see the warnings below): the flavor only follows the edition.
 PRODUCT_STATE := .make-product
 
-# Products: self (default), cloud and console.
-GOAL_PRODUCT := $(firstword $(filter self cloud console,$(patsubst --%,%,$(MAKECMDGOALS))))
+# Editions: self (default) and cloud.
+GOAL_PRODUCT := $(firstword $(filter self cloud,$(patsubst --%,%,$(MAKECMDGOALS))))
 
 ifneq ($(GOAL_PRODUCT),)
 SELECTED_PRODUCT := $(GOAL_PRODUCT)
@@ -64,43 +64,35 @@ endif
 # NOTPLOY_FLAVOR / NOTPLOY_PRODUCT are derived below: refuse a direct
 # assignment instead of silently running a product that was not selected.
 ifneq ($(filter $(origin NOTPLOY_FLAVOR),command line environment),)
-$(warning NOTPLOY_FLAVOR is derived from the product — use 'make <goal> self|cloud|console' instead; ignoring 'NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR)')
+$(warning NOTPLOY_FLAVOR is derived from the edition — use 'make <goal> self|cloud' instead; ignoring 'NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR)')
 endif
 ifneq ($(filter $(origin NOTPLOY_PRODUCT),command line environment),)
-$(warning NOTPLOY_PRODUCT is derived from the product — use 'make <goal> self|cloud|console' instead; ignoring 'NOTPLOY_PRODUCT=$(NOTPLOY_PRODUCT)')
+$(warning NOTPLOY_PRODUCT is derived from the edition — use 'make <goal> self|cloud' instead; ignoring 'NOTPLOY_PRODUCT=$(NOTPLOY_PRODUCT)')
 endif
 
 override NOTPLOY_PRODUCT := $(SELECTED_PRODUCT)
 # `override` so the selection cannot be bypassed by a command-line assignment:
-# the flavor always stays in sync with the chosen product.
+# the flavor always stays in sync with the chosen edition.
 ifeq ($(SELECTED_PRODUCT),self)
 override NOTPLOY_FLAVOR := selfhosted
-else ifeq ($(SELECTED_PRODUCT),console)
-override NOTPLOY_FLAVOR := console
 else
 override NOTPLOY_FLAVOR := cloud
 endif
 
-# Word form of the selected product, written to / read from PRODUCT_STATE.
+# Word form of the selected edition, written to / read from PRODUCT_STATE.
 ifeq ($(NOTPLOY_FLAVOR),cloud)
 PRODUCT_WORD := cloud
-else ifeq ($(NOTPLOY_FLAVOR),console)
-PRODUCT_WORD := console
 else
 PRODUCT_WORD := self
 endif
 
-# Three products: selfhosted (default, also spelled `self`), cloud and console.
-# Cloud and console are protected products: they publish dedicated images and
-# require signed entitlements through the PKI layer.
-ifeq ($(NOTPLOY_FLAVOR),cloud)
-NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy-cloud
-override IS_CLOUD := true
-else ifeq ($(NOTPLOY_FLAVOR),console)
-NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy-console
-override IS_CLOUD := false
-else
+# Two editions: self (default, flavor `selfhosted`) and cloud. Both run the
+# SAME image: only the runtime environment changes. Cloud is a protected
+# edition: it requires a signed entitlement through the PKI layer.
 NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy
+ifeq ($(NOTPLOY_FLAVOR),cloud)
+override IS_CLOUD := true
+else
 override IS_CLOUD := false
 endif
 
@@ -122,8 +114,8 @@ COMPOSE ?= docker compose
 env-file-default = $(or $($(1)),$(shell sed -n 's/^[[:space:]]*$(1)[[:space:]]*=[[:space:]]*\([^#]*\).*/\1/p' .env 2>/dev/null | tail -n 1),$(2))
 
 # Host ports of the control plane (Traefik, app, LAN DNS) for `up` and `dev`.
-CHECK_PORTS_UP := $(call env-file-default,NOTPLOY_DNS_HOST_PORT,53) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080
-CHECK_PORTS_DEV := $(call env-file-default,NOTPLOY_DNS_DEV_HOST_PORT,5300) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080
+CHECK_PORTS_UP := $(call env-file-default,NOTPLOY_DNS_HOST_PORT,53) $(call env-file-default,NOTPLOY_PORT,3000) $(call env-file-default,NOTPLOY_API_PORT,4000) 80 443 8080
+CHECK_PORTS_DEV := $(call env-file-default,NOTPLOY_DNS_DEV_HOST_PORT,5300) $(call env-file-default,NOTPLOY_PORT,3000) $(call env-file-default,NOTPLOY_API_PORT,4000) 80 443 8080
 
 # One recipe line: report every port about to be published that something else
 # already holds, with its owner — docker's own error does not say which port it
@@ -134,7 +126,7 @@ dns-ports-check = busy() { command -v ss >/dev/null 2>&1 && ss -lntu "sport = :$
 
 # Exported to every compose invocation so build target and image tag stay in
 # sync with the selected flavor.
-COMPOSE_ENV = NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_BUILD_TARGET=$(NOTPLOY_FLAVOR) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE) NOTPLOY_VERSION=$(NOTPLOY_VERSION) IS_CLOUD=$(IS_CLOUD) \
+COMPOSE_ENV = NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_BUILD_TARGET=platform NOTPLOY_IMAGE=$(NOTPLOY_IMAGE) NOTPLOY_VERSION=$(NOTPLOY_VERSION) IS_CLOUD=$(IS_CLOUD) \
 	NOTPLOY_PRODUCT=$(NOTPLOY_PRODUCT) NOTPLOY_ENTITLEMENT=$(NOTPLOY_ENTITLEMENT) \
 	NOTPLOY_ENTITLEMENT_FILE=$(NOTPLOY_ENTITLEMENT_FILE) NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE=$(NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE)
 
@@ -153,24 +145,29 @@ CLEAN_EXTERNAL_TRAEFIK = [ -z "$$(docker ps -aq -f 'name=^notploy-traefik$$')" ]
 ENSURE_NETWORK = docker network inspect notploy-network >/dev/null 2>&1 || { echo "==> creating notploy-network"; docker network create --driver overlay --attachable notploy-network >/dev/null; }
 
 # --- Compose selection --------------------------------------------------------
-COMPOSE_BUILD_SERVICE := notploy
+# `client` and `api` build the same image; building one is enough.
+COMPOSE_BUILD_SERVICE := api
 COMPOSE_UP_PROFILES := --profile prod
 COMPOSE_UP_SERVICES :=
 COMPOSE_DEV_PROFILES := --profile dev
-COMPOSE_DEV_SERVICE := notploy
-COMPOSE_DEV_ENV := NOTPLOY_IMAGE=notploy-dev:local NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=${NOTPLOY_DNS_DEV_HOST_PORT:-5300} NOTPLOY_TEMPLATES_DIR=/usr/src/app/templates/blueprints NOTPLOY_GATEWAY_ERRORS_IMAGE=notploy-dev:local NOTPLOY_GATEWAY_ERRORS_COMMAND='pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts' NOTPLOY_GATEWAY_ERRORS_WORKDIR=/usr/src/app NOTPLOY_ALLOW_UNLICENSED_DEV=${NOTPLOY_ALLOW_UNLICENSED_DEV:-1}
+COMPOSE_DEV_SERVICE := api client
+# Dev is a MODE of the same image, not a second image name: same NOTPLOY_IMAGE,
+# only the tag/version and the build target change.
+# Dev-only Traefik hostnames (the prod routers keep their real host / an
+# unresolvable fallback), and the browser-facing API origin for WebSockets.
+COMPOSE_DEV_ENV := NOTPLOY_VERSION=dev NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=${NOTPLOY_DNS_DEV_HOST_PORT:-5300} NOTPLOY_DEV_APP_HOST=app.notploy.localhost NOTPLOY_DEV_API_HOST=api.notploy.localhost NEXT_PUBLIC_API_URL=http://api.notploy.localhost NOTPLOY_TEMPLATES_DIR=/usr/src/app/templates/blueprints NOTPLOY_GATEWAY_ERRORS_IMAGE=$(NOTPLOY_IMAGE):dev NOTPLOY_GATEWAY_ERRORS_COMMAND='pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts' NOTPLOY_GATEWAY_ERRORS_WORKDIR=/usr/src/app NOTPLOY_ALLOW_UNLICENSED_DEV=${NOTPLOY_ALLOW_UNLICENSED_DEV:-1}
 STACK_PREPARE = $(CLEAN_EXTERNAL_TRAEFIK) ; $(ENSURE_NETWORK)
 
 .PHONY: help install dev build test typecheck lint \
         docker-build docker-up docker-down docker-restart docker-logs docker-ps docker-config docker-dev \
-        self cloud console --self --cloud --console \
+        self cloud --self --cloud \
         status-seed \
         clean
 
-# No-op goals that only carry the product flag (see GOAL_PRODUCT above). They
+# No-op goals that only carry the edition flag (see GOAL_PRODUCT above). They
 # exist so `make docker-build cloud` / `make docker-dev -- --self` have a rule
-# to satisfy while the real target reads the product from MAKECMDGOALS.
-self cloud console --self --cloud --console:
+# to satisfy while the real target reads the edition from MAKECMDGOALS.
+self cloud --self --cloud:
 	@:
 
 # ---------------------------------------------------------------------------
@@ -184,17 +181,17 @@ help: ## Show this help
 	@echo ""
 	@echo "Variables: NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_VERSION=$(NOTPLOY_VERSION) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE)"
 	@echo "           IS_CLOUD=$(IS_CLOUD) NOTPLOY_PRODUCT=$(PRODUCT_WORD) NOTPLOY_PORT=$${NOTPLOY_PORT:-3000}"
-	@echo "Product:   $(PRODUCT_WORD)$$(test -f $(PRODUCT_STATE) && echo ' (saved by the last build)')"
+	@echo "Edition:   $(PRODUCT_WORD)$$(test -f $(PRODUCT_STATE) && echo ' (saved by the last build)')"
+	@echo "Image:     $(NOTPLOY_IMAGE) (the same image in dev and prod; only the mode changes)."
 	@echo "Identity:  the container bootstraps the instance identity into the"
 	@echo "           notploy-config volume at startup (self-hosted needs no network)."
 	@echo "Examples:  make docker-up self              # build a fresh image + start self-hosted"
 	@echo "           make docker-up                   # restart the image built last, no rebuild"
-	@echo "           make docker-up cloud             # build a fresh cloud image + start"
-	@echo "           make docker-up -- --console      # build a fresh console image + start"
+	@echo "           make docker-up cloud             # same image, cloud mode (needs entitlement)"
 	@echo "           make docker-build self           # rebuild only, without starting"
-	@echo "           make docker-dev                   # dev, product of the last build"
-	@echo "           make docker-dev self              # dev, self-hosted (default)"
-	@echo "           make docker-dev console           # dev, console (needs entitlement)"
+	@echo "           make docker-dev                   # dev mode, edition of the last build"
+	@echo "           make docker-dev self              # dev mode, self-hosted (default)"
+	@echo "           make docker-dev cloud             # dev mode, cloud (needs entitlement)"
 	@echo "           make status-seed                  # create the Notploy status page + components"
 
 # ---------------------------------------------------------------------------
@@ -226,26 +223,26 @@ lint: ## Lint/format check (pnpm lint)
 # modes. They share the port, so only one of them runs at a time — stop the
 # other first with `make docker-down`.
 # ---------------------------------------------------------------------------
-# Both targets accept the inline product flag (self | cloud | console), the
-# same way docker-dev does:
+# Both targets accept the inline edition flag (self | cloud), the same way
+# docker-dev does. Both editions build/run the SAME image name:
 #
 #   make docker-up self          # build a fresh image + start self-hosted
-#   make docker-up -- --console  # build a fresh image + start console
+#   make docker-up -- --cloud    # same image, cloud mode (needs entitlement)
 #
-# Semantics: an inline product flag means "build a new image", so `docker-up
-# <product>` always triggers docker-build (prefixed, full rebuild) before
+# Semantics: an inline edition flag means "build a new image", so `docker-up
+# <edition>` always triggers docker-build (prefixed, full rebuild) before
 # starting. A plain `make docker-up` never rebuilds: it restarts the stack
 # with the image built previously (PRODUCT_STATE). `make docker-down` only
 # removes the containers, the image stays, so the next plain `make docker-up`
-# relaunches instantly. Use `make docker-build <product>` to rebuild ignoring
+# relaunches instantly. Use `make docker-build <edition>` to rebuild ignoring
 # PRODUCT_STATE.
-docker-build: ## Build one image only (add: self | cloud | console, NOTPLOY_VERSION=<tag>)
-	@echo "==> building product=$(PRODUCT_WORD) flavor=$(NOTPLOY_FLAVOR) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
+docker-build: ## Build the single image (add: self | cloud, NOTPLOY_VERSION=<tag>)
+	@echo "==> building edition=$(PRODUCT_WORD) flavor=$(NOTPLOY_FLAVOR) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
 	$(COMPOSE_ENV) $(COMPOSE) build $(COMPOSE_BUILD_SERVICE)
 	@printf '%s\n' '$(PRODUCT_WORD)' > $(PRODUCT_STATE)
 
-docker-up: ## Start the stack (add: self | cloud | console to build a fresh image first)
-	@echo "==> starting product=$(PRODUCT_WORD) flavor=$(NOTPLOY_FLAVOR) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
+docker-up: ## Start the stack (add: self | cloud to build a fresh image first)
+	@echo "==> starting edition=$(PRODUCT_WORD) flavor=$(NOTPLOY_FLAVOR) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
 	@$(STACK_PREPARE)
 	@$(call dns-ports-check,$(CHECK_PORTS_UP))
 	$(COMPOSE_ENV) $(COMPOSE) $(COMPOSE_UP_PROFILES) up -d $(COMPOSE_UP_SERVICES)
@@ -259,7 +256,7 @@ endif
 # container exists — otherwise `docker compose down` leaves it running and fails
 # to release the shared network ("Resource is still in use").
 docker-down: ## Stop the running stack, dev containers included (volumes are preserved)
-	@if [ -n "$($(COMPOSE) --profile dev ps -aq notploy 2>/dev/null)" ]; then \
+	@if [ -n "$($(COMPOSE) --profile dev ps -aq api client 2>/dev/null)" ]; then \
 		echo "==> dev container found, stopping the whole stack"; \
 		$(COMPOSE) --profile dev down --remove-orphans --timeout 15; \
 	else \
