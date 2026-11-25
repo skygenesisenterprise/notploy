@@ -39,7 +39,7 @@ NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE ?=
 # GNU make itself rejects `make docker-dev --self` (`--self` is parsed as an
 # unknown make option before any recipe runs), hence the `--` separator or the
 # bare word. Each product maps to its Dockerfile target: self -> selfhosted,
-# cloud -> cloud, console -> console, status -> status (and status-dev in dev).
+# cloud -> cloud, console -> console, status -> status (the status-dev Dockerfile target in dev).
 #
 # --- Remembered product ----------------------------------------------------
 # Each build records the product in PRODUCT_STATE, so a later command reuses
@@ -182,7 +182,7 @@ ENSURE_NETWORK = docker network inspect notploy-network >/dev/null 2>&1 || { ech
 ifeq ($(SELECTED_PRODUCT),status)
 COMPOSE_BUILD_SERVICE := status
 # The service lives in the `status` profile, so the profile is enabled and the
-# service named: only `status` starts, never its dev sibling.
+# service named: the `status` service selects its production image target.
 COMPOSE_UP_PROFILES := --profile status
 COMPOSE_UP_SERVICES := --no-deps status
 COMPOSE_DEV_PROFILES := --profile status --profile dev
