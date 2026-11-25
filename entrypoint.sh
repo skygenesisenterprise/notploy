@@ -34,6 +34,17 @@ esac
 
 log() { printf '[notploy] %s\n' "$*"; }
 
+# --- Role-aware healthcheck (shared by every runtime target) --------------
+ROLE="${1:-${NOTPLOY_ROLE:-${NOTPLOY_APP:-app}}}"
+if [ "$ROLE" = "healthcheck" ]; then
+  probe_role="${NOTPLOY_ROLE:-${NOTPLOY_APP:-app}}"
+  case "$probe_role" in
+    status) probe="http://127.0.0.1:${PORT:-4100}/api/v1/pages" ;;
+    *) probe="http://127.0.0.1:${PORT:-3000}/api/trpc/settings.health" ;;
+  esac
+  exec node -e 'fetch(process.argv[1]).then(r => process.exit(r.status < 500 ? 0 : 1)).catch(() => process.exit(1))' "$probe"
+fi
+
 # --- Escape hatches --------------------------------------------------------
 if [ "${1:-}" = "shell" ]; then
 	exec bash
