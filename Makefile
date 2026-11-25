@@ -126,7 +126,7 @@ COMPOSE ?= docker compose
 # --- Host ports the stack publishes -----------------------------------------
 # The container always listens on 53; only the host side differs per mode:
 #   production (`notploy`)      -> NOTPLOY_DNS_HOST_PORT,     default 53
-#   development (`notploy-dev`) -> NOTPLOY_DNS_DEV_HOST_PORT, default 5300
+#   development (`notploy`) -> NOTPLOY_DNS_DEV_HOST_PORT, default 5300
 # Port 53 is taken on most developer machines (systemd-resolved, dnsmasq or
 # libvirt, Pi-hole) and publishing it aborts the whole stack before a single
 # container starts: "Error starting userland proxy: listen tcp4 0.0.0.0:53:
@@ -178,7 +178,7 @@ ENSURE_NETWORK = docker network inspect notploy-network >/dev/null 2>&1 || { ech
 # --- Compose selection per product ------------------------------------------
 # The status page has its own services and no support stack (no PostgreSQL,
 # Redis, Traefik or shared overlay network), so the compose invocations below
-# are parameterized instead of hardcoding `notploy` / `notploy-dev`.
+# are parameterized instead of hardcoding `notploy` / `notploy`.
 ifeq ($(SELECTED_PRODUCT),status)
 COMPOSE_BUILD_SERVICE := status
 # The service lives in the `status` profile, so the profile is enabled and the
@@ -264,7 +264,7 @@ lint: ## Lint/format check (pnpm lint)
 # ---------------------------------------------------------------------------
 # Docker (root Dockerfile + docker-compose.yml)
 #
-# `notploy` (production) and `notploy-dev` (development) both publish the
+# `notploy` (production) and `notploy` (development) both publish the
 # dashboard on NOTPLOY_PORT (3000 by default): http://localhost:3000 in both
 # modes. They share the port, so only one of them runs at a time — stop the
 # other first with `make docker-down`.
@@ -298,7 +298,7 @@ docker-up: docker-build
 endif
 
 # Stops whatever is actually running. Compose only removes the containers of the
-# enabled profiles, so the dev profile has to be added as soon as a notploy-dev
+# enabled profiles, so the dev profile has to be added as soon as a notploy
 # container exists — otherwise `docker compose down` leaves it running and fails
 # to release the shared network ("Resource is still in use").
 docker-down: ## Stop the running stack, dev containers included (volumes are preserved)
