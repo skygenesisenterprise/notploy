@@ -38,7 +38,8 @@ ENV PATH="$PNPM_HOME:$PATH"
 # node-v24.4.0-headers.tar.gz from nodejs.org during pnpm install, which fails
 # on networks that only allow the npm registry and breaks the dev build.
 ENV npm_config_nodedir=/usr/local
-RUN npm install -g pnpm@10.22.0
+ARG PNPM_VERSION=10.22.0
+RUN npm install -g pnpm@${PNPM_VERSION}
 # openssl signs the local instance identity at container start (see
 # entrypoint.sh) with the same code path as install.sh; ca-certificates keeps
 # outbound TLS verification working in the slim image.
@@ -147,8 +148,8 @@ LABEL org.opencontainers.image.title="notploy" \
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
-  CMD curl -fs http://localhost:3000/api/trpc/settings.health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=5 \
+  CMD ["/usr/local/bin/entrypoint.sh", "healthcheck"]
 
 # All launch logic (wait for DB, migrations, server) lives in entrypoint.sh.
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -156,6 +157,7 @@ COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --chmod=0755 install.sh /usr/local/bin/notploy-install.sh
 
 # tini reaps child processes that the entrypoint/server leave defunct.
+ENV NOTPLOY_ROLE=app
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
 
 # ---------------------------------------------------------------------------
@@ -225,6 +227,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=5 \
 # Same entrypoint as every other image: it detects the status application
 # (NOTPLOY_APP=status) and execs the standalone server.
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+ENV NOTPLOY_ROLE=status
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
 
 # ---------------------------------------------------------------------------

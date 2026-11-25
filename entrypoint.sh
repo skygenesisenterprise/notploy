@@ -34,6 +34,17 @@ esac
 
 log() { printf '[notploy] %s\n' "$*"; }
 
+# --- Role-aware healthcheck (shared by every runtime target) --------------
+ROLE="${1:-${NOTPLOY_ROLE:-${NOTPLOY_APP:-app}}}"
+if [ "$ROLE" = "healthcheck" ]; then
+  probe_role="${NOTPLOY_ROLE:-${NOTPLOY_APP:-app}}"
+  case "$probe_role" in
+    status) probe="http://127.0.0.1:${PORT:-4100}/api/v1/pages" ;;
+    *) probe="http://127.0.0.1:${PORT:-3000}/api/trpc/settings.health" ;;
+  esac
+  exec node -e 'fetch(process.argv[1]).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))' "$probe"
+fi
+
 # --- Escape hatches --------------------------------------------------------
 if [ "${1:-}" = "shell" ]; then
 	exec bash
@@ -47,7 +58,7 @@ fi
 # `NOTPLOY_APP=status` runs the standalone status page (apps/status) instead of
 # the control plane: no PostgreSQL, no migrations, no instance identity. The
 # engine keeps its state in a SQLite file under STATUS_DATA_DIR.
-if [ "${NOTPLOY_APP:-notploy}" = "status" ]; then
+if [ "$ROLE" = "status" ] || [ "${NOTPLOY_APP:-notploy}" = "status" ]; then
 	STATUS_CONTAINER_PORT="${PORT:-4100}"
 	if [ "$MODE" = "development" ]; then
 		log "app: status (development, port ${STATUS_CONTAINER_PORT})"
