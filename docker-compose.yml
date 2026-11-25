@@ -139,6 +139,12 @@ services:
       target: ${NOTPLOY_FLAVOR:-selfhosted}
     image: ${NOTPLOY_IMAGE:-ghcr.io/skygenesisenterprise/notploy}:${NOTPLOY_VERSION:-latest}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=notploy-network"
@@ -202,6 +208,7 @@ services:
       # instead of https://templates.notploy.com, so templates still resolve
       # when that domain is down (same setup as `notploy-dev`).
       NOTPLOY_TEMPLATES_DIR: /app/templates/blueprints
+      NOTPLOY_ROLE: app
     ports:
       # Host port is configurable; the container always listens on 3000.
       - "${NOTPLOY_PORT:-3000}:3000"
@@ -246,6 +253,12 @@ services:
       target: dev
     image: notploy-dev:local
     working_dir: /usr/src/app
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
+      interval: 30s
+      timeout: 30s
+      retries: 10
+      start_period: 180s
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=notploy-network"
@@ -301,6 +314,7 @@ services:
       # Serve templates from the bind-mounted blueprints directory instead of
       # https://templates.notploy.com, so dev never depends on that domain.
       NOTPLOY_TEMPLATES_DIR: /usr/src/app/templates/blueprints
+      NOTPLOY_ROLE: app
       # Inotify works through bind mounts on Linux. On Docker Desktop
       # (macOS/Windows) set DEV_POLLING=true to use polling instead.
       CHOKIDAR_USEPOLLING: ${DEV_POLLING:-false}
@@ -394,10 +408,17 @@ services:
       target: status
     image: ${STATUS_IMAGE:-ghcr.io/skygenesisenterprise/notploy-status}:${NOTPLOY_VERSION:-latest}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     environment:
       NODE_ENV: production
       # Selects the status application in the shared entrypoint.
       NOTPLOY_APP: status
+      NOTPLOY_ROLE: status
       PORT: 4100
       HOSTNAME: 0.0.0.0
       # SQLite database, snapshot and backups all live in the mounted volume.
