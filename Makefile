@@ -50,8 +50,7 @@ NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE ?=
 # (see the warnings below): the flavor only follows the product.
 PRODUCT_STATE := .make-product
 
-# Products: self (default), cloud, console and status. `status` is a separate
-# application (the status page), not a flavor of the control plane.
+# Products: self (default), cloud and console.
 GOAL_PRODUCT := $(firstword $(filter self cloud console,$(patsubst --%,%,$(MAKECMDGOALS))))
 
 ifneq ($(GOAL_PRODUCT),)
@@ -91,10 +90,9 @@ else
 PRODUCT_WORD := self
 endif
 
-# Four products: selfhosted (default, also spelled `self`), cloud, console and
-# status. Cloud and console are protected products: they publish a
-# cloud/console image and run with IS_CLOUD=true, and the PKI layer requires a
-# signed entitlement. `status` publishes the notploy-status image.
+# Three products: selfhosted (default, also spelled `self`), cloud and console.
+# Cloud and console are protected products: they publish dedicated images and
+# require signed entitlements through the PKI layer.
 ifeq ($(NOTPLOY_FLAVOR),cloud)
 NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy-cloud
 override IS_CLOUD := true
@@ -126,7 +124,7 @@ env-file-default = $(or $($(1)),$(shell sed -n 's/^[[:space:]]*$(1)[[:space:]]*=
 # Host ports of the control plane (Traefik, app, LAN DNS) for `up` and for
 # `dev`. The status page is another application with its own single port.
 CHECK_PORTS_UP := $(call env-file-default,NOTPLOY_DNS_HOST_PORT,53) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080
-CHECK_PORTS_DEV := $(call env-file-default,NOTPLOY_DNS_DEV_HOST_PORT,5300) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080  
+CHECK_PORTS_DEV := $(call env-file-default,NOTPLOY_DNS_DEV_HOST_PORT,5300) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080
 
 # One recipe line: report every port about to be published that something else
 # already holds, with its owner — docker's own error does not say which port it
