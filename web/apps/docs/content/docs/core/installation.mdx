@@ -86,10 +86,14 @@ The installation script automatically detects and installs the latest stable ver
 
 #### Install Specific Versions
 
-**Install Canary Version (Development):**
+**Install a published channel explicitly:**
 ```bash
-export NOTPLOY_VERSION=canary && curl -sSL https://notploy.com/install.sh | sh
+export NOTPLOY_VERSION=latest && curl -sSL https://notploy.com/install.sh | sh
 ```
+
+`latest` is published with every platform release. Chapter channels such as
+`canary` and `feature` are not published server images; use a released tag for
+a real installation.
 
 **Install Latest Stable:**
 ```bash

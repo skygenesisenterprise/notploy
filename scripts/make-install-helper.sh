@@ -147,7 +147,7 @@ setup_directories() {
 # Start the stack
 start_stack() {
     log_info "Starting Notploy stack..."
-    docker compose up -d --build
+    docker compose --profile prod up -d --build
     log_success "Stack started"
 }
 

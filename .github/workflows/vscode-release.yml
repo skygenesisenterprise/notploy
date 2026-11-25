@@ -275,6 +275,8 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Notploy for VS Code ${{ steps.release.outputs.version }}
           generate_release_notes: true
+          # Only the platform release is the server update/release latest.
+          make_latest: false
           fail_on_unmatched_files: true
           files: ${{ steps.package.outputs.vsix }}
           body: |

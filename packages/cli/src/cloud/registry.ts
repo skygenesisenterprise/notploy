@@ -11,7 +11,8 @@ import type { FetchLike } from "./release.js";
  * signature check runs.
  */
 
-export const DEFAULT_CLOUD_IMAGE = "ghcr.io/skygenesisenterprise/notploy-cloud";
+/** One platform image for both self-hosted and Cloud editions. */
+export const DEFAULT_CLOUD_IMAGE = "ghcr.io/skygenesisenterprise/notploy";
 
 const DEFAULT_REGISTRY_TIMEOUT_MS = 30_000;
 

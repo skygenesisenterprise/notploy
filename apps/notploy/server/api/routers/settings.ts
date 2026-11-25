@@ -11,7 +11,6 @@ import {
 	cleanupImages,
 	cleanupSystem,
 	cleanupVolumes,
-	DEFAULT_UPDATE_DATA,
 	findServerById,
 	getAccessibleServerIds,
 	getConfiguredProduct,
@@ -27,7 +26,6 @@ import {
 	isExternalJobsEnabled,
 	isManagedCloud,
 	isUpdateInstallable,
-	NOTPLOY_IMAGE,
 	normalizeVersion,
 	parseRawConfig,
 	paths,
@@ -44,11 +42,11 @@ import {
 	reloadDockerResource,
 	sendDockerCleanupNotifications,
 	setupGPUSupport,
-	spawnAsync,
 	startLogCleanup,
 	stopLogCleanup,
 	syncDomainToInternalDns,
 	updateLetsEncryptEmail,
+	updateNotployServices,
 	updateServerById,
 	updateServerTraefik,
 	updateWebServerSettings,
@@ -652,10 +650,8 @@ export const settingsRouter = createTRPCRouter({
 	 * clients. Prefer `getUpdateStatus` in the UI.
 	 */
 	getUpdateData: protectedProcedure.mutation(async () => {
-		if (IS_CLOUD) {
-			return DEFAULT_UPDATE_DATA;
-		}
-
+		// Self-hosted and Cloud share one image and one release line; only the
+		// runtime edition differs, so both editions get the same update status.
 		return await getUpdateData(packageInfo.version);
 	}),
 	/**
@@ -663,17 +659,9 @@ export const settingsRouter = createTRPCRouter({
 	 * the release is actually installable (its assets are published).
 	 */
 	getUpdateStatus: protectedProcedure.query(async () => {
-		if (IS_CLOUD) {
-			return null;
-		}
-
 		return await getUpdateStatus(packageInfo.version);
 	}),
 	updateServer: adminProcedure.mutation(async ({ ctx }) => {
-		if (IS_CLOUD) {
-			return true;
-		}
-
 		const data = await getUpdateStatus(packageInfo.version);
 		// A release whose assets are still being published is not an update: it
 		// must not be installed, and it is not an error either.
@@ -684,14 +672,16 @@ export const settingsRouter = createTRPCRouter({
 			});
 		}
 
-		void spawnAsync("docker", [
-			"service",
-			"update",
-			"--force",
-			"--image",
-			`${NOTPLOY_IMAGE}:${data.latestVersion}`,
-			"notploy",
-		]);
+		try {
+			await updateNotployServices(data.latestVersion);
+		} catch (error) {
+			const detail = error instanceof Error ? error.message : String(error);
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: `Update failed: ${detail}`,
+			});
+		}
+
 		await audit(ctx, {
 			action: "update",
 			resourceType: "settings",

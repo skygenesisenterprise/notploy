@@ -19,7 +19,7 @@ import {
 	type StatFs,
 	verifyDatabaseBackup,
 } from "./preflight.js";
-import { resolveImageManifest } from "./registry.js";
+import { DEFAULT_CLOUD_IMAGE, resolveImageManifest } from "./registry.js";
 import {
 	checkCloudCompatibility,
 	type FetchLike,
@@ -508,7 +508,7 @@ export async function runCloudDoctor(
 				}
 
 				const digest = await resolveImageManifest(
-					`ghcr.io/skygenesisenterprise/notploy-cloud:${newest.tag}`,
+					`${DEFAULT_CLOUD_IMAGE}:${newest.tag}`,
 					{ fetchImpl: options.fetchImpl, env },
 				);
 				checks.push({

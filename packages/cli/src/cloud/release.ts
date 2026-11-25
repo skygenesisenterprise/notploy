@@ -3,16 +3,19 @@ import { CliError, ExitCode, usageError } from "../errors.js";
 /**
  * Cloud release resolution.
  *
- * Notploy Cloud is published by `.github/workflows/docker-publish.yml` under
- * the tag suffix `-cloud` (for example `v1.2.3-cloud` publishes
- * `ghcr.io/skygenesisenterprise/notploy-cloud:v1.2.3-cloud`). The CLI resolves
- * target versions from those releases only; self-hosted (`-app`) releases are
- * never offered to a Cloud installation.
+ * Cloud and self-hosted installations share the single platform image and the
+ * same release line: `.github/workflows/docker-publish.yml` publishes
+ * `ghcr.io/skygenesisenterprise/notploy:vX.Y.Z`. The edition is a runtime
+ * decision (identity + entitlement), not a separate image or tag, so the CLI
+ * resolves its targets from those exact release tags. Legacy `-cloud` and
+ * `-app` tags are still accepted as version spellings but normalize to the
+ * bare tag.
  */
 
 export const NOTPLOY_GITHUB_REPOSITORY = "skygenesisenterprise/notploy";
-export const CLOUD_RELEASE_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)-cloud$/;
-export const CLOUD_TAG_SUFFIX = "-cloud";
+export const CLOUD_RELEASE_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)$/;
+/** Kept for callers that format tags; the platform release has no suffix. */
+export const CLOUD_TAG_SUFFIX = "";
 
 /** The first Cloud release this CLI knows how to manage. */
 export const MIN_SUPPORTED_CLOUD_VERSION = "1.0.0";
@@ -27,7 +30,7 @@ export interface VersionParts {
 }
 
 export interface CloudRelease {
-	/** Release tag, also the image tag: `v1.2.3-cloud`. */
+	/** Release tag, also the image tag: `v1.2.3`. */
 	tag: string;
 	/** Normalized `1.2.3`. */
 	version: string;
@@ -64,9 +67,9 @@ export function parseVersionParts(input: string): VersionParts | null {
 }
 
 /**
- * Normalizes a version-ish string. Container tags (`v1.2.3-cloud`), release
- * tags, `RELEASE_TAG` values and bare versions all collapse to `1.2.3`;
- * pre-release suffixes are preserved when they exist.
+ * Normalizes a version-ish string. Release tags (`v1.2.3`), `RELEASE_TAG`
+ * values, bare versions and the legacy `-cloud` / `-app` tags all collapse to
+ * the shared `1.2.3` release version.
  */
 export function normalizeCloudVersion(
 	input: string | null | undefined,
@@ -74,8 +77,7 @@ export function normalizeCloudVersion(
 	if (!input) return null;
 	const cleaned = String(input)
 		.trim()
-		.replace(/-cloud$/i, "")
-		.replace(/-app$/i, "");
+		.replace(/-(cloud|app)$/i, "");
 	const match = cleaned.match(/(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/);
 	if (!match) return null;
 	const parts = parseVersionParts(match[1]);
@@ -99,7 +101,7 @@ export function parseCloudReleaseTag(tag: string): CloudRelease | null {
 	};
 	const version = `${parts.major}.${parts.minor}.${parts.patch}`;
 	return {
-		tag: `v${version}${CLOUD_TAG_SUFFIX}`,
+		tag: `v${version}`,
 		version,
 		parts,
 		releaseUrl: null,
@@ -113,7 +115,7 @@ export function cloudImageTag(version: string): string {
 	if (!normalized) {
 		throw usageError(`Invalid Cloud version "${version}".`);
 	}
-	return `v${normalized}${CLOUD_TAG_SUFFIX}`;
+	return `v${normalized}`;
 }
 
 interface GitHubReleasePayload {
@@ -223,10 +225,10 @@ export async function fetchCloudReleases(
 
 	if (releases.length === 0) {
 		throw new CliError(
-			"No published Notploy Cloud release was found in the release index.",
+			"No published Notploy release was found in the release index.",
 			{
 				code: ExitCode.Api,
-				hint: "Notploy Cloud releases use the tag suffix '-cloud'. Verify the release workflow completed, or pass an explicit --to <version> whose image you published.",
+				hint: "Cloud and self-hosted share the platform release tag vX.Y.Z. Verify the release workflow completed, or pass an explicit --to <version> whose image you published.",
 			},
 		);
 	}
@@ -254,7 +256,7 @@ export function resolveCloudTarget(options: ResolveTargetOptions): {
 		if (!wanted) {
 			throw usageError(
 				`Invalid target version "${options.requested}".`,
-				"Use a version such as 1.2.3 or a release tag such as v1.2.3-cloud.",
+				"Use a version such as 1.2.3 or a release tag such as v1.2.3.",
 			);
 		}
 		const release = options.releases.find(

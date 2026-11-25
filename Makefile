@@ -312,7 +312,7 @@ install: ## Install Notploy locally for development/self-hosted (docker compose)
 
 # Server management targets for the compose setup
 start: ## Start the stack
-	@$(COMPOSE_ENV) $(COMPOSE) up -d
+	@$(COMPOSE_ENV) $(COMPOSE) $(COMPOSE_UP_PROFILES) up -d $(COMPOSE_UP_SERVICES)
 
 stop: ## Stop the stack
 	@$(COMPOSE_ENV) $(COMPOSE) down --remove-orphans
@@ -330,10 +330,10 @@ logs: ## Follow logs (optionally: make logs SERVICE=notploy)
 		$(COMPOSE_ENV) $(COMPOSE) logs -f; \
 	fi
 
-update: ## Update to latest version (pull and rebuild/restart)
-	@git pull
+update: ## Update to the published image (use NOTPLOY_VERSION=<tag> to pin)
+	@echo "==> updating edition=$(PRODUCT_WORD) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
 	@$(COMPOSE_ENV) $(COMPOSE) pull
-	@$(COMPOSE_ENV) $(COMPOSE) up -d --build
+	@$(COMPOSE_ENV) $(COMPOSE) $(COMPOSE_UP_PROFILES) up -d --remove-orphans $(COMPOSE_UP_SERVICES)
 
 doctor: ## Check installation health
 	@echo "Notploy Doctor"

@@ -19,9 +19,12 @@ To target a specific version, use the `install.sh` attached to that version's [G
 curl -sL https://github.com/skygenesisenterprise/notploy/releases/download/v<version>/install.sh | sh -s update
 ```
 
-<Callout type="info" title="Cloud editions">
-On **Notploy Cloud** and **Enterprise Cloud**, the control plane is updated automatically —
-there is nothing to run. On self-hosted editions, choose when to update.
+<Callout type="info" title="Self and Cloud share one release">
+Self-hosted and Cloud run the **same** `ghcr.io/skygenesisenterprise/notploy` image and
+pull the **same** `vX.Y.Z` release tag. The edition stays a runtime setting; updating never
+switches it. On Cloud hosts you can also use `notploy cloud update`, which adds digest,
+signature, backup and rollback checks around the same image. Enterprise Cloud is operated
+by the Notploy team.
 </Callout>
 
 Before upgrading, take a backup (below). After upgrading, confirm the dashboard loads and a test deployment still succeeds.

@@ -481,13 +481,15 @@ export async function detectInstallation(
 					"This host is not a Docker Swarm manager; mutating operations are refused.",
 				);
 			}
+			// Both editions run the same `notploy` image; the edition comes from
+			// the instance identity and runtime env, never from the repository.
 			if (
 				product === "cloud" &&
 				split.repository &&
-				!/notploy-cloud$/.test(split.repository)
+				!/notploy$/.test(split.repository)
 			) {
 				issues.push(
-					`The 'notploy' service runs ${split.repository}, which is not the Cloud image. Verify the installation before updating it.`,
+					`The 'notploy' service runs ${split.repository}, which is not the Notploy platform image. Verify the installation before updating it.`,
 				);
 			}
 			if (identity.issue) issues.push(identity.issue);

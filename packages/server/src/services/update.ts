@@ -1,4 +1,5 @@
 import semver from "semver";
+import { execAsync } from "../utils/process/execAsync";
 
 /**
  * Notploy update detection and availability.
@@ -25,11 +26,17 @@ export const NOTPLOY_GITHUB_REPOSITORY = "skygenesisenterprise/notploy";
  */
 export const NOTPLOY_IMAGE = `ghcr.io/${NOTPLOY_GITHUB_REPOSITORY}`;
 
-/** Suffix docker-publish.yml appends to the self-hosted image: `v1.2.3-app` publishes `ghcr.io/skygenesisenterprise/notploy:v1.2.3-app`. */
-const APP_TAG_SUFFIX = "-app";
+/**
+ * docker-publish.yml publishes the platform image under a bare `vX.Y.Z` tag;
+ * `-mcp`, `-github` and `-templates` belong to the other images of the matrix.
+ * The historical `-app` and `-cloud` suffixes are still accepted when reading
+ * old releases, but they are always normalised to the bare tag before an image
+ * is pulled.
+ */
+const PLATFORM_RELEASE_REGEX = /^v?(\d+)\.(\d+)\.(\d+)(?:-(?:app|cloud))?$/;
 
-/** Matches the self-hosted release tags only, so the other images of the publish matrix (`-cloud`, `-mcp`, ...) are ignored. */
-const SELF_HOSTED_RELEASE_REGEX = /^v?(\d+)\.(\d+)\.(\d+)-app$/;
+/** Only bare release tags can be pulled from GHCR. Channels stay untouched. */
+const IMAGE_TAG_REGEX = /^v\d+\.\d+\.\d+$/;
 
 /** GitHub allows 60 anonymous requests per hour and IP, the dashboard polls this every few minutes. */
 const RELEASES_CACHE_TTL_MS = 15 * 60 * 1000;
@@ -72,7 +79,7 @@ export const UPDATE_INSTALLABLE_STATUS: UpdateStatus = "ready";
 
 /** Backward-compatible shape consumed by the existing frontend and SDK. */
 export interface IUpdateData {
-	/** Release tag of the newest self-hosted release, also the container image tag (`v1.2.3-app`). */
+	/** Release tag of the newest platform release, also the container image tag (`v1.2.3`). */
 	latestVersion: string | null;
 	updateAvailable: boolean;
 }
@@ -99,9 +106,17 @@ export interface IUpdateStatusData extends IUpdateData {
 	checkedAt: string;
 }
 
-/** Returns current Notploy docker image tag or `latest` by default. */
+/**
+ * Returns the tag the running image was deployed with. The Swarm installer sets
+ * `RELEASE_TAG`; the Compose stack sets `NOTPLOY_VERSION`. `latest` is the
+ * fallback for local builds.
+ */
 export const getNotployImageTag = () => {
-	return process.env.RELEASE_TAG || "latest";
+	return (
+		process.env.RELEASE_TAG?.trim() ||
+		process.env.NOTPLOY_VERSION?.trim() ||
+		"latest"
+	);
 };
 
 /**
@@ -112,11 +127,11 @@ export const getNotployImageTag = () => {
  */
 export const normalizeVersion = (version: string): string | null => {
 	if (!version) return null;
-	// The self-hosted image suffix (`-app`) is an artifact of the release tag,
-	// not a prerelease identifier, so drop it before parsing.
+	// Legacy `-app` / `-cloud` suffixes are artifacts of old release tags,
+	// not prerelease identifiers, so drop them before parsing.
 	const cleaned = String(version)
 		.trim()
-		.replace(/-app$/i, "");
+		.replace(/-(?:app|cloud)$/i, "");
 	const match = cleaned.match(/(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/);
 	if (!match) return null;
 	const parsed = semver.parse(match[1]);
@@ -191,18 +206,16 @@ export const computeUpdateStatus = ({
 
 /**
  * Turns a bare version into the published release tag (`1.2.3` becomes
- * `v1.2.3-app`). Channels such as `latest`, `canary`, `feature` or a branch name
- * are returned untouched, they are already valid image tags.
+ * `v1.2.3`, the tag docker-publish.yml pushes). Legacy `v1.2.3-app` tags are
+ * normalised to `v1.2.3`. Channels such as `latest`, `canary`, `feature` or a
+ * branch name are returned untouched, they are already valid image tags.
  */
 export const toReleaseTag = (version: string) => {
-	const tag = version.trim();
-	const release =
-		parseSelfHostedRelease(tag) ?? parseSelfHostedRelease(`${tag}-app`);
-	return release?.tag ?? tag;
+	return parsePlatformRelease(version.trim())?.tag ?? version.trim();
 };
 
-const parseSelfHostedRelease = (tag: string): SelfHostedRelease | null => {
-	const match = SELF_HOSTED_RELEASE_REGEX.exec(tag.trim());
+const parsePlatformRelease = (tag: string): SelfHostedRelease | null => {
+	const match = PLATFORM_RELEASE_REGEX.exec(tag.trim());
 	if (!match) return null;
 
 	const normalizedVersion = `${match[1]}.${match[2]}.${match[3]}`;
@@ -210,7 +223,7 @@ const parseSelfHostedRelease = (tag: string): SelfHostedRelease | null => {
 	if (!version) return null;
 
 	return {
-		tag: `v${normalizedVersion}${APP_TAG_SUFFIX}`,
+		tag: `v${normalizedVersion}`,
 		normalizedVersion,
 		version,
 		releaseUrl: null,
@@ -249,7 +262,7 @@ const parseReleasesPayload = (
 	payload
 		.filter((release) => !release?.draft && !release?.prerelease)
 		.map((release) => {
-			const parsed = parseSelfHostedRelease(String(release?.tag_name));
+			const parsed = parsePlatformRelease(String(release?.tag_name));
 			if (!parsed) return null;
 			return {
 				...parsed,
@@ -320,25 +333,26 @@ const fetchSelfHostedReleases = async (): Promise<SelfHostedRelease[]> => {
 let lastReleasesWarningAt = 0;
 const RELEASES_WARNING_THROTTLE_MS = 60 * 60 * 1000;
 
-const getLatestSelfHostedRelease = async (): Promise<SelfHostedRelease | null> => {
-	try {
-		return getLatestOf(await fetchSelfHostedReleases());
-	} catch (error) {
-		// The update check is best-effort: an unreachable or rate-limited GitHub
-		// must never spam the logs. Warn at most once an hour, debug otherwise.
-		const now = Date.now();
-		const detail = error instanceof Error ? error.message : String(error);
-		if (now - lastReleasesWarningAt > RELEASES_WARNING_THROTTLE_MS) {
-			lastReleasesWarningAt = now;
-			console.warn(
-				`Could not fetch releases from GitHub (${detail}). Check outbound network/DNS if this persists; using cached releases.`,
-			);
-		} else {
-			console.debug(`Could not fetch releases from GitHub (${detail}).`);
+const getLatestSelfHostedRelease =
+	async (): Promise<SelfHostedRelease | null> => {
+		try {
+			return getLatestOf(await fetchSelfHostedReleases());
+		} catch (error) {
+			// The update check is best-effort: an unreachable or rate-limited GitHub
+			// must never spam the logs. Warn at most once an hour, debug otherwise.
+			const now = Date.now();
+			const detail = error instanceof Error ? error.message : String(error);
+			if (now - lastReleasesWarningAt > RELEASES_WARNING_THROTTLE_MS) {
+				lastReleasesWarningAt = now;
+				console.warn(
+					`Could not fetch releases from GitHub (${detail}). Check outbound network/DNS if this persists; using cached releases.`,
+				);
+			} else {
+				console.debug(`Could not fetch releases from GitHub (${detail}).`);
+			}
+			return getLatestOf(releasesCache?.releases ?? []);
 		}
-		return getLatestOf(releasesCache?.releases ?? []);
-	}
-};
+	};
 
 /** Test/maintenance helper: forget the cached releases. */
 export const invalidateUpdateCache = () => {
@@ -425,3 +439,42 @@ export const getUpdateData = async (
 /** Whether an update may actually be installed right now. */
 export const isUpdateInstallable = (status: IUpdateStatusData) =>
 	status.status === UPDATE_INSTALLABLE_STATUS;
+
+/**
+ * Applies a release to the Swarm services created by install.sh. Both roles must
+ * move together: `notploy-api` owns migrations, credentials and workers while
+ * `notploy` is the client, so updating only one of them leaves a mixed stack.
+ * The image is pulled first: a registry failure must leave the running version
+ * untouched.
+ */
+export const updateNotployServices = async (rawTag: string): Promise<void> => {
+	const tag = toReleaseTag(rawTag);
+	if (!IMAGE_TAG_REGEX.test(tag)) {
+		throw new Error(`Refusing to update to an invalid image tag: ${tag}`);
+	}
+
+	const image = `${NOTPLOY_IMAGE}:${tag}`;
+	await execAsync(`docker pull ${image}`);
+
+	const services: string[] = [];
+	for (const name of ["notploy-api", "notploy"]) {
+		try {
+			await execAsync(`docker service inspect ${name}`);
+			services.push(name);
+		} catch {
+			// Compose install or role not created yet: skip this service.
+		}
+	}
+
+	if (services.length === 0) {
+		throw new Error(
+			"No Notploy Swarm services found. Use install.sh update or make update for this installation.",
+		);
+	}
+
+	for (const service of services) {
+		await execAsync(
+			`docker service update --force --image ${image} --env-add RELEASE_TAG=${tag} ${service}`,
+		);
+	}
+};

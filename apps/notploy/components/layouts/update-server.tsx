@@ -19,18 +19,17 @@ import {
 const AUTO_CHECK_UPDATES_INTERVAL_MINUTES = 7;
 
 export const UpdateServerButton = () => {
-	const { data: isCloud } = api.settings.isCloud.useQuery();
 	const [isOpen, setIsOpen] = useState(false);
 	const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
 
 	const checkUpdatesIntervalRef = useRef<null | NodeJS.Timeout>(null);
 
 	// The backend owns the GitHub lookup (and its cache): the layout only reads
-	// the computed status instead of calling GitHub from every render.
+	// the computed status instead of calling GitHub from every render. Self and
+	// Cloud share the same release line, so both editions poll it.
 	const { refetch: checkUpdateStatus } = api.settings.getUpdateStatus.useQuery(
 		undefined,
 		{
-			enabled: !isCloud,
 			refetchOnWindowFocus: false,
 			// Keeps the badge populated when the user navigates back to the layout.
 			staleTime: 60_000,
@@ -38,10 +37,6 @@ export const UpdateServerButton = () => {
 	);
 
 	useEffect(() => {
-		if (isCloud) {
-			return;
-		}
-
 		if (!localStorage.getItem("enableAutoCheckUpdates")) {
 			// Enable auto update checking by default if user didn't change it
 			const enableAutoCheck = localStorage.getItem("enableAutoCheckUpdates");
@@ -91,13 +86,13 @@ export const UpdateServerButton = () => {
 		return () => {
 			clearUpdatesInterval();
 		};
-	}, [isCloud, checkUpdateStatus]);
+	}, [checkUpdateStatus]);
 
 	const hasPendingUpdate =
 		!!updateStatus && UPDATE_PENDING_STATUSES.includes(updateStatus);
 	const isInstallable = updateStatus === UPDATE_INSTALLABLE_STATUS;
 
-	if (isCloud || !hasPendingUpdate) {
+	if (!hasPendingUpdate) {
 		return null;
 	}
 

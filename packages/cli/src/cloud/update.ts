@@ -45,9 +45,11 @@ import {
  * Cloud update orchestration.
  *
  * The installation is a Docker Swarm service. The CLI reuses the mechanisms
- * already shipped by the repository: the `notploy-cloud` image published by
- * docker-publish.yml, its cosign signature, Swarm rolling updates, and the
- * container entrypoint's Drizzle migrations. It does not duplicate any of them.
+ * already shipped by the repository: the single `notploy` image published by
+ * docker-publish.yml for both editions, its cosign signature, Swarm rolling
+ * updates, and the container entrypoint's Drizzle migrations. The runtime
+ * edition (self or cloud) is left untouched by the update. It does not
+ * duplicate any of those mechanisms.
  */
 
 export const UPDATE_STEPS = [
@@ -136,6 +138,23 @@ export interface PlanOptions {
 	platform?: string;
 	statfs?: Parameters<typeof checkDiskSpace>[0]["statfs"];
 	now?: () => Date;
+}
+
+/**
+ * The installer creates two roles from the same image. Older installations may
+ * only have `notploy`; always include the client role so the update has a
+ * target even on a partially migrated stack.
+ */
+async function platformServices(docker: Docker): Promise<string[]> {
+	const services: string[] = [];
+	for (const name of ["notploy-api", "notploy"]) {
+		const result = await docker.run(["service", "inspect", name], {
+			allowFailure: true,
+			timeoutMs: 20_000,
+		});
+		if (result.code === 0) services.push(name);
+	}
+	return services.length > 0 ? services : ["notploy"];
 }
 
 function assertUsableInstallation(installation: Installation): void {
@@ -701,45 +720,61 @@ export async function executeCloudUpdate(
 		}
 
 		journal.stepStarted("switch", plan.targetTag);
-		await docker.run(
-			[
-				"service",
-				"update",
-				"--image",
-				plan.reference as string,
-				"--env-add",
-				`RELEASE_TAG=${plan.targetTag}`,
-				"notploy",
-			],
-			{ timeoutMs: 120_000 },
-		);
-		journal.stepFinished("switch", "succeeded", `image ${plan.reference}`);
-
-		journal.stepStarted("converge");
-		const convergence = await waitForServiceConvergence({
-			docker,
-			service: "notploy",
-			timeoutMs: options.waitTimeoutMs,
-			sleepImpl,
-		});
-		if (!convergence.converged) {
-			const tasks = await recentServiceTasks(docker, "notploy");
-			throw new CliError(
-				convergence.message ?? "The 'notploy' service did not converge.",
-				{
-					code: ExitCode.General,
-					hint: tasks.length
-						? `Recent tasks: ${tasks
-								.map(
-									(task) =>
-										`${task.name} ${task.currentState}${task.error ? ` (${task.error})` : ""}`,
-								)
-								.join("; ")}. Inspect logs with 'docker service logs notploy'.`
-						: "Inspect 'docker service ps notploy' and 'docker service logs notploy'.",
-				},
+		const services = await platformServices(docker);
+		for (const service of services) {
+			await docker.run(
+				[
+					"service",
+					"update",
+					"--image",
+					plan.reference as string,
+					"--env-add",
+					`RELEASE_TAG=${plan.targetTag}`,
+					service,
+				],
+				{ timeoutMs: 120_000 },
 			);
 		}
-		journal.stepFinished("converge", "succeeded", convergence.lastState);
+		journal.stepFinished(
+			"switch",
+			"succeeded",
+			`image ${plan.reference} on ${services.join(", ")}`,
+		);
+
+		journal.stepStarted("converge");
+		for (const service of services) {
+			const convergence = await waitForServiceConvergence({
+				docker,
+				service,
+				timeoutMs: options.waitTimeoutMs,
+				sleepImpl,
+			});
+			if (!convergence.converged) {
+				const tasks = await recentServiceTasks(docker, service);
+				journal.stepFinished(
+					"converge",
+					"failed",
+					convergence.message ?? `The '${service}' service did not converge.`,
+				);
+				throw new CliError(
+					convergence.message ?? `The '${service}' service did not converge.`,
+					{
+						code: ExitCode.General,
+						hint: tasks.length
+							? `Recent tasks: ${tasks
+									.map(
+										(task) =>
+											`${task.name} ${task.currentState}${task.error ? ` (${task.error})` : ""}`,
+									)
+									.join(
+										"; ",
+									)}. Inspect logs with 'docker service logs ${service}'.`
+							: `Inspect 'docker service ps ${service}' and 'docker service logs ${service}'.`,
+					},
+				);
+			}
+			journal.stepFinished("converge", "succeeded", convergence.lastState);
+		}
 
 		journal.stepStarted("health");
 		const health = await probeHealth({
@@ -1012,7 +1047,7 @@ export function planCloudRollback(options: {
 		journalId: latest.id,
 		operations: [
 			`Verify ${latest.previousImage} and its signature.`,
-			"Update the 'notploy' service back to the previous image and RELEASE_TAG.",
+			"Update every Notploy role (notploy-api and notploy) back to the previous image and RELEASE_TAG.",
 			"Wait for convergence and probe the health endpoint.",
 		],
 		warnings: [
@@ -1148,39 +1183,50 @@ export async function executeCloudRollback(
 		journal.stepFinished("verify-artifact", "succeeded", signature.detail);
 
 		journal.stepStarted("switch", plan.previousImage);
-		await docker.run(
-			[
-				"service",
-				"update",
-				"--image",
-				plan.previousImage,
-				...(plan.previousTag
-					? ["--env-add", `RELEASE_TAG=${plan.previousTag}`]
-					: []),
-				"notploy",
-			],
-			{ timeoutMs: 120_000 },
-		);
+		const services = await platformServices(docker);
+		for (const service of services) {
+			await docker.run(
+				[
+					"service",
+					"update",
+					"--image",
+					plan.previousImage,
+					...(plan.previousTag
+						? ["--env-add", `RELEASE_TAG=${plan.previousTag}`]
+						: []),
+					service,
+				],
+				{ timeoutMs: 120_000 },
+			);
+		}
 		journal.stepFinished("switch", "succeeded");
 
 		journal.stepStarted("converge");
-		const convergence = await waitForServiceConvergence({
-			docker,
-			service: "notploy",
-			timeoutMs: options.waitTimeoutMs,
-			sleepImpl,
-		});
-		if (!convergence.converged) {
-			throw new CliError(
-				convergence.message ??
-					"The service did not converge after the rollback.",
-				{
-					code: ExitCode.General,
-					hint: "Inspect 'docker service ps notploy' and 'docker service logs notploy'.",
-				},
-			);
+		for (const service of services) {
+			const convergence = await waitForServiceConvergence({
+				docker,
+				service,
+				timeoutMs: options.waitTimeoutMs,
+				sleepImpl,
+			});
+			if (!convergence.converged) {
+				journal.stepFinished(
+					"converge",
+					"failed",
+					convergence.message ??
+						`The '${service}' service did not converge after the rollback.`,
+				);
+				throw new CliError(
+					convergence.message ??
+						`The '${service}' service did not converge after the rollback.`,
+					{
+						code: ExitCode.General,
+						hint: `Inspect 'docker service ps ${service}' and 'docker service logs ${service}'.`,
+					},
+				);
+			}
+			journal.stepFinished("converge", "succeeded", convergence.lastState);
 		}
-		journal.stepFinished("converge", "succeeded", convergence.lastState);
 
 		journal.stepStarted("health");
 		const health = await probeHealth({

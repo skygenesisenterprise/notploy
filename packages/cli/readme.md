@@ -535,8 +535,8 @@ Example JSON fields from `notploy cloud status --json`:
   "deployment": "swarm",
   "configDir": "/etc/notploy",
   "installedVersion": "1.1.5",
-  "releaseTag": "v1.1.5-cloud",
-  "image": "ghcr.io/skygenesisenterprise/notploy-cloud:v1.1.5-cloud",
+  "releaseTag": "v1.1.5",
+  "image": "ghcr.io/skygenesisenterprise/notploy:v1.1.5",
   "services": [{ "name": "notploy", "healthy": true }],
   "identity": { "present": true, "product": "cloud" },
   "lock": { "active": false, "stale": false },
@@ -558,7 +558,7 @@ notploy cloud update --dry-run --json --to 1.2.0
 `--check` resolves, without changing anything:
 
 - the installed version (`RELEASE_TAG` or the image tag);
-- the newest published Cloud release (`vX.Y.Z-cloud`) and its source URL;
+- the newest published platform release (`vX.Y.Z`) and its source URL;
 - version compatibility and whether a newer release exists;
 - the target image digest, platform and compressed size from the registry;
 - compatibility blockers and warnings.
@@ -585,7 +585,7 @@ notploy cloud update --yes --to 1.2.0   # a specific published release
 5. Resolve the release manifest to an immutable digest and pull `image@sha256:…`.
 6. Verify the pulled image carries that digest, then verify its cosign keyless signature against the Notploy `docker-publish.yml` workflow identity.
 7. Inspect the new image's migration journal and the applied migration count when available.
-8. Update only the `notploy` service, pinning the digest and setting `RELEASE_TAG` to the target tag. PostgreSQL and Traefik are never restarted by this step.
+8. Update every Notploy role (`notploy-api` and `notploy`) to the same pinned image and set `RELEASE_TAG` to the target tag. PostgreSQL and Traefik are never restarted by this step.
 9. Wait for Swarm convergence (bounded timeout, rollback/paused detected immediately).
 10. Probe `/api/trpc/settings.health` and verify the running image digest and release tag.
 11. Record the final migration count and mark the journal succeeded. Any failure is reported as a failure; success is never declared for a partial rollout.
@@ -597,7 +597,7 @@ Useful flags:
 | Flag | Meaning |
 | --- | --- |
 | `--check` / `--dry-run` | Read-only assessment; mutually exclusive |
-| `--to <version>` | Target a **published** Cloud release; arbitrary tags are refused |
+| `--to <version>` | Target a **published** platform release; arbitrary tags are refused |
 | `--image <reference>` | Mirror repository; the digest is still resolved and verified |
 | `--yes` | Skip the interactive confirmation (required in CI) |
 | `--allow-major` | Allow a cross-major update (blocked by default) |
@@ -608,7 +608,7 @@ Useful flags:
 | `--force-unlock` | Clear a **stale** maintenance lock after inspection |
 | `--state-dir <path>` | Alternate journal/backup directory |
 
-Compatibility rules: this CLI manages Cloud releases at or above `1.0.0`, requires a newer version than the installed one, and blocks a cross-major update unless `--allow-major` is passed. If the installed version cannot be determined, the update is blocked rather than guessed. CLI versions and Cloud versions are released independently; the CLI resolves only `-cloud` releases, never the self-hosted `-app` line.
+Compatibility rules: this CLI manages platform releases at or above `1.0.0`, requires a newer version than the installed one, and blocks a cross-major update unless `--allow-major` is passed. If the installed version cannot be determined, the update is blocked rather than guessed. CLI and platform versions are released independently; both self-hosted and Cloud installations resolve the same bare `vX.Y.Z` release line.
 
 #### Backups, migrations and rollback limits
 
@@ -984,7 +984,7 @@ packages/cli/
 │   │   ├── commands.ts           # notploy cloud status/version/doctor/update/logs/recover/rollback
 │   │   ├── docker.ts             # injection-safe Docker CLI runner and privilege detection
 │   │   ├── environment.ts        # read-only Swarm/Compose installation discovery
-│   │   ├── release.ts            # -cloud release resolution and version compatibility
+│   │   ├── release.ts            # shared platform release resolution and version compatibility
 │   │   ├── registry.ts           # OCI manifest/digest resolution
 │   │   ├── journal.ts            # operation journal, maintenance lock, state directory
 │   │   ├── preflight.ts          # disk, backups, migration counts, convergence and health probes

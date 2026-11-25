@@ -33,9 +33,10 @@ export {
 	normalizeVersion,
 	REQUIRED_RELEASE_ASSETS,
 	toReleaseTag,
-	type UpdateStatus,
 	UPDATE_INSTALLABLE_STATUS,
 	UPDATE_PENDING_STATUSES,
+	type UpdateStatus,
+	updateNotployServices,
 } from "./update";
 
 interface TreeDataItem {

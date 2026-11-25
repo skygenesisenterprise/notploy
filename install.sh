@@ -3,6 +3,13 @@
 # Notploy version to install and maintain
 DOCKER_VERSION="28.5.2"
 
+# docker-publish.yml rewrites the marker below in the install.sh release asset
+# so a script downloaded from a release pins that exact release. The canonical
+# script (including the website copy) leaves it empty and discovers the newest
+# platform release at run time.
+NOTPLOY_VERSION="${NOTPLOY_VERSION:-}"
+# __NOTPLOY_RELEASE_PIN__
+
 # Official Notploy CLI. Installed by default with `npm i -g @notploy/cli`;
 # installs and `update` runs refresh it from npm after the server converges.
 NOTPLOY_CLI_PACKAGE="${NOTPLOY_CLI_PACKAGE:-@notploy/cli}"
@@ -1106,40 +1113,53 @@ run_migration_assessment() {
     echo "reviewable plan before any production-impacting operation."
 }
 
-# Detect version from environment variable or default to latest
+# Detect the platform release. Other workflows publish browser, desktop and
+# editor releases into the same repository, so `/releases/latest` is not a
+# trustworthy source for the server image; select the newest bare vX.Y.Z tag.
 detect_version() {
     local version="${NOTPLOY_VERSION}"
-    
+
     if [ -z "$version" ]; then
-        echo "Detecting latest stable version from GitHub..." >&2
-        
-        version=$(curl -fsSL --connect-timeout 10 -o /dev/null -w '%{url_effective}\n' \
-            https://github.com/skygenesisenterprise/notploy/releases/latest 2>/dev/null | \
-            sed 's#.*/tag/##')
+        echo "Detecting latest stable platform release from GitHub..." >&2
 
-        case "$version" in
-            v[0-9]*) ;;
-            *) version="" ;;
-        esac
-
-        if [ -z "$version" ]; then
-            echo "Warning: Could not detect latest version from GitHub, using fallback version latest" >&2
-            version="latest"
-        else
-            echo "Latest stable version detected: $version" >&2
-        fi
+        version=$(curl -fsSL --connect-timeout 10 \
+            "https://api.github.com/repos/${NOTPLOY_GITHUB_REPOSITORY:-skygenesisenterprise/notploy}/releases?per_page=100" 2>/dev/null | \
+            grep -Eo '"tag_name"[[:space:]]*:[[:space:]]*"v[0-9]+\.[0-9]+\.[0-9]+(-app|-cloud)?"' 2>/dev/null | \
+            head -n 1 | \
+            sed -E 's/.*"(v[^"]+)"/\1/')
     fi
-    
+
+    # Legacy release tags collapse to the one tag docker-publish.yml pushes.
+    case "$version" in
+        *-app | *-cloud) version="${version%-*}" ;;
+    esac
+
+    case "$version" in
+        v[0-9]*.[0-9]*.[0-9]* | latest | canary | feature) ;;
+        *)
+            if [ -n "$version" ]; then
+                echo "Warning: Unsupported version '$version', using fallback version latest" >&2
+            else
+                echo "Warning: Could not detect latest version from GitHub, using fallback version latest" >&2
+            fi
+            version="latest"
+            ;;
+    esac
+
+    if [ "$version" != "latest" ] && [ -n "$version" ]; then
+        echo "Latest stable platform release detected: $version" >&2
+    fi
+
     echo "$version"
 }
 
 # Maps a release tag to THE single Notploy image. Both editions use this image;
-# the historical `-app` tag suffix is normalised away. Kept POSIX-safe so
-# `curl ... | sh` works even where /bin/sh is dash.
+# the historical `-app` / `-cloud` suffixes are normalised away. Kept POSIX-safe
+# so `curl ... | sh` works even where /bin/sh is dash.
 resolve_docker_image() {
     local tag="$1"
     case "$tag" in
-        *-app) tag="${tag%-app}" ;;
+        *-app | *-cloud) tag="${tag%-*}" ;;
     esac
     printf '%s:%s' "$NOTPLOY_IMAGE" "$tag"
 }
@@ -2685,7 +2705,12 @@ update_notploy() {
     fi
 
     for svc in notploy-api notploy; do
-        if ! $SUDO_CMD docker service update --image "$DOCKER_IMAGE" "$svc" >/dev/null 2>&1; then
+        # Keep the deployed channel in sync with the image: update detection and
+        # the Cloud CLI both read RELEASE_TAG from the running service.
+        if ! $SUDO_CMD docker service update \
+            --image "$DOCKER_IMAGE" \
+            --env-add "RELEASE_TAG=$VERSION_TAG" \
+            "$svc" >/dev/null 2>&1; then
             echo "Error: updating service '$svc' failed." >&2
             echo "Recover with: docker service rollback $svc" >&2
             exit 1

@@ -116,6 +116,12 @@ else {
     $script:NotployImage = 'ghcr.io/skygenesisenterprise/notploy'
 }
 
+# docker-publish.yml rewrites the marker below in the install.ps1 release asset
+# so a script downloaded from a release pins that exact release. The canonical
+# script (including the website copy) leaves it empty and discovers the newest
+# platform release at run time.
+# __NOTPLOY_RELEASE_PIN__
+
 # Official CLI settings. Installation always uses `npm i -g @notploy/cli`
 # (optionally pinned to NOTPLOY_CLI_VERSION) inside the same WSL runtime.
 $script:CliPackage = if ($env:NOTPLOY_CLI_PACKAGE) { $env:NOTPLOY_CLI_PACKAGE } else { '@notploy/cli' }
@@ -587,27 +593,38 @@ function Show-SystemPreflight {
 
 function Get-LatestVersion {
     $version = $env:NOTPLOY_VERSION
-    if ($version) { return $version }
 
-    Write-Host 'Detecting latest stable version from GitHub...'
-    try {
-        $response = Invoke-WebRequest -Uri 'https://api.github.com/repos/skygenesisenterprise/notploy/releases/latest' -UseBasicParsing -TimeoutSec 10
-        $tag = ($response.Content | ConvertFrom-Json).tag_name
-        if ($tag -match '^v[0-9]') {
-            Write-Host "Latest stable version detected: $tag"
-            return $tag
+    if (-not $version) {
+        Write-Host 'Detecting latest stable platform release from GitHub...'
+        try {
+            $repo = if ($env:NOTPLOY_GITHUB_REPOSITORY) { $env:NOTPLOY_GITHUB_REPOSITORY } else { 'skygenesisenterprise/notploy' }
+            $releases = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases?per_page=100" -TimeoutSec 10
+            # Browser, desktop and editor releases share this repository; only
+            # the bare platform tag maps to the server image.
+            $platform = $releases | Where-Object { $_.tag_name -match '^v\d+\.\d+\.\d+(-app|-cloud)?$' } | Select-Object -First 1
+            if ($platform) { $version = $platform.tag_name }
+        }
+        catch {
+            Write-Warning 'Could not detect the latest version from GitHub; falling back to "latest".'
         }
     }
-    catch {
-        Write-Warning 'Could not detect the latest version from GitHub; falling back to "latest".'
+
+    # Legacy release tags collapse to the one tag docker-publish.yml pushes.
+    if ($version -match '-(app|cloud)$') { $version = $version -replace '-(app|cloud)$', '' }
+
+    if ($version -notmatch '^(v\d+\.\d+\.\d+|latest|canary|feature)$') {
+        if ($version) { Write-Warning "Unsupported version '$version'; falling back to ""latest""." }
+        $version = 'latest'
     }
-    'latest'
+
+    $version
 }
 
 function Resolve-DockerImage {
     param([Parameter(Mandatory)][string]$Tag)
-    # Historical `-app` tags are normalised away: self and cloud share one image.
-    if ($Tag.EndsWith('-app')) { $Tag = $Tag.Substring(0, $Tag.Length - 4) }
+    # Historical `-app` / `-cloud` tags are normalised away: self and cloud
+    # share one image and one release line.
+    $Tag = $Tag -replace '-(app|cloud)$', ''
     '{0}:{1}' -f $script:NotployImage, $Tag
 }
 
@@ -1139,7 +1156,9 @@ function Invoke-Update {
 
     $services = @('notploy-api', 'notploy')
     foreach ($service in $services) {
-        $update = Invoke-WslRootCapture -Command "docker service update --image '$dockerImage' $service >/dev/null 2>&1"
+        # Keep the deployed channel in sync with the image: update detection and
+        # the CLI both read RELEASE_TAG from the running service.
+        $update = Invoke-WslRootCapture -Command "docker service update --image '$dockerImage' --env-add 'RELEASE_TAG=$versionTag' $service >/dev/null 2>&1"
         if (-not $update.ExitCodeOk) {
             throw "docker service update failed for '$service'. Recover with: docker service rollback $service"
         }

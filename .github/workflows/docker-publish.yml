@@ -17,10 +17,10 @@ name: Docker Publish
 # which is the single place to add an image.
 #
 # Only the platform release is published as GitHub's `latest`: a running server
-# discovers its updates through the Releases API and pulls the image whose tag
-# is that release tag, and install.sh resolves `/releases/latest` to pick a
-# version. The other releases therefore carry `make_latest: false` so they never
-# take that place. The platform release ships the install scripts, which choose
+# discovers its updates through the Releases API, and install.sh selects the
+# newest bare platform tag from that same index. Browser/desktop/editor releases
+# therefore carry `make_latest: false` so they never take that place. The
+# platform release ships install scripts pinned to that exact tag; they choose
 # the self or cloud edition at install time.
 #
 # The `select` job filters the catalog down to the images the pushed tag
@@ -79,7 +79,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ ! "$TAG_NAME" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-(mcp|github|templates))?$ ]]; then
+          if [[ ! "$TAG_NAME" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-([a-z-]+))?$ ]]; then
             echo "::error::Unsupported Docker image tag: $TAG_NAME"
             exit 1
           fi
@@ -87,6 +87,19 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           # No suffix selects the single platform image (self by default).
           variant="${BASH_REMATCH[4]}"
+
+          # The desktop, vscode, browser and node release workflows push tags
+          # with their own suffixes. Those must be a clean no-op here: a failure
+          # breaks unrelated releases, and a release job would duplicate theirs.
+          if [[ -n "$variant" && ! "$variant" =~ ^-(mcp|github|templates)$ ]]; then
+            echo "any=false" >> "$GITHUB_OUTPUT"
+            echo "matrix=[]" >> "$GITHUB_OUTPUT"
+            echo "release_title=" >> "$GITHUB_OUTPUT"
+            echo "release_assets=false" >> "$GITHUB_OUTPUT"
+            echo "release_latest=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::$TAG_NAME publishes no Docker image; skipping"
+            exit 0
+          fi
 
           # Catalog of publishable images. Adding an image means adding it here
           # and adding its suffix to the tag filters above.
@@ -102,7 +115,6 @@ jobs:
               "image": "notploy",
               "file": "./Dockerfile",
               "target": "platform",
-              "platforms": "linux/amd64",
               "tag_suffix": "",
               "description": "Notploy platform (self-hosted by default, cloud at runtime)",
               "release_name": "",
@@ -228,11 +240,13 @@ jobs:
       - uses: docker/setup-buildx-action@v4
         if: steps.select.outputs.enabled == 'true'
 
-      - name: Log in to ${{ env.IMAGE_PREFIX }}
+      # IMAGE_PREFIX is a repository/namespace prefix, not a registry host:
+      # `ghcr.io/owner` must not be passed to login-action as `registry`.
+      - name: Log in to GHCR
         if: steps.select.outputs.enabled == 'true'
         uses: docker/login-action@v4
         with:
-          registry: ${{ env.IMAGE_PREFIX }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -266,21 +280,33 @@ jobs:
           cosign sign --yes \
             "${{ env.IMAGE_PREFIX }}/${{ matrix.image }}@${DIGEST}"
 
+      - name: Write image metadata
+        if: steps.select.outputs.enabled == 'true'
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          LABELS: ${{ steps.meta.outputs.labels }}
+        run: |
+          {
+            printf '%s\n' '## Tags'
+            printf '%s\n' "$TAGS"
+            printf '%s\n' '' '## Labels'
+            printf '%s\n' "$LABELS"
+          } > image-metadata.md
+
       - name: Upload image metadata
         if: steps.select.outputs.enabled == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: image-metadata-${{ matrix.image }}
-          path: |
-            ${{ steps.meta.outputs.tags }}
-            ${{ steps.meta.outputs.labels }}
-          if-no-files-found: ignore
+          path: image-metadata.md
+          if-no-files-found: error
           retention-days: 30
 
   release:
     name: Publish the ${{ needs.select.outputs.release_title }} release
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    if: needs.select.outputs.any == 'true'
     # The image must be pullable before the release advertises it, otherwise a
     # server that already sees the release could be offered a missing tag.
     needs: [select, publish]
@@ -299,6 +325,7 @@ jobs:
         id: assets
         env:
           RELEASE_ASSETS: ${{ needs.select.outputs.release_assets }}
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
 
@@ -311,6 +338,13 @@ jobs:
           fi
 
           cp install.sh install-notploy.sh
+
+          # Pin the assets to the release they are attached to. Without this,
+          # a script downloaded from an old release would still resolve and
+          # install the newest one, despite what the docs promise.
+          sed -i "s|# __NOTPLOY_RELEASE_PIN__|NOTPLOY_VERSION=\"\${NOTPLOY_VERSION:-$RELEASE_TAG}\"|" install.sh install-notploy.sh
+          sed -i "s|# __NOTPLOY_RELEASE_PIN__|if (-not \$env:NOTPLOY_VERSION) { \$env:NOTPLOY_VERSION = '$RELEASE_TAG' }|" install.ps1
+
           chmod +x install.sh install-notploy.sh install.ps1
           echo "enabled=true" >> "$GITHUB_OUTPUT"
 

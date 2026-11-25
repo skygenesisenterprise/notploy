@@ -43,8 +43,8 @@ import { createTempDir, removeTempDir } from "./helpers/cli.js";
 /* -------------------------------------------------------------------------- */
 
 const CLI_VERSION = "1.0.3";
-const TARGET_TAG = "v1.2.0-cloud";
-const CURRENT_TAG = "v1.1.5-cloud";
+const TARGET_TAG = "v1.2.0";
+const CURRENT_TAG = "v1.1.5";
 
 interface Call {
 	command: string;
@@ -146,10 +146,9 @@ function dockerHandler(
 	const manifestDigestValue = manifestDigest(manifestBody());
 	const configDir = options.configDir ?? "/tmp/notploy-test-install";
 	const image =
-		options.image ??
-		`ghcr.io/skygenesisenterprise/notploy-cloud:${CURRENT_TAG}`;
+		options.image ?? `ghcr.io/skygenesisenterprise/notploy:${CURRENT_TAG}`;
 	const releaseTag = options.installedVersion
-		? `v${options.installedVersion}-cloud`
+		? `v${options.installedVersion}`
 		: CURRENT_TAG;
 	if (options.compose) {
 		return (command, args) => {
@@ -172,7 +171,7 @@ function dockerHandler(
 					code: 0,
 					stdout: `${JSON.stringify({
 						ID: "compose-id",
-						Image: "ghcr.io/skygenesisenterprise/notploy-cloud:v1.1.5-cloud",
+						Image: "ghcr.io/skygenesisenterprise/notploy:v1.1.5",
 					})}\n`,
 					stderr: "",
 				};
@@ -212,6 +211,13 @@ function dockerHandler(
 				stderr: "",
 			};
 		}
+		// Both roles come from the one image and are updated together.
+		if (
+			joined === "docker service inspect notploy-api" ||
+			joined === "docker service inspect notploy"
+		) {
+			return { code: 0, stdout: "{}\n", stderr: "" };
+		}
 		if (joined === "docker service inspect notploy --format {{json .}}") {
 			return {
 				code: 0,
@@ -229,7 +235,7 @@ function dockerHandler(
 		if (
 			args[0] === "service" &&
 			args[1] === "inspect" &&
-			args[2] === "notploy" &&
+			(args[2] === "notploy" || args[2] === "notploy-api") &&
 			args.includes(
 				"{{.UpdateStatus.State}}|{{.Spec.Mode.Replicated.Replicas}}",
 			)
@@ -254,7 +260,11 @@ function dockerHandler(
 				stderr: "",
 			};
 		}
-		if (args[0] === "service" && args[1] === "ps" && args[2] === "notploy") {
+		if (
+			args[0] === "service" &&
+			args[1] === "ps" &&
+			(args[2] === "notploy" || args[2] === "notploy-api")
+		) {
 			return {
 				code: 0,
 				stdout: `${(options.runningStates ?? ["Running 2 minutes ago"]).join("\n")}\n`,
@@ -312,7 +322,7 @@ function dockerHandler(
 			return {
 				code: 0,
 				stdout: JSON.stringify([
-					`ghcr.io/skygenesisenterprise/notploy-cloud@${manifestDigestValue}`,
+					`ghcr.io/skygenesisenterprise/notploy@${manifestDigestValue}`,
 				]),
 				stderr: "",
 			};
@@ -494,7 +504,9 @@ describe("Cloud installation detection", () => {
 			expect(installation.deployment).toBe("swarm");
 			expect(installation.installedVersion).toBe("1.1.5");
 			expect(installation.releaseTag).toBe(CURRENT_TAG);
-			expect(installation.image).toContain("notploy-cloud");
+			expect(installation.image).toBe(
+				`ghcr.io/skygenesisenterprise/notploy:${CURRENT_TAG}`,
+			);
 			expect(installation.capabilities.update).toBe(true);
 			expect(installation.services.map((service) => service.name)).toEqual([
 				"notploy",
@@ -548,8 +560,10 @@ describe("Cloud installation detection", () => {
 /* -------------------------------------------------------------------------- */
 
 describe("Cloud release resolution", () => {
-	it("parses only the -cloud release line", () => {
-		expect(parseCloudReleaseTag("v1.2.3-cloud")?.version).toBe("1.2.3");
+	it("parses the shared platform release line", () => {
+		expect(parseCloudReleaseTag("v1.2.3")?.version).toBe("1.2.3");
+		expect(parseCloudReleaseTag("1.2.3")?.tag).toBe("v1.2.3");
+		expect(parseCloudReleaseTag("v1.2.3-cloud")).toBeNull();
 		expect(parseCloudReleaseTag("v1.2.3-app")).toBeNull();
 		expect(parseCloudReleaseTag("latest")).toBeNull();
 	});
@@ -616,16 +630,16 @@ describe("artifact integrity", () => {
 	it("rejects a digest that does not match the returned manifest bytes", async () => {
 		const fetch = fakeFetch({ digestOverride: `sha256:${"0".repeat(64)}` });
 		await expect(
-			resolveImageManifest(
-				"ghcr.io/skygenesisenterprise/notploy-cloud:v1.2.0-cloud",
-				{ fetchImpl: fetch.impl, env: {} },
-			),
+			resolveImageManifest("ghcr.io/skygenesisenterprise/notploy:v1.2.0", {
+				fetchImpl: fetch.impl,
+				env: {},
+			}),
 		).rejects.toMatchObject({ code: 4 });
 	});
 
 	it("validates image references against path traversal", () => {
 		expect(() =>
-			parseImageReference("ghcr.io/skygenesisenterprise/../notploy-cloud:tag"),
+			parseImageReference("ghcr.io/skygenesisenterprise/../notploy:tag"),
 		).toThrow();
 		expect(() => parseImageReference("ghcr.io/repo:tag;rm -rf /")).toThrow();
 	});
@@ -1075,7 +1089,7 @@ function journalSuccessfulUpdate(options: {
 		toVersion: options.toVersion ?? "1.2.0",
 		toTag: TARGET_TAG,
 		toDigest: manifestDigest(manifestBody()),
-		previousImage: `ghcr.io/skygenesisenterprise/notploy-cloud:${CURRENT_TAG}`,
+		previousImage: `ghcr.io/skygenesisenterprise/notploy:${CURRENT_TAG}`,
 		previousTag: CURRENT_TAG,
 		steps: ["preflight"],
 		env: {},

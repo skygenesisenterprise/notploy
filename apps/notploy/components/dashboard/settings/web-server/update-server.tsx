@@ -40,10 +40,11 @@ interface Props {
 }
 
 /**
- * Release tags are also container image tags and carry the self-hosted suffix
- * (`v1.2.3-app`); the version shown to the user is normalized without it.
+ * Release tags are also container image tags. Legacy `-app` / `-cloud`
+ * suffixes normalize to the shared bare tag shown to the user.
  */
-const displayVersion = (version: string) => version.replace(/-app$/, "");
+const displayVersion = (version: string) =>
+	version.replace(/-(?:app|cloud)$/, "");
 
 export const UpdateServer = ({
 	updateData: initialUpdateData,

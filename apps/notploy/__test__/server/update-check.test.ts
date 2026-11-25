@@ -56,14 +56,15 @@ describe("update check", () => {
 		it("turns a bare version into the published release tag", async () => {
 			const { toReleaseTag } = await importFresh();
 
-			expect(toReleaseTag("0.30.6")).toBe("v0.30.6-app");
-			expect(toReleaseTag("v0.30.6")).toBe("v0.30.6-app");
+			expect(toReleaseTag("0.30.6")).toBe("v0.30.6");
+			expect(toReleaseTag("v0.30.6")).toBe("v0.30.6");
 		});
 
-		it("leaves an already suffixed release tag untouched", async () => {
+		it("normalizes legacy -app and -cloud tags to the shared release tag", async () => {
 			const { toReleaseTag } = await importFresh();
 
-			expect(toReleaseTag("v0.30.6-app")).toBe("v0.30.6-app");
+			expect(toReleaseTag("v0.30.6-app")).toBe("v0.30.6");
+			expect(toReleaseTag("v0.30.6-cloud")).toBe("v0.30.6");
 		});
 
 		it("leaves channels and branch tags untouched", async () => {
@@ -81,16 +82,16 @@ describe("update check", () => {
 			const { getUpdateData } = await importFresh();
 			fetchMock.mockResolvedValue(
 				okResponse([
-					release("v0.30.6-app"),
-					release("v0.30.7-app"),
-					release("v0.31.0-app"),
+					release("v0.30.6"),
+					release("v0.30.7"),
+					release("v0.31.0"),
 				]),
 			);
 
 			const data = await getUpdateData("0.30.6");
 
 			expect(data).toEqual({
-				latestVersion: "v0.31.0-app",
+				latestVersion: "v0.31.0",
 				updateAvailable: true,
 			});
 			expect(fetchMock).toHaveBeenCalledWith(
@@ -101,45 +102,57 @@ describe("update check", () => {
 
 		it("reports no update when the newest release is the running one", async () => {
 			const { getUpdateData } = await importFresh();
-			fetchMock.mockResolvedValue(okResponse([release("v0.30.6-app")]));
+			fetchMock.mockResolvedValue(okResponse([release("v0.30.6")]));
 
 			expect(await getUpdateData("0.30.6")).toEqual({
-				latestVersion: "v0.30.6-app",
+				latestVersion: "v0.30.6",
 				updateAvailable: false,
 			});
 		});
 
 		it("reports no update when the installed version is ahead", async () => {
 			const { getUpdateData } = await importFresh();
-			fetchMock.mockResolvedValue(okResponse([release("v0.30.6-app")]));
+			fetchMock.mockResolvedValue(okResponse([release("v0.30.6")]));
 
 			expect(await getUpdateData("0.31.0")).toEqual({
-				latestVersion: "v0.30.6-app",
+				latestVersion: "v0.30.6",
 				updateAvailable: false,
 			});
 		});
 
-		it("ignores the other images of the publish matrix, drafts and prereleases", async () => {
+		it("ignores the other releases of the repository, drafts and prereleases", async () => {
 			const { getUpdateData } = await importFresh();
 			fetchMock.mockResolvedValue(
 				okResponse([
-					release("v9.9.9-cloud"),
+					release("v9.9.9-browser"),
 					release("v9.9.9-mcp"),
-					release("v9.9.9-app", { draft: true }),
-					release("v8.8.8-app", { prerelease: true }),
-					release("v0.30.7-app"),
+					release("v9.9.9", { draft: true }),
+					release("v8.8.8", { prerelease: true }),
+					release("v0.30.7"),
 				]),
 			);
 
 			expect(await getUpdateData("0.30.6")).toEqual({
-				latestVersion: "v0.30.7-app",
+				latestVersion: "v0.30.7",
 				updateAvailable: true,
 			});
 		});
 
-		it("returns no update data when no self-hosted release exists", async () => {
+		it("normalizes a legacy platform release to the shared image tag", async () => {
+			const { getUpdateData } = await importFresh();
+			fetchMock.mockResolvedValue(okResponse([release("v0.30.7-cloud")]));
+
+			expect(await getUpdateData("0.30.6")).toEqual({
+				latestVersion: "v0.30.7",
+				updateAvailable: true,
+			});
+		});
+
+		it("returns no update data when no platform release exists", async () => {
 			const { getUpdateData, DEFAULT_UPDATE_DATA } = await importFresh();
-			fetchMock.mockResolvedValue(okResponse([release("v1.0.0-cloud")]));
+			fetchMock.mockResolvedValue(
+				okResponse([release("v1.0.0-browser"), release("v1.0.0-vscode")]),
+			);
 
 			expect(await getUpdateData("0.30.6")).toEqual(DEFAULT_UPDATE_DATA);
 		});
@@ -158,7 +171,7 @@ describe("update check", () => {
 
 		it("returns no update data for an unparseable version", async () => {
 			const { getUpdateData, DEFAULT_UPDATE_DATA } = await importFresh();
-			fetchMock.mockResolvedValue(okResponse([release("v0.30.7-app")]));
+			fetchMock.mockResolvedValue(okResponse([release("v0.30.7")]));
 
 			expect(await getUpdateData("not-a-version")).toEqual(
 				DEFAULT_UPDATE_DATA,
@@ -167,7 +180,7 @@ describe("update check", () => {
 
 		it("caches the releases so the dashboard polling does not exhaust the rate limit", async () => {
 			const { getUpdateData } = await importFresh();
-			fetchMock.mockResolvedValue(okResponse([release("v0.30.7-app")]));
+			fetchMock.mockResolvedValue(okResponse([release("v0.30.7")]));
 
 			await getUpdateData("0.30.6");
 			await getUpdateData("0.30.6");
@@ -180,7 +193,7 @@ describe("update check", () => {
 			vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
 			const { getUpdateData } = await importFresh();
 
-			fetchMock.mockResolvedValue(okResponse([release("v0.30.7-app")]));
+			fetchMock.mockResolvedValue(okResponse([release("v0.30.7")]));
 			const first = await getUpdateData("0.30.6");
 
 			// Past the cache lifetime, GitHub now answers with a rate limit.
@@ -381,7 +394,7 @@ describe("update check", () => {
 	describe("getUpdateStatus", () => {
 		it("is up_to_date when the newest release is the running one", async () => {
 			const { getUpdateStatus } = await importFresh();
-			fetchMock.mockResolvedValue(okResponse([completeRelease("v1.0.1-app")]));
+			fetchMock.mockResolvedValue(okResponse([completeRelease("v1.0.1")]));
 
 			const status = await getUpdateStatus("1.0.1");
 
@@ -394,7 +407,7 @@ describe("update check", () => {
 		it("is ready when a newer release has its assets", async () => {
 			const { getUpdateStatus } = await importFresh();
 			fetchMock.mockResolvedValue(
-				okResponse([completeRelease("v1.0.2-app")]),
+				okResponse([completeRelease("v1.0.2")]),
 			);
 
 			const status = await getUpdateStatus("1.0.1");
@@ -402,14 +415,14 @@ describe("update check", () => {
 			expect(status.status).toBe("ready");
 			expect(status.assetsReady).toBe(true);
 			expect(status.updateAvailable).toBe(true);
-			expect(status.latestVersion).toBe("v1.0.2-app");
+			expect(status.latestVersion).toBe("v1.0.2");
 			expect(status.latestNormalizedVersion).toBe("1.0.2");
-			expect(status.releaseUrl).toContain("v1.0.2-app");
+			expect(status.releaseUrl).toContain("v1.0.2");
 		});
 
 		it("is waiting_for_assets when the release has no assets yet", async () => {
 			const { getUpdateStatus } = await importFresh();
-			fetchMock.mockResolvedValue(okResponse([release("v1.0.2-app")]));
+			fetchMock.mockResolvedValue(okResponse([release("v1.0.2")]));
 
 			const status = await getUpdateStatus("1.0.1");
 
@@ -421,7 +434,7 @@ describe("update check", () => {
 
 		it("is up_to_date when the installed version is ahead", async () => {
 			const { getUpdateStatus } = await importFresh();
-			fetchMock.mockResolvedValue(okResponse([completeRelease("v1.0.1-app")]));
+			fetchMock.mockResolvedValue(okResponse([completeRelease("v1.0.1")]));
 
 			const status = await getUpdateStatus("1.0.2");
 
@@ -432,7 +445,7 @@ describe("update check", () => {
 		it("keeps the last known status when GitHub is unavailable", async () => {
 			const { getUpdateStatus } = await importFresh();
 			fetchMock.mockResolvedValue(
-				okResponse([completeRelease("v1.0.2-app")]),
+				okResponse([completeRelease("v1.0.2")]),
 			);
 			const first = await getUpdateStatus("1.0.1");
 
@@ -455,7 +468,7 @@ describe("update check", () => {
 		it("coalesces concurrent lookups into a single GitHub request", async () => {
 			const { getUpdateStatus } = await importFresh();
 			fetchMock.mockResolvedValue(
-				okResponse([completeRelease("v1.0.2-app")]),
+				okResponse([completeRelease("v1.0.2")]),
 			);
 
 			await Promise.all([
@@ -472,7 +485,7 @@ describe("update check", () => {
 		it("only allows the ready status", async () => {
 			const { getUpdateStatus, isUpdateInstallable, invalidateUpdateCache } =
 				await importFresh();
-			fetchMock.mockResolvedValue(okResponse([release("v1.0.2-app")]));
+			fetchMock.mockResolvedValue(okResponse([release("v1.0.2")]));
 
 			const waiting = await getUpdateStatus("1.0.1");
 			expect(waiting.status).toBe("waiting_for_assets");
@@ -481,7 +494,7 @@ describe("update check", () => {
 			// A later check finds the assets published: same version, now installable.
 			invalidateUpdateCache();
 			fetchMock.mockResolvedValue(
-				okResponse([completeRelease("v1.0.2-app")]),
+				okResponse([completeRelease("v1.0.2")]),
 			);
 			const ready = await getUpdateStatus("1.0.1");
 			expect(ready.status).toBe("ready");
@@ -509,8 +522,55 @@ describe("update check", () => {
 			await reloadDockerResource("notploy", undefined, "0.30.7");
 
 			expect(execAsync).toHaveBeenLastCalledWith(
-				"docker service update --force --image ghcr.io/skygenesisenterprise/notploy:v0.30.7-app notploy",
+				"docker service update --force --image ghcr.io/skygenesisenterprise/notploy:v0.30.7 notploy",
 			);
+		});
+	});
+
+	describe("updateNotployServices", () => {
+		it("pulls the image first and moves both swarm roles together", async () => {
+			const execAsync = vi.fn().mockResolvedValue({ stdout: "", stderr: "" });
+			vi.doMock("@notploy/server/utils/process/execAsync", () => ({
+				execAsync,
+				execAsyncRemote: vi.fn(),
+			}));
+
+			vi.resetModules();
+			const { updateNotployServices } = await import(
+				"@notploy/server/services/settings"
+			);
+
+			await updateNotployServices("0.30.7");
+
+			const image = "ghcr.io/skygenesisenterprise/notploy:v0.30.7";
+			expect(execAsync).toHaveBeenCalledTimes(5);
+			expect(execAsync).toHaveBeenNthCalledWith(1, `docker pull ${image}`);
+			expect(execAsync).toHaveBeenNthCalledWith(
+				4,
+				`docker service update --force --image ${image} --env-add RELEASE_TAG=v0.30.7 notploy-api`,
+			);
+			expect(execAsync).toHaveBeenNthCalledWith(
+				5,
+				`docker service update --force --image ${image} --env-add RELEASE_TAG=v0.30.7 notploy`,
+			);
+		});
+
+		it("refuses to pull an arbitrary tag", async () => {
+			const execAsync = vi.fn();
+			vi.doMock("@notploy/server/utils/process/execAsync", () => ({
+				execAsync,
+				execAsyncRemote: vi.fn(),
+			}));
+
+			vi.resetModules();
+			const { updateNotployServices } = await import(
+				"@notploy/server/services/settings"
+			);
+
+			await expect(updateNotployServices("latest; rm -rf /")).rejects.toThrow(
+				"invalid image tag",
+			);
+			expect(execAsync).not.toHaveBeenCalled();
 		});
 	});
 
