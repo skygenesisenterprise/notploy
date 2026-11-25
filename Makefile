@@ -197,7 +197,7 @@ COMPOSE_UP_PROFILES := --profile prod
 COMPOSE_UP_SERVICES :=
 COMPOSE_DEV_PROFILES := --profile dev
 COMPOSE_DEV_SERVICE := notploy
-COMPOSE_DEV_ENV := NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=${NOTPLOY_DNS_DEV_HOST_PORT:-5300} NOTPLOY_TEMPLATES_DIR=/usr/src/app/templates/blueprints NOTPLOY_GATEWAY_ERRORS_IMAGE=notploy-dev:local NOTPLOY_GATEWAY_ERRORS_COMMAND='pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts' NOTPLOY_GATEWAY_ERRORS_WORKDIR=/usr/src/app NOTPLOY_ALLOW_UNLICENSED_DEV=${NOTPLOY_ALLOW_UNLICENSED_DEV:-1}
+COMPOSE_DEV_ENV := NOTPLOY_IMAGE=notploy-dev:local NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=${NOTPLOY_DNS_DEV_HOST_PORT:-5300} NOTPLOY_TEMPLATES_DIR=/usr/src/app/templates/blueprints NOTPLOY_GATEWAY_ERRORS_IMAGE=notploy-dev:local NOTPLOY_GATEWAY_ERRORS_COMMAND='pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts' NOTPLOY_GATEWAY_ERRORS_WORKDIR=/usr/src/app NOTPLOY_ALLOW_UNLICENSED_DEV=${NOTPLOY_ALLOW_UNLICENSED_DEV:-1}
 # Only `notploy` joins the external overlay network and competes for the
 # notploy-traefik container name.
 STACK_PREPARE = $(CLEAN_EXTERNAL_TRAEFIK) ; $(ENSURE_NETWORK)
