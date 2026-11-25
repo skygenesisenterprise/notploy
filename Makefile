@@ -121,8 +121,7 @@ COMPOSE ?= docker compose
 # one — command line / environment, then .env, then the mode's default.
 env-file-default = $(or $($(1)),$(shell sed -n 's/^[[:space:]]*$(1)[[:space:]]*=[[:space:]]*\([^#]*\).*/\1/p' .env 2>/dev/null | tail -n 1),$(2))
 
-# Host ports of the control plane (Traefik, app, LAN DNS) for `up` and for
-# `dev`. The status page is another application with its own single port.
+# Host ports of the control plane (Traefik, app, LAN DNS) for `up` and `dev`.
 CHECK_PORTS_UP := $(call env-file-default,NOTPLOY_DNS_HOST_PORT,53) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080
 CHECK_PORTS_DEV := $(call env-file-default,NOTPLOY_DNS_DEV_HOST_PORT,5300) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080
 
