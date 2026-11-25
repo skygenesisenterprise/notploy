@@ -7,7 +7,6 @@
 #   Production: docker compose --profile prod up -d --build
 #   Development: NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development \
 #                NODE_ENV=development docker compose --profile dev up --build
-#   Status: docker compose --profile status up -d --build status
 #
 # The application remains a single monolithic control-plane process (Next.js +
 # API + workers). Unlike ZenthCloud, it is not split into client/api containers.
