@@ -151,7 +151,6 @@ services:
         NOTPLOY_VERSION: ${NOTPLOY_VERSION:-latest}
     image: ${NOTPLOY_IMAGE:-ghcr.io/skygenesisenterprise/notploy}:${NOTPLOY_VERSION:-latest}
     restart: unless-stopped
-    working_dir: /app
     environment:
       <<: *notploy-environment
       NODE_ENV: ${NODE_ENV:-production}
