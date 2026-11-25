@@ -264,9 +264,9 @@ services:
     healthcheck:
       test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
       interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+      timeout: ${NOTPLOY_STATUS_HEALTHCHECK_TIMEOUT:-10s}
+      retries: ${NOTPLOY_STATUS_HEALTHCHECK_RETRIES:-5}
+      start_period: ${NOTPLOY_STATUS_HEALTHCHECK_START_PERIOD:-30s}
     develop:
       watch:
         - action: rebuild
