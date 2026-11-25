@@ -76,7 +76,7 @@ services:
     volumes:
       - notploy-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$${POSTGRES_USER} -d $$${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -98,13 +98,13 @@ services:
     command:
       - sh
       - -c
-      - 'if [ -n "$$${REDIS_PASSWORD}" ]; then exec redis-server --appendonly yes --appendfsync everysec --requirepass "$$${REDIS_PASSWORD}"; else exec redis-server --appendonly yes --appendfsync everysec; fi'
+      - 'if [ -n "$REDIS_PASSWORD" ]; then exec redis-server --appendonly yes --appendfsync everysec --requirepass "$REDIS_PASSWORD"; else exec redis-server --appendonly yes --appendfsync everysec; fi'
     volumes:
       - notploy-redis-data:/data
     healthcheck:
       test:
         - CMD-SHELL
-        - 'if [ -n "$$${REDIS_PASSWORD}" ]; then redis-cli --no-auth-warning -a "$$${REDIS_PASSWORD}" ping | grep -q PONG; else redis-cli ping | grep -q PONG; fi'
+        - 'if [ -n "$REDIS_PASSWORD" ]; then redis-cli --no-auth-warning -a "$REDIS_PASSWORD" ping | grep -q PONG; else redis-cli ping | grep -q PONG; fi'
       interval: 10s
       timeout: 5s
       retries: 10
@@ -309,7 +309,6 @@ networks:
   status-internal:
     name: notploy-status-internal
     driver: bridge
-    internal: true
 
 volumes:
   notploy-postgres-data:
