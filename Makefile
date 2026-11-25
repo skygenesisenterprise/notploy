@@ -156,7 +156,7 @@ dns-ports-check = busy() { command -v ss >/dev/null 2>&1 && ss -lntu "sport = :$
 
 # Exported to every compose invocation so build target and image tag stay in
 # sync with the selected flavor.
-COMPOSE_ENV = NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE) NOTPLOY_VERSION=$(NOTPLOY_VERSION) IS_CLOUD=$(IS_CLOUD) \
+COMPOSE_ENV = NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_BUILD_TARGET=$(NOTPLOY_FLAVOR) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE) NOTPLOY_VERSION=$(NOTPLOY_VERSION) IS_CLOUD=$(IS_CLOUD) \
 	STATUS_IMAGE=$(STATUS_IMAGE) \
 	NOTPLOY_PRODUCT=$(NOTPLOY_PRODUCT) NOTPLOY_ENTITLEMENT=$(NOTPLOY_ENTITLEMENT) \
 	NOTPLOY_ENTITLEMENT_FILE=$(NOTPLOY_ENTITLEMENT_FILE) NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE=$(NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE)
@@ -192,10 +192,10 @@ COMPOSE_DEV_SERVICE := status-dev
 STACK_PREPARE = true
 else
 COMPOSE_BUILD_SERVICE := notploy
-COMPOSE_UP_PROFILES :=
+COMPOSE_UP_PROFILES := --profile prod
 COMPOSE_UP_SERVICES :=
 COMPOSE_DEV_PROFILES := --profile dev
-COMPOSE_DEV_SERVICE := notploy-dev
+COMPOSE_DEV_SERVICE := notploy
 # Only `notploy` joins the external overlay network and competes for the
 # notploy-traefik container name.
 STACK_PREPARE = $(CLEAN_EXTERNAL_TRAEFIK) ; $(ENSURE_NETWORK)
@@ -302,16 +302,16 @@ endif
 # container exists — otherwise `docker compose down` leaves it running and fails
 # to release the shared network ("Resource is still in use").
 docker-down: ## Stop the running stack, dev containers included (volumes are preserved)
-	@if [ -n "$$($(COMPOSE) --profile dev --profile status ps -aq notploy-dev status-dev 2>/dev/null)" ]; then \
+	@if [ -n "$$($(COMPOSE) --profile prod --profile dev --profile status ps -aq notploy status-dev 2>/dev/null)" ]; then \
 		echo "==> dev container found, stopping the whole stack"; \
 		$(COMPOSE) --profile dev --profile status down --remove-orphans --timeout 15; \
 	else \
 		echo "==> no dev container, stopping the production stack"; \
-		$(COMPOSE) --profile status down --remove-orphans --timeout 15; \
+		$(COMPOSE) --profile prod --profile status down --remove-orphans --timeout 15; \
 	fi
 
 docker-restart: ## Restart the stack
-	$(COMPOSE_ENV) $(COMPOSE) restart
+	$(COMPOSE_ENV) $(COMPOSE) --profile prod --profile dev --profile status restart
 
 docker-logs: ## Follow the stack logs
 	$(COMPOSE) --profile dev --profile status logs -f
@@ -320,7 +320,7 @@ docker-ps: ## Show stack status
 	$(COMPOSE) --profile dev --profile status ps -a
 
 docker-config: ## Validate and print the resolved Compose configuration
-	$(COMPOSE_ENV) $(COMPOSE) config
+	$(COMPOSE_ENV) $(COMPOSE) --profile prod --profile dev --profile status config
 
 # ---------------------------------------------------------------------------
 # Status page (Notploy Cloud, API, MCP Server, GitHub App, Website, Docs)
@@ -346,7 +346,7 @@ docker-dev: ## Run the containerized dev server with hot reload (add: status for
 	@$(COMPOSE) $(COMPOSE_DEV_PROFILES) rm -sf $(COMPOSE_DEV_SERVICE) >/dev/null 2>&1 || true
 	@$(STACK_PREPARE)
 	@$(call dns-ports-check,$(CHECK_PORTS_DEV))
-	$(COMPOSE_ENV) $(COMPOSE) $(COMPOSE_DEV_PROFILES) up --build --watch $(COMPOSE_DEV_SERVICE)
+	$(COMPOSE_ENV) NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=${NOTPLOY_DNS_DEV_HOST_PORT:-5300} $(COMPOSE) $(COMPOSE_DEV_PROFILES) up --build --watch $(COMPOSE_DEV_SERVICE)
 
 # ---------------------------------------------------------------------------
 # Cleanup
