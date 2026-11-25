@@ -58,7 +58,7 @@ fi
 # `NOTPLOY_APP=status` runs the standalone status page (apps/status) instead of
 # the control plane: no PostgreSQL, no migrations, no instance identity. The
 # engine keeps its state in a SQLite file under STATUS_DATA_DIR.
-if [ "${NOTPLOY_APP:-notploy}" = "status" ]; then
+if [ "$ROLE" = "status" ] || [ "${NOTPLOY_APP:-notploy}" = "status" ]; then
 	STATUS_CONTAINER_PORT="${PORT:-4100}"
 	if [ "$MODE" = "development" ]; then
 		log "app: status (development, port ${STATUS_CONTAINER_PORT})"
