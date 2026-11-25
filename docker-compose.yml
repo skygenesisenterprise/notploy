@@ -220,19 +220,24 @@ services:
   # No database, Redis, Traefik or Docker socket. Its SQLite state is isolated.
   # Kept as separate prod/dev targets because Status is a distinct application.
   # -------------------------------------------------------------------------
+  # -------------------------------------------------------------------------
+  # GROUP 5 — STATUS (independent product)
+  # One service definition, with prod/dev selected by profile and build target.
+  # It has no PostgreSQL, Redis, Traefik or Docker socket dependency.
+  # -------------------------------------------------------------------------
   status:
-    profiles: ["status"]
+    profiles: ["status", "dev"]
     build:
       context: .
       dockerfile: Dockerfile
-      target: status
+      target: ${NOTPLOY_STATUS_BUILD_TARGET:-status}
       args:
         NOTPLOY_VERSION: ${NOTPLOY_VERSION:-latest}
-    image: ${STATUS_IMAGE:-ghcr.io/skygenesisenterprise/notploy-status}:${NOTPLOY_VERSION:-latest}
-    container_name: notploy-status
+    image: ${NOTPLOY_STATUS_IMAGE:-${STATUS_IMAGE:-ghcr.io/skygenesisenterprise/notploy-status}:${NOTPLOY_VERSION:-latest}}
     restart: unless-stopped
     environment:
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV:-production}
+      NOTPLOY_MODE: ${NOTPLOY_MODE:-production}
       NOTPLOY_APP: status
       NOTPLOY_ROLE: status
       PORT: 4100
@@ -242,39 +247,6 @@ services:
       STATUS_DEFAULT_PAGE: ${STATUS_DEFAULT_PAGE:-}
       STATUS_LOG_LEVEL: ${STATUS_LOG_LEVEL:-info}
       STATUS_SECRET_KEY: ${STATUS_SECRET_KEY:-}
-      TZ: ${TZ:-UTC}
-    ports:
-      - "${STATUS_PORT:-4100}:4100"
-    volumes:
-      - status-data:/data
-    healthcheck:
-      test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    networks:
-      - status-internal
-
-  status-dev:
-    profiles: ["status", "dev"]
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: status-dev
-    image: notploy-status-dev:local
-    container_name: notploy-status-dev
-    working_dir: /usr/src/app
-    environment:
-      NODE_ENV: development
-      NOTPLOY_APP: status
-      NOTPLOY_ROLE: status
-      NOTPLOY_MODE: development
-      PORT: 4100
-      STATUS_DATA_DIR: /data
-      STATUS_PUBLIC_URL: ${STATUS_PUBLIC_URL:-http://localhost:4100}
-      STATUS_DEFAULT_PAGE: ${STATUS_DEFAULT_PAGE:-}
-      STATUS_LOG_LEVEL: ${STATUS_LOG_LEVEL:-debug}
       NEXT_TELEMETRY_DISABLED: "1"
       CHOKIDAR_USEPOLLING: ${DEV_POLLING:-false}
       WATCHPACK_POLLING: ${DEV_POLLING:-false}
@@ -282,13 +254,21 @@ services:
     ports:
       - "${STATUS_PORT:-4100}:4100"
     volumes:
+      # These source mounts are consumed by the status-dev target and are inert
+      # in the production image, which runs its standalone bundle from /app.
       - ./apps/status:/usr/src/app/apps/status
       - ./packages/status:/usr/src/app/packages/status
       - /usr/src/app/node_modules
       - /usr/src/app/apps/status/node_modules
       - /usr/src/app/packages/status/node_modules
       - /usr/src/app/apps/status/.next
-      - status-dev-data:/data
+      - ${STATUS_DATA_VOLUME:-notploy-status-data}:/data
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     develop:
       watch:
         - action: rebuild
@@ -318,7 +298,7 @@ volumes:
     name: notploy-config
   notploy-docker:
     name: notploy-docker
-  status-data:
+  notploy-status-data:
     name: notploy-status-data
-  status-dev-data:
+  notploy-status-dev-data:
     name: notploy-status-dev-data
