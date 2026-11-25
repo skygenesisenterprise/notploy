@@ -93,18 +93,16 @@ services:
     image: redis:7-alpine
     container_name: notploy-redis
     restart: unless-stopped
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     command:
-      - sh
-      - -c
-      - 'if [ -n "$REDIS_PASSWORD" ]; then exec redis-server --appendonly yes --appendfsync everysec --requirepass "$REDIS_PASSWORD"; else exec redis-server --appendonly yes --appendfsync everysec; fi'
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
     volumes:
       - notploy-redis-data:/data
     healthcheck:
-      test:
-        - CMD-SHELL
-        - 'if [ -n "$REDIS_PASSWORD" ]; then redis-cli --no-auth-warning -a "$REDIS_PASSWORD" ping | grep -q PONG; else redis-cli ping | grep -q PONG; fi'
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 10
