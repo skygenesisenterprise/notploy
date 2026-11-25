@@ -20,8 +20,6 @@ SHELL := /bin/bash
 # derived from it and must not be set by hand.
 NOTPLOY_VERSION ?= latest
 NOTPLOY_REGISTRY ?= ghcr.io/skygenesisenterprise
-# Image of the standalone status page (see the "status" product below).
-STATUS_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy-status
 # Protected products (cloud/console) need a signed entitlement.
 NOTPLOY_ENTITLEMENT ?=
 NOTPLOY_ENTITLEMENT_FILE ?=
@@ -33,13 +31,11 @@ NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE ?=
 #
 #   make docker-up -- --cloud    # cloud (requires a signed entitlement)
 #   make docker-dev console      # console (requires a signed entitlement)
-#   make docker-up status        # the standalone status page (http://localhost:4100)
-#   make docker-dev status       # the status page with hot reload
 #
 # GNU make itself rejects `make docker-dev --self` (`--self` is parsed as an
 # unknown make option before any recipe runs), hence the `--` separator or the
 # bare word. Each product maps to its Dockerfile target: self -> selfhosted,
-# cloud -> cloud, console -> console, status -> status (the status-dev Dockerfile target in dev).
+# cloud -> cloud and console -> console.
 #
 # --- Remembered product ----------------------------------------------------
 # Each build records the product in PRODUCT_STATE, so a later command reuses
@@ -54,9 +50,8 @@ NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE ?=
 # (see the warnings below): the flavor only follows the product.
 PRODUCT_STATE := .make-product
 
-# Products: self (default), cloud, console and status. `status` is a separate
-# application (the status page), not a flavor of the control plane.
-GOAL_PRODUCT := $(firstword $(filter self cloud console status,$(patsubst --%,%,$(MAKECMDGOALS))))
+# Products: self (default), cloud and console.
+GOAL_PRODUCT := $(firstword $(filter self cloud console,$(patsubst --%,%,$(MAKECMDGOALS))))
 
 ifneq ($(GOAL_PRODUCT),)
 SELECTED_PRODUCT := $(GOAL_PRODUCT)
@@ -80,11 +75,6 @@ override NOTPLOY_PRODUCT := $(SELECTED_PRODUCT)
 # the flavor always stays in sync with the chosen product.
 ifeq ($(SELECTED_PRODUCT),self)
 override NOTPLOY_FLAVOR := selfhosted
-else ifeq ($(SELECTED_PRODUCT),status)
-# The status page is its own application, not a control-plane flavor. It reuses
-# the self-hosted flavor so the shared variables stay defined; the compose
-# services it starts never read NOTPLOY_FLAVOR.
-override NOTPLOY_FLAVOR := selfhosted
 else ifeq ($(SELECTED_PRODUCT),console)
 override NOTPLOY_FLAVOR := console
 else
@@ -92,9 +82,7 @@ override NOTPLOY_FLAVOR := cloud
 endif
 
 # Word form of the selected product, written to / read from PRODUCT_STATE.
-ifeq ($(SELECTED_PRODUCT),status)
-PRODUCT_WORD := status
-else ifeq ($(NOTPLOY_FLAVOR),cloud)
+ifeq ($(NOTPLOY_FLAVOR),cloud)
 PRODUCT_WORD := cloud
 else ifeq ($(NOTPLOY_FLAVOR),console)
 PRODUCT_WORD := console
@@ -102,14 +90,10 @@ else
 PRODUCT_WORD := self
 endif
 
-# Four products: selfhosted (default, also spelled `self`), cloud, console and
-# status. Cloud and console are protected products: they publish a
-# cloud/console image and run with IS_CLOUD=true, and the PKI layer requires a
-# signed entitlement. `status` publishes the notploy-status image.
-ifeq ($(SELECTED_PRODUCT),status)
-override NOTPLOY_IMAGE := $(STATUS_IMAGE)
-override IS_CLOUD := false
-else ifeq ($(NOTPLOY_FLAVOR),cloud)
+# Three products: selfhosted (default, also spelled `self`), cloud and console.
+# Cloud and console are protected products: they publish dedicated images and
+# require signed entitlements through the PKI layer.
+ifeq ($(NOTPLOY_FLAVOR),cloud)
 NOTPLOY_IMAGE ?= $(NOTPLOY_REGISTRY)/notploy-cloud
 override IS_CLOUD := true
 else ifeq ($(NOTPLOY_FLAVOR),console)
@@ -137,15 +121,9 @@ COMPOSE ?= docker compose
 # one — command line / environment, then .env, then the mode's default.
 env-file-default = $(or $($(1)),$(shell sed -n 's/^[[:space:]]*$(1)[[:space:]]*=[[:space:]]*\([^#]*\).*/\1/p' .env 2>/dev/null | tail -n 1),$(2))
 
-# Host ports of the control plane (Traefik, app, LAN DNS) for `up` and for
-# `dev`. The status page is another application with its own single port.
-ifeq ($(SELECTED_PRODUCT),status)
-CHECK_PORTS_UP := $(call env-file-default,STATUS_PORT,4100)
-CHECK_PORTS_DEV := $(call env-file-default,STATUS_PORT,4100)
-else
+# Host ports of the control plane (Traefik, app, LAN DNS) for `up` and `dev`.
 CHECK_PORTS_UP := $(call env-file-default,NOTPLOY_DNS_HOST_PORT,53) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080
 CHECK_PORTS_DEV := $(call env-file-default,NOTPLOY_DNS_DEV_HOST_PORT,5300) $(call env-file-default,NOTPLOY_PORT,3000) 80 443 8080
-endif
 
 # One recipe line: report every port about to be published that something else
 # already holds, with its owner — docker's own error does not say which port it
@@ -157,7 +135,6 @@ dns-ports-check = busy() { command -v ss >/dev/null 2>&1 && ss -lntu "sport = :$
 # Exported to every compose invocation so build target and image tag stay in
 # sync with the selected flavor.
 COMPOSE_ENV = NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_BUILD_TARGET=$(NOTPLOY_FLAVOR) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE) NOTPLOY_VERSION=$(NOTPLOY_VERSION) IS_CLOUD=$(IS_CLOUD) \
-	STATUS_IMAGE=$(STATUS_IMAGE) \
 	NOTPLOY_PRODUCT=$(NOTPLOY_PRODUCT) NOTPLOY_ENTITLEMENT=$(NOTPLOY_ENTITLEMENT) \
 	NOTPLOY_ENTITLEMENT_FILE=$(NOTPLOY_ENTITLEMENT_FILE) NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE=$(NOTPLOY_ENTITLEMENT_PUBLIC_KEY_FILE)
 
@@ -175,37 +152,18 @@ CLEAN_EXTERNAL_TRAEFIK = [ -z "$$(docker ps -aq -f 'name=^notploy-traefik$$')" ]
 # — before starting the stack on a fresh host.
 ENSURE_NETWORK = docker network inspect notploy-network >/dev/null 2>&1 || { echo "==> creating notploy-network"; docker network create --driver overlay --attachable notploy-network >/dev/null; }
 
-# --- Compose selection per product ------------------------------------------
-# The status page has its own services and no support stack (no PostgreSQL,
-# Redis, Traefik or shared overlay network), so the compose invocations below
-# are parameterized instead of hardcoding `notploy` / `notploy`.
-ifeq ($(SELECTED_PRODUCT),status)
-COMPOSE_BUILD_SERVICE := status
-# The service lives in the `status` profile, so the profile is enabled and the
-# service named: the `status` service selects its production image target.
-COMPOSE_UP_PROFILES := --profile status
-COMPOSE_UP_SERVICES := --no-deps status
-COMPOSE_DEV_PROFILES := --profile status --profile dev
-COMPOSE_DEV_SERVICE := status
-COMPOSE_DEV_ENV := NOTPLOY_STATUS_BUILD_TARGET=status-dev NOTPLOY_STATUS_IMAGE=notploy-status-dev:local STATUS_DATA_VOLUME=notploy-status-dev-data NODE_ENV=development NOTPLOY_MODE=development STATUS_LOG_LEVEL=debug NOTPLOY_STATUS_HEALTHCHECK_TIMEOUT=30s NOTPLOY_STATUS_HEALTHCHECK_RETRIES=10 NOTPLOY_STATUS_HEALTHCHECK_START_PERIOD=180s
-# Nothing to prepare: the status stack uses the project's default network and
-# does not need the host-wide overlay network or a Traefik cleanup.
-STACK_PREPARE = true
-else
+# --- Compose selection --------------------------------------------------------
 COMPOSE_BUILD_SERVICE := notploy
 COMPOSE_UP_PROFILES := --profile prod
 COMPOSE_UP_SERVICES :=
 COMPOSE_DEV_PROFILES := --profile dev
 COMPOSE_DEV_SERVICE := notploy
 COMPOSE_DEV_ENV := NOTPLOY_IMAGE=notploy-dev:local NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=${NOTPLOY_DNS_DEV_HOST_PORT:-5300} NOTPLOY_TEMPLATES_DIR=/usr/src/app/templates/blueprints NOTPLOY_GATEWAY_ERRORS_IMAGE=notploy-dev:local NOTPLOY_GATEWAY_ERRORS_COMMAND='pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts' NOTPLOY_GATEWAY_ERRORS_WORKDIR=/usr/src/app NOTPLOY_ALLOW_UNLICENSED_DEV=${NOTPLOY_ALLOW_UNLICENSED_DEV:-1}
-# Only `notploy` joins the external overlay network and competes for the
-# notploy-traefik container name.
 STACK_PREPARE = $(CLEAN_EXTERNAL_TRAEFIK) ; $(ENSURE_NETWORK)
-endif
 
 .PHONY: help install dev build test typecheck lint \
         docker-build docker-up docker-down docker-restart docker-logs docker-ps docker-config docker-dev \
-        self cloud console status --self --cloud --console --status \
+        self cloud console --self --cloud --console \
         status-seed \
         clean
 
@@ -226,7 +184,6 @@ help: ## Show this help
 	@echo ""
 	@echo "Variables: NOTPLOY_FLAVOR=$(NOTPLOY_FLAVOR) NOTPLOY_VERSION=$(NOTPLOY_VERSION) NOTPLOY_IMAGE=$(NOTPLOY_IMAGE)"
 	@echo "           IS_CLOUD=$(IS_CLOUD) NOTPLOY_PRODUCT=$(PRODUCT_WORD) NOTPLOY_PORT=$${NOTPLOY_PORT:-3000}"
-	@echo "           STATUS_PORT=$${STATUS_PORT:-4100} STATUS_IMAGE=$(STATUS_IMAGE)"
 	@echo "Product:   $(PRODUCT_WORD)$$(test -f $(PRODUCT_STATE) && echo ' (saved by the last build)')"
 	@echo "Identity:  the container bootstraps the instance identity into the"
 	@echo "           notploy-config volume at startup (self-hosted needs no network)."
@@ -238,8 +195,6 @@ help: ## Show this help
 	@echo "           make docker-dev                   # dev, product of the last build"
 	@echo "           make docker-dev self              # dev, self-hosted (default)"
 	@echo "           make docker-dev console           # dev, console (needs entitlement)"
-	@echo "           make docker-up status             # build + start the status page (localhost:4100)"
-	@echo "           make docker-dev status            # status page with hot reload (localhost:4100)"
 	@echo "           make status-seed                  # create the Notploy status page + components"
 
 # ---------------------------------------------------------------------------
@@ -284,12 +239,12 @@ lint: ## Lint/format check (pnpm lint)
 # removes the containers, the image stays, so the next plain `make docker-up`
 # relaunches instantly. Use `make docker-build <product>` to rebuild ignoring
 # PRODUCT_STATE.
-docker-build: ## Build one image only (add: self | cloud | console | status, NOTPLOY_VERSION=<tag>)
+docker-build: ## Build one image only (add: self | cloud | console, NOTPLOY_VERSION=<tag>)
 	@echo "==> building product=$(PRODUCT_WORD) flavor=$(NOTPLOY_FLAVOR) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
 	$(COMPOSE_ENV) $(COMPOSE) build $(COMPOSE_BUILD_SERVICE)
 	@printf '%s\n' '$(PRODUCT_WORD)' > $(PRODUCT_STATE)
 
-docker-up: ## Start the stack (add: self | cloud | console | status to build a fresh image first)
+docker-up: ## Start the stack (add: self | cloud | console to build a fresh image first)
 	@echo "==> starting product=$(PRODUCT_WORD) flavor=$(NOTPLOY_FLAVOR) image=$(NOTPLOY_IMAGE):$(NOTPLOY_VERSION)"
 	@$(STACK_PREPARE)
 	@$(call dns-ports-check,$(CHECK_PORTS_UP))
@@ -304,45 +259,32 @@ endif
 # container exists — otherwise `docker compose down` leaves it running and fails
 # to release the shared network ("Resource is still in use").
 docker-down: ## Stop the running stack, dev containers included (volumes are preserved)
-	@if [ -n "$$($(COMPOSE) --profile prod --profile dev --profile status ps -aq notploy status 2>/dev/null)" ]; then \
+	@if [ -n "$($(COMPOSE) --profile dev ps -aq notploy 2>/dev/null)" ]; then \
 		echo "==> dev container found, stopping the whole stack"; \
-		$(COMPOSE) --profile dev --profile status down --remove-orphans --timeout 15; \
+		$(COMPOSE) --profile dev down --remove-orphans --timeout 15; \
 	else \
 		echo "==> no dev container, stopping the production stack"; \
-		$(COMPOSE) --profile prod --profile status down --remove-orphans --timeout 15; \
+		$(COMPOSE) --profile prod down --remove-orphans --timeout 15; \
 	fi
 
 docker-restart: ## Restart the stack
-	$(COMPOSE_ENV) $(COMPOSE) --profile prod --profile dev --profile status restart
+	$(COMPOSE_ENV) $(COMPOSE) --profile prod --profile dev restart
 
 docker-logs: ## Follow the stack logs
-	$(COMPOSE) --profile prod --profile dev --profile status logs -f
+	$(COMPOSE) --profile prod --profile dev logs -f
 
 docker-ps: ## Show stack status
-	$(COMPOSE) --profile prod --profile dev --profile status ps -a
+	$(COMPOSE) --profile prod --profile dev ps -a
 
 docker-config: ## Validate and print the resolved Compose configuration
-	$(COMPOSE_ENV) $(COMPOSE) --profile prod --profile dev --profile status config
+	$(COMPOSE_ENV) $(COMPOSE) --profile prod --profile dev config
 
 # ---------------------------------------------------------------------------
-# Status page (Notploy Cloud, API, MCP Server, GitHub App, Website, Docs)
-#
-# The seed is idempotent: existing components are left untouched, so it is safe
-# to re-run. It writes to STATUS_DATA_DIR (default ./data), the same override
-# the status services use, e.g.:
-#   STATUS_DATA_DIR=/var/lib/notploy-status make status-seed
-# ---------------------------------------------------------------------------
-ifeq ($(CONTAINER),1)
-status-seed: ## Seed the catalog inside the running status container (add CONTAINER=1)
-	@echo "==> seeding the catalog inside the running status container"
-	$(COMPOSE) --profile status exec status node engine-dist/seed.js $(SEED_ARGS)
-else
-status-seed: ## Create the Notploy status page and its six components (idempotent)
-	@echo "==> seeding the catalog into STATUS_DATA_DIR=$${STATUS_DATA_DIR:-./data}"
+# Status catalog seeding is host-side only; no Docker service is managed here.
+status-seed: ## Create the Notploy status page and its components (idempotent)
 	$(PNPM) --filter @notploy/status run seed -- $(SEED_ARGS)
-endif
 
-docker-dev: ## Run the containerized dev server with hot reload (add: status for the status page)
+docker-dev: ## Run the containerized dev server with hot reload
 	@# Recreate the dev container every run: reusing one whose network endpoint is
 	@# stale makes the daemon fail with "Could not attach to network ... not found".
 	@$(COMPOSE) $(COMPOSE_DEV_PROFILES) rm -sf $(COMPOSE_DEV_SERVICE) >/dev/null 2>&1 || true

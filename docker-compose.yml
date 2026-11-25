@@ -7,7 +7,6 @@
 #   Production: docker compose --profile prod up -d --build
 #   Development: NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development \
 #                NODE_ENV=development docker compose --profile dev up --build
-#   Status: docker compose --profile status up -d --build status
 #
 # The application remains a single monolithic control-plane process (Next.js +
 # API + workers). Unlike ZenthCloud, it is not split into client/api containers.
@@ -82,7 +81,7 @@ services:
       retries: 10
       start_period: 15s
     networks:
-      - notploy-internal
+      - notploy
 
   # -------------------------------------------------------------------------
   # GROUP 2 — CACHE / QUEUE
@@ -108,7 +107,7 @@ services:
       retries: 10
       start_period: 10s
     networks:
-      - notploy-internal
+      - notploy
 
   # -------------------------------------------------------------------------
   # GROUP 3 — EDGE / REVERSE PROXY
@@ -208,84 +207,17 @@ services:
         - action: rebuild
           path: pnpm-lock.yaml
     networks:
-      notploy-internal: {}
       notploy:
         aliases:
           - notploy
 
-  # -------------------------------------------------------------------------
-  # GROUP 5 — STATUS (independent product)
-  # No database, Redis, Traefik or Docker socket. Its SQLite state is isolated.
-  # Kept as separate prod/dev targets because Status is a distinct application.
-  # -------------------------------------------------------------------------
-  # -------------------------------------------------------------------------
-  # GROUP 5 — STATUS (independent product)
-  # One service definition, with prod/dev selected by profile and build target.
-  # It has no PostgreSQL, Redis, Traefik or Docker socket dependency.
-  # -------------------------------------------------------------------------
-  status:
-    profiles: ["status", "dev"]
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: ${NOTPLOY_STATUS_BUILD_TARGET:-status}
-      args:
-        NOTPLOY_VERSION: ${NOTPLOY_VERSION:-latest}
-    image: ${NOTPLOY_STATUS_IMAGE:-${STATUS_IMAGE:-ghcr.io/skygenesisenterprise/notploy-status}:${NOTPLOY_VERSION:-latest}}
-    restart: unless-stopped
-    environment:
-      NODE_ENV: ${NODE_ENV:-production}
-      NOTPLOY_MODE: ${NOTPLOY_MODE:-production}
-      NOTPLOY_APP: status
-      NOTPLOY_ROLE: status
-      PORT: 4100
-      HOSTNAME: 0.0.0.0
-      STATUS_DATA_DIR: /data
-      STATUS_PUBLIC_URL: ${STATUS_PUBLIC_URL:-http://localhost:4100}
-      STATUS_DEFAULT_PAGE: ${STATUS_DEFAULT_PAGE:-}
-      STATUS_LOG_LEVEL: ${STATUS_LOG_LEVEL:-info}
-      STATUS_SECRET_KEY: ${STATUS_SECRET_KEY:-}
-      NEXT_TELEMETRY_DISABLED: "1"
-      CHOKIDAR_USEPOLLING: ${DEV_POLLING:-false}
-      WATCHPACK_POLLING: ${DEV_POLLING:-false}
-      TZ: ${TZ:-UTC}
-    ports:
-      - "${STATUS_PORT:-4100}:4100"
-    volumes:
-      # These source mounts are consumed by the status-dev target and are inert
-      # in the production image, which runs its standalone bundle from /app.
-      - ./apps/status:/usr/src/app/apps/status
-      - ./packages/status:/usr/src/app/packages/status
-      - /usr/src/app/node_modules
-      - /usr/src/app/apps/status/node_modules
-      - /usr/src/app/packages/status/node_modules
-      - /usr/src/app/apps/status/.next
-      - ${STATUS_DATA_VOLUME:-notploy-status-data}:/data
-    healthcheck:
-      test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
-      interval: 30s
-      timeout: ${NOTPLOY_STATUS_HEALTHCHECK_TIMEOUT:-10s}
-      retries: ${NOTPLOY_STATUS_HEALTHCHECK_RETRIES:-5}
-      start_period: ${NOTPLOY_STATUS_HEALTHCHECK_START_PERIOD:-30s}
-    develop:
-      watch:
-        - action: rebuild
-          path: pnpm-lock.yaml
-    networks:
-      - status-internal
-
 # The external workload network is deliberately not owned by Compose: deployed
 # applications can outlive the Notploy stack and Traefik must keep routing them.
+# All services use this single network for a consistent topology.
 networks:
   notploy:
     name: notploy-network
     external: true
-  notploy-internal:
-    name: notploy-internal
-    driver: bridge
-  status-internal:
-    name: notploy-status-internal
-    driver: bridge
 
 volumes:
   notploy-postgres-data:
@@ -296,7 +228,3 @@ volumes:
     name: notploy-config
   notploy-docker:
     name: notploy-docker
-  notploy-status-data:
-    name: notploy-status-data
-  notploy-status-dev-data:
-    name: notploy-status-dev-data
