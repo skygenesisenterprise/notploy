@@ -186,7 +186,8 @@ COMPOSE_BUILD_SERVICE := status
 COMPOSE_UP_PROFILES := --profile status
 COMPOSE_UP_SERVICES := --no-deps status
 COMPOSE_DEV_PROFILES := --profile status --profile dev
-COMPOSE_DEV_SERVICE := status-dev
+COMPOSE_DEV_SERVICE := status
+COMPOSE_DEV_ENV := NOTPLOY_STATUS_BUILD_TARGET=status-dev NOTPLOY_STATUS_IMAGE=notploy-status-dev:local STATUS_DATA_VOLUME=notploy-status-dev-data NODE_ENV=development NOTPLOY_MODE=development STATUS_LOG_LEVEL=debug
 # Nothing to prepare: the status stack uses the project's default network and
 # does not need the host-wide overlay network or a Traefik cleanup.
 STACK_PREPARE = true
@@ -196,6 +197,7 @@ COMPOSE_UP_PROFILES := --profile prod
 COMPOSE_UP_SERVICES :=
 COMPOSE_DEV_PROFILES := --profile dev
 COMPOSE_DEV_SERVICE := notploy
+COMPOSE_DEV_ENV := NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=${NOTPLOY_DNS_DEV_HOST_PORT:-5300} NOTPLOY_TEMPLATES_DIR=/usr/src/app/templates/blueprints NOTPLOY_GATEWAY_ERRORS_IMAGE=notploy-dev:local NOTPLOY_GATEWAY_ERRORS_COMMAND='pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts' NOTPLOY_GATEWAY_ERRORS_WORKDIR=/usr/src/app NOTPLOY_ALLOW_UNLICENSED_DEV=${NOTPLOY_ALLOW_UNLICENSED_DEV:-1}
 # Only `notploy` joins the external overlay network and competes for the
 # notploy-traefik container name.
 STACK_PREPARE = $(CLEAN_EXTERNAL_TRAEFIK) ; $(ENSURE_NETWORK)
@@ -302,7 +304,7 @@ endif
 # container exists — otherwise `docker compose down` leaves it running and fails
 # to release the shared network ("Resource is still in use").
 docker-down: ## Stop the running stack, dev containers included (volumes are preserved)
-	@if [ -n "$$($(COMPOSE) --profile prod --profile dev --profile status ps -aq notploy status-dev 2>/dev/null)" ]; then \
+	@if [ -n "$$($(COMPOSE) --profile prod --profile dev --profile status ps -aq notploy status 2>/dev/null)" ]; then \
 		echo "==> dev container found, stopping the whole stack"; \
 		$(COMPOSE) --profile dev --profile status down --remove-orphans --timeout 15; \
 	else \
@@ -346,7 +348,7 @@ docker-dev: ## Run the containerized dev server with hot reload (add: status for
 	@$(COMPOSE) $(COMPOSE_DEV_PROFILES) rm -sf $(COMPOSE_DEV_SERVICE) >/dev/null 2>&1 || true
 	@$(STACK_PREPARE)
 	@$(call dns-ports-check,$(CHECK_PORTS_DEV))
-	$(COMPOSE_ENV) NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=${NOTPLOY_DNS_DEV_HOST_PORT:-5300} $(COMPOSE) $(COMPOSE_DEV_PROFILES) up --build --watch $(COMPOSE_DEV_SERVICE)
+	$(COMPOSE_ENV) $(COMPOSE_DEV_ENV) $(COMPOSE) $(COMPOSE_DEV_PROFILES) up --build --watch $(COMPOSE_DEV_SERVICE)
 
 # ---------------------------------------------------------------------------
 # Cleanup
