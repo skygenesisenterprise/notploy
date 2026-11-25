@@ -187,7 +187,7 @@ COMPOSE_UP_PROFILES := --profile status
 COMPOSE_UP_SERVICES := --no-deps status
 COMPOSE_DEV_PROFILES := --profile status --profile dev
 COMPOSE_DEV_SERVICE := status
-COMPOSE_DEV_ENV := NOTPLOY_STATUS_BUILD_TARGET=status-dev NOTPLOY_STATUS_IMAGE=notploy-status-dev:local STATUS_DATA_VOLUME=notploy-status-dev-data NODE_ENV=development NOTPLOY_MODE=development STATUS_LOG_LEVEL=debug
+COMPOSE_DEV_ENV := NOTPLOY_STATUS_BUILD_TARGET=status-dev NOTPLOY_STATUS_IMAGE=notploy-status-dev:local STATUS_DATA_VOLUME=notploy-status-dev-data NODE_ENV=development NOTPLOY_MODE=development STATUS_LOG_LEVEL=debug NOTPLOY_STATUS_HEALTHCHECK_TIMEOUT=30s NOTPLOY_STATUS_HEALTHCHECK_RETRIES=10 NOTPLOY_STATUS_HEALTHCHECK_START_PERIOD=180s
 # Nothing to prepare: the status stack uses the project's default network and
 # does not need the host-wide overlay network or a Traefik cleanup.
 STACK_PREPARE = true
