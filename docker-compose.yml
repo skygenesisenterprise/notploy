@@ -86,7 +86,7 @@ services:
 
   # -------------------------------------------------------------------------
   # GROUP 2 — CACHE / QUEUE
-  # Redis is authenticated and persistent. It is not exposed on the host.
+  # Redis persistence for queues/cache. It is private-network only and not exposed on the host.
   # -------------------------------------------------------------------------
   redis:
     profiles: ["prod", "dev"]
