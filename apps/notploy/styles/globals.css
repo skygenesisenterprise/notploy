@@ -1,6 +1,23 @@
-@import "tailwindcss";
+/* The dev image has no .git directory (see .dockerignore), so Tailwind's
+   automatic source detection walks up to / and tries to scan host files such
+   as /etc/passwd. Turbopack rejects that path because it leaves the monorepo
+   root. Register the app sources explicitly instead. */
+@import "tailwindcss" source(none);
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+
+@source "../pages";
+@source "../components";
+@source "../hooks";
+@source "../lib";
+@source "../utils";
+@source "../server";
+@source "../scripts";
+@source "../electron";
+@source "../templates";
+@source "../types";
+@source "../../packages/status/src";
+@source "../../packages/server/src";
 
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";

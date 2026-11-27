@@ -92,7 +92,7 @@ x-notploy-build: &notploy-build
   dockerfile: Dockerfile
   target: ${NOTPLOY_BUILD_TARGET:-platform}
   args:
-    PNPM_VERSION: ${PNPM_VERSION:-12.16.1}
+    PNPM_VERSION: ${PNPM_VERSION:-12.23.0}
     NOTPLOY_VERSION: ${NOTPLOY_VERSION:-latest}
     NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
 
@@ -162,8 +162,28 @@ services:
     image: traefik:v${TRAEFIK_VERSION:-3.6.25}
     container_name: notploy-traefik
     restart: unless-stopped
+    # Static configuration lives here instead of a file in the shared volume:
+    # Traefik can start on a fresh `notploy-config` volume, before the api role
+    # has written anything. Dynamic config (deployed apps, gateway errors) is
+    # still read from /etc/notploy/traefik/dynamic.
     command:
-      - --configFile=/etc/notploy/traefik/traefik.yml
+      - --global.sendAnonymousUsage=false
+      - --providers.swarm.exposedByDefault=false
+      - --providers.swarm.watch=true
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.watch=true
+      - --providers.docker.network=notploy-network
+      - --providers.docker.defaultRule=Host(`{{ trimPrefix "/" .Name }}.docker.localhost`)
+      - --providers.file.directory=/etc/notploy/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http3.advertisedPort=443
+      - --entrypoints.websecure.http.tls.certResolver=letsencrypt
+      - --api.insecure=true
+      - --certificatesresolvers.letsencrypt.acme.email=developer@notploy.com
+      - --certificatesresolvers.letsencrypt.acme.storage=/etc/notploy/traefik/dynamic/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
     ports:
       - "${TRAEFIK_HTTP_PORT:-80}:80"
       - "${TRAEFIK_HTTPS_PORT:-443}:443"
@@ -240,7 +260,12 @@ services:
         - action: rebuild
           path: pnpm-lock.yaml
     networks:
-      - notploy
+      notploy:
+        # The api role's Traefik dynamic config targets http://notploy:3000.
+        # Keep that name resolvable so both the file-provider route and the
+        # labelled `app.notploy.localhost` route reach this same container.
+        aliases:
+          - notploy
 
   # -------------------------------------------------------------------------
   # GROUP 5 — BACKEND

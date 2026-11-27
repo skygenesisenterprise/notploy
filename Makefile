@@ -155,7 +155,11 @@ COMPOSE_DEV_SERVICE := api client
 # only the tag/version and the build target change.
 # Dev-only Traefik hostnames (the prod routers keep their real host / an
 # unresolvable fallback), and the browser-facing API origin for WebSockets.
-COMPOSE_DEV_ENV := NOTPLOY_VERSION=dev NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=${NOTPLOY_DNS_DEV_HOST_PORT:-5300} NOTPLOY_DEV_APP_HOST=app.notploy.localhost NOTPLOY_DEV_API_HOST=api.notploy.localhost NEXT_PUBLIC_API_URL=http://api.notploy.localhost NOTPLOY_TEMPLATES_DIR=/usr/src/app/templates/blueprints NOTPLOY_GATEWAY_ERRORS_IMAGE=$(NOTPLOY_IMAGE):dev NOTPLOY_GATEWAY_ERRORS_COMMAND='pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts' NOTPLOY_GATEWAY_ERRORS_WORKDIR=/usr/src/app NOTPLOY_ALLOW_UNLICENSED_DEV=${NOTPLOY_ALLOW_UNLICENSED_DEV:-1}
+# The host DNS port and the dev license bypass are resolved by make, not left
+# as `${VAR:-default}` for the shell: make consumes `${...}` as its own
+# variable reference (with an undefined name) and would pass an empty value,
+# making Compose fall back to port 53. env-file-default also honours .env.
+COMPOSE_DEV_ENV := NOTPLOY_VERSION=dev NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=$(call env-file-default,NOTPLOY_DNS_DEV_HOST_PORT,5300) NOTPLOY_DEV_APP_HOST=app.notploy.localhost NOTPLOY_DEV_API_HOST=api.notploy.localhost NEXT_PUBLIC_API_URL=http://api.notploy.localhost NOTPLOY_TEMPLATES_DIR=/usr/src/app/templates/blueprints NOTPLOY_GATEWAY_ERRORS_IMAGE=$(NOTPLOY_IMAGE):dev NOTPLOY_GATEWAY_ERRORS_COMMAND='pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts' NOTPLOY_GATEWAY_ERRORS_WORKDIR=/usr/src/app NOTPLOY_ALLOW_UNLICENSED_DEV=$(call env-file-default,NOTPLOY_ALLOW_UNLICENSED_DEV,1)
 STACK_PREPARE = $(CLEAN_EXTERNAL_TRAEFIK) ; $(ENSURE_NETWORK)
 
 .PHONY: help install dev build test typecheck lint \

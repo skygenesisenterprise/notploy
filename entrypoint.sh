@@ -120,7 +120,10 @@ if [ "$ROLE" = "client" ]; then
 		if [ -d ./apps/notploy ]; then
 			cd apps/notploy
 		fi
-		run_unprivileged pnpm exec next dev -p "${CLIENT_CONTAINER_PORT}" -H "${CLIENT_BIND_HOST}"
+		# Webpack, not Turbopack: the console imports server-only modules
+		# (@notploy/server, @notploy/status) from getServerSideProps pages, which
+		# Turbopack 16 tries to bundle into the client graph (node:fs panic).
+		run_unprivileged pnpm exec next dev --webpack -p "${CLIENT_CONTAINER_PORT}" -H "${CLIENT_BIND_HOST}"
 	fi
 	log "role: client (production, port ${CLIENT_CONTAINER_PORT}, dir: $(pwd))"
 	run_unprivileged ./node_modules/.bin/next start -p "${CLIENT_CONTAINER_PORT}" -H "${CLIENT_BIND_HOST}"

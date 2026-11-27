@@ -7,14 +7,11 @@
 #
 #   docker build -t notploy .                  # the single platform image (default)
 #   docker build --target dev -t notploy:dev . # same image, dev mode
-#   docker build --target status -t notploy-status .
 #
 # Stages / targets
 #   base           Node + pnpm toolchain
 #   dev            sources + dependencies + deployment tooling, no production build
 #   builder        installs + compiles the app, deploys a pruned /prod/notploy
-#   status-builder builds the standalone status page
-#   status         standalone status page (separate product, not part of the stack)
 #   platform       the ONE production image: client AND api (LAST => default)
 #
 # Two editions only: `self` and `cloud`. They share the SAME image — no
@@ -47,7 +44,7 @@ ENV PATH="$PNPM_HOME:$PATH"
 ENV npm_config_nodedir=/usr/local
 # Matches the `packageManager` field of the root package.json, and therefore the
 # lockfile validated by `--frozen-lockfile`.
-ARG PNPM_VERSION=12.16.1
+ARG PNPM_VERSION=12.23.0
 RUN npm install -g pnpm@${PNPM_VERSION}
 # openssl signs the local instance identity at container start (entrypoint.sh
 # sources install.sh); ca-certificates and curl keep outbound HTTPS working.
@@ -103,8 +100,9 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Server bundle (esbuild: dist/server.mjs, dist/migration.mjs, …), status
-# package bundle, then the Next build of the main app.
+# Server bundle (esbuild: dist/server.mjs, dist/migration.mjs, …), the status
+# engine used by the dashboard, then the Next build of the main app. There is no
+# standalone status page/image: everything ships in this one platform image.
 RUN pnpm --filter=@notploy/server build
 RUN pnpm --filter=@notploy/status build
 RUN pnpm --filter=./apps/notploy run build
@@ -114,60 +112,6 @@ RUN pnpm --filter=./apps/notploy run build
 RUN pnpm --filter=./apps/notploy --prod deploy --legacy /prod/notploy
 RUN cp -R /usr/src/app/apps/notploy/.next /prod/notploy/.next
 RUN cp -R /usr/src/app/apps/notploy/dist /prod/notploy/dist
-
-# ---------------------------------------------------------------------------
-# Status — standalone status page (apps/status + packages/status engine).
-# No PostgreSQL, no Redis, no Docker socket, no instance identity: SQLite under
-# STATUS_DATA_DIR is the only state. Kept before `platform` so `selfhosted`
-# remains the default target.
-# ---------------------------------------------------------------------------
-FROM base AS status-builder
-COPY . /usr/src/app
-WORKDIR /usr/src/app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm --filter=@notploy/status run build
-RUN pnpm --filter=@notploy/status-app run build
-RUN pnpm --filter=./apps/status --prod deploy --legacy /prod/status
-
-FROM base AS status
-WORKDIR /app
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=4100
-RUN apt-get update && apt-get install -y --no-install-recommends tini \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=status-builder /prod/status/package.json ./package.json
-COPY --from=status-builder /prod/status/node_modules ./node_modules
-COPY --from=status-builder /usr/src/app/apps/status/.next ./.next
-COPY --from=status-builder /usr/src/app/apps/status/public ./public
-COPY --from=status-builder /usr/src/app/apps/status/next.config.mjs ./next.config.mjs
-# Seed CLI (bundled): resolves its dependencies from node_modules above.
-COPY --from=status-builder /usr/src/app/packages/status/dist ./engine-dist
-
-ARG NOTPLOY_VERSION=dev
-LABEL org.opencontainers.image.title="notploy-status" \
-      org.opencontainers.image.description="Notploy Status — status page, incidents and uptime history" \
-      org.opencontainers.image.source="https://github.com/skygenesisenterprise/notploy" \
-      org.opencontainers.image.version="${NOTPLOY_VERSION}" \
-      org.opencontainers.image.licenses="Apache-2.0"
-
-EXPOSE 4100
-
-# Role-aware probe: the shared entrypoint detects NOTPLOY_ROLE=status.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=5 \
-  CMD ["/usr/local/bin/entrypoint.sh", "healthcheck"]
-
-COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
-ENV NOTPLOY_ROLE=status
-ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
-
-# Status development image: same sources/dependencies as `dev`, status role only.
-FROM dev AS status-dev
-ENV NOTPLOY_APP=status
-ENV NEXT_TELEMETRY_DISABLED=1
 
 # ---------------------------------------------------------------------------
 # Platform — the single image of an edition, shared by `client` and `api`.

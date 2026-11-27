@@ -1,8 +1,4 @@
-import {
-	type UpdateStatus,
-	UPDATE_INSTALLABLE_STATUS,
-	UPDATE_PENDING_STATUSES,
-} from "@notploy/server/services/update";
+import type { UpdateStatus } from "@notploy/server/services/update";
 import { Download } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/utils/api";
@@ -17,6 +13,18 @@ import {
 } from "../ui/tooltip";
 
 const AUTO_CHECK_UPDATES_INTERVAL_MINUTES = 7;
+
+// Keep these client-side: importing the values from the server service would
+// pull dockerode (and therefore `fs`) into the browser bundle. The backend
+// remains the source of truth for the status itself, returned by tRPC.
+const UPDATE_PENDING_STATUSES: UpdateStatus[] = [
+	"release_detected",
+	"waiting_for_assets",
+	"ready",
+	"downloading",
+	"installing",
+];
+const UPDATE_INSTALLABLE_STATUS: UpdateStatus = "ready";
 
 export const UpdateServerButton = () => {
 	const [isOpen, setIsOpen] = useState(false);
