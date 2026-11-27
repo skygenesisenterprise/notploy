@@ -206,7 +206,12 @@ services:
     build: *notploy-build
     image: ${NOTPLOY_IMAGE:-ghcr.io/skygenesisenterprise/notploy}:${NOTPLOY_VERSION:-latest}
     container_name: notploy-client
-    restart: unless-stopped
+    # Docker's own restart policy would bring the container back on its own
+    # after a crash, which looks like a restart "after x time" even though
+    # nothing changed. Dev disables it (NOTPLOY_RESTART_POLICY=no): the only
+    # automatic recreate is Compose Watch's rebuild below, i.e. a real file
+    # change. Prod keeps the default `unless-stopped` policy.
+    restart: ${NOTPLOY_RESTART_POLICY:-unless-stopped}
     environment:
       <<: *notploy-environment
       NOTPLOY_ROLE: client
@@ -226,8 +231,13 @@ services:
         # route compiles; the client proxies /api/* once the API is up.
         condition: service_started
     healthcheck:
-      # Role-aware probe baked into the image (entrypoint.sh healthcheck).
-      test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
+      # Probe only /api/health (Next rewrites it to the API service). The old
+      # entrypoint probe hit `/` and produced the `GET / 200` health-check log.
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+        ]
       interval: 30s
       timeout: 30s
       retries: 10
@@ -257,6 +267,10 @@ services:
       - /usr/src/app/apps/notploy/.next/dev
     develop:
       watch:
+        # Sources are bind-mounted above: Next.js hot-reloads them in place,
+        # without a Compose rebuild or container restart. The only watched file
+        # is the dependency lockfile: changing it really requires a new image.
+        # No periodic timer is involved — Watch reacts to file events only.
         - action: rebuild
           path: pnpm-lock.yaml
     networks:
@@ -278,7 +292,9 @@ services:
     build: *notploy-build
     image: ${NOTPLOY_IMAGE:-ghcr.io/skygenesisenterprise/notploy}:${NOTPLOY_VERSION:-latest}
     container_name: notploy-api
-    restart: unless-stopped
+    # See client: dev must not self-restart on a process exit, only when a
+    # dependency file actually changes and Compose Watch rebuilds the image.
+    restart: ${NOTPLOY_RESTART_POLICY:-unless-stopped}
     environment:
       <<: *notploy-environment
       NOTPLOY_ROLE: api
@@ -307,7 +323,12 @@ services:
       traefik:
         condition: service_started
     healthcheck:
-      test: ["CMD", "/usr/local/bin/entrypoint.sh", "healthcheck"]
+      # Same single probe as the client, on the API's own port.
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:4000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+        ]
       interval: 30s
       timeout: 30s
       retries: 10
@@ -338,7 +359,8 @@ services:
     develop:
       watch:
         # Sources are bind-mounted above and `tsx watch` reloads in place, so
-        # only a dependency change requires rebuilding the dev image.
+        # only a dependency change requires rebuilding the dev image. Watch is
+        # event-driven: it never restarts the container on a timer.
         - action: rebuild
           path: pnpm-lock.yaml
     networks:

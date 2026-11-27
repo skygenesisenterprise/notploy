@@ -150,6 +150,9 @@ COMPOSE_BUILD_SERVICE := api
 COMPOSE_UP_PROFILES := --profile prod
 COMPOSE_UP_SERVICES :=
 COMPOSE_DEV_PROFILES := --profile dev
+# Only the two app containers are recreated between `make docker-dev` runs; the
+# infra containers (postgres/redis/traefik) are kept. `up` itself is deliberately
+# called without a service list so their logs are attached to the dev session.
 COMPOSE_DEV_SERVICE := api client
 # Dev is a MODE of the same image, not a second image name: same NOTPLOY_IMAGE,
 # only the tag/version and the build target change.
@@ -159,7 +162,7 @@ COMPOSE_DEV_SERVICE := api client
 # as `${VAR:-default}` for the shell: make consumes `${...}` as its own
 # variable reference (with an undefined name) and would pass an empty value,
 # making Compose fall back to port 53. env-file-default also honours .env.
-COMPOSE_DEV_ENV := NOTPLOY_VERSION=dev NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=$(call env-file-default,NOTPLOY_DNS_DEV_HOST_PORT,5300) NOTPLOY_DEV_APP_HOST=app.notploy.localhost NOTPLOY_DEV_API_HOST=api.notploy.localhost NEXT_PUBLIC_API_URL=http://api.notploy.localhost NOTPLOY_TEMPLATES_DIR=/usr/src/app/templates/blueprints NOTPLOY_GATEWAY_ERRORS_IMAGE=$(NOTPLOY_IMAGE):dev NOTPLOY_GATEWAY_ERRORS_COMMAND='pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts' NOTPLOY_GATEWAY_ERRORS_WORKDIR=/usr/src/app NOTPLOY_ALLOW_UNLICENSED_DEV=$(call env-file-default,NOTPLOY_ALLOW_UNLICENSED_DEV,1)
+COMPOSE_DEV_ENV := NOTPLOY_VERSION=dev NOTPLOY_BUILD_TARGET=dev NOTPLOY_MODE=development NODE_ENV=development NOTPLOY_DNS_HOST_PORT=$(call env-file-default,NOTPLOY_DNS_DEV_HOST_PORT,5300) NOTPLOY_DEV_APP_HOST=app.notploy.localhost NOTPLOY_DEV_API_HOST=api.notploy.localhost NEXT_PUBLIC_API_URL=http://api.notploy.localhost NOTPLOY_TEMPLATES_DIR=/usr/src/app/templates/blueprints NOTPLOY_GATEWAY_ERRORS_IMAGE=$(NOTPLOY_IMAGE):dev NOTPLOY_GATEWAY_ERRORS_COMMAND='pnpm exec tsx /usr/src/app/packages/server/src/gateway-errors/entry.ts' NOTPLOY_GATEWAY_ERRORS_WORKDIR=/usr/src/app NOTPLOY_ALLOW_UNLICENSED_DEV=$(call env-file-default,NOTPLOY_ALLOW_UNLICENSED_DEV,1) NOTPLOY_RESTART_POLICY=no
 STACK_PREPARE = $(CLEAN_EXTERNAL_TRAEFIK) ; $(ENSURE_NETWORK)
 
 .PHONY: help install dev build test typecheck lint \
@@ -291,7 +294,7 @@ docker-dev: ## Run the containerized dev server with hot reload
 	@$(COMPOSE) $(COMPOSE_DEV_PROFILES) rm -sf $(COMPOSE_DEV_SERVICE) >/dev/null 2>&1 || true
 	@$(STACK_PREPARE)
 	@$(call dns-ports-check,$(CHECK_PORTS_DEV))
-	$(COMPOSE_ENV) $(COMPOSE_DEV_ENV) $(COMPOSE) $(COMPOSE_DEV_PROFILES) up --build --watch $(COMPOSE_DEV_SERVICE)
+	$(COMPOSE_ENV) $(COMPOSE_DEV_ENV) $(COMPOSE) $(COMPOSE_DEV_PROFILES) up --build --watch
 
 # ---------------------------------------------------------------------------
 # Cleanup
