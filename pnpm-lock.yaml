@@ -194,9 +194,6 @@ importers:
 
   .:
     dependencies:
-      '@skygenesisenterprise/react-sds':
-        specifier: ^1.0.0
-        version: 1.0.0(discord.js@14.28.1)
       ldapts:
         specifier: ^9.2.0
         version: 9.3.1
@@ -7916,21 +7913,6 @@ packages:
 
   '@sinonjs/fake-timers@10.3.0':
     resolution: {integrity: sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA==}
-
-  '@skygenesisenterprise/react-sds@1.0.0':
-    resolution: {integrity: sha512-HncPNbj7WtcLfSOcOfGp6LzbkiOGBwNkDDLCOkcgEdjIuvVacC85SPsnGdHttPV/wkzP9M1JMycjOaO34I4G8Q==}
-    hasBin: true
-    peerDependencies:
-      '@gouvfr/dsfr-chart': ^1.0.0
-      discord.js: ^14.0.0
-      react-native: ^0.72.0
-    peerDependenciesMeta:
-      '@gouvfr/dsfr-chart':
-        optional: true
-      discord.js:
-        optional: true
-      react-native:
-        optional: true
 
   '@smithy/core@3.41.1':
     resolution: {integrity: sha512-24LyiHSY0R/MLcbTylurWXU6Uy4lzI6KJgsdzxkNnjT9/OLWc2zGPb/3k5AM1f0vcgCGrExanUG339t+TBiIrA==}
@@ -16744,9 +16726,6 @@ packages:
   ts-toolbelt@9.6.0:
     resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
 
-  tsafe@1.8.12:
-    resolution: {integrity: sha512-nFRqW0ttu/2o6XTXsHiVZWJBCOaxhVqZLg7dgs3coZNsCMPXPfwz+zPHAQA+70fNnVJLAPg1EgGIqK9Q84tvAw==}
-
   tsc-alias@1.8.10:
     resolution: {integrity: sha512-Ibv4KAWfFkFdKJxnWfVtdOmB0Zi1RJVxcbPGiCDsFpCQSsmpWyuzHG3rQyI5YkobWwxFPEyQfu1hdo4qLG2zPw==}
     hasBin: true
@@ -25322,13 +25301,6 @@ snapshots:
   '@sinonjs/fake-timers@10.3.0':
     dependencies:
       '@sinonjs/commons': 3.0.1
-
-  '@skygenesisenterprise/react-sds@1.0.0(discord.js@14.28.1)':
-    dependencies:
-      tsafe: 1.8.12
-      yargs-parser: 21.1.1
-    optionalDependencies:
-      discord.js: 14.28.1
 
   '@smithy/core@3.41.1':
     dependencies:
@@ -36344,8 +36316,6 @@ snapshots:
     optional: true
 
   ts-toolbelt@9.6.0: {}
-
-  tsafe@1.8.12: {}
 
   tsc-alias@1.8.10:
     dependencies:
